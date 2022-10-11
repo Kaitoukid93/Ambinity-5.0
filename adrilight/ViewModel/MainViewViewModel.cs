@@ -1367,7 +1367,7 @@ namespace adrilight.ViewModel
 
         public void SetGifxelationPreviewImage(ByteFrame frame)
         {
-            Context.Invoke(() =>
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
 
 
@@ -1397,7 +1397,7 @@ namespace adrilight.ViewModel
         public void ShaderImageUpdate(ByteFrame frame)
         {
 
-            Context.Invoke(() =>
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
 
 
@@ -1422,94 +1422,10 @@ namespace adrilight.ViewModel
                 }
 
             });
-            //                    break;
-            //                case 1:
-            //                    Context.Invoke(() =>
-            //                    {
-
-            //                        var CurrentFrame = SecondDesktopFrame.Frame;
-            //                        if (CurrentFrame != null)
-            //                        {
-            //                            var MatrixBitmap = new WriteableBitmap(SecondDesktopFrame.FrameWidth, SecondDesktopFrame.FrameHeight, 96, 96, PixelFormats.Bgra32, null);
-            //                            MatrixBitmap.Lock();
-            //                            IntPtr pixelAddress = MatrixBitmap.BackBuffer;
-            //                            Marshal.Copy(CurrentFrame, 0, pixelAddress, CurrentFrame.Length);
-
-            //                            MatrixBitmap.AddDirtyRect(new Int32Rect(0, 0, 240, 135));
-
-            //                            MatrixBitmap.Unlock();
-            //                            ShaderBitmap = MatrixBitmap;
-            //                            RaisePropertyChanged(() => DeviceRectWidthMax);
-            //                            RaisePropertyChanged(() => DeviceRectHeightMax);
-            //                        }
-            //                        else
-            //                        {
-            //                            //notify the UI show error message
-            //                            IsSecondDesktopValid = false;
-            //                            RaisePropertyChanged(() => IsSecondDesktopValid);
-            //                        }
-
-            //                    });
-            //                    break;
-            //                case 2:
-            //                    Context.Invoke(() =>
-            //                    {
-
-            //                        var CurrentFrame = ThirdDesktopFrame.Frame;
-            //                        if (CurrentFrame != null)
-            //                        {
-            //                            var MatrixBitmap = new WriteableBitmap(ThirdDesktopFrame.FrameWidth, ThirdDesktopFrame.FrameHeight, 96, 96, PixelFormats.Bgra32, null);
-            //                            MatrixBitmap.Lock();
-            //                            IntPtr pixelAddress = MatrixBitmap.BackBuffer;
-            //                            Marshal.Copy(CurrentFrame, 0, pixelAddress, CurrentFrame.Length);
-
-            //                            MatrixBitmap.AddDirtyRect(new Int32Rect(0, 0, 240, 135));
-
-            //                            MatrixBitmap.Unlock();
-            //                            ShaderBitmap = MatrixBitmap;
-            //                            RaisePropertyChanged(() => DeviceRectWidthMax);
-            //                            RaisePropertyChanged(() => DeviceRectHeightMax);
-            //                        }
-            //                        else
-            //                        {
-            //                            //notify the UI show error message
-            //                            IsThirdDesktopValid = false;
-            //                            RaisePropertyChanged(() => IsThirdDesktopValid);
-            //                        }
-
-            //                    });
-            //                    break;
-            //            }
-
-            //            break;
-            //    }
-            //}
+        
         }
 
 
-        //    if (IsCanvasLightingWindowOpen)
-        //    {
-        //        Context.Invoke(() =>
-        //        {
-        //            var MatrixBitmap = new WriteableBitmap(240, 135, 96, 96, PixelFormats.Bgra32, null);
-        //            MatrixBitmap.Lock();
-        //            IntPtr pixelAddress = MatrixBitmap.BackBuffer;
-        //            var CurrentFrame = ShaderEffect.Frame;
-        //            if (CurrentFrame != null)
-        //            {
-        //                Marshal.Copy(CurrentFrame, 0, pixelAddress, CurrentFrame.Length);
-
-        //                MatrixBitmap.AddDirtyRect(new Int32Rect(0, 0, 240, 135));
-
-        //                MatrixBitmap.Unlock();
-        //                ShaderBitmap = MatrixBitmap;
-        //            }
-
-        //        });
-        //    }
-
-
-        //}
 
         [DllImport("gdi32.dll")]
         public static extern bool DeleteObject(IntPtr hObject);
@@ -5371,7 +5287,7 @@ namespace adrilight.ViewModel
         }
         private void DeleteSelectedGradient(IGradientColorCard gradient)
         {
-            if (AvailableGifs.Count == 1)
+            if (AvailableGradient.Count == 1)
             {
                 var result = HandyControl.Controls.MessageBox.Show(new MessageBoxInfo {
                     Message = " You have nothing left if you delete this lat bit of goodness!!!",
@@ -5791,24 +5707,19 @@ namespace adrilight.ViewModel
             if (Directory.Exists(JsonGifsFileNameAndPath))
             {
 
-                //    foreach (var existedGif in Directory.GetFiles(JsonGifsFileNameAndPath, "*.gif", SearchOption.TopDirectoryOnly))
-                //{
-                //    AvailableGifs.Add(new GifCard { Name = Path.GetFileNameWithoutExtension(existedGif), Owner = "local", Description = "Local", Source = existedGif });
-
-                //}
-                var json = File.ReadAllText(JsonGifsCollectionFileNameAndPath);
-
-                var existedGif = JsonConvert.DeserializeObject<List<GifCard>>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
-                foreach (var gif in existedGif)
+                //check if gif exist
+                if(Directory.Exists(JsonGifsCollectionFileNameAndPath))
                 {
-                    loadedGifs.Add(gif);
-                }
+                    var json = File.ReadAllText(JsonGifsCollectionFileNameAndPath);
 
-                //var loadedGifs = JsonConvert.DeserializeObject<List<IGifCard>>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
-                //foreach (var gif in loadedGifs)
-                //{
-                //    existedGifs.Add(gif);
-                //}
+                    var existedGif = JsonConvert.DeserializeObject<List<GifCard>>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    foreach (var gif in existedGif)
+                    {
+                        loadedGifs.Add(gif);
+                    }
+
+                }
+              
             }
             else
             {    //create gif dirrectory

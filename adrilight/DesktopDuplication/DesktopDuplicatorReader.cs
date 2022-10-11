@@ -427,7 +427,10 @@ namespace adrilight
                
                 if (isPreviewRunning)
                 {
-                    MainViewViewModel.ShaderImageUpdate(CurrentFrame);
+                    
+                        MainViewViewModel.ShaderImageUpdate(CurrentFrame);
+                   
+                   
                 }
 
                 if (CurrentFrame.Frame == null)

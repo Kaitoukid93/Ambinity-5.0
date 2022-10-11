@@ -29,12 +29,12 @@ namespace adrilight
         {
             OutputSettings = outputSettings ?? throw new ArgumentNullException(nameof(outputSettings));
             GeneralSettings = generalSettings ?? throw new ArgumentException(nameof(generalSettings));
-           // OutputSpotSet = outputSpotSet ?? throw new ArgumentException(nameof(outputSpotSet));
+            // OutputSpotSet = outputSpotSet ?? throw new ArgumentException(nameof(outputSpotSet));
 
 
             RainbowTicker = rainbowTicker ?? throw new ArgumentNullException(nameof(rainbowTicker));
-           MainViewViewModel= mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
-            
+            MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
+
 
             OutputSettings.PropertyChanged += PropertyChanged;
             GeneralSettings.PropertyChanged += PropertyChanged;
@@ -46,7 +46,7 @@ namespace adrilight
         }
         //Dependency Injection//
         private IOutputSettings OutputSettings { get; }
-       
+
         private MainViewViewModel MainViewViewModel { get; }
         private IRainbowTicker RainbowTicker { get; }
         private IGeneralSettings GeneralSettings { get; }
@@ -64,14 +64,14 @@ namespace adrilight
                 case nameof(OutputSettings.OutputIsEnabled):
                 case nameof(OutputSettings.OutputSelectedMode):
                 case nameof(OutputSettings.OutputParrentIsEnable):
-               
-                
+
+
                     RefreshColorState();
                     break;
                 case nameof(OutputSettings.OutputCurrentActivePalette):
                 case nameof(OutputSettings.IsInSpotEditWizard):
                 case nameof(OutputSettings.OutputIsSystemSync):
-                
+
 
                     ColorPaletteChanged();
                     break;
@@ -79,7 +79,7 @@ namespace adrilight
 
             }
         }
-       
+
 
         private void RefreshColorState()
         {
@@ -111,7 +111,7 @@ namespace adrilight
         {
             var isRunning = _cancellationTokenSource != null && IsRunning;
             var shouldBeRunning = OutputSettings.OutputIsEnabled && OutputSettings.OutputParrentIsEnable && OutputSettings.OutputSelectedMode == 1 && OutputSettings.IsInSpotEditWizard == false;
-       
+
 
             if (isRunning && shouldBeRunning)
             {
@@ -143,32 +143,32 @@ namespace adrilight
 
 
 
-                var numLED = OutputSettings.OutputLEDSetup.Spots.Length*OutputSettings.LEDPerSpot*OutputSettings.LEDPerLED;
+                var numLED = OutputSettings.OutputLEDSetup.Spots.Length * OutputSettings.LEDPerSpot * OutputSettings.LEDPerLED;
                 var outputPowerVoltage = OutputSettings.OutputPowerVoltage;
                 var outputPowerMiliamps = OutputSettings.OutputPowerMiliamps;
                 var effectSpeed = OutputSettings.OutputPaletteSpeed;
                 var frequency = OutputSettings.OutputPaletteBlendStep;
                 var colorNum = GeneralSettings.SystemRainbowMaxTick;
                 Color[] paletteSource = OutputSettings.OutputCurrentActivePalette.Colors;
-                colorBank = GetColorGradientfromPaletteWithFixedColorPerGap(paletteSource,18).ToArray();
-                double StartIndex=0d;
+                colorBank = GetColorGradientfromPaletteWithFixedColorPerGap(paletteSource, 18).ToArray();
+                double StartIndex = 0d;
                 int OutputStartIndex = 0;
-                
-              
+
+
                 while (!token.IsCancellationRequested)
                 {
                     bool outputIsSelected = false;
                     var currentOutput = MainViewViewModel.CurrentOutput;
                     if (currentOutput != null && currentOutput.OutputUniqueID == OutputSettings.OutputUniqueID)
                         outputIsSelected = true;
-                    bool isPreviewRunning = MainViewViewModel.IsSplitLightingWindowOpen;
+                    bool isPreviewRunning = MainViewViewModel.IsSplitLightingWindowOpen && outputIsSelected;
                     double speed = OutputSettings.OutputPaletteSpeed / 5d;
                     StartIndex += speed;
                     if (StartIndex > GeneralSettings.SystemRainbowMaxTick)
                     {
                         StartIndex = 0;
                     }
-                    if(inSync)
+                    if (inSync)
                     {
                         OutputStartIndex = (int)RainbowTicker.RainbowStartIndex;
                     }
@@ -176,7 +176,7 @@ namespace adrilight
                     {
                         OutputStartIndex = (int)StartIndex;
                     }
-                    
+
                     lock (OutputSettings.OutputLEDSetup.Lock)
                     {
 
@@ -184,30 +184,30 @@ namespace adrilight
                         foreach (var spot in OutputSettings.OutputLEDSetup.Spots)
                         {
 
-                                //caculate the overlap 
-                                
-                                position = OutputStartIndex + spot.VID;
-                                int n = 0;
+                            //caculate the overlap 
+
+                            position = OutputStartIndex + spot.VID;
+                            int n = 0;
                             if (position >= colorBank.Length)
                                 //position = Math.Abs(colorBank.Length - position);
-                            n = position / colorBank.Length;
+                                n = position / colorBank.Length;
                             position -= n * colorBank.Length; // run with VID
 
 
                             var brightness = OutputSettings.OutputBrightness / 100d;
                             var newColor = new OpenRGB.NET.Models.Color(colorBank[position].R, colorBank[position].G, colorBank[position].B);
-                            var outputColor=Brightness.applyBrightness(newColor, brightness, numLED, outputPowerMiliamps, outputPowerVoltage);
+                            var outputColor = Brightness.applyBrightness(newColor, brightness, numLED, outputPowerMiliamps, outputPowerVoltage);
                             ApplySmoothing(outputColor.R, outputColor.G, outputColor.B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
                             if (!OutputSettings.IsInSpotEditWizard)
                             {
-                                if(spot.IsEnabled)
-                                spot.SetColor(FinalR, FinalG, FinalB, isPreviewRunning);
+                                if (spot.IsEnabled)
+                                    spot.SetColor(FinalR, FinalG, FinalB, isPreviewRunning);
                                 else
                                 {
                                     spot.SetColor(0, 0, 0, isPreviewRunning);
                                 }
                             }
-                            
+
 
                         }
 
@@ -347,9 +347,9 @@ namespace adrilight
         public static IEnumerable<Color> GetColorGradientfromPalette(Color[] colorCollection, int colorNum)
         {
             var colors = new List<Color>();
-            int colorPerGap = colorNum / (colorCollection.Count()-1);
-            
-            for (int i = 0; i < colorCollection.Length-1; i++)
+            int colorPerGap = colorNum / (colorCollection.Count() - 1);
+
+            for (int i = 0; i < colorCollection.Length - 1; i++)
             {
                 var gradient = GetColorGradient(colorCollection[i], colorCollection[i + 1], colorPerGap);
                 colors = colors.Concat(gradient).ToList();
@@ -364,9 +364,9 @@ namespace adrilight
         public static IEnumerable<Color> GetColorGradientfromPaletteWithFixedColorPerGap(Color[] colorCollection, int colorPerGap)
         {
             var colors = new List<Color>();
-            
 
-            for (int i = 0; i < colorCollection.Length -1; i++)
+
+            for (int i = 0; i < colorCollection.Length - 1; i++)
             {
                 var gradient = GetColorGradient(colorCollection[i], colorCollection[i + 1], colorPerGap);
                 colors = colors.Concat(gradient).ToList();
