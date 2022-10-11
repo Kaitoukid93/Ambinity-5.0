@@ -311,6 +311,7 @@
     <Compile Include="View\ScreenCapturingSidePanel.xaml.cs" />
     <Compile Include="View\SimpleListviewControl.xaml.cs" />
     <Compile Include="View\SizeSelectionWindow.xaml.cs" />
+    <Compile Include="View\SplashScreen.xaml.cs" />
     <Compile Include="View\SpotDataSelection.xaml.cs" />
     <Compile Include="View\SpotMapViewWindow.xaml.cs" />
     <Compile Include="View\SpotSetEditing.xaml.cs" />
@@ -521,6 +522,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\SizeSelectionWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\SplashScreen.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

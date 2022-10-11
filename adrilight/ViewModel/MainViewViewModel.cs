@@ -2666,7 +2666,7 @@ namespace adrilight.ViewModel
                     case "accent":
 
                         ThemeManager.Current.AccentColor = new SolidColorBrush(CurrentPickedColor);
-                        GeneralSettings.AccentColor = new SolidColorBrush(CurrentPickedColor);
+                        GeneralSettings.AccentColor = CurrentPickedColor;
                         break;
                 }
 
@@ -5905,62 +5905,19 @@ namespace adrilight.ViewModel
         {
             AvailableOpenRGBDevices = new ObservableCollection<Device>();
 
-            OpenRGBStream.RefreshTransferState();
-            if (OpenRGBStream.AmbinityClient != null && OpenRGBStream.AmbinityClient.Connected == true)
+            var detectedDevices = OpenRGBStream.ScanNewDevice();
+            if (detectedDevices != null)
             {
-
-                var newOpenRGBDevices = OpenRGBStream.GetDevices;
-                int n = 0;
-
-                foreach (var device in newOpenRGBDevices)
+                foreach (var device in detectedDevices)
                 {
                     AvailableOpenRGBDevices.Add(device);
-                }
-                //check if any devices is already in the dashboard
-                foreach (var device in newOpenRGBDevices)
-                {
-                    var deviceUID = device.Name + device.Version + device.Location;
-                    foreach (var existedDevice in AvailableDevices.Where(p => p.DeviceConnectionType == "OpenRGB"))
-                    {
-                        if (deviceUID == existedDevice.DeviceUID)
-                            AvailableOpenRGBDevices.Remove(device);
-                    }
-                }
-                //var detectedOpenRGBDevices = new List<Device>();
-                //foreach (var device in newOpenRGBDevices)
-                //{
-                //    detectedOpenRGBDevices.Add(device);
-                //}
-                ////load history of openrgb device
-                //foreach (var newDevice in newOpenRGBDevices)
-                //{
-                //    foreach (var oldDevice in LoadOpenRGBIfExist())
-                //    {
-                //        if (newDevice.Equals(oldDevice))
-                //            detectedOpenRGBDevices.Remove(newDevice);
-                //    }
-                //}
-                ///this is old method to add device to the end of array, bad practice
-                //int counter = 0;
-                //foreach (var device in AvailableDevices)
-                //{
-                //    if (device.DeviceConnectionType == "OpenRGB")
-                //    {
-                //        counter++;
-                //    }
-                //}
-                //for (int i = counter; i < newOpenRGBDevices.Length; i++)
-                //{
-                //    AvailableOpenRGBDevices.Add(newOpenRGBDevices[i]);
-                //}
-                //compair UID to existed device UID, and add only add new UID
 
+                }
             }
-            else
-            {
-                HandyControl.Controls.MessageBox.Show("Khởi động lại ứng dụng OpenRGB và Start Server");
-            }
-            //WriteOpenRGBDeviceInfoJson();
+            //else
+            //{
+
+            //}
         }
 
         public void ReadDataDevice()

@@ -1,4 +1,5 @@
 ﻿using OpenRGB.NET;
+using System.Collections.Generic;
 
 namespace adrilight
 {
@@ -11,8 +12,10 @@ namespace adrilight
         //bool IsValid();
         void DFU();
         void RefreshTransferState();
-        OpenRGB.NET.Models.Device[] GetDevices { get; }
+        List<OpenRGB.NET.Models.Device> ScanNewDevice();
         OpenRGBClient AmbinityClient { get; set; }
+        System.Diagnostics.Process ORGBProcess { get; set; }
+        void Dispose();
 
 
     }

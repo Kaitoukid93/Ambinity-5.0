@@ -83,7 +83,7 @@ namespace adrilight
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); DeviceEnableChanged(); } }
         public bool IsUnionMode { get => _isUnionMode; set { Set(() => IsUnionMode, ref _isUnionMode, value); } }
         public bool IsLoading { get => _isLoading; set { Set(() => IsLoading, ref _isLoading, value); } }
-        public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); if (value) DeviceLocator(GetCurrentAccentColor()); else DeviceLocator(Color.FromRgb(0, 0, 0));  } }
+        public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); if (value) DeviceLocator(GetCurrentAccentColor()); else DeviceLocator(Color.FromRgb(0, 0, 0)); } }
         public string OutputPort { get => _outputPort; set { Set(() => OutputPort, ref _outputPort, value); } }
         public bool IsTransferActive { get => _isTransferActive; set { Set(() => IsTransferActive, ref _isTransferActive, value); } }
         public bool IsDummy { get => _isDummy; set { Set(() => IsDummy, ref _isDummy, value); } }
@@ -108,10 +108,10 @@ namespace adrilight
         public bool IsSizeNeedUserDefine { get => _isSizeNeedUserDefine; set { Set(() => IsSizeNeedUserDefine, ref _isSizeNeedUserDefine, value); } }
         private void DeviceEnableChanged()
         {
-            
-            if(UnionOutput!=null)
-               UnionOutput.OutputIsEnabled = IsEnabled;
-           if(AvailableOutputs!=null)
+
+            if (UnionOutput != null)
+                UnionOutput.OutputIsEnabled = IsEnabled;
+            if (AvailableOutputs != null)
             {
 
                 if (AvailableOutputs.Length == 1)
@@ -127,8 +127,8 @@ namespace adrilight
                     }
                 }
             }
-            
-           
+
+
         }
         public void ActivateProfile(IDeviceProfile profile)
         {
@@ -159,20 +159,18 @@ namespace adrilight
 
 
         }
+
+
         private Color GetCurrentAccentColor()
         {
-            if(ThemeManager.Current.AccentColor!=null)
-            {
-                SolidColorBrush accentColor = (SolidColorBrush)ThemeManager.Current.AccentColor;
-                return accentColor.Color;
-            }
-            else
-            {
-                return Color.FromRgb(0, 0, 0);
-            }
-            
-             
+
+            return Color.FromRgb(127, 0, 0);
+
         }
+
+
+
+
         public void DeviceLocator(Color color) // this function send color signal to device to locate new device added
         {
             if (OutputPort != null && DeviceConnectionType == "wired")
@@ -192,7 +190,7 @@ namespace adrilight
                 //just get data of first output only and send signal of 64 LED
                 var (outputBuffer, streamLength) = GetLocatorOutputStream(color);
                 //write 60 frame of data to ensure device received it
-                for(int i=0;i<10;i++)
+                for (int i = 0; i < 10; i++)
                 {
                     _serialPort.Write(outputBuffer, 0, streamLength);
                     Thread.Sleep(1);
@@ -208,7 +206,7 @@ namespace adrilight
 
 
             }
-          
+
         }
         private readonly byte[] _messagePreamble = { (byte)'a', (byte)'b', (byte)'n' };
         private (byte[] Buffer, int OutputLength) GetLocatorOutputStream(Color color)
@@ -248,10 +246,10 @@ namespace adrilight
 
                 var RGBOrder = "RGB";
                 var reOrderedColor = ReOrderSpotColor(RGBOrder, color.R, color.G, color.B);
- 
-                    outputStream[counter++] = reOrderedColor[0]; // blue
-                    outputStream[counter++] = reOrderedColor[1]; // green
-                    outputStream[counter++] = reOrderedColor[2]; // red
+
+                outputStream[counter++] = reOrderedColor[0]; // blue
+                outputStream[counter++] = reOrderedColor[1]; // green
+                outputStream[counter++] = reOrderedColor[2]; // red
 
 
             }
@@ -454,7 +452,7 @@ namespace adrilight
             int offset = 0;
             int spdInfoLength = 0; // Expected response length of valid deviceID 
 
-      
+
             while (offset < 3)
             {
 
@@ -500,7 +498,7 @@ namespace adrilight
                 }
 
             }
-            
+
             _serialPort.Close();
             _serialPort.Dispose();
             //if (isValid)

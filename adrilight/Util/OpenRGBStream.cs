@@ -12,6 +12,11 @@ using adrilight.Spots;
 using OpenRGB.NET;
 using System.Collections.Generic;
 using Polly;
+using System.IO;
+using System.Reflection;
+using System.IO.Compression;
+using OpenRGB.NET.Models;
+using System.Threading.Tasks;
 
 namespace adrilight
 {
@@ -19,12 +24,16 @@ namespace adrilight
         OpenRGBStream : IDisposable, IOpenRGBStream
     {
         private ILogger _log = LogManager.GetCurrentClassLogger();
+        private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
+        private string ORGBJsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "OpenRGB\\");
+        private string ORGBExeFileNameAndPath => Path.Combine(JsonPath, "ORGB");
+
 
         public OpenRGBStream(IDeviceSettings[] deviceSettings, IGeneralSettings generalSettings)
         {
             GeneralSettings = generalSettings ?? throw new ArgumentException(nameof(generalSettings));
             DeviceSettings = deviceSettings ?? throw new ArgumentNullException(nameof(deviceSettings));
-            _retryPolicy = Policy.Handle<Exception>().WaitAndRetry(retryCount: 30, sleepDurationProvider: _ => TimeSpan.FromSeconds(1));//rescan device may took longer and user manualy start server also
+            _retryPolicy = Policy.Handle<Exception>().WaitAndRetry(retryCount: 10, sleepDurationProvider: _ => TimeSpan.FromSeconds(1));//rescan device may took longer and user manualy start server also
 
             GeneralSettings.PropertyChanged += UserSettings_PropertyChanged;
             // IsInitialized = false;
@@ -34,8 +43,15 @@ namespace adrilight
                 if (device.DeviceConnectionType == "OpenRGB")
                     AvailableDevices.Add(device);
             }
-            if(AvailableDevices.Count > 0)
+            //if (AvailableDevices.Count > 0) // add more condition about 1st time installing when no device found
+            //the logic is, scan for serial device first, if hubV3 found, only then start openRGB 
+
             RefreshTransferState();
+
+            // Do things here.
+            // NOTE: You may need to invoke this to your main thread depending on what you're doing
+
+
 
 
             _log.Info($"SerialStream created.");
@@ -48,7 +64,11 @@ namespace adrilight
         private IDeviceSpotSet[] DeviceSpotSet { get; set; }
         private IDeviceSettings[] ReorderedDevices { get; set; }
         private List<IDeviceSettings> AvailableDevices { get; set; }
-
+        private System.Diagnostics.Process _oRGBProcess;
+        public System.Diagnostics.Process ORGBProcess {
+            get { return _oRGBProcess; }
+            set { _oRGBProcess = value; }
+        }
         public bool IsInitialized { get; set; }
         private OpenRGBClient _ambinityClient;
         public OpenRGBClient AmbinityClient {
@@ -82,6 +102,92 @@ namespace adrilight
             }
             if (!IsInitialized && GeneralSettings.IsOpenRGBEnabled) // Only run OpenRGB Stream if User enable OpenRGB Utilities in General Settings
             {
+                // check if openRGB folder is created
+
+
+                //if (Directory.Exists(ORGBJsonPath))
+                //{
+                //    //if openRGB is created, check if the config file is properly configurated
+                //    // or just overwrite it for the first time
+                //    // check if this is first time the app run after install
+                //    if (GeneralSettings.OpenRGBConfigRequested)
+                //    {
+
+                //        try
+                //        {
+                //            CopyResource("adrilight.OpenRGB.OpenRGB.json", Path.Combine(ORGBJsonPath, "OpenRGB.json"));
+
+                //            //after this there is no need to config openRGB anymore, we turn this property off
+                //            GeneralSettings.OpenRGBConfigRequested = false;
+                //            //until user request to reconfig OpenRGB
+                //        }
+                //        catch (ArgumentException)
+                //        {
+                //            //show messagebox no firmware found for this device
+                //            return;
+                //        }
+                //    }
+                //    // if any error occur, require user to exit open rgb
+                //}
+                //else
+                //{
+                //    //create OpenRGB Config directory
+                //    Directory.CreateDirectory(ORGBJsonPath);
+                //    //coppy config file
+
+                //}
+
+                //check if OpenRGB is existed in adrilight folder
+                if (Directory.Exists(ORGBExeFileNameAndPath))
+                {
+                    // now start open rgb
+                    ORGBProcess = System.Diagnostics.Process.Start(Path.Combine(ORGBExeFileNameAndPath, "OpenRGB.exe"), "--server --startminimized --gui");
+
+                }
+                else
+                {
+                    //coppy ORGB from resource // this action using ZipStorer
+                    try
+                    {
+                        Directory.CreateDirectory(ORGBExeFileNameAndPath);
+
+                        CopyResource("adrilight.OpenRGB.OpenRGB.zip", Path.Combine(ORGBExeFileNameAndPath, "OpenRGB.zip"));
+
+                        //then extract
+
+                        //// Open an existing zip file for reading
+                        //  ZipStorer zip = ZipStorer.Open(Path.Combine(ORGBExeFileNameAndPath, "OpenRGB.zip"), FileAccess.Read);
+
+                        ////  // Read the central directory collection
+                        // List<ZipStorer.ZipFileEntry> dir = zip.ReadCentralDir();
+
+
+                        //  foreach (ZipStorer.ZipFileEntry entry in dir)
+                        // {
+                        ////     //extract every single file
+                        //       zip.ExtractFile(entry, Path.Combine(ORGBExeFileNameAndPath,entry.FilenameInZip));
+                        //         break;
+
+                        // }
+                        // zip.Close();
+
+
+
+
+
+
+
+
+
+
+                    }
+                    catch (ArgumentException)
+                    {
+                        //show messagebox no firmware found for this device
+                        return;
+                    }
+                }
+
 
                 try
                 {
@@ -90,69 +196,38 @@ namespace adrilight
                     var attempt = 0;
                     _retryPolicy.Execute(() => RefreshOpenRGBDeviceState()); _log.Info($"Attempt {++attempt}");
 
-                    if (AmbinityClient != null)
-                    {
-                        
-                        var devices = AmbinityClient.GetAllControllerData();
-                        int index = 0;
-                        ReorderedDevices = new DeviceSettings[devices.Length];
-                        foreach (var device in devices)
-                        {
 
-                            for(var i = 0;i<device.Modes.Length;i++)
-                            {
-
-                                Debug.WriteLine(device.Modes[i].Name.ToString());
-                                if(device.Modes[i].Name=="Direct")
-                                {
-                                    AmbinityClient.SetMode(index,i);
-                                }
-                            }
-                                
-                            
-                            _log.Info($"Device found : " + device.Name.ToString() + "At index: " + index);
-                             
-                            var deviceUID = device.Name + device.Version + device.Location;
-                            foreach(var convertedDevice in AvailableDevices)
-                            {
-                                if (convertedDevice.DeviceUID == deviceUID)
-                                {
-                                    convertedDevice.IsTransferActive = true;
-                                    ReorderedDevices[index] = convertedDevice;
-                                   
-                                    
-                                    
-                                }
-                            }
-                            index++;
-                        } 
-                        Start();
-
-
-                    }
 
 
                     IsInitialized = true;
                 }
                 catch (TimeoutException)
                 {
-                    HandyControl.Controls.MessageBox.Show("OpenRGB server Không khả dụng, hãy start server trong app OpenRGB (SDK Server)");
+                    HandyControl.Controls.MessageBox.Show("Không tìm thấy Server OpenRGB, Hãy thử thoát ứng dụng và mở lại");
                     IsInitialized = false;
                     //IsAvailable= false;
 
                 }
                 catch (System.Net.Sockets.SocketException)
                 {
-                    HandyControl.Controls.MessageBox.Show("Khởi động lại ứng dụng OpenRGB và Start Server");
+                    HandyControl.Controls.MessageBox.Show("Mất kết nối ứng dụng OpenRGB, vui lòng không thoát OpenRGB khi đang sử dụng");
                     IsInitialized = false;
                     //IsAvailable= false;
 
+                }
+                catch (Exception ex)
+                {
+                    if (ex.Message == "ORGB busy")
+                    {
+                        // no device available
+                        HandyControl.Controls.MessageBox.Show("Không có thiết bị bên thứ ba nào được tìm thấy");
+                    }
                 }
             }
 
             else if (!GeneralSettings.IsOpenRGBEnabled) // show message require user to turn on Using OpenRGB
             {
-                MessageBoxResult result = HandyControl.Controls.MessageBox.Show("Bạn phải bật Enable OpenRGB để có thể tìm thấy các thiết bị OpenRGB! bạn có muốn bật không?", "OpenRGB is disabled",MessageBoxButton.YesNo,MessageBoxImage.Question);
+                MessageBoxResult result = HandyControl.Controls.MessageBox.Show("Bạn phải bật Enable OpenRGB để có thể tìm thấy và điều khiển các thiết bị OpenRGB! bạn có muốn bật không?", "OpenRGB is disabled", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result == MessageBoxResult.Yes)
                     // Enable OpenRGB
                     GeneralSettings.IsOpenRGBEnabled = true;
@@ -161,34 +236,154 @@ namespace adrilight
                 //    _log.Debug("stopping the serial stream");
                 //    Stop();
                 //}
-                    //do nothing
+                //do nothing
                 //stop it
-               
+
             }
 
-            
+
 
 
         }
 
 
-        public OpenRGB.NET.Models.Device[] GetDevices {
-            get
+
+        private void CopyResource(string resourceName, string file)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            using (Stream resource = assembly.GetManifestResourceStream(resourceName))
             {
-                return AmbinityClient.GetAllControllerData();
+                if (resource == null)
+                {
+                    throw new ArgumentException("No such resource", "resourceName");
+                }
+                using (Stream output = File.OpenWrite(file))
+                {
+                    resource.CopyTo(output);
+                }
             }
-            
+        }
+
+        public List<OpenRGB.NET.Models.Device> ScanNewDevice()
+        {
+
+            // kill current openRGB process first
+            // need to stop the stream first
+            //Stop();
+            //ORGBProcess.Kill();
+            //IsInitialized = false;
+            ////wait a bit
+            //Thread.Sleep(1000);
+            Stop();
+            var AvailableOpenRGBDevices = new List<Device>();
+            if (AmbinityClient != null)
+                AmbinityClient.Dispose();
+            AmbinityClient = new OpenRGBClient("127.0.0.1", 6742, name: "Ambinity", autoconnect: true, timeout: 1000);
+            //RefreshTransferState();
+            Start();
+            if (AmbinityClient != null && AmbinityClient.Connected == true)
+            {
+
+                var newOpenRGBDevices = AmbinityClient.GetAllControllerData();
+
+
+
+                foreach (var device in newOpenRGBDevices)
+                {
+                    AvailableOpenRGBDevices.Add(device);
+                }
+                //check if any devices is already in the dashboard
+                foreach (var device in newOpenRGBDevices)
+                {
+                    var deviceUID = device.Name + device.Version + device.Location;
+                    foreach (var existedDevice in AvailableDevices.Where(p => p.DeviceConnectionType == "OpenRGB"))
+                    {
+                        if (deviceUID == existedDevice.DeviceUID)
+                            AvailableOpenRGBDevices.Remove(device);
+                    }
+                }
+
+                return AvailableOpenRGBDevices;
+            }
+            else
+            {
+                return null;
+            }
+            //WriteOpenRGBDeviceInfoJson();
+
+
         }
 
 
         private Thread _workerThread;
         private CancellationTokenSource _cancellationTokenSource;
-        public OpenRGBClient RefreshOpenRGBDeviceState()//init
+        public void RefreshOpenRGBDeviceState()//init
         {
             if (AmbinityClient != null)
                 AmbinityClient.Dispose();
-           AmbinityClient = new OpenRGBClient("127.0.0.1", 6742, name: "Ambinity", autoconnect: true, timeout: 1000);
-            return AmbinityClient;
+            AmbinityClient = new OpenRGBClient("127.0.0.1", 6742, name: "Ambinity", autoconnect: true, timeout: 1000);
+            if (AmbinityClient != null)
+            {
+                //check if we get any device from Openrgb
+                if (AmbinityClient.GetControllerCount() > 0)
+                {
+
+                    var devices = AmbinityClient.GetAllControllerData();
+                    int index = 0;
+                    ReorderedDevices = new DeviceSettings[devices.Length];
+                    foreach (var device in devices)
+                    {
+
+                        for (var i = 0; i < device.Modes.Length; i++)
+                        {
+
+                            Debug.WriteLine(device.Modes[i].Name.ToString());
+                            if (device.Modes[i].Name == "Direct")
+                            {
+                                AmbinityClient.SetMode(index, i);
+                            }
+                        }
+
+
+                        _log.Info($"Device found : " + device.Name.ToString() + "At index: " + index);
+
+                        var deviceUID = device.Name + device.Version + device.Location;
+                        foreach (var convertedDevice in AvailableDevices)
+                        {
+                            if (deviceUID == convertedDevice.DeviceUID) // this is known device
+                            {
+                                convertedDevice.IsTransferActive = true;
+                                ReorderedDevices[index] = convertedDevice;
+
+
+
+                            }
+                            else
+                            {
+                                // this is new device from ORGB, prompt asking user to add or not?
+
+                            }
+
+                        }
+                        index++;
+                    }
+                    Start();
+
+                }
+                else // this could happen due to device scanning is in progress
+                {
+                    //dispose the client
+                    AmbinityClient.Dispose();
+                    throw (new Exception("ORGB busy"));
+                    // throw some type of exception , now retry policy will catch the exception and retry
+                    // the thing is, how many retrying is enough before throwing message box "no device detected"??
+
+
+                }
+
+
+            }
+
         }
         public void DFU()
         {
@@ -276,95 +471,98 @@ namespace adrilight
         {
             var cancellationToken = (CancellationToken)tokenObject;
 
-            
-                try
-                {
-                    var client = AmbinityClient;
 
-                    if (client.Connected)
+            try
+            {
+                var client = AmbinityClient;
+
+                if (client.Connected)
+                {
+                    while (!cancellationToken.IsCancellationRequested)
                     {
-                        while (!cancellationToken.IsCancellationRequested)
+                        //int index = 0;
+                        //foreach (var device in AvailableDevices)
+                        //{
+                        //    foreach (var output in device.AvailableOutputs)
+                        //    {
+                        //        var outputColor = GetOutputStream(output);
+                        //        if (outputColor != null)
+                        //        {
+
+                        //            client.UpdateZone(index, output.OutputID, outputColor);
+                        //        }
+
+                        //        Thread.Sleep(10);
+                        //    }
+                        //    index++;
+                        //}
+                        for (int i = 0; i < ReorderedDevices.Length; i++)
                         {
-                            //int index = 0;
-                            //foreach (var device in AvailableDevices)
-                            //{
-                            //    foreach (var output in device.AvailableOutputs)
-                            //    {
-                            //        var outputColor = GetOutputStream(output);
-                            //        if (outputColor != null)
-                            //        {
-                                        
-                            //            client.UpdateZone(index, output.OutputID, outputColor);
-                            //        }
-                                        
-                            //        Thread.Sleep(10);
-                            //    }
-                            //    index++;
-                            //}
-                            for(int i=0;i<ReorderedDevices.Length;i++)
+                            if (ReorderedDevices[i] != null && ReorderedDevices[i].IsEnabled)
                             {
-                                if (ReorderedDevices[i]!=null && ReorderedDevices[i].IsEnabled)
-                                {
                                 var deviceColors = new List<OpenRGB.NET.Models.Color>();
-                                    foreach (var output in ReorderedDevices[i].AvailableOutputs)
+                                foreach (var output in ReorderedDevices[i].AvailableOutputs)
+                                {
+                                    var outputColor = GetOutputStream(output);
+                                    if (outputColor != null)
                                     {
-                                        var outputColor = GetOutputStream(output);
-                                        if (outputColor != null)
-                                        {
                                         foreach (var color in outputColor)
                                             deviceColors.Add(color);
 
-                                            
-                                        }
 
-                                        
                                     }
-                               
+
+
+                                }
+
                                 client.UpdateLeds(i, deviceColors.ToArray());
                             }
-                              
-                            }
-                            Thread.Sleep(17);
 
                         }
+                        Thread.Sleep(17);
+
                     }
-
-                }
-                catch (TimeoutException)
-                {
-                    HandyControl.Controls.MessageBox.Show("OpenRGB server Không khả dụng, hãy start server trong app OpenRGB (SDK Server)");
-                    //foreach (var device in DeviceSettings)
-                    //{
-                    //    if (device.DeviceSerial != "151293")
-                    //        device.IsConnected = false;
-                    //}
-                    Thread.Sleep(500);
-                    Stop();
-                }
-                catch (Exception ex)
-                {
-                    //HandyControl.Controls.MessageBox.Show(ex.ToString());
-                    //foreach (var device in DeviceSettings)
-                    //{
-                    //    if (device.DeviceSerial != "151293")
-                    //        device.IsConnected = false;
-                    //}   
-
-                    Thread.Sleep(500);
-                    IsInitialized = false;
-                    _cancellationTokenSource?.Cancel();
-                    _cancellationTokenSource = null;
-                    Thread.Sleep(500);
-                    RefreshTransferState();
                 }
 
+            }
+            catch (TimeoutException)
+            {
+                HandyControl.Controls.MessageBox.Show("OpenRGB server Không khả dụng, hãy start server trong app OpenRGB (SDK Server)");
+                //foreach (var device in DeviceSettings)
+                //{
+                //    if (device.DeviceSerial != "151293")
+                //        device.IsConnected = false;
+                //}
+                Thread.Sleep(500);
+                Stop();
+            }
+            catch (Exception ex)
+            {
+                //HandyControl.Controls.MessageBox.Show(ex.ToString());
+                //foreach (var device in DeviceSettings)
+                //{
+                //    if (device.DeviceSerial != "151293")
+                //        device.IsConnected = false;
+                //}   
+
+                Thread.Sleep(500);
+                IsInitialized = false;
+                _cancellationTokenSource?.Cancel();
+                _cancellationTokenSource = null;
+                Thread.Sleep(500);
+                ORGBProcess.Kill();
+                //wait a bit
+                Thread.Sleep(1000);
+                RefreshTransferState();
+            }
 
 
 
 
 
 
-            
+
+
         }
 
 
@@ -374,6 +572,7 @@ namespace adrilight
         public void Dispose()
         {
             Dispose(true);
+            ORGBProcess.Kill();
             GC.SuppressFinalize(this);
         }
 

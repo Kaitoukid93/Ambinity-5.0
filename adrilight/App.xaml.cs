@@ -29,6 +29,7 @@ using Un4seen.BassWasapi;
 using Un4seen.Bass;
 using System.Windows.Media;
 using HandyControl.Themes;
+using System.Threading.Tasks;
 
 namespace adrilight
 {
@@ -36,20 +37,21 @@ namespace adrilight
     /// Interaction logic for App.xaml
     /// </summary>
     /// 
-  
-   
+     //structures to display bitmap image after getting data from shader
+    
+
 
     public sealed partial class App : System.Windows.Application
     {
         private static readonly ILogger _log = LogManager.GetCurrentClassLogger();
         private static System.Threading.Mutex _mutex = null;
         private static Mutex _adrilightMutex;
-        protected override void OnStartup(StartupEventArgs startupEvent)
+        protected override async void OnStartup(StartupEventArgs startupEvent)
         {
 
 
 
-
+            //check if this app is already open in the background
             _adrilightMutex = new Mutex(true, "adrilight2");
             if (!_adrilightMutex.WaitOne(TimeSpan.Zero, true))
             {
@@ -59,16 +61,27 @@ namespace adrilight
                 Shutdown();
                 return;
             }
-
+            /////////
             SetupDebugLogging();
             SetupLoggingForProcessWideEvents();
 
             base.OnStartup(startupEvent);
 
             _log.Debug($"adrilight {VersionNumber}: Main() started.");
-            kernel = SetupDependencyInjection(false);
 
+            //show splash screen here to display wtfever you are loading
 
+            //set style and color of the default theme
+            ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
+            ThemeManager.Current.AccentColor = Brushes.BlueViolet;
+            var _splashScreen = new View.SplashScreen();
+            _splashScreen.WindowState = WindowState.Minimized;
+            _splashScreen.Show();
+            _splashScreen.WindowState = WindowState.Normal;
+            // inject all, this task may takes long time
+            kernel = await Task.Run(() => SetupDependencyInjection(false));
+            //close splash screen and open dashboard
+            _splashScreen.Close();
 
             this.Resources["Locator"] = new ViewModelLocator(kernel);
 
@@ -76,11 +89,7 @@ namespace adrilight
             GeneralSettings = kernel.Get<IGeneralSettings>();
             _telemetryClient = kernel.Get<TelemetryClient>();
 
-
-
-
-
-
+            ///set theme and color
             if (GeneralSettings.ThemeIndex == 1)
             {
                 ThemeManager.Current.ApplicationTheme = ApplicationTheme.Light;
@@ -90,13 +99,15 @@ namespace adrilight
                 ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
             }
 
+            var accentColor = GeneralSettings.AccentColor;
+            ThemeManager.Current.AccentColor = new SolidColorBrush(accentColor);
 
-            ThemeManager.Current.AccentColor = GeneralSettings.AccentColor;
-            // Current.MainWindow = kernel.Get<MainView>();
+            // show main window
             OpenSettingsWindow(GeneralSettings.StartMinimized);
 
             SetupTrackingForProcessWideEvents(_telemetryClient);
         }
+
 
         protected override void OnExit(ExitEventArgs e)
         {
@@ -136,42 +147,23 @@ namespace adrilight
         {
 
             var kernel = new StandardKernel(new DeviceSettingsInjectModule());
-            kernel.Bind<MainViewViewModel>().ToSelf().InSingletonScope();
-            kernel.Bind<MainView>().ToSelf().InSingletonScope();
             //Load setting từ file Json//
             var settingsManager = new UserSettingsManager();
             var existedDevice = settingsManager.LoadDeviceIfExists();
-
             kernel.Bind(x => x.FromThisAssembly()
               .SelectAllClasses()
               .BindAllInterfaces());
-            //var desktopDuplicationReader = kernel.Get<IDesktopDuplicatorReader>();
-            //var desktopDuplicationReaderSecondary = kernel.Get<IDesktopDuplicatorReaderSecondary>();
-            //var desktopDuplicationReaderThird = kernel.Get<IDesktopDuplicatorReaderThird>();
-            // var openRGBClient = kernel.Get<IOpenRGBClientDevice>();
             var serialDeviceDetection = kernel.Get<ISerialDeviceDetection>();
-            //var shaderEffect = kernel.Get<IShaderEffect>();
             var context = kernel.Get<IContext>();
             var desktopFrame = kernel.GetAll<IDesktopFrame>();
-
-
-            //var hotKeyManager = kernel.Get<IHotKeyManager>();
-            kernel.Bind<IOpenRGBStream>().To<OpenRGBStream>().InSingletonScope();
-            var openRGBStream = kernel.Get<IOpenRGBStream>();
             var rainbowTicker = kernel.Get<IRainbowTicker>();
             var hwMonitor = kernel.Get<IHWMonitor>();
-
             var audioFrame = kernel.Get<IAudioFrame>();
             //// tách riêng từng setting của từng device///
             if (existedDevice != null)
             {
                 foreach (var device in existedDevice)
                 {
-
-
-
-
-                    
                     var iD = device.DeviceUID.ToString();
                     var outputs = device.AvailableOutputs.ToList();
                     if (device.UnionOutput != null)
@@ -193,13 +185,10 @@ namespace adrilight
                         }
                         var serialStream = kernel.Get<ISerialStream>(iD);
                     }
-
-
                     foreach (var output in outputs)
                     {
 
                         var outputID = iD + output.OutputID.ToString();
-                        //kernel.Bind<IStaticColor>().To<StaticColor>().InSingletonScope().Named(DeviceName).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(DeviceName)).WithConstructorArgument("deviceSpotSet", kernel.Get<IDeviceSpotSet>(DeviceName));
                         kernel.Bind<IRainbow>().To<Rainbow>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
                         kernel.Bind<IDeviceSpotSet>().To<DeviceSpotSet>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
                         kernel.Bind<IMusic>().To<Music>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
@@ -241,6 +230,7 @@ namespace adrilight
             {
                 var devices = kernel.GetAll<IDeviceSettings>();
                 var hwMonitor = kernel.GetAll<IHWMonitor>().FirstOrDefault();
+                var orgb = kernel.GetAll<IOpenRGBStream>().FirstOrDefault();
                 foreach (var device in devices)
                 {
                     device.CurrentState = State.sleep;
@@ -249,6 +239,8 @@ namespace adrilight
                 }
                 //dispose hwmonitor to prevent file lock
                 hwMonitor.Dispose();
+                orgb.Dispose();
+
                 _log.Debug("Application exit!");
             };
 
@@ -365,6 +357,7 @@ namespace adrilight
 
 
         }
+
         //private void MainForm_FormClosed(object sender, EventArgs e)
         //{
         //    if (_mainForm == null) return;
