@@ -5791,24 +5791,19 @@ namespace adrilight.ViewModel
             if (Directory.Exists(JsonGifsFileNameAndPath))
             {
 
-                //    foreach (var existedGif in Directory.GetFiles(JsonGifsFileNameAndPath, "*.gif", SearchOption.TopDirectoryOnly))
-                //{
-                //    AvailableGifs.Add(new GifCard { Name = Path.GetFileNameWithoutExtension(existedGif), Owner = "local", Description = "Local", Source = existedGif });
-
-                //}
-                var json = File.ReadAllText(JsonGifsCollectionFileNameAndPath);
-
-                var existedGif = JsonConvert.DeserializeObject<List<GifCard>>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
-                foreach (var gif in existedGif)
+                if(File.Exists(JsonGifsCollectionFileNameAndPath))
                 {
-                    loadedGifs.Add(gif);
-                }
+                    var json = File.ReadAllText(JsonGifsCollectionFileNameAndPath);
 
-                //var loadedGifs = JsonConvert.DeserializeObject<List<IGifCard>>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
-                //foreach (var gif in loadedGifs)
-                //{
-                //    existedGifs.Add(gif);
-                //}
+                    var existedGif = JsonConvert.DeserializeObject<List<GifCard>>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    foreach (var gif in existedGif)
+                    {
+                        loadedGifs.Add(gif);
+                    }
+                }
+              
+
+                
             }
             else
             {    //create gif dirrectory
