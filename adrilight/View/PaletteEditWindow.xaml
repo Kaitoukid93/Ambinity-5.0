@@ -1,0 +1,238 @@
+﻿<hc:Window x:Class="adrilight.View.PaletteEditWindow"
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+           xmlns:hc="https://handyorg.github.io/handycontrol"
+           xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+           xmlns:converters="clr-namespace:adrilight.Converter"
+           mc:Ignorable="d"
+           Background="{DynamicResource MainContentBackgroundBrush}"
+           d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
+           DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
+           WindowStyle="None"
+           Title="Edit Color Palette" 
+           Height="420" 
+           Width="1280" 
+           WindowStartupLocation="CenterOwner" 
+           >
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <converters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
+            <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
+            <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
+            <DropShadowEffect x:Key="Item.MouseOver.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource DarkMaskBrush}}"/>
+            <Style x:Key="_ListBoxSolidColorStyle" TargetType="ListBoxItem">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBoxItem">
+                            <Border CornerRadius="4" Name="_Border"
+                                Padding="0"
+                                Margin="0"
+                                Background="Transparent"   
+                                BorderBrush="Transparent"
+                                BorderThickness="3"
+                                SnapsToDevicePixels="true">
+                                <ContentPresenter />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsSelected" Value="true">
+
+                                    <Setter TargetName="_Border" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                                </Trigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsMouseOver" Value="True"/>
+                                        <Condition Property="IsSelected" Value="False"/>
+                                    </MultiTrigger.Conditions>
+
+                                    <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
+
+                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+                                    <Setter Property="Opacity" TargetName="_Border" Value="0.5"/>
+                                </MultiTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <!--<Setter Property="ToolTip" Value="{Binding DocName}"/>-->
+                <Setter Property="Tag" Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
+                <Setter Property="ContextMenu">
+                    <Setter.Value>
+                        <ContextMenu Style="{DynamicResource ContextMenuBaseStyle}">
+                            <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Edit"
+                                          Command="{Binding PlacementTarget.Tag.EditSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                                          >
+                            </MenuItem>
+                            <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Share"
+                                          Command="{Binding PlacementTarget.Tag.ExportCurrentSelectedPaletteToFileCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                                          >
+                            </MenuItem>
+                            <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Delete"
+                                          Command="{Binding PlacementTarget.Tag.DeleteSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                                          >
+                            </MenuItem>
+                        </ContextMenu>
+
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="_ListBoxPaletteColorStyle" TargetType="ListBoxItem">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBoxItem">
+                            <Border CornerRadius="4" Name="_Border"
+                                Padding="0"
+                                Margin="5"
+                                Background="Transparent"   
+                                BorderBrush="Transparent"
+                                BorderThickness="3"
+                                SnapsToDevicePixels="true">
+                                <ContentPresenter />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                               
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsMouseOver" Value="True"/>
+                                        <Condition Property="IsSelected" Value="False"/>
+                                    </MultiTrigger.Conditions>
+
+                                    <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
+
+                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+                                    <Setter Property="Effect" TargetName="_Border" Value="{StaticResource Item.MouseOver.Border.Shadow}"/>
+                                </MultiTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <!--<Setter Property="ToolTip" Value="{Binding DocName}"/>-->
+                <Setter Property="Tag" Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
+                <Setter Property="ContextMenu">
+                    <Setter.Value>
+                        <ContextMenu Style="{DynamicResource ContextMenuBaseStyle}">
+                            <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Edit"
+                                          Command="{Binding PlacementTarget.Tag.EditSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                                          >
+                            </MenuItem>
+                            <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Share"
+                                          Command="{Binding PlacementTarget.Tag.ExportCurrentSelectedPaletteToFileCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                                          >
+                            </MenuItem>
+                            <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Delete"
+                                          Command="{Binding PlacementTarget.Tag.DeleteSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                                          >
+                            </MenuItem>
+                        </ContextMenu>
+
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="*"/>
+                
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="1" >
+                <GroupBox Style="{DynamicResource GroupBoxOriginal}" Grid.Row="1" Grid.Column="0" Margin="5" Header="Available Solid Colors">
+                    <Border Background="{DynamicResource RegionBrush}" CornerRadius="4">
+                        <hc:TransitioningContentControl Grid.Row="1">
+                            <ListBox Background="Transparent" VerticalAlignment="top" ScrollViewer.CanContentScroll="True"
+                                                  ScrollViewer.VerticalScrollBarVisibility="Auto" 
+                                                  ItemContainerStyle="{DynamicResource _ListBoxSolidColorStyle}" 
+                                                  
+                                                  x:Name="AvailableSolidColor"
+                                                  Margin="0,5,0,10"
+                                                  BorderThickness="0"   
+                                                  
+                                                  Style="{DynamicResource WrapPanelHorizontalListBox}" 
+                                                  ItemsPanel="{DynamicResource WrapPanelHorizontalItemsPanelTemplate}" 
+                                                  ItemsSource="{Binding AvailableSolidColors}">
+
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Rectangle Width="20" Height="20" RadiusX="2" RadiusY="2">
+                                            <Rectangle.Fill>
+                                                <SolidColorBrush Color="{Binding .}"/>
+                                            </Rectangle.Fill>
+
+                                        </Rectangle>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+
+                            </ListBox>
+                        </hc:TransitioningContentControl>
+                    </Border>
+                </GroupBox>
+               
+            </Grid>
+            <Grid>
+                
+          
+            <hc:TransitioningContentControl Margin="10"  TransitionMode="Left2RightWithFade">
+                    <ListBox  Style="{StaticResource ListBoxBaseTransparentStyle}" Margin="10,10,10,10" x:Name="RainbowCustomZone"  ItemsSource="{Binding CurrentEditingColors}"  SelectedIndex="{Binding CurrentSelectedCustomColorIndex}" ItemContainerStyle="{StaticResource _ListBoxPaletteColorStyle}" VerticalAlignment="Center">
+
+                        <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal">
+                            </WrapPanel>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+
+                        <ListBox.Template>
+                        <ControlTemplate TargetType="{x:Type ItemsControl}">
+                            <Border>
+                                <hc:ScrollViewer CanContentScroll="true" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel" >
+                                    <ItemsPresenter />
+                                </hc:ScrollViewer>
+                            </Border>
+                        </ControlTemplate>
+                    </ListBox.Template>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                            <Rectangle RadiusX="2" RadiusY="2"  Fill="{Binding ., Converter={StaticResource ColorToBrushConverter}, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Margin="0,0,0,0"  Width="40" Height="40" >
+                            </Rectangle>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </hc:TransitioningContentControl>
+            </Grid>
+        </Grid>
+
+
+        <Grid Grid.Column="1">
+            <hc:TransitioningContentControl Margin="10" TransitionMode="Left2RightWithFade">
+
+                <hc:ColorPicker Confirmed="ColorPicker_Confirmed" Canceled="mColorPicker_Canceled" SelectedBrush="{Binding CurrentPickedColor,Converter={StaticResource ColorToBrushConverter},UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" x:Name="mColorPicker" Margin="0">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Confirmed" >
+                            <i:InvokeCommandAction Command="{Binding EditSelectedPaletteSaveConfirmCommand }" CommandParameter="save" />
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="Canceled" >
+                            <i:InvokeCommandAction Command="{Binding EditSelectedPaletteSaveConfirmCommand }" CommandParameter="cancel" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    
+
+                </hc:ColorPicker>
+
+
+
+            </hc:TransitioningContentControl>
+        </Grid>
+       
+
+    </Grid>
+</hc:Window>

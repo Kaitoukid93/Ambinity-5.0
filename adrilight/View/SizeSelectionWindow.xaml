@@ -1,0 +1,94 @@
+﻿<hc:Window x:Class="adrilight.View.SizeSelectionWindow"
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+           xmlns:hc="https://handyorg.github.io/handycontrol"
+           xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+           xmlns:local ="clr-namespace:adrilight.View"
+           xmlns:converters="clr-namespace:adrilight.Converter"
+           mc:Ignorable="d"
+           Background="{DynamicResource MainContentBackgroundBrush}"
+           d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
+           DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
+           
+           x:Name="window"
+           Height="300" 
+           Width="300" 
+           WindowStartupLocation="CenterOwner" 
+           Left="0" Top="0">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+            <ResourceDictionary Source="ControlStyle.xaml">
+                <converters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
+                <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
+                <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
+                    
+                </ResourceDictionary>
+
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid Margin="5">
+        <StackPanel>
+            <TextBlock Text="Chọn Firmware" Style="{DynamicResource TextBlockLarge}">
+                
+            </TextBlock>
+            <Grid>
+                <ListBox HorizontalAlignment="Left" Margin="5" x:Name="OpenRGBDeviceList"  
+                              ItemsSource="{Binding AvailableFirmwareForCurrentDevice}"
+                              
+                              VerticalAlignment="Top"
+                              SelectedItem="{Binding CurrentSelectedFirmware}"
+                              
+                              Background="Transparent"
+                              BorderThickness="0"
+                              Style="{DynamicResource WrapPanelVerticalListBox}">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource _listBoxModeSelectionStyle}">
+                            
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid  HorizontalAlignment="Stretch"  Margin="5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Path HorizontalAlignment="Left" Stretch="Uniform" Margin="5" Data="{Binding Geometry, Converter={converters:StaticResourceConverter}}"
+                                                          Width="20" 
+                                                          Height="20" 
+                                                          Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
+                                <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="{Binding Name}" Style="{DynamicResource TextBlockDefault}"/>
+                                <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="2" Text="{Binding Version}" Style="{DynamicResource TextBlockDefault}"/>
+                                <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="4" Text="{Binding TargetHardware }" Style="{DynamicResource TextBlockDefault}"/>
+                            </Grid>
+
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+
+                </ListBox>
+            </Grid>
+
+            <Grid >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <Button Click="Button_Click" Command="{Binding SelecFirmwareForCurrentDeviceCommand}" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
+                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
+            </Grid>
+            
+        </StackPanel>
+
+
+
+    </Grid>
+</hc:Window>

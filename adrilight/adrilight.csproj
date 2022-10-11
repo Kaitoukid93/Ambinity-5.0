@@ -1,0 +1,657 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>adrilight</RootNamespace>
+    <AssemblyName>adrilight</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <LangVersion>Latest</LangVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>zoe.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CSCore" Version="1.2.1.2" />
+    <PackageReference Include="Expression.Blend.Sdk" Version="1.0.2" />
+    <PackageReference Include="gong-wpf-dragdrop" Version="3.1.1" />
+    <PackageReference Include="HandyControls" Version="3.3.11" />
+    <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.0" />
+    <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
+    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.31" />
+    <PackageReference Include="MvvmLightLibs" Version="5.4.1.1" />
+    <PackageReference Include="NLog" Version="4.7.12" />
+    <PackageReference Include="NonInvasiveKeyboardHookLibrary" Version="2.1.0" />
+    <PackageReference Include="SerialPortLib" Version="1.0.23" />
+    <PackageReference Include="SharpDX" Version="4.2.0" />
+    <PackageReference Include="SharpVectors" Version="1.7.7" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.4" />
+    <PackageReference Include="squirrel.windows" Version="2.0.2-netcore" />
+    <PackageReference Include="System.ServiceModel.Duplex" Version="4.8.1" />
+    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.8.1" />
+    <PackageReference Include="System.ServiceModel.Federation" Version="4.8.1" />
+    <PackageReference Include="boost_regex-vc141" Version="1.77.0" />
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.2.241603">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="NAudio" Version="1.10.0" />
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.3.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Bass.Net" Version="1.0.0" />
+    <PackageReference Include="Castle.Core" Version="4.3.1" />
+    <PackageReference Include="ColorPickerWPF" Version="1.0.9" />
+    <PackageReference Include="CommonServiceLocator" Version="2.0.3" />
+    <PackageReference Include="LottieSharp" Version="1.1.3" />
+    <PackageReference Include="ManagedBass" Version="3.0.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.NLogTarget" Version="2.6.4" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.7.0-beta4" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+    <PackageReference Include="Microsoft.Practices.ServiceLocation" Version="2.0.5" />
+    <PackageReference Include="morelinq" Version="3.0.0" />
+    <PackageReference Include="MvvmLight" Version="5.4.1.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Ninject" Version="3.3.4" />
+    <PackageReference Include="Ninject.Extensions.Conventions" Version="3.3.0" />
+    <PackageReference Include="Ninject.Extensions.NamedScope" Version="3.3.0" />
+    <PackageReference Include="OpenRGB.NET" Version="1.6.0" />
+    <PackageReference Include="PixiEditor.ColorPicker" Version="3.1.0" />
+    <PackageReference Include="Polly" Version="6.1.0" />
+    <PackageReference Include="Semver" Version="2.0.4" />
+    <PackageReference Include="Splat" Version="4.0.0" />
+    <PackageReference Include="System.Buffers" Version="4.5.0" />
+    <PackageReference Include="System.Reactive" Version="4.1.0-preview.84" />
+    <PackageReference Include="Tmds.MDns" Version="0.7.1" />
+    <PackageReference Include="WindowsDisplayAPI" Version="1.3.0.13" />
+    <PackageReference Include="WpfAnimatedGif" Version="2.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App.xaml.cs" />
+    <Compile Include="Resources\IContext.cs" />
+    <Compile Include="Resources\WpfContext.cs" />
+    <Compile Include="Settings\ActionParameter.cs" />
+    <Compile Include="Settings\ActionSettings.cs" />
+    <Compile Include="Settings\AutomationSettings.cs" />
+    <Compile Include="Settings\DefaulOutputCollection.cs" />
+    <Compile Include="Settings\DefaultDeviceCollection.cs" />
+    <Compile Include="Settings\DefaultLEDSetupCollection.cs" />
+    <Compile Include="Settings\DeviceCatergory.cs" />
+    <Compile Include="Settings\DeviceDiscovery.cs" />
+    <Compile Include="Settings\DeviceFirmware.cs" />
+    <Compile Include="Settings\DeviceHttpConnection.cs" />
+    <Compile Include="Settings\DeviceProfile.cs" />
+    <Compile Include="Settings\DeviceSettings.cs" />
+    <Compile Include="Settings\GeneralSettings.cs" />
+    <Compile Include="Settings\IActionParameter.cs" />
+    <Compile Include="Settings\IActionSettings.cs" />
+    <Compile Include="Settings\IAutomationSettings.cs" />
+    <Compile Include="Settings\IDeviceCatergory.cs" />
+    <Compile Include="Settings\IDeviceFirmware.cs" />
+    <Compile Include="Settings\IDeviceProfile.cs" />
+    <Compile Include="Settings\IDeviceSettings.cs" />
+    <Compile Include="Settings\IGeneralSettings.cs" />
+    <Compile Include="Settings\IModifiersType.cs" />
+    <Compile Include="Settings\IOutputSettings.cs" />
+    <Compile Include="Settings\ModifiersType.cs" />
+    <Compile Include="Settings\OutputSettings.cs" />
+    <Compile Include="Settings\RateLimitedSender.cs" />
+    <Compile Include="Settings\UserSettingsManager.cs" />
+    <Compile Include="Settings\WLEDDevice.cs" />
+    <Compile Include="Settings\XmlApiResponse.cs" />
+    <Compile Include="Settings\XmlApiResponseParser.cs" />
+    <Compile Include="Spots\DeviceSpot.cs" />
+    <Compile Include="Spots\DeviceSpotSet.cs" />
+    <Compile Include="Spots\IDeviceSpot.cs" />
+    <Compile Include="Spots\IDeviceSpotSet.cs" />
+    <Compile Include="Spots\ILEDSetup.cs" />
+    <Compile Include="Spots\LEDSetup.cs" />
+    <Compile Include="Util\AmbinoColorEffect .cs" />
+    <Compile Include="Util\AssemblyHelper.cs" />
+    <Compile Include="Util\Atmosphere.cs" />
+    <Compile Include="Util\AudioFrame.cs" />
+    <Compile Include="Util\Brightness.cs" />
+    <Compile Include="Util\ColorPalette.cs" />
+    <Compile Include="Util\ColorUtil.cs" />
+    <Compile Include="Util\ColorWithIndex.cs" />
+    <Compile Include="Util\Computer.cs" />
+    <Compile Include="Util\DefaultColorCollection.cs" />
+    <Compile Include="Util\FakeSerialPort.cs" />
+    <Compile Include="Util\FpsLogger.cs" />
+    <Compile Include="Util\GifCard.cs" />
+    <Compile Include="Util\Gifxelation.cs" />
+    <Compile Include="Util\GradientColor.cs" />
+    <Compile Include="Util\GradientColorCard.cs" />
+    <Compile Include="Util\HotKeyManager.cs" />
+    <Compile Include="Util\HWMonitor.cs" />
+    <Compile Include="Util\IAmbinoColorEffect.cs" />
+    <Compile Include="Util\IAtmosphere.cs" />
+    <Compile Include="Util\IAudioFrame.cs" />
+    <Compile Include="Util\IColorPalette.cs" />
+    <Compile Include="Util\IColorWithIndex.cs" />
+    <Compile Include="Util\IComputer.cs" />
+    <Compile Include="Util\IGifCard.cs" />
+    <Compile Include="Util\IGifxelation.cs" />
+    <Compile Include="Util\IGradientColorCard.cs" />
+    <Compile Include="Util\IHotKeyManager.cs" />
+    <Compile Include="Util\IHWMonitor.cs" />
+    <Compile Include="Util\ILeftMenuItemGroup.cs" />
+    <Compile Include="Util\ILightingMode.cs" />
+    <Compile Include="Util\IMusic.cs" />
+    <Compile Include="Util\IOpenRGBClientDevice.cs" />
+    <Compile Include="Util\IOpenRGBStream.cs" />
+    <Compile Include="Util\IRainbow.cs" />
+    <Compile Include="Util\IRainbowTicker.cs" />
+    <Compile Include="Util\ISerialDeviceDetection.cs" />
+    <Compile Include="Util\ISerialPortWrapper.cs" />
+    <Compile Include="Util\ISerialStream.cs" />
+    <Compile Include="Util\IStaticColor.cs" />
+    <Compile Include="Util\IVisualizerProgressBar.cs" />
+    <Compile Include="Util\LeftMenuItemGroup.cs" />
+    <Compile Include="Util\LightingMode.cs" />
+    <Compile Include="Util\Music.cs" />
+    <Compile Include="Util\NetworkStream.cs" />
+    <Compile Include="Util\OpenRGBClientDevice.cs" />
+    <Compile Include="Util\OpenRGBStream.cs" />
+    <Compile Include="Util\PaletteCardContextMenu.cs" />
+    <Compile Include="Util\Rainbow.cs" />
+    <Compile Include="Util\RainbowTicker.cs" />
+    <Compile Include="Util\SerialDeviceDetection.cs" />
+    <Compile Include="Util\SerialStream.cs" />
+    <Compile Include="Util\StartupManager.cs" />
+    <Compile Include="Util\StaticColor.cs" />
+    <Compile Include="Util\UpdateVisitor.cs" />
+    <Compile Include="Util\VisualizerProgressBar.cs" />
+    <Compile Include="Util\WinApi.cs" />
+    <Compile Include="Util\WrappedSerialPort.cs" />
+    <Compile Include="Converter\BrushToHexConverter.cs" />
+    <Compile Include="Converter\ColorToBrushConverter.cs" />
+    <Compile Include="Converter\ImageConverter.cs" />
+    <Compile Include="Converter\Inverseboolvisibility .cs" />
+    <Compile Include="Converter\ItemToStringConverter.cs" />
+    <Compile Include="Converter\StaticResourceConverter.cs" />
+    <Compile Include="Converter\ThicknessToDoubleConverter.cs" />
+    <Compile Include="DesktopDuplication\ByteFrame.cs" />
+    <Compile Include="DesktopDuplication\DesktopDuplicationException.cs" />
+    <Compile Include="DesktopDuplication\DesktopDuplicator.cs" />
+    <Compile Include="DesktopDuplication\DesktopDuplicatorReader.cs" />
+    <Compile Include="DesktopDuplication\DesktopFrame.cs" />
+    <Compile Include="DesktopDuplication\IDesktopDuplicatorReader.cs" />
+    <Compile Include="DesktopDuplication\IDesktopFrame.cs" />
+    <Compile Include="DesktopDuplication\MovedRegion.cs" />
+    <Compile Include="Extension\ArrayExtensions.cs" />
+    <Compile Include="Extension\BitmapExtension.cs" />
+    <Compile Include="Extension\MathExtensions.cs" />
+    <Compile Include="Extension\RawRectangleExtensions.cs" />
+    <Compile Include="ViewModel\BaseViewModel.cs" />
+    <Compile Include="ViewModel\DeleteMessageDialogViewModel.cs" />
+    <Compile Include="ViewModel\ExpandedOutputControlViewmodel.cs" />
+    <Compile Include="ViewModel\MainViewViewModel.cs" />
+    <Compile Include="ViewModel\Reflectable.cs" />
+    <Compile Include="ViewModel\SystemEditOnly.cs" />
+    <Compile Include="ViewModel\UserEditOnly.cs" />
+    <Compile Include="ViewModel\UserIncreamentInputViewModel.cs" />
+    <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
+    <Compile Include="ViewModel\ViewModelLocator.cs" />
+    <Compile Include="View\AboutAppWindow.xaml.cs" />
+    <Compile Include="View\ActionEditWindow.xaml.cs" />
+    <Compile Include="View\ActionManagerWindow.xaml.cs" />
+    <Compile Include="View\AddNewAutomationWindow.xaml.cs" />
+    <Compile Include="View\AddNewDeviceWindow.xaml.cs" />
+    <Compile Include="View\AddNewPaletteWindow.xaml.cs" />
+    <Compile Include="View\AddNewProfileWindow.xaml.cs" />
+    <Compile Include="View\AllDeviceView.xaml.cs" />
+    <Compile Include="View\AppSettingsWindow.xaml.cs" />
+    <Compile Include="View\AutomationManagerWindow.xaml.cs" />
+    <Compile Include="View\CheckComboBoxHelper.cs" />
+    <Compile Include="View\CIDEditWindow.xaml.cs" />
+    <Compile Include="View\CollectionItem.cs" />
+    <Compile Include="View\ColorPaletteControl.xaml.cs" />
+    <Compile Include="View\ColorPaletteSidePanel.xaml.cs" />
+    <Compile Include="View\ColorPickerWindow.xaml.cs" />
+    <Compile Include="View\ComputerHardwareInformationWindow.xaml.cs" />
+    <Compile Include="View\CustomWBWindow.xaml.cs" />
+    <Compile Include="View\DeleteSelectedDeviceWindow.xaml.cs" />
+    <Compile Include="View\DeviceConnectionSettingsWindow.xaml.cs" />
+    <Compile Include="View\DeviceFirmwareSettingsWindow.xaml.cs" />
+    <Compile Include="View\DeviceLightingControl.xaml.cs" />
+    <Compile Include="View\ExpandedOutputControl.xaml.cs" />
+    <Compile Include="View\ExportNewColorEffectWindow.xaml.cs" />
+    <Compile Include="View\FanSpeedPlotWindow.xaml.cs" />
+    <Compile Include="View\FIDSetupWindow.xaml.cs" />
+    <Compile Include="View\FirmwareSelectionWindow.xaml.cs" />
+    <Compile Include="View\GifxelationControl.xaml.cs" />
+    <Compile Include="View\GifxelationSidePanel.xaml.cs" />
+    <Compile Include="View\GradientEditWindow.xaml.cs" />
+    <Compile Include="View\GridHelpers.cs" />
+    <Compile Include="View\HardwareCard.xaml.cs" />
+    <Compile Include="View\IDSetupWindow.xaml.cs" />
+    <Compile Include="View\KeySelectionButton.cs" />
+    <Compile Include="View\MainView.xaml.cs" />
+    <Compile Include="View\MIDEditWindow.xaml.cs" />
+    <Compile Include="View\MotherboardCard.xaml.cs" />
+    <Compile Include="View\MusicControl.xaml.cs" />
+    <Compile Include="View\MusicSidePanel.xaml.cs" />
+    <Compile Include="View\NewAppSettingsView.xaml.cs" />
+    <Compile Include="View\NewDeviceSettingsView.xaml.cs" />
+    <Compile Include="View\NonClientAreaContent.xaml.cs" />
+    <Compile Include="View\NotifyObject.cs" />
+    <Compile Include="View\OutputAdvanceSettingsWindow.xaml.cs" />
+    <Compile Include="View\OutputDataImportSelection.xaml.cs" />
+    <Compile Include="View\PaletteEditWindow.xaml.cs" />
+    <Compile Include="View\PIDEditWindow.xaml.cs" />
+    <Compile Include="View\PositionEditWindow.xaml.cs" />
+    <Compile Include="View\RenameItemWindow.xaml.cs" />
+    <Compile Include="View\ScreenCapturingControl.xaml.cs" />
+    <Compile Include="View\ScreenCapturingSidePanel.xaml.cs" />
+    <Compile Include="View\SimpleListviewControl.xaml.cs" />
+    <Compile Include="View\SizeSelectionWindow.xaml.cs" />
+    <Compile Include="View\SpotDataSelection.xaml.cs" />
+    <Compile Include="View\SpotMapViewWindow.xaml.cs" />
+    <Compile Include="View\SpotSetEditing.xaml.cs" />
+    <Compile Include="View\StaticColorControl.xaml.cs" />
+    <Compile Include="View\StaticColorSidePanel.xaml.cs" />
+    <Compile Include="View\UnionOutputControl.xaml.cs" />
+    <Compile Include="View\VerticalMenuItem.cs" />
+    <Compile Include="View\VIDEditWindow.xaml.cs" />
+    <Compile Include="View\xIDEditWindow.xaml.cs" />
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="Properties\DesignTimeResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\AboutAppWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ActionEditWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ActionManagerWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\AddNewAutomationWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\AddNewDeviceWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\AddNewPaletteWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\AddNewProfileWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\AllDeviceView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\AppSettingsWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\AutomationManagerWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\CIDEditWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ColorPaletteControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ColorPaletteSidePanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ColorPickerWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ComputerHardwareInformationWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ControlStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\CustomWBWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\DeleteSelectedDeviceWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\DeviceConnectionSettingsWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\DeviceFirmwareSettingsWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\DeviceLightingControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ExpandedOutputControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ExportNewColorEffectWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\FanSpeedPlotWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\FIDSetupWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\FirmwareSelectionWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\GifxelationControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\GifxelationSidePanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\GradientEditWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\HardwareCard.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\IDSetupWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\MainView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\MIDEditWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\MotherboardCard.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\MusicControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\MusicSidePanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\NewAppSettingsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\NewDeviceSettingsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\NonClientAreaContent.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\OutputAdvanceSettingsWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\OutputDataImportSelection.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\PaletteEditWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\PIDEditWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\PositionEditWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\RenameItemWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ScreenCapturingControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ScreenCapturingSidePanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\SimpleListviewControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\SizeSelectionWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\SpotDataSelection.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\SpotMapViewWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\SpotSetEditing.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\StaticColorControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\StaticColorSidePanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\UnionOutputControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\VIDEditWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\xIDEditWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Messaging\TraceFrameMessage.cs" />
+    <Compile Include="Ninject\DeviceSettingsInjectModule.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DeviceFirmware\ABR1p.hex">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DeviceFirmware\ABR2e.hex">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DeviceFirmware\AER1e.hex">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DeviceFirmware\AER2e.hex">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DeviceFirmware\AFR1g.hex">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DeviceFirmware\AFR2g.hex">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DeviceFirmware\AHR1g.hex">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DeviceFirmware\ARR1p.hex">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <None Include="adrilightApp.nuspec" />
+    <None Include="app.manifest" />
+    <None Include="ApplicationInsights.config" />
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="NLog.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Tools\FWTools\busybox.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Tools\FWTools\CH372DRV.EXE">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Tools\FWTools\CH375DLL.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Tools\FWTools\libgcc_s_sjlj-1.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Tools\FWTools\libusb-1.0.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Tools\FWTools\libusbK.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Tools\FWTools\vnproch55x.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="zoe.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.7.2 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

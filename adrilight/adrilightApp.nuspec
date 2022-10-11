@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>adrilightApp</id>
+    <!-- version will be replaced by MSBuild -->
+    <version>4.0.2</version>
+    <title>adrilight</title>
+    <authors>Ambinity</authors>
+    <description>Simple App to control Ambino LED Devices</description>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Copyright 2022</copyright>
+    <iconUrl>https://github.com/Kaitoukid93/Ambinity/raw/master/adrilight/zoe.ico</iconUrl>
+    <dependencies />
+  </metadata>
+  <files>
+    <file src="bin\Release\" target="lib\net5\" exclude="*.pdb;Launcher.exe;createdump.exe;*.nupkg;*.vshost.*"/>
+  </files>
+</package>

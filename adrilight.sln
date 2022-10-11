@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32519.379
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "adrilight", "adrilight\adrilight.csproj", "{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}.Debug|x64.Build.0 = Debug|Any CPU
+		{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}.Release|Any CPU.Build.0 = Release|Any CPU
+		{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}.Release|x64.ActiveCfg = Release|Any CPU
+		{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}.Release|x64.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {94BF4143-1681-44B0-9D71-45AA69E3C29F}
+	EndGlobalSection
+EndGlobal
