@@ -5708,7 +5708,7 @@ namespace adrilight.ViewModel
             {
 
                 //check if gif exist
-                if(Directory.Exists(JsonGifsCollectionFileNameAndPath))
+                if(File.Exists(JsonGifsCollectionFileNameAndPath))
                 {
                     var json = File.ReadAllText(JsonGifsCollectionFileNameAndPath);
 

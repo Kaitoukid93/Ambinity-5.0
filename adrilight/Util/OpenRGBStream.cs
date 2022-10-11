@@ -26,8 +26,9 @@ namespace adrilight
         private ILogger _log = LogManager.GetCurrentClassLogger();
         private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
         private string ORGBJsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "OpenRGB\\");
-        private string ORGBExeFileNameAndPath => Path.Combine(JsonPath, "ORGB");
-
+        private string ORGBPath => Path.Combine(JsonPath, "ORGB\\");
+        private string ORGBExeFolderNameAndPath => Path.Combine(ORGBPath, "OpenRGB\\");
+        private string ORGBExeFileNameAndPath => Path.Combine(ORGBExeFolderNameAndPath, "OpenRGB Windows 64-bit\\OpenRGB.exe");
 
         public OpenRGBStream(IDeviceSettings[] deviceSettings, IGeneralSettings generalSettings)
         {
@@ -138,10 +139,10 @@ namespace adrilight
                 //}
 
                 //check if OpenRGB is existed in adrilight folder
-                if (Directory.Exists(ORGBExeFileNameAndPath))
+                if (File.Exists(ORGBExeFileNameAndPath))
                 {
                     // now start open rgb
-                    ORGBProcess = System.Diagnostics.Process.Start(Path.Combine(ORGBExeFileNameAndPath, "OpenRGB.exe"), "--server --startminimized --gui");
+                    ORGBProcess = System.Diagnostics.Process.Start(ORGBExeFileNameAndPath, "--server --startminimized --gui");
 
                 }
                 else
@@ -149,12 +150,13 @@ namespace adrilight
                     //coppy ORGB from resource // this action using ZipStorer
                     try
                     {
-                        Directory.CreateDirectory(ORGBExeFileNameAndPath);
+                        Directory.CreateDirectory(ORGBPath);
 
-                        CopyResource("adrilight.OpenRGB.OpenRGB.zip", Path.Combine(ORGBExeFileNameAndPath, "OpenRGB.zip"));
-
+                        CopyResource("adrilight.Tools.OpenRGB.OpenRGB.zip", Path.Combine(ORGBPath, "OpenRGB.zip"));
+                        //Create directory to extract
+                        Directory.CreateDirectory(ORGBExeFolderNameAndPath);
                         //then extract
-
+                        ZipFile.ExtractToDirectory(Path.Combine(ORGBPath, "OpenRGB.zip"), ORGBExeFolderNameAndPath);
                         //// Open an existing zip file for reading
                         //  ZipStorer zip = ZipStorer.Open(Path.Combine(ORGBExeFileNameAndPath, "OpenRGB.zip"), FileAccess.Read);
 
