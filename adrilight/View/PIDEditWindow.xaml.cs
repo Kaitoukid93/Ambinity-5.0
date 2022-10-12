@@ -91,6 +91,7 @@ namespace adrilight.View
             ViewModel.RaisePropertyChanged(nameof(ViewModel.CurrentOutput));
             //ViewModel.WriteDeviceInfoJson();
             ViewModel.CurrentOutput.IsInSpotEditWizard = false;
+            ViewModel.CurrentOutput.OutputPaletteChasingPosition = 2;
             ViewModel.CurrentLEDEditWizardState = 0;
 
             ViewModel.Count = 0;

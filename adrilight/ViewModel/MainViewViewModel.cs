@@ -1336,11 +1336,7 @@ namespace adrilight.ViewModel
                     case nameof(GeneralSettings.Autostart):
                         if (GeneralSettings.Autostart)
                         {
-                            StartUpManager.AddApplicationToCurrentUserStartup();
-                        }
-                        else
-                        {
-                            StartUpManager.RemoveApplicationFromCurrentUserStartup();
+                            StartUpManager.AddApplicationToTaskScheduler();
                         }
                         break;
                     case nameof(GeneralSettings.HotkeyEnable):

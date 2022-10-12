@@ -24,7 +24,7 @@ namespace adrilight
         private Brush _accentColor = Brushes.BlueViolet;
 
         private int _themeIndex = 0;
-        private bool _hotkeyEnable = true;
+        private bool _hotkeyEnable = false;
         private bool _driverRequested = true;
         private int _systemMusicSpeed = 3;
 
