@@ -80,12 +80,9 @@ namespace adrilight
         {
             if (settings.Autostart)
             {
-                StartUpManager.AddApplicationToCurrentUserStartup();
+                StartUpManager.AddApplicationToTaskScheduler();
             }
-            else
-            {
-                StartUpManager.RemoveApplicationFromCurrentUserStartup();
-            }
+          
         }
         public IGeneralSettings MigrateOrDefault()
         {

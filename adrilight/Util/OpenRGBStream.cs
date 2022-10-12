@@ -46,18 +46,8 @@ namespace adrilight
             }
             //if (AvailableDevices.Count > 0) // add more condition about 1st time installing when no device found
             //the logic is, scan for serial device first, if hubV3 found, only then start openRGB 
-
             RefreshTransferState();
-
-            // Do things here.
-            // NOTE: You may need to invoke this to your main thread depending on what you're doing
-
-
-
-
             _log.Info($"SerialStream created.");
-
-
         }
         //Dependency Injection//
         private IDeviceSettings[] DeviceSettings { get; set; }
@@ -103,42 +93,8 @@ namespace adrilight
             }
             if (!IsInitialized && GeneralSettings.IsOpenRGBEnabled) // Only run OpenRGB Stream if User enable OpenRGB Utilities in General Settings
             {
-                // check if openRGB folder is created
-
-
-                //if (Directory.Exists(ORGBJsonPath))
-                //{
-                //    //if openRGB is created, check if the config file is properly configurated
-                //    // or just overwrite it for the first time
-                //    // check if this is first time the app run after install
-                //    if (GeneralSettings.OpenRGBConfigRequested)
-                //    {
-
-                //        try
-                //        {
-                //            CopyResource("adrilight.OpenRGB.OpenRGB.json", Path.Combine(ORGBJsonPath, "OpenRGB.json"));
-
-                //            //after this there is no need to config openRGB anymore, we turn this property off
-                //            GeneralSettings.OpenRGBConfigRequested = false;
-                //            //until user request to reconfig OpenRGB
-                //        }
-                //        catch (ArgumentException)
-                //        {
-                //            //show messagebox no firmware found for this device
-                //            return;
-                //        }
-                //    }
-                //    // if any error occur, require user to exit open rgb
-                //}
-                //else
-                //{
-                //    //create OpenRGB Config directory
-                //    Directory.CreateDirectory(ORGBJsonPath);
-                //    //coppy config file
-
-                //}
-
                 //check if OpenRGB is existed in adrilight folder
+                
                 if (File.Exists(ORGBExeFileNameAndPath))
                 {
                     // now start open rgb
@@ -157,37 +113,16 @@ namespace adrilight
                         Directory.CreateDirectory(ORGBExeFolderNameAndPath);
                         //then extract
                         ZipFile.ExtractToDirectory(Path.Combine(ORGBPath, "OpenRGB.zip"), ORGBExeFolderNameAndPath);
-                        //// Open an existing zip file for reading
-                        //  ZipStorer zip = ZipStorer.Open(Path.Combine(ORGBExeFileNameAndPath, "OpenRGB.zip"), FileAccess.Read);
-
-                        ////  // Read the central directory collection
-                        // List<ZipStorer.ZipFileEntry> dir = zip.ReadCentralDir();
-
-
-                        //  foreach (ZipStorer.ZipFileEntry entry in dir)
-                        // {
-                        ////     //extract every single file
-                        //       zip.ExtractFile(entry, Path.Combine(ORGBExeFileNameAndPath,entry.FilenameInZip));
-                        //         break;
-
-                        // }
-                        // zip.Close();
-
-
-
-
-
-
-
-
-
-
+                        //then delete the zip to prevent further conflict
+                        File.Delete(Path.Combine(ORGBPath, "OpenRGB.zip"));                     
                     }
                     catch (ArgumentException)
                     {
                         //show messagebox no firmware found for this device
                         return;
                     }
+
+                    ORGBProcess = System.Diagnostics.Process.Start(ORGBExeFileNameAndPath, "--server --startminimized --gui");
                 }
 
 
@@ -197,10 +132,6 @@ namespace adrilight
                         AmbinityClient.Dispose();
                     var attempt = 0;
                     _retryPolicy.Execute(() => RefreshOpenRGBDeviceState()); _log.Info($"Attempt {++attempt}");
-
-
-
-
                     IsInitialized = true;
                 }
                 catch (TimeoutException)
@@ -231,24 +162,15 @@ namespace adrilight
             {
                 MessageBoxResult result = HandyControl.Controls.MessageBox.Show("Bạn phải bật Enable OpenRGB để có thể tìm thấy và điều khiển các thiết bị OpenRGB! bạn có muốn bật không?", "OpenRGB is disabled", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result == MessageBoxResult.Yes)
+                {
                     // Enable OpenRGB
                     GeneralSettings.IsOpenRGBEnabled = true;
-                //else if (result == MessageBoxResult.No)
-                //{
-                //    _log.Debug("stopping the serial stream");
-                //    Stop();
-                //}
-                //do nothing
-                //stop it
+                    RefreshTransferState();
 
+                }
             }
 
-
-
-
         }
-
-
 
         private void CopyResource(string resourceName, string file)
         {
@@ -269,13 +191,6 @@ namespace adrilight
         public List<OpenRGB.NET.Models.Device> ScanNewDevice()
         {
 
-            // kill current openRGB process first
-            // need to stop the stream first
-            //Stop();
-            //ORGBProcess.Kill();
-            //IsInitialized = false;
-            ////wait a bit
-            //Thread.Sleep(1000);
             Stop();
             var AvailableOpenRGBDevices = new List<Device>();
             if (AmbinityClient != null)
@@ -287,8 +202,6 @@ namespace adrilight
             {
 
                 var newOpenRGBDevices = AmbinityClient.GetAllControllerData();
-
-
 
                 foreach (var device in newOpenRGBDevices)
                 {

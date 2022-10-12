@@ -174,7 +174,7 @@
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
-                            <Button Command="{Binding AddNewSolidColorCommand}" CommandParameter="accent" BorderBrush="Transparent" hc:BorderElement.CornerRadius="7" Width="32" Height="32" HorizontalAlignment="Right" Background="{Binding GeneralSettings.AccentColor}"  Style="{DynamicResource ButtonDefault}">
+                            <Button Command="{Binding AddNewSolidColorCommand}" CommandParameter="accent" BorderBrush="Transparent" hc:BorderElement.CornerRadius="7" Width="32" Height="32" HorizontalAlignment="Right" Background="{Binding GeneralSettings.AccentColor,Converter={StaticResource ColorToBrushConverter}}"  Style="{DynamicResource ButtonDefault}">
 
                             </Button>
 

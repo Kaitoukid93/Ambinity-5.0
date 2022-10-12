@@ -37,8 +37,8 @@ namespace adrilight
     /// Interaction logic for App.xaml
     /// </summary>
     /// 
-     //structures to display bitmap image after getting data from shader
-    
+    //structures to display bitmap image after getting data from shader
+
 
 
     public sealed partial class App : System.Windows.Application
@@ -74,10 +74,13 @@ namespace adrilight
             //set style and color of the default theme
             ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
             ThemeManager.Current.AccentColor = Brushes.BlueViolet;
-            var _splashScreen = new View.SplashScreen();
+            _splashScreen = new View.SplashScreen();
+            _splashScreen.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             _splashScreen.WindowState = WindowState.Minimized;
+           
             _splashScreen.Show();
             _splashScreen.WindowState = WindowState.Normal;
+            _splashScreen.status.Text = "LOADING KERNEL...";
             // inject all, this task may takes long time
             kernel = await Task.Run(() => SetupDependencyInjection(false));
             //close splash screen and open dashboard
@@ -141,7 +144,7 @@ namespace adrilight
             return tc;
         }
 
-
+        private static View.SplashScreen _splashScreen;
 
         internal static IKernel SetupDependencyInjection(bool isInDesignMode)
         {
@@ -159,9 +162,19 @@ namespace adrilight
             var rainbowTicker = kernel.Get<IRainbowTicker>();
             var hwMonitor = kernel.Get<IHWMonitor>();
             var audioFrame = kernel.Get<IAudioFrame>();
+
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                _splashScreen.status.Text = "DONE LOADING KERNEL";
+            });
+
             //// tách riêng từng setting của từng device///
             if (existedDevice != null)
             {
+                System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                {
+                    _splashScreen.status.Text = "CREATING PROCESSES...";
+                });
                 foreach (var device in existedDevice)
                 {
                     var iD = device.DeviceUID.ToString();
@@ -214,7 +227,10 @@ namespace adrilight
             }
 
             return kernel;
-
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                _splashScreen.status.Text = "PROCESSES CREATED";
+            });
 
         }
 

@@ -16,9 +16,7 @@ using System.Windows.Shapes;
 
 namespace adrilight.View
 {
-    /// <summary>
-    /// Interaction logic for PaletteEditWindow.xaml
-    /// </summary>
+
     public partial class SplashScreen
     {
         public SplashScreen()
@@ -26,9 +24,6 @@ namespace adrilight.View
             InitializeComponent();
         }
 
-     
-      
-        
      
     }
 }

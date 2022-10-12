@@ -637,6 +637,7 @@ namespace adrilight
 
                     if (result == MessageBoxResult.OK)//restart app
                     {
+                        
                         System.Windows.Forms.Application.Restart();
                         Process.GetCurrentProcess().Kill();
                     }

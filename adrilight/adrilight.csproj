@@ -130,6 +130,9 @@
     <PackageReference Include="Splat" Version="4.0.0" />
     <PackageReference Include="System.Buffers" Version="4.5.0" />
     <PackageReference Include="System.Reactive" Version="4.1.0-preview.84" />
+    <PackageReference Include="TaskScheduler">
+      <Version>2.10.1</Version>
+    </PackageReference>
     <PackageReference Include="Tmds.MDns" Version="0.7.1" />
     <PackageReference Include="WindowsDisplayAPI" Version="1.3.0.13" />
     <PackageReference Include="WpfAnimatedGif" Version="2.0.0" />
@@ -610,6 +613,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <None Include="adrilightApp.nuspec" />
+    <EmbeddedResource Include="Animation\splashLoading.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <None Include="app.manifest" />
     <None Include="ApplicationInsights.config" />
     <EmbeddedResource Include="Gif\BitOcean.gif">

@@ -1336,11 +1336,11 @@ namespace adrilight.ViewModel
                     case nameof(GeneralSettings.Autostart):
                         if (GeneralSettings.Autostart)
                         {
-                            StartUpManager.AddApplicationToCurrentUserStartup();
+                            StartUpManager.AddApplicationToAllUserStartup();
                         }
                         else
                         {
-                            StartUpManager.RemoveApplicationFromCurrentUserStartup();
+                            StartUpManager.RemoveApplicationFromAllUserStartup();
                         }
                         break;
                     case nameof(GeneralSettings.HotkeyEnable):
@@ -4789,6 +4789,7 @@ namespace adrilight.ViewModel
             CurrentSelectedDeviceToAdd.DeviceUID = Guid.NewGuid().ToString();
             AvailableDevices.Add(CurrentSelectedDeviceToAdd);
             WriteDeviceInfoJson();
+            OpenRGBStream.Dispose();
             System.Windows.Forms.Application.Restart();
             Process.GetCurrentProcess().Kill();
         }
@@ -4903,6 +4904,7 @@ namespace adrilight.ViewModel
             }
 
             WriteDeviceInfoJson();
+            OpenRGBStream.Dispose();
             System.Windows.Forms.Application.Restart();
             Process.GetCurrentProcess().Kill();
 
@@ -5222,7 +5224,7 @@ namespace adrilight.ViewModel
 
 
 
-
+            OpenRGBStream.Dispose();
             System.Windows.Forms.Application.Restart();
             Process.GetCurrentProcess().Kill();
         }
@@ -6430,6 +6432,7 @@ namespace adrilight.ViewModel
         {
             AvailableDevices.Remove(CurrentDevice);
             WriteDeviceInfoJson();
+            OpenRGBStream.Dispose();
             System.Windows.Forms.Application.Restart();
             Process.GetCurrentProcess().Kill();
 
