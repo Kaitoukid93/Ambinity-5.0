@@ -18,13 +18,14 @@ namespace adrilight.Util
     class AdrilightUpdater
     {
         private readonly ILogger _log = LogManager.GetCurrentClassLogger();
-        private const string ADRILIGHT_RELEASES = "https://ambino.vn/software/adrilight/developer/release";
+        private const string ADRILIGHT_RELEASES = "https://github.com/Kaitoukid93/Ambinity-5.0";
 
-        public AdrilightUpdater(IGeneralSettings settings, IContext context)
+        public AdrilightUpdater(IGeneralSettings settings, IContext context, IHWMonitor hWmonitor)
         {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
             Context = context ?? throw new ArgumentNullException(nameof(context));
-           
+            HWMonitor = hWmonitor ?? throw new ArgumentNullException(nameof(hWmonitor));
+
         }
 
         public void StartThread()
@@ -41,6 +42,7 @@ namespace adrilight.Util
         }
 
         public IGeneralSettings Settings { get; }
+        public IHWMonitor HWMonitor { get; }
         public IContext Context { get; }
 
         private async Task StartSquirrel()
@@ -49,15 +51,52 @@ namespace adrilight.Util
             {
                 try
                 {
-                    using (var mgr = new UpdateManager(ADRILIGHT_RELEASES))
+                    var mgr = UpdateManager.GitHubUpdateManager(ADRILIGHT_RELEASES);
+                    using (var result = await mgr)
                     {
-                        var releaseEntry = await mgr.UpdateApp();
-
-                        if (releaseEntry != null)
+                        var updateInfo = await mgr.Result.CheckForUpdate();
+                        // display update info and ask user update or not
+                        if (updateInfo.ReleasesToApply.Any())
                         {
-                            //restart adrilight if an update was installed
-                            UpdateManager.RestartApp();
+
+                            var versionCount = updateInfo.ReleasesToApply.Count;
+                            // this.logger.Info($"{versionCount} update(s) found.");
+
+                            var versionWord = versionCount > 1 ? "versions" : "version";
+                            var message = new StringBuilder().AppendLine($"App is {versionCount} {versionWord} behind.").
+                                                              AppendLine("If you choose to update, changes wont take affect until App is restarted.").
+                                                              AppendLine("Would you like to download and install them?").
+                                                              ToString();
+
+                            var userAction = HandyControl.Controls.MessageBox.Show(message, "New Update detected", MessageBoxButton.YesNo, MessageBoxImage.Information);
+                            if (userAction != MessageBoxResult.Yes)
+                            {
+                               // this.logger.Info("update declined by user.");
+                                return;
+                            }
+
+                            // this.logger.Info("Downloading updates");
+                            var releaseEntry = await mgr.Result.UpdateApp();
+
+                            if (releaseEntry != null)
+                            {
+
+                                //restart adrilight if an update was installed
+                                //dispose licked file first
+                                if (HWMonitor != null)
+                                    HWMonitor.Dispose();
+
+                                UpdateManager.RestartApp();
+                            }
+                            //this.logger.Info($"Download complete. Version {updateResult.Version} will take effect when App is restarted.");
                         }
+                        else
+                        {
+                            //this.logger.Info("No updates detected.");
+                        }
+
+
+
                     }
                 }
                 catch (Exception ex)
