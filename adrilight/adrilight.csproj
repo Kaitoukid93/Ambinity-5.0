@@ -177,6 +177,7 @@
     <Compile Include="Spots\IDeviceSpotSet.cs" />
     <Compile Include="Spots\ILEDSetup.cs" />
     <Compile Include="Spots\LEDSetup.cs" />
+    <Compile Include="Util\AdrilightUpdater.cs" />
     <Compile Include="Util\AmbinoColorEffect .cs" />
     <Compile Include="Util\AssemblyHelper.cs" />
     <Compile Include="Util\Atmosphere.cs" />
@@ -264,6 +265,7 @@
     <Compile Include="ViewModel\UserIncreamentInputViewModel.cs" />
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
+    <Compile Include="View\PasswordDialog.xaml.cs" />
     <Compile Include="View\AboutAppWindow.xaml.cs" />
     <Compile Include="View\ActionEditWindow.xaml.cs" />
     <Compile Include="View\ActionManagerWindow.xaml.cs" />
@@ -332,6 +334,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Properties\DesignTimeResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\PasswordDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

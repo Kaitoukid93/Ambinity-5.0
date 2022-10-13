@@ -109,6 +109,7 @@ namespace adrilight
             OpenSettingsWindow(GeneralSettings.StartMinimized);
 
             SetupTrackingForProcessWideEvents(_telemetryClient);
+            kernel.Get<AdrilightUpdater>().StartThread();
         }
 
 

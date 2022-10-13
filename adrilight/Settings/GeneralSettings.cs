@@ -12,6 +12,7 @@ namespace adrilight
     {
         // private bool _autostart = true;
         private bool _isOpenRGBEnabled = false;
+        private bool _isInBetaChanel = false;
         private bool _openRGBConfigRequested = true;
         private bool _autostart = true;
         private int _systemRainbowSpeed = 10;
@@ -47,5 +48,6 @@ namespace adrilight
         public int SystemRainbowSpeed { get => _systemRainbowSpeed; set { Set(() => SystemRainbowSpeed, ref _systemRainbowSpeed, value); } }
         public int SystemMusicSpeed { get => _systemMusicSpeed; set { Set(() => SystemMusicSpeed, ref _systemMusicSpeed, value); } }
         public bool IsProfileLoading { get => _isProfileLoading; set { Set(() => IsProfileLoading, ref _isProfileLoading, value); } }
+        public bool IsInBetaChanel { get => _isInBetaChanel; set { Set(() => IsInBetaChanel, ref _isInBetaChanel, value); } }
     }
 }
