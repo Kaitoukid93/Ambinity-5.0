@@ -18,7 +18,7 @@ namespace adrilight.Util
     class AdrilightUpdater
     {
         private readonly ILogger _log = LogManager.GetCurrentClassLogger();
-        private const string ADRILIGHT_RELEASES = "https://github.com/Kaitoukid93/Ambinity-5.0";
+        private const string ADRILIGHT_RELEASES = "https://github.com/Kaitoukid93/Ambinity_Developer_Release";
 
         public AdrilightUpdater(IGeneralSettings settings, IContext context, IHWMonitor hWmonitor)
         {
