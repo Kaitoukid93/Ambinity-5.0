@@ -94,8 +94,9 @@ namespace adrilight
             ThemeManager.Current.AccentColor = GeneralSettings.AccentColor;
             // Current.MainWindow = kernel.Get<MainView>();
             OpenSettingsWindow(GeneralSettings.StartMinimized);
-
+            
             SetupTrackingForProcessWideEvents(_telemetryClient);
+            kernel.Get<AdrilightUpdater>().StartThread();
         }
 
         protected override void OnExit(ExitEventArgs e)
