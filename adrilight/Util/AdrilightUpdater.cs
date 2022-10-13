@@ -85,7 +85,7 @@ namespace adrilight.Util
                                 //dispose licked file first
                                 if (HWMonitor != null)
                                     HWMonitor.Dispose();
-
+                                //remember to dispose openrgbstream too!!!
                                 UpdateManager.RestartApp();
                             }
                             //this.logger.Info($"Download complete. Version {updateResult.Version} will take effect when App is restarted.");
