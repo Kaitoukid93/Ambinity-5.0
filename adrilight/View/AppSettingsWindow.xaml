@@ -159,7 +159,7 @@
                         </GroupBox>
                         <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Gửi thông báo đến hệ thống khi có thay đổi"/>
                     </Grid>
-                    <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="5,10,5,10">
+                    <!--<hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                     </hc:Divider>
                     <Grid Name="BetaChanel">
@@ -181,7 +181,7 @@
 
                         </GroupBox>
                         <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Gửi thông báo đến hệ thống khi có thay đổi"/>
-                    </Grid>
+                    </Grid>-->
                     <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                     </hc:Divider>

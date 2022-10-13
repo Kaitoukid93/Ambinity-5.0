@@ -487,6 +487,7 @@ namespace adrilight
         public void Dispose()
         {
             Dispose(true);
+            if(ORGBProcess!=null)
             ORGBProcess.Kill();
             GC.SuppressFinalize(this);
         }

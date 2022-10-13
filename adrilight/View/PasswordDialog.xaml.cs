@@ -13,6 +13,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using adrilight.ViewModel;
 
 namespace adrilight.View
 {
@@ -31,8 +32,14 @@ namespace adrilight.View
             this.Close();
         }
 
-
-
-
+        private void requestButton_Click(object sender, RoutedEventArgs e)
+        {
+            var vm = this.DataContext as MainViewViewModel;
+                if ( vm.RequestingBetaChanelCommand.CanExecute(pw.Password))
+            {
+                vm.RequestingBetaChanelCommand.Execute(pw.Password);
+            }
+            this.Close();
+        }
     }
 }

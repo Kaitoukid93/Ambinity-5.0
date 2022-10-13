@@ -32,48 +32,48 @@ namespace adrilight.View
             this.Close();
         }
 
-        private void ToggleButton_MouseDown(object sender, MouseButtonEventArgs e)
-        {
+        //private void ToggleButton_MouseDown(object sender, MouseButtonEventArgs e)
+        //{
           
             
-        }
+        //}
 
-        private void betatoggle_Checked(object sender, RoutedEventArgs e)
-        {
-            var vm = this.DataContext as MainViewViewModel;
+        //private void betatoggle_Checked(object sender, RoutedEventArgs e)
+        //{
+        //    var vm = this.DataContext as MainViewViewModel;
            
-                //open password dialog
-                if (vm.OpenPasswordDialogCommand.CanExecute("pw"))
-                {
-                    vm.OpenPasswordDialogCommand.Execute("pw");
-                }
+        //        //open password dialog
+        //        if (vm.OpenPasswordDialogCommand.CanExecute("pw"))
+        //        {
+        //            vm.OpenPasswordDialogCommand.Execute("pw");
+        //        }
 
             
-        }
+        //}
 
-        private void betatoggle_Unchecked(object sender, RoutedEventArgs e)
-        {
+        //private void betatoggle_Unchecked(object sender, RoutedEventArgs e)
+        //{
 
-        }
+        //}
 
-        private void betatoggle_Click(object sender, RoutedEventArgs e)
-        {
-            if ((sender as ToggleButton).IsChecked.Value)
-            {
-                betatoggle.IsChecked = false;
-                var vm = this.DataContext as MainViewViewModel;
+        //private void betatoggle_Click(object sender, RoutedEventArgs e)
+        //{
+        //    if ((sender as ToggleButton).IsChecked.Value)
+        //    {
+        //        betatoggle.IsChecked = false;
+        //        var vm = this.DataContext as MainViewViewModel;
 
-                //open password dialog
-                if (vm.OpenPasswordDialogCommand.CanExecute("pw"))
-                {
-                    vm.OpenPasswordDialogCommand.Execute("pw");
-                }
+        //        //open password dialog
+        //        if (vm.OpenPasswordDialogCommand.CanExecute("pw"))
+        //        {
+        //            vm.OpenPasswordDialogCommand.Execute("pw");
+        //        }
 
-            }
-            else
-            {
-                // Code for Un-Checked state
-            }
-        }
+        //    }
+        //    else
+        //    {
+        //        // Code for Un-Checked state
+        //    }
+        //}
     }
 }

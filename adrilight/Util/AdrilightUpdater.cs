@@ -18,20 +18,20 @@ namespace adrilight.Util
     class AdrilightUpdater
     {
         private readonly ILogger _log = LogManager.GetCurrentClassLogger();
-        private const string ADRILIGHT_RELEASES = "https://drive.google.com/drive/folders/1aIfJ4SoRFs6EY6XiTp5AVOMw2sBCIDgl";
+        private const string ADRILIGHT_RELEASES = "https://ambino.vn/software/adrilight/developer/release";
 
         public AdrilightUpdater(IGeneralSettings settings, IContext context)
         {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
             Context = context ?? throw new ArgumentNullException(nameof(context));
+           
         }
 
         public void StartThread()
         {
             //if (App.IsPrivateBuild) return;
 
-            var t = new Thread(async () => await StartSquirrel())
-            {
+            var t = new Thread(async () => await StartSquirrel()) {
                 Name = "adrilight Update Checker",
                 IsBackground = true,
                 Priority = ThreadPriority.BelowNormal
