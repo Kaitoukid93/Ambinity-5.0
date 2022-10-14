@@ -20,14 +20,15 @@ namespace adrilight.Util
         private readonly ILogger _log = LogManager.GetCurrentClassLogger();
         private const string ADRILIGHT_RELEASES = "https://github.com/Kaitoukid93/Ambinity_Developer_Release";
 
-        public AdrilightUpdater(IGeneralSettings settings, IContext context, IHWMonitor hWmonitor)
+        public AdrilightUpdater(IGeneralSettings settings,IOpenRGBStream openRGBStream, IContext context, IHWMonitor hWmonitor)
         {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
             Context = context ?? throw new ArgumentNullException(nameof(context));
             HWMonitor = hWmonitor ?? throw new ArgumentNullException(nameof(hWmonitor));
+            OpenRGBStream = openRGBStream ?? throw new ArgumentNullException(nameof(openRGBStream));
 
         }
-
+        private static View.SplashScreen _splashScreen;
         public void StartThread()
         {
             //if (App.IsPrivateBuild) return;
@@ -42,6 +43,7 @@ namespace adrilight.Util
         }
 
         public IGeneralSettings Settings { get; }
+        public IOpenRGBStream OpenRGBStream { get; }
         public IHWMonitor HWMonitor { get; }
         public IContext Context { get; }
 
@@ -74,18 +76,35 @@ namespace adrilight.Util
                                // this.logger.Info("update declined by user.");
                                 return;
                             }
+                            //show loading
+                            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                            {
+                                _splashScreen = new View.SplashScreen();
+                                _splashScreen.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                                _splashScreen.WindowState = WindowState.Minimized;
 
-                            // this.logger.Info("Downloading updates");
-                            var releaseEntry = await mgr.Result.UpdateApp();
+                                _splashScreen.Show();
+                                _splashScreen.WindowState = WindowState.Normal;
+                                _splashScreen.status.Text = "UPDATING...";
+                            });
+
+                                // this.logger.Info("Downloading updates");
+                                var releaseEntry = await mgr.Result.UpdateApp();
 
                             if (releaseEntry != null)
                             {
 
                                 //restart adrilight if an update was installed
-                                //dispose licked file first
+                                //dispose locked WinRing0 file first
                                 if (HWMonitor != null)
                                     HWMonitor.Dispose();
+                                if (OpenRGBStream != null)
+                                    OpenRGBStream.Dispose();
                                 //remember to dispose openrgbstream too!!!
+                                System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                                {
+                                    _splashScreen.status.Text = "RESTARTING...";
+                                });
                                 UpdateManager.RestartApp();
                             }
                             //this.logger.Info($"Download complete. Version {updateResult.Version} will take effect when App is restarted.");

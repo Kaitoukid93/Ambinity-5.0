@@ -90,7 +90,48 @@ namespace adrilight
 
 
             GeneralSettings = kernel.Get<IGeneralSettings>();
-            _telemetryClient = kernel.Get<TelemetryClient>();
+            MainViewViewModel = kernel.Get<MainViewViewModel>();
+            MainViewViewModel.AvailableDevices.CollectionChanged += (s, e) =>
+            {
+                switch(e.Action)
+                {
+                    case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+                        var newDevices = e.NewItems;
+                        // create new IDeviceSettings with new Name
+                        //Get ID:
+                        foreach(IDeviceSettings device in newDevices)
+                        {
+                            var iD = device.DeviceUID.ToString();
+                            kernel.Bind<IDeviceSettings>().ToConstant(device).Named(iD);
+                            foreach (var output in device.AvailableOutputs)
+                            {
+                                var outputID = iD + output.OutputID.ToString();
+                                kernel.Bind<IOutputSettings>().ToConstant(output).Named(outputID);
+
+                            }
+
+                            var unionOutput = device.UnionOutput;
+
+                            if (unionOutput != null)
+                            {
+                                var unionOutputID = iD + unionOutput.OutputID.ToString();
+                                kernel.Bind<IOutputSettings>().ToConstant(unionOutput).Named(unionOutputID);
+
+                            }
+                            //now inject
+                            InjectingDevice(kernel, device);
+                        }
+                        
+                        
+                      
+
+                        break;
+                    case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+                        break;
+
+                }
+            };
+                _telemetryClient = kernel.Get<TelemetryClient>();
 
             ///set theme and color
             if (GeneralSettings.ThemeIndex == 1)
@@ -110,6 +151,7 @@ namespace adrilight
 
             SetupTrackingForProcessWideEvents(_telemetryClient);
             kernel.Get<AdrilightUpdater>().StartThread();
+            
         }
 
 
@@ -147,6 +189,7 @@ namespace adrilight
 
         private static View.SplashScreen _splashScreen;
 
+
         internal static IKernel SetupDependencyInjection(bool isInDesignMode)
         {
 
@@ -178,47 +221,7 @@ namespace adrilight
                 });
                 foreach (var device in existedDevice)
                 {
-                    var iD = device.DeviceUID.ToString();
-                    var outputs = device.AvailableOutputs.ToList();
-                    if (device.UnionOutput != null)
-                        outputs.Add(device.UnionOutput);
-                    var connectionType = device.DeviceConnectionType;
-                    if (connectionType != "OpenRGB")
-                    {
-                        switch (connectionType)
-                        {
-                            case "wired":
-                                kernel.Bind<ISerialStream>().To<SerialStream>().InSingletonScope().Named(iD).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(iD));
-
-                                break;
-                            case "wireless":
-                                kernel.Bind<ISerialStream>().To<NetworkStream>().InSingletonScope().Named(iD).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(iD));
-
-                                break;
-
-                        }
-                        var serialStream = kernel.Get<ISerialStream>(iD);
-                    }
-                    foreach (var output in outputs)
-                    {
-
-                        var outputID = iD + output.OutputID.ToString();
-                        kernel.Bind<IRainbow>().To<Rainbow>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
-                        kernel.Bind<IDeviceSpotSet>().To<DeviceSpotSet>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
-                        kernel.Bind<IMusic>().To<Music>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
-                        kernel.Bind<IDesktopDuplicatorReader>().To<DesktopDuplicatorReader>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
-                        kernel.Bind<IGifxelation>().To<Gifxelation>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
-                        kernel.Bind<IStaticColor>().To<StaticColor>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
-                        var spotset = kernel.Get<IDeviceSpotSet>(outputID);
-                        var rainbow = kernel.Get<IRainbow>(outputID);
-                        var screencapture = kernel.Get<IDesktopDuplicatorReader>(outputID);
-                        var music = kernel.Get<IMusic>(outputID);
-                        var staticColor = kernel.Get<IStaticColor>(outputID);
-                        var gifxelation = kernel.Get<IGifxelation>(outputID);
-
-                    }
-
-
+                    InjectingDevice(kernel, device);
 
                 }
 
@@ -235,6 +238,49 @@ namespace adrilight
 
         }
 
+        private static void InjectingDevice (IKernel kernel, IDeviceSettings device)
+        {
+            var iD = device.DeviceUID.ToString();
+            var outputs = device.AvailableOutputs.ToList();
+            if (device.UnionOutput != null)
+                outputs.Add(device.UnionOutput);
+            var connectionType = device.DeviceConnectionType;
+            if (connectionType != "OpenRGB")
+            {
+                switch (connectionType)
+                {
+                    case "wired":
+                        kernel.Bind<ISerialStream>().To<SerialStream>().InSingletonScope().Named(iD).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(iD));
+
+                        break;
+                    case "wireless":
+                        kernel.Bind<ISerialStream>().To<NetworkStream>().InSingletonScope().Named(iD).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(iD));
+
+                        break;
+
+                }
+                var serialStream = kernel.Get<ISerialStream>(iD);
+            }
+            foreach (var output in outputs)
+            {
+
+                var outputID = iD + output.OutputID.ToString();
+                kernel.Bind<IRainbow>().To<Rainbow>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
+                kernel.Bind<IDeviceSpotSet>().To<DeviceSpotSet>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
+                kernel.Bind<IMusic>().To<Music>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
+                kernel.Bind<IDesktopDuplicatorReader>().To<DesktopDuplicatorReader>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
+                kernel.Bind<IGifxelation>().To<Gifxelation>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
+                kernel.Bind<IStaticColor>().To<StaticColor>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
+                var spotset = kernel.Get<IDeviceSpotSet>(outputID);
+                var rainbow = kernel.Get<IRainbow>(outputID);
+                var screencapture = kernel.Get<IDesktopDuplicatorReader>(outputID);
+                var music = kernel.Get<IMusic>(outputID);
+                var staticColor = kernel.Get<IStaticColor>(outputID);
+                var gifxelation = kernel.Get<IGifxelation>(outputID);
+
+            }
+
+        }
         private void SetupLoggingForProcessWideEvents()
         {
             AppDomain.CurrentDomain.UnhandledException +=
@@ -355,6 +401,7 @@ namespace adrilight
 
 
         private IKernel kernel;
+        public MainViewViewModel MainViewViewModel { get; set; }
 
         private void OpenSettingsWindow(bool isMinimized)
         {

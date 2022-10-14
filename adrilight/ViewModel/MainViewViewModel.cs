@@ -694,12 +694,7 @@ namespace adrilight.ViewModel
 
         public ObservableCollection<IDeviceSettings> AvailableDevices {
             get { return _availableDevices; }
-            set
-            {
-                if (_availableDevices == value) return;
-                _availableDevices = value;
-                RaisePropertyChanged();
-            }
+            set => Set(ref _availableDevices, value);
         }
 
         private ObservableCollection<WLEDDevice> _availableWLEDDevices;
@@ -4446,9 +4441,9 @@ namespace adrilight.ViewModel
             CurrentSelectedDeviceToAdd.DeviceUID = Guid.NewGuid().ToString();
             AvailableDevices.Add(CurrentSelectedDeviceToAdd);
             WriteDeviceInfoJson();
-            OpenRGBStream.Dispose();
-            System.Windows.Forms.Application.Restart();
-            Process.GetCurrentProcess().Kill();
+          //  OpenRGBStream.Dispose();
+           // System.Windows.Forms.Application.Restart();
+          //  Process.GetCurrentProcess().Kill();
         }
 
         private void AddWLEDDevices()
@@ -4477,25 +4472,7 @@ namespace adrilight.ViewModel
             }
             if (AvailableSerialDevices != null)
             {
-                //foreach (var serialDevice in AvailableSerialDevices)
-                //{
-                //    if (serialDevice.IsSelected && serialDevice.AvailableOutputs[0] != null)
-                //    {
-                //        serialDevice.UnionOutput = DefaulOutputCollection.AvailableDefaultOutputs[5];
-                //        serialDevice.UnionOutput.OutputID = 1;
-                //        serialDevice.UnionOutput.OutputIsEnabled = false;
-                //        //AvailableDevices.Add(serialDevice);
-                //        count++;
-                //        //AvailableSerialDevices.Remove(serialDevice);
-                //    }
-                //    else if (serialDevice.IsSelected && serialDevice.AvailableOutputs[0] == null) // this apply to multiple size devices that need to ask user to chose size
-                //    {
-                //        //show message box to require user to select size first
-                //        HandyControl.Controls.MessageBox.Show("Vui lòng chọn kích thước", "No Device Size Defined", MessageBoxButton.OK, MessageBoxImage.Warning);
-                //        return;
-                //    }
-
-                //}
+              
 
                 foreach (var serialDevice in AvailableSerialDevices)
                 {
@@ -4505,11 +4482,6 @@ namespace adrilight.ViewModel
                     }
                 }
 
-                //else
-                //{
-                //    HandyControl.Controls.MessageBox.Show("Vui lòng chọn thiết bị để thêm", "No Device Selected", MessageBoxButton.OK, MessageBoxImage.Warning);
-                //    return;
-                //}
             }
             if (AvailableOpenRGBDevices != null)
             {
