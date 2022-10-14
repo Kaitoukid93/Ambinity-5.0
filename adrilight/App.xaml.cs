@@ -99,7 +99,7 @@ namespace adrilight
                         var newDevices = e.NewItems;
                         // create new IDeviceSettings with new Name
                         //Get ID:
-                        foreach(IDeviceSettings device in newDevices)
+                        foreach (IDeviceSettings device in newDevices)
                         {
                             var iD = device.DeviceUID.ToString();
                             kernel.Bind<IDeviceSettings>().ToConstant(device).Named(iD);
@@ -120,10 +120,12 @@ namespace adrilight
                             }
                             //now inject
                             InjectingDevice(kernel, device);
+                            //since openRGBStream is single instance, we need to manually add device then refresh
+
+                           
+                           
                         }
-                        
-                        
-                      
+                        //now reboot whatever service rely on available devices
 
                         break;
                     case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
@@ -245,8 +247,7 @@ namespace adrilight
             if (device.UnionOutput != null)
                 outputs.Add(device.UnionOutput);
             var connectionType = device.DeviceConnectionType;
-            if (connectionType != "OpenRGB")
-            {
+           
                 switch (connectionType)
                 {
                     case "wired":
@@ -257,10 +258,13 @@ namespace adrilight
                         kernel.Bind<ISerialStream>().To<NetworkStream>().InSingletonScope().Named(iD).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(iD));
 
                         break;
+                    case "OpenRGB":
+                        kernel.Bind<ISerialStream>().To<OpenRGBStream>().InSingletonScope().Named(iD).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(iD));
+                        break;
 
                 }
                 var serialStream = kernel.Get<ISerialStream>(iD);
-            }
+            
             foreach (var output in outputs)
             {
 
@@ -293,7 +297,7 @@ namespace adrilight
             {
                 var devices = kernel.GetAll<IDeviceSettings>();
                 var hwMonitor = kernel.GetAll<IHWMonitor>().FirstOrDefault();
-                var orgb = kernel.GetAll<IOpenRGBStream>().FirstOrDefault();
+                var ambinityClient = kernel.GetAll<IAmbinityClient>().FirstOrDefault();
                 foreach (var device in devices)
                 {
                     device.CurrentState = State.sleep;
@@ -302,7 +306,7 @@ namespace adrilight
                 }
                 //dispose hwmonitor to prevent file lock
                 hwMonitor.Dispose();
-                orgb.Dispose();
+                ambinityClient.Dispose();
 
                 _log.Debug("Application exit!");
             };

@@ -3,19 +3,19 @@ using System.Collections.Generic;
 
 namespace adrilight
 {
-    public interface IOpenRGBStream
+    public interface IAmbinityClient
     {
         bool IsRunning { get; }
         bool IsInitialized { get; set; }
-        void Start();
-        void Stop();
-        //bool IsValid();
-        void DFU();
+
+        void RefreshOpenRGBDeviceState( bool init);
         void RefreshTransferState();
         List<OpenRGB.NET.Models.Device> ScanNewDevice();
-        OpenRGBClient AmbinityClient { get; set; }
+        List<IDeviceSettings> AvailableDevices { get; set; }
+        OpenRGBClient Client { get; set; }
         System.Diagnostics.Process ORGBProcess { get; set; }
         void Dispose();
+        object Lock { get;}
 
 
     }

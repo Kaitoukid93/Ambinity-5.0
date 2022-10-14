@@ -20,12 +20,12 @@ namespace adrilight.Util
         private readonly ILogger _log = LogManager.GetCurrentClassLogger();
         private const string ADRILIGHT_RELEASES = "https://github.com/Kaitoukid93/Ambinity_Developer_Release";
 
-        public AdrilightUpdater(IGeneralSettings settings,IOpenRGBStream openRGBStream, IContext context, IHWMonitor hWmonitor)
+        public AdrilightUpdater(IGeneralSettings settings,IAmbinityClient ambinityClient, IContext context, IHWMonitor hWmonitor)
         {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
             Context = context ?? throw new ArgumentNullException(nameof(context));
             HWMonitor = hWmonitor ?? throw new ArgumentNullException(nameof(hWmonitor));
-            OpenRGBStream = openRGBStream ?? throw new ArgumentNullException(nameof(openRGBStream));
+            AmbinityClient = ambinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
 
         }
         private static View.SplashScreen _splashScreen;
@@ -43,7 +43,7 @@ namespace adrilight.Util
         }
 
         public IGeneralSettings Settings { get; }
-        public IOpenRGBStream OpenRGBStream { get; }
+        public IAmbinityClient AmbinityClient { get; }
         public IHWMonitor HWMonitor { get; }
         public IContext Context { get; }
 
@@ -98,8 +98,8 @@ namespace adrilight.Util
                                 //dispose locked WinRing0 file first
                                 if (HWMonitor != null)
                                     HWMonitor.Dispose();
-                                if (OpenRGBStream != null)
-                                    OpenRGBStream.Dispose();
+                                if (AmbinityClient != null)
+                                    AmbinityClient.Dispose();
                                 //remember to dispose openrgbstream too!!!
                                 System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
                                 {

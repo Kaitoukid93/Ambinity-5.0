@@ -20,7 +20,7 @@ namespace adrilight.Ninject
             Bind<IGeneralSettings>().ToConstant(generalSettings);
             Bind<MainViewViewModel>().ToSelf().InSingletonScope();
             Bind<MainView>().ToSelf().InSingletonScope();
-            Bind<IOpenRGBStream>().To<OpenRGBStream>().InSingletonScope();
+            Bind<IAmbinityClient>().To<AmbinityClient>().InSingletonScope();
             Bind<ISerialDeviceDetection>().To<SerialDeviceDetection>().InSingletonScope();
             Bind<IAudioFrame>().To<AudioFrame>().InSingletonScope();
             Bind<IHWMonitor>().To<HWMonitor>().InSingletonScope();

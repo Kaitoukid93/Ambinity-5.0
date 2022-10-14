@@ -1289,7 +1289,7 @@ namespace adrilight.ViewModel
         public IGeneralSettings GeneralSettings { get; }
 
         public ISerialStream[] SerialStreams { get; }
-        public IOpenRGBStream OpenRGBStream { get; set; }
+        public IAmbinityClient AmbinityClient { get; set; }
         public ISerialDeviceDetection SerialDeviceDetection { get; set; }
         //public static IShaderEffect ShaderEffect { get; set; }
 
@@ -1298,7 +1298,7 @@ namespace adrilight.ViewModel
         public MainViewViewModel(IContext context,
             IDeviceSettings[] devices,
             IGeneralSettings generalSettings,
-            IOpenRGBStream openRGBStream,
+            IAmbinityClient ambinityClient,
             ISerialDeviceDetection serialDeviceDetection,
             ISerialStream[] serialStreams
            //IShaderEffect shaderEffect
@@ -1312,7 +1312,7 @@ namespace adrilight.ViewModel
             DisplayCards = new ObservableCollection<IDeviceSettings>();
             Context = context ?? throw new ArgumentNullException(nameof(context));
             SpotSets = new ObservableCollection<IDeviceSpotSet>();
-            OpenRGBStream = openRGBStream ?? throw new ArgumentNullException(nameof(openRGBStream));
+            AmbinityClient = ambinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
             SerialDeviceDetection = serialDeviceDetection ?? throw new ArgumentNullException(nameof(serialDeviceDetection));
             //ShaderEffect = shaderEffect ?? throw new ArgumentNullException();
             var keyboardHookManager = new KeyboardHookManager();
@@ -4491,7 +4491,7 @@ namespace adrilight.ViewModel
                     convertedDevice.DeviceName = openRGBDevice.Name;
                     convertedDevice.DeviceType = openRGBDevice.Type.ToString();
                     convertedDevice.FirmwareVersion = openRGBDevice.Version;
-                    convertedDevice.OutputPort = OpenRGBStream.AmbinityClient.ToString();
+                    convertedDevice.OutputPort = AmbinityClient.Client.ToString();
                     convertedDevice.DeviceDescription = "Device Supported Throught Open RGB Client";
                     convertedDevice.DeviceConnectionType = "OpenRGB";
                     convertedDevice.DeviceID = AvailableDevices.Count + 1;
@@ -4525,9 +4525,10 @@ namespace adrilight.ViewModel
             }
 
             WriteDeviceInfoJson();
-            OpenRGBStream.Dispose();
-            System.Windows.Forms.Application.Restart();
-            Process.GetCurrentProcess().Kill();
+            
+           // OpenRGBStream.Dispose();
+           // System.Windows.Forms.Application.Restart();
+            //Process.GetCurrentProcess().Kill();
         }
 
         private void RunTestSequence()
@@ -4819,7 +4820,7 @@ namespace adrilight.ViewModel
                 File.Delete(JsonGeneralFileNameAndPath);
             }
 
-            OpenRGBStream.Dispose();
+            AmbinityClient.Dispose();
             System.Windows.Forms.Application.Restart();
             Process.GetCurrentProcess().Kill();
         }
@@ -5389,7 +5390,7 @@ namespace adrilight.ViewModel
         {
             AvailableOpenRGBDevices = new ObservableCollection<Device>();
 
-            var detectedDevices = OpenRGBStream.ScanNewDevice();
+            var detectedDevices = AmbinityClient.ScanNewDevice();
             if (detectedDevices != null)
             {
                 foreach (var device in detectedDevices)
@@ -5931,7 +5932,7 @@ namespace adrilight.ViewModel
         {
             AvailableDevices.Remove(CurrentDevice);
             WriteDeviceInfoJson();
-            OpenRGBStream.Dispose();
+            AmbinityClient.Dispose();
             System.Windows.Forms.Application.Restart();
             Process.GetCurrentProcess().Kill();
         }

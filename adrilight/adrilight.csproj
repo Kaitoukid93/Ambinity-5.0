@@ -211,7 +211,7 @@
     <Compile Include="Util\ILightingMode.cs" />
     <Compile Include="Util\IMusic.cs" />
     <Compile Include="Util\IOpenRGBClientDevice.cs" />
-    <Compile Include="Util\IOpenRGBStream.cs" />
+    <Compile Include="Util\IAmbinityClient.cs" />
     <Compile Include="Util\IRainbow.cs" />
     <Compile Include="Util\IRainbowTicker.cs" />
     <Compile Include="Util\ISerialDeviceDetection.cs" />
@@ -224,11 +224,12 @@
     <Compile Include="Util\Music.cs" />
     <Compile Include="Util\NetworkStream.cs" />
     <Compile Include="Util\OpenRGBClientDevice.cs" />
-    <Compile Include="Util\OpenRGBStream.cs" />
+    <Compile Include="Util\AmbinityClient.cs" />
     <Compile Include="Util\PaletteCardContextMenu.cs" />
     <Compile Include="Util\Rainbow.cs" />
     <Compile Include="Util\RainbowTicker.cs" />
     <Compile Include="Util\SerialDeviceDetection.cs" />
+    <Compile Include="Util\OpenRGBStream.cs" />
     <Compile Include="Util\SerialStream.cs" />
     <Compile Include="Util\StartupManager.cs" />
     <Compile Include="Util\StaticColor.cs" />
