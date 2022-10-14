@@ -67,20 +67,24 @@ namespace adrilight
                 {
                     Stop(); // stop current running if worker thread is alive.
                 }
-                if (AmbinityClient != null && AmbinityClient.Client.Connected)
+                if (AmbinityClient.Client != null && AmbinityClient.Client.Connected)
                 {
 
                     //start it
                     //find out which position 
-                    for (var i = 0; i < AmbinityClient.Client.GetControllerCount(); i++)
+                    lock(AmbinityClient.Lock)
                     {
-                        var device = AmbinityClient.Client.GetControllerData(i);
-                        var uid = device.Name + device.Version + device.Location;
-                        if (DeviceSettings.DeviceUID == uid)
-                            //so we're at i
-                            index = i;
+                        for (var i = 0; i < AmbinityClient.Client.GetControllerCount(); i++)
+                        {
+                            var device = AmbinityClient.Client.GetControllerData(i);
+                            var uid = device.Name + device.Version + device.Location;
+                            if (DeviceSettings.DeviceUID == uid)
+                                //so we're at i
+                                index = i;
 
+                        }
                     }
+                  
                     _log.Debug("starting the OpenRGB stream for device Name : " + DeviceSettings.DeviceName);
                     Start();
                 }
@@ -325,7 +329,10 @@ namespace adrilight
                                 }
 
                             }
-                            AmbinityClient.Client.UpdateLeds(index, deviceColors.ToArray());
+                            lock (AmbinityClient.Lock)
+                            {
+                                AmbinityClient.Client.UpdateLeds(index, deviceColors.ToArray());
+                            }
 
                         }
 

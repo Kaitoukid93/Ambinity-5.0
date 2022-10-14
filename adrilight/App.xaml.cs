@@ -231,12 +231,12 @@ namespace adrilight
 
 
             }
-
-            return kernel;
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
                 _splashScreen.status.Text = "PROCESSES CREATED";
             });
+            return kernel;
+           
 
         }
 
