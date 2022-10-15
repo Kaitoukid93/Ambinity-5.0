@@ -7,7 +7,7 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            ResizeMode="NoResize"
@@ -37,7 +37,7 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <TextBlock VerticalAlignment="Top" Margin="20,0,20,20" Text="Connection Settings" Style="{DynamicResource TextBlockLarge}">
+        <TextBlock VerticalAlignment="Top" Margin="20,0,20,20" Text="Connection Settings" Style="{StaticResource TextBlockLarge}">
 
         </TextBlock>
         <StackPanel Grid.Row="1">
@@ -46,7 +46,7 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
-                <GroupBox   VerticalAlignment="Center" Margin="5" Style="{DynamicResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                <GroupBox   VerticalAlignment="Center" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                     <GroupBox.HeaderTemplate>
                         <DataTemplate>
                             <TextBlock FontWeight="SemiBold" Text="ENABLE"/>
@@ -56,16 +56,16 @@
                     <!--<Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
                                       Width="20" 
                                       Height="20" 
-                                      Fill="{DynamicResource PrimaryTextBrush}"/>-->
-                    <ToggleButton  HorizontalAlignment="Right" IsChecked="{Binding CurrentDevice.IsTransferActive}" Style="{DynamicResource ToggleButtonSwitchSmallerElipse}">
+                                      Fill="{StaticResource PrimaryTextBrush}"/>-->
+                    <ToggleButton  HorizontalAlignment="Right" IsChecked="{Binding CurrentDevice.IsTransferActive}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
 
                     </ToggleButton>
 
 
                 </GroupBox>
-                <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Enable or Disable data transfer"/>
+                <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Enable or Disable data transfer"/>
             </Grid>
-            <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="5,10,5,10">
+            <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
             </hc:Divider>
             <Grid Name="Notifi">
@@ -73,7 +73,7 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
-                <GroupBox   VerticalAlignment="Center" Margin="5" Style="{DynamicResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                <GroupBox   VerticalAlignment="Center" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                     <GroupBox.HeaderTemplate>
                         <DataTemplate>
                             <TextBlock FontWeight="SemiBold" Text="THÔNG BÁO KHI MẤT KẾT NỐI"/>
@@ -83,16 +83,16 @@
                     <!--<Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
                                       Width="20" 
                                       Height="20" 
-                                      Fill="{DynamicResource PrimaryTextBrush}"/>-->
-                    <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding CurrentOutput.OutputUseLinearLighting}" Style="{DynamicResource ToggleButtonSwitchSmallerElipse}">
+                                      Fill="{StaticResource PrimaryTextBrush}"/>-->
+                    <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding CurrentOutput.OutputUseLinearLighting}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
                         
                     </ToggleButton>
 
 
                 </GroupBox>
-                <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Một cửa sổ thông báo sẽ bật lên và yêu cầu kiểm tra kết nối"/>
+                <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Một cửa sổ thông báo sẽ bật lên và yêu cầu kiểm tra kết nối"/>
             </Grid>
-            <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="5,10,5,10">
+            <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
             </hc:Divider>
             <Grid Name="RGBOrder">
@@ -100,7 +100,7 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
-                <GroupBox   VerticalAlignment="Center"  Margin="5" Style="{DynamicResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                <GroupBox   VerticalAlignment="Center"  Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                     <GroupBox.HeaderTemplate>
                         <DataTemplate>
                             <TextBlock FontWeight="SemiBold" Text="COM PORT"/>
@@ -110,20 +110,20 @@
                         <!--<Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
                                       Width="20" 
                                       Height="20" 
-                                      Fill="{DynamicResource PrimaryTextBrush}"/>-->
+                                      Fill="{StaticResource PrimaryTextBrush}"/>-->
                     <Grid  HorizontalAlignment="Right" Margin="0,0,10,0">
                         <ItemsControl ItemsSource="{Binding AvailableComPorts}" Height="0" Margin="15,0"/>
-                        <ComboBox IsEnabled="{Binding CurrentDevice.IsTransferActive,Converter={StaticResource Boolean2BooleanReConverter}}" ItemContainerStyle="{DynamicResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch"   SelectedItem="{Binding CurrentDevice.OutputPort}" ItemsSource="{Binding AvailableComPorts}"  Style="{DynamicResource ComboBoxBaseStyle}"/>
+                        <ComboBox IsEnabled="{Binding CurrentDevice.IsTransferActive,Converter={StaticResource Boolean2BooleanReConverter}}" ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch"   SelectedItem="{Binding CurrentDevice.OutputPort}" ItemsSource="{Binding AvailableComPorts}"  Style="{StaticResource ComboBoxBaseStyle}"/>
                         
                     </Grid>
 
 
 
                 </GroupBox>
-                <TextBlock Visibility="{Binding CurrentDevice.IsTransferActive, Converter={StaticResource Boolean2VisibilityReConverter}}" Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Lựa chọn này chỉ áp dụng cho Ambino Device"/>
-                <TextBlock Visibility="{Binding CurrentDevice.IsTransferActive, Converter={StaticResource boolToVisibilityConvert}}" Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultWarning}" Grid.Row="1" Text="Disable Device trước khi thực hiện đổi COM Port"/>
+                <TextBlock Visibility="{Binding CurrentDevice.IsTransferActive, Converter={StaticResource Boolean2VisibilityReConverter}}" Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Lựa chọn này chỉ áp dụng cho Ambino Device"/>
+                <TextBlock Visibility="{Binding CurrentDevice.IsTransferActive, Converter={StaticResource boolToVisibilityConvert}}" Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultWarning}" Grid.Row="1" Text="Disable Device trước khi thực hiện đổi COM Port"/>
             </Grid>
-            <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="5,10,5,10">
+            <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
             </hc:Divider>
             <Grid Name="outputVoltage">
@@ -131,7 +131,7 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
-                <GroupBox   VerticalAlignment="Center"   Margin="5" Style="{DynamicResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                <GroupBox   VerticalAlignment="Center"   Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                     <GroupBox.HeaderTemplate>
                         <DataTemplate>
                             <TextBlock FontWeight="SemiBold" Text="DATA RATE"/>
@@ -141,15 +141,15 @@
                     <!--<Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
                                       Width="20" 
                                       Height="20" 
-                                      Fill="{DynamicResource PrimaryTextBrush}"/>-->
+                                      Fill="{StaticResource PrimaryTextBrush}"/>-->
                     <Grid  HorizontalAlignment="Right" Margin="0,0,10,0">
                         <ItemsControl ItemsSource="{Binding AvailableBaudrates}" Height="0" Margin="15,0"/>
-                        <ComboBox ItemContainerStyle="{DynamicResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch"   SelectedItem="{Binding CurrentDevice.Baudrate}" ItemsSource="{Binding AvailableBaudrates}"  Style="{DynamicResource ComboBoxBaseStyle}"/>
+                        <ComboBox ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch"   SelectedItem="{Binding CurrentDevice.Baudrate}" ItemsSource="{Binding AvailableBaudrates}"  Style="{StaticResource ComboBoxBaseStyle}"/>
                     </Grid>
 
 
                 </GroupBox>
-                <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Tốc độ truyền dữ liệu"/>
+                <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Tốc độ truyền dữ liệu"/>
             </Grid>
           
 
@@ -161,8 +161,8 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Click="Button_Click" Command="{Binding CreateNewPaletteCommand}" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
-                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
+                <Button Click="Button_Click" Command="{Binding CreateNewPaletteCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
+                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
             </Grid>-->
             
         </StackPanel>

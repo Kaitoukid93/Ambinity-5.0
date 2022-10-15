@@ -7,7 +7,7 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            ResizeMode="NoResize"
@@ -27,7 +27,7 @@
 
     <Grid Margin="5">
         <StackPanel>
-            <TextBlock Text="Gradient" Style="{DynamicResource TextBlockLarge}">
+            <TextBlock Text="Gradient" Style="{StaticResource TextBlockLarge}">
                 
             </TextBlock>
             <Border Margin="15" CornerRadius="7,7,7,7" Width="300" Height="300">
@@ -43,12 +43,12 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Button Command="{Binding AddNewSolidColorCommand}" CommandParameter="gradientStart" BorderBrush="Transparent" Margin="5" Width="32" Height="32" Style="{DynamicResource ButtonDefault}">
+                <Button Command="{Binding AddNewSolidColorCommand}" CommandParameter="gradientStart" BorderBrush="Transparent" Margin="5" Width="32" Height="32" Style="{StaticResource ButtonDefault}">
                     <Button.Background>
                         <SolidColorBrush Color="{Binding CurrentStartColor}"/>
                     </Button.Background>
                 </Button>
-                <Button  Command="{Binding AddNewSolidColorCommand}" CommandParameter="gradientStop" BorderBrush="Transparent" Margin="5" Width="32" Height="32" Grid.Column="1" Style="{DynamicResource ButtonDefault}">
+                <Button  Command="{Binding AddNewSolidColorCommand}" CommandParameter="gradientStop" BorderBrush="Transparent" Margin="5" Width="32" Height="32" Grid.Column="1" Style="{StaticResource ButtonDefault}">
                     <Button.Background>
                         <SolidColorBrush Color="{Binding CurrentStopColor}"/>
                     </Button.Background>
@@ -62,8 +62,8 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Click="Button_Click" Command="{Binding SaveNewGradientCommand}" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
-                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
+                <Button Click="Button_Click" Command="{Binding SaveNewGradientCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
+                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
             </Grid>
             
         </StackPanel>

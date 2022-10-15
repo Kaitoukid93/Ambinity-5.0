@@ -9,7 +9,7 @@
            xmlns:converters="clr-namespace:adrilight.Converter"
          d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
         DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
-        Background="{DynamicResource RegionBrush}"
+        Background="{StaticResource RegionBrush}"
         
        
         mc:Ignorable="d" Top="20"
@@ -37,8 +37,8 @@
             <Style TargetType="Button" x:Key="sideBtn" BasedOn="{StaticResource {x:Type Button}}">
                 <Setter Property="BorderThickness" Value="0"></Setter>
                 <Setter Property="Height" Value="46"></Setter>
-                <Setter Property="Background" Value="{DynamicResource RegionBrush}"></Setter>
-                <Setter Property="Foreground" Value="{DynamicResource MainContentForegroundBrush}"></Setter>
+                <Setter Property="Background" Value="{StaticResource RegionBrush}"></Setter>
+                <Setter Property="Foreground" Value="{StaticResource MainContentForegroundBrush}"></Setter>
                 <Setter Property="FontWeight" Value="Regular"></Setter>
                 <Setter Property="Cursor" Value="Hand"></Setter>
                 <Setter Property="FontSize" Value="15"></Setter>
@@ -80,8 +80,8 @@
                                 </DataTrigger>
                             
                                 <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                    <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"></Setter>
-                                    <Setter Property="Foreground" Value="{DynamicResource RegionBrush}"></Setter>
+                                    <Setter Property="Background" Value="{StaticResource PrimaryBrush}"></Setter>
+                                    <Setter Property="Foreground" Value="{StaticResource RegionBrush}"></Setter>
                                 </DataTrigger>
 
                                 <DataTrigger Binding="{Binding IsVisible}" Value="False">
@@ -113,7 +113,7 @@
             <Style x:Key="ListBoxTransparent" BasedOn="{hc:StaticResource ListBoxBaseStyle}" TargetType="ListBox">
                 <Setter Property="hc:BorderElement.CornerRadius" Value="4"/>
                 <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="ItemContainerStyle" Value="{DynamicResource ListBoxItemTransparent}"/>
+                <Setter Property="ItemContainerStyle" Value="{StaticResource ListBoxItemTransparent}"/>
             </Style>
             <DataTemplate x:Key="dashboardTemplate">
                 <local:AllDeviceView/>
@@ -173,7 +173,7 @@
                         <ContextMenu>
                             <MenuItem  Click="OpenDashboard" Header="Dashboard">
                                 <MenuItem.Icon>
-                                    <Path   Data="{StaticResource dashboard}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                    <Path   Data="{StaticResource dashboard}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                 </MenuItem.Icon>
 
                             </MenuItem>
@@ -184,12 +184,12 @@
                                     </HierarchicalDataTemplate>
                                 </MenuItem.ItemTemplate>-->
                                 <MenuItem.Icon>
-                                    <Path   Data="{StaticResource auto}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                    <Path   Data="{StaticResource auto}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                 </MenuItem.Icon>
                             </MenuItem>
                             <MenuItem  Command="hc:ControlCommands.ShutdownApp" Header="Exit">
                                 <MenuItem.Icon>
-                                    <Path   Data="{StaticResource exit}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                    <Path   Data="{StaticResource exit}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                 </MenuItem.Icon>
                             </MenuItem>
                         </ContextMenu>
@@ -212,7 +212,7 @@
                             <StackPanel  Margin="0,7,0,0">
 
                             <DockPanel>
-                                <Button Style="{StaticResource ButtonBaseStyle}" Command="{Binding BackCommand}" DockPanel.Dock="Top" HorizontalAlignment="Stretch" Margin="10,10,10,4" Content="Dashboard" BorderThickness="0" Background="{DynamicResource SecondaryRegionBrush}"/>
+                                <Button Style="{StaticResource ButtonBaseStyle}" Command="{Binding BackCommand}" DockPanel.Dock="Top" HorizontalAlignment="Stretch" Margin="10,10,10,4" Content="Dashboard" BorderThickness="0" Background="{StaticResource SecondaryRegionBrush}"/>
 
 
                                 <Grid Margin="10">
@@ -225,7 +225,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <ListBox  Name="ListBoxDemo" ScrollViewer.CanContentScroll="False" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" VirtualizingStackPanel.IsVirtualizing="True" SelectedItem="{Binding CurrentDevice}" ItemsSource="{Binding AvailableDevices}" BorderThickness="0" SelectionMode="Single" Style="{DynamicResource ListBoxTransparent}">
+                                    <ListBox  Name="ListBoxDemo" ScrollViewer.CanContentScroll="False" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" VirtualizingStackPanel.IsVirtualizing="True" SelectedItem="{Binding CurrentDevice}" ItemsSource="{Binding AvailableDevices}" BorderThickness="0" SelectionMode="Single" Style="{StaticResource ListBoxTransparent}">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
@@ -269,7 +269,7 @@
                                     </Grid.ColumnDefinitions>
                                    
 
-                                    <ListBox SelectedIndex="0"  Name="DashboardLeftMenu" ScrollViewer.CanContentScroll="False" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" VirtualizingStackPanel.IsVirtualizing="True"  ItemsSource="{Binding AvailableMenu}" BorderThickness="0" SelectionMode="Single" Style="{DynamicResource ListBoxTransparent}">
+                                    <ListBox SelectedIndex="0"  Name="DashboardLeftMenu" ScrollViewer.CanContentScroll="False" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" VirtualizingStackPanel.IsVirtualizing="True"  ItemsSource="{Binding AvailableMenu}" BorderThickness="0" SelectionMode="Single" Style="{StaticResource ListBoxTransparent}">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">

@@ -191,39 +191,43 @@ namespace adrilight
         public List<OpenRGB.NET.Models.Device> ScanNewDevice()
         {
             var AvailableOpenRGBDevices = new List<Device>();
-            if (Client != null)
-                Client.Dispose();
-            Client = new OpenRGBClient("127.0.0.1", 6742, name: "Ambinity", autoconnect: true, timeout: 1000);
-
-            if (Client != null && Client.Connected == true)
+            try
             {
+                if (Client != null)
+                    Client.Dispose();
+                Client = new OpenRGBClient("127.0.0.1", 6742, name: "Ambinity", autoconnect: true, timeout: 1000);
 
-                var newOpenRGBDevices = Client.GetAllControllerData();
+                if (Client != null && Client.Connected == true)
+                {
 
-                foreach (var device in newOpenRGBDevices)
-                {
-                    AvailableOpenRGBDevices.Add(device);
-                }
-                //check if any devices is already in the dashboard
-                foreach (var device in newOpenRGBDevices)
-                {
-                    var deviceUID = device.Name + device.Version + device.Location;
-                    foreach (var existedDevice in AvailableDevices.Where(p => p.DeviceConnectionType == "OpenRGB"))
+                    var newOpenRGBDevices = Client.GetAllControllerData();
+
+                    foreach (var device in newOpenRGBDevices)
                     {
-                        if (deviceUID == existedDevice.DeviceUID)
-                            AvailableOpenRGBDevices.Remove(device);
+                        AvailableOpenRGBDevices.Add(device);
                     }
+                    //check if any devices is already in the dashboard
+                    foreach (var device in newOpenRGBDevices)
+                    {
+                        var deviceUID = device.Name + device.Version + device.Location;
+                        foreach (var existedDevice in AvailableDevices.Where(p => p.DeviceConnectionType == "OpenRGB"))
+                        {
+                            if (deviceUID == existedDevice.DeviceUID)
+                                AvailableOpenRGBDevices.Remove(device);
+                        }
+                    }
+ 
                 }
 
-                return AvailableOpenRGBDevices;
             }
-            else
+            catch(Exception ex)
             {
-                return null;
+                HandyControl.Controls.MessageBox.Show("sum ting wong");
             }
+
             //WriteOpenRGBDeviceInfoJson();
 
-
+            return AvailableOpenRGBDevices;
         }
 
 

@@ -9,7 +9,7 @@
            xmlns:local="clr-namespace:adrilight.View"
            WindowStartupLocation="Manual"
            mc:Ignorable="d"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            Height="800" 
@@ -107,7 +107,7 @@
                                                     <Viewbox>
 
 
-                                                        <Rectangle Width="{Binding Rectangle.Width}" Height="{Binding Rectangle.Height}" ToolTip="{Binding id}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="{Binding BorderThickness}" >
+                                                        <Rectangle Width="{Binding Rectangle.Width}" Height="{Binding Rectangle.Height}" ToolTip="{Binding id}" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="{Binding BorderThickness}" >
                                                             <Rectangle.Fill>
                                                                 <SolidColorBrush Color="{Binding OnDemandColor}"  />
                                                             </Rectangle.Fill>
@@ -192,7 +192,7 @@
                                     <Viewbox>
 
 
-                                        <Rectangle Width="{Binding Rectangle.Width}" Height="{Binding Rectangle.Height}" ToolTip="{Binding id}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="{Binding BorderThickness}" >
+                                        <Rectangle Width="{Binding Rectangle.Width}" Height="{Binding Rectangle.Height}" ToolTip="{Binding id}" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="{Binding BorderThickness}" >
                                             <Rectangle.Fill>
                                                 <SolidColorBrush Color="{Binding OnDemandColor}"  />
                                             </Rectangle.Fill>

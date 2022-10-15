@@ -38,24 +38,17 @@ namespace adrilight
 
         private readonly NLog.ILogger _log = LogManager.GetCurrentClassLogger();
 
-        public AudioFrame(IGeneralSettings generalSettings, MainViewViewModel mainViewViewModel)
+        public AudioFrame(IGeneralSettings generalSettings)
         {
 
             GeneralSettings = generalSettings ?? throw new ArgumentException(nameof(generalSettings));
-
-            MainViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
-
-
-
             GeneralSettings.PropertyChanged += PropertyChanged;
-            MainViewModel.PropertyChanged += PropertyChanged;
-
-
             BassNet.Registration("saorihara93@gmail.com", "2X2831021152222");
             _process = new WASAPIPROC(Process);
             _fft = new float[1024];
             _lastlevel = 0;
             _hanctr = 0;
+            AvailableAudioDevice = GetAvailableAudioDevices();
             RefreshAudioState();
             _log.Info($"MusicColor Created");
 
@@ -63,7 +56,7 @@ namespace adrilight
         //Dependency Injection//
 
 
-        private MainViewViewModel MainViewModel { get; }
+       
 
         private IGeneralSettings GeneralSettings { get; }
         private bool inSync { get; set; }
@@ -261,30 +254,40 @@ namespace adrilight
 
         }
 
-        public IList<string> _AvailableAudioDevice = new List<string>();
+        private IList<string> _availableAudioDevice;
         public IList<string> AvailableAudioDevice {
+            set
+            {
+                _availableAudioDevice = value;
+            }
             get
             {
-                _AvailableAudioDevice.Clear();
-                int devicecount = BassWasapi.BASS_WASAPI_GetDeviceCount();
+             
+                return _availableAudioDevice;
+            }
 
-                for (int i = 0; i < devicecount; i++)
+        }
+        private  List<string> GetAvailableAudioDevices()
+        {
+            var availableDevices = new List<string>();
+            int devicecount = BassWasapi.BASS_WASAPI_GetDeviceCount();
+
+            for (int i = 0; i < devicecount; i++)
+            {
+
+                var devices = BassWasapi.BASS_WASAPI_GetDeviceInfo(i);
+
+                if (devices.IsEnabled && devices.IsLoopback)
                 {
+                    var device = string.Format("{0} - {1}", i, devices.name);
 
-                    var devices = BassWasapi.BASS_WASAPI_GetDeviceInfo(i);
-
-                    if (devices.IsEnabled && devices.IsLoopback)
-                    {
-                        var device = string.Format("{0} - {1}", i, devices.name);
-
-                        _AvailableAudioDevice.Add(device);
-                    }
-
+                    availableDevices.Add(device);
                 }
 
-                return _AvailableAudioDevice;
             }
+            return availableDevices;
         }
+
 
 
         public int BassAudioDeviceID {

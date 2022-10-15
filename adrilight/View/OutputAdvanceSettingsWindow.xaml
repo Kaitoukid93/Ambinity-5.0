@@ -7,7 +7,7 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            
@@ -40,7 +40,7 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBlock VerticalAlignment="Top" Margin="20,0,20,20" Text="Advance Settings" Style="{DynamicResource TextBlockLarge}">
+                <TextBlock VerticalAlignment="Top" Margin="20,0,20,20" Text="Advance Settings" Style="{StaticResource TextBlockLarge}">
 
                 </TextBlock>
                 <StackPanel Grid.Row="1">
@@ -49,7 +49,7 @@
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
-                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{DynamicResource GroupBoxOriginal}" HorizontalAlignment="Left" hc:TitleElement.TitlePlacement="Left">
+                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Left" hc:TitleElement.TitlePlacement="Left">
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold" Text="SATURATION THRESOLD"/>
@@ -59,18 +59,18 @@
                             <!--<Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
                                       Width="20" 
                                       Height="20" 
-                                      Fill="{DynamicResource PrimaryTextBrush}"/>-->
+                                      Fill="{StaticResource PrimaryTextBrush}"/>-->
                             <hc:PreviewSlider  Value="{Binding CurrentOutput.OutputSaturationThreshold}" Grid.Column="1" MaxWidth="300" MinWidth="200" HorizontalAlignment="Right" Margin="20,0,0,0" Minimum="0" Maximum="20" TickFrequency="0.1">
                                 <hc:PreviewSlider.PreviewContent>
-                                    <Label Style="{DynamicResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0"/>
+                                    <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0"/>
                                 </hc:PreviewSlider.PreviewContent>
                             </hc:PreviewSlider>
 
 
                         </GroupBox>
-                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Cài đặt này dành cho chế độ sáng theo màn hình"/>
+                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Cài đặt này dành cho chế độ sáng theo màn hình"/>
                     </Grid>
-                    <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="5,10,5,10">
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                     </hc:Divider>
                     <Grid Name="AmbilightMode">
@@ -78,7 +78,7 @@
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
-                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{DynamicResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold" Text="NON LINEAR AMBILIGHT"/>
@@ -88,16 +88,16 @@
                             <!--<Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
                                       Width="20" 
                                       Height="20" 
-                                      Fill="{DynamicResource PrimaryTextBrush}"/>-->
-                            <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding CurrentOutput.OutputUseLinearLighting}" Style="{DynamicResource ToggleButtonSwitchSmallerElipse}">
+                                      Fill="{StaticResource PrimaryTextBrush}"/>-->
+                            <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding CurrentOutput.OutputUseLinearLighting}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
 
                             </ToggleButton>
 
 
                         </GroupBox>
-                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Cài đặt này ảnh hưởng đến độ sáng cũng như độ tương phản"/>
+                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Cài đặt này ảnh hưởng đến độ sáng cũng như độ tương phản"/>
                     </Grid>
-                    <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="5,10,5,10">
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                     </hc:Divider>
                     <Grid Name="RGBOrder">
@@ -105,7 +105,7 @@
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
-                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{DynamicResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold" Text="RGB ORDER"/>
@@ -115,14 +115,14 @@
 
                             <Grid  HorizontalAlignment="Right" Margin="0,0,10,0">
                                 <ItemsControl ItemsSource="{Binding AvailableRGBOrders}" Height="0" Margin="15,0"/>
-                                <ComboBox ItemContainerStyle="{DynamicResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch"   SelectedItem="{Binding CurrentOutput.OutputRGBLEDOrder}"  ItemsSource="{Binding AvailableRGBOrders}"  Style="{DynamicResource ComboBoxBaseStyle}"/>
+                                <ComboBox ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch"   SelectedItem="{Binding CurrentOutput.OutputRGBLEDOrder}"  ItemsSource="{Binding AvailableRGBOrders}"  Style="{StaticResource ComboBoxBaseStyle}"/>
                             </Grid>
 
 
                         </GroupBox>
-                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Một số loại LED có thứ tự RGB không theo chuẩn"/>
+                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Một số loại LED có thứ tự RGB không theo chuẩn"/>
                     </Grid>
-                    <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="5,10,5,10">
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                     </hc:Divider>
                     <Grid Name="outputVoltage">
@@ -130,7 +130,7 @@
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
-                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{DynamicResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold" Text="OUTPUT VOLTAGE"/>
@@ -140,16 +140,16 @@
                             <!--<Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
                                       Width="20" 
                                       Height="20" 
-                                      Fill="{DynamicResource PrimaryTextBrush}"/>-->
+                                      Fill="{StaticResource PrimaryTextBrush}"/>-->
                             <hc:NumericUpDown Value="{Binding CurrentOutput.OutputPowerVoltage}" Minimum="3" Maximum="12" HorizontalAlignment="Right" Margin="0,0,0,0">
 
                             </hc:NumericUpDown>
 
 
                         </GroupBox>
-                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Điện áp hoạt động của LED"/>
+                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Điện áp hoạt động của LED"/>
                     </Grid>
-                    <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="5,10,5,10">
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                     </hc:Divider>
                     <Grid Name="outputMiliamps">
@@ -157,7 +157,7 @@
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
-                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{DynamicResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold" Text="OUTPUT CURRENT"/>
@@ -167,16 +167,16 @@
                             <!--<Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
                                       Width="20" 
                                       Height="20" 
-                                      Fill="{DynamicResource PrimaryTextBrush}"/>-->
+                                      Fill="{StaticResource PrimaryTextBrush}"/>-->
                             <hc:NumericUpDown Value="{Binding CurrentOutput.OutputPowerMiliamps}" Minimum="500" Maximum="5000" HorizontalAlignment="Right" Margin="0,0,0,0">
 
                             </hc:NumericUpDown>
 
 
                         </GroupBox>
-                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Dòng điện tối đa cung cấp cho LED"/>
+                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Dòng điện tối đa cung cấp cho LED"/>
                     </Grid>
-                    <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="5,10,5,10">
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                     </hc:Divider>
                     <Grid x:Name="SleepMode">
@@ -184,7 +184,7 @@
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
-                        <GroupBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="5,5" Style="{DynamicResource GroupBoxOriginal}">
+                        <GroupBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="5,5" Style="{StaticResource GroupBoxOriginal}">
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold" Text="SLEEP MODE"/>
@@ -195,14 +195,14 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="auto"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="1" HorizontalAlignment="Right" Background="{DynamicResource DarkOpacityBrush}" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="7" BorderThickness="2">
+                                <Border Grid.Column="1" HorizontalAlignment="Right" Background="{StaticResource DarkOpacityBrush}" BorderBrush="{StaticResource BorderBrush}" CornerRadius="7" BorderThickness="2">
                                     <ListBox SelectedIndex="{Binding CurrentOutput.SleepMode}"   
                              
-                              ItemContainerStyle="{DynamicResource _listBoxModeSelectionStyle}"  
+                              ItemContainerStyle="{StaticResource _listBoxModeSelectionStyle}"  
                               
                               Background="Transparent"
                               BorderThickness="0"
-                              Style="{DynamicResource WrapPanelHorizontalListBox}">
+                              Style="{StaticResource WrapPanelHorizontalListBox}">
 
                                         <ListBox.ItemsPanel>
                                             <ItemsPanelTemplate>
@@ -221,7 +221,7 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                                <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Sleep" Style="{DynamicResource TextBlockDefault}"/>
+                                                <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Sleep" Style="{StaticResource TextBlockDefault}"/>
                                             </Grid>
                                         </ListBoxItem>
                                         <ListBoxItem>
@@ -235,7 +235,7 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                                <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Sentry" Style="{DynamicResource TextBlockDefault}"/>
+                                                <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Sentry" Style="{StaticResource TextBlockDefault}"/>
                                             </Grid>
                                         </ListBoxItem>
 
@@ -244,7 +244,7 @@
                             </Grid>
 
                         </GroupBox>
-                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Chọn chế độ của LED khi tắt máy hoặc sleep"/>
+                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Chọn chế độ của LED khi tắt máy hoặc sleep"/>
 
 
                     </Grid>
@@ -255,8 +255,8 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Click="Button_Click" Command="{Binding CreateNewPaletteCommand}" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
-                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
+                <Button Click="Button_Click" Command="{Binding CreateNewPaletteCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
+                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
             </Grid>-->
 
                 </StackPanel>

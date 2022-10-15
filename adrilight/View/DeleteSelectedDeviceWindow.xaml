@@ -7,7 +7,7 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            ResizeMode="NoResize"
@@ -34,15 +34,15 @@
     <Grid Margin="5">
         <StackPanel>
             
-            <TextBlock Text="Delete Selected Device" Style="{DynamicResource TextBlockLarge}">
+            <TextBlock Text="Delete Selected Device" Style="{StaticResource TextBlockLarge}">
 
             </TextBlock>
            
-            <TextBlock Margin="15,15,15,0" TextWrapping="Wrap" Style="{DynamicResource TextBlockSubTitle}" Text="Bạn có chắc chắn muốn xóa thiết bị này?">
+            <TextBlock Margin="15,15,15,0" TextWrapping="Wrap" Style="{StaticResource TextBlockSubTitle}" Text="Bạn có chắc chắn muốn xóa thiết bị này?">
                 
                 
             </TextBlock>
-            <TextBlock Margin="15,5,15,15" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultDanger}" Text="Mọi thông tin và cài đặt sẽ bị xóa vĩnh viễn">
+            <TextBlock Margin="15,5,15,15" TextWrapping="Wrap" Style="{StaticResource TextBlockDefaultDanger}" Text="Mọi thông tin và cài đặt sẽ bị xóa vĩnh viễn">
                 
             </TextBlock>
            
@@ -52,8 +52,8 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Click="Button_Click" hc:IconElement.Geometry="{StaticResource delete}" Command="{Binding DeleteSelectedDeviceCommand}" Margin="10" Style="{DynamicResource ButtonDanger}" Grid.Column="2" Content="Delete"/>
-                <Button Foreground="{DynamicResource PrimaryTextBrush}" BorderThickness="0" Click="Button_Click" Background="Transparent" Margin="10" Style="{DynamicResource ButtonDefault}" Grid.Column="1" Content="Cancel"/>
+                <Button Click="Button_Click" hc:IconElement.Geometry="{StaticResource delete}" Command="{Binding DeleteSelectedDeviceCommand}" Margin="10" Style="{StaticResource ButtonDanger}" Grid.Column="2" Content="Delete"/>
+                <Button Foreground="{StaticResource PrimaryTextBrush}" BorderThickness="0" Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonDefault}" Grid.Column="1" Content="Cancel"/>
             </Grid>
             
         </StackPanel>

@@ -10,5 +10,6 @@ namespace adrilight.Util
     public interface IAudioFrame : INotifyPropertyChanged
     {
         float[] FFT { get; set; }
+        IList<string> AvailableAudioDevice { get; }
     }
 }

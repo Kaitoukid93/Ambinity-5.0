@@ -7,7 +7,7 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            
@@ -37,7 +37,7 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <TextBlock  VerticalAlignment="Top" Margin="20,0,20,20" Text="Firmware Information" Style="{DynamicResource TextBlockLarge}">
+        <TextBlock  VerticalAlignment="Top" Margin="20,0,20,20" Text="Firmware Information" Style="{StaticResource TextBlockLarge}">
 
         </TextBlock>
         <StackPanel Grid.Row="1">
@@ -48,7 +48,7 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <GroupBox   VerticalAlignment="Center" Margin="5" Style="{DynamicResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                <GroupBox   VerticalAlignment="Center" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                     <GroupBox.HeaderTemplate>
                         <DataTemplate>
                             <TextBlock FontWeight="SemiBold" Text="FIRMWARE UPGRADE"/>
@@ -58,25 +58,25 @@
                     <!--<Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
                                       Width="20" 
                                       Height="20" 
-                                      Fill="{DynamicResource PrimaryTextBrush}"/>-->
+                                      Fill="{StaticResource PrimaryTextBrush}"/>-->
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="auto"/>
                         </Grid.ColumnDefinitions>
                         <hc:LoadingCircle Visibility="{Binding ReloadDeviceLoadingVissible,Converter ={StaticResource boolToVisibilityConvert}}" HorizontalAlignment="Right" Margin=" 10,0" Width="25" Height="25" />
-                        <Button Grid.Column="1" Command="{Binding UpdateCurrentSelectedDeviceFirmwareCommand}" HorizontalAlignment="Right" hc:IconElement.Geometry="{DynamicResource motherboard}" Style="{DynamicResource ButtonDefault}"/>
+                        <Button Grid.Column="1" Command="{Binding UpdateCurrentSelectedDeviceFirmwareCommand}" HorizontalAlignment="Right" hc:IconElement.Geometry="{StaticResource motherboard}" Style="{StaticResource ButtonDefault}"/>
                     </Grid>
                     
 
 
 
                 </GroupBox>
-                <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Cập nhật phần mềm bằng cách chọn file hoặc tự động kiểm tra"/>
+                <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Cập nhật phần mềm bằng cách chọn file hoặc tự động kiểm tra"/>
                 <ProgressBar Visibility="{Binding FwUploadPercentVissible,Converter={StaticResource boolToVisibilityConvert}}" Value="{Binding FwUploadPercent,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="5" Grid.Row="2"  Height="10" x:Name="Prog" Orientation="Horizontal"/>
                 <TextBox Visibility="{Binding FwUploadPercentVissible,Converter={StaticResource boolToVisibilityConvert}}" Text="{Binding FwUploadOutputLog,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" MaxHeight="250" TextWrapping="WrapWithOverflow" Grid.Row="3" Margin="1" x:Name="Output"></TextBox>
             </Grid>
-            <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="5,10,5,10">
+            <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
             </hc:Divider>
             <Grid Name="Notifi">
@@ -84,7 +84,7 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
-                <GroupBox   VerticalAlignment="Center" Margin="5" Style="{DynamicResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                <GroupBox   VerticalAlignment="Center" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                     <GroupBox.HeaderTemplate>
                         <DataTemplate>
                             <TextBlock FontWeight="SemiBold" Text="CHECK FOR FIRMWARE UPDATE"/>
@@ -94,14 +94,14 @@
                     <!--<Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
                                       Width="20" 
                                       Height="20" 
-                                      Fill="{DynamicResource PrimaryTextBrush}"/>-->
-                    <Button  IsEnabled="False" HorizontalAlignment="Right" hc:IconElement.Geometry="{DynamicResource symetric}" Style="{DynamicResource ButtonDefault}"/>
+                                      Fill="{StaticResource PrimaryTextBrush}"/>-->
+                    <Button  IsEnabled="False" HorizontalAlignment="Right" hc:IconElement.Geometry="{StaticResource symetric}" Style="{StaticResource ButtonDefault}"/>
 
 
                 </GroupBox>
-                <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Kiểm tra cập nhật phần mềm từ Website của Ambino"/>
+                <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Kiểm tra cập nhật phần mềm từ Website của Ambino"/>
             </Grid>
-            <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="5,10,5,10">
+            <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
             </hc:Divider>
             <Grid>
@@ -109,8 +109,8 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Path   Fill="{DynamicResource WarningBrush}" Width="20" Height="20" Margin="10,10" Data="{StaticResource colorchanged}" Stretch="Uniform" />
-                <TextBlock HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultWarning}" Grid.Column="1" Text="To exit DFU mode, please Unplug and Replug device"/>
+                <Path   Fill="{StaticResource WarningBrush}" Width="20" Height="20" Margin="10,10" Data="{StaticResource colorchanged}" Stretch="Uniform" />
+                <TextBlock HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultWarning}" Grid.Column="1" Text="To exit DFU mode, please Unplug and Replug device"/>
             </Grid>
            
             
@@ -124,8 +124,8 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Click="Button_Click" Command="{Binding CreateNewPaletteCommand}" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
-                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
+                <Button Click="Button_Click" Command="{Binding CreateNewPaletteCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
+                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
             </Grid>-->
             
         </StackPanel>

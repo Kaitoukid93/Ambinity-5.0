@@ -7,7 +7,7 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            
@@ -39,17 +39,17 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
-            <TextBlock Text="Data Selection" Style="{DynamicResource TextBlockTitle}"></TextBlock>
+            <TextBlock Text="Data Selection" Style="{StaticResource TextBlockTitle}"></TextBlock>
         </Grid>
         <Grid Grid.Row="1">
             <StackPanel>
-                <TextBlock Margin="10" Foreground="{DynamicResource PrimaryBrush}" Style="{DynamicResource TextBlockSubTitle}" Text="Chọn Các dữ liệu bạn muốn Import"></TextBlock>
+                <TextBlock Margin="10" Foreground="{StaticResource PrimaryBrush}" Style="{StaticResource TextBlockSubTitle}" Text="Chọn Các dữ liệu bạn muốn Import"></TextBlock>
                 <CheckBox x:Name="selectallcheckbox" HorizontalAlignment="Left" Margin="10" IsChecked="{Binding SelectAllOutputChecked}">
                     <TextBlock Text="Chọn tất cả" TextWrapping="Wrap"/>
                 </CheckBox >
                 <Grid HorizontalAlignment="Left" Margin="10">
 
-                    <ListBox IsEnabled="{Binding ElementName=selectallcheckbox, Path=IsChecked, Converter={StaticResource Boolean2BooleanReConverter}}"  Background="Transparent" BorderBrush="Transparent" ItemsSource="{Binding CurrentDevice.AvailableOutputs}" Style="{DynamicResource WrapPanelHorizontalListBox}">
+                    <ListBox IsEnabled="{Binding ElementName=selectallcheckbox, Path=IsChecked, Converter={StaticResource Boolean2BooleanReConverter}}"  Background="Transparent" BorderBrush="Transparent" ItemsSource="{Binding CurrentDevice.AvailableOutputs}" Style="{StaticResource WrapPanelHorizontalListBox}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <CheckBox IsChecked="{Binding OutputIsSelected}">
@@ -70,8 +70,8 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-            <Button Click="Button_Click" CommandParameter="apply" Command="{Binding ApplyOutputImportDataCommand}" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
-            <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
+            <Button Click="Button_Click" CommandParameter="apply" Command="{Binding ApplyOutputImportDataCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
+            <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
         </Grid>
 
     </Grid>

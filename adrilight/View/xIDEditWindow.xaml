@@ -7,7 +7,7 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            
@@ -43,7 +43,7 @@
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
                 
-                    <hc:Divider Margin="{Binding SensitivityThickness}" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" LineStrokeThickness="2" Background="{DynamicResource PrimaryBrush}" Orientation="Horizontal">
+                    <hc:Divider Margin="{Binding SensitivityThickness}" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" LineStrokeThickness="2" Background="{StaticResource PrimaryBrush}" Orientation="Horizontal">
                         
                     </hc:Divider>
                     <ItemsControl Margin="5" HorizontalAlignment="Left" VerticalAlignment="Bottom" ItemsSource="{Binding VisualizerFFT}">
@@ -61,7 +61,7 @@
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="auto"/>
                                     </Grid.RowDefinitions>
-                                    <Rectangle HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="7" Fill="{DynamicResource PrimaryBrush}" Height="{Binding Value}"  Margin="4"/>
+                                    <Rectangle HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="7" Fill="{StaticResource PrimaryBrush}" Height="{Binding Value}"  Margin="4"/>
                                     <Rectangle Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="7"  Height="7"  Margin="4">
                                         <Rectangle.Fill>
                                             <SolidColorBrush Color="{Binding OndemandColor}"/>
@@ -80,11 +80,11 @@
         <Grid Grid.Column="1">
             <hc:PreviewSlider Value="{Binding CurrentOutput.OutputMusicSensitivity}" TickFrequency="1" Margin="15"  Orientation="Vertical" Height="255" VerticalAlignment="Bottom" Maximum="255">
                 <hc:PreviewSlider.PreviewContent>
-                    <Label Style="{DynamicResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0"/>
+                    <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0"/>
                 </hc:PreviewSlider.PreviewContent>
             </hc:PreviewSlider>
         </Grid>
-        <!--<GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="50" Margin="15,15" Style="{DynamicResource GroupBoxOriginal}">
+        <!--<GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="50" Margin="15,15" Style="{StaticResource GroupBoxOriginal}">
                 <GroupBox.HeaderTemplate>
                     <DataTemplate>
                         <TextBlock FontWeight="SemiBold" Text="GREEN"/>
@@ -106,8 +106,8 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Click="Button_Click"  Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
-                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
+                <Button Click="Button_Click"  Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
+                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
             </Grid>
             
      

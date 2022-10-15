@@ -8,7 +8,7 @@
            xmlns:converters="clr-namespace:adrilight.Converter"
            xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
            mc:Ignorable="d"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            
@@ -42,7 +42,7 @@
             <Grid.Resources>
                 <Style TargetType="lvc:LineSeries">
                     <Setter Property="StrokeThickness" Value="2"></Setter>
-                    <Setter Property="Stroke" Value="{DynamicResource PrimaryBrush}"></Setter>
+                    <Setter Property="Stroke" Value="{StaticResource PrimaryBrush}"></Setter>
                     <Setter Property="Fill">
                         <Setter.Value>
                             <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>

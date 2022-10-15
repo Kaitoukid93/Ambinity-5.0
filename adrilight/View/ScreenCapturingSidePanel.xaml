@@ -43,10 +43,10 @@
           Height="30" 
           Fill="White"
           Stretch="Uniform" />
-                <!--<TextBlock  Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" Text="Music Reactive" Style="{DynamicResource TextBlockTitleBold}"/>-->
+                <!--<TextBlock  Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" Text="Music Reactive" Style="{StaticResource TextBlockTitleBold}"/>-->
             </StackPanel>
 
-            <GroupBox Grid.Column="1" HorizontalAlignment="Right" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{DynamicResource GroupBoxOriginal}">
+            <GroupBox Grid.Column="1" HorizontalAlignment="Right" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{StaticResource GroupBoxOriginal}">
                 <GroupBox.HeaderTemplate>
                     <DataTemplate>
                         <TextBlock FontWeight="SemiBold" Text="CHỌN MÀN HÌNH"/>
@@ -54,7 +54,7 @@
                 </GroupBox.HeaderTemplate>
                 <Grid  HorizontalAlignment="Left" Margin="0,10,10,10">
                 <ItemsControl ItemsSource="{Binding AvailableDisplays}" Height="0" Margin="15,0"/>
-                <ComboBox ItemContainerStyle="{DynamicResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch"   SelectedIndex="{Binding CurrentOutput.OutputSelectedDisplay}"  ItemsSource="{Binding AvailableDisplays}"  Style="{DynamicResource ComboBoxBaseStyle}"/>
+                <ComboBox ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch"   SelectedIndex="{Binding CurrentOutput.OutputSelectedDisplay}"  ItemsSource="{Binding AvailableDisplays}"  Style="{StaticResource ComboBoxBaseStyle}"/>
             </Grid>
 </GroupBox>
 

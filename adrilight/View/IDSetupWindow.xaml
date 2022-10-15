@@ -7,7 +7,7 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            ResizeMode="NoResize"
@@ -33,29 +33,29 @@
 
     <Grid Margin="5">
         <StackPanel>
-            <TextBlock Margin="0,0,0,10" Text="Set ID" Style="{DynamicResource TextBlockLarge}">
+            <TextBlock Margin="0,0,0,10" Text="Set ID" Style="{StaticResource TextBlockLarge}">
 
             </TextBlock>
             <hc:TabControl x:Name="mode" IsTabFillEnabled="True" ShowOverflowButton="False" ShowScrollButton="True" Margin="5" Background="Transparent"  IsScrollable="True">
                 <hc:TabItem  Header="Single Number" hc:IconElement.Geometry="{StaticResource number}" hc:IconElement.Width="20" IsSelected="True">
-                    <StackPanel Background="{DynamicResource RegionBrush}">
+                    <StackPanel Background="{StaticResource RegionBrush}">
 
-                        <TextBox  x:Name="ID" MaxLength="100" Margin="10" hc:InfoElement.Placeholder="Ví dụ : 5" hc:InfoElement.Title="INPUT A NUMBER" Style="{DynamicResource TextBoxExtend}" hc:InfoElement.Necessary="True" />
+                        <TextBox  x:Name="ID" MaxLength="100" Margin="10" hc:InfoElement.Placeholder="Ví dụ : 5" hc:InfoElement.Title="INPUT A NUMBER" Style="{StaticResource TextBoxExtend}" hc:InfoElement.Necessary="True" />
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Path   Fill="{DynamicResource WarningBrush}" Width="20" Height="20" Margin="10,10" Data="{StaticResource colorchanged}" Stretch="Uniform" />
-                            <TextBlock Margin="5" TextWrapping="Wrap" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultWarning}" Grid.Column="1" Text="Số điền vào không được vượt quá 1023"/>
+                            <Path   Fill="{StaticResource WarningBrush}" Width="20" Height="20" Margin="10,10" Data="{StaticResource colorchanged}" Stretch="Uniform" />
+                            <TextBlock Margin="5" TextWrapping="Wrap" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultWarning}" Grid.Column="1" Text="Số điền vào không được vượt quá 1023"/>
                         </Grid>
 
                      
                     </StackPanel>
                 </hc:TabItem>
                 <hc:TabItem hc:IconElement.Geometry="{StaticResource random}" hc:IconElement.Width="20" Header="Range">
-                    <StackPanel Background="{DynamicResource RegionBrush}">
-                        <GroupBox  HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Top"  Margin="5,15" Style="{DynamicResource GroupBoxOriginal}">
+                    <StackPanel Background="{StaticResource RegionBrush}">
+                        <GroupBox  HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Top"  Margin="5,15" Style="{StaticResource GroupBoxOriginal}">
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold" Text="CHOSE RANGE"/>
@@ -91,8 +91,8 @@
                                 <ColumnDefinition Width="auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Path   Fill="{DynamicResource WarningBrush}" Width="20" Height="20" Margin="10,10" Data="{StaticResource colorchanged}" Stretch="Uniform" />
-                            <TextBlock Margin="5" TextWrapping="Wrap" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultWarning}" Grid.Column="1" Text="Range sẽ được chia đều cho số LED đã chọn"/>
+                            <Path   Fill="{StaticResource WarningBrush}" Width="20" Height="20" Margin="10,10" Data="{StaticResource colorchanged}" Stretch="Uniform" />
+                            <TextBlock Margin="5" TextWrapping="Wrap" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultWarning}" Grid.Column="1" Text="Range sẽ được chia đều cho số LED đã chọn"/>
                         </Grid>
 
                     
@@ -124,7 +124,7 @@
                     </Button.Style>
                 </Button>
 
-                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
+                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
             </Grid>
         </StackPanel>
         

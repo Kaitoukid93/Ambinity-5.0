@@ -7,7 +7,7 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            WindowStyle="None"
@@ -39,7 +39,7 @@
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsSelected" Value="true">
 
-                                    <Setter TargetName="_Border" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                                    <Setter TargetName="_Border" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
                                 </Trigger>
                                 <MultiTrigger>
                                     <MultiTrigger.Conditions>
@@ -60,16 +60,16 @@
                 <Setter Property="Tag" Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
                 <Setter Property="ContextMenu">
                     <Setter.Value>
-                        <ContextMenu Style="{DynamicResource ContextMenuBaseStyle}">
-                            <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Edit"
+                        <ContextMenu Style="{StaticResource ContextMenuBaseStyle}">
+                            <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Edit"
                                           Command="{Binding PlacementTarget.Tag.EditSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                             </MenuItem>
-                            <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Share"
+                            <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Share"
                                           Command="{Binding PlacementTarget.Tag.ExportCurrentSelectedPaletteToFileCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                             </MenuItem>
-                            <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Delete"
+                            <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Delete"
                                           Command="{Binding PlacementTarget.Tag.DeleteSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                             </MenuItem>
@@ -112,16 +112,16 @@
                 <Setter Property="Tag" Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
                 <Setter Property="ContextMenu">
                     <Setter.Value>
-                        <ContextMenu Style="{DynamicResource ContextMenuBaseStyle}">
-                            <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Edit"
+                        <ContextMenu Style="{StaticResource ContextMenuBaseStyle}">
+                            <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Edit"
                                           Command="{Binding PlacementTarget.Tag.EditSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                             </MenuItem>
-                            <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Share"
+                            <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Share"
                                           Command="{Binding PlacementTarget.Tag.ExportCurrentSelectedPaletteToFileCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                             </MenuItem>
-                            <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Delete"
+                            <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Delete"
                                           Command="{Binding PlacementTarget.Tag.DeleteSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                             </MenuItem>
@@ -146,19 +146,19 @@
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="1" >
-                <GroupBox Style="{DynamicResource GroupBoxOriginal}" Grid.Row="1" Grid.Column="0" Margin="5" Header="Available Solid Colors">
-                    <Border Background="{DynamicResource RegionBrush}" CornerRadius="4">
+                <GroupBox Style="{StaticResource GroupBoxOriginal}" Grid.Row="1" Grid.Column="0" Margin="5" Header="Available Solid Colors">
+                    <Border Background="{StaticResource RegionBrush}" CornerRadius="4">
                         <hc:TransitioningContentControl Grid.Row="1">
                             <ListBox Background="Transparent" VerticalAlignment="top" ScrollViewer.CanContentScroll="True"
                                                   ScrollViewer.VerticalScrollBarVisibility="Auto" 
-                                                  ItemContainerStyle="{DynamicResource _ListBoxSolidColorStyle}" 
+                                                  ItemContainerStyle="{StaticResource _ListBoxSolidColorStyle}" 
                                                   
                                                   x:Name="AvailableSolidColor"
                                                   Margin="0,5,0,10"
                                                   BorderThickness="0"   
                                                   
-                                                  Style="{DynamicResource WrapPanelHorizontalListBox}" 
-                                                  ItemsPanel="{DynamicResource WrapPanelHorizontalItemsPanelTemplate}" 
+                                                  Style="{StaticResource WrapPanelHorizontalListBox}" 
+                                                  ItemsPanel="{StaticResource WrapPanelHorizontalItemsPanelTemplate}" 
                                                   ItemsSource="{Binding AvailableSolidColors}">
 
                                 <ListBox.ItemTemplate>

@@ -1182,51 +1182,20 @@ namespace adrilight.ViewModel
 
         //}
 
-        public IList<string> _AvailableAudioDevice = new List<string>();
+      
 
         public IList<String> AvailableAudioDevice {
             get
             {
-                _AvailableAudioDevice.Clear();
-                int devicecount = BassWasapi.BASS_WASAPI_GetDeviceCount();
-                string[] devicelist = new string[devicecount];
-                for (int i = 0; i < devicecount; i++)
-                {
-                    var devices = BassWasapi.BASS_WASAPI_GetDeviceInfo(i);
-
-                    if (devices.IsEnabled && devices.IsLoopback)
-                    {
-                        var device = string.Format("{0} - {1}", i, devices.name);
-
-                        _AvailableAudioDevice.Add(device);
-                    }
-                }
-
-                return _AvailableAudioDevice;
+              
+                var audioDevices = AudioFrame.AvailableAudioDevice;
+               
+                return audioDevices;
+                
             }
         }
 
-        public int _audioDeviceID = -1;
-
-        public int AudioDeviceID {
-            get
-            {
-                if (CurrentOutput.OutputSelectedAudioDevice > AvailableAudioDevice.Count)
-                {
-                    System.Windows.MessageBox.Show("Last Selected Audio Device is not Available");
-                    return -1;
-                }
-                else
-                {
-                    var currentDevice = AvailableAudioDevice.ElementAt(CurrentOutput.OutputSelectedAudioDevice);
-
-                    var array = currentDevice.Split(' ');
-                    _audioDeviceID = Convert.ToInt32(array[0]);
-                    return _audioDeviceID;
-                }
-            }
-        }
-
+    
         private bool _deviceLightingModeCollection;
 
         public bool DeviceLightingModeCollection {
@@ -1290,6 +1259,7 @@ namespace adrilight.ViewModel
 
         public ISerialStream[] SerialStreams { get; }
         public IAmbinityClient AmbinityClient { get; set; }
+        public IAudioFrame AudioFrame { get; set; }
         public ISerialDeviceDetection SerialDeviceDetection { get; set; }
         //public static IShaderEffect ShaderEffect { get; set; }
 
@@ -1300,6 +1270,7 @@ namespace adrilight.ViewModel
             IGeneralSettings generalSettings,
             IAmbinityClient ambinityClient,
             ISerialDeviceDetection serialDeviceDetection,
+            IAudioFrame audioFrame,
             ISerialStream[] serialStreams
            //IShaderEffect shaderEffect
 
@@ -1308,7 +1279,7 @@ namespace adrilight.ViewModel
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
             SerialStreams = serialStreams ?? throw new ArgumentNullException(nameof(serialStreams));
             AvailableDevices = new ObservableCollection<IDeviceSettings>();
-
+            AudioFrame = audioFrame ?? throw new ArgumentNullException(nameof(audioFrame));
             DisplayCards = new ObservableCollection<IDeviceSettings>();
             Context = context ?? throw new ArgumentNullException(nameof(context));
             SpotSets = new ObservableCollection<IDeviceSpotSet>();
@@ -3915,7 +3886,16 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        private bool _effectLoadingVissible = false;
 
+        public bool EffectLoadingVissible {
+            get { return _effectLoadingVissible; }
+            set
+            {
+                _effectLoadingVissible = value;
+                RaisePropertyChanged();
+            }
+        }
         private string _fwUploadOutputLog;
 
         public string FwUploadOutputLog {
@@ -4466,7 +4446,7 @@ namespace adrilight.ViewModel
                         convertedDevice.UnionOutput = DefaulOutputCollection.GenericLEDStrip(1, 64, "Dây LED", 1, true, "ledstrip");
                         convertedDevice.AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.GenericLEDStrip(0, 64, "Dây LED", 1, false, "ledstrip") };
                         convertedDevice.Geometry = wLEDDevice.Geometry;
-                        AvailableDevices.Add(convertedDevice);
+                        AvailableDevices.Insert(0,convertedDevice);
                     }
                 }
             }
@@ -4478,7 +4458,7 @@ namespace adrilight.ViewModel
                 {
                     if (serialDevice.IsSelected)
                     {
-                        AvailableDevices.Add(serialDevice);
+                        AvailableDevices.Insert(0,serialDevice);
                     }
                 }
 
@@ -4522,12 +4502,17 @@ namespace adrilight.ViewModel
                     }
                     convertedDevice.IsTransferActive = true;
                     convertedDevice.IsEnabled = true;
-                    AvailableDevices.Add(convertedDevice);
+                    AvailableDevices.Insert(0,convertedDevice);
                 }
             }
 
             WriteDeviceInfoJson();
-            
+            if(AvailableWLEDDevices!=null)
+            AvailableWLEDDevices.Clear();
+            if(AvailableSerialDevices!=null)
+            AvailableSerialDevices.Clear();
+            if(AvailableOpenRGBDevices!=null)
+            AvailableOpenRGBDevices.Clear();
            // OpenRGBStream.Dispose();
            // System.Windows.Forms.Application.Restart();
             //Process.GetCurrentProcess().Kill();
@@ -5397,7 +5382,13 @@ namespace adrilight.ViewModel
             {
                 foreach (var device in detectedDevices)
                 {
-                    AvailableOpenRGBDevices.Add(device);
+                    var uid = device.Name + device.Version + device.Location;
+                    if (!AvailableDevices.Any(p => p.DeviceUID == uid))//this device is existed, not gonna show
+                    {
+                        AvailableOpenRGBDevices.Add(device);
+                    }
+
+                        
                 }
             }
             //else
@@ -6344,9 +6335,10 @@ namespace adrilight.ViewModel
                 target.SetRectangle(new Rectangle((int)left, (int)top, (int)width, (int)height));
             }
         }
-
+       
         public void GotoChild(IDeviceSettings selectedDevice)
         {
+           
             //SetMenuItemActiveStatus(lighting);
 
             SelectedVerticalMenuItem = MenuItems.FirstOrDefault(t => t.Text == lighting);

@@ -30,9 +30,9 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <TextBlock HorizontalAlignment="Left" Style="{DynamicResource TextBlockSubTitle}" Margin="10,0,0,0" Grid.Row="0" Grid.Column="0" Text="CÀI ĐẶT THIẾT BỊ" 
+            <TextBlock HorizontalAlignment="Left" Style="{StaticResource TextBlockSubTitle}" Margin="10,0,0,0" Grid.Row="0" Grid.Column="0" Text="CÀI ĐẶT THIẾT BỊ" 
                        VerticalAlignment="Center" />
-            <TextBlock Style="{DynamicResource TextBlockSubTitle}" Foreground="{DynamicResource SecondaryTextBrush}" Margin="10,39,0,10" Grid.Row="1" Grid.Column="0" Text="GIAO TIẾP" 
+            <TextBlock Style="{StaticResource TextBlockSubTitle}" Foreground="{StaticResource SecondaryTextBrush}" Margin="10,39,0,10" Grid.Row="1" Grid.Column="0" Text="GIAO TIẾP" 
                        HorizontalAlignment="Left" VerticalAlignment="Center" />
         </Grid>
         <Grid Grid.Row="0" Grid.Column="1">
@@ -62,8 +62,8 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock HorizontalAlignment="Left" Style="{DynamicResource TextBlockSubTitle}" Grid.Row="0" Margin="10, 0, 0, 0" Grid.Column="0" Text="Tốc Độ Truyền Dữ Liệu"  VerticalAlignment="Center" />
-                    <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}" HorizontalAlignment="Left" Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Thay đổi thông số này có thể sẽ làm một số thiết bị cũ dừng hoạt động"  VerticalAlignment="Top" />
+                    <TextBlock HorizontalAlignment="Left" Style="{StaticResource TextBlockSubTitle}" Grid.Row="0" Margin="10, 0, 0, 0" Grid.Column="0" Text="Tốc Độ Truyền Dữ Liệu"  VerticalAlignment="Center" />
+                    <TextBlock Style="{StaticResource TextBlockDefaultSecLight}" HorizontalAlignment="Left" Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Thay đổi thông số này có thể sẽ làm một số thiết bị cũ dừng hoạt động"  VerticalAlignment="Top" />
                     <Rectangle Grid.Row="1" Grid.ColumnSpan="2" Height="1" Width="585" Fill="#26000000" VerticalAlignment="Bottom" Margin="0,0,0,5">
 
                     </Rectangle>
@@ -81,8 +81,8 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock HorizontalAlignment="Left" Style="{DynamicResource TextBlockSubTitle}" Grid.Row="0" Margin="10, 0, 0, 0" Grid.Column="0" Text="Khi Tắt Máy"  VerticalAlignment="Center" />
-                    <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}" HorizontalAlignment="Left"  Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Chọn chế độ sáng của LED khi tắt máy, chỉ áp dụng với các thiết bị cắm USB ngoài case"  VerticalAlignment="Top" />
+                    <TextBlock HorizontalAlignment="Left" Style="{StaticResource TextBlockSubTitle}" Grid.Row="0" Margin="10, 0, 0, 0" Grid.Column="0" Text="Khi Tắt Máy"  VerticalAlignment="Center" />
+                    <TextBlock Style="{StaticResource TextBlockDefaultSecLight}" HorizontalAlignment="Left"  Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Chọn chế độ sáng của LED khi tắt máy, chỉ áp dụng với các thiết bị cắm USB ngoài case"  VerticalAlignment="Top" />
                     <Rectangle Grid.Row="1" Grid.ColumnSpan="2" Height="1" Width="585" Fill="#26000000" VerticalAlignment="Bottom" Margin="0,0,0,5"/>
                     <ComboBox SelectedIndex="{Binding GeneralSettings.SentryMode}" Style="{StaticResource ComboBoxExtend}" Width="150" Grid.Column="1" Grid.Row="0" Margin="0,0,10,0" HorizontalAlignment="Right" VerticalAlignment="Center">
                         <ComboBoxItem>
@@ -94,7 +94,7 @@
                     </ComboBox>
 
                 </Grid>
-                <TextBlock HorizontalAlignment="Left" Style="{DynamicResource TextBlockSubTitle}" Foreground="{DynamicResource SecondaryTextBrush}" Margin="10,15,0,0" Text="AMBILIGHT" >
+                <TextBlock HorizontalAlignment="Left" Style="{StaticResource TextBlockSubTitle}" Foreground="{StaticResource SecondaryTextBrush}" Margin="10,15,0,0" Text="AMBILIGHT" >
 
                 </TextBlock>
                 <Grid Height="80">
@@ -106,8 +106,8 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock HorizontalAlignment="Left" Style="{DynamicResource TextBlockSubTitle}" Grid.Row="0" Margin="10,10,0,10" Grid.Column="0" Text="Giới Hạn FPS"  VerticalAlignment="Center" />
-                    <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}" HorizontalAlignment="Left"  Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Chọn mức FPS phù hợp để  máy tính hoạt động ổn định hơn đối với cấu hình thấp"  VerticalAlignment="Top"  />
+                    <TextBlock HorizontalAlignment="Left" Style="{StaticResource TextBlockSubTitle}" Grid.Row="0" Margin="10,10,0,10" Grid.Column="0" Text="Giới Hạn FPS"  VerticalAlignment="Center" />
+                    <TextBlock Style="{StaticResource TextBlockDefaultSecLight}" HorizontalAlignment="Left"  Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Chọn mức FPS phù hợp để  máy tính hoạt động ổn định hơn đối với cấu hình thấp"  VerticalAlignment="Top"  />
                     <Rectangle Grid.Row="1" Grid.ColumnSpan="2" Height="1" Fill="#26000000" VerticalAlignment="Bottom" Margin="12,0,12,5"/>
                     <Slider Minimum="30" Maximum="100" Value="{Binding GeneralSettings.LimitFps}"  Style="{StaticResource SliderBaseStyle}" Width="150" Margin="0,11,10,11" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Height="18"/>
                     <Button Grid.Column="1"  Style="{StaticResource ButtonDefault}" Content="{Binding GeneralSettings.LimitFps}"   Background="#26000000" BorderBrush="{x:Null}" Foreground="#FF898989" Margin="30,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Height="32"/>
@@ -123,8 +123,8 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock HorizontalAlignment="Left" Style="{DynamicResource TextBlockSubTitle}" Grid.Row="0" Margin="10, 0, 0, 0" Grid.Column="0" Text="Độ Tương Phản Ambilight"  VerticalAlignment="Center" />
-                    <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}" HorizontalAlignment="Left"  Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Thuật toán độ tương phản sẽ áp dụng lên tất cả các thiết bị hiện có"  VerticalAlignment="Top" />
+                    <TextBlock HorizontalAlignment="Left" Style="{StaticResource TextBlockSubTitle}" Grid.Row="0" Margin="10, 0, 0, 0" Grid.Column="0" Text="Độ Tương Phản Ambilight"  VerticalAlignment="Center" />
+                    <TextBlock Style="{StaticResource TextBlockDefaultSecLight}" HorizontalAlignment="Left"  Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Thuật toán độ tương phản sẽ áp dụng lên tất cả các thiết bị hiện có"  VerticalAlignment="Top" />
                     <Rectangle Grid.Row="1" Grid.ColumnSpan="2" Height="1" Fill="#26000000" VerticalAlignment="Bottom" Margin="10,0,10,5"/>
                     <ComboBox SelectedIndex="{Binding GeneralSettings.UseLinearLighting}" Style="{StaticResource ComboBoxExtend}" Width="150" Grid.Column="1" Grid.Row="0" Margin="0,0,10,0" HorizontalAlignment="Right" VerticalAlignment="Center">
                         <ComboBoxItem>
@@ -145,10 +145,10 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock HorizontalAlignment="Left" Style="{DynamicResource TextBlockSubTitle}" Grid.Row="0" Margin="10,0,0,0" Grid.Column="0" Text="Saturation Thresold"  VerticalAlignment="Center"  />
-                    <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}" HorizontalAlignment="Left"  Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Độ nhạy đối với sự thay đổi màu sắc trên nền đen, càng thấp càng nhạy"  VerticalAlignment="Top" />
+                    <TextBlock HorizontalAlignment="Left" Style="{StaticResource TextBlockSubTitle}" Grid.Row="0" Margin="10,0,0,0" Grid.Column="0" Text="Saturation Thresold"  VerticalAlignment="Center"  />
+                    <TextBlock Style="{StaticResource TextBlockDefaultSecLight}" HorizontalAlignment="Left"  Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Độ nhạy đối với sự thay đổi màu sắc trên nền đen, càng thấp càng nhạy"  VerticalAlignment="Top" />
                     <Slider Minimum="0" Maximum="50" Value="{Binding GeneralSettings.SaturationTreshold}" Style="{StaticResource SliderBaseStyle}" Width="150" Margin="0,0,10,0" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Height="18"/>
-                    <Button Grid.Column="1"  Style="{DynamicResource ButtonDefault}" Content="{Binding GeneralSettings.SaturationTreshold}"    Background="#26000000" BorderBrush="{x:Null}" Foreground="#FF898989" Margin="35,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Height="32"/>
+                    <Button Grid.Column="1"  Style="{StaticResource ButtonDefault}" Content="{Binding GeneralSettings.SaturationTreshold}"    Background="#26000000" BorderBrush="{x:Null}" Foreground="#FF898989" Margin="35,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Height="32"/>
                     <Rectangle Grid.Row="1" Grid.ColumnSpan="2" Height="1" Fill="#26000000" VerticalAlignment="Bottom" Margin="10,0,10,5"/>
 
                 </Grid>
@@ -161,8 +161,8 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock HorizontalAlignment="Left" Style="{DynamicResource TextBlockSubTitle}" Grid.Row="0" Margin="10,10,0,10" Grid.Column="0" Text="Màn hình 1"  VerticalAlignment="Center"   />
-                    <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}" HorizontalAlignment="Left"  Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Chọn cỡ cho màn hình 1 và cho phép capture"  VerticalAlignment="Top" />
+                    <TextBlock HorizontalAlignment="Left" Style="{StaticResource TextBlockSubTitle}" Grid.Row="0" Margin="10,10,0,10" Grid.Column="0" Text="Màn hình 1"  VerticalAlignment="Center"   />
+                    <TextBlock Style="{StaticResource TextBlockDefaultSecLight}" HorizontalAlignment="Left"  Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Chọn cỡ cho màn hình 1 và cho phép capture"  VerticalAlignment="Top" />
                     <ToggleButton IsChecked="{Binding GeneralSettings.ShouldbeRunning}" Grid.Column="1" Margin="0,0,10,0"
                      Style="{StaticResource ToggleButtonSwitch}"
                      HorizontalAlignment="Right" />
@@ -179,9 +179,9 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock HorizontalAlignment="Left" Style="{DynamicResource TextBlockSubTitle}" Grid.Row="0" Margin="10,10,0,10" Grid.Column="0" Text="Màn hình 2" 
+                    <TextBlock HorizontalAlignment="Left" Style="{StaticResource TextBlockSubTitle}" Grid.Row="0" Margin="10,10,0,10" Grid.Column="0" Text="Màn hình 2" 
                                VerticalAlignment="Center"  />
-                    <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}" HorizontalAlignment="Left"  Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Chọn cỡ cho màn hình 2 và cho phép capture" 
+                    <TextBlock Style="{StaticResource TextBlockDefaultSecLight}" HorizontalAlignment="Left"  Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Chọn cỡ cho màn hình 2 và cho phép capture" 
                                VerticalAlignment="Top" />
                     <ToggleButton IsChecked="{Binding GeneralSettings.ShouldbeRunningSecondary}" Grid.Column="1" Margin="0,0,10,0"
                      Style="{StaticResource ToggleButtonSwitch}"
@@ -200,9 +200,9 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock HorizontalAlignment="Left" Style="{DynamicResource TextBlockSubTitle}" Grid.Row="0" Margin="10,10,0,10" Grid.Column="0" Text="Màn hình 3" 
+                    <TextBlock HorizontalAlignment="Left" Style="{StaticResource TextBlockSubTitle}" Grid.Row="0" Margin="10,10,0,10" Grid.Column="0" Text="Màn hình 3" 
                                VerticalAlignment="Center" />
-                    <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}" HorizontalAlignment="Left"  Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Chọn cỡ cho màn hình 3 và cho phép capture" VerticalAlignment="Top" Foreground="#FF898989" />
+                    <TextBlock Style="{StaticResource TextBlockDefaultSecLight}" HorizontalAlignment="Left"  Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Chọn cỡ cho màn hình 3 và cho phép capture" VerticalAlignment="Top" Foreground="#FF898989" />
                     <ToggleButton Grid.Column="1" Margin="0,0,10,0"
                      Style="{StaticResource ToggleButtonSwitch}"
                      
@@ -218,9 +218,9 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock HorizontalAlignment="Left" Style="{DynamicResource TextBlockSubTitle}" Margin="10,0,0,0" Grid.Column="0" Text="OpenRGB Client beta" 
+                    <TextBlock HorizontalAlignment="Left" Style="{StaticResource TextBlockSubTitle}" Margin="10,0,0,0" Grid.Column="0" Text="OpenRGB Client beta" 
                                VerticalAlignment="Center" />
-                    <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}" HorizontalAlignment="Left"  Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Sử dụng tiện ích OpenRGB Client (beta)"  VerticalAlignment="Top" />
+                    <TextBlock Style="{StaticResource TextBlockDefaultSecLight}" HorizontalAlignment="Left"  Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Sử dụng tiện ích OpenRGB Client (beta)"  VerticalAlignment="Top" />
                     <Rectangle Grid.Row="1" Grid.ColumnSpan="2" Height="1" Fill="#26000000" VerticalAlignment="Bottom" Margin="10,0,10,5"/>
                     <ToggleButton Grid.Column="1"
                         Style="{StaticResource ToggleButtonSwitch}"

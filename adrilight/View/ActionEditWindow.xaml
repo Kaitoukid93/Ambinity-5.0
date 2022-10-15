@@ -8,7 +8,7 @@
            xmlns:local ="clr-namespace:adrilight.View"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            
@@ -34,7 +34,7 @@
 
     <Grid Margin="5">
         <StackPanel>
-            <TextBlock Text="Actions Editor  " Style="{DynamicResource TextBlockLarge}">
+            <TextBlock Text="Actions Editor  " Style="{StaticResource TextBlockLarge}">
                 
             </TextBlock>
             <Grid>
@@ -42,20 +42,20 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
-                <ComboBox hc:InfoElement.TitleWidth="120" Margin="15" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="ACTION"  hc:InfoElement.Placeholder="Select Action" SelectedItem="{Binding SelectedActionType}" ItemsSource="{Binding AvailableActionsforCurrentDevice}" Style="{DynamicResource ComboBoxExtend}"/>
+                <ComboBox hc:InfoElement.TitleWidth="120" Margin="15" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="ACTION"  hc:InfoElement.Placeholder="Select Action" SelectedItem="{Binding SelectedActionType}" ItemsSource="{Binding AvailableActionsforCurrentDevice}" Style="{StaticResource ComboBoxExtend}"/>
                 <Grid Grid.Row="1">
                     <Grid x:Name="Mode">
-                        <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{DynamicResource GroupBoxOriginal}">
+                        <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{StaticResource GroupBoxOriginal}">
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold" Text="PARAMETER"/>
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
-                            <Border  Background="{DynamicResource RegionBrush}" CornerRadius="7" BorderThickness="1">
-                                <ListBox SelectedItem="{Binding SelectedParameter}" ItemsSource="{Binding AvailableParametersforCurrentAction}" ItemContainerStyle="{DynamicResource _listBoxModeSelectionStyle}"  
+                            <Border  Background="{StaticResource RegionBrush}" CornerRadius="7" BorderThickness="1">
+                                <ListBox SelectedItem="{Binding SelectedParameter}" ItemsSource="{Binding AvailableParametersforCurrentAction}" ItemContainerStyle="{StaticResource _listBoxModeSelectionStyle}"  
                               Background="Transparent"
                               BorderThickness="0"
-                              Style="{DynamicResource WrapPanelHorizontalListBox}">
+                              Style="{StaticResource WrapPanelHorizontalListBox}">
 
                                     <ListBox.ItemsPanel>
                                         <ItemsPanelTemplate>
@@ -75,7 +75,7 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                                <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="{Binding Name}" Style="{DynamicResource TextBlockDefault}"/>
+                                                <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="{Binding Name}" Style="{StaticResource TextBlockDefault}"/>
                                             </Grid>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
@@ -84,12 +84,12 @@
 
 
 
-                                    <!--<RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{DynamicResource fullscreen }" IsChecked="{Binding CurrentOutput.OutputScreenCapturePosition,Mode=TwoWay}"  Style="{DynamicResource RadioButtonIcon}" Content="Full Screen"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{DynamicResource left }" IsChecked="{Binding IsLeftScreenRegionChecked,Mode=TwoWay}" Style="{DynamicResource RadioButtonIcon}" Content="Left"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource right}" IsChecked="{Binding IsRightScreenRegionChecked,Mode=TwoWay}" Content="Right" />
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource up}" IsChecked="{Binding IsTopScreenRegionChecked,Mode=TwoWay}" Content="Top"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource down}" IsChecked="{Binding IsBottomScreenRegionChecked,Mode=TwoWay}" Content="Bottom"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" IsChecked="{Binding IsCustomScreenRegionChecked,Mode=TwoWay}" hc:IconElement.Geometry="{StaticResource custom}" Content="Custom"/>-->
+                                    <!--<RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource fullscreen }" IsChecked="{Binding CurrentOutput.OutputScreenCapturePosition,Mode=TwoWay}"  Style="{StaticResource RadioButtonIcon}" Content="Full Screen"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource left }" IsChecked="{Binding IsLeftScreenRegionChecked,Mode=TwoWay}" Style="{StaticResource RadioButtonIcon}" Content="Left"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource right}" IsChecked="{Binding IsRightScreenRegionChecked,Mode=TwoWay}" Content="Right" />
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource up}" IsChecked="{Binding IsTopScreenRegionChecked,Mode=TwoWay}" Content="Top"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource down}" IsChecked="{Binding IsBottomScreenRegionChecked,Mode=TwoWay}" Content="Bottom"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" IsChecked="{Binding IsCustomScreenRegionChecked,Mode=TwoWay}" hc:IconElement.Geometry="{StaticResource custom}" Content="Custom"/>-->
                                 </ListBox>
                             </Border>
                         </GroupBox>
@@ -106,8 +106,8 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Click="Button_Click" Command="{Binding SaveCurrentSelectedActionCommand}" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
-                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
+                <Button Click="Button_Click" Command="{Binding SaveCurrentSelectedActionCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
+                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
             </Grid>
             
         </StackPanel>

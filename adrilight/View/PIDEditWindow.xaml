@@ -8,7 +8,7 @@
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
            xmlns:local="clr-namespace:adrilight.View"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            Closing="PIDEditWindowClosed"
@@ -39,7 +39,7 @@
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsSelected" Value="true">
 
-                                    <Setter TargetName="_Border" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                                    <Setter TargetName="_Border" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -49,16 +49,16 @@
                 <Setter Property="Tag" Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
                 <Setter Property="ContextMenu">
                     <Setter.Value>
-                        <ContextMenu Style="{DynamicResource ContextMenuBaseStyle}">
-                            <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Edit"
+                        <ContextMenu Style="{StaticResource ContextMenuBaseStyle}">
+                            <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Edit"
                                           Command="{Binding PlacementTarget.Tag.EditSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                             </MenuItem>
-                            <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Share"
+                            <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Share"
                                           Command="{Binding PlacementTarget.Tag.ExportCurrentSelectedPaletteToFileCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                             </MenuItem>
-                            <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Delete"
+                            <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Delete"
                                           Command="{Binding PlacementTarget.Tag.DeleteSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                             </MenuItem>
@@ -152,24 +152,24 @@
             </Grid.Style>
            
                 <StackPanel>
-                <Border Margin="10" CornerRadius="8" Padding="5,5" Background="{DynamicResource DarkMaskBrush}">
+                <Border Margin="10" CornerRadius="8" Padding="5,5" Background="{StaticResource DarkMaskBrush}">
                     <StackPanel>
                         <hc:NumericUpDown Minimum="1" HorizontalAlignment="Left"  Name="MatrixWidth" HorizontalContentAlignment="Center" Value="{Binding CurrentOutput.OutputNumLEDX}"
-                     hc:InfoElement.Title="Map Width" Margin="0,0,0,20" hc:InfoElement.Necessary="True" Style="{DynamicResource NumericUpDownPlus}"/>
+                     hc:InfoElement.Title="Map Width" Margin="0,0,0,20" hc:InfoElement.Necessary="True" Style="{StaticResource NumericUpDownPlus}"/>
                         <hc:NumericUpDown Minimum="1" HorizontalAlignment="Left"  Name="MatrixHeight" HorizontalContentAlignment="Center" Value="{Binding CurrentOutput.OutputNumLEDY}"
-                     hc:InfoElement.Title="Map Height" Margin="0,0,0,1" hc:InfoElement.Necessary="True" Style="{DynamicResource NumericUpDownPlus}"/>
+                     hc:InfoElement.Title="Map Height" Margin="0,0,0,1" hc:InfoElement.Necessary="True" Style="{StaticResource NumericUpDownPlus}"/>
                     </StackPanel>
                 </Border>
-                <Border Margin="10,8" CornerRadius="8" Padding="5,5" Background="{DynamicResource DarkMaskBrush}">
+                <Border Margin="10,8" CornerRadius="8" Padding="5,5" Background="{StaticResource DarkMaskBrush}">
                     <StackPanel>
                        
-                        <Button HorizontalAlignment="Stretch" Margin="0,1,0,15"  Command="{Binding SetAllSpotActiveCommand}"  Style="{DynamicResource ButtonDefault}" Content="All" CommandParameter="Reset"/>
-                        <Button HorizontalAlignment="Stretch" Margin="0,15,0,1"  Command="{Binding SetBorderSpotActiveCommand}"  Style="{DynamicResource ButtonDefault}" Content="Rectangle" CommandParameter="Reset"/>
+                        <Button HorizontalAlignment="Stretch" Margin="0,1,0,15"  Command="{Binding SetAllSpotActiveCommand}"  Style="{StaticResource ButtonDefault}" Content="All" CommandParameter="Reset"/>
+                        <Button HorizontalAlignment="Stretch" Margin="0,15,0,1"  Command="{Binding SetBorderSpotActiveCommand}"  Style="{StaticResource ButtonDefault}" Content="Rectangle" CommandParameter="Reset"/>
                         
                     </StackPanel>
                 </Border>
-                <hc:Badge HorizontalAlignment="Stretch" Value="{Binding Count}" BadgeMargin="0,-14,-10,0" Height="30" Margin="10,20,10,20" Style="{DynamicResource BadgePrimary}">
-                    <Button HorizontalAlignment="Stretch"  Command="{Binding ResetCountCommand}"  Style="{DynamicResource ButtonDefault}" Content="Reset" CommandParameter="ResetPID"/>
+                <hc:Badge HorizontalAlignment="Stretch" Value="{Binding Count}" BadgeMargin="0,-14,-10,0" Height="30" Margin="10,20,10,20" Style="{StaticResource BadgePrimary}">
+                    <Button HorizontalAlignment="Stretch"  Command="{Binding ResetCountCommand}"  Style="{StaticResource ButtonDefault}" Content="Reset" CommandParameter="ResetPID"/>
                 </hc:Badge>
             </StackPanel>
             
@@ -190,16 +190,16 @@
             <Viewbox   HorizontalAlignment="Left" VerticalAlignment="Top"  Name="PreviewBox">
          
                 <Viewbox.ContextMenu>
-                    <ContextMenu Style="{DynamicResource ContextMenuBaseStyle}">
-                        <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Edit Position ID"
+                    <ContextMenu Style="{StaticResource ContextMenuBaseStyle}">
+                        <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Edit Position ID"
                                          Command="{Binding LaunchPIDEditWindowCommand}"
                                           >
                         </MenuItem>
-                        <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Edit Virtual ID"
+                        <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Edit Virtual ID"
                                          
                                           >
                         </MenuItem>
-                        <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Edit Music ID"
+                        <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Edit Music ID"
                                           
                                           >
                         </MenuItem>
@@ -281,16 +281,16 @@
             </Grid.Style>
             <Viewbox  HorizontalAlignment="Left" VerticalAlignment="Top"  >
                 <Viewbox.ContextMenu>
-                    <ContextMenu Style="{DynamicResource ContextMenuBaseStyle}">
-                        <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Edit Position ID"
+                    <ContextMenu Style="{StaticResource ContextMenuBaseStyle}">
+                        <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Edit Position ID"
                                          Command="{Binding LaunchPIDEditWindowCommand}"
                                           >
                         </MenuItem>
-                        <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Edit Virtual ID"
+                        <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Edit Virtual ID"
                                          
                                           >
                         </MenuItem>
-                        <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Edit Music ID"
+                        <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Edit Music ID"
                                           
                                           >
                         </MenuItem>
@@ -371,15 +371,15 @@
                 </Style>
             </Grid.Style>
             <StackPanel>
-                <Border Margin="10" CornerRadius="8" Padding="5,5" Background="{DynamicResource DarkMaskBrush}">
+                <Border Margin="10" CornerRadius="8" Padding="5,5" Background="{StaticResource DarkMaskBrush}">
                     <StackPanel>
-                        <Button HorizontalAlignment="Stretch" Margin="0,1,0,15"  Command="{Binding SetPIDNeutral}"  Style="{DynamicResource ButtonDefault}" Content="Neutral" CommandParameter="Reset"/>
-                        <Button HorizontalAlignment="Stretch" Margin="0,15,0,1"  Command="{Binding SetPIDReverseNeutral}"  Style="{DynamicResource ButtonDefault}" Content="Reverse" CommandParameter="Reset"/>
+                        <Button HorizontalAlignment="Stretch" Margin="0,1,0,15"  Command="{Binding SetPIDNeutral}"  Style="{StaticResource ButtonDefault}" Content="Neutral" CommandParameter="Reset"/>
+                        <Button HorizontalAlignment="Stretch" Margin="0,15,0,1"  Command="{Binding SetPIDReverseNeutral}"  Style="{StaticResource ButtonDefault}" Content="Reverse" CommandParameter="Reset"/>
                     </StackPanel>
                    
                 </Border>
-                    <hc:Badge   HorizontalAlignment="Stretch" Value="{Binding MaxLEDCount,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"  BadgeMargin="0,-14,-10,0" Height="30" Margin="10,20,10,20" Style="{DynamicResource BadgePrimary}">
-                    <Button  HorizontalAlignment="Stretch" Command="{Binding ResetMaxCountCommand}"  Style="{DynamicResource ButtonDefault}" Content="Click to reset" CommandParameter="Reset"/>
+                    <hc:Badge   HorizontalAlignment="Stretch" Value="{Binding MaxLEDCount,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"  BadgeMargin="0,-14,-10,0" Height="30" Margin="10,20,10,20" Style="{StaticResource BadgePrimary}">
+                    <Button  HorizontalAlignment="Stretch" Command="{Binding ResetMaxCountCommand}"  Style="{StaticResource ButtonDefault}" Content="Click to reset" CommandParameter="Reset"/>
                 </hc:Badge>
                 
                
@@ -400,16 +400,16 @@
                 </Style>
             </Grid.Style>
             <StackPanel>
-                <TextBlock Text="Tạo LED Setup" Style="{DynamicResource TextBlockLarge}">
+                <TextBlock Text="Tạo LED Setup" Style="{StaticResource TextBlockLarge}">
 
                 </TextBlock>
                 <Grid>
                     
                 </Grid>
                 
-                <TextBox   Text="123" MaxLength="100"   hc:InfoElement.Placeholder="Ví dụ : Keyboard" hc:InfoElement.Title="NAME" Style="{DynamicResource TextBoxExtend}" hc:InfoElement.Necessary="True" />
-                <TextBox   Text="{Binding CurrentOutput.OutputLEDSetup.Owner, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" MaxLength="100"  hc:InfoElement.Placeholder="Ví dụ : Zooey" hc:InfoElement.Title="CREATOR" Style="{DynamicResource TextBoxExtend}" hc:InfoElement.Necessary="True" />
-                <TextBox   Text="{Binding CurrentOutput.OutputLEDSetup.Description, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" MaxLength="100"  hc:InfoElement.Placeholder="Ví dụ : General Keyboard Matrix layout" hc:InfoElement.Title="DESCRIPTION" Style="{DynamicResource TextBoxExtend}" hc:InfoElement.Necessary="False" />
+                <TextBox   Text="123" MaxLength="100"   hc:InfoElement.Placeholder="Ví dụ : Keyboard" hc:InfoElement.Title="NAME" Style="{StaticResource TextBoxExtend}" hc:InfoElement.Necessary="True" />
+                <TextBox   Text="{Binding CurrentOutput.OutputLEDSetup.Owner, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" MaxLength="100"  hc:InfoElement.Placeholder="Ví dụ : Zooey" hc:InfoElement.Title="CREATOR" Style="{StaticResource TextBoxExtend}" hc:InfoElement.Necessary="True" />
+                <TextBox   Text="{Binding CurrentOutput.OutputLEDSetup.Description, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" MaxLength="100"  hc:InfoElement.Placeholder="Ví dụ : General Keyboard Matrix layout" hc:InfoElement.Title="DESCRIPTION" Style="{StaticResource TextBoxExtend}" hc:InfoElement.Necessary="False" />
            </StackPanel>
             </Grid>
 

@@ -29,7 +29,7 @@
                                     <Border CornerRadius="7" Name="_Border"
                                 Padding="0"
                                 Margin="8"
-                                Background="{DynamicResource RegionBrush}"   
+                                Background="{StaticResource RegionBrush}"   
                                 BorderBrush="Transparent"
                                 BorderThickness="2"
                                 SnapsToDevicePixels="true">
@@ -81,35 +81,35 @@
                                           Command="{Binding PlacementTarget.Tag.SetActivePaletteAllOutputsCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                                         <MenuItem.Icon>
-                                            <Path   Data="{StaticResource selected}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            <Path   Data="{StaticResource selected}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <MenuItem  Header="Set All Device" CommandParameter="{Binding .}" 
                                           Command="{Binding PlacementTarget.Tag.SetActivePaletteAllDevicesCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                                         <MenuItem.Icon>
-                                            <Path   Data="{StaticResource setall}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            <Path   Data="{StaticResource setall}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <MenuItem  Header="Edit"
                                           Command="{Binding PlacementTarget.Tag.EditSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="overwrite"
                                           >
                                         <MenuItem.Icon>
-                                            <Path   Data="{StaticResource edit}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            <Path   Data="{StaticResource edit}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <MenuItem  Header="Share" CommandParameter="{Binding .}" 
                                           Command="{Binding PlacementTarget.Tag.ExportCurrentSelectedPaletteToFileCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                                         <MenuItem.Icon>
-                                            <Path   Data="{StaticResource export}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            <Path   Data="{StaticResource export}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <MenuItem  Header="Delete" CommandParameter="{Binding .}" 
                                           Command="{Binding PlacementTarget.Tag.DeleteSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                                         <MenuItem.Icon>
-                                            <Path   Data="{StaticResource delete}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            <Path   Data="{StaticResource delete}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                         </MenuItem.Icon>
                                     </MenuItem>
                                 </ContextMenu>
@@ -143,7 +143,7 @@
           Height="30" 
           Fill="White"
           Stretch="Uniform" />-->
-                <!--<TextBlock  Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" Text="Music Reactive" Style="{DynamicResource TextBlockTitleBold}"/>-->
+                <!--<TextBlock  Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" Text="Music Reactive" Style="{StaticResource TextBlockTitleBold}"/>-->
             </StackPanel>
 
 
@@ -163,7 +163,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <ProgressBar Minimum="0" Maximum="255" Value="{Binding . }" Margin="5" Orientation="Vertical" Height="100"   hc:VisualElement.Text="" Style="{DynamicResource ProgressBarFlat}"/>
+                        <ProgressBar Minimum="0" Maximum="255" Value="{Binding . }" Margin="5" Orientation="Vertical" Height="100"   hc:VisualElement.Text="" Style="{StaticResource ProgressBarFlat}"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
@@ -176,22 +176,22 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-            <TextBlock Style="{DynamicResource TextBlockDefault}" Grid.Row="0" FontWeight="SemiBold"  Margin="15, 15,15, 15"  Text="CHỌN DẢI MÀU"  VerticalAlignment="Center"  HorizontalAlignment="Left"/>
+            <TextBlock Style="{StaticResource TextBlockDefault}" Grid.Row="0" FontWeight="SemiBold"  Margin="15, 15,15, 15"  Text="CHỌN DẢI MÀU"  VerticalAlignment="Center"  HorizontalAlignment="Left"/>
             <Grid> 
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Button  Content="Add New" Click="ButtonAdd_OnClick" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"  Style="{DynamicResource ButtonDefault}"   Width="100" Padding="0,0" Margin="0,15,15,0" HorizontalAlignment="Right" hc:IconElement.Width="20" hc:IconElement.Height="20"  hc:IconElement.Geometry="{DynamicResource addnew}">
+                <Button  Content="Add New" Click="ButtonAdd_OnClick" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"  Style="{StaticResource ButtonDefault}"   Width="100" Padding="0,0" Margin="0,15,15,0" HorizontalAlignment="Right" hc:IconElement.Width="20" hc:IconElement.Height="20"  hc:IconElement.Geometry="{StaticResource addnew}">
 
                 </Button>
                 <Popup AllowsTransparency="True" HorizontalOffset="0" Name="PopupAdd" VerticalOffset="2" StaysOpen="False">
                     <hc:TransitioningContentControl TransitionMode="Top2Bottom">
-                        <Border Background="{DynamicResource RegionBrush}" CornerRadius="7" BorderThickness="2" BorderBrush="{DynamicResource BorderBrush}" Margin="0,2,15,15"  >
+                        <Border Background="{StaticResource RegionBrush}" CornerRadius="7" BorderThickness="2" BorderBrush="{StaticResource BorderBrush}" Margin="0,2,15,15"  >
                             <StackPanel Orientation="Vertical">
-                                <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding ImportPaletteCardFromFileCommand}" hc:IconElement.Geometry="{DynamicResource fromfile}" BorderBrush="Transparent" Margin="5"   Content="From File" Style="{DynamicResource ButtonDefault}"/>
+                                <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding ImportPaletteCardFromFileCommand}" hc:IconElement.Geometry="{StaticResource fromfile}" BorderBrush="Transparent" Margin="5"   Content="From File" Style="{StaticResource ButtonDefault}"/>
 
-                                <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding EditSelectedPaletteCommand}" hc:IconElement.Geometry="{DynamicResource addpalette}" CommandParameter="createnew" BorderBrush="Transparent"   Margin="5" Content="Create New" Style="{DynamicResource ButtonDefault}"/>
+                                <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding EditSelectedPaletteCommand}" hc:IconElement.Geometry="{StaticResource addpalette}" CommandParameter="createnew" BorderBrush="Transparent"   Margin="5" Content="Create New" Style="{StaticResource ButtonDefault}"/>
                             </StackPanel>
 
                         </Border>
@@ -207,14 +207,14 @@
                     <hc:TransitioningContentControl >
                     <ListBox Background="Transparent" VerticalAlignment="Stretch" ScrollViewer.CanContentScroll="True"
                                                   ScrollViewer.VerticalScrollBarVisibility="Auto" 
-                                                  ItemContainerStyle="{DynamicResource _ListBoxCardsCollectionStyle}" 
+                                                  ItemContainerStyle="{StaticResource _ListBoxCardsCollectionStyle}" 
                                                   
                                                   x:Name="AvailableMPalette"
                                                   Margin="0,10,0,10"
                                                   BorderThickness="0"   
                                                   SelectedIndex="{Binding CurrentOutput.OutputSelectedChasingPalette}"
-                                                  Style="{DynamicResource WrapPanelHorizontalListBox}" 
-                                                  ItemsPanel="{DynamicResource WrapPanelHorizontalItemsPanelTemplate}" 
+                                                  Style="{StaticResource WrapPanelHorizontalListBox}" 
+                                                  ItemsPanel="{StaticResource WrapPanelHorizontalItemsPanelTemplate}" 
                                                   ItemsSource="{Binding AvailablePallete}">
                      
                         <ListBox.ItemTemplate>

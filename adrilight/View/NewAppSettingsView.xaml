@@ -29,8 +29,8 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <TextBlock HorizontalAlignment="Left" Style="{DynamicResource TextBlockSubTitle}" Margin="10,0,0,0" Grid.Row="0" Grid.Column="0" Text="CÀI ĐẶT ỨNG DỤNG" VerticalAlignment="Center" />
-            <TextBlock Style="{DynamicResource TextBlockSubTitle}" Foreground="{DynamicResource SecondaryTextBrush}" Margin="10,39,0,15" Grid.Row="1" Grid.Column="0" Text="WINDOWS"  HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <TextBlock HorizontalAlignment="Left" Style="{StaticResource TextBlockSubTitle}" Margin="10,0,0,0" Grid.Row="0" Grid.Column="0" Text="CÀI ĐẶT ỨNG DỤNG" VerticalAlignment="Center" />
+            <TextBlock Style="{StaticResource TextBlockSubTitle}" Foreground="{StaticResource SecondaryTextBrush}" Margin="10,39,0,15" Grid.Row="1" Grid.Column="0" Text="WINDOWS"  HorizontalAlignment="Left" VerticalAlignment="Center" />
         </Grid>
         <Grid Grid.Row="0" Grid.Column="1">
             <Grid.RowDefinitions>
@@ -57,8 +57,8 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBlock HorizontalAlignment="Left" Style="{DynamicResource TextBlockSubTitle}" Grid.Row="0" Margin="10, 0, 0, 0" Grid.Column="0" Text="Tự Khởi Động Cùng Windows"  VerticalAlignment="Center" />
-                <TextBlock HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="App sẽ tự khởi động và LED sẽ tự sáng khi bật máy"  VerticalAlignment="Top" />
+                <TextBlock HorizontalAlignment="Left" Style="{StaticResource TextBlockSubTitle}" Grid.Row="0" Margin="10, 0, 0, 0" Grid.Column="0" Text="Tự Khởi Động Cùng Windows"  VerticalAlignment="Center" />
+                <TextBlock HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="App sẽ tự khởi động và LED sẽ tự sáng khi bật máy"  VerticalAlignment="Top" />
                 <Rectangle Grid.Row="1" Grid.ColumnSpan="2" Height="1" Fill="#26000000" Margin="10,0,10,5" VerticalAlignment="Bottom"/>
                 <ToggleButton Grid.Column="1" Margin="0,0,10,0"
                       Style="{StaticResource ToggleButtonSwitch}"
@@ -75,8 +75,8 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBlock HorizontalAlignment="Left" Style="{DynamicResource TextBlockSubTitle}" Grid.Row="0" Margin="10, 0, 0, 0" Grid.Column="0" Text="Khởi Chạy Ẩn"  VerticalAlignment="Center" />
-                <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}" HorizontalAlignment="Left" Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="App sẽ tự ẩn ở dưới góc phải màn hình khi khởi chạy"  VerticalAlignment="Top" />
+                <TextBlock HorizontalAlignment="Left" Style="{StaticResource TextBlockSubTitle}" Grid.Row="0" Margin="10, 0, 0, 0" Grid.Column="0" Text="Khởi Chạy Ẩn"  VerticalAlignment="Center" />
+                <TextBlock Style="{StaticResource TextBlockDefaultSecLight}" HorizontalAlignment="Left" Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="App sẽ tự ẩn ở dưới góc phải màn hình khi khởi chạy"  VerticalAlignment="Top" />
                 <Rectangle Grid.Row="1" Grid.ColumnSpan="2" Height="1" Width="585" Fill="#26000000" Margin="10,0,9.6,5" VerticalAlignment="Bottom"/>
                 <ToggleButton Grid.Column="1" Margin="0,0,10,0"
                       Style="{StaticResource ToggleButtonSwitch}"
@@ -84,7 +84,7 @@
                      IsChecked="{Binding GeneralSettings.StartMinimized}" HorizontalAlignment="Right" />
 
             </Grid>
-            <TextBlock HorizontalAlignment="Left" Style="{DynamicResource TextBlockSubTitle}" Foreground="{DynamicResource SecondaryTextBrush}" Margin="10,15,0,15" Text="THÔNG BÁO"  >
+            <TextBlock HorizontalAlignment="Left" Style="{StaticResource TextBlockSubTitle}" Foreground="{StaticResource SecondaryTextBrush}" Margin="10,15,0,15" Text="THÔNG BÁO"  >
 
             </TextBlock>
             <Grid Height="80">
@@ -97,8 +97,8 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBlock HorizontalAlignment="Left" Style="{DynamicResource TextBlockSubTitle}" Grid.Row="0" Margin="10,10,0,9" Grid.Column="0" Text="Thông Báo Khi Có Thiết Bị Cắm Vào"  VerticalAlignment="Center"  Grid.ColumnSpan="2"/>
-                <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}" HorizontalAlignment="Left" Margin="10,0,0,11" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Text="Thiết bị có thể được hỗ trợ bởi Ambino Sẽ được thông báo khi cắm vào"  VerticalAlignment="Top" />
+                <TextBlock HorizontalAlignment="Left" Style="{StaticResource TextBlockSubTitle}" Grid.Row="0" Margin="10,10,0,9" Grid.Column="0" Text="Thông Báo Khi Có Thiết Bị Cắm Vào"  VerticalAlignment="Center"  Grid.ColumnSpan="2"/>
+                <TextBlock Style="{StaticResource TextBlockDefaultSecLight}" HorizontalAlignment="Left" Margin="10,0,0,11" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Text="Thiết bị có thể được hỗ trợ bởi Ambino Sẽ được thông báo khi cắm vào"  VerticalAlignment="Top" />
                 <Rectangle Grid.Row="1" Grid.ColumnSpan="3" Height="1" Width="585" Fill="#26000000" Margin="10,0,10,5" VerticalAlignment="Bottom"/>
                 <ToggleButton IsEnabled="False" Grid.Column="2" Margin="0,0,10,0"
                       Style="{StaticResource ToggleButtonSwitch}"
@@ -115,8 +115,8 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBlock HorizontalAlignment="Left" Style="{DynamicResource TextBlockSubTitle}"  Grid.Row="0" Margin="10, 0, 0, 0" Grid.Column="0" Text="Thông Báo Khi Có Thiết Bị Ngắt Kết Nối"  VerticalAlignment="Center" />
-                <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}" HorizontalAlignment="Left" Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Thiết bị ngắt kết nối trong khi đang  sử dụng sẽ được thông báo"  VerticalAlignment="Top" />
+                <TextBlock HorizontalAlignment="Left" Style="{StaticResource TextBlockSubTitle}"  Grid.Row="0" Margin="10, 0, 0, 0" Grid.Column="0" Text="Thông Báo Khi Có Thiết Bị Ngắt Kết Nối"  VerticalAlignment="Center" />
+                <TextBlock Style="{StaticResource TextBlockDefaultSecLight}" HorizontalAlignment="Left" Margin="10, 0, 0, 0" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="Thiết bị ngắt kết nối trong khi đang  sử dụng sẽ được thông báo"  VerticalAlignment="Top" />
                 <Rectangle Grid.Row="1" Grid.ColumnSpan="2" Height="1" Width="585" Fill="#26000000" Margin="10,0,10,5" VerticalAlignment="Bottom"/>
                 <ToggleButton IsEnabled="False" Grid.Column="1" Margin="0,0,10,0"
                       Style="{StaticResource ToggleButtonSwitch}"

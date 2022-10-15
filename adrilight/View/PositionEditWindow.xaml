@@ -8,8 +8,8 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           Effect="{DynamicResource EffectShadow4}"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Effect="{StaticResource EffectShadow4}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
           
@@ -149,7 +149,7 @@
                             </Style>
                         </Grid.Style>
                         <ItemsControl ItemsSource="{Binding CurrentDevice.AvailableOutputs}" Height="0" Margin="15,0"/>
-                        <ComboBox ItemContainerStyle="{DynamicResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch" SelectedIndex="{Binding CurrentDevice.SelectedOutput}"    ItemsSource="{Binding CurrentDevice.AvailableOutputs}"  Style="{DynamicResource ComboBoxBaseStyle}">
+                        <ComboBox ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch" SelectedIndex="{Binding CurrentDevice.SelectedOutput}"    ItemsSource="{Binding CurrentDevice.AvailableOutputs}"  Style="{StaticResource ComboBoxBaseStyle}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding OutputName}"/>
@@ -157,7 +157,7 @@
                             </ComboBox.ItemTemplate>
                         </ComboBox>
                     </Grid>
-                    <Button Grid.Column="0" hc:IconElement.Geometry="{DynamicResource WindowRestoreGeometry }" Margin="0,0,0,15" HorizontalAlignment="Stretch"  Command="{Binding ResetDefaultAspectRatioCommand}"  Style="{DynamicResource ButtonDefault}" Content="Default Aspect Ratio" CommandParameter="PreviousOutput"/>
+                    <Button Grid.Column="0" hc:IconElement.Geometry="{StaticResource WindowRestoreGeometry }" Margin="0,0,0,15" HorizontalAlignment="Stretch"  Command="{Binding ResetDefaultAspectRatioCommand}"  Style="{StaticResource ButtonDefault}" Content="Default Aspect Ratio" CommandParameter="PreviousOutput"/>
                     <Grid>
                         <Grid.Style>
                             <Style TargetType="Grid">
@@ -169,7 +169,7 @@
                                 </Style.Triggers>
                             </Style>
                         </Grid.Style>
-                        <Button Grid.Column="0" hc:IconElement.Geometry="{DynamicResource setall }" Margin="0,0,0,15" HorizontalAlignment="Stretch"  Command="{Binding SetAllOutputRectangleSizeCommand}"  Style="{DynamicResource ButtonDefault}" Content="Set All Output" CommandParameter="setall"/>
+                        <Button Grid.Column="0" hc:IconElement.Geometry="{StaticResource setall }" Margin="0,0,0,15" HorizontalAlignment="Stretch"  Command="{Binding SetAllOutputRectangleSizeCommand}"  Style="{StaticResource ButtonDefault}" Content="Set All Output" CommandParameter="setall"/>
                     </Grid>
                    
                 </StackPanel>
@@ -217,7 +217,7 @@
                         <Viewbox>
 
                             <Grid>
-                                <Rectangle Stroke="{DynamicResource DangerBrush}" StrokeThickness="1" Fill="Black" Opacity="0.2" Width="{Binding CurrentOutput.OutputRectangle.Width}"  Height="{Binding CurrentOutput.OutputRectangle.Height}"/>
+                                <Rectangle Stroke="{StaticResource DangerBrush}" StrokeThickness="1" Fill="Black" Opacity="0.2" Width="{Binding CurrentOutput.OutputRectangle.Width}"  Height="{Binding CurrentOutput.OutputRectangle.Height}"/>
                             </Grid>
 
 
@@ -258,7 +258,7 @@
                                     <Viewbox>
 
                                         <Grid>
-                                            <Rectangle Stroke="{DynamicResource DangerBrush}" StrokeThickness="1" Fill="Black" Opacity="0.2" Width="{Binding OutputRectangle.Width}" Height="{Binding OutputRectangle.Height}"/>
+                                            <Rectangle Stroke="{StaticResource DangerBrush}" StrokeThickness="1" Fill="Black" Opacity="0.2" Width="{Binding OutputRectangle.Width}" Height="{Binding OutputRectangle.Height}"/>
                                         </Grid>
 
 
@@ -291,9 +291,9 @@
             </Grid.ColumnDefinitions>
             <StackPanel HorizontalAlignment="Right" Grid.Column="2" Orientation="Horizontal">
 
-                <Button Click="Button_Click_Cancel" Margin="15" Content="Cancel"  Style="{DynamicResource ButtonPrimary}" Background="Transparent" />
-                <Button Click="Button_Click_1"   CommandParameter="apply" Margin="15" Content="Apply"  Style="{DynamicResource ButtonPrimary}"/>
-                <Button Click="Button_Click"   CommandParameter="apply" Margin="15" Content="Done"  Style="{DynamicResource ButtonPrimary}"/>
+                <Button Click="Button_Click_Cancel" Margin="15" Content="Cancel"  Style="{StaticResource ButtonPrimary}" Background="Transparent" />
+                <Button Click="Button_Click_1"   CommandParameter="apply" Margin="15" Content="Apply"  Style="{StaticResource ButtonPrimary}"/>
+                <Button Click="Button_Click"   CommandParameter="apply" Margin="15" Content="Done"  Style="{StaticResource ButtonPrimary}"/>
             </StackPanel>
         </Grid>
 

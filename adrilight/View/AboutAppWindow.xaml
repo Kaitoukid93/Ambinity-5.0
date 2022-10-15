@@ -7,7 +7,7 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            
@@ -37,7 +37,7 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <TextBlock  VerticalAlignment="Top" Margin="20,0,20,20" Text="About" Style="{DynamicResource TextBlockLarge}">
+        <TextBlock  VerticalAlignment="Top" Margin="20,0,20,20" Text="About" Style="{StaticResource TextBlockLarge}">
 
         </TextBlock>
         <Grid Grid.Row="1">
@@ -45,12 +45,12 @@
                 <Path HorizontalAlignment="Center"  Stretch="Uniform" Margin="0,10,0,0" Data="{StaticResource appicon}" 
                                       Width="100" 
                                       Height="100" 
-                                      Fill="{DynamicResource PrimaryTextBrush}"/>
-                <TextBlock Margin="0,20,0,5" Style="{DynamicResource TextBlockLargeBold}" Text="Ambinity 5.0.0"></TextBlock>
-                <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Release date : 13/10/2022"></TextBlock>
-                <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Credit :"></TextBlock>
-                <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="fabsenet for DesktopDuplicator"></TextBlock>
-                <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="HandyControl for awesome UI"></TextBlock>
+                                      Fill="{StaticResource PrimaryTextBrush}"/>
+                <TextBlock Margin="0,20,0,5" Style="{StaticResource TextBlockLargeBold}" Text="Ambinity 5.0.0"></TextBlock>
+                <TextBlock Margin="0,0,0,5" Style="{StaticResource TextBlockDefault}" Text="Release date : 13/10/2022"></TextBlock>
+                <TextBlock Margin="0,0,0,5" Style="{StaticResource TextBlockDefault}" Text="Credit :"></TextBlock>
+                <TextBlock Margin="0,0,0,5" Style="{StaticResource TextBlockDefault}" Text="fabsenet for DesktopDuplicator"></TextBlock>
+                <TextBlock Margin="0,0,0,5" Style="{StaticResource TextBlockDefault}" Text="HandyControl for awesome UI"></TextBlock>
             </StackPanel>
          
         </Grid>

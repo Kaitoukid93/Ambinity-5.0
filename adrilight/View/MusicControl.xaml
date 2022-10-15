@@ -32,7 +32,7 @@
                                 Padding="0"
                                 Margin="5"
                                 Background="Transparent"   
-                                BorderBrush="{DynamicResource DarkMaskBrush}"
+                                BorderBrush="{StaticResource DarkMaskBrush}"
                                 BorderThickness="0"
                                 SnapsToDevicePixels="true">
                                 <ContentPresenter />
@@ -45,8 +45,8 @@
                                     </MultiTrigger.Conditions>
 
 
-                                    <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{DynamicResource PrimaryBrush}"/>-->
-                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource SecondaryRegionBrush}"/>
+                                    <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}"/>-->
+                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource SecondaryRegionBrush}"/>
 
 
 
@@ -59,7 +59,7 @@
                                     </MultiTrigger.Conditions>
 
 
-                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource SecondaryRegionBrush}"/>
+                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource SecondaryRegionBrush}"/>
                                     <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
                                 </MultiTrigger>
                                 <MultiTrigger>
@@ -68,7 +68,7 @@
                                         <Condition Property="IsSelected" Value="False"/>
                                     </MultiTrigger.Conditions>
 
-                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource DarkMaskBrush}"/>
+                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource DarkMaskBrush}"/>
 
                                     <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
 
@@ -78,10 +78,10 @@
                     </Setter.Value>
                 </Setter>
 
-                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
                 <Style.Triggers>
                     <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" />
+                        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}" />
                     </Trigger>
                 </Style.Triggers>
 
@@ -92,20 +92,20 @@
         <StackPanel>
             <!--position-->
             <Grid x:Name="Mode">
-                <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{DynamicResource GroupBoxOriginal}">
+                <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{StaticResource GroupBoxOriginal}">
                     <GroupBox.HeaderTemplate>
                         <DataTemplate>
                             <TextBlock FontWeight="SemiBold" Text="MODE"/>
                         </DataTemplate>
                     </GroupBox.HeaderTemplate>
-                    <Border  Background="{DynamicResource RegionBrush}" CornerRadius="7" BorderThickness="1">
+                    <Border  Background="{StaticResource RegionBrush}" CornerRadius="7" BorderThickness="1">
                         <ListBox SelectedIndex="{Binding CurrentOutput.OutputMusicDancingMode}"  x:Name="dancingmode_selection"  
                              
-                              ItemContainerStyle="{DynamicResource _listBoxModeSelectionStyle}"  
+                              ItemContainerStyle="{StaticResource _listBoxModeSelectionStyle}"  
                               
                               Background="Transparent"
                               BorderThickness="0"
-                              Style="{DynamicResource WrapPanelHorizontalListBox}">
+                              Style="{StaticResource WrapPanelHorizontalListBox}">
 
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -124,7 +124,7 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Visualizer" Style="{DynamicResource TextBlockDefault}"/>
+                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Visualizer" Style="{StaticResource TextBlockDefault}"/>
                                 </Grid>
                             </ListBoxItem>
                             <ListBoxItem>
@@ -138,18 +138,18 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="VU Metter" Style="{DynamicResource TextBlockDefault}"/>
+                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="VU Metter" Style="{StaticResource TextBlockDefault}"/>
                                 </Grid>
                             </ListBoxItem>
                             
 
 
-                            <!--<RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{DynamicResource fullscreen }" IsChecked="{Binding CurrentOutput.OutputScreenCapturePosition,Mode=TwoWay}"  Style="{DynamicResource RadioButtonIcon}" Content="Full Screen"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{DynamicResource left }" IsChecked="{Binding IsLeftScreenRegionChecked,Mode=TwoWay}" Style="{DynamicResource RadioButtonIcon}" Content="Left"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource right}" IsChecked="{Binding IsRightScreenRegionChecked,Mode=TwoWay}" Content="Right" />
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource up}" IsChecked="{Binding IsTopScreenRegionChecked,Mode=TwoWay}" Content="Top"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource down}" IsChecked="{Binding IsBottomScreenRegionChecked,Mode=TwoWay}" Content="Bottom"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" IsChecked="{Binding IsCustomScreenRegionChecked,Mode=TwoWay}" hc:IconElement.Geometry="{StaticResource custom}" Content="Custom"/>-->
+                            <!--<RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource fullscreen }" IsChecked="{Binding CurrentOutput.OutputScreenCapturePosition,Mode=TwoWay}"  Style="{StaticResource RadioButtonIcon}" Content="Full Screen"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource left }" IsChecked="{Binding IsLeftScreenRegionChecked,Mode=TwoWay}" Style="{StaticResource RadioButtonIcon}" Content="Left"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource right}" IsChecked="{Binding IsRightScreenRegionChecked,Mode=TwoWay}" Content="Right" />
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource up}" IsChecked="{Binding IsTopScreenRegionChecked,Mode=TwoWay}" Content="Top"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource down}" IsChecked="{Binding IsBottomScreenRegionChecked,Mode=TwoWay}" Content="Bottom"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" IsChecked="{Binding IsCustomScreenRegionChecked,Mode=TwoWay}" hc:IconElement.Geometry="{StaticResource custom}" Content="Custom"/>-->
                         </ListBox>
                     </Border>
                 </GroupBox>
@@ -157,7 +157,7 @@
 
 
             </Grid>
-            <hc:Divider LineStroke="{DynamicResource RegionBrush}" Margin="20,10,20,10">
+            <hc:Divider LineStroke="{StaticResource RegionBrush}" Margin="20,10,20,10">
 
             </hc:Divider>
             <Grid >
@@ -170,7 +170,7 @@
 
                 
                     <StackPanel Orientation="Horizontal">
-                    <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{DynamicResource GroupBoxOriginal}">
+                    <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{StaticResource GroupBoxOriginal}">
                         <GroupBox.HeaderTemplate>
                             <DataTemplate>
                                 <TextBlock FontWeight="SemiBold" Text="AUDIO DEVICE"/>
@@ -178,7 +178,7 @@
                         </GroupBox.HeaderTemplate>
                         <Grid HorizontalAlignment="Left" Margin="0,10,10,10">
                             <ItemsControl ItemsSource="{Binding AvailableAudioDevice}" Height="0" Margin="15,0"/>
-                            <ComboBox ItemContainerStyle="{DynamicResource _ComboboxItemStyle}"   HorizontalAlignment="Stretch"   SelectedIndex="{Binding GeneralSettings.SelectedAudioDevice}"  ItemsSource="{Binding AvailableAudioDevice}"  Style="{DynamicResource ComboBoxBaseStyle}"/>
+                            <ComboBox ItemContainerStyle="{StaticResource _ComboboxItemStyle}"   HorizontalAlignment="Stretch"   SelectedIndex="{Binding GeneralSettings.SelectedAudioDevice}"  ItemsSource="{Binding AvailableAudioDevice}"  Style="{StaticResource ComboBoxBaseStyle}"/>
                         </Grid>
                        
                          
@@ -187,14 +187,14 @@
                     <Path Stretch="Uniform" Margin="5" Data="{StaticResource speaker}" 
                                       Width="20" 
                                       Height="20" 
-                                      Fill="{DynamicResource PrimaryTextBrush}"/>
+                                      Fill="{StaticResource PrimaryTextBrush}"/>
                 </StackPanel>
                    
                 
 
 
             </Grid>
-            <hc:Divider Visibility="{Binding ElementName=Order,Path=Visibility}" LineStroke="{DynamicResource RegionBrush}" Margin="20,10,20,10">
+            <hc:Divider Visibility="{Binding ElementName=Order,Path=Visibility}" LineStroke="{StaticResource RegionBrush}" Margin="20,10,20,10">
 
             </hc:Divider>
             <Grid x:Name="Order">
@@ -208,21 +208,21 @@
                         </Style.Triggers>
                     </Style>
                 </Grid.Style>
-                <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{DynamicResource GroupBoxOriginal}">
+                <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{StaticResource GroupBoxOriginal}">
                     <GroupBox.HeaderTemplate>
                         <DataTemplate>
                             <TextBlock FontWeight="SemiBold" Text="FREQUENCY"/>
                         </DataTemplate>
                     </GroupBox.HeaderTemplate>
                     
-                    <Border  Background="{DynamicResource RegionBrush}" CornerRadius="7" BorderThickness="1">
+                    <Border  Background="{StaticResource RegionBrush}" CornerRadius="7" BorderThickness="1">
                         <ListBox  x:Name="orderselection"  
                              
-                              ItemContainerStyle="{DynamicResource _listBoxModeSelectionStyle}"  
+                              ItemContainerStyle="{StaticResource _listBoxModeSelectionStyle}"  
                               SelectedIndex="{Binding CurrentOutput.OutputMusicVisualizerFreq}"
                               Background="Transparent"
                               BorderThickness="0"
-                              Style="{DynamicResource WrapPanelHorizontalListBox}">
+                              Style="{StaticResource WrapPanelHorizontalListBox}">
 
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -241,7 +241,7 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Bass" Style="{DynamicResource TextBlockDefault}"/>
+                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Bass" Style="{StaticResource TextBlockDefault}"/>
                                 </Grid>
                             </ListBoxItem>
                             <ListBoxItem>
@@ -255,7 +255,7 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Mid" Style="{DynamicResource TextBlockDefault}"/>
+                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Mid" Style="{StaticResource TextBlockDefault}"/>
                                 </Grid>
                             </ListBoxItem>
                             <ListBoxItem>
@@ -269,7 +269,7 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Treble" Style="{DynamicResource TextBlockDefault}"/>
+                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Treble" Style="{StaticResource TextBlockDefault}"/>
                                 </Grid>
                             </ListBoxItem>
                             <ListBoxItem>
@@ -283,7 +283,7 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Full" Style="{DynamicResource TextBlockDefault}"/>
+                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Full" Style="{StaticResource TextBlockDefault}"/>
                                 </Grid>
                             </ListBoxItem>
                             <ListBoxItem>
@@ -302,18 +302,18 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Custom" Style="{DynamicResource TextBlockDefault}"/>
+                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Custom" Style="{StaticResource TextBlockDefault}"/>
                                 </Grid>
                             </ListBoxItem>
 
                             
 
-                            <!--<RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{DynamicResource fullscreen }" IsChecked="{Binding CurrentOutput.OutputScreenCapturePosition,Mode=TwoWay}"  Style="{DynamicResource RadioButtonIcon}" Content="Full Screen"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{DynamicResource left }" IsChecked="{Binding IsLeftScreenRegionChecked,Mode=TwoWay}" Style="{DynamicResource RadioButtonIcon}" Content="Left"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource right}" IsChecked="{Binding IsRightScreenRegionChecked,Mode=TwoWay}" Content="Right" />
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource up}" IsChecked="{Binding IsTopScreenRegionChecked,Mode=TwoWay}" Content="Top"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource down}" IsChecked="{Binding IsBottomScreenRegionChecked,Mode=TwoWay}" Content="Bottom"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" IsChecked="{Binding IsCustomScreenRegionChecked,Mode=TwoWay}" hc:IconElement.Geometry="{StaticResource custom}" Content="Custom"/>-->
+                            <!--<RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource fullscreen }" IsChecked="{Binding CurrentOutput.OutputScreenCapturePosition,Mode=TwoWay}"  Style="{StaticResource RadioButtonIcon}" Content="Full Screen"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource left }" IsChecked="{Binding IsLeftScreenRegionChecked,Mode=TwoWay}" Style="{StaticResource RadioButtonIcon}" Content="Left"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource right}" IsChecked="{Binding IsRightScreenRegionChecked,Mode=TwoWay}" Content="Right" />
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource up}" IsChecked="{Binding IsTopScreenRegionChecked,Mode=TwoWay}" Content="Top"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource down}" IsChecked="{Binding IsBottomScreenRegionChecked,Mode=TwoWay}" Content="Bottom"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" IsChecked="{Binding IsCustomScreenRegionChecked,Mode=TwoWay}" hc:IconElement.Geometry="{StaticResource custom}" Content="Custom"/>-->
                         </ListBox>
                     </Border>
                 </GroupBox>
@@ -321,7 +321,7 @@
 
 
             </Grid>
-            <hc:Divider Visibility="{Binding ElementName=VUMode,Path=Visibility}" LineStroke="{DynamicResource RegionBrush}" Margin="20,10,20,10">
+            <hc:Divider Visibility="{Binding ElementName=VUMode,Path=Visibility}" LineStroke="{StaticResource RegionBrush}" Margin="20,10,20,10">
 
             </hc:Divider>
             <Grid x:Name="VUMode">
@@ -339,20 +339,20 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{DynamicResource GroupBoxOriginal}">
+                <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{StaticResource GroupBoxOriginal}">
                     <GroupBox.HeaderTemplate>
                         <DataTemplate>
                             <TextBlock FontWeight="SemiBold" Text="DANCING MODE"/>
                         </DataTemplate>
                     </GroupBox.HeaderTemplate>
-                    <Border  Background="{DynamicResource RegionBrush}" CornerRadius="7" BorderThickness="1">
+                    <Border  Background="{StaticResource RegionBrush}" CornerRadius="7" BorderThickness="1">
                         <ListBox  x:Name="vumodeSelection"  
                              
-                              ItemContainerStyle="{DynamicResource _listBoxModeSelectionStyle}"  
+                              ItemContainerStyle="{StaticResource _listBoxModeSelectionStyle}"  
                               SelectedIndex="{Binding CurrentOutput.VUMode}"
                               Background="Transparent"
                               BorderThickness="0"
-                              Style="{DynamicResource WrapPanelHorizontalListBox}">
+                              Style="{StaticResource WrapPanelHorizontalListBox}">
 
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -371,7 +371,7 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="First" Style="{DynamicResource TextBlockDefault}"/>
+                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="First" Style="{StaticResource TextBlockDefault}"/>
                                 </Grid>
                             </ListBoxItem>
                             <ListBoxItem>
@@ -385,7 +385,7 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Last" Style="{DynamicResource TextBlockDefault}"/>
+                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Last" Style="{StaticResource TextBlockDefault}"/>
                                 </Grid>
                             </ListBoxItem>
                             <ListBoxItem>
@@ -399,34 +399,34 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Floating" Style="{DynamicResource TextBlockDefault}"/>
+                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Floating" Style="{StaticResource TextBlockDefault}"/>
                                 </Grid>
                             </ListBoxItem>
 
 
 
 
-                            <!--<RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{DynamicResource fullscreen }" IsChecked="{Binding CurrentOutput.OutputScreenCapturePosition,Mode=TwoWay}"  Style="{DynamicResource RadioButtonIcon}" Content="Full Screen"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{DynamicResource left }" IsChecked="{Binding IsLeftScreenRegionChecked,Mode=TwoWay}" Style="{DynamicResource RadioButtonIcon}" Content="Left"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource right}" IsChecked="{Binding IsRightScreenRegionChecked,Mode=TwoWay}" Content="Right" />
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource up}" IsChecked="{Binding IsTopScreenRegionChecked,Mode=TwoWay}" Content="Top"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource down}" IsChecked="{Binding IsBottomScreenRegionChecked,Mode=TwoWay}" Content="Bottom"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" IsChecked="{Binding IsCustomScreenRegionChecked,Mode=TwoWay}" hc:IconElement.Geometry="{StaticResource custom}" Content="Custom"/>-->
+                            <!--<RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource fullscreen }" IsChecked="{Binding CurrentOutput.OutputScreenCapturePosition,Mode=TwoWay}"  Style="{StaticResource RadioButtonIcon}" Content="Full Screen"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource left }" IsChecked="{Binding IsLeftScreenRegionChecked,Mode=TwoWay}" Style="{StaticResource RadioButtonIcon}" Content="Left"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource right}" IsChecked="{Binding IsRightScreenRegionChecked,Mode=TwoWay}" Content="Right" />
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource up}" IsChecked="{Binding IsTopScreenRegionChecked,Mode=TwoWay}" Content="Top"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource down}" IsChecked="{Binding IsBottomScreenRegionChecked,Mode=TwoWay}" Content="Bottom"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" IsChecked="{Binding IsCustomScreenRegionChecked,Mode=TwoWay}" hc:IconElement.Geometry="{StaticResource custom}" Content="Custom"/>-->
                         </ListBox>
                     </Border>
 
                 </GroupBox>
 
                 <Grid Margin="15,0,15,0" Grid.Column="1">
-                    <Button Command="{Binding LaunchCIDEditWindowCommand}" hc:IconElement.Geometry="{DynamicResource fft}" Content="Chọn tần số"/>
+                    <Button Command="{Binding LaunchCIDEditWindowCommand}" hc:IconElement.Geometry="{StaticResource fft}" Content="Chọn tần số"/>
                 </Grid>
 
             </Grid>
-            <hc:Divider LineStroke="{DynamicResource RegionBrush}" Margin="20,10,20,10">
+            <hc:Divider LineStroke="{StaticResource RegionBrush}" Margin="20,10,20,10">
 
             </hc:Divider>
             <Grid x:Name="launchMode">
-                <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{DynamicResource GroupBoxOriginal}">
+                <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{StaticResource GroupBoxOriginal}">
                     <GroupBox.HeaderTemplate>
                         <DataTemplate>
                             <TextBlock FontWeight="SemiBold" Text="EFFECT SPEED"/>
@@ -434,7 +434,7 @@
                     </GroupBox.HeaderTemplate>
                     <hc:PreviewSlider Value="{Binding GeneralSettings.SystemMusicSpeed}"  Grid.Column="1" MaxWidth="300" MinWidth="150" HorizontalAlignment="Left" Margin="0,0,20,0" Minimum="0" Maximum="20" TickFrequency="0.1">
                         <hc:PreviewSlider.PreviewContent>
-                            <Label Style="{DynamicResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0"/>
+                            <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0"/>
                         </hc:PreviewSlider.PreviewContent>
                         </hc:PreviewSlider>
                 </GroupBox>

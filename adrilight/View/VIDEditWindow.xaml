@@ -9,7 +9,7 @@
            mc:Ignorable="d"
            xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
            xmlns:local="clr-namespace:adrilight.View"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            Closing="PIDEditWindowClosed"
@@ -47,7 +47,7 @@
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsSelected" Value="true">
 
-                                    <Setter TargetName="_Border" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                                    <Setter TargetName="_Border" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -59,16 +59,16 @@
                 <Setter Property="Tag" Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
                 <Setter Property="ContextMenu">
                     <Setter.Value>
-                        <ContextMenu Style="{DynamicResource ContextMenuBaseStyle}">
-                            <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Edit"
+                        <ContextMenu Style="{StaticResource ContextMenuBaseStyle}">
+                            <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Edit"
                                           Command="{Binding PlacementTarget.Tag.EditSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                             </MenuItem>
-                            <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Share"
+                            <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Share"
                                           Command="{Binding PlacementTarget.Tag.ExportCurrentSelectedPaletteToFileCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                             </MenuItem>
-                            <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Delete"
+                            <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Delete"
                                           Command="{Binding PlacementTarget.Tag.DeleteSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                             </MenuItem>
@@ -129,24 +129,24 @@
 
             <StackPanel>
                 
-                <Button hc:IconElement.Geometry="{StaticResource fullspectrum}" Margin="15" HorizontalAlignment="Stretch"  Command="{Binding ResetCountCommand}"  Style="{DynamicResource ButtonDefault}" Content="Reset" CommandParameter="ResetVID"/>
-                <hc:NumericUpDown Value="{Binding CountVID}" Style="{DynamicResource NumericUpDownExtend}" hc:InfoElement.Title="Bắt đầu" Minimum="0" Maximum="1023" Margin="15,0,15,15">
+                <Button hc:IconElement.Geometry="{StaticResource fullspectrum}" Margin="15" HorizontalAlignment="Stretch"  Command="{Binding ResetCountCommand}"  Style="{StaticResource ButtonDefault}" Content="Reset" CommandParameter="ResetVID"/>
+                <hc:NumericUpDown Value="{Binding CountVID}" Style="{StaticResource NumericUpDownExtend}" hc:InfoElement.Title="Bắt đầu" Minimum="0" Maximum="1023" Margin="15,0,15,15">
 
                 </hc:NumericUpDown >
-                <hc:NumericUpDown Value="{Binding GapVID}" Style="{DynamicResource NumericUpDownExtend}" hc:InfoElement.Title="Gap" Minimum="0" Maximum="1023" Margin="15,0,15,15">
+                <hc:NumericUpDown Value="{Binding GapVID}" Style="{StaticResource NumericUpDownExtend}" hc:InfoElement.Title="Gap" Minimum="0" Maximum="1023" Margin="15,0,15,15">
 
                 </hc:NumericUpDown >
 
-                <Button Visibility="{Binding CurrentDevice.IsUnionMode,Converter={StaticResource Boolean2VisibilityReConverter}}" hc:IconElement.Geometry="{DynamicResource export}" Margin="15" HorizontalAlignment="Stretch"  Command="{Binding OpenExportNewColorEffectCommand}"  Style="{DynamicResource ButtonDefault}" Content="Export" CommandParameter="ExportVID"/>
-                <Button Visibility="{Binding CurrentDevice.IsUnionMode,Converter={StaticResource Boolean2VisibilityReConverter}}" hc:IconElement.Geometry="{DynamicResource import}" Margin="15" HorizontalAlignment="Stretch"  Command="{Binding ImportEffectCommand}"  Style="{DynamicResource ButtonDefault}" Content="Import" CommandParameter="ExportVID"/>
-                <!--<hc:Badge Status="Processing" Height="30" Margin="15" Style="{DynamicResource BadgeDanger}">
+                <Button Visibility="{Binding CurrentDevice.IsUnionMode,Converter={StaticResource Boolean2VisibilityReConverter}}" hc:IconElement.Geometry="{StaticResource export}" Margin="15" HorizontalAlignment="Stretch"  Command="{Binding OpenExportNewColorEffectCommand}"  Style="{StaticResource ButtonDefault}" Content="Export" CommandParameter="ExportVID"/>
+                <Button Visibility="{Binding CurrentDevice.IsUnionMode,Converter={StaticResource Boolean2VisibilityReConverter}}" hc:IconElement.Geometry="{StaticResource import}" Margin="15" HorizontalAlignment="Stretch"  Command="{Binding ImportEffectCommand}"  Style="{StaticResource ButtonDefault}" Content="Import" CommandParameter="ExportVID"/>
+                <!--<hc:Badge Status="Processing" Height="30" Margin="15" Style="{StaticResource BadgeDanger}">
                 
-                    <Button hc:IconElement.Geometry="{StaticResource number}" Click="Button_Click"   Style="{DynamicResource ButtonDefault}" Content="Set ID" CommandParameter="Reset"/>
+                    <Button hc:IconElement.Geometry="{StaticResource number}" Click="Button_Click"   Style="{StaticResource ButtonDefault}" Content="Set ID" CommandParameter="Reset"/>
                 </hc:Badge>-->
                 
                
 
-                <ToggleButton Visibility="Collapsed" IsChecked="False" x:Name="enabledrag" Style="{DynamicResource ToggleButtonSwitch}"/>
+                <ToggleButton Visibility="Collapsed" IsChecked="False" x:Name="enabledrag" Style="{StaticResource ToggleButtonSwitch}"/>
 
             </StackPanel>
 
@@ -232,7 +232,7 @@
                                                     <Viewbox>
 
 
-                                                        <Rectangle Width="{Binding Rectangle.Width}" Height="{Binding Rectangle.Height}" ToolTip="{Binding id}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="{Binding BorderThickness}" >
+                                                        <Rectangle Width="{Binding Rectangle.Width}" Height="{Binding Rectangle.Height}" ToolTip="{Binding id}" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="{Binding BorderThickness}" >
                                                             <Rectangle.Fill>
                                                                 <SolidColorBrush Color="{Binding OnDemandColor}"  />
                                                             </Rectangle.Fill>
@@ -336,7 +336,7 @@
                                         <Viewbox>
 
 
-                                            <Rectangle Width="{Binding Rectangle.Width}" Height="{Binding Rectangle.Height}" ToolTip="{Binding id}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="{Binding BorderThickness}" >
+                                            <Rectangle Width="{Binding Rectangle.Width}" Height="{Binding Rectangle.Height}" ToolTip="{Binding id}" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="{Binding BorderThickness}" >
                                                 <Rectangle.Fill>
                                                     <SolidColorBrush Color="{Binding OnDemandColor}"  />
                                                 </Rectangle.Fill>
@@ -387,10 +387,10 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-            <Path   Fill="{DynamicResource PrimaryBrush}" Width="20" Height="20" Margin="10,10" Data="{StaticResource colorchanged}" Stretch="Uniform" />
-            <TextBlock Margin="5" TextWrapping="Wrap" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultPrimary}" Grid.Column="1" Text="Nhấn Ctrl hoặc chuột trái để vẽ vào 1 ô bất kỳ. Nhấn Shift rồi trỏ vào 1 ô bất kỳ để xóa. Để đặt lại về ban đầu, chọn Reset."/>
+            <Path   Fill="{StaticResource PrimaryBrush}" Width="20" Height="20" Margin="10,10" Data="{StaticResource colorchanged}" Stretch="Uniform" />
+            <TextBlock Margin="5" TextWrapping="Wrap" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultPrimary}" Grid.Column="1" Text="Nhấn Ctrl hoặc chuột trái để vẽ vào 1 ô bất kỳ. Nhấn Shift rồi trỏ vào 1 ô bất kỳ để xóa. Để đặt lại về ban đầu, chọn Reset."/>
             <Button Background="Transparent" Padding="0" BorderBrush="Transparent" Grid.Column="2" Margin="0" HorizontalAlignment="Left">
-                <TextBlock  TextWrapping="Wrap"  Style="{DynamicResource TextBlockDefaultInfo}"  Text="Tìm hiểu thêm"/>
+                <TextBlock  TextWrapping="Wrap"  Style="{StaticResource TextBlockDefaultInfo}"  Text="Tìm hiểu thêm"/>
             </Button>
 
         </Grid>

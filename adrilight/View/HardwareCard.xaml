@@ -30,7 +30,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <Border CornerRadius="7" Background="{DynamicResource DarkMaskBrush}">
+        <Border CornerRadius="7" Background="{StaticResource DarkMaskBrush}">
             <Grid>
             
                
@@ -51,18 +51,18 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid>
-                        <Path Margin="20" Data="{Binding ElementName=HardwareCardControl,Path=Geometry}" Width="75" Height="75" Fill="{DynamicResource PrimaryBrush}" Stretch="Uniform" />
+                        <Path Margin="20" Data="{Binding ElementName=HardwareCardControl,Path=Geometry}" Width="75" Height="75" Fill="{StaticResource PrimaryBrush}" Stretch="Uniform" />
                     </Grid>
                     <Grid MinWidth="254"  Grid.Column="1">
                        
-                        <TextBlock VerticalAlignment="Top" Foreground="{DynamicResource PrimaryBrush}"  Margin="0,20,0,0" HorizontalAlignment="Left" Text="{Binding ElementName=HardwareCardControl,Path=CardName}" Style="{DynamicResource TextBlockLargeBold}"/>
+                        <TextBlock VerticalAlignment="Top" Foreground="{StaticResource PrimaryBrush}"  Margin="0,20,0,0" HorizontalAlignment="Left" Text="{Binding ElementName=HardwareCardControl,Path=CardName}" Style="{StaticResource TextBlockLargeBold}"/>
                     </Grid>
 
                   
                 </Grid>
                 <Grid Grid.Row="1">
                     <!--list of sensor-->
-                    <ListBox Style="{DynamicResource ListBoxBaseTransparentStyle}" BorderBrush="Transparent" ItemsSource="{Binding ElementName=HardwareCardControl,Path=TemperatureSensorList}">
+                    <ListBox Style="{StaticResource ListBoxBaseTransparentStyle}" BorderBrush="Transparent" ItemsSource="{Binding ElementName=HardwareCardControl,Path=TemperatureSensorList}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 

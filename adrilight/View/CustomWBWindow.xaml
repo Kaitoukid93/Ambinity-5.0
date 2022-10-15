@@ -7,7 +7,7 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            ResizeMode="NoResize"
@@ -27,10 +27,10 @@
 
     <Grid Margin="5">
         <StackPanel>
-            <TextBlock Text="Cân bằng trắng" Style="{DynamicResource TextBlockLarge}">
+            <TextBlock Text="Cân bằng trắng" Style="{StaticResource TextBlockLarge}">
                 
             </TextBlock>
-            <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="50" Margin="15,15" Style="{DynamicResource GroupBoxOriginal}">
+            <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="50" Margin="15,15" Style="{StaticResource GroupBoxOriginal}">
                 <GroupBox.HeaderTemplate>
                     <DataTemplate>
                         <TextBlock FontWeight="SemiBold" Text="RED"/>
@@ -52,7 +52,7 @@
                 </StackPanel>
                
             </GroupBox>
-            <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="50" Margin="15,15" Style="{DynamicResource GroupBoxOriginal}">
+            <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="50" Margin="15,15" Style="{StaticResource GroupBoxOriginal}">
                 <GroupBox.HeaderTemplate>
                     <DataTemplate>
                         <TextBlock FontWeight="SemiBold" Text="BLUE"/>
@@ -74,7 +74,7 @@
                 </StackPanel>
 
             </GroupBox>
-            <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="50" Margin="15,15" Style="{DynamicResource GroupBoxOriginal}">
+            <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="50" Margin="15,15" Style="{StaticResource GroupBoxOriginal}">
                 <GroupBox.HeaderTemplate>
                     <DataTemplate>
                         <TextBlock FontWeight="SemiBold" Text="GREEN"/>
@@ -105,8 +105,8 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Click="Button_Click"  Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
-                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
+                <Button Click="Button_Click"  Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
+                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
             </Grid>
             
         </StackPanel>

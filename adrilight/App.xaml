@@ -32,7 +32,7 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsHighlighted" Value="True">
-                                    <Setter Property="Background"  Value="{DynamicResource SecondaryRegionBrush}"/>
+                                    <Setter Property="Background"  Value="{StaticResource SecondaryRegionBrush}"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -41,7 +41,7 @@
 
                 <Setter Property="Foreground">
                     <Setter.Value>
-                        <SolidColorBrush Color="{DynamicResource PrimaryTextColor}"/>
+                        <SolidColorBrush Color="{StaticResource PrimaryTextColor}"/>
                     </Setter.Value>
                 </Setter>
             </Style>
@@ -58,7 +58,7 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type ContextMenu}">
-                            <Border Margin="10" Effect="{DynamicResource EffectShadow3}" Padding="0"  x:Name="Border"
+                            <Border Margin="10" Effect="{StaticResource EffectShadow3}" Padding="0"  x:Name="Border"
                 Background="{StaticResource RegionBrush}"
                 BorderThickness="0">
                                 <Border.BorderBrush>
@@ -93,7 +93,7 @@
                                 Margin="5"
                                 Background="Transparent"
                            
-                                BorderBrush="{DynamicResource DarkMaskBrush}"
+                                BorderBrush="{StaticResource DarkMaskBrush}"
                                 BorderThickness="0"
                                 SnapsToDevicePixels="true">
                                 <ContentPresenter />
@@ -106,8 +106,8 @@
                                     </MultiTrigger.Conditions>
 
 
-                                    <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{DynamicResource PrimaryBrush}"/>-->
-                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource SecondaryRegionBrush}"/>
+                                    <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}"/>-->
+                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource SecondaryRegionBrush}"/>
 
 
 
@@ -120,7 +120,7 @@
                                     </MultiTrigger.Conditions>
 
 
-                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource SecondaryRegionBrush}"/>
+                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource SecondaryRegionBrush}"/>
                                     <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
                                 </MultiTrigger>
                                 <MultiTrigger>
@@ -129,7 +129,7 @@
                                         <Condition Property="IsSelected" Value="False"/>
                                     </MultiTrigger.Conditions>
 
-                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource DarkMaskBrush}"/>
+                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource DarkMaskBrush}"/>
 
                                     <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
 
@@ -155,7 +155,7 @@
                                 Padding="0"
                                 Margin="5"
                                 Background="Transparent"   
-                                BorderBrush="{DynamicResource DarkMaskBrush}"
+                                BorderBrush="{StaticResource DarkMaskBrush}"
                                 BorderThickness="0"
                                 SnapsToDevicePixels="true">
                                 <ContentPresenter />
@@ -168,8 +168,8 @@
                                     </MultiTrigger.Conditions>
 
 
-                                    <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{DynamicResource PrimaryBrush}"/>-->
-                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource SecondaryRegionBrush}"/>
+                                    <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}"/>-->
+                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource SecondaryRegionBrush}"/>
 
 
 
@@ -182,7 +182,7 @@
                                     </MultiTrigger.Conditions>
 
 
-                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource SecondaryRegionBrush}"/>
+                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource SecondaryRegionBrush}"/>
                                     <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
                                 </MultiTrigger>
                                 <MultiTrigger>
@@ -191,7 +191,7 @@
                                         <Condition Property="IsSelected" Value="False"/>
                                     </MultiTrigger.Conditions>
 
-                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource DarkMaskBrush}"/>
+                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource DarkMaskBrush}"/>
 
                                     <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
 
@@ -201,10 +201,10 @@
                     </Setter.Value>
                 </Setter>
 
-                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
                 <Style.Triggers>
                     <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" />
+                        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}" />
                     </Trigger>
                 </Style.Triggers>
 
@@ -217,7 +217,7 @@
                                 Padding="5"
                                 Margin="7,3"
                                 Background="Transparent"   
-                                BorderBrush="{DynamicResource DarkMaskBrush}"
+                                BorderBrush="{StaticResource DarkMaskBrush}"
                                 BorderThickness="0"
                                 SnapsToDevicePixels="true">
                                 <ContentPresenter />
@@ -230,8 +230,8 @@
                                     </MultiTrigger.Conditions>
 
 
-                                    <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{DynamicResource PrimaryBrush}"/>-->
-                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource PrimaryBrush}"/>
+                                    <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}"/>-->
+                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource PrimaryBrush}"/>
 
 
 
@@ -244,7 +244,7 @@
                                     </MultiTrigger.Conditions>
 
 
-                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource DarkMaskBrush}"/>
+                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource DarkMaskBrush}"/>
                                     <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
                                 </MultiTrigger>
                                 <MultiTrigger>
@@ -253,7 +253,7 @@
                                         <Condition Property="IsSelected" Value="False"/>
                                     </MultiTrigger.Conditions>
 
-                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource SecondaryRegionBrush}"/>
+                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource SecondaryRegionBrush}"/>
 
                                     <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
 
@@ -279,8 +279,8 @@
                         </Style>
                     </Setter.Value>
                 </Setter>
-                <Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                <Setter Property="Background" Value="{StaticResource SecondaryRegionBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
                 <Setter Property="BorderThickness" Value="0"/>
                 <Setter Property="VerticalContentAlignment" Value="Center"/>
                 <Setter Property="Padding" Value="6,0,0,0"/>
@@ -359,7 +359,7 @@
                                         </Border.RenderTransform>
                                     </Border>
                                     <hc:SimplePanel Grid.Column="0" Margin="3,0">
-                                        <Border HorizontalAlignment="Left" CornerRadius="8" Name="thumb" Effect="{StaticResource EffectShadow2}" Background="{DynamicResource TextIconBrush}" Width="16" Height="16" RenderTransformOrigin="0.5,0.5">
+                                        <Border HorizontalAlignment="Left" CornerRadius="8" Name="thumb" Effect="{StaticResource EffectShadow2}" Background="{StaticResource TextIconBrush}" Width="16" Height="16" RenderTransformOrigin="0.5,0.5">
                                             <Border.RenderTransform>
                                                 <TransformGroup>
                                                     <TranslateTransform/>

@@ -8,7 +8,7 @@
            xmlns:local ="clr-namespace:adrilight.View"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            
@@ -40,11 +40,11 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
             
-            <TextBlock Text="Automation Editor" Style="{DynamicResource TextBlockLarge}">
+            <TextBlock Text="Automation Editor" Style="{StaticResource TextBlockLarge}">
                 
             </TextBlock>
             
-            <GroupBox Grid.Row="1" HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Top" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{DynamicResource GroupBoxOriginal}">
+            <GroupBox Grid.Row="1" HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Top" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{StaticResource GroupBoxOriginal}">
                 <GroupBox.HeaderTemplate>
                     <DataTemplate>
                         <TextBlock FontWeight="SemiBold" Text="ACTIONS"/>
@@ -78,7 +78,7 @@
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>-->
-                                        <!--<ComboBox SelectedIndex="{Binding ActionParameterIndex,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"  ItemsSource="{Binding AvailableParameters}" ItemContainerStyle="{DynamicResource _ComboboxItemStyle}" Style="{DynamicResource ComboBoxExtend}">
+                                        <!--<ComboBox SelectedIndex="{Binding ActionParameterIndex,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"  ItemsSource="{Binding AvailableParameters}" ItemContainerStyle="{StaticResource _ComboboxItemStyle}" Style="{StaticResource ComboBoxExtend}">
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate>
                                                 <TextBlock  Text="{Binding Name}"/>
@@ -104,8 +104,8 @@
                                             <ColumnDefinition Width="*"/>
 
                                         </Grid.ColumnDefinitions>
-                                        <Button    Command="{Binding Path=DataContext.OpenActionsEditWindowCommand,RelativeSource= {RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}" Grid.Column="0" Background="Transparent" hc:IconElement.Geometry="{DynamicResource edit}" Style="{DynamicResource ButtonBaseStyle}"/>
-                                        <Button Grid.Column="1" Background="Transparent" hc:IconElement.Geometry="{DynamicResource delete}" Style="{DynamicResource ButtonBaseStyle}"/>
+                                        <Button    Command="{Binding Path=DataContext.OpenActionsEditWindowCommand,RelativeSource= {RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}" Grid.Column="0" Background="Transparent" hc:IconElement.Geometry="{StaticResource edit}" Style="{StaticResource ButtonBaseStyle}"/>
+                                        <Button Grid.Column="1" Background="Transparent" hc:IconElement.Geometry="{StaticResource delete}" Style="{StaticResource ButtonBaseStyle}"/>
 
 
                                     </Grid>
@@ -133,8 +133,8 @@
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <Grid>
-                    <Border  Background="{DynamicResource RegionBrush}" CornerRadius="7" BorderThickness="1">
-                        <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Top" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{DynamicResource GroupBoxOriginal}">
+                    <Border  Background="{StaticResource RegionBrush}" CornerRadius="7" BorderThickness="1">
+                        <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Top" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{StaticResource GroupBoxOriginal}">
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold" Text="MODIFIERS"/>
@@ -142,29 +142,29 @@
                             </GroupBox.HeaderTemplate>
                             <ListBox x:Name="Modifier_selection"  
                              ItemsSource="{Binding AvailableModifiers}"
-                              ItemContainerStyle="{DynamicResource _listBoxModeSelectionStyle}"  
+                              ItemContainerStyle="{StaticResource _listBoxModeSelectionStyle}"  
                               
                               Background="Transparent"
                               BorderThickness="0"
-                              Style="{DynamicResource WrapPanelHorizontalListBox}">
+                              Style="{StaticResource WrapPanelHorizontalListBox}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     
                                         <Grid>
-                                                <ToggleButton Width="auto" Height="auto" IsChecked="{Binding IsChecked}" Style="{DynamicResource ToggleButtonCustom}" hc:StatusSwitchElement.HideUncheckedElement="True" >
+                                                <ToggleButton Width="auto" Height="auto" IsChecked="{Binding IsChecked}" Style="{StaticResource ToggleButtonCustom}" hc:StatusSwitchElement.HideUncheckedElement="True" >
                                                     <hc:StatusSwitchElement.CheckedElement>
-                                                        <Border CornerRadius="4" BorderThickness="0" BorderBrush="{DynamicResource BorderBrush}">
+                                                        <Border CornerRadius="4" BorderThickness="0" BorderBrush="{StaticResource BorderBrush}">
                                                             <Grid>
-                                                                <Rectangle RadiusX="3" RadiusY="3" Stretch="Fill" Fill="{DynamicResource PrimaryBrush}"/>
-                                                                <TextBlock Style="{DynamicResource TextBlockDefaultBold}" Margin="6" Foreground="{DynamicResource RegionBrush}" Text="{Binding Name}"/>
+                                                                <Rectangle RadiusX="3" RadiusY="3" Stretch="Fill" Fill="{StaticResource PrimaryBrush}"/>
+                                                                <TextBlock Style="{StaticResource TextBlockDefaultBold}" Margin="6" Foreground="{StaticResource RegionBrush}" Text="{Binding Name}"/>
                                                             </Grid>
                                                             
                                                         </Border>
                                                     </hc:StatusSwitchElement.CheckedElement>
-                                                <Border CornerRadius="4" BorderThickness="0" BorderBrush="{DynamicResource BorderBrush}">
+                                                <Border CornerRadius="4" BorderThickness="0" BorderBrush="{StaticResource BorderBrush}">
                                                     <Grid>
-                                                        <Rectangle RadiusX="3" RadiusY="3" Stretch="Fill" Fill="{DynamicResource SecondaryRegionBrush}"/>
-                                                        <TextBlock Style="{DynamicResource TextBlockDefaultBold}" Margin="6" Foreground="{DynamicResource PrimaryTextBrush}" Text="{Binding Name}"/>
+                                                        <Rectangle RadiusX="3" RadiusY="3" Stretch="Fill" Fill="{StaticResource SecondaryRegionBrush}"/>
+                                                        <TextBlock Style="{StaticResource TextBlockDefaultBold}" Margin="6" Foreground="{StaticResource PrimaryTextBrush}" Text="{Binding Name}"/>
                                                     </Grid>
 
                                                 </Border>
@@ -180,14 +180,14 @@
                     
                 </Grid>
                 <Grid Grid.Column="1">
-                    <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Top" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{DynamicResource GroupBoxOriginal}">
+                    <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Top" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{StaticResource GroupBoxOriginal}">
                         <GroupBox.HeaderTemplate>
                             <DataTemplate>
                                 <TextBlock FontWeight="SemiBold" Text="KEY"/>
                             </DataTemplate>
                         </GroupBox.HeaderTemplate>
                         <local:KeySelectionButton HorizontalAlignment="Left" SelectedKey="{Binding CurrentSelectedAutomation.Condition, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                         Style="{DynamicResource ButtonDefault}" />
+                                                         Style="{StaticResource ButtonDefault}" />
                     </GroupBox>
                 </Grid>
              
@@ -198,8 +198,8 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Click="Button_Click" Command="{Binding SaveCurrentSelectedAutomationCommand}" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
-                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
+                <Button Click="Button_Click" Command="{Binding SaveCurrentSelectedAutomationCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
+                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
             </Grid>
             
        

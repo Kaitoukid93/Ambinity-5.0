@@ -7,7 +7,7 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            
@@ -39,11 +39,11 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
-            <TextBlock Text="Data Selection" Style="{DynamicResource TextBlockTitle}"></TextBlock>
+            <TextBlock Text="Data Selection" Style="{StaticResource TextBlockTitle}"></TextBlock>
         </Grid>
         <Grid Grid.Row="1">
             <StackPanel>
-                <TextBlock Margin="10" Foreground="{DynamicResource PrimaryBrush}" Style="{DynamicResource TextBlockSubTitle}" Text="Chọn Các dữ liệu mà bạn muốn Import"></TextBlock>
+                <TextBlock Margin="10" Foreground="{StaticResource PrimaryBrush}" Style="{StaticResource TextBlockSubTitle}" Text="Chọn Các dữ liệu mà bạn muốn Import"></TextBlock>
                 <Grid HorizontalAlignment="Left" Margin="10">
                     <StackPanel Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top">
                         <CheckBox IsChecked="{Binding SelectedSpotData[0]}">
@@ -70,8 +70,8 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-            <Button Click="Button_Click" CommandParameter="apply" Command="{Binding ApplySpotImportDataCommand}" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
-            <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
+            <Button Click="Button_Click" CommandParameter="apply" Command="{Binding ApplySpotImportDataCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
+            <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
         </Grid>
 
     </Grid>

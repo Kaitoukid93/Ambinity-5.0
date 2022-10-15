@@ -7,7 +7,7 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            ResizeMode="NoResize"
@@ -27,12 +27,12 @@
 
     <Grid Margin="5">
         <StackPanel>
-            <TextBlock Text="Lưu Hiệu Ứng" Style="{DynamicResource TextBlockLarge}">
+            <TextBlock Text="Lưu Hiệu Ứng" Style="{StaticResource TextBlockLarge}">
                 
             </TextBlock>
-            <TextBox Text="{Binding NewEffectName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" MaxLength="100" Margin="10" hc:InfoElement.Placeholder="Ví dụ : Wipe" hc:InfoElement.Title="TÊN HIỆU ỨNG" Style="{DynamicResource TextBoxExtend}" hc:InfoElement.Necessary="True" />
-            <TextBox Text="{Binding NewEffectOwner, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" MaxLength="100" Margin="10" hc:InfoElement.Placeholder="Ví dụ : Zooey" hc:InfoElement.Title="NGƯỜI TẠO" Style="{DynamicResource TextBoxExtend}" hc:InfoElement.Necessary="True" />
-            <TextBox Text="{Binding NewEffectDescription, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" MaxLength="100" Margin="10" hc:InfoElement.Placeholder="Ví dụ : Nice Palette" hc:InfoElement.Title="MÔ TẢ" Style="{DynamicResource TextBoxExtend}" hc:InfoElement.Necessary="False" />
+            <TextBox Text="{Binding NewEffectName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" MaxLength="100" Margin="10" hc:InfoElement.Placeholder="Ví dụ : Wipe" hc:InfoElement.Title="TÊN HIỆU ỨNG" Style="{StaticResource TextBoxExtend}" hc:InfoElement.Necessary="True" />
+            <TextBox Text="{Binding NewEffectOwner, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" MaxLength="100" Margin="10" hc:InfoElement.Placeholder="Ví dụ : Zooey" hc:InfoElement.Title="NGƯỜI TẠO" Style="{StaticResource TextBoxExtend}" hc:InfoElement.Necessary="True" />
+            <TextBox Text="{Binding NewEffectDescription, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" MaxLength="100" Margin="10" hc:InfoElement.Placeholder="Ví dụ : Nice Palette" hc:InfoElement.Title="MÔ TẢ" Style="{StaticResource TextBoxExtend}" hc:InfoElement.Necessary="False" />
              
             <Grid >
                 <Grid.ColumnDefinitions>
@@ -40,8 +40,8 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Click="Button_Click" Command="{Binding ExportCurrentColorEffectCommand}" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
-                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
+                <Button Click="Button_Click" Command="{Binding ExportCurrentColorEffectCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
+                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
             </Grid>
             
         </StackPanel>

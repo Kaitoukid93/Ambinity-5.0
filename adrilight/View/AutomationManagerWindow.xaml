@@ -9,7 +9,7 @@
            xmlns:local ="clr-namespace:adrilight.View"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            
@@ -43,9 +43,9 @@
                     <ColumnDefinition Width="11*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock HorizontalAlignment="Center" Text="Automation Manager" Style="{DynamicResource TextBlockLarge}">
+                <TextBlock HorizontalAlignment="Center" Text="Automation Manager" Style="{StaticResource TextBlockLarge}">
                 </TextBlock>
-                <Button Command="{ Binding OpenAddNewAutomationCommand}" Grid.Column="1" Margin="0,0,5,0" HorizontalAlignment="Right" VerticalAlignment="Center" Content="Add" Style="{DynamicResource ButtonDashedPrimary}" />
+                <Button Command="{ Binding OpenAddNewAutomationCommand}" Grid.Column="1" Margin="0,0,5,0" HorizontalAlignment="Right" VerticalAlignment="Center" Content="Add" Style="{StaticResource ButtonDashedPrimary}" />
             </Grid>
 
             <Grid Grid.Row="1" Margin="5">
@@ -65,7 +65,7 @@
                                         </Grid.ColumnDefinitions>
                                         <Grid Grid.Column="1">
                                             <local:KeySelectionButton Margin="5,0,5,0" HorizontalAlignment="Left" SelectedKey="{Binding Condition, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                         Style="{DynamicResource ButtonDefault}" />
+                                                         Style="{StaticResource ButtonDefault}" />
                                         </Grid>
                                         <Grid>
                                             <ListBox x:Name="Modifier_display" 
@@ -73,12 +73,12 @@
                                                                             
                                                      Background="Transparent"
                                                      BorderThickness="0"
-                                                     Style="{DynamicResource WrapPanelHorizontalListBox}">
+                                                     Style="{StaticResource WrapPanelHorizontalListBox}">
                                                 <ListBox.ItemTemplate>
                                                     <DataTemplate>
                                                         <Grid Margin="5,0,5,0">
-                                                            <Border BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="4">
-                                                                <TextBlock Style="{DynamicResource TextBlockDefaultBold}" Margin="5" Text="{Binding Name}"/>
+                                                            <Border BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" CornerRadius="4">
+                                                                <TextBlock Style="{StaticResource TextBlockDefaultBold}" Margin="5" Text="{Binding Name}"/>
                                                             </Border>
                                                         </Grid>
                                                     </DataTemplate>
@@ -109,8 +109,8 @@
                                             <ColumnDefinition Width="*"/>
 
                                         </Grid.ColumnDefinitions>
-                                        <Button  Command="{Binding Path=DataContext.OpenActionsManagerWindowCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" Grid.Column="0" Background="Transparent" hc:IconElement.Geometry="{DynamicResource edit}" Style="{DynamicResource ButtonBaseStyle}"/>
-                                        <Button CommandParameter="{Binding .}" Command="{Binding Path=DataContext.DeleteSelectedAutomationCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" Grid.Column="1" Background="Transparent" hc:IconElement.Geometry="{DynamicResource delete}" Style="{DynamicResource ButtonBaseStyle}"/>
+                                        <Button  Command="{Binding Path=DataContext.OpenActionsManagerWindowCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" Grid.Column="0" Background="Transparent" hc:IconElement.Geometry="{StaticResource edit}" Style="{StaticResource ButtonBaseStyle}"/>
+                                        <Button CommandParameter="{Binding .}" Command="{Binding Path=DataContext.DeleteSelectedAutomationCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" Grid.Column="1" Background="Transparent" hc:IconElement.Geometry="{StaticResource delete}" Style="{StaticResource ButtonBaseStyle}"/>
 
 
                                     </Grid>
@@ -130,7 +130,7 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Click="Button_Click" Command="{Binding SaveAllAutomationCommand}"  Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
+                <Button Click="Button_Click" Command="{Binding SaveAllAutomationCommand}"  Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
 
             </Grid>
 

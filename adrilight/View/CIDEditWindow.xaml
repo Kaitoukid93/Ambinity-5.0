@@ -8,7 +8,7 @@
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
            xmlns:local="clr-namespace:adrilight.View"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            Closing="PIDEditWindowClosed"
@@ -46,7 +46,7 @@
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsSelected" Value="true">
 
-                                    <Setter TargetName="_Border" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
+                                    <Setter TargetName="_Border" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -56,16 +56,16 @@
                 <Setter Property="Tag" Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
                 <Setter Property="ContextMenu">
                     <Setter.Value>
-                        <ContextMenu Style="{DynamicResource ContextMenuBaseStyle}">
-                            <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Edit"
+                        <ContextMenu Style="{StaticResource ContextMenuBaseStyle}">
+                            <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Edit"
                                           Command="{Binding PlacementTarget.Tag.EditSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                             </MenuItem>
-                            <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Share"
+                            <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Share"
                                           Command="{Binding PlacementTarget.Tag.ExportCurrentSelectedPaletteToFileCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                             </MenuItem>
-                            <MenuItem Style="{DynamicResource MenuItemBaseStyle}" Header="Delete"
+                            <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Delete"
                                           Command="{Binding PlacementTarget.Tag.DeleteSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                             </MenuItem>
@@ -126,25 +126,25 @@
            
                 <StackPanel>
 
-                <Button hc:IconElement.Geometry="{StaticResource fullspectrum}" Margin="15" HorizontalAlignment="Stretch"  Command="{Binding ResetCountCommand}"  Style="{DynamicResource ButtonDefault}" Content="Reset" CommandParameter="Reset"/>
-                <hc:Badge Status="Processing" Height="30" Margin="15" Style="{DynamicResource BadgeDanger}">
-                <Button hc:IconElement.Geometry="{StaticResource number}" Click="Button_Click"   Style="{DynamicResource ButtonDefault}" Content="Set ID" CommandParameter="Reset"/>
+                <Button hc:IconElement.Geometry="{StaticResource fullspectrum}" Margin="15" HorizontalAlignment="Stretch"  Command="{Binding ResetCountCommand}"  Style="{StaticResource ButtonDefault}" Content="Reset" CommandParameter="Reset"/>
+                <hc:Badge Status="Processing" Height="30" Margin="15" Style="{StaticResource BadgeDanger}">
+                <Button hc:IconElement.Geometry="{StaticResource number}" Click="Button_Click"   Style="{StaticResource ButtonDefault}" Content="Set ID" CommandParameter="Reset"/>
                 </hc:Badge>
                 <Grid x:Name="launchMode">
-                    <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Top" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{DynamicResource GroupBoxOriginal}">
+                    <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Top" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{StaticResource GroupBoxOriginal}">
                         <GroupBox.HeaderTemplate>
                             <DataTemplate>
                                 <TextBlock FontWeight="SemiBold" Text="HƯỚNG"/>
                             </DataTemplate>
                         </GroupBox.HeaderTemplate>
-                        <Border  Background="{DynamicResource RegionBrush}" CornerRadius="7" BorderThickness="1">
+                        <Border  Background="{StaticResource RegionBrush}" CornerRadius="7" BorderThickness="1">
                             <ListBox SelectedIndex="{Binding CurrentOutput.VUOrientation}"  x:Name="launchmodeselection"  
                              
-                              ItemContainerStyle="{DynamicResource _listBoxModeSelectionStyle}"  
+                              ItemContainerStyle="{StaticResource _listBoxModeSelectionStyle}"  
                               
                               Background="Transparent"
                               BorderThickness="0"
-                              Style="{DynamicResource WrapPanelVerticalListBox}">
+                              Style="{StaticResource WrapPanelVerticalListBox}">
 
                                 <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -163,7 +163,7 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                        <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Ngang" Style="{DynamicResource TextBlockDefault}"/>
+                                        <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Ngang" Style="{StaticResource TextBlockDefault}"/>
                                     </Grid>
                                 </ListBoxItem>
                                 <ListBoxItem>
@@ -177,7 +177,7 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                        <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Dọc" Style="{DynamicResource TextBlockDefault}"/>
+                                        <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Dọc" Style="{StaticResource TextBlockDefault}"/>
                                     </Grid>
                                 </ListBoxItem>
                                 
@@ -185,12 +185,12 @@
 
 
 
-                                <!--<RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{DynamicResource fullscreen }" IsChecked="{Binding CurrentOutput.OutputScreenCapturePosition,Mode=TwoWay}"  Style="{DynamicResource RadioButtonIcon}" Content="Full Screen"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{DynamicResource left }" IsChecked="{Binding IsLeftScreenRegionChecked,Mode=TwoWay}" Style="{DynamicResource RadioButtonIcon}" Content="Left"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource right}" IsChecked="{Binding IsRightScreenRegionChecked,Mode=TwoWay}" Content="Right" />
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource up}" IsChecked="{Binding IsTopScreenRegionChecked,Mode=TwoWay}" Content="Top"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource down}" IsChecked="{Binding IsBottomScreenRegionChecked,Mode=TwoWay}" Content="Bottom"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" IsChecked="{Binding IsCustomScreenRegionChecked,Mode=TwoWay}" hc:IconElement.Geometry="{StaticResource custom}" Content="Custom"/>-->
+                                <!--<RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource fullscreen }" IsChecked="{Binding CurrentOutput.OutputScreenCapturePosition,Mode=TwoWay}"  Style="{StaticResource RadioButtonIcon}" Content="Full Screen"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource left }" IsChecked="{Binding IsLeftScreenRegionChecked,Mode=TwoWay}" Style="{StaticResource RadioButtonIcon}" Content="Left"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource right}" IsChecked="{Binding IsRightScreenRegionChecked,Mode=TwoWay}" Content="Right" />
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource up}" IsChecked="{Binding IsTopScreenRegionChecked,Mode=TwoWay}" Content="Top"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource down}" IsChecked="{Binding IsBottomScreenRegionChecked,Mode=TwoWay}" Content="Bottom"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" IsChecked="{Binding IsCustomScreenRegionChecked,Mode=TwoWay}" hc:IconElement.Geometry="{StaticResource custom}" Content="Custom"/>-->
                             </ListBox>
                         </Border>
                     </GroupBox>
@@ -247,7 +247,7 @@
                                 <Grid>
                                     <Viewbox>
                                         <Grid>
-                                            <Rectangle ToolTip="{Binding id}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="{Binding BorderThickness}" Width="{Binding Rectangle.Width}" Height="{Binding Rectangle.Height}">
+                                            <Rectangle ToolTip="{Binding id}" Stroke="{StaticResource PrimaryBrush}" StrokeThickness="{Binding BorderThickness}" Width="{Binding Rectangle.Width}" Height="{Binding Rectangle.Height}">
                                                 <Rectangle.Fill>
                                                     <SolidColorBrush Color="{Binding OnDemandColor}"  />
                                                 </Rectangle.Fill>
@@ -302,10 +302,10 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-            <Path   Fill="{DynamicResource WarningBrush}" Width="20" Height="20" Margin="10,10" Data="{StaticResource colorchanged}" Stretch="Uniform" />
-            <TextBlock Margin="5" TextWrapping="Wrap" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultWarning}" Grid.Column="1" Text="Quét các LED muốn Set ID hoặc chọn từng LED sau đó nhấn Set ID. Nhấn Ctrl+Click để chọn nhiều LED ở vị trí khác nhau."/>
+            <Path   Fill="{StaticResource WarningBrush}" Width="20" Height="20" Margin="10,10" Data="{StaticResource colorchanged}" Stretch="Uniform" />
+            <TextBlock Margin="5" TextWrapping="Wrap" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultWarning}" Grid.Column="1" Text="Quét các LED muốn Set ID hoặc chọn từng LED sau đó nhấn Set ID. Nhấn Ctrl+Click để chọn nhiều LED ở vị trí khác nhau."/>
             <Button Background="Transparent" Padding="0" BorderBrush="Transparent" Grid.Column="2" Margin="0" HorizontalAlignment="Left">
-                <TextBlock  TextWrapping="Wrap"  Style="{DynamicResource TextBlockDefaultPrimary}"  Text="Tìm hiểu thêm"/>
+                <TextBlock  TextWrapping="Wrap"  Style="{StaticResource TextBlockDefaultPrimary}"  Text="Tìm hiểu thêm"/>
             </Button>
             
         </Grid>

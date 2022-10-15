@@ -32,7 +32,7 @@
                                 Padding="0"
                                 Margin="5"
                                 Background="Transparent"   
-                                BorderBrush="{DynamicResource DarkMaskBrush}"
+                                BorderBrush="{StaticResource DarkMaskBrush}"
                                 BorderThickness="0"
                                 SnapsToDevicePixels="true">
                                 <ContentPresenter />
@@ -45,8 +45,8 @@
                                     </MultiTrigger.Conditions>
 
 
-                                    <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{DynamicResource PrimaryBrush}"/>-->
-                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource SecondaryRegionBrush}"/>
+                                    <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}"/>-->
+                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource SecondaryRegionBrush}"/>
 
 
 
@@ -59,7 +59,7 @@
                                     </MultiTrigger.Conditions>
 
 
-                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource SecondaryRegionBrush}"/>
+                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource SecondaryRegionBrush}"/>
                                     <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
                                 </MultiTrigger>
                                 <MultiTrigger>
@@ -68,7 +68,7 @@
                                         <Condition Property="IsSelected" Value="False"/>
                                     </MultiTrigger.Conditions>
 
-                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource DarkMaskBrush}"/>
+                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource DarkMaskBrush}"/>
 
                                     <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
 
@@ -78,10 +78,10 @@
                     </Setter.Value>
                 </Setter>
 
-                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
                 <Style.Triggers>
                     <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" />
+                        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}" />
                     </Trigger>
                 </Style.Triggers>
 
@@ -91,13 +91,13 @@
     <Grid>
         <StackPanel>
             <!--<Grid x:Name="Sync">
-                <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{DynamicResource GroupBoxOriginal}">
+                <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{StaticResource GroupBoxOriginal}">
                     <GroupBox.HeaderTemplate>
                         <DataTemplate>
                             <TextBlock FontWeight="SemiBold" Text="SYNC"/>
                         </DataTemplate>
                     </GroupBox.HeaderTemplate>
-                    <ToggleButton x:Name="sync" IsChecked="{Binding CurrentOutput.OutputIsSystemSync}" Style="{DynamicResource ToggleButtonSwitch}">
+                    <ToggleButton x:Name="sync" IsChecked="{Binding CurrentOutput.OutputIsSystemSync}" Style="{StaticResource ToggleButtonSwitch}">
                         
                     </ToggleButton>
                 </GroupBox>
@@ -106,20 +106,20 @@
 
             </Grid>-->
             <Grid Visibility="Collapsed" x:Name="Mode">
-                <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{DynamicResource GroupBoxOriginal}">
+                <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{StaticResource GroupBoxOriginal}">
                     <GroupBox.HeaderTemplate>
                         <DataTemplate>
                             <TextBlock FontWeight="SemiBold" Text="MODE"/>
                         </DataTemplate>
                     </GroupBox.HeaderTemplate>
-                    <Border  Background="{DynamicResource RegionBrush}" CornerRadius="7" BorderThickness="1">
+                    <Border  Background="{StaticResource RegionBrush}" CornerRadius="7" BorderThickness="1">
                         <ListBox SelectedIndex="{Binding CurrentOutput.OutputColorPaletteMode}"  x:Name="palettemode_selection"  
                              
-                              ItemContainerStyle="{DynamicResource _listBoxModeSelectionStyle}"  
+                              ItemContainerStyle="{StaticResource _listBoxModeSelectionStyle}"  
                               
                               Background="Transparent"
                               BorderThickness="0"
-                              Style="{DynamicResource WrapPanelHorizontalListBox}">
+                              Style="{StaticResource WrapPanelHorizontalListBox}">
 
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -138,7 +138,7 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Chasing" Style="{DynamicResource TextBlockDefault}"/>
+                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Chasing" Style="{StaticResource TextBlockDefault}"/>
                                 </Grid>
                             </ListBoxItem>
                             <ListBoxItem IsEnabled="False">
@@ -152,7 +152,7 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Stairy" Style="{DynamicResource TextBlockDefault}"/>
+                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Stairy" Style="{StaticResource TextBlockDefault}"/>
                                 </Grid>
                             </ListBoxItem>
                             <ListBoxItem IsEnabled="False">
@@ -166,18 +166,18 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Juggle" Style="{DynamicResource TextBlockDefault}"/>
+                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Juggle" Style="{StaticResource TextBlockDefault}"/>
                                 </Grid>
                             </ListBoxItem>
 
 
 
-                            <!--<RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{DynamicResource fullscreen }" IsChecked="{Binding CurrentOutput.OutputScreenCapturePosition,Mode=TwoWay}"  Style="{DynamicResource RadioButtonIcon}" Content="Full Screen"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{DynamicResource left }" IsChecked="{Binding IsLeftScreenRegionChecked,Mode=TwoWay}" Style="{DynamicResource RadioButtonIcon}" Content="Left"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource right}" IsChecked="{Binding IsRightScreenRegionChecked,Mode=TwoWay}" Content="Right" />
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource up}" IsChecked="{Binding IsTopScreenRegionChecked,Mode=TwoWay}" Content="Top"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource down}" IsChecked="{Binding IsBottomScreenRegionChecked,Mode=TwoWay}" Content="Bottom"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" IsChecked="{Binding IsCustomScreenRegionChecked,Mode=TwoWay}" hc:IconElement.Geometry="{StaticResource custom}" Content="Custom"/>-->
+                            <!--<RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource fullscreen }" IsChecked="{Binding CurrentOutput.OutputScreenCapturePosition,Mode=TwoWay}"  Style="{StaticResource RadioButtonIcon}" Content="Full Screen"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource left }" IsChecked="{Binding IsLeftScreenRegionChecked,Mode=TwoWay}" Style="{StaticResource RadioButtonIcon}" Content="Left"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource right}" IsChecked="{Binding IsRightScreenRegionChecked,Mode=TwoWay}" Content="Right" />
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource up}" IsChecked="{Binding IsTopScreenRegionChecked,Mode=TwoWay}" Content="Top"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource down}" IsChecked="{Binding IsBottomScreenRegionChecked,Mode=TwoWay}" Content="Bottom"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" IsChecked="{Binding IsCustomScreenRegionChecked,Mode=TwoWay}" hc:IconElement.Geometry="{StaticResource custom}" Content="Custom"/>-->
                         </ListBox>
                     </Border>
                 </GroupBox>
@@ -185,25 +185,25 @@
 
 
             </Grid>
-            <hc:Divider Visibility="{Binding ElementName=Order,Path=Visibility}" LineStroke="{DynamicResource RegionBrush}" Margin="20,10,20,10">
+            <hc:Divider Visibility="{Binding ElementName=Order,Path=Visibility}" LineStroke="{StaticResource RegionBrush}" Margin="20,10,20,10">
 
             </hc:Divider>
             <Grid x:Name="Order">
              
-                <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{DynamicResource GroupBoxOriginal}">
+                <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{StaticResource GroupBoxOriginal}">
                     <GroupBox.HeaderTemplate>
                         <DataTemplate>
                             <TextBlock FontWeight="SemiBold" Text="ORDER"/>
                         </DataTemplate>
                     </GroupBox.HeaderTemplate>
-                    <Border  Background="{DynamicResource RegionBrush}" CornerRadius="7" BorderThickness="1">
+                    <Border  Background="{StaticResource RegionBrush}" CornerRadius="7" BorderThickness="1">
                         <ListBox  x:Name="orderselection"  
                              
-                              ItemContainerStyle="{DynamicResource _listBoxModeSelectionStyle}"  
+                              ItemContainerStyle="{StaticResource _listBoxModeSelectionStyle}"  
                               SelectedIndex="{Binding CurrentOutput.OutputPaletteChasingPosition}"
                               Background="Transparent"
                               BorderThickness="0"
-                              Style="{DynamicResource WrapPanelHorizontalListBox}">
+                              Style="{StaticResource WrapPanelHorizontalListBox}">
 
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -222,7 +222,7 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="1/4" Style="{DynamicResource TextBlockDefault}"/>
+                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="1/4" Style="{StaticResource TextBlockDefault}"/>
                                 </Grid>
                             </ListBoxItem>
                             <ListBoxItem>
@@ -235,7 +235,7 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="1/2" Style="{DynamicResource TextBlockDefault}"/>
+                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="1/2" Style="{StaticResource TextBlockDefault}"/>
                                 </Grid>
                             </ListBoxItem>
                             <ListBoxItem>
@@ -248,7 +248,7 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Full" Style="{DynamicResource TextBlockDefault}"/>
+                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Full" Style="{StaticResource TextBlockDefault}"/>
                                 </Grid>
                             </ListBoxItem>
                             <ListBoxItem>
@@ -261,7 +261,7 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="2x" Style="{DynamicResource TextBlockDefault}"/>
+                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="2x" Style="{StaticResource TextBlockDefault}"/>
                                 </Grid>
                             </ListBoxItem>
                          
@@ -275,7 +275,7 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="4x" Style="{DynamicResource TextBlockDefault}"/>
+                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="4x" Style="{StaticResource TextBlockDefault}"/>
                                 </Grid>
                             </ListBoxItem>
 
@@ -296,18 +296,18 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Custom" Style="{DynamicResource TextBlockDefault}"/>
+                                    <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Custom" Style="{StaticResource TextBlockDefault}"/>
                                 </Grid>
                             </ListBoxItem>
 
 
 
-                            <!--<RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{DynamicResource fullscreen }" IsChecked="{Binding CurrentOutput.OutputScreenCapturePosition,Mode=TwoWay}"  Style="{DynamicResource RadioButtonIcon}" Content="Full Screen"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{DynamicResource left }" IsChecked="{Binding IsLeftScreenRegionChecked,Mode=TwoWay}" Style="{DynamicResource RadioButtonIcon}" Content="Left"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource right}" IsChecked="{Binding IsRightScreenRegionChecked,Mode=TwoWay}" Content="Right" />
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource up}" IsChecked="{Binding IsTopScreenRegionChecked,Mode=TwoWay}" Content="Top"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource down}" IsChecked="{Binding IsBottomScreenRegionChecked,Mode=TwoWay}" Content="Bottom"/>
-                    <RadioButton BorderBrush="{DynamicResource DarkMaskBrush}" IsChecked="{Binding IsCustomScreenRegionChecked,Mode=TwoWay}" hc:IconElement.Geometry="{StaticResource custom}" Content="Custom"/>-->
+                            <!--<RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource fullscreen }" IsChecked="{Binding CurrentOutput.OutputScreenCapturePosition,Mode=TwoWay}"  Style="{StaticResource RadioButtonIcon}" Content="Full Screen"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource left }" IsChecked="{Binding IsLeftScreenRegionChecked,Mode=TwoWay}" Style="{StaticResource RadioButtonIcon}" Content="Left"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource right}" IsChecked="{Binding IsRightScreenRegionChecked,Mode=TwoWay}" Content="Right" />
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource up}" IsChecked="{Binding IsTopScreenRegionChecked,Mode=TwoWay}" Content="Top"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource down}" IsChecked="{Binding IsBottomScreenRegionChecked,Mode=TwoWay}" Content="Bottom"/>
+                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" IsChecked="{Binding IsCustomScreenRegionChecked,Mode=TwoWay}" hc:IconElement.Geometry="{StaticResource custom}" Content="Custom"/>-->
                         </ListBox>
                     </Border>
                 </GroupBox>
@@ -315,7 +315,7 @@
 
 
             </Grid>
-            <hc:Divider LineStroke="{DynamicResource RegionBrush}" Margin="20,10,20,10">
+            <hc:Divider LineStroke="{StaticResource RegionBrush}" Margin="20,10,20,10">
 
             </hc:Divider>
             <Grid Margin="10,10,10,10" x:Name="Speed">
@@ -326,7 +326,7 @@
 
 
 
-                <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="130" Header="SPEED" Margin="5" Style="{DynamicResource GroupBoxOriginal}" HorizontalAlignment="Left" hc:TitleElement.TitlePlacement="Left">
+                <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="130" Header="SPEED" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Left" hc:TitleElement.TitlePlacement="Left">
                     <GroupBox.HeaderTemplate>
                         <DataTemplate>
                             <TextBlock FontWeight="SemiBold" Text="SPEED"/>
@@ -336,10 +336,10 @@
                         <Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
                                       Width="20" 
                                       Height="20" 
-                                      Fill="{DynamicResource PrimaryTextBrush}"/>
+                                      Fill="{StaticResource PrimaryTextBrush}"/>
                         <hc:PreviewSlider  Grid.Column="1" MaxWidth="300" MinWidth="150" HorizontalAlignment="Left" Margin="20,0,20,0" Minimum="0" Maximum="20" TickFrequency="0.1">
                             <hc:PreviewSlider.PreviewContent>
-                                <Label Style="{DynamicResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0"/>
+                                <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0"/>
                             </hc:PreviewSlider.PreviewContent>
                             <hc:PreviewSlider.Style>
                                 <Style TargetType="hc:PreviewSlider" BasedOn="{StaticResource PreviewSliderBaseStyle}">
@@ -358,7 +358,7 @@
                                 </Style>
                             </hc:PreviewSlider.Style>
                         </hc:PreviewSlider>
-                        <ToggleButton ToolTip="Đồng bộ với tốc độ của hệ thống" x:Name="sync" IsChecked="{Binding CurrentOutput.OutputIsSystemSync}" Style="{DynamicResource ToggleButtonSwitchSmallerElipse}">
+                        <ToggleButton ToolTip="Đồng bộ với tốc độ của hệ thống" x:Name="sync" IsChecked="{Binding CurrentOutput.OutputIsSystemSync}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
 
                         </ToggleButton>
                     </StackPanel>

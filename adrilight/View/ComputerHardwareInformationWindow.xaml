@@ -9,7 +9,7 @@
            xmlns:local="clr-namespace:adrilight.View"
            WindowStartupLocation="Manual"
            mc:Ignorable="d"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            Height="800" 
@@ -52,10 +52,10 @@
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
             <Grid Grid.Column="0">
-                <ListBox x:Name="cpulist" Style="{ DynamicResource ListBoxBaseTransparentStyle}" BorderBrush="Transparent" ItemsSource="{Binding ElementName=HWMNTWINDOW,Path=thisComputer.Processor}">
+                <ListBox x:Name="cpulist" Style="{ StaticResource ListBoxBaseTransparentStyle}" BorderBrush="Transparent" ItemsSource="{Binding ElementName=HWMNTWINDOW,Path=thisComputer.Processor}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <local:HardwareCard CardName="{Binding Name}" Geometry="{DynamicResource motherboard}" AvailableSensors="{Binding Sensors}" Margin="10">
+                            <local:HardwareCard CardName="{Binding Name}" Geometry="{StaticResource motherboard}" AvailableSensors="{Binding Sensors}" Margin="10">
 
                             </local:HardwareCard>
                         </DataTemplate>
@@ -64,10 +64,10 @@
                 
             </Grid>
             <Grid Grid.Column="1">
-                <ListBox Style="{ DynamicResource ListBoxBaseTransparentStyle}"  BorderBrush="Transparent" ItemsSource="{Binding ThisComputer.GraphicCard}">
+                <ListBox Style="{ StaticResource ListBoxBaseTransparentStyle}"  BorderBrush="Transparent" ItemsSource="{Binding ThisComputer.GraphicCard}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <local:HardwareCard CardName="{Binding Name}" Geometry="{DynamicResource mouse}" AvailableSensors="{Binding Sensors}" Margin="10">
+                            <local:HardwareCard CardName="{Binding Name}" Geometry="{StaticResource mouse}" AvailableSensors="{Binding Sensors}" Margin="10">
 
                             </local:HardwareCard>
                         </DataTemplate>
@@ -75,10 +75,10 @@
                 </ListBox>
             </Grid>
             <Grid Grid.Column="2">
-                <ListBox  BorderBrush="Transparent" Style="{ DynamicResource ListBoxBaseTransparentStyle}"   ItemsSource="{Binding ThisComputer.Ram}">
+                <ListBox  BorderBrush="Transparent" Style="{ StaticResource ListBoxBaseTransparentStyle}"   ItemsSource="{Binding ThisComputer.Ram}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <local:HardwareCard CardName="{Binding Name}" Geometry="{DynamicResource ram}" AvailableSensors="{Binding Sensors}" Margin="10">
+                            <local:HardwareCard CardName="{Binding Name}" Geometry="{StaticResource ram}" AvailableSensors="{Binding Sensors}" Margin="10">
 
                             </local:HardwareCard>
                         </DataTemplate>

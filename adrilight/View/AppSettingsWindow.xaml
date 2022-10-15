@@ -7,7 +7,7 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           Background="{DynamicResource MainContentBackgroundBrush}"
+           Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
           
@@ -42,7 +42,7 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBlock VerticalAlignment="Top" Margin="20,0,20,20" Text="Cài Đặt Ứng Dụng" Style="{DynamicResource TextBlockLarge}">
+                <TextBlock VerticalAlignment="Top" Margin="20,0,20,20" Text="Cài Đặt Ứng Dụng" Style="{StaticResource TextBlockLarge}">
 
                 </TextBlock>
                 <StackPanel Grid.Row="1">
@@ -52,22 +52,22 @@
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
-                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{DynamicResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold" Text="START WITH WINDOWS"/>
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
-                            <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding GeneralSettings.Autostart}" Style="{DynamicResource ToggleButtonSwitchSmallerElipse}">
+                            <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding GeneralSettings.Autostart}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
 
                             </ToggleButton>
 
 
                         </GroupBox>
-                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Tự khời động cùng Windows"/>
+                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Tự khời động cùng Windows"/>
                     </Grid>
-                    <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="5,10,5,10">
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                     </hc:Divider>
                     <Grid Name="StartMinimized">
@@ -75,22 +75,22 @@
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
-                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{DynamicResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold" Text="START MINIMIZED"/>
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
-                            <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding GeneralSettings.StartMinimized}" Style="{DynamicResource ToggleButtonSwitchSmallerElipse}">
+                            <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding GeneralSettings.StartMinimized}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
 
                             </ToggleButton>
 
 
                         </GroupBox>
-                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Ứng dụng sẽ ẩn ở System Tray nếu tùy chọn này được bật"/>
+                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Ứng dụng sẽ ẩn ở System Tray nếu tùy chọn này được bật"/>
                     </Grid>
-                    <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="5,10,5,10">
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                     </hc:Divider>
                     <Grid Name="KeyboardShortcutEnable">
@@ -98,22 +98,22 @@
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
-                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{DynamicResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold" Text="ENABLE HOTKEY"/>
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
-                            <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding GeneralSettings.HotkeyEnable}" Style="{DynamicResource ToggleButtonSwitchSmallerElipse}">
+                            <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding GeneralSettings.HotkeyEnable}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
 
                             </ToggleButton>
 
 
                         </GroupBox>
-                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Tắt tùy chọn này nếu bạn gặp vấn đề với bộ gõ và HotKey"/>
+                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Tắt tùy chọn này nếu bạn gặp vấn đề với bộ gõ và HotKey"/>
                     </Grid>
-                    <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="5,10,5,10">
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                     </hc:Divider>
                     <Grid Name="OpenRGBEnable">
@@ -121,22 +121,22 @@
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
-                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{DynamicResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold" Text="USING OPEN RGB"/>
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
-                            <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding GeneralSettings.IsOpenRGBEnabled}" Style="{DynamicResource ToggleButtonSwitchSmallerElipse}">
+                            <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding GeneralSettings.IsOpenRGBEnabled}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
 
                             </ToggleButton>
 
 
                         </GroupBox>
-                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Tắt tùy chọn này nếu bạn không muốn đồng bộ các thiết bị OpenRGB"/>
+                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Tắt tùy chọn này nếu bạn không muốn đồng bộ các thiết bị OpenRGB"/>
                     </Grid>
-                    <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="5,10,5,10">
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                     </hc:Divider>
                     <Grid Name="Notification">
@@ -144,22 +144,22 @@
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
-                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{DynamicResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold" Text="NOTIFICATION"/>
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
-                            <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding GeneralSettings.NotificationEnabled}" Style="{DynamicResource ToggleButtonSwitchSmallerElipse}">
+                            <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding GeneralSettings.NotificationEnabled}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
 
                             </ToggleButton>
 
 
                         </GroupBox>
-                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Gửi thông báo đến hệ thống khi có thay đổi"/>
+                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Gửi thông báo đến hệ thống khi có thay đổi"/>
                     </Grid>
-                    <!--<hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="5,10,5,10">
+                    <!--<hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                     </hc:Divider>
                     <Grid Name="BetaChanel">
@@ -167,22 +167,22 @@
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
-                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Margin="5" Style="{DynamicResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold" Text="SIGN IN DEVELOPER BETA"/>
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
-                            <ToggleButton HorizontalAlignment="Right" Click="betatoggle_Click" x:Name="betatoggle"  IsChecked="{Binding GeneralSettings.IsInBetaChanel}" Style="{DynamicResource ToggleButtonSwitchSmallerElipse}">
+                            <ToggleButton HorizontalAlignment="Right" Click="betatoggle_Click" x:Name="betatoggle"  IsChecked="{Binding GeneralSettings.IsInBetaChanel}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
 
                             </ToggleButton>
 
 
                         </GroupBox>
-                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Gửi thông báo đến hệ thống khi có thay đổi"/>
+                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Gửi thông báo đến hệ thống khi có thay đổi"/>
                     </Grid>-->
-                    <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="5,10,5,10">
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                     </hc:Divider>
 
@@ -191,22 +191,22 @@
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
-                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{DynamicResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold" Text="ACCENT COLOR"/>
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
-                            <Button Command="{Binding AddNewSolidColorCommand}" CommandParameter="accent" BorderBrush="Transparent" hc:BorderElement.CornerRadius="7" Width="32" Height="32" HorizontalAlignment="Right" Background="{Binding GeneralSettings.AccentColor,Converter={StaticResource ColorToBrushConverter}}"  Style="{DynamicResource ButtonDefault}">
+                            <Button Command="{Binding AddNewSolidColorCommand}" CommandParameter="accent" BorderBrush="Transparent" hc:BorderElement.CornerRadius="7" Width="32" Height="32" HorizontalAlignment="Right" Background="{Binding GeneralSettings.AccentColor,Converter={StaticResource ColorToBrushConverter}}"  Style="{StaticResource ButtonDefault}">
 
                             </Button>
 
 
                         </GroupBox>
-                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Thay đổi màu sắc của ứng dụng"/>
+                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Thay đổi màu sắc của ứng dụng"/>
                     </Grid>
-                    <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="5,10,5,10">
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                     </hc:Divider>
                     <Grid x:Name="Theme">
@@ -214,7 +214,7 @@
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
-                        <GroupBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="5,5" Style="{DynamicResource GroupBoxOriginal}">
+                        <GroupBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="5,5" Style="{StaticResource GroupBoxOriginal}">
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold" Text="THEME"/>
@@ -225,14 +225,14 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="auto"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="1" HorizontalAlignment="Right" Background="{DynamicResource DarkOpacityBrush}" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="7" BorderThickness="2">
+                                <Border Grid.Column="1" HorizontalAlignment="Right" Background="{StaticResource DarkOpacityBrush}" BorderBrush="{StaticResource BorderBrush}" CornerRadius="7" BorderThickness="2">
                                     <ListBox SelectedIndex="{Binding GeneralSettings.ThemeIndex}"   
                              
-                              ItemContainerStyle="{DynamicResource _listBoxModeSelectionStyle}"  
+                              ItemContainerStyle="{StaticResource _listBoxModeSelectionStyle}"  
                               
                               Background="Transparent"
                               BorderThickness="0"
-                              Style="{DynamicResource WrapPanelHorizontalListBox}">
+                              Style="{StaticResource WrapPanelHorizontalListBox}">
 
                                         <ListBox.ItemsPanel>
                                             <ItemsPanelTemplate>
@@ -251,7 +251,7 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                                <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Dark" Style="{DynamicResource TextBlockDefault}"/>
+                                                <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Dark" Style="{StaticResource TextBlockDefault}"/>
                                             </Grid>
                                         </ListBoxItem>
                                         <ListBoxItem>
@@ -265,7 +265,7 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                                <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Light" Style="{DynamicResource TextBlockDefault}"/>
+                                                <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Light" Style="{StaticResource TextBlockDefault}"/>
                                             </Grid>
                                         </ListBoxItem>
 
@@ -274,15 +274,15 @@
                             </Grid>
 
                         </GroupBox>
-                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Thay đổi chủ đề của ứng dụng"/>
+                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Thay đổi chủ đề của ứng dụng"/>
 
 
                     </Grid>
-                    <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="5,10,5,10">
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                     </hc:Divider>
                     <Grid Name="Reset">
-                        <Button Margin="5" Style="{DynamicResource ButtonDanger}" Command="{Binding ResetAppCommand}" Content="Đặt lại Ứng dụng"/>
+                        <Button Margin="5" Style="{StaticResource ButtonDanger}" Command="{Binding ResetAppCommand}" Content="Đặt lại Ứng dụng"/>
                     </Grid>
 
 
@@ -294,8 +294,8 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Click="Button_Click" Command="{Binding CreateNewPaletteCommand}" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
-                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{DynamicResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
+                <Button Click="Button_Click" Command="{Binding CreateNewPaletteCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
+                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
             </Grid>-->
 
                 </StackPanel>

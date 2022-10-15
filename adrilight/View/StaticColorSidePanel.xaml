@@ -29,7 +29,7 @@
                                     <Border CornerRadius="4" Name="_Border"
                                 Padding="0"
                                 Margin="8"
-                                Background="{DynamicResource RegionBrush}"   
+                                Background="{StaticResource RegionBrush}"   
                                 BorderBrush="Transparent"
                                 BorderThickness="2"
                                 SnapsToDevicePixels="true">
@@ -81,28 +81,28 @@
                                           Command="{Binding PlacementTarget.Tag.SetAllOutputSelectedSolidColorCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="setall"
                                           >
                                         <MenuItem.Icon>
-                                            <Path   Data="{StaticResource selected}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            <Path   Data="{StaticResource selected}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <MenuItem  Header="Set All Devices"
                                           Command="{Binding PlacementTarget.Tag.SetAllDeviceSelectedSolidColorCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="setall"
                                           >
                                         <MenuItem.Icon>
-                                            <Path   Data="{StaticResource setall}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            <Path   Data="{StaticResource setall}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <MenuItem  Header="Coppy code"
                                           Command="{Binding PlacementTarget.Tag.CoppyColorCodeCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="coppy"
                                           >
                                         <MenuItem.Icon>
-                                            <Path   Data="{StaticResource sharp}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            <Path   Data="{StaticResource sharp}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <MenuItem  Header="Delete" CommandParameter="delete"
                                           Command="{Binding PlacementTarget.Tag.DeleteSelectedSolidColorCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                                         <MenuItem.Icon>
-                                            <Path   Data="{StaticResource delete}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            <Path   Data="{StaticResource delete}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     
@@ -121,7 +121,7 @@
                                     <Border CornerRadius="4" Name="_Border"
                                 Padding="0"
                                 Margin="8"
-                                Background="{DynamicResource RegionBrush}"   
+                                Background="{StaticResource RegionBrush}"   
                                 BorderBrush="Transparent"
                                 BorderThickness="2"
                                 SnapsToDevicePixels="true">
@@ -173,14 +173,14 @@
                                           Command="{Binding PlacementTarget.Tag.SetAllOutputSelectedGradientColorCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="setall"
                                           >
                                         <MenuItem.Icon>
-                                            <Path   Data="{StaticResource selected}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            <Path   Data="{StaticResource selected}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <MenuItem  Header="Set All Devices"
                                           Command="{Binding PlacementTarget.Tag.SetAllDeviceSelectedGradientColorCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="setall"
                                           >
                                         <MenuItem.Icon>
-                                            <Path   Data="{StaticResource setall}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            <Path   Data="{StaticResource setall}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                         </MenuItem.Icon>
                                     </MenuItem>
                                    
@@ -188,7 +188,7 @@
                                           Command="{Binding PlacementTarget.Tag.DeleteSelectedGradientCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                                         <MenuItem.Icon>
-                                            <Path   Data="{StaticResource delete}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            <Path   Data="{StaticResource delete}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                         </MenuItem.Icon>
                                     </MenuItem>
 
@@ -223,11 +223,11 @@
           Height="30" 
           Fill="White"
           Stretch="Uniform" />
-                --><!--<TextBlock  Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" Text="Music Reactive" Style="{DynamicResource TextBlockTitleBold}"/>--><!--
+                --><!--<TextBlock  Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" Text="Music Reactive" Style="{StaticResource TextBlockTitleBold}"/>--><!--
             </StackPanel>
 
 
-            --><!--<ComboBox hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="Capture Source"  Grid.Column="1" HorizontalAlignment="Right" Margin="10"  MinWidth="100" SelectedIndex="{Binding CurrentOutput.OutputSelectedDisplay}"  ItemsSource="{Binding AvailableDisplays}" hc:InfoElement.Necessary="True"  Style="{DynamicResource ComboBoxExtend}"/>--><!--
+            --><!--<ComboBox hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="Capture Source"  Grid.Column="1" HorizontalAlignment="Right" Margin="10"  MinWidth="100" SelectedIndex="{Binding CurrentOutput.OutputSelectedDisplay}"  ItemsSource="{Binding AvailableDisplays}" hc:InfoElement.Necessary="True"  Style="{StaticResource ComboBoxExtend}"/>--><!--
 
 
         </Grid>-->
@@ -259,11 +259,11 @@
                         <ColumnDefinition Width="auto"/>
                         
                     </Grid.ColumnDefinitions>
-                    <TextBlock Style="{DynamicResource TextBlockDefault}" Grid.Row="0" Margin="15, 15, 15, 15"  Text="CHỌN MÀU"  FontWeight="SemiBold" VerticalAlignment="Center"  HorizontalAlignment="Left"/>
+                    <TextBlock Style="{StaticResource TextBlockDefault}" Grid.Row="0" Margin="15, 15, 15, 15"  Text="CHỌN MÀU"  FontWeight="SemiBold" VerticalAlignment="Center"  HorizontalAlignment="Left"/>
                     <Grid HorizontalAlignment="Right" Margin="15" Grid.Row="1">
 
 
-                        <Button CommandParameter="solid" Command="{Binding AddNewSolidColorCommand}" Content="Add New" Click="ButtonAdd_OnClick"  Style="{DynamicResource ButtonDefault}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"  Width="100" Padding="0,0"  HorizontalAlignment="Right" hc:IconElement.Width="20" hc:IconElement.Height="20"  hc:IconElement.Geometry="{DynamicResource addnew}">
+                        <Button CommandParameter="solid" Command="{Binding AddNewSolidColorCommand}" Content="Add New" Click="ButtonAdd_OnClick"  Style="{StaticResource ButtonDefault}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"  Width="100" Padding="0,0"  HorizontalAlignment="Right" hc:IconElement.Width="20" hc:IconElement.Height="20"  hc:IconElement.Geometry="{StaticResource addnew}">
 
                         </Button>
 
@@ -274,14 +274,14 @@
                     <hc:TransitioningContentControl Grid.Row="1">
                         <ListBox Background="Transparent"  ScrollViewer.CanContentScroll="True"
                                                   ScrollViewer.VerticalScrollBarVisibility="Auto" 
-                                                  ItemContainerStyle="{DynamicResource _ListBoxSolidColorCollectionStyle }" 
+                                                  ItemContainerStyle="{StaticResource _ListBoxSolidColorCollectionStyle }" 
                                                   
                                                   x:Name="AvailableSolidColor"
                                                   Margin="0,10,0,10"
                                                   BorderThickness="0"   
                                                   SelectedItem="{Binding SelectedSolidColor}"
-                                                  Style="{DynamicResource WrapPanelHorizontalListBox}" 
-                                                  ItemsPanel="{DynamicResource WrapPanelHorizontalItemsPanelTemplate}" 
+                                                  Style="{StaticResource WrapPanelHorizontalListBox}" 
+                                                  ItemsPanel="{StaticResource WrapPanelHorizontalItemsPanelTemplate}" 
                                                   ItemsSource="{Binding AvailableSolidColors}">
 
                             <ListBox.ItemTemplate>
@@ -319,13 +319,13 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
-                <TextBlock Style="{DynamicResource TextBlockDefault}" Grid.Row="0" Margin="15, 15, 15, 15"  Text="CHỌN GRADIENT" FontWeight="SemiBold"  VerticalAlignment="Center"  HorizontalAlignment="Left"/>
+                <TextBlock Style="{StaticResource TextBlockDefault}" Grid.Row="0" Margin="15, 15, 15, 15"  Text="CHỌN GRADIENT" FontWeight="SemiBold"  VerticalAlignment="Center"  HorizontalAlignment="Left"/>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                    <Button Command="{Binding AddNewGradientCommand}"  Content="Add New" Click="ButtonAdd_OnClick"  Style="{DynamicResource ButtonDefault}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"  Width="100" Padding="0,0" Margin="0,15,15,0" HorizontalAlignment="Right" hc:IconElement.Width="20" hc:IconElement.Height="20"  hc:IconElement.Geometry="{DynamicResource addnew}">
+                    <Button Command="{Binding AddNewGradientCommand}"  Content="Add New" Click="ButtonAdd_OnClick"  Style="{StaticResource ButtonDefault}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"  Width="100" Padding="0,0" Margin="0,15,15,0" HorizontalAlignment="Right" hc:IconElement.Width="20" hc:IconElement.Height="20"  hc:IconElement.Geometry="{StaticResource addnew}">
 
                     </Button>
                     
@@ -336,15 +336,15 @@
                     <hc:TransitioningContentControl Grid.Row="1">
                         <ListBox Background="Transparent"  ScrollViewer.CanContentScroll="True"
                                                   ScrollViewer.VerticalScrollBarVisibility="Auto" 
-                                                  ItemContainerStyle="{DynamicResource _ListboxGradientColorCollectionStyle}" 
+                                                  ItemContainerStyle="{StaticResource _ListboxGradientColorCollectionStyle}" 
                                                   Height="180"
                                                   x:Name="AvailableMPalette"
                                                   Margin="0,10,0,10"
                                                   BorderThickness="0"   
                                                   SelectedIndex="{Binding CurrentOutput.OutputStaticColorGradientMode}"
                                                   SelectedItem="{Binding CurrentSelectedGradient}"
-                                                  Style="{DynamicResource WrapPanelHorizontalListBox}" 
-                                                  ItemsPanel="{DynamicResource WrapPanelHorizontalItemsPanelTemplate}" 
+                                                  Style="{StaticResource WrapPanelHorizontalListBox}" 
+                                                  ItemsPanel="{StaticResource WrapPanelHorizontalItemsPanelTemplate}" 
                                                   ItemsSource="{Binding AvailableGradient}">
 
                             <ListBox.ItemTemplate>

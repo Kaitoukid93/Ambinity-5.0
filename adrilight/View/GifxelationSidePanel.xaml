@@ -29,7 +29,7 @@
                                     <Border CornerRadius="7" Name="_Border"
                                 Padding="0"
                                 Margin="8"
-                                Background="{DynamicResource RegionBrush}"   
+                                Background="{StaticResource RegionBrush}"   
                                 BorderBrush="Transparent"
                                 BorderThickness="2"
                                 SnapsToDevicePixels="true">
@@ -81,21 +81,21 @@
                                           Command="{Binding PlacementTarget.Tag.SetAllOutputSelectedGifCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                                         <MenuItem.Icon>
-                                            <Path   Data="{StaticResource selected}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            <Path   Data="{StaticResource selected}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <MenuItem  Header="Set All Devices" CommandParameter="setall" 
                                           Command="{Binding PlacementTarget.Tag.SetAllDeviceSelectedGifCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                                         <MenuItem.Icon>
-                                            <Path   Data="{StaticResource setall}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            <Path   Data="{StaticResource setall}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <MenuItem  Header="Delete" CommandParameter="{Binding .}" 
                                           Command="{Binding PlacementTarget.Tag.DeleteSelectedGifCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                                         <MenuItem.Icon>
-                                            <Path   Data="{StaticResource delete}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            <Path   Data="{StaticResource delete}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                         </MenuItem.Icon>
                                     </MenuItem>
 
@@ -128,15 +128,15 @@
                 <Path Margin="5" Data="{StaticResource gifxelation}" 
           Width="30" 
           Height="30" 
-          Fill="{DynamicResource PrimaryTextBrush}"
+          Fill="{StaticResource PrimaryTextBrush}"
           Stretch="Uniform" />
-                <TextBlock  Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" Text="Chọn Ảnh" Style="{DynamicResource TextBlockDefault}" FontWeight="SemiBold"/>
+                <TextBlock  Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" Text="Chọn Ảnh" Style="{StaticResource TextBlockDefault}" FontWeight="SemiBold"/>
             </StackPanel>
             <Grid Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15,5">
-                <Button Command="{Binding ImportedGifFromFileCommand}" Style="{DynamicResource ButtonDefault}" Grid.Column="1" hc:IconElement.Geometry="{DynamicResource addnew}" Content="Load Gif"/>
+                <Button Command="{Binding ImportedGifFromFileCommand}" Style="{StaticResource ButtonDefault}" Grid.Column="1" hc:IconElement.Geometry="{StaticResource addnew}" Content="Load Gif"/>
             </Grid>
             
-            <!--<GroupBox Grid.Column="1" HorizontalAlignment="Right" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{DynamicResource GroupBoxOriginal}">
+            <!--<GroupBox Grid.Column="1" HorizontalAlignment="Right" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{StaticResource GroupBoxOriginal}">
                 <GroupBox.HeaderTemplate>
                     <DataTemplate>
                         <TextBlock FontWeight="SemiBold" Text="CHỌN MÀN HÌNH"/>
@@ -144,7 +144,7 @@
                 </GroupBox.HeaderTemplate>
                 <Grid  HorizontalAlignment="Left" Margin="0,10,10,10">
                 <ItemsControl ItemsSource="{Binding AvailableDisplays}" Height="0" Margin="15,0"/>
-                <ComboBox ItemContainerStyle="{DynamicResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch"   SelectedIndex="{Binding CurrentOutput.OutputSelectedDisplay}"  ItemsSource="{Binding AvailableDisplays}"  Style="{DynamicResource ComboBoxBaseStyle}"/>
+                <ComboBox ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch"   SelectedIndex="{Binding CurrentOutput.OutputSelectedDisplay}"  ItemsSource="{Binding AvailableDisplays}"  Style="{StaticResource ComboBoxBaseStyle}"/>
             </Grid>
 </GroupBox>-->
 
@@ -174,15 +174,15 @@
                 <hc:TransitioningContentControl >
                     <ListBox Background="Transparent"  ScrollViewer.CanContentScroll="True"
                                                   ScrollViewer.VerticalScrollBarVisibility="Auto" 
-                                                  ItemContainerStyle="{DynamicResource _ListBoxCardsCollectionStyle}" 
+                                                  ItemContainerStyle="{StaticResource _ListBoxCardsCollectionStyle}" 
                                                   
                                                   x:Name="AvailableGifs"
                                                   Margin="0,10,0,10"
                                                   BorderThickness="0"
                                                   SelectedIndex="{Binding CurrentOutput.OutputSelectedGifIndex}"
                                                   SelectedItem="{Binding CurrentActiveGif}"
-                                                  Style="{DynamicResource WrapPanelHorizontalListBox}" 
-                                                  ItemsPanel="{DynamicResource WrapPanelHorizontalItemsPanelTemplate}" 
+                                                  Style="{StaticResource WrapPanelHorizontalListBox}" 
+                                                  ItemsPanel="{StaticResource WrapPanelHorizontalItemsPanelTemplate}" 
                                                   ItemsSource="{Binding AvailableGifs}">
 
 

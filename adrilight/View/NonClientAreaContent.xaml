@@ -22,19 +22,19 @@
         <Path HorizontalAlignment="left"  Stretch="Uniform" Margin="0,5,0,0" Data="{StaticResource appicon}" 
                                       Width="18" 
                                       Height="18" 
-                                      Fill="{DynamicResource PrimaryTextBrush}"/>
+                                      Fill="{StaticResource PrimaryTextBrush}"/>
     </Grid>
    
     <Button Grid.Column="1" Click="ButtonConfig_OnClick" Name="ButtonConfig" Style="{StaticResource ButtonIcon}" hc:IconElement.Geometry="{StaticResource ConfigGeometry}"/>
     <Popup AllowsTransparency="True"   PlacementTarget="{Binding ElementName=ButtonConfig}" HorizontalOffset="0" Name="PopupConfig" VerticalOffset="2" StaysOpen="False">
-        <hc:TransitioningContentControl BorderBrush="{DynamicResource BorderBrush}" TransitionMode="Top2Bottom">
-            <Border BorderThickness="2" BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource RegionBrush}" CornerRadius="7" Margin="0,2,15,15">
+        <hc:TransitioningContentControl BorderBrush="{StaticResource BorderBrush}" TransitionMode="Top2Bottom">
+            <Border BorderThickness="2" BorderBrush="{StaticResource BorderBrush}" Background="{StaticResource RegionBrush}" CornerRadius="7" Margin="0,2,15,15">
                 <StackPanel Orientation="Vertical">
-                    <Button  HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding OpenAppSettingsWindowCommand}" hc:IconElement.Geometry="{DynamicResource appsettings}" BorderBrush="Transparent" Margin="5"   Content="App Settings" Style="{DynamicResource ButtonDefault}"/>
+                    <Button  HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding OpenAppSettingsWindowCommand}" hc:IconElement.Geometry="{StaticResource appsettings}" BorderBrush="Transparent" Margin="5"   Content="App Settings" Style="{StaticResource ButtonDefault}"/>
 
-                    <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding OpenAutomationManagerWindowCommand }" hc:IconElement.Geometry="{DynamicResource auto}" CommandParameter="automation" BorderBrush="Transparent"   Margin="5" Content="Automation Settings" Style="{DynamicResource ButtonDefault}"/>
-                    <!--<Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding OpenHardwareMonitorWindowCommand }" hc:IconElement.Geometry="{DynamicResource motherboard}" CommandParameter="HWMonitor" BorderBrush="Transparent"   Margin="5" Content="About This Computer" Style="{DynamicResource ButtonDefault}"/>-->
-                    <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding OpenAboutWindowCommand }" hc:IconElement.Geometry="{DynamicResource info}" CommandParameter="about" BorderBrush="Transparent"   Margin="5" Content="About" Style="{DynamicResource ButtonDefault}"/>
+                    <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding OpenAutomationManagerWindowCommand }" hc:IconElement.Geometry="{StaticResource auto}" CommandParameter="automation" BorderBrush="Transparent"   Margin="5" Content="Automation Settings" Style="{StaticResource ButtonDefault}"/>
+                    <!--<Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding OpenHardwareMonitorWindowCommand }" hc:IconElement.Geometry="{StaticResource motherboard}" CommandParameter="HWMonitor" BorderBrush="Transparent"   Margin="5" Content="About This Computer" Style="{StaticResource ButtonDefault}"/>-->
+                    <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding OpenAboutWindowCommand }" hc:IconElement.Geometry="{StaticResource info}" CommandParameter="about" BorderBrush="Transparent"   Margin="5" Content="About" Style="{StaticResource ButtonDefault}"/>
                 </StackPanel>
 
             </Border>
