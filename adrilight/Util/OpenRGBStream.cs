@@ -288,8 +288,6 @@ namespace adrilight
         private void DoWork(object tokenObject)
         {
             var cancellationToken = (CancellationToken)tokenObject;
-            ISerialPortWrapper serialPort = null;
-
 
             if (AmbinityClient.Client == null)
             {
@@ -378,23 +376,7 @@ namespace adrilight
 
 
 
-                    _log.Debug(ex, "Exception catched.");
-                    //to be safe, we reset the serial port
-                    var result = HandyControl.Controls.MessageBox.Show("Socket của " + DeviceSettings.DeviceName + " Đã ngắt kết nối!!!. Kiểm tra lại kết nối sau đó nhấn [Confirm]", "Mất kết nối", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
-
-                    if (result == MessageBoxResult.OK)//restart app
-                    {
-
-                        System.Windows.Forms.Application.Restart();
-                        Process.GetCurrentProcess().Kill();
-                    }
-
-
-                    if (serialPort != null && serialPort.IsOpen)
-                    {
-                        serialPort.Close();
-                    }
-                    serialPort?.Dispose();
+                    _log.Debug(ex, "Exception catched. OpenRGB proccess could be deleted");
 
                     //allow the system some time to recover
                     Thread.Sleep(500);
@@ -403,14 +385,7 @@ namespace adrilight
                 }
                 finally
                 {
-                    if (serialPort != null && serialPort.IsOpen)
-                    {
-
-
-                        serialPort.Close();
-                        serialPort.Dispose();
-                        _log.Debug("SerialPort Disposed!");
-                    }
+                  //do nothing at the moment because AmbinityCilent is holding the Client
 
 
                 }

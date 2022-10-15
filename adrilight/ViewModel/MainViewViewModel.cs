@@ -4520,6 +4520,8 @@ namespace adrilight.ViewModel
                         }
                         zoneCount++;
                     }
+                    convertedDevice.IsTransferActive = true;
+                    convertedDevice.IsEnabled = true;
                     AvailableDevices.Add(convertedDevice);
                 }
             }
