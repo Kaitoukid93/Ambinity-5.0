@@ -1,4 +1,5 @@
 ﻿using adrilight.Resources;
+using adrilight.View;
 using Newtonsoft.Json;
 using NLog;
 using Semver;
@@ -73,8 +74,13 @@ namespace adrilight.Util
                                 // this.logger.Info("update declined by user.");
                                 return;
                             }
+                            //show loading
 
                             // this.logger.Info("Downloading updates");
+                            var updatingview = new UpdatingView();
+                            updatingview.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                            updatingview.Show();
+                            updatingview.WindowState = WindowState.Normal;
                             var releaseEntry = await mgr.Result.UpdateApp();
 
                             if (releaseEntry != null)
@@ -85,6 +91,8 @@ namespace adrilight.Util
                                 if (HWMonitor != null)
                                     HWMonitor.Dispose();
                                 //remember to dispose openrgbstream too!!!
+                                updatingview.Status.Text = "Restarting...";
+                                updatingview.Close();
                                 UpdateManager.RestartApp();
                             }
                             //this.logger.Info($"Download complete. Version {updateResult.Version} will take effect when App is restarted.");

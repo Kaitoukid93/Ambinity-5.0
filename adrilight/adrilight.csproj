@@ -262,6 +262,7 @@
     <Compile Include="ViewModel\UserIncreamentInputViewModel.cs" />
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
+    <Compile Include="View\UpdatingView.xaml.cs" />
     <Compile Include="View\AboutAppWindow.xaml.cs" />
     <Compile Include="View\ActionEditWindow.xaml.cs" />
     <Compile Include="View\ActionManagerWindow.xaml.cs" />
@@ -329,6 +330,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Properties\DesignTimeResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\UpdatingView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

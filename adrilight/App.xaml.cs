@@ -66,6 +66,8 @@ namespace adrilight
             base.OnStartup(startupEvent);
 
             _log.Debug($"adrilight {VersionNumber}: Main() started.");
+
+
             kernel = SetupDependencyInjection(false);
 
 
