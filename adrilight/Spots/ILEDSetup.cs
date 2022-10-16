@@ -22,7 +22,7 @@ namespace adrilight.Spots
         int PixelHeight { get; set; }
         object Lock { get; }
         int SetupID { get; set; }    // to match with device ID
-        void IndicateMissingValues();
+        void DimLED(float dimFactor);
     }
 
 }
