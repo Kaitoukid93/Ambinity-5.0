@@ -90,6 +90,7 @@ namespace adrilight
             if (isRunning && !shouldBeRunning)
             {
                 //stop it!
+                //dimLED 
                 _log.Debug("stopping the Rainbow Color");
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource = null;

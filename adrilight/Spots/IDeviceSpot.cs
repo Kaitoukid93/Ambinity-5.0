@@ -31,7 +31,7 @@ namespace adrilight.Spots
         bool IsIDVissible { get; set; }
 
 
-        void IndicateMissingValue();
+        void DimLED(float dimFactor);
         void SetColor(byte red, byte green, byte blue, bool raiseEvents);
         void SetSentryColor(byte red, byte green, byte blue);
         void SetVID(int vid);

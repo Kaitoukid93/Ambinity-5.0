@@ -369,8 +369,10 @@ namespace adrilight
                     case State.normal: // get data from ledsetup
                         if (!DeviceSettings.IsEnabled || !output.OutputIsEnabled)
                         {
-
-                            output.OutputLEDSetup.IndicateMissingValues();
+                            if (DeviceSettings.IsUnionMode)
+                                output.OutputLEDSetup.DimLED(0.99f);
+                            else
+                                output.OutputLEDSetup.DimLED(0.9f);
 
                         }
 

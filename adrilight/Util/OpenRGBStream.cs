@@ -24,7 +24,7 @@ namespace adrilight
         {
             GeneralSettings = generalSettings ?? throw new ArgumentException(nameof(generalSettings));
             DeviceSettings = deviceSettings ?? throw new ArgumentNullException(nameof(deviceSettings));
-            _retryPolicy = Policy.Handle<Exception>().WaitAndRetry(retryCount: 30, sleepDurationProvider: _ => TimeSpan.FromSeconds(1));//rescan device may took longer and user manualy start server also
+            _retryPolicy = Policy.Handle<Exception>().WaitAndRetry(retryCount: 10, sleepDurationProvider: _ => TimeSpan.FromSeconds(1));//rescan device may took longer and user manualy start server also
 
             GeneralSettings.PropertyChanged += UserSettings_PropertyChanged;
             // IsInitialized = false;

@@ -158,28 +158,14 @@ namespace adrilight.Spots
         }
 
         private DateTime? _lastMissingValueIndication;
-        private readonly double _dimToBlackIntervalInMs = TimeSpan.FromMilliseconds(900).TotalMilliseconds;
+        private readonly double _dimToBlackIntervalInMs = TimeSpan.FromMilliseconds(1000).TotalMilliseconds;
 
         private float _dimR, _dimG, _dimB;
 
-        public void IndicateMissingValue()
+        public void DimLED(float dimFactor)
         {
-            //this method might be called while another thread is calling setcolor() and we need the local copy to have a fixed value
-            var localCopyLastMissingValueIndication = _lastMissingValueIndication;
-
-            if (!localCopyLastMissingValueIndication.HasValue)
-            {
-                //a new period of missing values starts, copy last values
-                _dimR = Red;
-                _dimG = Green;
-                _dimB = Blue;
-                localCopyLastMissingValueIndication = _lastMissingValueIndication = DateTime.UtcNow;
-            }
-
-            var dimFactor = (float)(1 - (DateTime.UtcNow - localCopyLastMissingValueIndication.Value).TotalMilliseconds / _dimToBlackIntervalInMs);
-            dimFactor = Math.Max(0, Math.Min(1, dimFactor));
-
-            SetColor((byte)(dimFactor * _dimR), (byte)(dimFactor * _dimG), (byte)(dimFactor * _dimB), true);
+          
+            SetColor((byte)(dimFactor * Red), (byte)(dimFactor * Green), (byte)(dimFactor * Blue), true);
         }
     }
 }
