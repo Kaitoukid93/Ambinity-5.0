@@ -3252,7 +3252,7 @@ namespace adrilight.ViewModel
                 return true;
             }, (p) =>
             {
-                ScanSerialDevice(p);
+                ScanSerialDevice();
             });
             ScanOpenRGBDeviceCommand = new RelayCommand<string>((p) =>
             {
@@ -3286,7 +3286,7 @@ namespace adrilight.ViewModel
 
         private static object _syncRoot = new object();
 
-        private async void ScanSerialDevice(string status)
+        private async void ScanSerialDevice()
         {
             ISerialDeviceDetection detector = new SerialDeviceDetection();
             var tokenSource = new CancellationTokenSource();
