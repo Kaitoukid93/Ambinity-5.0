@@ -8,7 +8,6 @@
            xmlns:converters="clr-namespace:adrilight.Converter"
            xmlns:settings="clr-namespace:adrilight.Settings"
            mc:Ignorable="d"
-           Closing="Window_Closing"
            Background="{StaticResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
@@ -95,7 +94,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <TextBlock Text="Thêm thiết bị mới" Style="{StaticResource TextBlockLarge}">
+        <TextBlock Text="Add Device Wizard" Style="{StaticResource TextBlockLarge}">
 
         </TextBlock>
         <Grid Grid.Row="1">
@@ -109,118 +108,37 @@
                     </Style.Triggers>
                 </Style>
             </Grid.Style>
-            <TabControl x:Name="grouptab" SelectionChanged="Tab_Changed" TabStripPlacement="Top" Margin="16">
-                <TabItem Header="Wired Devices">
-                    <Grid>
-                        <StackPanel Visibility="Visible" x:Name="autowired">
+            <StackPanel>
+
+                <Grid>
+                    <!--<StackPanel Visibility="Visible" x:Name="autowired">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
                             <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="auto"/>
-                                    <RowDefinition Height="auto"/>
-                                </Grid.RowDefinitions>
-                                <Grid>
-                                    <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                                        <Button Command="{Binding ScanSerialDeviceCommand}" CommandParameter="scan" x:Name="ScanButton" Click="ScanWiredDevice" Margin="10" Content="Scan now" Background="Transparent" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" Style="{StaticResource ButtonDefault}"/>
-                                        <Button  x:Name="AddManual" Click="AddManually" Margin="10" Content="Add manually" Background="Transparent" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" Style="{StaticResource ButtonDefault}"/>
-                                    </StackPanel>
-
-                                </Grid>
-                                <Grid Grid.Row="1">
-                                    <hc:LoadingLine Visibility="Collapsed" x:Name="wiredLoadingLine" Margin="10"/>
-                                </Grid>
-
-
-
-
+                                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                                    <Button Command="{Binding ScanSerialDeviceCommand}" CommandParameter="scan" x:Name="ScanButton" Margin="10" Content="Scan now" Background="Transparent" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" Style="{StaticResource ButtonDefault}"/>
+                                    <Button  x:Name="AddManual" Margin="10" Content="Add manually" Background="Transparent" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" Style="{StaticResource ButtonDefault}"/>
+                                </StackPanel>
 
                             </Grid>
-                            <Grid>
-                                <ListBox HorizontalAlignment="Left" Margin="5" x:Name="WiredDeviceList"  
-                              ItemsSource="{Binding AvailableSerialDevices}"
-                              
-                              VerticalAlignment="Top"
-                              
-                              SelectionMode="Multiple"
-                              Background="Transparent"
-                              BorderThickness="0"
-                              Style="{StaticResource WrapPanelVerticalListBox}">
-                                    <ListBox.ItemContainerStyle>
-                                        <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource _listBoxModeSelectionStyle}">
-                                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-                                        </Style>
-                                    </ListBox.ItemContainerStyle>
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid  HorizontalAlignment="Stretch"  Margin="5">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="auto"/>
-                                                    <ColumnDefinition Width="auto"/>
-                                                    <ColumnDefinition Width="auto"/>
-                                                    <ColumnDefinition Width="auto"/>
-                                                    <ColumnDefinition Width="auto"/>
-                                                    <ColumnDefinition Width="auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-                                                <Path HorizontalAlignment="Left" Stretch="Uniform" Margin="5" Data="{Binding DeviceConnectionGeometry,Converter={converters:StaticResourceConverter}}" 
-                                                          Width="20" 
-                                                          Height="20" 
-                                                          Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                                <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="{Binding DeviceName}" Style="{StaticResource TextBlockDefault}"/>
-                                                <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="2" Text="{Binding DeviceSerial}" Style="{StaticResource TextBlockDefault}"/>
-                                                <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="3" Text="{Binding FirmwareVersion}" Style="{StaticResource TextBlockDefault}"/>
-                                                <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="4" Text="{Binding HardwareVersion}" Style="{StaticResource TextBlockDefault}"/>
-                                                <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="5" Text="{Binding OutputPort}" Style="{StaticResource TextBlockDefault}"/>
-                                                <Grid Margin="10,0,0,0" HorizontalAlignment="Left" Grid.Column="6">
-                                                    <ItemsControl ItemsSource="{Binding DataContext.AvailableOutputForSelectedDevice, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}" Height="0" Margin="15,0">
-                                                        <ItemsControl.ItemTemplate>
-                                                            <DataTemplate>
-                                                                <Grid>
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="auto"/>
-                                                                        <ColumnDefinition Width="*"/>
-                                                                    </Grid.ColumnDefinitions>
-                                                                    <Path Stretch="Uniform" Margin="0,0,15,0" Data="{Binding Geometry ,Converter={converters:StaticResourceConverter}}" 
-                                                                          Width="20" 
-                                                                          Height="20" 
-                                                                          Fill="{StaticResource PrimaryTextBrush}"/>
-                                                                    <TextBlock Grid.Column="1" Text="{Binding OutputName}"/>
-                                                                </Grid>
-                                                            </DataTemplate>
-                                                        </ItemsControl.ItemTemplate>
-                                                    </ItemsControl>
-                                                    <ComboBox Visibility="{Binding IsSizeNeedUserDefine,Converter={StaticResource boolToVisibilityConvert}}" SelectedItem="{Binding AvailableOutputs[0]}" ItemsSource="{Binding DataContext.AvailableOutputForSelectedDevice, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}" hc:InfoElement.Placeholder="Chọn kích thước" ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch" Style="{StaticResource ComboBoxExtend}">
-                                                        <ComboBox.ItemTemplate>
-                                                            <DataTemplate>
-                                                                <Grid>
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="auto"/>
-                                                                        <ColumnDefinition Width="*"/>
-                                                                    </Grid.ColumnDefinitions>
-                                                                    <Path Stretch="Uniform" Margin="0,0,15,0" Data="{Binding Geometry ,Converter={converters:StaticResourceConverter}}" 
-                                                                          Width="20" 
-                                                                          Height="20" 
-                                                                          Fill="{StaticResource PrimaryTextBrush}"/>
-                                                                    <TextBlock Grid.Column="1" Text="{Binding OutputName}"/>
-                                                                </Grid>
-                                                            </DataTemplate>
-                                                        </ComboBox.ItemTemplate>
-                                                    </ComboBox>
-
-                                                </Grid>
-                                            </Grid>
-
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-
-                                </ListBox>
-
-
+                            <Grid Grid.Row="1">
+                                <hc:LoadingLine Visibility="Collapsed" x:Name="wiredLoadingLine" Margin="10"/>
                             </Grid>
-                        </StackPanel>
-                        <Grid Visibility="Collapsed" x:Name="manualwired">
 
-                            <hc:TransitioningContentControl Grid.Row="1">
-                                <ListBox Background="Transparent"  ScrollViewer.CanContentScroll="True"
+
+
+
+
+                        </Grid>
+
+                    </StackPanel>-->
+                    <Grid Visibility="Visible" x:Name="manualwired">
+
+                        <hc:TransitioningContentControl Grid.Row="1">
+                            <ListBox Background="Transparent"  ScrollViewer.CanContentScroll="True"
                                                   ScrollViewer.VerticalScrollBarVisibility="Auto" 
                                                   ItemContainerStyle="{StaticResource _ListBoxDeviceCollectionStyle}" 
                                                   SelectedItem="{Binding CurrentSelectedCatergoryToAdd}"
@@ -232,52 +150,87 @@
                                                   ItemsPanel="{StaticResource WrapPanelHorizontalItemsPanelTemplate}" 
                                                   ItemsSource="{Binding AvailableDeviceCatergoryToAdd}">
 
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border CornerRadius="7" Width="150" Height="150" Background="{StaticResource DarkMaskBrush}">
-                                                <Grid>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border CornerRadius="7" Width="150" Height="150" Background="{StaticResource DarkMaskBrush}">
+                                            <Grid>
 
-                                                    <Grid.RowDefinitions>
-                                                        <RowDefinition Height="*"/>
-                                                        <RowDefinition Height="auto"/>
-                                                    </Grid.RowDefinitions>
-                                                    <Path  Grid.Row="0" Margin="5" Data="{Binding Geometry, Converter={converters:StaticResourceConverter}}" Width="70" Height="70" Fill="{StaticResource PrimaryBrush}" Stretch="Uniform" />
-                                                    <TextBlock Margin="10" Grid.Row="1" Text="{Binding Name }" FontWeight="SemiBold" Style="{StaticResource TextBlockSubTitle}"/>
-                                                </Grid>
-                                            </Border>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="auto"/>
+                                                </Grid.RowDefinitions>
+                                                <Path  Grid.Row="0" Margin="5" Data="{Binding Geometry, Converter={converters:StaticResourceConverter}}" Width="70" Height="70" Fill="{StaticResource PrimaryBrush}" Stretch="Uniform" />
+                                                <TextBlock Margin="10" Grid.Row="1" Text="{Binding Name }" FontWeight="SemiBold" Style="{StaticResource TextBlockSubTitle}"/>
+                                            </Grid>
+                                        </Border>
 
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
 
-                                </ListBox>
-                            </hc:TransitioningContentControl>
-                        </Grid>
-
+                            </ListBox>
+                        </hc:TransitioningContentControl>
                     </Grid>
 
-                </TabItem>
-                <TabItem Header="Wireless Devices">
+                </Grid>
+
+                <!--<Grid>
+                    <ListBox HorizontalAlignment="Left" Margin="5" x:Name="WirelessDeviceList"  
+                              ItemsSource="{Binding AvailableWLEDDevices}"
+                              
+                              VerticalAlignment="Top"
+                              
+                              SelectionMode="Multiple"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              Style="{StaticResource WrapPanelVerticalListBox}">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource _listBoxModeSelectionStyle}">
+                                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid  HorizontalAlignment="Stretch"  Margin="5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Path HorizontalAlignment="Left" Stretch="Uniform" Margin="5" Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}" 
+                                                          Width="20" 
+                                                          Height="20" 
+                                                          Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
+                                    <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="{Binding Name}" Style="{StaticResource TextBlockDefault}"/>
+                                    <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="2" Text="{Binding NetworkAddress}" Style="{StaticResource TextBlockDefault}"/>
+                                </Grid>
+
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+
+                    </ListBox>
+
+
+                </Grid>-->
+                <!--<Grid>
                     <StackPanel>
+
                         <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid>
-                                <Button x:Name="RefreshButton" Click="Refresh" Margin="10"  Background="Transparent" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" Style="{StaticResource ButtonDefault}"  Content="Refresh"/>
-                            </Grid>
-                            <Grid Grid.Row="1">
-                                <hc:LoadingLine Visibility="Collapsed" x:Name="LoadingLine" Margin="10"/>
-                            </Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="1" Style="{DynamicResource TextBlockSubTitle}" Foreground="{DynamicResource PrimaryBrush}" Text="AMBINO OFFICIAL USB DEVICE" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5"/>
+                            <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="20,15,20,5">
 
+                            </hc:Divider>
+                            <hc:Divider Grid.Column="2"  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="20,15,20,0">
 
-
-
-
+                            </hc:Divider>
                         </Grid>
                         <Grid>
-                            <ListBox HorizontalAlignment="Left" Margin="5" x:Name="WirelessDeviceList"  
-                              ItemsSource="{Binding AvailableWLEDDevices}"
+                            <ListBox HorizontalAlignment="Left" Margin="5" x:Name="WiredDeviceList"  
+                              ItemsSource="{Binding AvailableSerialDevices}"
                               
                               VerticalAlignment="Top"
                               
@@ -295,48 +248,90 @@
                                         <Grid  HorizontalAlignment="Stretch"  Margin="5">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="auto"/>
-                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="auto"/>
+                                                <ColumnDefinition Width="auto"/>
+                                                <ColumnDefinition Width="auto"/>
+                                                <ColumnDefinition Width="auto"/>
+                                                <ColumnDefinition Width="auto"/>
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
-                                            <Path HorizontalAlignment="Left" Stretch="Uniform" Margin="5" Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}" 
+                                            <Path HorizontalAlignment="Left" Stretch="Uniform" Margin="5" Data="{Binding DeviceConnectionGeometry,Converter={converters:StaticResourceConverter}}" 
                                                           Width="20" 
                                                           Height="20" 
                                                           Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                            <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="{Binding Name}" Style="{StaticResource TextBlockDefault}"/>
-                                            <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="2" Text="{Binding NetworkAddress}" Style="{StaticResource TextBlockDefault}"/>
+                                            <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="{Binding DeviceName}" Style="{StaticResource TextBlockDefault}"/>
+                                            <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="2" Text="{Binding DeviceSerial}" Style="{StaticResource TextBlockDefault}"/>
+                                            <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="3" Text="{Binding FirmwareVersion}" Style="{StaticResource TextBlockDefault}"/>
+                                            <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="4" Text="{Binding HardwareVersion}" Style="{StaticResource TextBlockDefault}"/>
+                                            <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="5" Text="{Binding OutputPort}" Style="{StaticResource TextBlockDefault}"/>
+                                            <Grid Margin="10,0,0,0" HorizontalAlignment="Left" Grid.Column="6">
+                                                <ItemsControl ItemsSource="{Binding DataContext.AvailableOutputForSelectedDevice, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}" Height="0" Margin="15,0">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="auto"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <Path Stretch="Uniform" Margin="0,0,15,0" Data="{Binding Geometry ,Converter={converters:StaticResourceConverter}}" 
+                                                                          Width="20" 
+                                                                          Height="20" 
+                                                                          Fill="{StaticResource PrimaryTextBrush}"/>
+                                                                <TextBlock Grid.Column="1" Text="{Binding OutputName}"/>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                                <ComboBox Visibility="{Binding IsSizeNeedUserDefine,Converter={StaticResource boolToVisibilityConvert}}" SelectedItem="{Binding AvailableOutputs[0]}" ItemsSource="{Binding DataContext.AvailableOutputForSelectedDevice, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}" hc:InfoElement.Placeholder="Chọn kích thước" ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch" Style="{StaticResource ComboBoxExtend}">
+                                                    <ComboBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="auto"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <Path Stretch="Uniform" Margin="0,0,15,0" Data="{Binding Geometry ,Converter={converters:StaticResourceConverter}}" 
+                                                                          Width="20" 
+                                                                          Height="20" 
+                                                                          Fill="{StaticResource PrimaryTextBrush}"/>
+                                                                <TextBlock Grid.Column="1" Text="{Binding OutputName}"/>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ComboBox.ItemTemplate>
+                                                </ComboBox>
+
+                                            </Grid>
                                         </Grid>
 
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
 
                             </ListBox>
-
-
                         </Grid>
                     </StackPanel>
-
-                </TabItem>
-                <TabItem Header="OpenRGB Devices">
+                </Grid>-->
+                <!--<Grid>
                     <StackPanel>
                         <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid>
-                                <Button x:Name="ScanOpenRGBButton" Command="{Binding ScanOpenRGBDeviceCommand}" Margin="10"  Background="Transparent" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" Style="{StaticResource ButtonDefault}"  Content="Scan OpenRGB Devices"/>
-                            </Grid>
-                            <Grid Grid.Row="1">
-                                <hc:LoadingLine Visibility="Collapsed" x:Name="OpenRGBLoadingLine" Margin="10"/>
-                            </Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="1" Style="{DynamicResource TextBlockSubTitle}" Foreground="{DynamicResource PrimaryBrush}" Text="OPENRGB SUPPORTED DEVICES" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5"/>
+                            <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="20,15,20,5">
 
+                            </hc:Divider>
+                            <hc:Divider Grid.Column="2"  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="20,15,20,0">
+
+                            </hc:Divider>
                         </Grid>
                         <Grid>
-                            <ListBox HorizontalAlignment="Left" Margin="5" x:Name="OpenRGBDeviceList"  
+                            <ListBox MaxHeight="300" HorizontalAlignment="Left" Margin="5" x:Name="OpenRGBDeviceList"  
                               ItemsSource="{Binding AvailableOpenRGBDevices}"
                               
                               VerticalAlignment="Top"
-                              
+                              ScrollViewer.VerticalScrollBarVisibility="Auto" 
                               SelectionMode="Multiple"
                               Background="Transparent"
                               BorderThickness="0"
@@ -359,22 +354,22 @@
                                                           Width="20" 
                                                           Height="20" 
                                                           Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                            <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="{Binding Name}" Style="{StaticResource TextBlockDefault}"/>
+                                            <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="{Binding DeviceName}" Style="{StaticResource TextBlockDefault}"/>
                                             <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="2" Text="OpenRGB" Style="{StaticResource TextBlockDefault}"/>
-                                            <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="4" Text="{Binding Type}" Style="{StaticResource TextBlockDefault}"/>
+                                            <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="4" Text="{Binding DeviceType}" Style="{StaticResource TextBlockDefault}"/>
                                         </Grid>
 
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
 
                             </ListBox>
-
-
                         </Grid>
                     </StackPanel>
+                </Grid>-->
 
-                </TabItem>
-            </TabControl>
+            </StackPanel>
+
+
 
         </Grid>
         <Grid  Grid.Row="1">
@@ -447,7 +442,7 @@
 
         </Grid>
 
-        <Grid x:Name="AddManuallyGrid" Visibility="Collapsed" Grid.Row="2">
+        <Grid x:Name="AddManuallyGrid" Visibility="Visible" Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="auto"/>
@@ -515,13 +510,13 @@
                 </Button.Style>
             </Button>
         </Grid>
-        <Grid Grid.Row="2">
+        <!--<Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-            <Button x:Name="AddAllButton" Click="Cancel_Button_Click"  Margin="10"  Grid.Column="2" Content="Add Selected" CommandParameter="AddSelected">
+            --><!--<Button x:Name="AddAllButton" Click="Cancel_Button_Click"  Margin="10"  Grid.Column="2" Content="Add Selected" CommandParameter="AddSelected">
                 <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource ButtonPrimary}">
                         <Setter Property="Visibility" Value="Collapsed"></Setter>
@@ -534,13 +529,13 @@
 
                     </Style>
                 </Button.Style>
-            </Button>
+            </Button>--><!--
 
 
 
 
 
-        </Grid>
+        </Grid>-->
 
 
 

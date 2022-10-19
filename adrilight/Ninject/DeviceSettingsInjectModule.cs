@@ -25,6 +25,7 @@ namespace adrilight.Ninject
             Bind<IAudioFrame>().To<AudioFrame>().InSingletonScope();
             Bind<IHWMonitor>().To<HWMonitor>().InSingletonScope();
             Bind<IContext>().To<WpfContext>().InSingletonScope();
+            Bind<IDeviceDiscovery>().To<DeviceDiscovery>().InSingletonScope();
 
             int index = 0;
             foreach (var screen in Screen.AllScreens)

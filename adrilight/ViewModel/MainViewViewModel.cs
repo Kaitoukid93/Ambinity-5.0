@@ -581,7 +581,7 @@ namespace adrilight.ViewModel
         public ICommand ApplyOutputImportDataCommand { get; set; }
         public ICommand OpenSpotMapWindowCommand { get; set; }
         public ICommand OpenAboutWindowCommand { get; set; }
-        public ICommand OpenPasswordDialogCommand { get; set;}
+        public ICommand OpenPasswordDialogCommand { get; set; }
         public ICommand OpenAppSettingsWindowCommand { get; set; }
         public ICommand SetAllDeviceSelectedGradientColorCommand { get; set; }
         public ICommand SetAllOutputRectangleSizeCommand { get; set; }
@@ -709,9 +709,9 @@ namespace adrilight.ViewModel
             }
         }
 
-        private ObservableCollection<Device> _availableOpenRGBDevices;
+        private ObservableCollection<IDeviceSettings> _availableOpenRGBDevices;
 
-        public ObservableCollection<Device> AvailableOpenRGBDevices {
+        public ObservableCollection<IDeviceSettings> AvailableOpenRGBDevices {
             get { return _availableOpenRGBDevices; }
             set
             {
@@ -817,8 +817,6 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-
-        private IDeviceProfile _currentSelectedProfile;
 
         public IDeviceProfile CurrentSelectedProfile {
             get { return AvailableProfilesForCurrentDevice.Where(p => p.ProfileUID == CurrentDevice.ActivatedProfileUID).FirstOrDefault(); }
@@ -1182,20 +1180,20 @@ namespace adrilight.ViewModel
 
         //}
 
-      
+
 
         public IList<String> AvailableAudioDevice {
             get
             {
-              
+
                 var audioDevices = AudioFrame.AvailableAudioDevice;
-               
+
                 return audioDevices;
-                
+
             }
         }
 
-    
+
         private bool _deviceLightingModeCollection;
 
         public bool DeviceLightingModeCollection {
@@ -1239,7 +1237,6 @@ namespace adrilight.ViewModel
         public ICommand SelectGif { get; set; }
         public BitmapImage gifimage;
         public Stream gifStreamSource;
-        private static int _gifFrameIndex = 0;
         private BitmapSource _contentBitmap;
 
         public BitmapSource ContentBitmap {
@@ -1254,8 +1251,8 @@ namespace adrilight.ViewModel
             }
         }
 
-        private GifBitmapDecoder decoder;
         public IGeneralSettings GeneralSettings { get; }
+
 
         public ISerialStream[] SerialStreams { get; }
         public IAmbinityClient AmbinityClient { get; set; }
@@ -1272,6 +1269,7 @@ namespace adrilight.ViewModel
             ISerialDeviceDetection serialDeviceDetection,
             IAudioFrame audioFrame,
             ISerialStream[] serialStreams
+
            //IShaderEffect shaderEffect
 
            )
@@ -1285,6 +1283,7 @@ namespace adrilight.ViewModel
             SpotSets = new ObservableCollection<IDeviceSpotSet>();
             AmbinityClient = ambinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
             SerialDeviceDetection = serialDeviceDetection ?? throw new ArgumentNullException(nameof(serialDeviceDetection));
+
             //ShaderEffect = shaderEffect ?? throw new ArgumentNullException();
             var keyboardHookManager = new KeyboardHookManager();
             AvailableModifiers = new ObservableCollection<IModifiersType> {
@@ -1393,6 +1392,53 @@ namespace adrilight.ViewModel
             });
         }
 
+        public void FoundNewDevice(List<IDeviceSettings> newSerialDevices, List<IDeviceSettings> newOpenRGBDevices)
+        {
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+
+                if (newSerialDevices != null)
+                {
+
+
+                    foreach (var serialDevice in newSerialDevices)
+                    {
+                        if (!AvailableDevices.Any(p => p.OutputPort == serialDevice.OutputPort)) // if device is already existed in the dashboard
+                        {
+                            AvailableDevices.Insert(0, serialDevice);
+
+                        }
+                        //else
+                        //{
+                        //    //reactivate device at the old port
+                        //    foreach (var existedDevice in AvailableDevices)
+                        //    {
+                        //        if (existedDevice.OutputPort == serialDevice.OutputPort)
+                        //        {
+
+                        //            existedDevice.IsTransferActive = true;
+                        //        }
+                                    
+                        //    }
+                        //}
+
+                    }
+                    if (newOpenRGBDevices != null)
+                    {
+                        foreach (var openRGBDevice in newOpenRGBDevices)
+                        {
+                            if (!AvailableDevices.Any(p => p.DeviceUID == openRGBDevice.DeviceUID)) // if device is already existed in the dashboard
+                            {
+                                AvailableDevices.Insert(0, openRGBDevice);
+                            }
+                        }
+                    }
+
+                    WriteDeviceInfoJson();
+                }
+            });
+
+        }
         public void ShaderImageUpdate(ByteFrame frame)
         {
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
@@ -1500,7 +1546,7 @@ namespace adrilight.ViewModel
             }
         }
 
-      
+
 
         private int _count = 0;
 
@@ -2411,7 +2457,7 @@ namespace adrilight.ViewModel
             {
                 if (p == "@mb1n0b3t@")
                     TurnOnBetaChanel();
-                else if ( p == "abort")
+                else if (p == "abort")
                 {
                     GeneralSettings.IsInBetaChanel = false;
                 }
@@ -3247,20 +3293,21 @@ namespace adrilight.ViewModel
             {
                 ShowAddNewWindow();
             });
-            ScanSerialDeviceCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                ScanSerialDevice();
-            });
-            ScanOpenRGBDeviceCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                ScanOpenRGBDevices();
-            });
+            //ScanSerialDeviceCommand = new RelayCommand<string>((p) =>
+            //{
+            //    return true;
+            //}, (p) =>
+            //{
+            //    ScanSerialDevice();
+            //    ScanOpenRGBDevices();
+            //});
+            //ScanOpenRGBDeviceCommand = new RelayCommand<string>((p) =>
+            //{
+            //    return true;
+            //}, (p) =>
+            //{
+            //    ScanOpenRGBDevices();
+            //});
             BackCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -3284,49 +3331,49 @@ namespace adrilight.ViewModel
             GeneralSettings.IsInBetaChanel = true;
         }
 
-        private static object _syncRoot = new object();
+        //private static object _syncRoot = new object();
 
-        private async void ScanSerialDevice()
-        {
-            ISerialDeviceDetection detector = new SerialDeviceDetection();
-            var tokenSource = new CancellationTokenSource();
-            CancellationToken token = tokenSource.Token;
+        //private async void ScanSerialDevice()
+        //{
+        //    ISerialDeviceDetection detector = new SerialDeviceDetection();
+        //    var tokenSource = new CancellationTokenSource();
+        //    CancellationToken token = tokenSource.Token;
 
-            var jobTask = Task.Run(() =>
-            {
-                // Organize critical sections around logical serial port operations somehow.
-                lock (_syncRoot)
-                {
-                    return detector.DetectedDevices;
-                }
-            });
-            if (jobTask != await Task.WhenAny(jobTask, Task.Delay(Timeout.Infinite, token)))
-            {
-                // Timeout;
-                return;
-            }
-            var newDevices = await jobTask;
-            if (newDevices.Count == 0)
-            {
-                HandyControl.Controls.MessageBox.Show("Unable to detect any supported device, try adding manually", "No Compatible Device Found", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-            else
-            {
-                foreach (var device in newDevices)
-                {
-                    Debug.WriteLine("Name: " + device.DeviceName);
-                    Debug.WriteLine("ID: " + device.DeviceSerial);
-                    Debug.WriteLine("Firmware Version: " + device.FirmwareVersion);
-                    Debug.WriteLine("---------------");
-                }
-                AvailableSerialDevices = new ObservableCollection<IDeviceSettings>();
-                foreach (var device in newDevices)
-                {
-                    AvailableSerialDevices.Add(device);
-                }
-                tokenSource.Cancel();
-            }
-        }
+        //    var jobTask = Task.Run(() =>
+        //    {
+        //        // Organize critical sections around logical serial port operations somehow.
+        //        lock (_syncRoot)
+        //        {
+        //            return detector.DetectedDevices;
+        //        }
+        //    });
+        //    if (jobTask != await Task.WhenAny(jobTask, Task.Delay(Timeout.Infinite, token)))
+        //    {
+        //        // Timeout;
+        //        return;
+        //    }
+        //    var newDevices = await jobTask;
+        //    if (newDevices.Count == 0)
+        //    {
+        //        HandyControl.Controls.MessageBox.Show("Unable to detect any supported device, try adding manually", "No Compatible Device Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+        //    }
+        //    else
+        //    {
+        //        foreach (var device in newDevices)
+        //        {
+        //            Debug.WriteLine("Name: " + device.DeviceName);
+        //            Debug.WriteLine("ID: " + device.DeviceSerial);
+        //            Debug.WriteLine("Firmware Version: " + device.FirmwareVersion);
+        //            Debug.WriteLine("---------------");
+        //        }
+        //        AvailableSerialDevices = new ObservableCollection<IDeviceSettings>();
+        //        foreach (var device in newDevices)
+        //        {
+        //            AvailableSerialDevices.Add(device);
+        //        }
+        //        tokenSource.Cancel();
+        //    }
+        //}
 
         private void OpenFFTPickerWindow()
         {
@@ -3920,6 +3967,8 @@ namespace adrilight.ViewModel
             // Coppy corresponding firmware file for current device to firmware folder
             // get the file path
             // upload with CMD.exe
+            //disable DeviceDiscovery first
+
             if (device.DeviceType == "ABHUBV2")
             {
                 MessageBoxResult result = HandyControl.Controls.MessageBox.Show("HUBV2 cần sử dụng FlyMCU để nạp firmware, nhấn [OK] để vào chế độ DFU", "External Software Required", MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -4419,46 +4468,47 @@ namespace adrilight.ViewModel
         {
             CurrentSelectedDeviceToAdd.DeviceID = AvailableDevices.Count + 1;
             CurrentSelectedDeviceToAdd.DeviceUID = Guid.NewGuid().ToString();
-            AvailableDevices.Add(CurrentSelectedDeviceToAdd);
+            AvailableDevices.Insert(0,CurrentSelectedDeviceToAdd);
             WriteDeviceInfoJson();
-          //  OpenRGBStream.Dispose();
-           // System.Windows.Forms.Application.Restart();
-          //  Process.GetCurrentProcess().Kill();
+            //  OpenRGBStream.Dispose();
+            // System.Windows.Forms.Application.Restart();
+            //  Process.GetCurrentProcess().Kill();
         }
 
         private void AddWLEDDevices()
+
         {
-            if (AvailableWLEDDevices != null)
-            {
-                foreach (var wLEDDevice in AvailableWLEDDevices)
-                {
-                    if (wLEDDevice.IsSelected)
-                    {
-                        IDeviceSettings convertedDevice = new DeviceSettings();
-                        convertedDevice.DeviceName = wLEDDevice.Name;
-                        convertedDevice.DeviceType = "WLED";
-                        convertedDevice.DeviceConnectionType = "wireless";
-                        convertedDevice.OutputPort = wLEDDevice.NetworkAddress;
-                        convertedDevice.DeviceDescription = "WLED Device using WARLS protocol";
-                        convertedDevice.DeviceID = AvailableDevices.Count + 1;
-                        convertedDevice.DeviceUID = Guid.NewGuid().ToString();
-                        convertedDevice.IsUnionMode = true;
-                        convertedDevice.UnionOutput = DefaulOutputCollection.GenericLEDStrip(1, 64, "Dây LED", 1, true, "ledstrip");
-                        convertedDevice.AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.GenericLEDStrip(0, 64, "Dây LED", 1, false, "ledstrip") };
-                        convertedDevice.Geometry = wLEDDevice.Geometry;
-                        AvailableDevices.Insert(0,convertedDevice);
-                    }
-                }
-            }
+            //    if (AvailableWLEDDevices != null)
+            //    {
+            //        foreach (var wLEDDevice in AvailableWLEDDevices)
+            //        {
+            //            if (wLEDDevice.IsSelected)
+            //            {
+            //                IDeviceSettings convertedDevice = new DeviceSettings();
+            //                convertedDevice.DeviceName = wLEDDevice.Name;
+            //                convertedDevice.DeviceType = "WLED";
+            //                convertedDevice.DeviceConnectionType = "wireless";
+            //                convertedDevice.OutputPort = wLEDDevice.NetworkAddress;
+            //                convertedDevice.DeviceDescription = "WLED Device using WARLS protocol";
+            //                convertedDevice.DeviceID = AvailableDevices.Count + 1;
+            //                convertedDevice.DeviceUID = Guid.NewGuid().ToString();
+            //                convertedDevice.IsUnionMode = true;
+            //                convertedDevice.UnionOutput = DefaulOutputCollection.GenericLEDStrip(1, 64, "Dây LED", 1, true, "ledstrip");
+            //                convertedDevice.AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.GenericLEDStrip(0, 64, "Dây LED", 1, false, "ledstrip") };
+            //                convertedDevice.Geometry = wLEDDevice.Geometry;
+            //                AvailableDevices.Insert(0, convertedDevice);
+            //            }
+            //        }
+            //    }
             if (AvailableSerialDevices != null)
             {
-              
+
 
                 foreach (var serialDevice in AvailableSerialDevices)
                 {
                     if (serialDevice.IsSelected)
                     {
-                        AvailableDevices.Insert(0,serialDevice);
+                        AvailableDevices.Insert(0, serialDevice);
                     }
                 }
 
@@ -4467,54 +4517,22 @@ namespace adrilight.ViewModel
             {
                 foreach (var openRGBDevice in AvailableOpenRGBDevices)
                 {
-                    IDeviceSettings convertedDevice = new DeviceSettings();
-                    convertedDevice.DeviceName = openRGBDevice.Name;
-                    convertedDevice.DeviceType = openRGBDevice.Type.ToString();
-                    convertedDevice.FirmwareVersion = openRGBDevice.Version;
-                    convertedDevice.OutputPort = AmbinityClient.Client.ToString();
-                    convertedDevice.DeviceDescription = "Device Supported Throught Open RGB Client";
-                    convertedDevice.DeviceConnectionType = "OpenRGB";
-                    convertedDevice.DeviceID = AvailableDevices.Count + 1;
-                    convertedDevice.DeviceSerial = openRGBDevice.Serial;
-                    convertedDevice.DeviceUID = openRGBDevice.Name + openRGBDevice.Version + openRGBDevice.Location;
-                    convertedDevice.Geometry = "orgb";
-                    convertedDevice.DeviceConnectionGeometry = "orgb";
-                    convertedDevice.UnionOutput = DefaulOutputCollection.GenericLEDStrip(openRGBDevice.Zones.Length, 1, "Uni-Zone", 1, false, "ledstrip");
-                    convertedDevice.AvailableOutputs = new OutputSettings[openRGBDevice.Zones.Length];
-                    int zoneCount = 0;
-                    foreach (var zone in openRGBDevice.Zones)
+                    if (!AvailableDevices.Any(p => p.DeviceUID == openRGBDevice.DeviceUID))
                     {
-                        switch (zone.Type)
-                        {
-                            case OpenRGB.NET.Enums.ZoneType.Single:
-                                convertedDevice.AvailableOutputs[zoneCount] = DefaulOutputCollection.GenericLEDStrip(zoneCount, 1, zone.Name, 1, true, "ledstrip");
-                                break;
-
-                            case OpenRGB.NET.Enums.ZoneType.Linear:
-                                convertedDevice.AvailableOutputs[zoneCount] = DefaulOutputCollection.GenericLEDStrip(zoneCount, (int)zone.LedCount, zone.Name, 1, true, "ledstrip");
-                                break;
-
-                            case OpenRGB.NET.Enums.ZoneType.Matrix:
-                                convertedDevice.AvailableOutputs[zoneCount] = DefaulOutputCollection.GenericLEDMatrix(zoneCount, (int)zone.MatrixMap.Width, (int)zone.MatrixMap.Height, zone.Name, 1, true, "matrix");
-                                break;
-                        }
-                        zoneCount++;
+                        AvailableDevices.Insert(0, openRGBDevice);
                     }
-                    convertedDevice.IsTransferActive = true;
-                    convertedDevice.IsEnabled = true;
-                    AvailableDevices.Insert(0,convertedDevice);
                 }
             }
 
             WriteDeviceInfoJson();
-            if(AvailableWLEDDevices!=null)
-            AvailableWLEDDevices.Clear();
-            if(AvailableSerialDevices!=null)
-            AvailableSerialDevices.Clear();
-            if(AvailableOpenRGBDevices!=null)
-            AvailableOpenRGBDevices.Clear();
-           // OpenRGBStream.Dispose();
-           // System.Windows.Forms.Application.Restart();
+            if (AvailableWLEDDevices != null)
+                AvailableWLEDDevices.Clear();
+            if (AvailableSerialDevices != null)
+                AvailableSerialDevices.Clear();
+            if (AvailableOpenRGBDevices != null)
+                AvailableOpenRGBDevices.Clear();
+            // OpenRGBStream.Dispose();
+            // System.Windows.Forms.Application.Restart();
             //Process.GetCurrentProcess().Kill();
         }
 
@@ -5373,28 +5391,28 @@ namespace adrilight.ViewModel
             }
         }
 
-        public void ScanOpenRGBDevices()
-        {
-            AvailableOpenRGBDevices = new ObservableCollection<Device>();
+        //public void ScanOpenRGBDevices()
+        //{
+        //    AvailableOpenRGBDevices = new ObservableCollection<Device>();
 
-            var detectedDevices = AmbinityClient.ScanNewDevice();
-            if (detectedDevices != null)
-            {
-                foreach (var device in detectedDevices)
-                {
-                    var uid = device.Name + device.Version + device.Location;
-                    if (!AvailableDevices.Any(p => p.DeviceUID == uid))//this device is existed, not gonna show
-                    {
-                        AvailableOpenRGBDevices.Add(device);
-                    }
+        //    var detectedDevices = AmbinityClient.ScanNewDevice();
+        //    if (detectedDevices != null)
+        //    {
+        //        foreach (var device in detectedDevices)
+        //        {
+        //            var uid = device.Name + device.Version + device.Location;
+        //            if (!AvailableDevices.Any(p => p.DeviceUID == uid))//this device is existed, not gonna show
+        //            {
+        //                AvailableOpenRGBDevices.Add(device);
+        //            }
 
-                        
-                }
-            }
-            //else
-            //{
-            //}
-        }
+
+        //        }
+        //    }
+        //    //else
+        //    //{
+        //    //}
+        //}
 
         public void ReadDataDevice()
         {
@@ -6035,20 +6053,20 @@ namespace adrilight.ViewModel
             //await File.WriteAllTextAsync(JsonDeviceFileNameAndPath, json);
         }
 
-        public void WriteOpenRGBDeviceInfoJson()
-        {
-            var devices = new List<Device>();
-            foreach (var item in AvailableOpenRGBDevices)
-            {
-                devices.Add(item);
-            }
+        //public void WriteOpenRGBDeviceInfoJson()
+        //{
+        //    var devices = new List<Device>();
+        //    foreach (var item in AvailableOpenRGBDevices)
+        //    {
+        //        devices.Add(item);
+        //    }
 
-            var json = JsonConvert.SerializeObject(devices, new JsonSerializerSettings() {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
-            Directory.CreateDirectory(JsonPath);
-            File.WriteAllText(JsonOpenRGBDevicesFileNameAndPath, json);
-        }
+        //    var json = JsonConvert.SerializeObject(devices, new JsonSerializerSettings() {
+        //        TypeNameHandling = TypeNameHandling.Auto
+        //    });
+        //    Directory.CreateDirectory(JsonPath);
+        //    File.WriteAllText(JsonOpenRGBDevicesFileNameAndPath, json);
+        //}
 
         public void WriteGifCollectionJson()
         {
@@ -6335,10 +6353,10 @@ namespace adrilight.ViewModel
                 target.SetRectangle(new Rectangle((int)left, (int)top, (int)width, (int)height));
             }
         }
-       
+
         public void GotoChild(IDeviceSettings selectedDevice)
         {
-           
+
             //SetMenuItemActiveStatus(lighting);
 
             SelectedVerticalMenuItem = MenuItems.FirstOrDefault(t => t.Text == lighting);

@@ -17,6 +17,7 @@ namespace adrilight
         int SelectedAudioDevice { get; set; }
         bool OpenRGBConfigRequested { get; set; }
         bool IsInBetaChanel { get; set; }
+        int DeviceDiscoveryMode { get; set; }
 
 
         bool IsOpenRGBEnabled { get; set; }

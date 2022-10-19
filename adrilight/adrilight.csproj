@@ -148,7 +148,6 @@
     <Compile Include="Settings\DefaultDeviceCollection.cs" />
     <Compile Include="Settings\DefaultLEDSetupCollection.cs" />
     <Compile Include="Settings\DeviceCatergory.cs" />
-    <Compile Include="Settings\DeviceDiscovery.cs" />
     <Compile Include="Settings\DeviceFirmware.cs" />
     <Compile Include="Settings\DeviceHttpConnection.cs" />
     <Compile Include="Settings\DeviceProfile.cs" />
@@ -177,6 +176,7 @@
     <Compile Include="Spots\IDeviceSpotSet.cs" />
     <Compile Include="Spots\ILEDSetup.cs" />
     <Compile Include="Spots\LEDSetup.cs" />
+    <Compile Include="Util\DeviceDiscovery.cs" />
     <Compile Include="Util\AdrilightUpdater.cs" />
     <Compile Include="Util\AmbinoColorEffect .cs" />
     <Compile Include="Util\AssemblyHelper.cs" />
@@ -197,6 +197,7 @@
     <Compile Include="Util\HotKeyManager.cs" />
     <Compile Include="Util\HWMonitor.cs" />
     <Compile Include="Util\IAmbinoColorEffect.cs" />
+    <Compile Include="Util\IDeviceDiscovery.cs" />
     <Compile Include="Util\IAtmosphere.cs" />
     <Compile Include="Util\IAudioFrame.cs" />
     <Compile Include="Util\IColorPalette.cs" />

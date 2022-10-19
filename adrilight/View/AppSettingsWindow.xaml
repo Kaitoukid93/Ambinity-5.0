@@ -185,6 +185,40 @@
                     <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                     </hc:Divider>
+                    <Grid Name="AutoAdd">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                            <GroupBox.HeaderTemplate>
+                                <DataTemplate>
+                                    <TextBlock FontWeight="SemiBold" Text="AUTO ADD WHEN NEW DEVICES DETECTED"/>
+                                </DataTemplate>
+                            </GroupBox.HeaderTemplate>
+
+                            <Grid  HorizontalAlignment="Right" Margin="0,0,10,0">
+
+                                <ComboBox ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch"   SelectedIndex="{Binding GeneralSettings.DeviceDiscoveryMode}"   Style="{StaticResource ComboBoxBaseStyle}">
+                                    <ComboBoxItem>
+                                        Always
+                                    </ComboBoxItem>
+                                    <ComboBoxItem>
+                                        Ask
+                                    </ComboBoxItem>
+                                    <ComboBoxItem>
+                                        Never
+                                    </ComboBoxItem>
+                                </ComboBox>
+                            </Grid>
+
+
+                        </GroupBox>
+                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Gửi thông báo đến hệ thống khi có thay đổi"/>
+                    </Grid>
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
+
+                    </hc:Divider>
 
                     <Grid Name="AccentColor">
                         <Grid.RowDefinitions>

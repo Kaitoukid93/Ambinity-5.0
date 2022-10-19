@@ -21,10 +21,11 @@ namespace adrilight.Util
         private static byte[] expectedValidHeader = { 15, 12, 93 };
         private static byte[] unexpectedValidHeader = { (byte)'A', (byte)'b', (byte)'n' };
         private static CancellationToken cancellationtoken;
+        private static List<IDeviceSettings> ExistedSerialDevice { get; set; }
 
-        public SerialDeviceDetection()
+        public SerialDeviceDetection(List<IDeviceSettings> existedSerialDevice)
         {
-
+            ExistedSerialDevice = existedSerialDevice;
         }
 
 
@@ -40,8 +41,12 @@ namespace adrilight.Util
                 {
                     if (CH55X.Contains(s)||CH340.Contains(s))
                     {
-                        counter++;
-                        devices.Add(s);
+                        if(!ExistedSerialDevice.Any(p=>p.OutputPort==s)) // if this comport is not used by any of the existed serial device
+                        {
+                            counter++;
+                            devices.Add(s);
+                        }
+                        
 
                     }
 

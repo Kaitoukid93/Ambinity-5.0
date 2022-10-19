@@ -24,6 +24,7 @@ namespace adrilight
         private bool _notificationEnabled = true;
         private int _selectedAudioDevice = 0;
         private Color _accentColor = Color.FromArgb(255, 138, 43, 226);
+        private int _deviceDiscoveryMode = 0;
 
         private int _themeIndex = 0;
         private bool _hotkeyEnable = true;
@@ -31,6 +32,7 @@ namespace adrilight
         private int _systemMusicSpeed = 3;
 
         public int SelectedAudioDevice { get => _selectedAudioDevice; set { Set(() => SelectedAudioDevice, ref _selectedAudioDevice, value); } }
+        public int DeviceDiscoveryMode { get => _deviceDiscoveryMode; set { Set(() => DeviceDiscoveryMode, ref _deviceDiscoveryMode, value); } }
         public int ThemeIndex { get => _themeIndex; set { Set(() => ThemeIndex, ref _themeIndex, value); } }
         public int SystemRainbowMaxTick { get => _systemRainbowMaxTick; set { Set(() => SystemRainbowMaxTick, ref _systemRainbowMaxTick, value); } }
         public int BreathingSpeed { get => _breathingSpeed; set { Set(() => BreathingSpeed, ref _breathingSpeed, value); } }

@@ -208,6 +208,8 @@ namespace adrilight
             var rainbowTicker = kernel.Get<IRainbowTicker>();
             var hwMonitor = kernel.Get<IHWMonitor>();
             var audioFrame = kernel.Get<IAudioFrame>();
+            
+
 
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
@@ -235,6 +237,7 @@ namespace adrilight
             {
                 _splashScreen.status.Text = "PROCESSES CREATED";
             });
+            var deviceDiscovery = kernel.Get<IDeviceDiscovery>();
             return kernel;
            
 

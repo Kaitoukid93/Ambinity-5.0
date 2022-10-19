@@ -636,15 +636,15 @@ namespace adrilight
 
                     _log.Debug(ex, "Exception catched.");
                     //to be safe, we reset the serial port
-                    var result = HandyControl.Controls.MessageBox.Show("USB của " + DeviceSettings.DeviceName + " Đã ngắt kết nối!!!. Kiểm tra lại kết nối sau đó nhấn [Confirm]", "Mất kết nối", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+                    var result = HandyControl.Controls.MessageBox.Show("USB của " + DeviceSettings.DeviceName + " Đã ngắt kết nối!!!. Kiểm tra lại kết nối", "Mất kết nối", MessageBoxButton.OK, MessageBoxImage.Warning);
 
-                    if (result == MessageBoxResult.OK)//restart app
-                    {
+                    //if (result == MessageBoxResult.OK)//restart app
+                    //{
                         
-                        System.Windows.Forms.Application.Restart();
-                        Process.GetCurrentProcess().Kill();
-                    }
-
+                    //    System.Windows.Forms.Application.Restart();
+                    //    Process.GetCurrentProcess().Kill();
+                    //}
+                   
 
                     if (serialPort != null && serialPort.IsOpen)
                     {
@@ -654,7 +654,7 @@ namespace adrilight
 
                     //allow the system some time to recover
                     Thread.Sleep(500);
-                    Stop();
+                    //Stop();
                     // Dispose();
                 }
                 finally
