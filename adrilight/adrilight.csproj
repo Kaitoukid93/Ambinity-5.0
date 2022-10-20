@@ -327,6 +327,7 @@
     <Compile Include="View\SpotSetEditing.xaml.cs" />
     <Compile Include="View\StaticColorControl.xaml.cs" />
     <Compile Include="View\StaticColorSidePanel.xaml.cs" />
+    <Compile Include="View\AvailableDevicesToolbar.xaml.cs" />
     <Compile Include="View\UnionOutputControl.xaml.cs" />
     <Compile Include="View\VerticalMenuItem.cs" />
     <Compile Include="View\VIDEditWindow.xaml.cs" />
@@ -560,6 +561,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\StaticColorSidePanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\AvailableDevicesToolbar.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

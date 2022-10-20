@@ -137,7 +137,7 @@ namespace adrilight
                         convertedDevice.OutputPort = AmbinityClient.Client.ToString();
                         convertedDevice.DeviceDescription = "Device Supported Throught Open RGB Client";
                         convertedDevice.DeviceConnectionType = "OpenRGB";
-                        //convertedDevice.DeviceID = AvailableDevices.Count + 1;
+                        //convertedDevice.DeviceID = AvailableDevices.Count + 1;// this is removed due to unneccessary of device ID, replaced with deviceUID
                         convertedDevice.DeviceSerial = openRGBDevice.Serial;
                         convertedDevice.DeviceUID = openRGBDevice.Name + openRGBDevice.Version + openRGBDevice.Location;
                         convertedDevice.Geometry = "orgb";

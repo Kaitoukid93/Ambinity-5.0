@@ -129,6 +129,19 @@ namespace adrilight
 
                         break;
                     case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+                        //get the ID
+                        //get the specific service bound to that ID
+                        //stop all the service bound to that ID
+                        var removedDevice = e.OldItems;
+                        foreach(IDeviceSettings device in removedDevice)
+                        {
+                            var iD = device.DeviceUID.ToString();
+                            //stop serialstream
+                            var serialStream = kernel.Get<ISerialStream>(iD);
+                            if(serialStream!=null)
+                            serialStream.Stop();
+                        }
+                        
                         break;
 
                 }

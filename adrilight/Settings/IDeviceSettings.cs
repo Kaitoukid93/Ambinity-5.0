@@ -53,7 +53,7 @@ namespace adrilight
         string FwLocation { get; set; }
         string RequiredFwVersion { get; set; }
         void RefreshFirmwareVersion();
-        void DeviceLocator(Color color);
+        //void DeviceLocator(Color color);
         void RefreshDeviceActualSpeedAsync();
         State CurrentState { get; set; }
        System.Drawing.Rectangle DeviceBoundRectangle { get; set; }

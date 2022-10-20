@@ -603,6 +603,7 @@ namespace adrilight.ViewModel
         public ICommand SendCurrentDeviceSpeedCommand { get; set; }
         public ICommand LaunchDeleteSelectedDeviceWindowCommand { get; set; }
         public ICommand DeleteSelectedDeviceCommand { get; set; }
+        public ICommand DeleteSelectedDevicesCommand { get; set; }
         public ICommand OpenFFTPickerWindowCommand { get; set; }
         public ICommand ScanSerialDeviceCommand { get; set; }
         public ICommand ScanOpenRGBDeviceCommand { get; set; }
@@ -613,7 +614,7 @@ namespace adrilight.ViewModel
         public ICommand OpenAutomationManagerWindowCommand { get; set; }
         public ICommand OpenHardwareMonitorWindowCommand { get; set; }
         public ICommand SaveCurrentSelectedAutomationCommand { get; set; }
-        public ICommand AddSelectedWLEDDevicesCommand { get; set; }
+
         public ICommand CoppyColorCodeCommand { get; set; }
         public ICommand DeleteSelectedSolidColorCommand { get; set; }
         public ICommand DeleteSelectedAutomationCommand { get; set; }
@@ -1104,17 +1105,26 @@ namespace adrilight.ViewModel
             }
         }
 
-        private int _visualizerAvailableSpace;
+        private int _selectedDeviceCount;
 
-        public int VisualizerAvailableSpace {
-            get { return _visualizerAvailableSpace; }
+        public int SelectedDeviceCount {
+            get { return _selectedDeviceCount; }
             set
             {
-                _visualizerAvailableSpace = value;
-                RaisePropertyChanged(nameof(_visualizerAvailableSpace));
+                _selectedDeviceCount = value;
+                RaisePropertyChanged(nameof(_selectedDeviceCount));
             }
         }
+        private bool _toolbarVisible;
 
+        public bool ToolbarVisible {
+            get { return _toolbarVisible; }
+            set
+            {
+                _toolbarVisible = value;
+                RaisePropertyChanged(nameof(ToolbarVisible));
+            }
+        }
         public int CanvasWidth => CurrentOutput.OutputSelectedMode == 0 ? ShaderBitmap?.PixelWidth ?? 240 : GifxelationBitmap?.PixelWidth ?? 240;
         public int CanvasHeight => CurrentOutput.OutputSelectedMode == 0 ? ShaderBitmap?.PixelHeight ?? 135 : GifxelationBitmap?.PixelHeight ?? 135;
 
@@ -1418,7 +1428,7 @@ namespace adrilight.ViewModel
 
                         //            existedDevice.IsTransferActive = true;
                         //        }
-                                    
+
                         //    }
                         //}
 
@@ -2651,6 +2661,13 @@ namespace adrilight.ViewModel
             {
                 DeleteSelectedDevice();
             });
+            DeleteSelectedDevicesCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                DeleteSelectedDevices();
+            });
             AdjustPositionCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -2818,7 +2835,49 @@ namespace adrilight.ViewModel
             {
                 if (!Keyboard.IsKeyDown(Key.LeftCtrl) && !Keyboard.IsKeyDown(Key.RightCtrl))
                 {
+
+                    foreach (var device in AvailableDevices) //cancel any selection if it's active
+                    {
+                        if (device.IsSelected)
+                        {
+                            device.IsSelected = false;
+                            if (SelectedDeviceCount > 0)
+                                SelectedDeviceCount--;
+                        }
+
+
+                    }
+
+
+
                     await Task.Run(() => GotoChild(p));
+                }
+                else if (Keyboard.IsKeyDown(Key.LeftCtrl)) // device is selected with ctrl key, start multiple select
+                {
+                    if (p.IsSelected)
+                    {
+                        p.IsSelected = false;
+                        if (SelectedDeviceCount > 0)
+                            SelectedDeviceCount--;
+                    }
+                        
+                    else
+                    {
+                        p.IsSelected = true;
+                        SelectedDeviceCount++;
+                      
+                    }
+                    
+
+                }
+
+                if (SelectedDeviceCount > 0)
+                {
+                    ToolbarVisible = true;
+                }
+                else
+                {
+                    ToolbarVisible = false;
                 }
             });
 
@@ -2879,14 +2938,7 @@ namespace adrilight.ViewModel
                 ApplyOutputImportData();
             }
             );
-            AddSelectedWLEDDevicesCommand = new RelayCommand<string>((p) =>
-            {
-                return p != null;
-            }, (p) =>
-            {
-                AddWLEDDevices();
-            }
-            );
+
             BackToPreviousAddDeviceWizardStateCommand = new RelayCommand<string>((p) =>
             {
                 return p != null;
@@ -4468,77 +4520,15 @@ namespace adrilight.ViewModel
         {
             CurrentSelectedDeviceToAdd.DeviceID = AvailableDevices.Count + 1;
             CurrentSelectedDeviceToAdd.DeviceUID = Guid.NewGuid().ToString();
-            AvailableDevices.Insert(0,CurrentSelectedDeviceToAdd);
+            AvailableDevices.Insert(0, CurrentSelectedDeviceToAdd);
             WriteDeviceInfoJson();
             //  OpenRGBStream.Dispose();
             // System.Windows.Forms.Application.Restart();
             //  Process.GetCurrentProcess().Kill();
         }
 
-        private void AddWLEDDevices()
-
-        {
-            //    if (AvailableWLEDDevices != null)
-            //    {
-            //        foreach (var wLEDDevice in AvailableWLEDDevices)
-            //        {
-            //            if (wLEDDevice.IsSelected)
-            //            {
-            //                IDeviceSettings convertedDevice = new DeviceSettings();
-            //                convertedDevice.DeviceName = wLEDDevice.Name;
-            //                convertedDevice.DeviceType = "WLED";
-            //                convertedDevice.DeviceConnectionType = "wireless";
-            //                convertedDevice.OutputPort = wLEDDevice.NetworkAddress;
-            //                convertedDevice.DeviceDescription = "WLED Device using WARLS protocol";
-            //                convertedDevice.DeviceID = AvailableDevices.Count + 1;
-            //                convertedDevice.DeviceUID = Guid.NewGuid().ToString();
-            //                convertedDevice.IsUnionMode = true;
-            //                convertedDevice.UnionOutput = DefaulOutputCollection.GenericLEDStrip(1, 64, "Dây LED", 1, true, "ledstrip");
-            //                convertedDevice.AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.GenericLEDStrip(0, 64, "Dây LED", 1, false, "ledstrip") };
-            //                convertedDevice.Geometry = wLEDDevice.Geometry;
-            //                AvailableDevices.Insert(0, convertedDevice);
-            //            }
-            //        }
-            //    }
-            if (AvailableSerialDevices != null)
-            {
 
 
-                foreach (var serialDevice in AvailableSerialDevices)
-                {
-                    if (serialDevice.IsSelected)
-                    {
-                        AvailableDevices.Insert(0, serialDevice);
-                    }
-                }
-
-            }
-            if (AvailableOpenRGBDevices != null)
-            {
-                foreach (var openRGBDevice in AvailableOpenRGBDevices)
-                {
-                    if (!AvailableDevices.Any(p => p.DeviceUID == openRGBDevice.DeviceUID))
-                    {
-                        AvailableDevices.Insert(0, openRGBDevice);
-                    }
-                }
-            }
-
-            WriteDeviceInfoJson();
-            if (AvailableWLEDDevices != null)
-                AvailableWLEDDevices.Clear();
-            if (AvailableSerialDevices != null)
-                AvailableSerialDevices.Clear();
-            if (AvailableOpenRGBDevices != null)
-                AvailableOpenRGBDevices.Clear();
-            // OpenRGBStream.Dispose();
-            // System.Windows.Forms.Application.Restart();
-            //Process.GetCurrentProcess().Kill();
-        }
-
-        private void RunTestSequence()
-        {
-        }
 
         private void ReorderActivatedSpot()
         {
@@ -5946,6 +5936,17 @@ namespace adrilight.ViewModel
             AmbinityClient.Dispose();
             System.Windows.Forms.Application.Restart();
             Process.GetCurrentProcess().Kill();
+        }
+        private void DeleteSelectedDevices()
+        {
+            foreach(var device in AvailableDevices.Where(p => p.IsSelected == true).ToList())
+            {
+                SelectedDeviceCount--;
+                AvailableDevices.Remove(device);
+            }
+            ToolbarVisible = false;
+            WriteDeviceInfoJson();
+
         }
 
         public async void ShowIncreamentDataDialog()

@@ -83,7 +83,7 @@ namespace adrilight
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); DeviceEnableChanged(); } }
         public bool IsUnionMode { get => _isUnionMode; set { Set(() => IsUnionMode, ref _isUnionMode, value); } }
         public bool IsLoading { get => _isLoading; set { Set(() => IsLoading, ref _isLoading, value); } }
-        public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); if (value) DeviceLocator(GetCurrentAccentColor()); else DeviceLocator(Color.FromRgb(0, 0, 0)); } }
+        public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); } }
         public string OutputPort { get => _outputPort; set { Set(() => OutputPort, ref _outputPort, value); } }
         public bool IsTransferActive { get => _isTransferActive; set { Set(() => IsTransferActive, ref _isTransferActive, value); } }
         public bool IsDummy { get => _isDummy; set { Set(() => IsDummy, ref _isDummy, value); } }
@@ -171,43 +171,43 @@ namespace adrilight
 
 
 
-        public void DeviceLocator(Color color) // this function send color signal to device to locate new device added
-        {
-            if (OutputPort != null && DeviceConnectionType == "wired")
-            {
-                var _serialPort = new SerialPort(OutputPort, 1000000);
-                _serialPort.DtrEnable = true;
-                _serialPort.ReadTimeout = 5000;
-                _serialPort.WriteTimeout = 1000;
-                try
-                {
-                    _serialPort.Open();
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    return;
-                }
-                //just get data of first output only and send signal of 64 LED
-                var (outputBuffer, streamLength) = GetLocatorOutputStream(color);
-                //write 60 frame of data to ensure device received it
-                for (int i = 0; i < 10; i++)
-                {
-                    _serialPort.Write(outputBuffer, 0, streamLength);
-                    Thread.Sleep(1);
-                }
-                try
-                {
-                    _serialPort.Close();
-                }
-                catch (Exception)
-                {
-                    return;
-                }
+        //public void DeviceLocator(Color color) // this function send color signal to device to locate new device added
+        //{
+        //    if (OutputPort != null && DeviceConnectionType == "wired")
+        //    {
+        //        var _serialPort = new SerialPort(OutputPort, 1000000);
+        //        _serialPort.DtrEnable = true;
+        //        _serialPort.ReadTimeout = 5000;
+        //        _serialPort.WriteTimeout = 1000;
+        //        try
+        //        {
+        //            _serialPort.Open();
+        //        }
+        //        catch (UnauthorizedAccessException)
+        //        {
+        //            return;
+        //        }
+        //        //just get data of first output only and send signal of 64 LED
+        //        var (outputBuffer, streamLength) = GetLocatorOutputStream(color);
+        //        //write 60 frame of data to ensure device received it
+        //        for (int i = 0; i < 10; i++)
+        //        {
+        //            _serialPort.Write(outputBuffer, 0, streamLength);
+        //            Thread.Sleep(1);
+        //        }
+        //        try
+        //        {
+        //            _serialPort.Close();
+        //        }
+        //        catch (Exception)
+        //        {
+        //            return;
+        //        }
 
 
-            }
+        //    }
 
-        }
+        //}
         private readonly byte[] _messagePreamble = { (byte)'a', (byte)'b', (byte)'n' };
         private (byte[] Buffer, int OutputLength) GetLocatorOutputStream(Color color)
         {
