@@ -1,0 +1,108 @@
+﻿<hc:Window x:Class="adrilight_effect_analyzer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:adrilight_effect_analyzer"
+        xmlns:vm="clr-namespace:adrilight_effect_analyzer.ViewModel"  
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+         
+        mc:Ignorable="d"
+
+        Title="MainWindow" Height="450" Width="800">
+    <Window.DataContext>
+        <vm:MainViewModel/>
+    </Window.DataContext>
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary>
+    
+                    <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
+
+                </ResourceDictionary>
+
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+
+
+        </Grid.RowDefinitions>
+        <!--load efect folder button-->
+        <Grid>
+            <Button Command="{Binding SelectFrameDataFolderCommand}" VerticalAlignment="Top" HorizontalAlignment="Right" Width="50" Padding="16,8" Margin="15" Style="{StaticResource ButtonDashedDanger}" hc:IconElement.Geometry="{StaticResource AddGeometry}"/>
+        </Grid>
+        <!--list of frame in this layer-->
+        <Grid VerticalAlignment="Top" Grid.Row="1" Margin="5">
+            <ListView ItemsSource="{Binding Layer.Frame}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Viewbox  HorizontalAlignment="Center" VerticalAlignment="Center"  Name="PreviewBox">
+
+                                <ItemsControl
+                          Name="PreviewGird"  
+                          BorderThickness="1"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center" 
+                          ItemsSource="{Binding FrameData}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <Canvas HorizontalAlignment="Center" VerticalAlignment="Top" Name="PreviewCanvas"
+                               
+                                Margin="0" 
+                                Width="256" 
+                                Height="4" >
+                                            </Canvas>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemContainerStyle>
+                                        <Style TargetType="ContentPresenter">
+                                            <Setter Property="Canvas.Left" Value="{Binding Rect.X}"/>
+                                            <Setter Property="Canvas.Top" Value="{Binding Rect.Y}"/>
+                                        </Style>
+                                    </ItemsControl.ItemContainerStyle>
+
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Rectangle
+                                             
+                                                StrokeThickness="0" 
+                                                Width="{Binding Rect.Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
+                                                Height="{Binding Rect.Height,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                                    <Rectangle.Fill>
+                                                        <SolidColorBrush Color="{Binding FillColor,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"  />
+                                                    </Rectangle.Fill>
+
+
+                                                    <!--<i:Interaction.Triggers>
+                                                    -->
+                                                    <!--<i:EventTrigger EventName="MouseDown" >
+                                                        <i:InvokeCommandAction Command="{Binding DataContext.SetNextSpotVIDCommand,RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding .}" />
+                                                    </i:EventTrigger>-->
+                                                    <!--
+                                                   
+                                                </i:Interaction.Triggers>-->
+
+                                                </Rectangle>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Viewbox>
+                        </Grid>
+                    
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+           
+        </Grid>
+        
+    </Grid>
+</hc:Window>

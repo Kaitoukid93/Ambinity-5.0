@@ -1,7 +1,5 @@
-﻿using HandyControl.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,19 +10,19 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace adrilight.View
+namespace adrilight_effect_analyzer
 {
-
-    public partial class SplashScreen
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow
     {
-        public SplashScreen()
+        public MainWindow()
         {
             InitializeComponent();
-          
         }
-
-      
     }
 }

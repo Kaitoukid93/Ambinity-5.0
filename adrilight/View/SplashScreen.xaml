@@ -37,7 +37,7 @@
         </Grid.RowDefinitions>
       
         <Grid Grid.Row="1">
-            <lottie:LottieAnimationView
+            <lottie:LottieAnimationView x:Name="dmd"
     Width="400"
     Height="300"
     FrameRate="30"

@@ -5,6 +5,8 @@ VisualStudioVersion = 17.2.32519.379
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "adrilight", "adrilight\adrilight.csproj", "{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "adrilight_effect_analyzer", "adrilight_effect_analyzer\adrilight_effect_analyzer.csproj", "{8966A6B0-CEC4-4337-A5BE-AF363303E02A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,14 @@ Global
 		{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}.Release|Any CPU.Build.0 = Release|Any CPU
 		{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}.Release|x64.ActiveCfg = Release|Any CPU
 		{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}.Release|x64.Build.0 = Release|Any CPU
+		{8966A6B0-CEC4-4337-A5BE-AF363303E02A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8966A6B0-CEC4-4337-A5BE-AF363303E02A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8966A6B0-CEC4-4337-A5BE-AF363303E02A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8966A6B0-CEC4-4337-A5BE-AF363303E02A}.Debug|x64.Build.0 = Debug|Any CPU
+		{8966A6B0-CEC4-4337-A5BE-AF363303E02A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8966A6B0-CEC4-4337-A5BE-AF363303E02A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8966A6B0-CEC4-4337-A5BE-AF363303E02A}.Release|x64.ActiveCfg = Release|Any CPU
+		{8966A6B0-CEC4-4337-A5BE-AF363303E02A}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
