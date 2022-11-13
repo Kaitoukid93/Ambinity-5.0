@@ -39,13 +39,75 @@
         </Grid>
         <!--list of frame in this layer-->
         <Grid Background="Black" Margin="0,0,0,0" Grid.Row="1">
-          
-               
-                    <Image HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Source="{Binding PreviewMotion}">
 
-                    </Image>
-            
-           
+
+            <Grid  Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center"  ClipToBounds="true"  x:Name="MotherGrid">
+
+
+
+                <Viewbox  HorizontalAlignment="Center" VerticalAlignment="Center"  Name="PreviewBox">
+
+                    <ItemsControl
+                          Name="PreviewGird"  
+                          BorderThickness="1"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center" 
+                          ItemsSource="{Binding PreviewPixels,Mode=TwoWay}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas HorizontalAlignment="Center" VerticalAlignment="Top" Name="PreviewCanvas"
+                               
+                                Margin="0" 
+                                Width="1600" 
+                                Height="30"
+                                 >
+                                </Canvas>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter">
+                                <Setter Property="Canvas.Left" Value="{Binding Rectangle.X}"/>
+                                <Setter Property="Canvas.Top" Value="{Binding Rectangle.Y}"/>
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Rectangle
+                                                
+                                               
+                                               
+                                             
+                                                Width="{Binding Rectangle.Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
+                                                Height="{Binding Rectangle.Height,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                        <Rectangle.Fill>
+                                            <SolidColorBrush Color="{Binding OnDemandColor}"  />
+                                        </Rectangle.Fill>
+                                      
+
+                                        <!--<i:Interaction.Triggers>
+                                                    -->
+                                        <!--<i:EventTrigger EventName="MouseDown" >
+                                                        <i:InvokeCommandAction Command="{Binding DataContext.SetNextSpotVIDCommand,RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding .}" />
+                                                    </i:EventTrigger>-->
+                                        <!--
+                                                   
+                                                </i:Interaction.Triggers>-->
+
+                                    </Rectangle>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Viewbox>
+
+
+
+
+            </Grid>
+
+
         </Grid>
         
     </Grid>

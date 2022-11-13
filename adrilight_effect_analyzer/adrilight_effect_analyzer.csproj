@@ -81,7 +81,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Models\Frame.cs" />
+    <Compile Include="Models\IPreviewPixel.cs" />
     <Compile Include="Models\Motion.cs" />
+    <Compile Include="Models\PreviewPixel.cs" />
     <Compile Include="ViewModel\BaseViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\WinApi.cs" />

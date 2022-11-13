@@ -1,4 +1,5 @@
 ﻿
+using adrilight.Spots;
 using adrilight_effect_analyzer.Models;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
@@ -13,12 +14,14 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Color = System.Windows.Media.Color;
 
 namespace adrilight_effect_analyzer.ViewModel
 {
@@ -28,20 +31,19 @@ namespace adrilight_effect_analyzer.ViewModel
         {
             SetupCommand();
             WinApi.TimeBeginPeriod(1);
-            dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
-            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-            dispatcherTimer.Interval = TimeSpan.FromMilliseconds(1);
+  
             FrameCounter = 0;
-            dispatcherTimer.Start();
+         
 
         }
 
         public ICommand SelectFrameDataFolderCommand { get; set; }
         public ICommand PlayCurrentMotionCommand { get; set; }
         private int FrameCounter = 0;
+
         public void SetupCommand()
         {
-            
+
             SelectFrameDataFolderCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -51,17 +53,9 @@ namespace adrilight_effect_analyzer.ViewModel
             }
 
         );
-            PlayCurrentMotionCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                if (dispatcherTimer.IsEnabled)
-                    dispatcherTimer.Start();
-            }
-            );
+          
         }
-        private System.Windows.Threading.DispatcherTimer dispatcherTimer;
+
         private Motion _motion;
         public Motion Motion
         {
@@ -70,6 +64,16 @@ namespace adrilight_effect_analyzer.ViewModel
             {
                 _motion = value;
                 RaisePropertyChanged(nameof(Motion));
+            }
+        }
+        private IPreviewPixel[] _previewPixels;
+        public IPreviewPixel[] PreviewPixels
+        {
+            get { return _previewPixels; }
+            set
+            {
+                _previewPixels = value;
+                RaisePropertyChanged(nameof(PreviewPixels));
             }
         }
         private WriteableBitmap PreviewBitmap;
@@ -137,6 +141,11 @@ namespace adrilight_effect_analyzer.ViewModel
             //splice bitmap into 256 led width and 1 led height
             // so the rectangle is width : 4 and height:4 with top is 0 and left is i*4
             ExportCurrentLayer();
+            var t = Task.Run(() => Animation());
+            //build preview pixel base on the frame data
+
+
+
 
 
         }
@@ -179,6 +188,20 @@ namespace adrilight_effect_analyzer.ViewModel
             }
         }
 
+        //this to see how good the effect show on different device LED number
+        //this also a good place to test scaling algorithm
+        private IPreviewPixel[] BuildPreviewPixels(int previewFrameWidth, int numPixels)
+        {
+            // create spots base on width and height and it's of course square
+            var pixelWidth = previewFrameWidth / numPixels;
+            var pixelHeight = pixelWidth;
+            IPreviewPixel[] previewPixels = new PreviewPixel[numPixels];
+            for (int i = 0; i < numPixels; i++)
+            {
+                previewPixels[i] = new PreviewPixel(i, 0, i * pixelWidth, 0, pixelWidth, pixelHeight);
+            }
+            return previewPixels;
+        }
 
         private Rectangle[] BuildMatrix(int rectwidth, int rectheight, int spotsX, int spotsY)
         {
@@ -216,28 +239,66 @@ namespace adrilight_effect_analyzer.ViewModel
             return rectangleSet;
 
         }
-        private void RunMotion(Frame frame)
+        public int[] resizePixels(int[] pixels, int w1, int h1, int w2, int h2)
+        {
+            int[] temp = new int[w2 * h2];
+            double x_ratio = w1 / (double)w2;
+            double y_ratio = h1 / (double)h2;
+            double px, py;
+            for (int i = 0; i < h2; i++)
+            {
+                for (int j = 0; j < w2; j++)
+                {
+                    px = Math.Floor(j * x_ratio);
+                    py = Math.Floor(i * y_ratio);
+                    temp[(i * w2) + j] = pixels[(int)((py * w1) + px)];
+                }
+            }
+            return temp;
+        }
+        private void RunMotion(Frame frame,int ledCount)
         {
             if (Motion != null)
             {
-                if (PreviewBitmap == null)
-                    PreviewBitmap = new WriteableBitmap(256, 1, 96, 96, PixelFormats.Bgra32, null);
-                PreviewBitmap.Lock();
-                IntPtr pixelAddress = PreviewBitmap.BackBuffer;
-                var currentFrame = new byte[256 * 4];
-                for (int i = 0; i < 256; i += 4)
-                {
-                    currentFrame[i] = 255;
-                    currentFrame[i + 1] = 255;
-                    currentFrame[i + 2] = 255;
-                    currentFrame[i + 3] = (byte)frame.PixelData[i];
-                }
-                Marshal.Copy(currentFrame, 0, pixelAddress, 256 * 4);
+                if (PreviewPixels == null)
+                    PreviewPixels = BuildPreviewPixels(1600, ledCount);
+             
+                //sampling here
+                // if original frame got a number of pixels and new frame got b number of pixels ( usually less so b<a)
+                // new pixels is a/b larger than original pixels so that the position will shift but the center remain the same
+                // new pixels at position 
+                double scaleRatio = frame.PixelCount /(double)ledCount; // only take interger
+                
+               
+                    //float newPixelColor=0;
+                    double px;
+                    for (int i = 0; i < ledCount; i++)
+                    {
+                        px = Math.Floor(i * scaleRatio);
+                    PreviewPixels[i].SetColor((byte)frame.PixelData[(int)(px)], (byte)frame.PixelData[(int)(px)], (byte)frame.PixelData[(int)(px)], true);
+                    }
+                        
+                  
+                
 
-                PreviewBitmap.AddDirtyRect(new Int32Rect(0, 0, 256, 1));
-                PreviewMotion = PreviewBitmap;
+                //if (PreviewBitmap == null)
+                //    PreviewBitmap = new WriteableBitmap(256, 1, 96, 96, PixelFormats.Bgra32, null);
+                //PreviewBitmap.Lock();
+                //IntPtr pixelAddress = PreviewBitmap.BackBuffer;
+                //var currentFrame = new byte[256 * 4];
+                //for (int i = 0; i < 256; i += 4)
+                //{
+                //    currentFrame[i] = 255;
+                //    currentFrame[i + 1] = 255;
+                //    currentFrame[i + 2] = 255;
+                //    currentFrame[i + 3] = (byte)frame.PixelData[i];
+                //}
+                //Marshal.Copy(currentFrame, 0, pixelAddress, 256 * 4);
 
-                PreviewBitmap.Unlock();
+                //PreviewBitmap.AddDirtyRect(new Int32Rect(0, 0, 256, 1));
+                //PreviewMotion = PreviewBitmap;
+
+                //PreviewBitmap.Unlock();
 
 
 
@@ -248,13 +309,18 @@ namespace adrilight_effect_analyzer.ViewModel
         {
             return ((red * 0x10000) + (green * 0x100) + blue);
         }
-        private void dispatcherTimer_Tick(object sender, EventArgs e)
+        private void Animation()
         {
+
             if (Motion != null)
             {
-                RunMotion(Motion.FrameData[FrameCounter++]);
-                if (FrameCounter > Motion.FrameCount - 1)
-                    FrameCounter = 0;
+                while (true)
+                {
+                    RunMotion(Motion.FrameData[FrameCounter++],32);
+                    if (FrameCounter > Motion.FrameCount - 1)
+                        FrameCounter = 0;
+                    Thread.Sleep(15);
+                }
 
             }
 
