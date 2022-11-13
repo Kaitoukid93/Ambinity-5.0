@@ -1,4 +1,6 @@
-﻿using GalaSoft.MvvmLight;
+﻿
+using adrilight_effect_analyzer.Models;
+using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using Microsoft.Win32;
 using Newtonsoft.Json;
@@ -9,12 +11,14 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
-
+using System.Windows.Media.Imaging;
 
 namespace adrilight_effect_analyzer.ViewModel
 {
@@ -23,12 +27,21 @@ namespace adrilight_effect_analyzer.ViewModel
         public MainViewModel()
         {
             SetupCommand();
+            WinApi.TimeBeginPeriod(1);
+            dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
+            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+            dispatcherTimer.Interval = TimeSpan.FromMilliseconds(1);
+            FrameCounter = 0;
+            dispatcherTimer.Start();
+
         }
 
         public ICommand SelectFrameDataFolderCommand { get; set; }
-
+        public ICommand PlayCurrentMotionCommand { get; set; }
+        private int FrameCounter = 0;
         public void SetupCommand()
         {
+            
             SelectFrameDataFolderCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -36,32 +49,30 @@ namespace adrilight_effect_analyzer.ViewModel
             {
                 SelectFrameDataFolder();
             }
-        );
-        }
-        private ObservableCollection<DisplayPixel> _currentFrame;
-        public ObservableCollection<DisplayPixel> CurrentFrame
-        {
-            get
-            {
-                return _currentFrame;
-            }
-            set
-            {
-                _currentFrame = value;
-                RaisePropertyChanged(nameof(CurrentFrame));
-            }
-        }
-        private MotionLayer _layer;
-        public MotionLayer Layer
-        {
-            get { return _layer; }
-            set
-            {
-                _layer = value;
-                RaisePropertyChanged(nameof(Layer));
-            }
-        }
 
+        );
+            PlayCurrentMotionCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                if (dispatcherTimer.IsEnabled)
+                    dispatcherTimer.Start();
+            }
+            );
+        }
+        private System.Windows.Threading.DispatcherTimer dispatcherTimer;
+        private Motion _motion;
+        public Motion Motion
+        {
+            get { return _motion; }
+            set
+            {
+                _motion = value;
+                RaisePropertyChanged(nameof(Motion));
+            }
+        }
+        private WriteableBitmap PreviewBitmap;
         private void SelectFrameDataFolder()
         {
             System.Windows.Forms.OpenFileDialog Import = new System.Windows.Forms.OpenFileDialog();
@@ -76,8 +87,10 @@ namespace adrilight_effect_analyzer.ViewModel
             Import.ShowDialog();
 
 
-            Layer = new MotionLayer();
-            foreach(var filename in Import.FileNames)
+            Motion = new Motion();
+            int frameCounter = 0;
+            Motion.FrameData = new Frame[Import.FileNames.Length];
+            foreach (var filename in Import.FileNames)
             {
                 BitmapData bitmapData = new BitmapData();
                 Bitmap curentFrame = new Bitmap(filename);
@@ -98,9 +111,10 @@ namespace adrilight_effect_analyzer.ViewModel
                     curentFrame = null;
                     // continue;
                 }
-                byte[] brightnessMap = new byte[rectSet.Length];
+
+                Motion.FrameData[frameCounter] = new Frame();
                 int pixelCount = 0;
-                CurrentFrame = new ObservableCollection<DisplayPixel>();
+                Motion.FrameData[frameCounter].PixelData = new int[rectSet.Length];
                 foreach (var rect in rectSet)
                 {
                     const int numberOfSteps = 15;
@@ -108,19 +122,15 @@ namespace adrilight_effect_analyzer.ViewModel
                     int stepy = Math.Max(1, rect.Height / numberOfSteps);
                     GetAverageColorOfRectangularRegion(rect, stepy, stepx, bitmapData, out int sumR, out int sumG, out int sumB, out int count);
                     var countInverse = 1f / count;
-                    brightnessMap[pixelCount++] = (byte)sumR;
-                    System.Windows.Media.Color pixelColor = new System.Windows.Media.Color();
-                    pixelColor = System.Windows.Media.Color.FromRgb((byte)(sumR * countInverse), (byte)(sumG * countInverse), (byte)(sumB * countInverse));
-                    //add displaypixel to current frame
-                    CurrentFrame.Add(new DisplayPixel(rect, pixelColor));
-                }
-                var newFrame = new MotionFrame();
-                foreach(var pixel in CurrentFrame)
-                {
-                    newFrame.FrameData.Add(new DisplayPixel(pixel.Rect, pixel.FillColor));
-                }
-                Layer.Frame.Add(newFrame);
+                    // System.Windows.Media.Color pixelColor = new System.Windows.Media.Color();
+                    // pixelColor = System.Windows.Media.Color.FromRgb((byte)(sumR * countInverse), (byte)(sumG * countInverse), (byte)(sumB * countInverse));
+                    Motion.FrameData[frameCounter].PixelData[pixelCount++] = (byte)(sumR * countInverse);
+                    Motion.FrameData[frameCounter].PixelCount++;
 
+
+                }
+                Motion.FrameCount++;
+                frameCounter++;
                 //display frame at preview
                 //store current frame to json file
             }
@@ -154,39 +164,21 @@ namespace adrilight_effect_analyzer.ViewModel
                 count += stepCount;
             }
         }
-        public class DisplayPixel
-        { 
-           public DisplayPixel(Rectangle rect,System.Windows.Media.Color fillColor)
-            {
-                FillColor = fillColor;
-                Rect = rect;
-            }
-            public System.Windows.Media.Color FillColor { get; set; }
-            public Rectangle Rect { get; set; }
-            
-        }
-        public class MotionFrame
+
+        public WriteableBitmap _previewMotion;
+
+        public WriteableBitmap PreviewMotion
         {
-            public MotionFrame()
+            get => _previewMotion;
+            set
             {
-                FrameData = new ObservableCollection<DisplayPixel>();
+                _previewMotion = value;
+                RaisePropertyChanged(nameof(PreviewMotion));
+
+
             }
-            public ObservableCollection<DisplayPixel> FrameData { get; set; }
-            public int PixelCount { get; set; }
-           
-
         }
-        public class MotionLayer //contain list of frame to form a motion
-        {
-            public MotionLayer()
-            {
-                Frame = new ObservableCollection<MotionFrame>();
-            }
-            public ObservableCollection<MotionFrame> Frame { get; set; }
-            public int FrameCount { get; set; }
 
-
-        }
 
         private Rectangle[] BuildMatrix(int rectwidth, int rectheight, int spotsX, int spotsY)
         {
@@ -198,7 +190,7 @@ namespace adrilight_effect_analyzer.ViewModel
             Rectangle[] rectangleSet = new Rectangle[spotsX * spotsY];
             var rectWidth = (rectwidth - (spacing * (spotsX + 1))) / spotsX;
             var rectHeight = (rectheight - (spacing * (spotsY + 1))) / spotsY;
-            
+
 
 
             //var startPoint = (Math.Max(rectheight,rectwidth) - spotSize * Math.Min(spotsX, spotsY))/2;
@@ -215,7 +207,7 @@ namespace adrilight_effect_analyzer.ViewModel
                     var y = spacing * j + (rectheight - (spotsY * rectHeight) - spacing * (spotsY - 1)) / 2 + j * rectHeight;
                     var index = counter;
 
-                    rectangleSet[index] = new Rectangle(x,y,rectWidth,rectHeight);
+                    rectangleSet[index] = new Rectangle(x, y, rectWidth, rectHeight);
                     counter++;
 
                 }
@@ -224,7 +216,50 @@ namespace adrilight_effect_analyzer.ViewModel
             return rectangleSet;
 
         }
+        private void RunMotion(Frame frame)
+        {
+            if (Motion != null)
+            {
+                if (PreviewBitmap == null)
+                    PreviewBitmap = new WriteableBitmap(256, 1, 96, 96, PixelFormats.Bgra32, null);
+                PreviewBitmap.Lock();
+                IntPtr pixelAddress = PreviewBitmap.BackBuffer;
+                var currentFrame = new byte[256 * 4];
+                for (int i = 0; i < 256; i += 4)
+                {
+                    currentFrame[i] = 255;
+                    currentFrame[i + 1] = 255;
+                    currentFrame[i + 2] = 255;
+                    currentFrame[i + 3] = (byte)frame.PixelData[i];
+                }
+                Marshal.Copy(currentFrame, 0, pixelAddress, 256 * 4);
 
+                PreviewBitmap.AddDirtyRect(new Int32Rect(0, 0, 256, 1));
+                PreviewMotion = PreviewBitmap;
+
+                PreviewBitmap.Unlock();
+
+
+
+            }
+
+        }
+        private static int MakeRgb(byte red, byte green, byte blue)
+        {
+            return ((red * 0x10000) + (green * 0x100) + blue);
+        }
+        private void dispatcherTimer_Tick(object sender, EventArgs e)
+        {
+            if (Motion != null)
+            {
+                RunMotion(Motion.FrameData[FrameCounter++]);
+                if (FrameCounter > Motion.FrameCount - 1)
+                    FrameCounter = 0;
+
+            }
+
+
+        }
         private void ExportCurrentLayer()
         {
             Microsoft.Win32.SaveFileDialog Export = new Microsoft.Win32.SaveFileDialog();
@@ -241,16 +276,16 @@ namespace adrilight_effect_analyzer.ViewModel
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             Export.RestoreDirectory = true;
 
-            var layerJson = JsonConvert.SerializeObject(Layer, new JsonSerializerSettings()
+            var layerJson = JsonConvert.SerializeObject(Motion, new JsonSerializerSettings()
             {
                 TypeNameHandling = TypeNameHandling.Auto
             });
 
             if (Export.ShowDialog() == true)
             {
-               
+
                 File.WriteAllText(Export.FileName, layerJson);
-             
+
             }
         }
 
