@@ -176,6 +176,11 @@
     <Compile Include="Spots\IDeviceSpotSet.cs" />
     <Compile Include="Spots\ILEDSetup.cs" />
     <Compile Include="Spots\LEDSetup.cs" />
+    <Compile Include="Util\Frame.cs" />
+    <Compile Include="Util\IComposition.cs" />
+    <Compile Include="Util\Motion.cs" />
+    <Compile Include="Util\Composition.cs" />
+    <Compile Include="Util\MotionLayer.cs" />
     <Compile Include="Util\DeviceDiscovery.cs" />
     <Compile Include="Util\AdrilightUpdater.cs" />
     <Compile Include="Util\AmbinoColorEffect .cs" />
@@ -197,6 +202,7 @@
     <Compile Include="Util\HotKeyManager.cs" />
     <Compile Include="Util\HWMonitor.cs" />
     <Compile Include="Util\IAmbinoColorEffect.cs" />
+    <Compile Include="Util\IMotionLayer.cs" />
     <Compile Include="Util\IDeviceDiscovery.cs" />
     <Compile Include="Util\IAtmosphere.cs" />
     <Compile Include="Util\IAudioFrame.cs" />
@@ -213,6 +219,7 @@
     <Compile Include="Util\IMusic.cs" />
     <Compile Include="Util\IOpenRGBClientDevice.cs" />
     <Compile Include="Util\IAmbinityClient.cs" />
+    <Compile Include="Util\ICompositionPlayer.cs" />
     <Compile Include="Util\IRainbow.cs" />
     <Compile Include="Util\IRainbowTicker.cs" />
     <Compile Include="Util\ISerialDeviceDetection.cs" />
@@ -227,6 +234,7 @@
     <Compile Include="Util\OpenRGBClientDevice.cs" />
     <Compile Include="Util\AmbinityClient.cs" />
     <Compile Include="Util\PaletteCardContextMenu.cs" />
+    <Compile Include="Util\CompositionPlayer.cs" />
     <Compile Include="Util\Rainbow.cs" />
     <Compile Include="Util\RainbowTicker.cs" />
     <Compile Include="Util\SerialDeviceDetection.cs" />
