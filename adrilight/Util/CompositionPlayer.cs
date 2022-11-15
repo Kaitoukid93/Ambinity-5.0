@@ -16,6 +16,7 @@ using NLog;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using adrilight.Spots;
+using Frame = adrilight.Util.Frame;
 
 namespace adrilight
 {
@@ -152,12 +153,51 @@ namespace adrilight
 
                 };
 
+                //first find the max frame count of all layer, this will be the total frame of SeletecComposition
+                var maxFrame = selectedComposition.Layers.Max(x => x.TotalFrame);
+                foreach (var layer in selectedComposition.Layers)
+                {
+                    //extract all frame of each layer in all layers
+
+                }
+
+
+                //turn original composition to native resolution composition
+                var numLED = OutputSettings.OutputLEDSetup.Spots.Length * OutputSettings.LEDPerSpot * OutputSettings.LEDPerLED;
+                double scaleRatio = frame.PixelCount / (double)ledCount; // only take interger
+
+
+                //float newPixelColor=0;
+                double px;
+                for (int i = 0; i < ledCount; i++)
+                {
+                    px = Math.Floor(i * scaleRatio);
+                    PreviewPixels[i].SetColor((byte)frame.PixelData[(int)(px)], (byte)frame.PixelData[(int)(px)], (byte)frame.PixelData[(int)(px)], true);
+                }
+
+
+
                 // get Composition Frame by frame
+
                 for (var i = 0; i < selectedComposition.TotalFrame; i++)  // run a lap through all frame and get each frame of composition
                 {
+
+
+
+
+
+
+
                     //if i== any layer's start frame, start pushing that layer into play
                     //get a count or something to know when to stop getting frame from this layer since there is nothing left to play
+                    //frame[i] will be sum of all 
 
+                }
+
+                foreach (var layer in selectedComposition.Layers)
+                {
+
+                    int start = layer.
                 }
                 var numLED = OutputSettings.OutputLEDSetup.Spots.Length * OutputSettings.LEDPerSpot * OutputSettings.LEDPerLED;
                 var outputPowerVoltage = OutputSettings.OutputPowerVoltage;
@@ -297,7 +337,53 @@ namespace adrilight
             return gradientPalette;
         }
 
+        //get byte array from each layer with brush applied
+        private Frame[] ExtractLayer(MotionLayer layer,int totalFrame)
+        {
 
+            foreach (var motion in layer.Motion)
+            {
+                foreach (var frame in motion.FrameData)
+                {
+                    //apply brush for each frame and store it as ARGB color
+                    Color[] ColoredFrame = new Color[frame.PixelCount];
+                    switch (motion.ColorMode)
+                    {
+                        case 0://mode Solid
+                            int pixelCounter = 0;
+                            foreach (var pixel in frame.PixelData) // this is solid color brush type
+                            {
+                                var alpha = pixel;
+                                var r = motion.SolidColorBrush.R;
+                                var g = motion.SolidColorBrush.G;
+                                var b = motion.SolidColorBrush.B;
+                                var coloredPixel = Color.FromArgb((byte)alpha, r, g, b);
+                                ColoredFrame[pixelCounter++] = coloredPixel;
+                                //add this coloredPixel to frame at same position
+                            }
+                            break;
+                        case 1://mode Palette
+                               //expand palette to exact number of pixel in frame
+                            Color[] paletteSource = motion.ColorPaletteBrush.Colors;
+                            colorBank = GetColorGradientfromPaletteWithFixedColorPerGap(paletteSource, 18).ToArray();
+                            int pixelCounter = 0;
+                            for (var i = 0; i < frame.PixelCount; i++)
+                            {
+                                var alpha = frame.PixelData[i];
+                                var r = colorBank[i].R;
+                                var g = colorBank[i].G;
+                                var b = colorBank[i].B;
+                                var coloredPixel = Color.FromArgb((byte)alpha, r, g, b);
+                                ColoredFrame[pixelCounter++] = coloredPixel;
+                            }
+                            break;
+
+                    }
+
+                }
+            }
+
+        }
         public static IEnumerable<Color> GetColorGradient(Color from, Color to, int totalNumberOfColors)
         {
             if (totalNumberOfColors < 2)

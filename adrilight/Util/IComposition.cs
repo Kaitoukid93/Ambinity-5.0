@@ -11,7 +11,7 @@ namespace adrilight.Util
     {
         string Name { get; set; }
         string Owner { get; set; }
-        Motion[] Layers { get; set; }
+        IMotionLayer[] Layers { get; set; }
         string Type { get; set; }
         string Description { get; set; }
         int Duration { get; set; }

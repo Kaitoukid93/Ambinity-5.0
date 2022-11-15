@@ -11,23 +11,23 @@ namespace adrilight.Util
 {
     internal class MotionLayer : ViewModelBase, IMotionLayer
     {
-        public MotionLayer(string name, string owner, string type, string description, Motion motion, Color motionBrush, int startFrame)
+        public MotionLayer(string name, string owner, string type, string description, Motion[] motion, int totalFrame)
         {
             Name = name;
             Owner = owner;
             Type = type;
             Description = description;
             Motion = motion;
-            MotionBrush = motionBrush;
-            StartFrame = startFrame;
+            
+            TotalFrame = totalFrame;
         }
 
         public string Name { get; set; }
         public string Owner { get; set; }
-        public Motion Motion { get; set; }
+        public Motion[] Motion { get; set; }
         public string Type { get; set; }
         public string Description { get; set; }
-        public Color MotionBrush { get; set; }
-        public int StartFrame { get; set; }
+       
+        public int TotalFrame { get; set; }
     }
 }

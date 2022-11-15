@@ -11,10 +11,9 @@ namespace adrilight.Util
     {
         string Name { get; set; }
         string Owner { get; set; }
-        Motion Motion { get; set; }
+        Motion[] Motion { get; set; }
         string Type { get; set; }
         string Description { get; set; }
-        Color MotionBrush { get; set; }
-        int StartFrame { get; set; }
+        int TotalFrame { get; set; }
     }
 }

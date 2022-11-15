@@ -239,23 +239,7 @@ namespace adrilight_effect_analyzer.ViewModel
             return rectangleSet;
 
         }
-        public int[] resizePixels(int[] pixels, int w1, int h1, int w2, int h2)
-        {
-            int[] temp = new int[w2 * h2];
-            double x_ratio = w1 / (double)w2;
-            double y_ratio = h1 / (double)h2;
-            double px, py;
-            for (int i = 0; i < h2; i++)
-            {
-                for (int j = 0; j < w2; j++)
-                {
-                    px = Math.Floor(j * x_ratio);
-                    py = Math.Floor(i * y_ratio);
-                    temp[(i * w2) + j] = pixels[(int)((py * w1) + px)];
-                }
-            }
-            return temp;
-        }
+   
         private void RunMotion(Frame frame,int ledCount)
         {
             if (Motion != null)
