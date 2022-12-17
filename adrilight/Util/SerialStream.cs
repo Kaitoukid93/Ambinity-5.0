@@ -44,8 +44,7 @@ namespace adrilight
         // private IDeviceSpotSet[] DeviceSpotSets { get; set; }
         private bool CheckSerialPort(string serialport)
         {
-            Stop();//stop current serial stream first to avoid access denied
-                   // BlockedComport.Clear();
+          
             var available = true;
             int TestbaudRate = 1000000;
 
@@ -128,10 +127,7 @@ namespace adrilight
 
             if (DeviceSettings.IsTransferActive && DeviceSettings.CurrentState == State.normal) // normal scenario
             {
-                if (IsRunning)
-                {
-                    Stop(); // stop current running if worker thread is alive.
-                }
+                
                 if (IsValid() && CheckSerialPort(DeviceSettings.OutputPort))
                 {
 
@@ -151,6 +147,7 @@ namespace adrilight
                 //stop it
                 _log.Debug("stopping the serial stream");
                 Stop();
+                Thread.Sleep(500);
             }
             else if (DeviceSettings.IsTransferActive && DeviceSettings.CurrentState == State.sleep) // computer susped or app exit, this could be an event from sleep button ( not available at the moment)
             {
@@ -513,6 +510,7 @@ namespace adrilight
             bool isUnion = DeviceSettings.IsUnionMode;
 
             //retry after exceptions...
+            bool isDisconnectedMessage = false;
             while (!cancellationToken.IsCancellationRequested)
             {
                 try
@@ -535,7 +533,8 @@ namespace adrilight
                             openedComPort = DeviceSettings.OutputPort;
 
                         }
-
+                        //after this we know the device is successfully open the first time or reconnected, we reset the  message show flag
+                        isDisconnectedMessage = false;
                         //send frame data
                         if (isUnion)
                         {
@@ -633,18 +632,21 @@ namespace adrilight
                 {
 
 
-
+                  
                     _log.Debug(ex, "Exception catched.");
                     //to be safe, we reset the serial port
-                    var result = HandyControl.Controls.MessageBox.Show("USB của " + DeviceSettings.DeviceName + " Đã ngắt kết nối!!!. Kiểm tra lại kết nối", "Mất kết nối", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    if(!isDisconnectedMessage)
+                    {
+                        var result = HandyControl.Controls.MessageBox.Show("USB của " + DeviceSettings.DeviceName + " Đã ngắt kết nối!!!. Kiểm tra lại kết nối", "Mất kết nối", MessageBoxButton.OK, MessageBoxImage.Warning);
 
-                    //if (result == MessageBoxResult.OK)//restart app
-                    //{
-                        
-                    //    System.Windows.Forms.Application.Restart();
-                    //    Process.GetCurrentProcess().Kill();
-                    //}
-                   
+                        if (result == MessageBoxResult.OK)//stop showing message
+                        {
+
+                            isDisconnectedMessage = true;
+                        }
+                    }
+                    
+
 
                     if (serialPort != null && serialPort.IsOpen)
                     {
@@ -656,6 +658,10 @@ namespace adrilight
                     Thread.Sleep(500);
                     //Stop();
                     // Dispose();
+                    
+                   // DeviceSettings.IsTransferActive = false;
+                   
+                    
                 }
                 finally
                 {

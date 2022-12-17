@@ -565,6 +565,7 @@ namespace adrilight.ViewModel
         }
 
         public ICommand ExportCurrentColorEffectCommand { get; set; }
+        public ICommand OpenLEDSteupSelectionWindowsCommand { get; set; }
         public ICommand OpenFanSpeedPlotWindowsCommand { get; set; }
         public ICommand OpenExportNewColorEffectCommand { get; set; }
         public ICommand ResetAppCommand { get; set; }
@@ -1413,24 +1414,8 @@ namespace adrilight.ViewModel
 
                     foreach (var serialDevice in newSerialDevices)
                     {
-                        if (!AvailableDevices.Any(p => p.OutputPort == serialDevice.OutputPort)) // if device is already existed in the dashboard
-                        {
-                            AvailableDevices.Insert(0, serialDevice);
 
-                        }
-                        //else
-                        //{
-                        //    //reactivate device at the old port
-                        //    foreach (var existedDevice in AvailableDevices)
-                        //    {
-                        //        if (existedDevice.OutputPort == serialDevice.OutputPort)
-                        //        {
-
-                        //            existedDevice.IsTransferActive = true;
-                        //        }
-
-                        //    }
-                        //}
+                        AvailableDevices.Insert(0, serialDevice);
 
                     }
                     if (newOpenRGBDevices != null)
@@ -1443,6 +1428,48 @@ namespace adrilight.ViewModel
                             }
                         }
                     }
+
+                    WriteDeviceInfoJson();
+                }
+            });
+
+        }
+        public void OldDeviceReconnected(List<IDeviceSettings> oldSerialDevice, List<IDeviceSettings> oldOpenRGBDevices)
+        {
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+
+                if (oldSerialDevice != null)
+                {
+
+
+                    foreach (var serialDevice in oldSerialDevice)
+                    {
+                        //set first device found active again since it's recconected
+
+                        var oldDevice = AvailableDevices.Where(p => p.OutputPort == serialDevice.OutputPort).FirstOrDefault();
+                        if (oldDevice.IsTransferActive == true)
+                        {
+                            //try to poke it
+                            oldDevice.IsTransferActive = false;
+                        }
+                        oldDevice.IsTransferActive = true;
+                        RaisePropertyChanged(nameof(oldDevice.IsTransferActive));
+
+                        //restart it's serialstram by 
+                        //setting the transferactive to true, no matter it;s active or not
+
+                    }
+                    //if (oldOpenRGBDevices != null)
+                    //{
+                    //    foreach (var openRGBDevice in oldOpenRGBDevices)
+                    //    {
+                    //        if (!AvailableDevices.Any(p => p.DeviceUID == openRGBDevice.DeviceUID)) // if device is already existed in the dashboard
+                    //        {
+                    //            AvailableDevices.Insert(0, openRGBDevice);
+                    //        }
+                    //    }
+                    //}
 
                     WriteDeviceInfoJson();
                 }
@@ -2525,6 +2552,15 @@ namespace adrilight.ViewModel
                 ExportCurrentColorEffect();
             }
           );
+
+            OpenLEDSteupSelectionWindowsCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                OpenLEDSteupSelectionWindows();
+            }
+          );
             OpenExportNewColorEffectCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -2860,14 +2896,14 @@ namespace adrilight.ViewModel
                         if (SelectedDeviceCount > 0)
                             SelectedDeviceCount--;
                     }
-                        
+
                     else
                     {
                         p.IsSelected = true;
                         SelectedDeviceCount++;
-                      
+
                     }
-                    
+
 
                 }
 
@@ -5003,6 +5039,15 @@ namespace adrilight.ViewModel
             }
         }
 
+        public void OpenLEDSteupSelectionWindows()
+        {
+            if (AssemblyHelper.CreateInternalInstance($"View.{"LEDSetupSelectionWindows"}") is System.Windows.Window window)
+            {
+                window.Owner = System.Windows.Application.Current.MainWindow;
+                window.ShowDialog();
+            }
+        }
+
         //public void SetCurrentDeviceSelectedPalette(IColorPaletteCard palette)
         //{
         //    if (palette != null)
@@ -5939,7 +5984,7 @@ namespace adrilight.ViewModel
         }
         private void DeleteSelectedDevices()
         {
-            foreach(var device in AvailableDevices.Where(p => p.IsSelected == true).ToList())
+            foreach (var device in AvailableDevices.Where(p => p.IsSelected == true).ToList())
             {
                 SelectedDeviceCount--;
                 AvailableDevices.Remove(device);
@@ -6484,6 +6529,13 @@ namespace adrilight.ViewModel
                         break;
                 }
             };
+            if (CurrentDevice.IsSizeNeedUserDefine) // this device has default ledsetup so we need to tell user to select the led setup
+            {
+                System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                OpenLEDSteupSelectionWindows();
+            });
+            }
         }
 
         public void BackToDashboard()

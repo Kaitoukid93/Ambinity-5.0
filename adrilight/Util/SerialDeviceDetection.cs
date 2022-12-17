@@ -39,14 +39,14 @@ namespace adrilight.Util
                 int counter = 0;
                 foreach (String s in SerialPort.GetPortNames())
                 {
-                    if (CH55X.Contains(s)||CH340.Contains(s))
+                    if (CH55X.Contains(s) || CH340.Contains(s))
                     {
-                        if(!ExistedSerialDevice.Any(p=>p.OutputPort==s)) // if this comport is not used by any of the existed serial device
+                        if (!ExistedSerialDevice.Any(p => p.OutputPort == s)) // if this comport is not used by any of the existed serial device
                         {
                             counter++;
                             devices.Add(s);
                         }
-                        
+
 
                     }
 
@@ -103,8 +103,8 @@ namespace adrilight.Util
             // Assume serial port timeouts are set.
             byte[] id;
             byte[] name;
-            byte[] fw ;
-            byte[] hw ;
+            byte[] fw;
+            byte[] hw;
             List<IDeviceSettings> newDevices = new List<IDeviceSettings>();
 
 
@@ -148,10 +148,10 @@ namespace adrilight.Util
                         else if (header == unexpectedValidHeader[offset])
                         {
                             offset++;
-                            if(offset ==3)
+                            if (offset == 3)
                             {
                                 Console.WriteLine("Old Ambino Device at" + _serialPort.PortName);
-                                HandyControl.Controls.MessageBox.Show("Thiết bị ở " + _serialPort.PortName + " đang chạy firmware cũ, vui lòng thêm thủ công sau đó cập nhật firmware", "Old Device detected", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                HandyControl.Controls.MessageBox.Show("Thiết bị ở " + _serialPort.PortName + " đang chạy firmware cũ, vui lòng cập nhật firmware để sử dụng ổn định hơn", "Old Device detected", MessageBoxButton.OK, MessageBoxImage.Warning);
                                 isValid = false;
                                 break;
                             }
@@ -210,8 +210,8 @@ namespace adrilight.Util
                             newDevice.DeviceConnectionType = "wired";
                             newDevice.OutputPort = device;
                             newDevice.IsSizeNeedUserDefine = true;
-                            
-                            break;                      
+
+                            break;
                         case "Ambino EDGE":// General Ambino Basic USB Device
                             newDevice = availableDefaultDevice.ambinoEdge1m2;
                             newDevice.DeviceName = "Ambino EDGE";
@@ -219,7 +219,7 @@ namespace adrilight.Util
                             newDevice.DeviceType = "ABEDGE";
                             newDevice.OutputPort = device;
                             newDevice.IsSizeNeedUserDefine = true;
-                           
+
                             break;
                         case "Ambino FanHub":
                             newDevice = availableDefaultDevice.ambinoFanHub;
@@ -261,7 +261,7 @@ namespace adrilight.Util
                     }
                     newDevice.FirmwareVersion = Encoding.ASCII.GetString(fw, 0, fw.Length);
                 }
-                if (offset == 3 + idLength + nameLength+ fwLength) //3 bytes header are valid
+                if (offset == 3 + idLength + nameLength + fwLength) //3 bytes header are valid
                 {
                     try
                     {
@@ -276,11 +276,11 @@ namespace adrilight.Util
                         }
                         newDevice.HardwareVersion = Encoding.ASCII.GetString(hw, 0, hw.Length);
                     }
-                    catch(TimeoutException)
+                    catch (TimeoutException)
                     {
                         newDevice.HardwareVersion = "unknown";
                     }
-                   
+
                 }
                 _serialPort.Close();
                 _serialPort.Dispose();

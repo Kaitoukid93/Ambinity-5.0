@@ -72,9 +72,10 @@ namespace adrilight
                         var newOpenRGBDevices = new List<IDeviceSettings>(); // openRGB device scan only run once at startup
                         if (!_openRGBIsInit)
                             newOpenRGBDevices = ScanOpenRGBDevices();
-                        var newSerialDevices = await ScanSerialDevice();
+                        var connectedSerialDevices = await ScanSerialDevice();
 
-                        MainViewViewModel.FoundNewDevice(newSerialDevices, newOpenRGBDevices);
+                        MainViewViewModel.FoundNewDevice(connectedSerialDevices[0], newOpenRGBDevices);
+                        MainViewViewModel.OldDeviceReconnected(connectedSerialDevices[1], newOpenRGBDevices);
                     }
 
                     //else if (Settings.DeviceDiscoveryMode==1)
@@ -183,9 +184,10 @@ namespace adrilight
             //}
         }
         private static object _syncRoot = new object();
-        private async Task<List<IDeviceSettings>> ScanSerialDevice()
+        private async Task<List<List<IDeviceSettings>>> ScanSerialDevice()
         {
             var newDevicesDetected = new List<IDeviceSettings>();
+            var oldDeviceReconnected = new List<IDeviceSettings>();
             _isSerialScanCompelete = false;
             ISerialDeviceDetection detector = new SerialDeviceDetection(MainViewViewModel.AvailableDevices.Where(p => p.DeviceConnectionType == "wired").ToList());
             var tokenSource = new CancellationTokenSource();
@@ -220,17 +222,26 @@ namespace adrilight
                     Debug.WriteLine("ID: " + device.DeviceSerial);
                     Debug.WriteLine("Firmware Version: " + device.FirmwareVersion);
                     Debug.WriteLine("---------------");
+                    if (MainViewViewModel.AvailableDevices.Any(p => p.OutputPort == device.OutputPort)) // this device match an old device that existed 
+                    {
+                        oldDeviceReconnected.Add(device);
+
+                    }
+                    else
+                    {
+                        newDevicesDetected.Add(device);
+                    }
                 }
-                AvailableSerialDevices = new ObservableCollection<IDeviceSettings>();
-                foreach (var device in newDevices)
-                {
-                    newDevicesDetected.Add(device);
-                }
+                //AvailableSerialDevices = new ObservableCollection<IDeviceSettings>();
+                //foreach (var device in newDevices)
+                //{
+                //    newDevicesDetected.Add(device);
+                //}
                 tokenSource.Cancel();
                 _isSerialScanCompelete = true;
 
             }
-            return await Task.FromResult(newDevicesDetected);
+            return await Task.FromResult(new List<List<IDeviceSettings>> { newDevicesDetected, oldDeviceReconnected });
         }
     }
 }

@@ -171,28 +171,10 @@
                 </hc:ButtonGroup>-->
                 </Grid>
 
-                <Grid x:Name="infopane" hc:RelativePanel.Below="{Binding ElementName=Header}" hc:RelativePanel.AlignLeftWithPanel="True" Margin="0,0,10,0" HorizontalAlignment="Right">
-
-                        <TextBlock 
-                Margin="10,0,0,20" 
-                Grid.Row="1" 
-                Grid.Column="0" 
-                Text="" 
-                Style="{StaticResource TextBlockDefaultSecLight}"
-                VerticalAlignment="Top" 
-                HorizontalAlignment="Left"/>
-                    </Grid>
-
-                <hc:TransitioningContentControl Visibility="{Binding ToolbarVisible,Converter={StaticResource boolToVisibilityConvert}}" hc:RelativePanel.Above="{Binding ElementName=AllDevicesPanel}" hc:RelativePanel.AlignRightWith="{Binding ElementName=AllDevicesPanel}"  Margin="0,0,10,20" HorizontalAlignment="Right" VerticalAlignment="Center" >
-                    <Grid>
-                        <local:AvailableDevicesToolbar>
-
-                        </local:AvailableDevicesToolbar>
-
-                    </Grid>
-                </hc:TransitioningContentControl>
                 
-                <Grid x:Name="AllDevicesPanel" hc:RelativePanel.AlignLeftWithPanel="True"  hc:RelativePanel.Below="{Binding ElementName=infopane}">
+               
+                
+                <Grid x:Name="AllDevicesPanel" hc:RelativePanel.AlignLeftWithPanel="True"  hc:RelativePanel.Below="{Binding ElementName=Header}">
                 
           <!-- all devices-->
             <ListView  Margin="0" 

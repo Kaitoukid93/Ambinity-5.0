@@ -309,6 +309,7 @@ namespace adrilight
 
         public void Dispose()
         {
+            if(Client!=null)
             Client.Dispose();
             if (ORGBProcess != null)
                 ORGBProcess.Kill();
