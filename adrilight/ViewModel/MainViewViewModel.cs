@@ -566,6 +566,7 @@ namespace adrilight.ViewModel
 
         public ICommand ExportCurrentColorEffectCommand { get; set; }
         public ICommand OpenLEDSteupSelectionWindowsCommand { get; set; }
+        public ICommand SetCurrentSelectedOutputForCurrentSelectedDeviceCommand { get; set; }
         public ICommand OpenFanSpeedPlotWindowsCommand { get; set; }
         public ICommand OpenExportNewColorEffectCommand { get; set; }
         public ICommand ResetAppCommand { get; set; }
@@ -738,7 +739,7 @@ namespace adrilight.ViewModel
         private List<IOutputSettings> _availableOutputForSelectedDevice;
 
         public List<IOutputSettings> AvailableOutputForSelectedDevice {
-            get { return DefaulOutputCollection.AvailableDefaultOutputs; }
+            get { return _availableOutputForSelectedDevice; }
             set
             {
                 if (_availableOutputForSelectedDevice == value) return;
@@ -746,7 +747,17 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        private IOutputSettings _selectedOutputForCurrentDevice;
 
+        public IOutputSettings SelectedOutputForCurrentDevice {
+            get { return _selectedOutputForCurrentDevice; }
+            set
+            {
+                if (_selectedOutputForCurrentDevice == value) return;
+                _selectedOutputForCurrentDevice = value;
+                RaisePropertyChanged();
+            }
+        }
         private ObservableCollection<WLEDDevice> _selectedWLEDDevice;
 
         public ObservableCollection<WLEDDevice> SelectedWLEDDevice {
@@ -2561,6 +2572,14 @@ namespace adrilight.ViewModel
                 OpenLEDSteupSelectionWindows();
             }
           );
+            SetCurrentSelectedOutputForCurrentSelectedDeviceCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                SetCurrentSelectedOutputForCurrentSelectedDevice();
+            }
+          );
             OpenExportNewColorEffectCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -2867,7 +2886,7 @@ namespace adrilight.ViewModel
             SelectCardCommand = new RelayCommand<IDeviceSettings>((p) =>
             {
                 return p != null;
-            }, async (p) =>
+            },  (p) =>
             {
                 if (!Keyboard.IsKeyDown(Key.LeftCtrl) && !Keyboard.IsKeyDown(Key.RightCtrl))
                 {
@@ -2884,9 +2903,27 @@ namespace adrilight.ViewModel
 
                     }
 
-
-
-                    await Task.Run(() => GotoChild(p));
+                    CurrentDevice = p;
+                    AvailableOutputForSelectedDevice = new List<IOutputSettings>();
+                    foreach (var defaultOutput in DefaulOutputCollection.AvailableDefaultOutputs)
+                    {
+                        if (defaultOutput.TargetDevice == CurrentDevice.DeviceType)
+                        {
+                            AvailableOutputForSelectedDevice.Add(defaultOutput);
+                        }
+                    }
+                    if (CurrentDevice.IsSizeNeedUserDefine) // this device has default ledsetup so we need to tell user to select the led setup
+                    {
+                        System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                        {
+                            OpenLEDSteupSelectionWindows();
+                        });
+                    }
+                    else
+                    {
+                        GotoChild(p);
+                    }
+                    
                 }
                 else if (Keyboard.IsKeyDown(Key.LeftCtrl)) // device is selected with ctrl key, start multiple select
                 {
@@ -3702,7 +3739,14 @@ namespace adrilight.ViewModel
                 Register();
             }
         }
-
+        private void SetCurrentSelectedOutputForCurrentSelectedDevice()
+        {
+            // CurrentDevice.AvailableOutputs[0].IsInSpotEditWizard = true;
+            CurrentDevice.SetOutput(SelectedOutputForCurrentDevice, CurrentDevice.SelectedOutput);
+            CurrentDevice.IsSizeNeedUserDefine = false;
+           // CurrentDevice.AvailableOutputs[0].IsInSpotEditWizard = false;
+            GotoChild(CurrentDevice);
+        }
         private void ExportCurrentColorEffect()
         {
             SaveFileDialog Export = new SaveFileDialog();
@@ -6402,12 +6446,11 @@ namespace adrilight.ViewModel
 
         public void GotoChild(IDeviceSettings selectedDevice)
         {
-
+             CurrentDevice = selectedDevice;
             //SetMenuItemActiveStatus(lighting);
-
             SelectedVerticalMenuItem = MenuItems.FirstOrDefault(t => t.Text == lighting);
             IsDashboardType = false;
-            CurrentDevice = selectedDevice;
+           
 
             foreach (var output in CurrentDevice.AvailableOutputs)
             {
@@ -6529,13 +6572,8 @@ namespace adrilight.ViewModel
                         break;
                 }
             };
-            if (CurrentDevice.IsSizeNeedUserDefine) // this device has default ledsetup so we need to tell user to select the led setup
-            {
-                System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
-            {
-                OpenLEDSteupSelectionWindows();
-            });
-            }
+
+         
         }
 
         public void BackToDashboard()

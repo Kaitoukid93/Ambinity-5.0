@@ -130,6 +130,25 @@ namespace adrilight
 
 
         }
+        public void SetOutput(IOutputSettings output, int outputID)
+        {
+            AvailableOutputs[outputID].OutputIsLoadingProfile = true;
+
+            foreach (PropertyInfo property in AvailableOutputs[outputID].GetType().GetProperties())
+            {
+
+                if (Attribute.IsDefined(property, typeof(ReflectableAttribute)))
+                    property.SetValue(AvailableOutputs[outputID], property.GetValue(output, null), null);
+                AvailableOutputs[outputID].LEDPerLED = output.LEDPerLED;
+                AvailableOutputs[outputID].LEDPerSpot = output.LEDPerSpot;
+                AvailableOutputs[outputID].OutputNumLEDX = output.OutputNumLEDX;
+                AvailableOutputs[outputID].OutputNumLEDY = output.OutputNumLEDY;
+                AvailableOutputs[outputID].OutputNumLED = output.OutputNumLED;
+            }
+
+            AvailableOutputs[outputID].OutputIsLoadingProfile = false;
+
+        }
         public void ActivateProfile(IDeviceProfile profile)
         {
             ActivatedProfileUID = profile.ProfileUID;

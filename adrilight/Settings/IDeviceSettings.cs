@@ -48,6 +48,7 @@ namespace adrilight
         int DeviceSpeed { get; set; }
         string DeviceActualSpeed { get; set; }
         void ActivateProfile(IDeviceProfile profile);
+        void SetOutput(IOutputSettings output, int outputID);
         int SpeedMode { get; set; }
         bool IsLoadingSpeed { get; set; }
         string FwLocation { get; set; }

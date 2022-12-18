@@ -26,9 +26,22 @@ namespace adrilight.View
             InitializeComponent();
         }
 
-     
-      
-        
-     
+
+        private void Cancel_Button_Click(object sender, RoutedEventArgs e)
+        {
+
+            this.Close();
+        }
+        IOutputSettings SelectedOutput { get; set; }
+
+        private void Done_Button_Click(object sender, RoutedEventArgs e)
+        {
+            //SelectedOutput = (IOutputSettings)outputList.SelectedItem;
+            DialogResult = true;
+
+            // close this dialog
+            this.Close();
+          
+        }
     }
 }

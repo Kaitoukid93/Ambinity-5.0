@@ -12,7 +12,7 @@
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            
             
-           Height="350" 
+           Height="400" 
            Width="400" 
            WindowStartupLocation="CenterOwner" 
            Left="0" Top="0">
@@ -28,7 +28,107 @@
                 </ResourceDictionary>
 
             </ResourceDictionary.MergedDictionaries>
+            <DropShadowEffect x:Key="Item.SelectedActive.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}"/>
+            <DropShadowEffect x:Key="Item.MouseOver.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource DarkMaskBrush}}"/>
+            <Style x:Key="_ListBoxCardsCollectionStyle" TargetType="ListBoxItem">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBoxItem">
+                            <Border CornerRadius="7" Name="_Border"
+                                Padding="0"
+                                Margin="8"
+                                Background="{StaticResource RegionBrush}"   
+                                BorderBrush="Transparent"
+                                BorderThickness="2"
+                                SnapsToDevicePixels="true">
+                                <ContentPresenter />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                        <Condition Property="IsSelected" Value="True"/>
+                                    </MultiTrigger.Conditions>
 
+
+                                    <Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}"/>
+                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+                                </MultiTrigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                        <Condition Property="IsSelected" Value="True"/>
+                                    </MultiTrigger.Conditions>
+
+
+
+                                    <Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}"/>
+                                </MultiTrigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsMouseOver" Value="True"/>
+                                        <Condition Property="IsSelected" Value="False"/>
+                                    </MultiTrigger.Conditions>
+
+                                    <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
+
+                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+                                    <Setter Property="Effect" TargetName="_Border" Value="{StaticResource Item.MouseOver.Border.Shadow}"/>
+                                </MultiTrigger>
+
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <!--<Setter Property="ToolTip" Value="{Binding DocName}"/>-->
+                <Setter Property="Tag" Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
+                <Setter Property="ContextMenu">
+                    <Setter.Value>
+                        <ContextMenu >
+                            <MenuItem  Header="Set All Output" CommandParameter="{Binding .}" 
+                                          Command="{Binding PlacementTarget.Tag.SetActivePaletteAllOutputsCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                                          >
+                                <MenuItem.Icon>
+                                    <Path   Data="{StaticResource selected}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem  Header="Set All Device" CommandParameter="{Binding .}" 
+                                          Command="{Binding PlacementTarget.Tag.SetActivePaletteAllDevicesCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                                          >
+                                <MenuItem.Icon>
+                                    <Path   Data="{StaticResource setall}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem  Header="Edit"
+                                          Command="{Binding PlacementTarget.Tag.EditSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="overwrite"
+                                          >
+                                <MenuItem.Icon>
+                                    <Path   Data="{StaticResource edit}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem  Header="Share" CommandParameter="{Binding .}" 
+                                          Command="{Binding PlacementTarget.Tag.ExportCurrentSelectedPaletteToFileCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                                          >
+                                <MenuItem.Icon>
+                                    <Path   Data="{StaticResource export}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem  Header="Delete" CommandParameter="{Binding .}" 
+                                          Command="{Binding PlacementTarget.Tag.DeleteSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                                          >
+                                <MenuItem.Icon>
+                                    <Path   Data="{StaticResource delete}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
+
+                        </ContextMenu>
+
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="ContextMenuService.Placement" Value="Bottom">
+
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -43,13 +143,65 @@
 
             </TextBlock>
         </Grid>
-        <Grid Grid.Row="1"> <!-- LED Setup collection view-->
-            
+        <Grid Grid.Row="1">
+            <!-- LED Setup collection view-->
+
+            <hc:TransitioningContentControl >
+                <ListBox x:Name="outputList" Background="Transparent"  ScrollViewer.CanContentScroll="True"
+                                                  ScrollViewer.VerticalScrollBarVisibility="Auto" 
+                                                  ItemContainerStyle="{StaticResource _ListBoxCardsCollectionStyle}"      
+                                                  SelectedItem="{Binding SelectedOutputForCurrentDevice}"
+                                       
+                                                  Margin="0,10,0,10"
+                                                  BorderThickness="0"
+                                                  Style="{StaticResource WrapPanelHorizontalListBox}" 
+                                                  ItemsPanel="{StaticResource WrapPanelHorizontalItemsPanelTemplate}" 
+                                                  ItemsSource="{Binding AvailableOutputForSelectedDevice }">
+
+
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="data:CardModel">
+                            <hc:Card BorderBrush="Transparent" ToolTip="{Binding Description}" hc:BorderElement.CornerRadius="2"  MaxWidth="120"  Effect="{StaticResource EffectShadow2}"  Footer="{Binding OutputName}">
+                                <Border Margin="0,0,0,0" Background="Transparent" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                                    <Path Margin="10" Data="{Binding Geometry, Converter={converters:StaticResourceConverter}}" Width="72" Height="72" Fill="{StaticResource PrimaryBrush}" Stretch="Uniform" />
+                                </Border>
+
+                                <hc:Card.FooterTemplate>
+                                    <DataTemplate>
+
+                                        <TextBlock Margin="5" TextWrapping="NoWrap" TextTrimming="None" Style="{StaticResource TextBlockDefault}" Text="{Binding DataContext.OutputName,RelativeSource={RelativeSource AncestorType=hc:Card}}" HorizontalAlignment="Center"/>
+
+
+                                    </DataTemplate>
+                                </hc:Card.FooterTemplate>
+
+
+                            </hc:Card>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+
+                </ListBox>
+            </hc:TransitioningContentControl>
+
         </Grid>
         <Grid Grid.Row="2">
-            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Button Click="Done_Button_Click" Command="{Binding SetCurrentSelectedOutputForCurrentSelectedDeviceCommand}" Margin="10"  Grid.Column="2" Content="Done" CommandParameter="done">
+
+            </Button>
+
+
+            <Button Click="Cancel_Button_Click" Background="Transparent" Margin="10" Grid.Column="1" Content="Cancel">
+
+            </Button>
+
         </Grid>
-        
+
 
     </Grid>
 </hc:Window>

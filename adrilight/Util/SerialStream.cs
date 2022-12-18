@@ -112,7 +112,6 @@ namespace adrilight
                     RefreshTransferState();
                     break;
                 case nameof(DeviceSettings.IsUnionMode):
-
                     RefreshTransferState();
                     break;
             }

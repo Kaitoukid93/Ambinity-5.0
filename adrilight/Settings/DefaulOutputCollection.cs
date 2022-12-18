@@ -30,6 +30,7 @@ namespace adrilight.Settings
 
             var outputSettings = new OutputSettings { //24 inch led frame for Ambino Basic
                 OutputName = name,
+                TargetDevice = "ABBASIC",
                 Geometry = geometry,
                 OutputID = id,
                 OutputType = "Frame",
@@ -73,6 +74,7 @@ namespace adrilight.Settings
 
             var outputSettings = new OutputSettings { //24 inch led frame for Ambino Basic
                 OutputName = name,
+                TargetDevice = "ABEDGE",
                 Geometry = geometry,
                 OutputID = id,
                 OutputType = "Strip",

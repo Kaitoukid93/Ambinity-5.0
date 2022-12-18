@@ -23,6 +23,7 @@ namespace adrilight
         private int _outputNumLEDY;
         private bool _isVissible = true;
         private string _outputDescription;
+        private string _targetDevice;
     
 
         private string _outputUniqueID;
@@ -98,6 +99,8 @@ namespace adrilight
         public int VUOrientation { get => _vUOrientation; set { Set(() => VUOrientation, ref _vUOrientation, value); } }
         [Reflectable]
         public int OutputGifSpeed { get => _outputGifSpeed; set { Set(() => OutputGifSpeed, ref _outputGifSpeed, value); } }
+        [Reflectable]
+        public string TargetDevice { get => _targetDevice; set { Set(() => TargetDevice, ref _targetDevice, value); } }
         [Reflectable]
         public int VUMode { get => _vUMode; set { Set(() => VUMode, ref _vUMode, value); } }
         [Reflectable]
