@@ -26,11 +26,12 @@ namespace adrilight
         private Color _accentColor = Color.FromArgb(255, 138, 43, 226);
         private int _deviceDiscoveryMode = 0;
         private bool _openRGBAskAgain = true;
-
+        private bool _hwMonitorAskAgain = true;
         private int _themeIndex = 0;
         private bool _hotkeyEnable = true;
         private bool _driverRequested = true;
         private int _systemMusicSpeed = 3;
+        private bool _firmwareUpgradeIsInProgress = false;
 
         public int SelectedAudioDevice { get => _selectedAudioDevice; set { Set(() => SelectedAudioDevice, ref _selectedAudioDevice, value); } }
         public int DeviceDiscoveryMode { get => _deviceDiscoveryMode; set { Set(() => DeviceDiscoveryMode, ref _deviceDiscoveryMode, value); } }
@@ -41,8 +42,10 @@ namespace adrilight
         private int _limitFps = 100;
         public bool StartMinimized { get => _startMinimized; set { Set(() => StartMinimized, ref _startMinimized, value); } }
         public bool OpenRGBAskAgain { get => _openRGBAskAgain; set { Set(() => OpenRGBAskAgain, ref _openRGBAskAgain, value); } }
+        public bool HWMonitorAskAgain { get => _hwMonitorAskAgain; set { Set(() => HWMonitorAskAgain, ref _hwMonitorAskAgain, value); } }
         public bool HotkeyEnable { get => _hotkeyEnable; set { Set(() => HotkeyEnable, ref _hotkeyEnable, value); } }
         public bool Autostart { get => _autostart; set { Set(() => Autostart, ref _autostart, value); } }
+        public bool FrimwareUpgradeIsInProgress { get => _firmwareUpgradeIsInProgress; set { Set(() => FrimwareUpgradeIsInProgress, ref _firmwareUpgradeIsInProgress, value); } }
         public Color AccentColor { get => _accentColor; set { Set(() => AccentColor, ref _accentColor, value); } }
         public bool IsOpenRGBEnabled { get => _isOpenRGBEnabled; set { Set(() => IsOpenRGBEnabled, ref _isOpenRGBEnabled, value); } }
         public bool DriverRequested { get => _driverRequested; set { Set(() => DriverRequested, ref _driverRequested, value); } }

@@ -193,28 +193,25 @@
                         <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
-                                    <TextBlock FontWeight="SemiBold" Text="AUTO ADD WHEN NEW DEVICES DETECTED"/>
+                                    <TextBlock FontWeight="SemiBold" Text="TỰ ĐỘNG DÒ TÌM THIẾT BỊ MỚI"/>
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
                             <Grid  HorizontalAlignment="Right" Margin="0,0,10,0">
 
-                                <ComboBox ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch"   SelectedIndex="{Binding GeneralSettings.DeviceDiscoveryMode}"   Style="{StaticResource ComboBoxBaseStyle}">
+                                <ComboBox Width="100"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch"   SelectedIndex="{Binding GeneralSettings.DeviceDiscoveryMode}"   Style="{StaticResource ComboBoxBaseStyle}">
                                     <ComboBoxItem>
-                                        Always
+                                        Luôn luôn
                                     </ComboBoxItem>
                                     <ComboBoxItem>
-                                        Ask
-                                    </ComboBoxItem>
-                                    <ComboBoxItem>
-                                        Never
+                                        Không bao giờ
                                     </ComboBoxItem>
                                 </ComboBox>
                             </Grid>
 
 
                         </GroupBox>
-                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Gửi thông báo đến hệ thống khi có thay đổi"/>
+                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Chọn &quot;Không bao giờ&quot; nếu bạn muốn bật tắt cổng COM tùy ý"/>
                     </Grid>
                     <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 

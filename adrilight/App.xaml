@@ -32,7 +32,7 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsHighlighted" Value="True">
-                                    <Setter Property="Background"  Value="{StaticResource SecondaryRegionBrush}"/>
+                                    <Setter Property="Background"  Value="{DynamicResource SecondaryRegionBrush}"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -191,7 +191,7 @@
                                         <Condition Property="IsSelected" Value="False"/>
                                     </MultiTrigger.Conditions>
 
-                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource DarkMaskBrush}"/>
+                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource DarkMaskBrush}"/>
 
                                     <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
 
@@ -204,7 +204,7 @@
                 <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
                 <Style.Triggers>
                     <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}" />
+                        <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" />
                     </Trigger>
                 </Style.Triggers>
 
@@ -231,7 +231,7 @@
 
 
                                     <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}"/>-->
-                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource PrimaryBrush}"/>
+                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource PrimaryBrush}"/>
 
 
 
@@ -244,7 +244,7 @@
                                     </MultiTrigger.Conditions>
 
 
-                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource DarkMaskBrush}"/>
+                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource DarkMaskBrush}"/>
                                     <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
                                 </MultiTrigger>
                                 <MultiTrigger>
@@ -253,7 +253,7 @@
                                         <Condition Property="IsSelected" Value="False"/>
                                     </MultiTrigger.Conditions>
 
-                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource SecondaryRegionBrush}"/>
+                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource SecondaryRegionBrush}"/>
 
                                     <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
 

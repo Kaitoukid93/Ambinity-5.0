@@ -19,6 +19,7 @@ using LiveCharts;
 using LiveCharts.Defaults;
 using LiveCharts.Wpf;
 using System.Windows;
+using adrilight.View;
 
 namespace adrilight.Util
 {
@@ -153,23 +154,105 @@ namespace adrilight.Util
                                 fanSpeedSensors.Add(sensor);
                             }
                         }
-
+                     
+                        
                     }
                     else
                     {
-                        HandyControl.Controls.MessageBox.Show("Không đọc được thông tin Fan Controller , thử khởi chạy lại ứng dụng với quyền Admin", "Fan Controller not found", MessageBoxButton.OK, MessageBoxImage.Error);
+                        if (GeneralSettings.HWMonitorAskAgain)
+                        {
+                            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                            {
+                                var dialog = new CommonInfoDialog();
+                                //dialog.header.Text = "OpenRGB is disabled"
+                                dialog.question.Text = "Không đọc được thông tin Fan Controller , thử khởi chạy lại ứng dụng với quyền Admin";
+                                bool? result = dialog.ShowDialog();
+                                if (result == true)
+                                {
+                                    // Enable OpenRGB
+                                    GeneralSettings.IsOpenRGBEnabled = true;
+
+
+
+                                }
+                                if (dialog.askagaincheckbox.IsChecked == true)
+                                {
+                                    GeneralSettings.HWMonitorAskAgain = false;
+                                }
+                                else
+                                {
+                                    GeneralSettings.HWMonitorAskAgain = true;
+                                }
+
+                            });
+                        }
+
                     }
                 }
                 else
                 {
                     //there is no fking mainboard here, could be LHM's fault or some shit happened
                     // just tell ya
-                    HandyControl.Controls.MessageBox.Show("Không đọc được thông tin Motherboard , thử khởi chạy lại ứng dụng với quyền Admin", "Motherboard not found", MessageBoxButton.OK, MessageBoxImage.Error);
+                    if (GeneralSettings.HWMonitorAskAgain)
+                    {
+                        System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                        {
+                            var dialog = new CommonInfoDialog();
+                            //dialog.header.Text = "OpenRGB is disabled"
+                            dialog.question.Text = "Không đọc được thông tin Motherboard , thử khởi chạy lại ứng dụng với quyền Admin";
+                            bool? result = dialog.ShowDialog();
+                            if (result == true)
+                            {
+                                // Enable OpenRGB
+                                GeneralSettings.IsOpenRGBEnabled = true;
+
+
+
+                            }
+                            if (dialog.askagaincheckbox.IsChecked == true)
+                            {
+                                GeneralSettings.HWMonitorAskAgain = false;
+                            }
+                            else
+                            {
+                                GeneralSettings.HWMonitorAskAgain = true;
+                            }
+
+                        });
+                    }
+                    
                 }
 
                 if (fanControlSensors.Count <= 0)
                 {
-                    HandyControl.Controls.MessageBox.Show("Fan sẽ chạy với tốc độ mặc định hoặc điều chỉnh bằng tay", "Fan Controller sensor not found", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    if (GeneralSettings.HWMonitorAskAgain)
+                    {
+                        System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                        {
+                            var dialog = new CommonInfoDialog();
+                            //dialog.header.Text = "OpenRGB is disabled"
+                            dialog.question.Text = "Fan sẽ chạy với tốc độ mặc định hoặc điều chỉnh bằng tay";
+                            bool? result = dialog.ShowDialog();
+                            if (result == true)
+                            {
+                                // Enable OpenRGB
+                                GeneralSettings.IsOpenRGBEnabled = true;
+
+
+
+                            }
+                            if (dialog.askagaincheckbox.IsChecked == true)
+                            {
+                                GeneralSettings.HWMonitorAskAgain = false;
+                            }
+                            else
+                            {
+                                GeneralSettings.HWMonitorAskAgain = true;
+                            }
+
+                        });
+                    }
+                   
                     foreach (var device in AvailableDevices.Where(x => x.DeviceType == "ABFANHUB"))
                     {
 

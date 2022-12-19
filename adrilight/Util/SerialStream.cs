@@ -74,7 +74,7 @@ namespace adrilight
 
                     // BlockedComport.Add(serialport);
                     _log.Debug("Serial Port " + serialport + " access denied, added to Blacklist");
-                    HandyControl.Controls.MessageBox.Show("Serial Port " + serialport + " is in use or unavailable, Please chose another COM Port", "Serial Port", MessageBoxButton.OK, MessageBoxImage.Error);
+                   // HandyControl.Controls.MessageBox.Show("Serial Port " + serialport + " is in use or unavailable, Please chose another COM Port", "Serial Port", MessageBoxButton.OK, MessageBoxImage.Error);
                     available = false;
 
                     //_log.Debug(ex, "Exception catched.");

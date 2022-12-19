@@ -42,7 +42,11 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
-                <ComboBox hc:InfoElement.TitleWidth="120" Margin="15" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="ACTION"  hc:InfoElement.Placeholder="Select Action" SelectedItem="{Binding SelectedActionType}" ItemsSource="{Binding AvailableActionsforCurrentDevice}" Style="{StaticResource ComboBoxExtend}"/>
+                <Grid>
+                    <ItemsControl ItemsSource="{Binding AvailableActionsforCurrentDevice}" Height="0" Margin="15,0"/>
+                    <ComboBox hc:InfoElement.TitleWidth="120" Margin="15" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="ACTION"  hc:InfoElement.Placeholder="Select Action" SelectedItem="{Binding SelectedActionType}" ItemsSource="{Binding AvailableActionsforCurrentDevice}" Style="{StaticResource ComboBoxExtend}"/>
+                </Grid>
+               
                 <Grid Grid.Row="1">
                     <Grid x:Name="Mode">
                         <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{StaticResource GroupBoxOriginal}">

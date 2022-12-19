@@ -267,6 +267,7 @@
     <Compile Include="ViewModel\UserIncreamentInputViewModel.cs" />
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
+    <Compile Include="View\CommonInfoDialog.xaml.cs" />
     <Compile Include="View\CommonAskingDialog.xaml.cs" />
     <Compile Include="View\LEDSetupSelectionWindows.xaml.cs" />
     <Compile Include="View\PasswordDialog.xaml.cs" />
@@ -339,6 +340,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Properties\DesignTimeResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\CommonInfoDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -665,6 +670,9 @@
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <EmbeddedResource Include="DeviceFirmware\AFR3g.hex">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <None Include="NLog.xsd">
       <SubType>Designer</SubType>
     </None>

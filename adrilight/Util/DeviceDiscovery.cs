@@ -63,7 +63,7 @@ namespace adrilight
         private IAmbinityClient AmbinityClient { get; }
         private async Task StartDiscovery()
         {
-            while (enable)
+            while (!Settings.FrimwareUpgradeIsInProgress)
             {
                 try
                 {

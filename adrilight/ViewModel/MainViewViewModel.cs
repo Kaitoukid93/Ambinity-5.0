@@ -4107,7 +4107,7 @@ namespace adrilight.ViewModel
             // get the file path
             // upload with CMD.exe
             //disable DeviceDiscovery first
-
+            GeneralSettings.FrimwareUpgradeIsInProgress = true;
             if (device.DeviceType == "ABHUBV2")
             {
                 MessageBoxResult result = HandyControl.Controls.MessageBox.Show("HUBV2 cần sử dụng FlyMCU để nạp firmware, nhấn [OK] để vào chế độ DFU", "External Software Required", MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -4230,6 +4230,7 @@ namespace adrilight.ViewModel
                         else
                         {
                             HandyControl.Controls.MessageBox.Show("Không có phiên bản mới cho thiết bị này", "Firmware uploading", MessageBoxButton.OK, MessageBoxImage.Information);
+                            GeneralSettings.FrimwareUpgradeIsInProgress = false;
                         }
                     }
                 }
@@ -4269,6 +4270,7 @@ namespace adrilight.ViewModel
 
                 HandyControl.Controls.MessageBox.Show("Update firmware thành công - Phiên bản : " + CurrentDevice.FirmwareVersion, "Firmware uploading", MessageBoxButton.OK, MessageBoxImage.Information);
                 ReloadDeviceLoadingVissible = false;
+                GeneralSettings.FrimwareUpgradeIsInProgress = false;
             }
         }
 
@@ -5288,6 +5290,14 @@ namespace adrilight.ViewModel
                 Geometry = "binary",
                 ResourceName = "adrilight.DeviceFirmware.AFR2g.hex"
             };
+            IDeviceFirmware AFR3g = new DeviceFirmware() {
+                Name = "AFR2g.hex",
+                Version = "1.0.6",
+                TargetHardware = "AFR3g",
+                TargetDeviceType = "ABFANHUB",
+                Geometry = "binary",
+                ResourceName = "adrilight.DeviceFirmware.AFR3g.hex"
+            };
             IDeviceFirmware AHR1g = new DeviceFirmware() {
                 Name = "AHR1g.hex",
                 Version = "1.0.1",
@@ -5315,6 +5325,7 @@ namespace adrilight.ViewModel
             firmwareList.Add(AHR1g);
             firmwareList.Add(ARR1p);
             firmwareList.Add(AFR2g);
+            firmwareList.Add(AFR3g);
             //+-------------------------------------------------+--------+----+----+-------+
             //| Ambino Basic CH552P without PowerLED Support    | CH552P | 32 | 14 | ABR1p |
             //+-------------------------------------------------+--------+----+----+-------+

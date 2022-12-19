@@ -19,7 +19,8 @@ namespace adrilight
         bool IsInBetaChanel { get; set; }
         int DeviceDiscoveryMode { get; set; }
         bool OpenRGBAskAgain { get; set; }
-
+        bool HWMonitorAskAgain { get; set; }
+        bool FrimwareUpgradeIsInProgress { get; set; }
 
         bool IsOpenRGBEnabled { get; set; }
         bool IsProfileLoading { get; set; }
