@@ -75,7 +75,6 @@ namespace adrilight
             ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
             ThemeManager.Current.AccentColor = Brushes.BlueViolet;
             _splashScreen = new View.SplashScreen();
-            _splashScreen.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             _splashScreen.WindowState = WindowState.Minimized;
            
             _splashScreen.Show();

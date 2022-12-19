@@ -137,7 +137,7 @@ namespace adrilight
                 else
                 {
                     DeviceSettings.IsTransferActive = false;
-                    DeviceSettings.OutputPort = null;
+                   // DeviceSettings.OutputPort = null;
                 }
             }
 

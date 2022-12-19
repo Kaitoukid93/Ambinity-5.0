@@ -18,6 +18,7 @@ namespace adrilight
         bool OpenRGBConfigRequested { get; set; }
         bool IsInBetaChanel { get; set; }
         int DeviceDiscoveryMode { get; set; }
+        bool OpenRGBAskAgain { get; set; }
 
 
         bool IsOpenRGBEnabled { get; set; }

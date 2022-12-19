@@ -8,9 +8,8 @@
            xmlns:lottie="clr-namespace:LottieSharp;assembly=LottieSharp"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           
            Background="{StaticResource RegionBrush}"
-     
+           WindowStartupLocation="CenterScreen"
            Height="500" 
            Width="600">
 

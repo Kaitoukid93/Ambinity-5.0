@@ -32,7 +32,7 @@ namespace adrilight
             StartThread();
 
         }
-        private static View.SplashScreen _splashScreen;
+        
         public void StartThread()
         {
             //if (App.IsPrivateBuild) return;

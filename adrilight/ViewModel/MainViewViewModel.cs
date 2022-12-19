@@ -1593,7 +1593,14 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-
+        private string _commonDialogQuestion;
+        public string CommonDialogQuestion {
+            get { return _commonDialogQuestion; }
+            set
+            {
+                _commonDialogQuestion = value;
+            }
+        }
 
 
         private int _count = 0;

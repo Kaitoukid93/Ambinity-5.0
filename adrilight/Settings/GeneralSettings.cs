@@ -25,6 +25,7 @@ namespace adrilight
         private int _selectedAudioDevice = 0;
         private Color _accentColor = Color.FromArgb(255, 138, 43, 226);
         private int _deviceDiscoveryMode = 0;
+        private bool _openRGBAskAgain = true;
 
         private int _themeIndex = 0;
         private bool _hotkeyEnable = true;
@@ -39,6 +40,7 @@ namespace adrilight
         public int SystemMusicMaxTick { get => _systemMusicMaxTick; set { Set(() => SystemMusicMaxTick, ref _systemMusicMaxTick, value); } }
         private int _limitFps = 100;
         public bool StartMinimized { get => _startMinimized; set { Set(() => StartMinimized, ref _startMinimized, value); } }
+        public bool OpenRGBAskAgain { get => _openRGBAskAgain; set { Set(() => OpenRGBAskAgain, ref _openRGBAskAgain, value); } }
         public bool HotkeyEnable { get => _hotkeyEnable; set { Set(() => HotkeyEnable, ref _hotkeyEnable, value); } }
         public bool Autostart { get => _autostart; set { Set(() => Autostart, ref _autostart, value); } }
         public Color AccentColor { get => _accentColor; set { Set(() => AccentColor, ref _accentColor, value); } }
