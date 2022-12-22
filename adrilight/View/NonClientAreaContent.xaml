@@ -27,8 +27,8 @@
    
     <Button Grid.Column="1" Click="ButtonConfig_OnClick" Name="ButtonConfig" Style="{StaticResource ButtonIcon}" hc:IconElement.Geometry="{StaticResource ConfigGeometry}"/>
     <Popup AllowsTransparency="True"   PlacementTarget="{Binding ElementName=ButtonConfig}" HorizontalOffset="0" Name="PopupConfig" VerticalOffset="2" StaysOpen="False">
-        <hc:TransitioningContentControl BorderBrush="{StaticResource BorderBrush}" TransitionMode="Top2Bottom">
-            <Border BorderThickness="2" BorderBrush="{StaticResource BorderBrush}" Background="{StaticResource RegionBrush}" CornerRadius="7" Margin="0,2,15,15">
+        <hc:TransitioningContentControl BorderBrush="Transparent" BorderThickness="0" TransitionMode="Top2Bottom">
+            <Border BorderThickness="1" Effect="{DynamicResource EffectShadow3}" BorderBrush="{DynamicResource DarkMaskBrush}" Background="{StaticResource RegionBrush}" CornerRadius="7" Margin="15,0,15,15">
                 <StackPanel Orientation="Vertical">
                     <Button  HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding OpenAppSettingsWindowCommand}" hc:IconElement.Geometry="{StaticResource appsettings}" BorderBrush="Transparent" Margin="5"   Content="App Settings" Style="{StaticResource ButtonDefault}"/>
 

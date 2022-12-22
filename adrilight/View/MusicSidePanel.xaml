@@ -128,8 +128,8 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <Grid>
             <Grid.ColumnDefinitions>
@@ -137,17 +137,17 @@
                 <ColumnDefinition Width="*"/>
 
             </Grid.ColumnDefinitions>
-            <StackPanel Margin="5,0,0,0" Orientation="Horizontal">
-                <!--<Path Margin="5" Data="{StaticResource music}" 
+            <StackPanel Margin="5" Orientation="Horizontal">
+                <!--<Path Margin="5" Data="{StaticResource colorpalette}" 
           Width="30" 
           Height="30" 
           Fill="White"
           Stretch="Uniform" />-->
-                <!--<TextBlock  Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" Text="Music Reactive" Style="{StaticResource TextBlockTitleBold}"/>-->
+                <!--<TextBlock  Margin="5" HorizontalAlignment="Left" Text="Color Palette" Style="{StaticResource TextBlockTitleBold}"/>-->
             </StackPanel>
 
 
-           
+
 
 
         </Grid>
@@ -182,12 +182,12 @@
                     <ColumnDefinition/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Button  Content="Add New" Click="ButtonAdd_OnClick" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"  Style="{StaticResource ButtonDefault}"   Width="100" Padding="0,0" Margin="0,15,15,0" HorizontalAlignment="Right" hc:IconElement.Width="20" hc:IconElement.Height="20"  hc:IconElement.Geometry="{StaticResource addnew}">
+                <Button  Content="Add New" Click="ButtonAdd_OnClick"  Style="{StaticResource ButtonDefault}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Width="100" Padding="0,0" Margin="0,0,15,0" HorizontalAlignment="Right" hc:IconElement.Width="20" hc:IconElement.Height="20"  hc:IconElement.Geometry="{StaticResource addnew}">
 
                 </Button>
                 <Popup AllowsTransparency="True" HorizontalOffset="0" Name="PopupAdd" VerticalOffset="2" StaysOpen="False">
                     <hc:TransitioningContentControl TransitionMode="Top2Bottom">
-                        <Border Background="{StaticResource RegionBrush}" CornerRadius="7" BorderThickness="2" BorderBrush="{StaticResource BorderBrush}" Margin="0,2,15,15"  >
+                        <Border Effect="{DynamicResource EffectShadow3}" Background="{StaticResource RegionBrush}" CornerRadius="7" BorderThickness="1" BorderBrush="{StaticResource DarkMaskBrush}" Margin="15,0,15,15"  >
                             <StackPanel Orientation="Vertical">
                                 <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding ImportPaletteCardFromFileCommand}" hc:IconElement.Geometry="{StaticResource fromfile}" BorderBrush="Transparent" Margin="5"   Content="From File" Style="{StaticResource ButtonDefault}"/>
 

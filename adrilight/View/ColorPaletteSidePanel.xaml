@@ -175,8 +175,8 @@
 
                     </Button>
                     <Popup AllowsTransparency="True"   HorizontalOffset="0" Name="PopupAdd" VerticalOffset="2" StaysOpen="False">
-                        <hc:TransitioningContentControl  TransitionMode="Top2Bottom">
-                            <Border Background="{StaticResource RegionBrush}" CornerRadius="7" Margin="0,2,15,15" BorderThickness="2"  BorderBrush="{StaticResource BorderBrush}">
+                        <hc:TransitioningContentControl BorderBrush="Transparent"  TransitionMode="Top2Bottom">
+                            <Border Background="{StaticResource RegionBrush}" Effect="{DynamicResource EffectShadow3}" BorderBrush="{DynamicResource DarkMaskBrush}" BorderThickness="1" CornerRadius="7" Margin="15,0,15,15" >
                                 <StackPanel Orientation="Vertical">
                                     <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding ImportPaletteCardFromFileCommand}" hc:IconElement.Geometry="{StaticResource fromfile}" BorderBrush="Transparent" Margin="5"   Content="From File" Style="{StaticResource ButtonDefault}"/>
 

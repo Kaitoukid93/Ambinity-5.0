@@ -9,6 +9,8 @@ namespace adrilight
          ObservableCollection<IDeviceSettings> AvailableOpenRGBDevices { get; set; }
          ObservableCollection<IDeviceSettings> AvailableWLEDDevices { get; set; }
          ObservableCollection<IDeviceSettings> AvailableSerialDevices { get; set; }
+         bool enable { get; set; }
+        void Stop();
         void StartThread();
     }
 

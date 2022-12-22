@@ -210,6 +210,7 @@ namespace adrilight.Util
                             newDevice.DeviceConnectionType = "wired";
                             newDevice.OutputPort = device;
                             newDevice.IsSizeNeedUserDefine = true;
+                            newDevice.AvailableOutputs[0].OutputSelectedMode = 0;
 
                             break;
                         case "Ambino EDGE":// General Ambino Basic USB Device

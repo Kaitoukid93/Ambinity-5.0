@@ -10,8 +10,9 @@
            mc:Ignorable="d"
            Background="{StaticResource RegionBrush}"
            WindowStartupLocation="CenterScreen"
-           Height="500" 
-           Width="600">
+           ResizeMode="NoResize"
+           Height="400" 
+           Width="400">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -31,25 +32,26 @@
     <Grid Margin="10,0,10,10">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
       
         <Grid Grid.Row="1">
-            <lottie:LottieAnimationView x:Name="dmd"
-    Width="400"
-    Height="300"
-    FrameRate="30"
-    HorizontalAlignment="Center"
-    VerticalAlignment="Center"
-    AutoPlay="True"
-    FileName=".\Animation\splashLoading.json"
-    RepeatCount="-1" />
+
+            <Path HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10" Data="{StaticResource appicon}" Width="100" Height="100" Fill="{StaticResource PrimaryBrush}" Stretch="Uniform" />
         </Grid>
 
 
         <Grid Grid.Row="2">
-            <TextBlock Style="{StaticResource TextBlockTitle}" x:Name="status" Text="loading status display here"/>
+            <StackPanel>
+                <TextBlock Margin="5" Style="{StaticResource TextBlockTitle}" x:Name="Header"/>
+                <TextBlock Style="{StaticResource TextBlockDefault}" x:Name="status"/>
+                <hc:LoadingLine Margin="0,30,0,15" Height="20">
+
+                </hc:LoadingLine>
+
+            </StackPanel>
+         
         </Grid>
 
 

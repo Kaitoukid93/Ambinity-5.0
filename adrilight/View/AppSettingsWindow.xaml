@@ -139,26 +139,27 @@
                     <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                     </hc:Divider>
-                    <Grid Name="Notification">
+                    <Grid Name="Update">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
-                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="UPDATE" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
-                                    <TextBlock FontWeight="SemiBold" Text="NOTIFICATION"/>
+                                    <TextBlock FontWeight="SemiBold" Text="UPDATE"/>
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
-                            <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding GeneralSettings.NotificationEnabled}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
+                            <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding GeneralSettings.UpdaterAskAgain}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
 
                             </ToggleButton>
 
 
                         </GroupBox>
-                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Gửi thông báo đến hệ thống khi có thay đổi"/>
+                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Tự động tìm bản cập nhật mỗi ngày hoặc mỗi lần mở app"/>
                     </Grid>
+                    
                     <!--<hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                     </hc:Divider>
@@ -190,16 +191,16 @@
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
-                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="200" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold" Text="TỰ ĐỘNG DÒ TÌM THIẾT BỊ MỚI"/>
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
-                            <Grid  HorizontalAlignment="Right" Margin="0,0,10,0">
+                            <Grid  HorizontalAlignment="Right" >
 
-                                <ComboBox Width="100"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch"   SelectedIndex="{Binding GeneralSettings.DeviceDiscoveryMode}"   Style="{StaticResource ComboBoxBaseStyle}">
+                                <ComboBox Width="110" Margin="0,0,5,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Right"   SelectedIndex="{Binding GeneralSettings.DeviceDiscoveryMode}"   Style="{StaticResource ComboBoxBaseStyle}">
                                     <ComboBoxItem>
                                         Luôn luôn
                                     </ComboBoxItem>

@@ -13,6 +13,7 @@ using MoreLinq;
 using Newtonsoft.Json;
 using NonInvasiveKeyboardHookLibrary;
 using OpenRGB.NET.Models;
+using Squirrel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -37,6 +38,7 @@ using ColorPalette = adrilight.Util.ColorPalette;
 using NotifyIcon = HandyControl.Controls.NotifyIcon;
 using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
 using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
+using SplashScreen = adrilight.View.SplashScreen;
 
 namespace adrilight.ViewModel
 {
@@ -57,6 +59,7 @@ namespace adrilight.ViewModel
         private string JsonGroupFileNameAndPath => Path.Combine(JsonPath, "adrilight-groupInfos.json");
         private string JsonPaletteFileNameAndPath => Path.Combine(JsonPath, "adrilight-PaletteCollection.json");
         private string JsonGradientFileNameAndPath => Path.Combine(JsonPath, "adrilight-GradientCollection.json");
+        private const string ADRILIGHT_RELEASES = "https://github.com/Kaitoukid93/Ambinity_Developer_Release";
 
         #region constant string
 
@@ -565,9 +568,11 @@ namespace adrilight.ViewModel
         }
 
         public ICommand ExportCurrentColorEffectCommand { get; set; }
+        public ICommand UpdateAppCommand { get; set; }
         public ICommand OpenLEDSteupSelectionWindowsCommand { get; set; }
         public ICommand SetCurrentSelectedOutputForCurrentSelectedDeviceCommand { get; set; }
         public ICommand OpenFanSpeedPlotWindowsCommand { get; set; }
+        public ICommand OpenAvailableUpdateListWindowCommand { get; set; }
         public ICommand OpenExportNewColorEffectCommand { get; set; }
         public ICommand ResetAppCommand { get; set; }
         public ICommand ResetDefaultAspectRatioCommand { get; set; }
@@ -627,6 +632,7 @@ namespace adrilight.ViewModel
         public ICommand ExportCurrentProfileCommand { get; set; }
         public ICommand ImportProfileCommand { get; set; }
         public ICommand SaveCurrentProfileCommand { get; set; }
+        public ICommand DeleteAttachedProfileCommand { get; set; }
         public ICommand SaveCurrentSelectedActionCommand { get; set; }
         public ICommand CreateNewProfileCommand { get; set; }
         public ICommand OpenProfileCreateCommand { get; set; }
@@ -2537,6 +2543,14 @@ namespace adrilight.ViewModel
                 SaveCurrentProfile(CurrentDevice.ActivatedProfileUID);
             }
             );
+            DeleteAttachedProfileCommand = new RelayCommand<IDeviceProfile>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                DeleteAttachedProfile(p);
+            }
+          );
             SaveCurrentSelectedActionCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -2553,12 +2567,12 @@ namespace adrilight.ViewModel
                 SaveCurrentSelectedAutomation();
             }
            );
-            ExportCurrentProfileCommand = new RelayCommand<string>((p) =>
+            ExportCurrentProfileCommand = new RelayCommand<IDeviceProfile>((p) =>
             {
                 return true;
             }, (p) =>
             {
-                ExportCurrentProfile();
+                ExportCurrentProfile(p);
             }
           );
 
@@ -2570,6 +2584,16 @@ namespace adrilight.ViewModel
                 ExportCurrentColorEffect();
             }
           );
+
+
+            UpdateAppCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, async (p) =>
+            {
+                await UpdateApp();
+            }
+    );
 
             OpenLEDSteupSelectionWindowsCommand = new RelayCommand<string>((p) =>
             {
@@ -2601,6 +2625,15 @@ namespace adrilight.ViewModel
             }, (p) =>
             {
                 OpenFanSpeedPlotWindows();
+            }
+          );
+            OpenAvailableUpdateListWindowCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, async (p) =>
+            {
+                await CheckForUpdate();
+                OpenAvailableUpdateListWindow();
             }
           );
             ImportProfileCommand = new RelayCommand<string>((p) =>
@@ -3701,7 +3734,94 @@ namespace adrilight.ViewModel
             //Growl.Success("Profile saved successfully!");
             IsSettingsUnsaved = BadgeStatus.Dot;
         }
+        public void DeleteAttachedProfile(IDeviceProfile profile)
+        {
+            //check if profile is in used
+            if (profile.ProfileUID == CurrentDevice.ActivatedProfileUID)
+            {
+                HandyControl.Controls.MessageBox.Show(profile.Name + " Không thể xóa, profile này đang được sử dụng!!!", "Profile is in used", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            else
+            {
+                AvailableProfilesForCurrentDevice.Remove(profile);
+                AvailableProfiles.Remove(profile);
 
+                WriteDeviceProfileCollection();
+            }
+        
+        }
+
+        private UpdateInfo _availableUpdates;
+            public UpdateInfo AvailableUpdates {
+            get { return _availableUpdates; }
+            set
+            {
+                _availableUpdates = value;
+                RaisePropertyChanged();
+            }
+        }
+     
+        private Task<UpdateManager> mgr;
+        private SplashScreen _splashScreen;
+        private async Task CheckForUpdate()
+        {
+            
+                try
+                {
+                    mgr = UpdateManager.GitHubUpdateManager(ADRILIGHT_RELEASES);
+                    using (var result = await mgr)
+                    {
+                    AvailableUpdates = await mgr.Result.CheckForUpdate();
+                    RaisePropertyChanged(nameof(AvailableUpdates));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    //_log.Error(ex, $"error when update checking: {ex.GetType().FullName}: {ex.Message}");
+                }
+
+                //check once a day for updates
+               
+            
+        }
+        private async Task UpdateApp()
+        {
+          
+                await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                {
+                    _splashScreen = new View.SplashScreen();
+                    _splashScreen.Header.Text = "Downloading Update";
+                    _splashScreen.status.Text = "UPDATING...";
+                    _splashScreen.Show();
+
+                });
+
+
+                // this.logger.Info("Downloading updates");
+                var releaseEntry = await mgr.Result.UpdateApp();
+
+                if (releaseEntry != null)
+                {
+
+                    //restart adrilight if an update was installed
+                    //dispose locked WinRing0 file first
+                    //if (HWMonitor != null)
+                    //    HWMonitor.Dispose();
+                    if (AmbinityClient != null)
+                        AmbinityClient.Dispose();
+                    //remember to dispose openrgbstream too!!!
+                    await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                    {
+                        _splashScreen.status.Text = "RESTARTING...";
+                    });
+                    UpdateManager.RestartApp();
+                }
+                //this.logger.Info($"Download complete. Version {updateResult.Version} will take effect when App is restarted.");
+            
+           
+
+        }
         private void SaveCurrentSelectedAction()
         {
             CurrentSelectedAction.ActionType = SelectedActionType.ToString();
@@ -3798,14 +3918,14 @@ namespace adrilight.ViewModel
             }
         }
 
-        private void ExportCurrentProfile()
+        private void ExportCurrentProfile(IDeviceProfile profile)
         {
             SaveFileDialog Export = new SaveFileDialog();
             Export.CreatePrompt = true;
             Export.OverwritePrompt = true;
 
             Export.Title = "Xuất dữ liệu";
-            Export.FileName = CurrentDevice.DeviceName + " Profile";
+            Export.FileName = profile.Name;
             Export.CheckFileExists = false;
             Export.CheckPathExists = true;
             Export.DefaultExt = "Pro";
@@ -3814,14 +3934,14 @@ namespace adrilight.ViewModel
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             Export.RestoreDirectory = true;
 
-            var ledsetupjson = JsonConvert.SerializeObject(CurrentSelectedProfile, new JsonSerializerSettings() {
+            var profilejson = JsonConvert.SerializeObject(profile, new JsonSerializerSettings() {
                 TypeNameHandling = TypeNameHandling.Auto
             });
 
             if (Export.ShowDialog() == DialogResult.OK)
             {
                 Directory.CreateDirectory(JsonPath);
-                File.WriteAllText(Export.FileName, ledsetupjson);
+                File.WriteAllText(Export.FileName, profilejson);
                 Growl.Success("Profile exported successfully!");
             }
         }
@@ -4774,7 +4894,7 @@ namespace adrilight.ViewModel
             Export.FileName = palette.Name + " Color Palette";
             Export.CheckFileExists = false;
             Export.CheckPathExists = true;
-            Export.DefaultExt = "col";
+            Export.DefaultExt = "txt";
             Export.Filter = "All files (*.*)|*.*";
             Export.InitialDirectory =
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -5086,6 +5206,14 @@ namespace adrilight.ViewModel
         public void OpenFanSpeedPlotWindows()
         {
             if (AssemblyHelper.CreateInternalInstance($"View.{"FanSpeedPlotWindow"}") is System.Windows.Window window)
+            {
+                window.Owner = System.Windows.Application.Current.MainWindow;
+                window.ShowDialog();
+            }
+        }
+        public void OpenAvailableUpdateListWindow()
+        {
+            if (AssemblyHelper.CreateInternalInstance($"View.{"UpdateSelectionWindow"}") is System.Windows.Window window)
             {
                 window.Owner = System.Windows.Application.Current.MainWindow;
                 window.ShowDialog();
@@ -6348,7 +6476,7 @@ namespace adrilight.ViewModel
             Import.CheckFileExists = true;
             Import.CheckPathExists = true;
             Import.DefaultExt = "col";
-            Import.Filter = "Text files (*.col)|*.col";
+            Import.Filter = "Text files (*.col)|*.col|All files (*.*)|*.*";
             Import.FilterIndex = 2;
 
             Import.ShowDialog();

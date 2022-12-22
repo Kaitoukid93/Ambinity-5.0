@@ -1,4 +1,5 @@
 ﻿using adrilight.Resources;
+using adrilight.View;
 using Newtonsoft.Json;
 using NLog;
 using Semver;
@@ -20,7 +21,7 @@ namespace adrilight.Util
         private readonly ILogger _log = LogManager.GetCurrentClassLogger();
         private const string ADRILIGHT_RELEASES = "https://github.com/Kaitoukid93/Ambinity_Developer_Release";
 
-        public AdrilightUpdater(IGeneralSettings settings,IAmbinityClient ambinityClient, IContext context, IHWMonitor hWmonitor)
+        public AdrilightUpdater(IGeneralSettings settings, IAmbinityClient ambinityClient, IContext context, IHWMonitor hWmonitor)
         {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
             Context = context ?? throw new ArgumentNullException(nameof(context));
@@ -49,7 +50,7 @@ namespace adrilight.Util
 
         private async Task StartSquirrel()
         {
-            while (true)
+            while (Settings.UpdaterAskAgain)
             {
                 try
                 {
@@ -69,27 +70,30 @@ namespace adrilight.Util
                                                               AppendLine("If you choose to update, changes wont take affect until App is restarted.").
                                                               AppendLine("Would you like to download and install them?").
                                                               ToString();
-
-                            var userAction = HandyControl.Controls.MessageBox.Show(message, "New Update detected", MessageBoxButton.YesNo, MessageBoxImage.Information);
-                            if (userAction != MessageBoxResult.Yes)
-                            {
-                               // this.logger.Info("update declined by user.");
+                            var asked = await Application.Current.Dispatcher.Invoke<Task<bool>>(AskUserForUpdating);
+                            if (!asked)
                                 return;
-                            }
+                            //var userAction = HandyControl.Controls.MessageBox.Show(message, "New Update detected", MessageBoxButton.YesNo, MessageBoxImage.Information);
+                            //if (userAction != MessageBoxResult.Yes)
+                            //{
+                            //   // this.logger.Info("update declined by user.");
+                            //    return;
+                            //}
                             //show loading
-                            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+
+                            // Enable OpenRGB
+                            await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
                             {
                                 _splashScreen = new View.SplashScreen();
-                                _splashScreen.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                                _splashScreen.WindowState = WindowState.Minimized;
-
-                                _splashScreen.Show();
-                                _splashScreen.WindowState = WindowState.Normal;
+                                _splashScreen.Header.Text = "Downloading Update";
                                 _splashScreen.status.Text = "UPDATING...";
-                            });
+                                _splashScreen.Show();
 
-                                // this.logger.Info("Downloading updates");
-                                var releaseEntry = await mgr.Result.UpdateApp();
+                            });
+                           
+                           
+                            // this.logger.Info("Downloading updates");
+                            var releaseEntry = await mgr.Result.UpdateApp();
 
                             if (releaseEntry != null)
                             {
@@ -101,7 +105,7 @@ namespace adrilight.Util
                                 if (AmbinityClient != null)
                                     AmbinityClient.Dispose();
                                 //remember to dispose openrgbstream too!!!
-                                System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                                await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
                                 {
                                     _splashScreen.status.Text = "RESTARTING...";
                                 });
@@ -125,6 +129,31 @@ namespace adrilight.Util
 
                 //check once a day for updates
                 await Task.Delay(TimeSpan.FromDays(1));
+            }
+        }
+
+        public async Task<bool> AskUserForUpdating()
+        {
+            var dialog = new CommonAskingDialog();
+            //dialog.header.Text = "OpenRGB is disabled"
+            dialog.question.Text = "Phát hiện một bản cập nhật mới, bạn có muốn cập nhật không?";
+            var result = await Task.FromResult(dialog.ShowDialog());
+            if (result == false)
+            {
+                if (dialog.askagaincheckbox.IsChecked == true)
+                {
+                    Settings.UpdaterAskAgain = false;
+                }
+                else
+                {
+                    Settings.UpdaterAskAgain = true;
+                }
+                return false;
+
+            }
+            else
+            {
+                return true;
             }
         }
     }

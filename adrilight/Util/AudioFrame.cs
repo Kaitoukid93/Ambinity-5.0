@@ -13,6 +13,8 @@ using System.Diagnostics;
 using adrilight.Spots;
 using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
+using adrilight.View;
+using System.Threading.Tasks;
 
 namespace adrilight
 {
@@ -56,7 +58,7 @@ namespace adrilight
         //Dependency Injection//
 
 
-       
+
 
         private IGeneralSettings GeneralSettings { get; }
         private bool inSync { get; set; }
@@ -262,12 +264,12 @@ namespace adrilight
             }
             get
             {
-             
+
                 return _availableAudioDevice;
             }
 
         }
-        private  List<string> GetAvailableAudioDevices()
+        private List<string> GetAvailableAudioDevices()
         {
             var availableDevices = new List<string>();
             int devicecount = BassWasapi.BASS_WASAPI_GetDeviceCount();
@@ -294,11 +296,12 @@ namespace adrilight
             get
             {
                 string currentDevice;
-                if(AvailableAudioDevice.Count>=1)
+                if (AvailableAudioDevice.Count >= 1)
                 {
                     if (GeneralSettings.SelectedAudioDevice >= AvailableAudioDevice.Count())
                     {
-                        HandyControl.Controls.MessageBox.Show("Có sự thay đổ về đầu ra âm thanh, vui lòng chọn lại bên trong cài đặt", "Audio output changed", MessageBoxButton.OK, MessageBoxImage.Error);
+                        if (GeneralSettings.AudioDeviceAskAgain)
+                            Application.Current.Dispatcher.Invoke<bool>(AskUserForAudioDeviceError);
                         currentDevice = AvailableAudioDevice.ElementAt(0);
                     }
                     else
@@ -310,7 +313,8 @@ namespace adrilight
                 }
                 else
                 {
-                    HandyControl.Controls.MessageBox.Show("Không có thiết bị âm thanh nào khả dụng, tính năng nháy theo nhạc sẽ không hoạt động", "No Available Audio Output", MessageBoxButton.OK, MessageBoxImage.Error);
+                    if (GeneralSettings.AudioDeviceAskAgain)
+                        Application.Current.Dispatcher.Invoke<bool>(AskUserForAudioDeviceError);
                     return -1;
                 }
 
@@ -318,7 +322,30 @@ namespace adrilight
         }
 
 
+        public bool AskUserForAudioDeviceError()
+        {
+            var dialog = new CommonInfoDialog();
+            //dialog.header.Text = "OpenRGB is disabled"
+            dialog.question.Text = "Có sự thay đổ về đầu ra âm thanh, vui lòng chọn lại bên trong cài đặt";
+            var result = dialog.ShowDialog();
+            if (result == false)
+            {
+                if (dialog.askagaincheckbox.IsChecked == true)
+                {
+                    GeneralSettings.AudioDeviceAskAgain = false;
+                }
+                else
+                {
+                    GeneralSettings.AudioDeviceAskAgain = true;
+                }
+                return false;
 
+            }
+            else
+            {
+                return true;
+            }
+        }
 
 
         private void Init()

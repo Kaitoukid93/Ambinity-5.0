@@ -142,12 +142,12 @@
                         <!-- more button-->
                         <Grid Grid.Column="2">
 
-                            <Button Background="Transparent" Foreground="{StaticResource PrimaryTextBrush}" x:Name="buttonMore"   Click="ButtonAdd_OnClick"  Style="{StaticResource ButtonDefault}" BorderThickness="0"   Padding="0,0" Margin="0,0,20,0" HorizontalAlignment="Right" VerticalAlignment="top" hc:IconElement.Width="20"  Height="20" hc:IconElement.Geometry="{StaticResource more}">
+                            <Button Background="Transparent" Foreground="{StaticResource PrimaryTextBrush}" x:Name="buttonMore"   Click="ButtonAdd_OnClick"  Style="{StaticResource ButtonDefault}" BorderThickness="0"   Padding="0,0" Margin="0,0,5,0" HorizontalAlignment="Right" VerticalAlignment="top" hc:IconElement.Width="20"  Height="20" hc:IconElement.Geometry="{DynamicResource ConfigGeometry}">
 
                             </Button>
-                            <Popup AllowsTransparency="True"  PlacementTarget="{Binding ElementName=buttonMore}" HorizontalOffset="0" Name="PopupAdd" VerticalOffset="2"  StaysOpen="False">
+                            <Popup AllowsTransparency="True" PlacementTarget="{Binding ElementName=buttonMore}" HorizontalOffset="15" Name="PopupAdd" VerticalOffset="5"   StaysOpen="False">
                                 <hc:TransitioningContentControl  TransitionMode="Top2Bottom">
-                                    <Border Background="{StaticResource RegionBrush}" BorderThickness="2" BorderBrush="{StaticResource BorderBrush}" CornerRadius="7" Margin="0,2,0,0">
+                                    <Border Background="{StaticResource RegionBrush}" Effect="{DynamicResource EffectShadow3}" BorderThickness="1" BorderBrush="{StaticResource DarkMaskBrush}" CornerRadius="7" Margin="15,0,15,15">
                                         <StackPanel Orientation="Vertical">
                                             <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding LaunchPIDEditWindowCommand}" hc:IconElement.Geometry="{StaticResource ledsetup}" BorderBrush="Transparent" Margin="5"   Content="LED Setup" Style="{StaticResource ButtonDefault}"/>
                                             <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding LaunchPositionEditWindowCommand}" hc:IconElement.Width="15" hc:IconElement.Geometry="{StaticResource WindowRestoreGeometry}" BorderBrush="Transparent" Margin="5"   Content="Layout" Style="{StaticResource ButtonDefault}"/>

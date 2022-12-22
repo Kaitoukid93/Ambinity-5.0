@@ -63,9 +63,7 @@ namespace adrilight
 
                 try
                 {
-
                     serialPorttest.Open();
-
 
                 }
 
@@ -127,7 +125,7 @@ namespace adrilight
             if (DeviceSettings.IsTransferActive && DeviceSettings.CurrentState == State.normal) // normal scenario
             {
                 
-                if (IsValid() && CheckSerialPort(DeviceSettings.OutputPort))
+                if (IsValid())
                 {
 
                     //start it
@@ -428,8 +426,9 @@ namespace adrilight
                                     }
                                     break;
                             }
-
+                           
                         }
+
                         break;
 
                 }

@@ -11,11 +11,10 @@
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            
-            
-           Height="350" 
+            ResizeMode="NoResize"
+           Height="400" 
            Width="400" 
-           WindowStartupLocation="CenterOwner" 
-           Left="0" Top="0">
+           WindowStartupLocation="CenterOwner">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -36,6 +35,8 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <TextBlock  VerticalAlignment="Top" Margin="20,0,20,20" Text="About" Style="{StaticResource TextBlockLarge}">
 
@@ -46,7 +47,7 @@
                                       Width="100" 
                                       Height="100" 
                                       Fill="{StaticResource PrimaryTextBrush}"/>
-                <TextBlock Margin="0,20,0,5" Style="{StaticResource TextBlockLargeBold}" Text="Ambinity 5.0.2"></TextBlock>
+                <TextBlock Margin="0,20,0,5" Style="{StaticResource TextBlockLargeBold}" Text="Ambinity 5.0.1"></TextBlock>
                 <TextBlock Margin="0,0,0,5" Style="{StaticResource TextBlockDefault}" Text="Release date : 16/10/2022"></TextBlock>
                 <TextBlock Margin="0,0,0,5" Style="{StaticResource TextBlockDefault}" Text="Credit :"></TextBlock>
                 <TextBlock Margin="0,0,0,5" Style="{StaticResource TextBlockDefault}" Text="fabsenet for DesktopDuplicator"></TextBlock>
@@ -54,8 +55,13 @@
             </StackPanel>
          
         </Grid>
+        <Grid Grid.Row="2">
+            <Button Command="{Binding OpenAvailableUpdateListWindowCommand}"    Margin="10"  Grid.Column="1" Content="Check for update" >
 
+            </Button>
+        </Grid>
 
+        
 
     </Grid>
 </hc:Window>

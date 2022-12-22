@@ -32,7 +32,8 @@ namespace adrilight
         private bool _driverRequested = true;
         private int _systemMusicSpeed = 3;
         private bool _firmwareUpgradeIsInProgress = false;
-
+        private bool _updaterAskAgain = true;
+        private bool _audioDeviceAskAgain = true;
         public int SelectedAudioDevice { get => _selectedAudioDevice; set { Set(() => SelectedAudioDevice, ref _selectedAudioDevice, value); } }
         public int DeviceDiscoveryMode { get => _deviceDiscoveryMode; set { Set(() => DeviceDiscoveryMode, ref _deviceDiscoveryMode, value); } }
         public int ThemeIndex { get => _themeIndex; set { Set(() => ThemeIndex, ref _themeIndex, value); } }
@@ -41,6 +42,8 @@ namespace adrilight
         public int SystemMusicMaxTick { get => _systemMusicMaxTick; set { Set(() => SystemMusicMaxTick, ref _systemMusicMaxTick, value); } }
         private int _limitFps = 100;
         public bool StartMinimized { get => _startMinimized; set { Set(() => StartMinimized, ref _startMinimized, value); } }
+        public bool UpdaterAskAgain { get => _updaterAskAgain; set { Set(() => UpdaterAskAgain, ref _updaterAskAgain, value); } }
+        public bool AudioDeviceAskAgain { get => _audioDeviceAskAgain; set { Set(() => AudioDeviceAskAgain, ref _audioDeviceAskAgain, value); } }
         public bool OpenRGBAskAgain { get => _openRGBAskAgain; set { Set(() => OpenRGBAskAgain, ref _openRGBAskAgain, value); } }
         public bool HWMonitorAskAgain { get => _hwMonitorAskAgain; set { Set(() => HWMonitorAskAgain, ref _hwMonitorAskAgain, value); } }
         public bool HotkeyEnable { get => _hotkeyEnable; set { Set(() => HotkeyEnable, ref _hotkeyEnable, value); } }

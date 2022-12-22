@@ -12,7 +12,7 @@
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            ResizeMode="NoResize"
             
-           Height="400" 
+           Height="357" 
            Width="400" 
            WindowStartupLocation="CenterOwner" 
            Left="0" Top="0">

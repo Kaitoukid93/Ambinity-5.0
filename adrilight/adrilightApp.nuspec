@@ -3,7 +3,7 @@
   <metadata>
     <id>adrilightApp</id>
     <!-- version will be replaced by MSBuild -->
-    <version>5.0.2</version>
+    <version>5.0.1</version>
     <title>adrilight</title>
     <authors>Ambinity</authors>
     <description>Simple App to control Ambino LED Devices</description>

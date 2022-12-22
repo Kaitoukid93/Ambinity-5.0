@@ -20,6 +20,8 @@ namespace adrilight
         int DeviceDiscoveryMode { get; set; }
         bool OpenRGBAskAgain { get; set; }
         bool HWMonitorAskAgain { get; set; }
+        bool UpdaterAskAgain { get; set; }
+        bool AudioDeviceAskAgain { get; set; }
         bool FrimwareUpgradeIsInProgress { get; set; }
 
         bool IsOpenRGBEnabled { get; set; }

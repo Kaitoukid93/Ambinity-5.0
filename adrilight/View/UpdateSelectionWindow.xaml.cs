@@ -1,7 +1,6 @@
 ﻿using HandyControl.Data;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,17 +16,20 @@ using System.Windows.Shapes;
 namespace adrilight.View
 {
     /// <summary>
-    /// Interaction logic for PaletteEditWindow.xaml
+    /// Interaction logic for ActionmanagerWindow.xaml
     /// </summary>
-    public partial class CommonInfoDialog
+    public partial class UpdateSelectionWindow
     {
-        public  CommonInfoDialog()
+        public UpdateSelectionWindow()
         {
             InitializeComponent();
         }
 
-        private void okButton_Click(object sender, RoutedEventArgs e) =>
-          DialogResult = true;
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+        
 
     }
 }

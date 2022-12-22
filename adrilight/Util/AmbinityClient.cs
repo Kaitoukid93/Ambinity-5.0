@@ -159,45 +159,45 @@ namespace adrilight
                 }
             }
 
-            else if (!GeneralSettings.IsOpenRGBEnabled && GeneralSettings.OpenRGBAskAgain) // show message require user to turn on Using OpenRGB
-            {
-                //MessageBoxResult result = HandyControl.Controls.MessageBox.Show("Bạn phải bật Enable OpenRGB để có thể tìm thấy và điều khiển các thiết bị OpenRGB! bạn có muốn bật không?", "OpenRGB is disabled", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                //if (result == MessageBoxResult.Yes)
-                //{
-                //    // Enable OpenRGB
-                //    GeneralSettings.IsOpenRGBEnabled = true;
-                //    RefreshTransferState();
+            //else if (!GeneralSettings.IsOpenRGBEnabled && GeneralSettings.OpenRGBAskAgain) // show message require user to turn on Using OpenRGB
+            //{
+            //    //MessageBoxResult result = HandyControl.Controls.MessageBox.Show("Bạn phải bật Enable OpenRGB để có thể tìm thấy và điều khiển các thiết bị OpenRGB! bạn có muốn bật không?", "OpenRGB is disabled", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            //    //if (result == MessageBoxResult.Yes)
+            //    //{
+            //    //    // Enable OpenRGB
+            //    //    GeneralSettings.IsOpenRGBEnabled = true;
+            //    //    RefreshTransferState();
 
-                //}
+            //    //}
 
 
 
-                // Display the dialog box and read the response
-                System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
-                {
-                    var dialog = new CommonAskingDialog();
-                    //dialog.header.Text = "OpenRGB is disabled"
-                    dialog.question.Text = "Bạn phải bật Enable OpenRGB để có thể tìm thấy và điều khiển các thiết bị OpenRGB! bạn có muốn bật không?";
-                    bool? result = dialog.ShowDialog();
-                    if (result == true)
-                    {
-                        // Enable OpenRGB
-                        GeneralSettings.IsOpenRGBEnabled = true;
+            //    // Display the dialog box and read the response
+            //    System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            //    {
+            //        var dialog = new CommonAskingDialog();
+            //        //dialog.header.Text = "OpenRGB is disabled"
+            //        dialog.question.Text = "Bạn phải bật Enable OpenRGB để có thể tìm thấy và điều khiển các thiết bị OpenRGB! bạn có muốn bật không?";
+            //        bool? result = dialog.ShowDialog();
+            //        if (result == true)
+            //        {
+            //            // Enable OpenRGB
+            //            GeneralSettings.IsOpenRGBEnabled = true;
                        
                         
 
-                    }
-                    if (dialog.askagaincheckbox.IsChecked == true)
-                    {
-                        GeneralSettings.OpenRGBAskAgain = false;
-                    }
-                    else
-                    {
-                        GeneralSettings.OpenRGBAskAgain = true;
-                    }
-                    RefreshTransferState();
-                });
-            }
+            //        }
+            //        if (dialog.askagaincheckbox.IsChecked == true)
+            //        {
+            //            GeneralSettings.OpenRGBAskAgain = false;
+            //        }
+            //        else
+            //        {
+            //            GeneralSettings.OpenRGBAskAgain = true;
+            //        }
+            //        RefreshTransferState();
+            //    });
+            //}
 
         }
 

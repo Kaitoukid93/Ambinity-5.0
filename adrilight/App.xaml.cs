@@ -75,11 +75,12 @@ namespace adrilight
             ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
             ThemeManager.Current.AccentColor = Brushes.BlueViolet;
             _splashScreen = new View.SplashScreen();
-            _splashScreen.WindowState = WindowState.Minimized;
-           
-            _splashScreen.Show();
-            _splashScreen.WindowState = WindowState.Normal;
+            //_splashScreen.WindowState = WindowState.Minimized;
+            _splashScreen.Header.Text = "Adrilight is loading";
             _splashScreen.status.Text = "LOADING KERNEL...";
+            _splashScreen.Show();
+            //_splashScreen.WindowState = WindowState.Normal;
+            
             // inject all, this task may takes long time
             kernel = await Task.Run(() => SetupDependencyInjection(false));
             //close splash screen and open dashboard
@@ -313,15 +314,20 @@ namespace adrilight
                 var devices = kernel.GetAll<IDeviceSettings>();
                 var hwMonitor = kernel.GetAll<IHWMonitor>().FirstOrDefault();
                 var ambinityClient = kernel.GetAll<IAmbinityClient>().FirstOrDefault();
+                var deviceDiscovery = kernel.GetAll<IDeviceDiscovery>().FirstOrDefault();
+                deviceDiscovery.Stop();
                 foreach (var device in devices)
                 {
                     device.CurrentState = State.sleep;
+                    Thread.Sleep(10);
+                    device.IsTransferActive = false;
                     /*Thread.Sleep(1000);*/ //wait for serialstream to finising sending
                     //serialStream.Stop();
                 }
                 //dispose hwmonitor to prevent file lock
                 hwMonitor.Dispose();
                 ambinityClient.Dispose();
+                
 
                 _log.Debug("Application exit!");
             };
@@ -335,11 +341,12 @@ namespace adrilight
                 {
                     GC.Collect();
                     var devices = kernel.GetAll<IDeviceSettings>();
+                   // var deviceDiscovery = kernel.GetAll<IDeviceDiscovery>().FirstOrDefault();
                     foreach (var device in devices)
                     {
                         device.CurrentState = State.normal;
                     }
-
+                   // deviceDiscovery.enable = true;
 
                     //var desktopFrame = kernel.Get<IDesktopFrame>();
                     //var secondDesktopFrame = kernel.Get<ISecondDesktopFrame>();
@@ -355,13 +362,15 @@ namespace adrilight
                 else if (e.Mode == PowerModes.Suspend)
                 {
                     var devices = kernel.GetAll<IDeviceSettings>();
+                    //var deviceDiscovery = kernel.GetAll<IDeviceDiscovery>().FirstOrDefault();
+                   // deviceDiscovery.enable = false;
                     foreach (var device in devices)
                     {
                         device.CurrentState = State.sleep;
                         //Thread.Sleep(1000);
                         //serialStream.Stop();
                     }
-
+                    
 
                     //var desktopFrame = kernel.Get<IDesktopFrame>();
                     //var secondDesktopFrame = kernel.Get<ISecondDesktopFrame>();
@@ -376,12 +385,15 @@ namespace adrilight
             SystemEvents.SessionEnding += (s, e) =>
             {
                 var devices = kernel.GetAll<IDeviceSettings>();
+               // var deviceDiscovery = kernel.GetAll<IDeviceDiscovery>().FirstOrDefault();
+               // deviceDiscovery.enable = false;
                 foreach (var device in devices)
                 {
                     device.CurrentState = State.sleep;
                     Thread.Sleep(1000);
                     //serialStream.Stop();
                 }
+             
                 _log.Debug("Stop the serial stream due to power down or log off condition!");
             };
         }

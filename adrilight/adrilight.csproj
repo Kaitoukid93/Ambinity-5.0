@@ -269,6 +269,7 @@
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="View\CommonInfoDialog.xaml.cs" />
     <Compile Include="View\CommonAskingDialog.xaml.cs" />
+    <Compile Include="View\UpdateSelectionWindow.xaml.cs" />
     <Compile Include="View\LEDSetupSelectionWindows.xaml.cs" />
     <Compile Include="View\PasswordDialog.xaml.cs" />
     <Compile Include="View\AboutAppWindow.xaml.cs" />
@@ -348,6 +349,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\CommonAskingDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\UpdateSelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

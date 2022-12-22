@@ -32,17 +32,20 @@ namespace adrilight
             StartThread();
 
         }
-        
+        private Thread _workerThread;
+        private CancellationTokenSource _cancellationTokenSource;
+        private static CancellationTokenSource tokenSource = new CancellationTokenSource();
+        CancellationToken token = tokenSource.Token;
         public void StartThread()
         {
             //if (App.IsPrivateBuild) return;
-
-            var t = new Thread(async () => await StartDiscovery()) {
+            _cancellationTokenSource = new CancellationTokenSource();
+            _workerThread = new Thread(StartDiscovery) {
                 Name = "Device Discovery",
                 IsBackground = true,
                 Priority = ThreadPriority.BelowNormal
             };
-            t.Start();
+            _workerThread.Start(_cancellationTokenSource.Token);
 
         }
 
@@ -61,13 +64,14 @@ namespace adrilight
         }
 
         private IAmbinityClient AmbinityClient { get; }
-        private async Task StartDiscovery()
+        private async void StartDiscovery(object tokenObject)
         {
-            while (!Settings.FrimwareUpgradeIsInProgress)
+            var cancellationToken = (CancellationToken)tokenObject;
+            while (!cancellationToken.IsCancellationRequested)
             {
                 try
                 {
-                    if (Settings.DeviceDiscoveryMode == 0)
+                    if (Settings.DeviceDiscoveryMode == 0 && !Settings.FrimwareUpgradeIsInProgress && enable)
                     {
                         var newOpenRGBDevices = new List<IDeviceSettings>(); // openRGB device scan only run once at startup
                         if (!_openRGBIsInit)
@@ -184,14 +188,25 @@ namespace adrilight
             //}
         }
         private static object _syncRoot = new object();
+        public void Stop()
+        {
+            _log.Debug("Stop called.");
+            if (_workerThread == null) return;
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource = null;
+            tokenSource?.Cancel();
+            tokenSource = null;
+            _workerThread?.Join();
+            _workerThread = null;
+        }
+
         private async Task<List<List<IDeviceSettings>>> ScanSerialDevice()
         {
             var newDevicesDetected = new List<IDeviceSettings>();
             var oldDeviceReconnected = new List<IDeviceSettings>();
             _isSerialScanCompelete = false;
             ISerialDeviceDetection detector = new SerialDeviceDetection(MainViewViewModel.AvailableDevices.Where(p => p.DeviceConnectionType == "wired").ToList());
-            var tokenSource = new CancellationTokenSource();
-            CancellationToken token = tokenSource.Token;
+           
 
             var jobTask = Task.Run(() =>
             {
