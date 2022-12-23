@@ -73,7 +73,7 @@
 
 
                                 </Grid>
-                                <Grid Margin="0,5,0,0">
+                                <!--<Grid Margin="0,0,0,0">
                                     <Grid.Style>
                                         <Style TargetType="Grid">
                                             <Setter Property="Visibility" Value="Collapsed"></Setter>
@@ -96,7 +96,7 @@
                                     </Border>
 
 
-                                </Grid>
+                                </Grid>-->
                                 <Grid Margin="0,5,0,0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="auto"/>
@@ -208,12 +208,12 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <hc:PreviewSlider Value="{Binding CurrentOutput.OutputBrightness}"  Grid.Column="0" MaxWidth="300" MinWidth="150" HorizontalAlignment="Left" Margin="0,0,10,0" Minimum="0" Maximum="100" TickFrequency="1">
+                                    <hc:PreviewSlider Value="{Binding CurrentOutput.OutputBrightness}"  Grid.Column="0" Width="230" HorizontalAlignment="Left" Margin="0,0,10,0" Minimum="0" Maximum="100" TickFrequency="1">
                                         <hc:PreviewSlider.PreviewContent>
                                             <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0"/>
                                         </hc:PreviewSlider.PreviewContent>
                                     </hc:PreviewSlider>
-                                    <Border Width="36" Height="32" Margin="0,0,10,0"  CornerRadius="4" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" Background="Transparent" Grid.Column="1">
+                                    <Border HorizontalAlignment="Right" Width="36" Height="32" Margin="0,0,10,0"  CornerRadius="4" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" Background="Transparent" Grid.Column="1">
                                         <TextBlock Style="{StaticResource TextBlockDefault}"  Text="{Binding CurrentOutput.OutputBrightness}"/>
 
                                     </Border>
@@ -295,7 +295,7 @@
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="auto"/>
                                             </Grid.ColumnDefinitions>
-                                            <Border Grid.Column="1" HorizontalAlignment="Right" Background="{StaticResource DarkOpacityBrush}" BorderBrush="{StaticResource BorderBrush}" CornerRadius="7" BorderThickness="2">
+                                            <Border Grid.Column="1" HorizontalAlignment="Right" Background="{DynamicResource RegionBrush}" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="7" BorderThickness="0">
                                                 <ListBox x:Name="speedMode" SelectedIndex="{Binding CurrentDevice.SpeedMode}"
                              
                               ItemContainerStyle="{StaticResource _listBoxModeSelectionStyle}"  
@@ -311,7 +311,7 @@
                                                             </WrapPanel>
                                                         </ItemsPanelTemplate>
                                                     </ListBox.ItemsPanel>
-                                                    <ListBoxItem>
+                                                <ListBoxItem ToolTip="Tốc độ sẽ cố định theo giá trị bên dưới">
                                                         <Grid>
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="auto"/>
@@ -321,7 +321,7 @@
                                                             <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5" Grid.Column="1" Text="Manual" Style="{StaticResource TextBlockDefault}"/>
                                                         </Grid>
                                                     </ListBoxItem>
-                                                    <ListBoxItem>
+                                                <ListBoxItem ToolTip="Tốc độ sẽ chạy theo mainboard">
                                                         <Grid>
 
                                                             <Grid.ColumnDefinitions>
@@ -354,7 +354,7 @@
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="auto"/>
-                                                <ColumnDefinition Width="auto"/>
+                                             
                                             </Grid.ColumnDefinitions>
                                         <Grid>
                                             <Grid.Style>
@@ -368,7 +368,7 @@
 
                                                 </Style>
                                             </Grid.Style>
-                                            <hc:PreviewSlider Value="{Binding Path=DataContext.CurrentDevice.DeviceSpeed, RelativeSource={RelativeSource AncestorType=local:UnionOutputControl}}"  Grid.Column="0" MaxWidth="300" MinWidth="150" HorizontalAlignment="Left" Margin="0,0,10,0" Minimum="20" Maximum="255" TickFrequency="1">
+                                            <hc:PreviewSlider Value="{Binding Path=DataContext.CurrentDevice.DeviceSpeed, RelativeSource={RelativeSource AncestorType=local:UnionOutputControl}}"  Grid.Column="0" Width="230" HorizontalAlignment="Left" Margin="0,0,0,0" Minimum="20" Maximum="255" TickFrequency="1">
                                                 <hc:PreviewSlider.PreviewContent>
                                                     <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0"/>
                                                 </hc:PreviewSlider.PreviewContent>
@@ -426,7 +426,7 @@
                                                 <TextBlock Style="{StaticResource TextBlockDefault}"  Text="{Binding Path=DataContext.CurrentDevice.DeviceSpeed, RelativeSource={RelativeSource AncestorType=local:UnionOutputControl}}"/>
 
                                             </Border>
-                                        <Grid Grid.Column="2">
+                                        <!--<Grid Grid.Column="2">
                                             <Grid.Style>
                                                 <Style TargetType="Grid">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -442,7 +442,7 @@
                                             <hc:Badge Visibility="{Binding Path=DataContext.IsSpeedSettingUnsetted, RelativeSource={RelativeSource AncestorType=local:UnionOutputControl},Converter={StaticResource boolToVisibilityConvert}}"  BadgeMargin="-5" Status="Processing"  Margin="5,0,10,0" Style="{StaticResource BadgeDanger}">
                                                 <Button  Width="auto" Height="32"  x:Name="DummyButton" CommandParameter="speed" Command="{Binding Path=DataContext.SendCurrentDeviceSpeedCommand, RelativeSource={RelativeSource AncestorType=local:UnionOutputControl}}" BorderThickness="0" Background="Transparent" ToolTip="Kiểm tra tốc độ thực tế"  Content="Check" Style="{StaticResource ButtonDefault}"></Button>
                                             </hc:Badge>
-                                        </Grid>
+                                        </Grid>-->
                                         <!--<Grid Grid.Column="2">
                                             <Grid.Style>
                                                 <Style TargetType="Grid">

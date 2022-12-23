@@ -11,8 +11,8 @@
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            
-            
-           Height="500" 
+           SizeToContent="Height"
+           MaxHeight="1000" 
            Width="400" 
            WindowStartupLocation="CenterOwner" 
            Left="0" Top="0">
@@ -37,70 +37,85 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <TextBlock  VerticalAlignment="Top" Margin="20,0,20,20" Text="Firmware Information" Style="{StaticResource TextBlockLarge}">
+     
+        <Grid Margin="10,0,10,10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock  VerticalAlignment="Top" Margin="20,0,20,20" Text="Device information" Style="{StaticResource TextBlockLarge}">
 
-        </TextBlock>
+            </TextBlock>
+            <Grid Grid.Row="1">
+                <StackPanel>
+                    <Path HorizontalAlignment="Center"  Stretch="Uniform" Margin="0,10,0,0" Data="{Binding CurrentDevice.Geometry, Converter={converters:StaticResourceConverter}}"
+                                      Width="100" 
+                                      Height="100" 
+                                      Fill="{DynamicResource PrimaryTextBrush}"/>
+                    <TextBlock Margin="0,0,0,0" Style="{DynamicResource TextBlockLargeBold}" Text="{Binding CurrentDevice.DeviceName}"></TextBlock>
+                    <Grid HorizontalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock HorizontalAlignment="Center" Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Device type:"></TextBlock>
+                        <TextBlock Foreground="{DynamicResource PrimaryBrush}" HorizontalAlignment="Left" Grid.Column="1" Margin="5,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="{Binding CurrentDevice.DeviceType}"></TextBlock>
+                    </Grid>
+                    <Grid HorizontalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock HorizontalAlignment="Center" Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Firmware version:"></TextBlock>
+                        <TextBlock Foreground="{DynamicResource PrimaryBrush}" HorizontalAlignment="Left" Grid.Column="1" Margin="5,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="{Binding CurrentDevice.FirmwareVersion}"></TextBlock>
+                    </Grid>
+                    <Grid HorizontalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock HorizontalAlignment="Center" Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Hardware version:"></TextBlock>
+                        <TextBlock Foreground="{DynamicResource PrimaryBrush}" HorizontalAlignment="Left" Grid.Column="1" Margin="5,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="{Binding CurrentDevice.HardwareVersion}"></TextBlock>
+                    </Grid>
+                    <Grid HorizontalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock HorizontalAlignment="Center" Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Max outputs:"></TextBlock>
+                        <TextBlock Foreground="{DynamicResource PrimaryBrush}" HorizontalAlignment="Left" Grid.Column="1" Margin="5,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="{Binding CurrentDevice.AvailableOutputs.Length}"></TextBlock>
+                    </Grid>
+                </StackPanel>
+
+            </Grid>
+            <Grid Grid.Row="2">
+                <StackPanel>
+                    <Button IsEnabled="{Binding UpdateButtonEnable,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Command="{Binding UpdateCurrentSelectedDeviceFirmwareCommand}"    Margin="10"  Grid.Column="1" Content="Check for update" />
+                    <hc:LoadingLine Foreground="{DynamicResource PrimaryBrush}" Margin="5" Height="10" Visibility="{Binding IsCheckingForUpdate,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolToVisibilityConvert}}"/>
+                    <TextBlock TextAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultDanger}" Text="{Binding UpdateErrorMessage}" Visibility="{Binding UpdateButtonEnable,Converter={StaticResource boolToVisibilityConvert}}"/>
+                </StackPanel>
+
+            </Grid>
+
+
+
+        </Grid>
         <StackPanel Grid.Row="1">
             <Grid Name="enable">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
                     <RowDefinition Height="*"/>
+                   
                 </Grid.RowDefinitions>
-                <GroupBox   VerticalAlignment="Center" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
-                    <GroupBox.HeaderTemplate>
-                        <DataTemplate>
-                            <TextBlock FontWeight="SemiBold" Text="FIRMWARE UPGRADE"/>
-                        </DataTemplate>
-                    </GroupBox.HeaderTemplate>
-
-                    <!--<Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
-                                      Width="20" 
-                                      Height="20" 
-                                      Fill="{StaticResource PrimaryTextBrush}"/>-->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="auto"/>
-                        </Grid.ColumnDefinitions>
-                        <hc:LoadingCircle Visibility="{Binding ReloadDeviceLoadingVissible,Converter ={StaticResource boolToVisibilityConvert}}" HorizontalAlignment="Right" Margin=" 10,0" Width="25" Height="25" />
-                        <Button Grid.Column="1" Command="{Binding UpdateCurrentSelectedDeviceFirmwareCommand}" HorizontalAlignment="Right" hc:IconElement.Geometry="{StaticResource motherboard}" Style="{StaticResource ButtonDefault}"/>
-                    </Grid>
-                    
-
-
-
-                </GroupBox>
-                <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Cập nhật phần mềm bằng cách chọn file hoặc tự động kiểm tra"/>
-                <ProgressBar Visibility="{Binding FwUploadPercentVissible,Converter={StaticResource boolToVisibilityConvert}}" Value="{Binding FwUploadPercent,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="5" Grid.Row="2"  Height="10" x:Name="Prog" Orientation="Horizontal"/>
-                <TextBox Visibility="{Binding FwUploadPercentVissible,Converter={StaticResource boolToVisibilityConvert}}" Text="{Binding FwUploadOutputLog,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" MaxHeight="250" TextWrapping="WrapWithOverflow" Grid.Row="3" Margin="1" x:Name="Output"></TextBox>
+              
+                <ProgressBar Visibility="{Binding FwUploadPercentVissible,Converter={StaticResource boolToVisibilityConvert}}" Value="{Binding FwUploadPercent,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="5" Grid.Row="1"  Height="10" x:Name="Prog" Orientation="Horizontal"/>
+                <TextBox Visibility="{Binding FwUploadPercentVissible,Converter={StaticResource boolToVisibilityConvert}}" Text="{Binding FwUploadOutputLog,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" MaxHeight="250" TextWrapping="WrapWithOverflow" Grid.Row="2" Margin="1" x:Name="Output"></TextBox>
             </Grid>
-            <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
-
-            </hc:Divider>
-            <Grid Name="Notifi">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"/>
-                    <RowDefinition Height="auto"/>
-                </Grid.RowDefinitions>
-                <GroupBox   VerticalAlignment="Center" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
-                    <GroupBox.HeaderTemplate>
-                        <DataTemplate>
-                            <TextBlock FontWeight="SemiBold" Text="CHECK FOR FIRMWARE UPDATE"/>
-                        </DataTemplate>
-                    </GroupBox.HeaderTemplate>
-
-                    <!--<Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
-                                      Width="20" 
-                                      Height="20" 
-                                      Fill="{StaticResource PrimaryTextBrush}"/>-->
-                    <Button  IsEnabled="False" HorizontalAlignment="Right" hc:IconElement.Geometry="{StaticResource symetric}" Style="{StaticResource ButtonDefault}"/>
-
-
-                </GroupBox>
-                <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Kiểm tra cập nhật phần mềm từ Website của Ambino"/>
-            </Grid>
+         
+          
             <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
             </hc:Divider>
@@ -110,7 +125,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Path   Fill="{StaticResource WarningBrush}" Width="20" Height="20" Margin="10,10" Data="{StaticResource colorchanged}" Stretch="Uniform" />
-                <TextBlock HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultWarning}" Grid.Column="1" Text="To exit DFU mode, please Unplug and Replug device"/>
+                <TextBlock Margin="10" TextWrapping="Wrap" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultWarning}" Grid.Column="1" Text="Để thoát khỏi chế độ DFU, hãy rút USB của thiết bị ra và cắm lại"/>
             </Grid>
            
             

@@ -13,7 +13,7 @@
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            ResizeMode="NoResize"
            x:Name="window"
-           Height="185" 
+           Height="175" 
            Width="470" 
            WindowStartupLocation="CenterOwner" 
            >
@@ -100,7 +100,7 @@
                 
             </TextBlock>
             <Grid>
-                <ListBox HorizontalAlignment="Center" Margin="5" x:Name="AvailableUpdatesList"  
+                <ListBox HorizontalAlignment="Center" Margin="0" x:Name="AvailableUpdatesList"  
                               ItemsSource="{Binding AvailableUpdates.ReleasesToApply}"
                               
                               VerticalAlignment="Top"

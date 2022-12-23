@@ -839,7 +839,7 @@
 
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Border Margin="10" Padding="2,2,0,2"  Background="{StaticResource DarkOpacityBrush}" CornerRadius="7">
+            <Border Margin="10" Padding="4,4,0,4"  Background="{StaticResource DarkOpacityBrush}" CornerRadius="7">
                 <Grid>
                     <Grid x:Name="UnionOutputGrid">
                         <Grid.Style>

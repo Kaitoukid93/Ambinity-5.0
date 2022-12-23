@@ -2632,8 +2632,26 @@ namespace adrilight.ViewModel
                 return true;
             }, async (p) =>
             {
+                IsCheckingForUpdate = true;
+                UpdateButtonEnable = false;
+                AvailableUpdates = null;
                 await CheckForUpdate();
-                OpenAvailableUpdateListWindow();
+                IsCheckingForUpdate = false;
+                UpdateButtonEnable = true;
+                if(AvailableUpdates==null)
+                {
+                    return;
+                }
+                if(AvailableUpdates.ReleasesToApply.Any())
+                {
+                    OpenAvailableUpdateListWindow();
+                }
+                else
+                {
+                    HandyControl.Controls.MessageBox.Show("Không tìm thấy bản cập nhật mới nào", "No Update Available", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+               
+                
             }
           );
             ImportProfileCommand = new RelayCommand<string>((p) =>
@@ -2926,7 +2944,7 @@ namespace adrilight.ViewModel
             SelectCardCommand = new RelayCommand<IDeviceSettings>((p) =>
             {
                 return p != null;
-            },  (p) =>
+            }, (p) =>
             {
                 if (!Keyboard.IsKeyDown(Key.LeftCtrl) && !Keyboard.IsKeyDown(Key.RightCtrl))
                 {
@@ -2963,7 +2981,7 @@ namespace adrilight.ViewModel
                     {
                         GotoChild(p);
                     }
-                    
+
                 }
                 else if (Keyboard.IsKeyDown(Key.LeftCtrl)) // device is selected with ctrl key, start multiple select
                 {
@@ -3749,11 +3767,11 @@ namespace adrilight.ViewModel
 
                 WriteDeviceProfileCollection();
             }
-        
+
         }
 
         private UpdateInfo _availableUpdates;
-            public UpdateInfo AvailableUpdates {
+        public UpdateInfo AvailableUpdates {
             get { return _availableUpdates; }
             set
             {
@@ -3761,65 +3779,94 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-     
+        private bool _isCheckingForUpdate = false;
+        public bool IsCheckingForUpdate {
+            get { return _isCheckingForUpdate; }
+            set
+            {
+                _isCheckingForUpdate = value;
+                RaisePropertyChanged();
+            }
+        }
+        private bool _updateButtonEnable = true;
+        public bool UpdateButtonEnable {
+            get { return _updateButtonEnable; }
+            set
+            {
+                _updateButtonEnable = value;
+                RaisePropertyChanged();
+            }
+        }
+        private string _updateErrorMessage = "";
+        public string UpdateErrorMessage {
+            get { return _updateErrorMessage; }
+            set
+            {
+                _updateErrorMessage = value;
+                RaisePropertyChanged();
+            }
+        }
         private Task<UpdateManager> mgr;
         private SplashScreen _splashScreen;
+
+
         private async Task CheckForUpdate()
         {
-            
-                try
+
+            UpdateErrorMessage = "";
+            try
+            {
+                mgr = UpdateManager.GitHubUpdateManager(ADRILIGHT_RELEASES);
+                using (var result = await mgr)
                 {
-                    mgr = UpdateManager.GitHubUpdateManager(ADRILIGHT_RELEASES);
-                    using (var result = await mgr)
-                    {
                     AvailableUpdates = await mgr.Result.CheckForUpdate();
                     RaisePropertyChanged(nameof(AvailableUpdates));
-                    }
                 }
-                catch (Exception ex)
-                {
-                    //_log.Error(ex, $"error when update checking: {ex.GetType().FullName}: {ex.Message}");
-                }
+            }
+            catch (Exception ex)
+            {
+                UpdateErrorMessage = ex.Message + "\n" + "Kiểm tra lại mạng hoặc liên hệ Ambino để được hỗ trợ";
+            }
 
-                //check once a day for updates
-               
-            
+            //check once a day for updates
+
+
         }
         private async Task UpdateApp()
         {
-          
+
+            await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                _splashScreen = new View.SplashScreen();
+                _splashScreen.Header.Text = "Downloading Update";
+                _splashScreen.status.Text = "UPDATING...";
+                _splashScreen.Show();
+
+            });
+
+
+            // this.logger.Info("Downloading updates");
+            var releaseEntry = await mgr.Result.UpdateApp();
+
+            if (releaseEntry != null)
+            {
+
+                //restart adrilight if an update was installed
+                //dispose locked WinRing0 file first
+                //if (HWMonitor != null)
+                //    HWMonitor.Dispose();
+                if (AmbinityClient != null)
+                    AmbinityClient.Dispose();
+                //remember to dispose openrgbstream too!!!
                 await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
                 {
-                    _splashScreen = new View.SplashScreen();
-                    _splashScreen.Header.Text = "Downloading Update";
-                    _splashScreen.status.Text = "UPDATING...";
-                    _splashScreen.Show();
-
+                    _splashScreen.status.Text = "RESTARTING...";
                 });
+                UpdateManager.RestartApp();
+            }
+            //this.logger.Info($"Download complete. Version {updateResult.Version} will take effect when App is restarted.");
 
 
-                // this.logger.Info("Downloading updates");
-                var releaseEntry = await mgr.Result.UpdateApp();
-
-                if (releaseEntry != null)
-                {
-
-                    //restart adrilight if an update was installed
-                    //dispose locked WinRing0 file first
-                    //if (HWMonitor != null)
-                    //    HWMonitor.Dispose();
-                    if (AmbinityClient != null)
-                        AmbinityClient.Dispose();
-                    //remember to dispose openrgbstream too!!!
-                    await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
-                    {
-                        _splashScreen.status.Text = "RESTARTING...";
-                    });
-                    UpdateManager.RestartApp();
-                }
-                //this.logger.Info($"Download complete. Version {updateResult.Version} will take effect when App is restarted.");
-            
-           
 
         }
         private void SaveCurrentSelectedAction()
@@ -3871,7 +3918,7 @@ namespace adrilight.ViewModel
             // CurrentDevice.AvailableOutputs[0].IsInSpotEditWizard = true;
             CurrentDevice.SetOutput(SelectedOutputForCurrentDevice, CurrentDevice.SelectedOutput);
             CurrentDevice.IsSizeNeedUserDefine = false;
-           // CurrentDevice.AvailableOutputs[0].IsInSpotEditWizard = false;
+            // CurrentDevice.AvailableOutputs[0].IsInSpotEditWizard = false;
             GotoChild(CurrentDevice);
         }
         private void ExportCurrentColorEffect()
@@ -5023,7 +5070,7 @@ namespace adrilight.ViewModel
             {
                 File.Delete(JsonGeneralFileNameAndPath);
             }
-
+            if(AmbinityClient!=null)
             AmbinityClient.Dispose();
             System.Windows.Forms.Application.Restart();
             Process.GetCurrentProcess().Kill();
@@ -6592,11 +6639,11 @@ namespace adrilight.ViewModel
 
         public void GotoChild(IDeviceSettings selectedDevice)
         {
-             CurrentDevice = selectedDevice;
+            CurrentDevice = selectedDevice;
             //SetMenuItemActiveStatus(lighting);
             SelectedVerticalMenuItem = MenuItems.FirstOrDefault(t => t.Text == lighting);
             IsDashboardType = false;
-           
+
 
             foreach (var output in CurrentDevice.AvailableOutputs)
             {
@@ -6719,7 +6766,7 @@ namespace adrilight.ViewModel
                 }
             };
 
-         
+
         }
 
         public void BackToDashboard()

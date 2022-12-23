@@ -10,9 +10,9 @@
            Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
-           
-            
-           Height="400" 
+           ResizeMode="NoResize"
+            SizeToContent="Height"
+           MaxHeight="1000" 
            Width="400" 
            WindowStartupLocation="CenterOwner" 
            Left="0" Top="0">

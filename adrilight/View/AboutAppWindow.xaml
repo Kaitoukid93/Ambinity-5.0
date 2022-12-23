@@ -10,9 +10,9 @@
            Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
-           
+           SizeToContent="Height"
             ResizeMode="NoResize"
-           Height="400" 
+           MaxHeight="1000" 
            Width="400" 
            WindowStartupLocation="CenterOwner">
 
@@ -46,19 +46,22 @@
                 <Path HorizontalAlignment="Center"  Stretch="Uniform" Margin="0,10,0,0" Data="{StaticResource appicon}" 
                                       Width="100" 
                                       Height="100" 
-                                      Fill="{StaticResource PrimaryTextBrush}"/>
-                <TextBlock Margin="0,20,0,5" Style="{StaticResource TextBlockLargeBold}" Text="Ambinity 5.0.1"></TextBlock>
-                <TextBlock Margin="0,0,0,5" Style="{StaticResource TextBlockDefault}" Text="Release date : 16/10/2022"></TextBlock>
-                <TextBlock Margin="0,0,0,5" Style="{StaticResource TextBlockDefault}" Text="Credit :"></TextBlock>
-                <TextBlock Margin="0,0,0,5" Style="{StaticResource TextBlockDefault}" Text="fabsenet for DesktopDuplicator"></TextBlock>
-                <TextBlock Margin="0,0,0,5" Style="{StaticResource TextBlockDefault}" Text="HandyControl for awesome UI"></TextBlock>
+                                      Fill="{DynamicResource PrimaryTextBrush}"/>
+                <TextBlock Margin="0,20,0,5" Style="{DynamicResource TextBlockLargeBold}" Text="Ambinity 5.0.3"></TextBlock>
+                <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Release date : 23/12/2022"></TextBlock>
+                <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Credit :"></TextBlock>
+                <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="fabsenet for DesktopDuplicator"></TextBlock>
+                <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="HandyControl for awesome UI"></TextBlock>
             </StackPanel>
          
         </Grid>
         <Grid Grid.Row="2">
-            <Button Command="{Binding OpenAvailableUpdateListWindowCommand}"    Margin="10"  Grid.Column="1" Content="Check for update" >
+            <StackPanel>
+                <Button IsEnabled="{Binding UpdateButtonEnable,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Command="{Binding OpenAvailableUpdateListWindowCommand}"    Margin="10"  Grid.Column="1" Content="Check for update" />
+                <hc:LoadingLine Foreground="{DynamicResource PrimaryBrush}" Margin="5" Height="10" Visibility="{Binding IsCheckingForUpdate,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolToVisibilityConvert}}"/>
+                <TextBlock Margin="0,0,0,20" TextAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultDanger}" Text="{Binding UpdateErrorMessage}" Visibility="{Binding UpdateButtonEnable,Converter={StaticResource boolToVisibilityConvert}}"/>
+            </StackPanel>
 
-            </Button>
         </Grid>
 
         
