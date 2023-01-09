@@ -329,11 +329,12 @@ namespace adrilight.Settings
                     RequiredFwVersion = ABHUBV3FWVersion,
                     Geometry = "ambinohubv3",
                     IsTransferActive = true,
-                    UnionOutput = DefaulOutputCollection.GenericLEDStrip(4, 16, "Uni-Strip", 4, false, "ledstrip"),
-                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.GenericLEDStrip(0, 20,"Dải LED 1", 1,true,"ledstrip"),
-                                                      DefaulOutputCollection.GenericLEDStrip(1, 20,"Dải LED 2", 1,true,"ledstrip"),
-                                                      DefaulOutputCollection.GenericLEDStrip(2, 16,"Dải LED 3", 4,true,"ledstrip"),
-                                                      DefaulOutputCollection.GenericLEDStrip(3, 16,"Dải LED 4", 4,true,"ledstrip")
+                    UnionOutput = DefaulOutputCollection.GenericLEDStrip(5, 32, "Uni-Strip", 1, false, "ledstrip"),
+                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.GenericLEDStrip(0, 32,"Dải LED 1", 1,true,"ledstrip"),
+                                                      DefaulOutputCollection.GenericLEDStrip(1, 32,"Dải LED 2", 1,true,"ledstrip"),
+                                                      DefaulOutputCollection.GenericLEDStrip(2, 32,"Dải LED 3", 1,true,"ledstrip"),
+                                                      DefaulOutputCollection.GenericLEDStrip(3, 32,"Dải LED 4", 1,true,"ledstrip"),
+                                                      DefaulOutputCollection.GenericLEDStrip(4, 1,"12v RGB", 1,true,"ledstrip")
 
 
 

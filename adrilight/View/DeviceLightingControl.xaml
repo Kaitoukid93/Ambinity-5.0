@@ -899,22 +899,21 @@
 
                                             <Grid>
                                                 <Grid 
-                                               x:Name="output"        
-                                               Width="100" 
-                                               Height="57">
+                                               x:Name="output">
+
 
                                                     <!--<Button Visibility="{Binding IsDummy,Converter={StaticResource boolToVisibilityConvert}}" Command="{Binding Path=DataContext.ShowAddNewCommand, ElementName=itm}" hc:BorderElement.CornerRadius="30" Width="230" Height="260" Margin="0" hc:IconElement.Geometry="{StaticResource AddGeometry}" hc:IconElement.Height="50" hc:IconElement.Width="50" Style="{StaticResource ButtonDashedPrimary}">
 
                                             </Button>-->
 
-                                                    <Border
+                                                    <Border Width="100" Height="70"
                                                 HorizontalAlignment="Stretch"
                                                 VerticalAlignment="Stretch"
                                                 CornerRadius="7" 
                                                 Background="Transparent">
 
 
-                                                        <Grid Margin="5">
+                                                        <Grid Margin="0">
 
 
                                                             <Grid.ColumnDefinitions>

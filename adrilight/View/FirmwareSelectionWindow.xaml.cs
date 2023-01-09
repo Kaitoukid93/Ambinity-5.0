@@ -1,4 +1,5 @@
-﻿using HandyControl.Data;
+﻿using adrilight.ViewModel;
+using HandyControl.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,10 +25,17 @@ namespace adrilight.View
         {
             InitializeComponent();
         }
-
+        private MainViewViewModel ViewModel {
+            get
+            {
+                return (MainViewViewModel)this.DataContext;
+            }
+        }
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            ViewModel.GeneralSettings.FrimwareUpgradeIsInProgress = false;
             this.Close();
+
         }
         
 

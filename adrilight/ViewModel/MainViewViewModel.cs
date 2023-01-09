@@ -5466,20 +5466,20 @@ namespace adrilight.ViewModel
                 ResourceName = "adrilight.DeviceFirmware.AFR2g.hex"
             };
             IDeviceFirmware AFR3g = new DeviceFirmware() {
-                Name = "AFR2g.hex",
+                Name = "AFR3g.hex",
                 Version = "1.0.6",
                 TargetHardware = "AFR3g",
                 TargetDeviceType = "ABFANHUB",
                 Geometry = "binary",
                 ResourceName = "adrilight.DeviceFirmware.AFR3g.hex"
             };
-            IDeviceFirmware AHR1g = new DeviceFirmware() {
-                Name = "AHR1g.hex",
+            IDeviceFirmware AHR2g = new DeviceFirmware() {
+                Name = "AHR2g.hex",
                 Version = "1.0.1",
                 TargetHardware = "AHR1g",
                 TargetDeviceType = "ABHUBV3",
                 Geometry = "binary",
-                ResourceName = "adrilight.DeviceFirmware.AHR1g.hex"
+                ResourceName = "adrilight.DeviceFirmware.AHR2g.hex"
             };
             IDeviceFirmware ARR1p = new DeviceFirmware() {
                 Name = "ARR1p.hex",
@@ -5497,7 +5497,7 @@ namespace adrilight.ViewModel
             firmwareList.Add(AER1e);
             firmwareList.Add(AER2e);
             firmwareList.Add(AFR1g);
-            firmwareList.Add(AHR1g);
+            firmwareList.Add(AHR2g);
             firmwareList.Add(ARR1p);
             firmwareList.Add(AFR2g);
             firmwareList.Add(AFR3g);
@@ -5521,6 +5521,8 @@ namespace adrilight.ViewModel
             //| Ambino HUBV3 CH552G rev1                        | CH552G |    |    | AHR1g |
             //+-------------------------------------------------+--------+----+----+-------+
             //| Ambino RainPow CH552P rev1                      | CH552P |    |    | ARR1p |
+            //+-------------------------------------------------+--------+----+----+-------+
+            //| Ambino HUBV3 CH552G rev2                        | CH552G |    |    | AHR2g |
             //+-------------------------------------------------+--------+----+----+-------+
 
             //foreach(var device in DefaultDeviceCollection.AvailableDefaultDevice())

@@ -639,9 +639,6 @@
     <EmbeddedResource Include="DeviceFirmware\AFR2g.hex">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="DeviceFirmware\AHR1g.hex">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
     <EmbeddedResource Include="DeviceFirmware\ARR1p.hex">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -675,6 +672,9 @@
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <EmbeddedResource Include="DeviceFirmware\AHR2g.hex">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="DeviceFirmware\AFR3g.hex">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
