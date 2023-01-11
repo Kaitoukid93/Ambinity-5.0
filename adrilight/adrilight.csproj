@@ -258,6 +258,7 @@
     <Compile Include="Extension\MathExtensions.cs" />
     <Compile Include="Extension\RawRectangleExtensions.cs" />
     <Compile Include="ViewModel\BaseViewModel.cs" />
+    <Compile Include="ViewModel\KeyboardHookManagerSingleton.cs" />
     <Compile Include="ViewModel\DeleteMessageDialogViewModel.cs" />
     <Compile Include="ViewModel\ExpandedOutputControlViewmodel.cs" />
     <Compile Include="ViewModel\MainViewViewModel.cs" />

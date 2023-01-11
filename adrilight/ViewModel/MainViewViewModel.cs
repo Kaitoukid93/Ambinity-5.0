@@ -1289,7 +1289,7 @@ namespace adrilight.ViewModel
         //public static IShaderEffect ShaderEffect { get; set; }
 
         private static ReaderWriterLockSlim _readWriteLock = new ReaderWriterLockSlim();
-
+        
         public MainViewViewModel(IContext context,
             IDeviceSettings[] devices,
             IGeneralSettings generalSettings,
@@ -1313,7 +1313,7 @@ namespace adrilight.ViewModel
             SerialDeviceDetection = serialDeviceDetection ?? throw new ArgumentNullException(nameof(serialDeviceDetection));
 
             //ShaderEffect = shaderEffect ?? throw new ArgumentNullException();
-            var keyboardHookManager = new KeyboardHookManager();
+          
             AvailableModifiers = new ObservableCollection<IModifiersType> {
                 new ModifiersType { Name = "CTRL", ModifierKey = NonInvasiveKeyboardHookLibrary.ModifierKeys.Control, IsChecked = false },
                 new ModifiersType { Name = "SHIFT", ModifierKey = NonInvasiveKeyboardHookLibrary.ModifierKeys.Shift, IsChecked = false },
@@ -1339,11 +1339,7 @@ namespace adrilight.ViewModel
             WriteAutomationCollectionJson();
 
             //register hotkey from loaded automation//
-            if (GeneralSettings.HotkeyEnable)
-            {
-                HotKeyManager.Instance.Start();
-                Register();
-            }
+            
 
             //dummy device acts as add new button
             var addNewButton = new DeviceSettings {
@@ -1378,12 +1374,12 @@ namespace adrilight.ViewModel
                     case nameof(GeneralSettings.HotkeyEnable):
                         if (GeneralSettings.HotkeyEnable)
                         {
-                            HotKeyManager.Instance.Start();
+                            KeyboardHookManagerSingleton.Instance.Start();
                             Register();
                         }
                         else
                         {
-                            HotKeyManager.Instance.Stop();
+                            KeyboardHookManagerSingleton.Instance.Stop();
                             Unregister();
                         }
                         break;
@@ -1393,6 +1389,7 @@ namespace adrilight.ViewModel
                 }
             };
             CreateFWToolsFolderAndFiles();
+           
         }
 
         public void SetGifxelationPreviewImage(ByteFrame frame)
@@ -2638,11 +2635,11 @@ namespace adrilight.ViewModel
                 await CheckForUpdate();
                 IsCheckingForUpdate = false;
                 UpdateButtonEnable = true;
-                if(AvailableUpdates==null)
+                if (AvailableUpdates == null)
                 {
                     return;
                 }
-                if(AvailableUpdates.ReleasesToApply.Any())
+                if (AvailableUpdates.ReleasesToApply.Any())
                 {
                     OpenAvailableUpdateListWindow();
                 }
@@ -2650,8 +2647,8 @@ namespace adrilight.ViewModel
                 {
                     HandyControl.Controls.MessageBox.Show("Không tìm thấy bản cập nhật mới nào", "No Update Available", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
-               
-                
+
+
             }
           );
             ImportProfileCommand = new RelayCommand<string>((p) =>
@@ -4043,12 +4040,10 @@ namespace adrilight.ViewModel
             }
         }
 
-        private static KeyboardHookManager _hook;
-        private static KeyboardHookManager Hook => _hook ?? (_hook = new KeyboardHookManager());
-        private List<Guid?> _identifiers;
-        private Guid? _identifier;
+      
+        
 
-        private void Register()
+        public void Register()
         {
             //_identifiers = new List<Guid?>();
             foreach (var automation in AvailableAutomations.Where(x => x.IsEnabled == true))
@@ -4065,14 +4060,18 @@ namespace adrilight.ViewModel
 
                 try
                 {
-                    Hook.Start();
+
 
                     switch (modifierkeys.Count)
                     {
                         case 0:
-                            Hook.RegisterHotkey(automation.Condition, () =>
+                            KeyboardHookManagerSingleton.Instance.RegisterHotkey(automation.Condition, () =>
                             {
-                                ExecuteAutomationActions(automation.Actions);
+                                Task.Run(() =>
+                                   {
+                                       ExecuteAutomationActions(automation.Actions);
+                                   });
+                               
                                 Debug.WriteLine(automation.Name + " excuted");
                                 if (GeneralSettings.NotificationEnabled)
                                     SendNotification(automation.Name);
@@ -4081,9 +4080,12 @@ namespace adrilight.ViewModel
                             break;
 
                         case 1:
-                            Hook.RegisterHotkey(modifierkeys.First(), automation.Condition, () =>
+                            KeyboardHookManagerSingleton.Instance.RegisterHotkey(modifierkeys.First(), automation.Condition, () =>
                             {
-                                ExecuteAutomationActions(automation.Actions);
+                                Task.Run(() =>
+                                {
+                                    ExecuteAutomationActions(automation.Actions);
+                                });
                                 Debug.WriteLine(automation.Name + " excuted");
                                 if (GeneralSettings.NotificationEnabled)
                                     SendNotification(automation.Name);
@@ -4092,12 +4094,14 @@ namespace adrilight.ViewModel
                             break;
 
                         default:
-                            Hook.RegisterHotkey(modifierkeys.ToArray(), automation.Condition, () =>
+                            KeyboardHookManagerSingleton.Instance.RegisterHotkey(modifierkeys.ToArray(), automation.Condition, () =>
                             {
-                                ExecuteAutomationActions(automation.Actions);
+                                Task.Run(() =>
+                                {
+                                    ExecuteAutomationActions(automation.Actions);
+                                });
                                 Debug.WriteLine(automation.Name + " excuted");
-                                if (GeneralSettings.NotificationEnabled)
-                                    SendNotification(automation.Name);
+
                             });
                             //_identifiers.Add(_identifier);
                             break;
@@ -4130,6 +4134,10 @@ namespace adrilight.ViewModel
                     case "Activate Profile":
                         var destinationProfile = AvailableProfiles.Where(x => x.ProfileUID == action.ActionParameter.Value).FirstOrDefault();
                         targetDevice.ActivateProfile(destinationProfile);
+                        //at this moment, selected profile for the target device changed but the UI know nothing about this
+                        //because the porperty changed event didnt fire
+                        //so we fire profile UID changed instead
+                        targetDevice.ActivatedProfileUID = destinationProfile.ProfileUID;
                         break;
 
                     case "Brightness Control":
@@ -4204,7 +4212,7 @@ namespace adrilight.ViewModel
 
         private void Unregister()
         {
-            Hook.UnregisterAll();
+            KeyboardHookManagerSingleton.Instance.UnregisterAll();
         }
 
         private int _fwUploadPercent;
@@ -5070,8 +5078,8 @@ namespace adrilight.ViewModel
             {
                 File.Delete(JsonGeneralFileNameAndPath);
             }
-            if(AmbinityClient!=null)
-            AmbinityClient.Dispose();
+            if (AmbinityClient != null)
+                AmbinityClient.Dispose();
             System.Windows.Forms.Application.Restart();
             Process.GetCurrentProcess().Kill();
         }
@@ -6672,7 +6680,11 @@ namespace adrilight.ViewModel
                 unsavedProfile.SaveProfile(CurrentDevice.UnionOutput, CurrentDevice.AvailableOutputs);
                 AvailableProfiles.Add(unsavedProfile);
                 WriteDeviceProfileCollection();
-                CurrentDevice.ActivateProfile(unsavedProfile);
+                Task.Run(() =>
+                {
+                    CurrentDevice.ActivateProfile(unsavedProfile);
+                });
+                
                 CurrentSelectedProfile = unsavedProfile;
             }
 
@@ -6764,6 +6776,9 @@ namespace adrilight.ViewModel
                                 RaisePropertyChanged(() => CurrentDeviceOutputMode);
                                 break;
                         }
+                        break;
+                    case nameof(CurrentDevice.ActivatedProfileUID):
+                        RaisePropertyChanged(() => CurrentSelectedProfile);
                         break;
                 }
             };

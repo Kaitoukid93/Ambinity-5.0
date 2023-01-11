@@ -20,6 +20,8 @@ using adrilight.ViewModel;
 using LiveCharts;
 using LiveCharts.Defaults;
 using LiveCharts.Wpf;
+using NonInvasiveKeyboardHookLibrary;
+
 namespace adrilight.View
 {
     /// <summary>
@@ -38,6 +40,12 @@ namespace adrilight.View
             noticon.Init();
        
             var view = DataContext as MainViewViewModel;
+            if (view.GeneralSettings.HotkeyEnable)
+            {
+
+                KeyboardHookManagerSingleton.Instance.Start();
+                view.Register();
+            }
             if (view != null)
             {
                 view.FanControlView = new SeriesCollection
