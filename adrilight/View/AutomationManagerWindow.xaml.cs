@@ -18,7 +18,7 @@ namespace adrilight.View
     /// <summary>
     /// Interaction logic for PaletteEditWindow.xaml
     /// </summary>
-    public partial class AutomationManagerWindow 
+    public partial class AutomationManagerWindow
     {
         public AutomationManagerWindow()
         {
@@ -30,6 +30,11 @@ namespace adrilight.View
             this.Close();
         }
         public ModifierKeys[] AllModifiers => Enum.GetValues(typeof(ModifierKeys)).Cast<ModifierKeys>().ToArray();
+
+     
+
+
+        
 
     }
 }

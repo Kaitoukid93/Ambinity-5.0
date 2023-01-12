@@ -12,12 +12,11 @@
            Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
-           
+           SizeToContent="Height"
            x:Name="window"
-           Height="420" 
            Width="800" 
            WindowStartupLocation="CenterOwner" 
-           Left="0" Top="0">
+           >
 
     <Window.Resources>
         <ResourceDictionary>
@@ -26,6 +25,92 @@
                     <converters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
                     <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
                     <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
+                    <DropShadowEffect x:Key="Item.SelectedActive.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}"/>
+                    <DropShadowEffect x:Key="Item.MouseOver.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource DarkMaskBrush}}"/>
+                    <Style x:Key="_ListBoxOutputsCollectionStyle" TargetType="ListBoxItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border CornerRadius="5" Name="_Border"
+                                Padding="0"
+                                Margin="0"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                BorderThickness="0"
+                                SnapsToDevicePixels="true">
+                                        <ContentPresenter />
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+
+
+                                            <Setter Property="Background" TargetName="_Border" Value="{DynamicResource DarkOpacityBrush}"/>
+
+                                            <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+
+
+                                            <!--<Setter Property="Effect" TargetName="_Border" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>-->
+
+                                            <Setter Property="Background" TargetName="_Border" Value="{DynamicResource DarkOpacityBrush}"/>
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsMouseOver" Value="True"/>
+                                                <Condition Property="IsSelected" Value="False"/>
+                                            </MultiTrigger.Conditions>
+
+                                            <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
+
+                                            <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+                                            <Setter Property="Background" TargetName="_Border" Value="{DynamicResource DarkMaskBrush}"/>
+                                            <Setter Property="Effect" TargetName="_Border" Value="{StaticResource Item.MouseOver.Border.Shadow}"/>
+                                        </MultiTrigger>
+
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <!--<Setter Property="ToolTip" Value="{Binding DocName}"/>-->
+                        <Setter Property="Tag" Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
+                        <Setter Property="ContextMenu">
+                            <Setter.Value>
+                                <ContextMenu>
+                                    <MenuItem Command="{Binding PlacementTarget.Tag.DeleteSelectedAutomationCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="Delete"  Header="Delete">
+                                        <MenuItem.Icon>
+                                            <Path   Data="{StaticResource delete}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                        </MenuItem.Icon>
+
+
+                                    </MenuItem>
+                                    <MenuItem Command="{Binding PlacementTarget.Tag.LaunchPIDEditWindowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="Delete"  Header="Add to System Tray">
+                                        <MenuItem.Icon>
+                                            <Path   Data="{DynamicResource fullscreen}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                        </MenuItem.Icon>
+
+
+                                    </MenuItem>
+                                </ContextMenu>
+
+                            </Setter.Value>
+                        </Setter>
+                       
+                        <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
                 </ResourceDictionary>
 
             </ResourceDictionary.MergedDictionaries>
@@ -45,11 +130,91 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock HorizontalAlignment="Center" Text="Automation Manager" Style="{StaticResource TextBlockLarge}">
                 </TextBlock>
-                <Button Command="{ Binding OpenAddNewAutomationCommand}" Grid.Column="1" Margin="0,0,5,0" HorizontalAlignment="Right" VerticalAlignment="Center" Content="Add" Style="{StaticResource ButtonDashedPrimary}" />
+                <Button hc:IconElement.Height="12" hc:IconElement.Width="12" Padding="5" hc:IconElement.Geometry="{DynamicResource AddGeometry}" Command="{ Binding OpenAddNewAutomationCommand}" Grid.Column="1" Margin="5" HorizontalAlignment="Right" VerticalAlignment="Center" Content="Add" Style="{StaticResource ButtonDashedPrimary}" />
             </Grid>
 
             <Grid Grid.Row="1" Margin="5">
-                <DataGrid hc:DataGridAttach.ShowSelectAllButton="False" SelectedItem="{Binding CurrentSelectedAutomation}" ItemsSource="{Binding AvailableAutomations}" hc:DataGridAttach.CanUnselectAllWithBlankArea="False" HeadersVisibility="All" RowHeaderWidth="0" AutoGenerateColumns="False">
+            <ListBox SelectedItem="{Binding CurrentSelectedAutomation}" Background="Transparent" BorderThickness="0" ItemContainerStyle="{DynamicResource _ListBoxOutputsCollectionStyle}" ItemsSource="{Binding AvailableAutomations}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <!--Geometry-->
+                                <ColumnDefinition Width="auto"/>
+                                <!--Name and Description-->
+                                <ColumnDefinition Width="*"/>
+                                <!--Action-->
+                                <ColumnDefinition Width="auto"/>
+                                <!--Shortcut-->
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0">
+                                <Path Fill="{DynamicResource PrimaryBrush}" Width="25" Height="25" Margin="10,5" Data="{DynamicResource auto}" Stretch="Uniform" >
+                                  
+                                </Path>
+                            </Grid>
+                            <Grid Grid.Column="1">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid Grid.Row="0">
+                                        <TextBox TextElement.FontSize="15" TextAlignment="Left" BorderThickness="0" Background="Transparent"  Margin="5" HorizontalAlignment="Left" Typography.Capitals="AllPetiteCaps" FontWeight="SemiBold" Text="{Binding Name}"/>
+                                    </Grid>
+                                    <Grid Grid.Row="1">
+                                        <TextBlock VerticalAlignment="Top" Margin="10" HorizontalAlignment="Left" Text="this is the description of the parrent's automation" Style="{DynamicResource TextBlockDefaultSecLight}"/>
+                                    </Grid>
+
+                                </Grid>
+                            </Grid>
+                            <Grid Grid.Column="2">
+                                <Button Height="32" Margin="5"  Command="{Binding Path=DataContext.OpenActionsManagerWindowCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding .}"  BorderThickness="0" Content="Chỉnh sửa hành động">
+                                    
+                                </Button>
+                            </Grid>
+                            <Grid Grid.Column="3">
+                                <Button Command="{Binding Path=DataContext.OpenHotKeySelectionWindowCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" BorderThickness="0" Margin="15,10" HorizontalAlignment="Right" Height="50" Padding="5">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            
+                                        </Grid.ColumnDefinitions>
+                                        <Grid>
+                                            <ListView x:Name="Modifier_display" 
+                                                     ItemsSource="{Binding Modifiers}"
+                                                                            
+                                                     Background="Transparent"
+                                                     BorderThickness="0"
+                                                     Style="{StaticResource WrapPanelHorizontalListBox}">
+                                                <ListView.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Margin="5,0,5,0">
+                                                            <Border Background="{DynamicResource PrimaryBrush}" BorderThickness="0" BorderBrush="{StaticResource BorderBrush}" CornerRadius="4">
+                                                                <TextBlock Style="{StaticResource TextBlockDefaultBold}" Margin="5" Text="{Binding Name}"/>
+                                                            </Border>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ListView.ItemTemplate>
+
+                                            </ListView>
+
+                                        </Grid>
+                                        <Grid Grid.Column="1">
+
+                                            <local:KeySelectionButton MinWidth="36" IsHitTestVisible="False" Margin="5,0,5,0" HorizontalAlignment="Left" SelectedKey="{Binding Condition, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Style="{StaticResource ButtonDefault}" />
+
+                                        </Grid>
+                                    </Grid>
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+                <!--<DataGrid  hc:DataGridAttach.ShowSelectAllButton="False" SelectedItem="{Binding CurrentSelectedAutomation}" ItemsSource="{Binding AvailableAutomations}" hc:DataGridAttach.CanUnselectAllWithBlankArea="False" HeadersVisibility="All" RowHeaderWidth="0" AutoGenerateColumns="False">
                     <DataGrid.Columns>
                         <DataGridTextColumn
                                     Binding="{Binding Name}"
@@ -63,28 +228,43 @@
                                             <ColumnDefinition Width="auto"/>
                                             <ColumnDefinition Width="auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <Grid Grid.Column="1">
-                                            <local:KeySelectionButton Margin="5,0,5,0" HorizontalAlignment="Left" SelectedKey="{Binding Condition, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                         Style="{StaticResource ButtonDefault}" />
-                                        </Grid>
+                                       
                                         <Grid>
-                                            <ListBox x:Name="Modifier_display" 
+                                        <Button>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Height="50">
+                                                    <ListBox x:Name="Modifier_display" 
                                                      ItemsSource="{Binding Modifiers}"
                                                                             
                                                      Background="Transparent"
                                                      BorderThickness="0"
                                                      Style="{StaticResource WrapPanelHorizontalListBox}">
-                                                <ListBox.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Grid Margin="5,0,5,0">
-                                                            <Border BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" CornerRadius="4">
-                                                                <TextBlock Style="{StaticResource TextBlockDefaultBold}" Margin="5" Text="{Binding Name}"/>
-                                                            </Border>
-                                                        </Grid>
-                                                    </DataTemplate>
-                                                </ListBox.ItemTemplate>
+                                                        <ListBox.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Grid Margin="5,0,5,0">
+                                                                    <Border BorderThickness="1" BorderBrush="{StaticResource BorderBrush}" CornerRadius="4">
+                                                                        <TextBlock Style="{StaticResource TextBlockDefaultBold}" Margin="5" Text="{Binding Name}"/>
+                                                                    </Border>
+                                                                </Grid>
+                                                            </DataTemplate>
+                                                        </ListBox.ItemTemplate>
 
-                                            </ListBox>
+                                                    </ListBox>
+                                                </Border>
+                                          
+                                                <Grid Grid.Column="1">
+                                                    
+                                                        <local:KeySelectionButton Margin="5,0,5,0" HorizontalAlignment="Left" SelectedKey="{Binding Condition, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                         Style="{StaticResource ButtonDefault}" />
+                                                    
+                                                </Grid>
+                                            </Grid>
+                                        </Button>
+                                           
 
                                         </Grid>
                                     </Grid>
@@ -122,7 +302,7 @@
                        
                     </DataGrid.Columns>
                    
-                </DataGrid>
+                </DataGrid>-->
             </Grid>
             <Grid Grid.Row="2" Margin="5">
                 <Grid.ColumnDefinitions>

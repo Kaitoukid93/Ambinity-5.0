@@ -768,7 +768,7 @@
                                     <Setter Property="Fill" Value="{StaticResource PrimaryBrush}"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding CurrentDevice.IsTransferActive}" Value="False">
-                                            <Setter Property="Fill" Value="{StaticResource SecondaryTextBrush}"/>
+                                            <Setter Property="Fill" Value="{DynamicResource SecondaryTextBrush}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
 

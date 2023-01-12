@@ -201,6 +201,24 @@ namespace adrilight.ViewModel
                 _currentSelectedAction = value;
             }
         }
+        private ObservableCollection<string> _currentSelectedShortKeys;
+        public ObservableCollection<string> CurrentSelectedShortKeys {
+            get { return _currentSelectedShortKeys; }
+            set
+            {
+                _currentSelectedShortKeys = value;
+                RaisePropertyChanged();
+            }
+        }
+        private ObservableCollection<string> _currentSelectedModifiers;
+        public ObservableCollection<string> CurrentSelectedModifiers {
+            get { return _currentSelectedModifiers; }
+            set
+            {
+                _currentSelectedModifiers = value;
+                RaisePropertyChanged();
+            }
+        }
 
         private IDeviceFirmware _currentSelectedFirmware;
 
@@ -617,6 +635,7 @@ namespace adrilight.ViewModel
         public ICommand SaveAllAutomationCommand { get; set; }
         public ICommand OpenAddNewAutomationCommand { get; set; }
         public ICommand OpenActionsManagerWindowCommand { get; set; }
+        public ICommand OpenHotKeySelectionWindowCommand { get; set; }
         public ICommand OpenActionsEditWindowCommand { get; set; }
         public ICommand OpenAutomationManagerWindowCommand { get; set; }
         public ICommand OpenHardwareMonitorWindowCommand { get; set; }
@@ -2716,12 +2735,12 @@ namespace adrilight.ViewModel
                 DeleteSelectedGif(p);
             });
 
-            DeleteSelectedAutomationCommand = new RelayCommand<IAutomationSettings>((p) =>
+            DeleteSelectedAutomationCommand = new RelayCommand<string>((p) =>
             {
                 return true;
             }, (p) =>
             {
-                DeleteSelectedAutomation(p);
+                DeleteSelectedAutomation();
             });
 
             SetIncreamentCommandfromZero = new RelayCommand<string>((p) =>
@@ -2867,12 +2886,19 @@ namespace adrilight.ViewModel
                     IsSpeedSettingUnsetted = false;
                 }
             });
-            OpenActionsManagerWindowCommand = new RelayCommand<string>((p) =>
+            OpenActionsManagerWindowCommand = new RelayCommand<IAutomationSettings>((p) =>
             {
                 return true;
             }, (p) =>
             {
-                OpenActionsManagerWindow();
+                OpenActionsManagerWindow(p);
+            });
+            OpenHotKeySelectionWindowCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                OpenHotKeySelectionWindow();
             });
             OpenActionsEditWindowCommand = new RelayCommand<string>((p) =>
             {
@@ -3571,15 +3597,31 @@ namespace adrilight.ViewModel
             }
         }
 
-        private void OpenActionsManagerWindow()
+        private void OpenActionsManagerWindow(IAutomationSettings selectedautomation)
         {
             if (AssemblyHelper.CreateInternalInstance($"View.{"ActionManagerWindow"}") is System.Windows.Window window)
             {
+                CurrentSelectedAutomation = selectedautomation;
                 window.Owner = System.Windows.Application.Current.MainWindow;
                 window.ShowDialog();
             }
         }
-
+        private void OpenHotKeySelectionWindow()
+        {
+            if (AssemblyHelper.CreateInternalInstance($"View.{"HotKeySelectionWindow"}") is System.Windows.Window window)
+            {
+                CurrentSelectedShortKeys = new ObservableCollection<string>();
+                //CurrentSelectedShortKeys.Add(KeyInterop.KeyFromVirtualKey(CurrentSelectedAutomation.Condition).ToString());
+                CurrentSelectedModifiers = new ObservableCollection<string>();
+                //foreach (var modifier in CurrentSelectedAutomation.Modifiers)
+                //{
+                //    CurrentSelectedModifiers.Add(modifier.Name);
+                //}
+                
+                window.Owner = System.Windows.Application.Current.MainWindow;
+                window.ShowDialog();
+            }
+        }
         private void OpenSpotMapWindow()
         {
             if (AssemblyHelper.CreateInternalInstance($"View.{"SpotMapViewWindow"}") is System.Windows.Window window)
@@ -5084,9 +5126,9 @@ namespace adrilight.ViewModel
             Process.GetCurrentProcess().Kill();
         }
 
-        private void DeleteSelectedAutomation(IAutomationSettings automation)
+        private void DeleteSelectedAutomation()
         {
-            AvailableAutomations.Remove(automation);
+            AvailableAutomations.Remove(CurrentSelectedAutomation);
             WriteAutomationCollectionJson();
         }
 
