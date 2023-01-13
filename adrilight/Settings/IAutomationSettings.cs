@@ -21,8 +21,8 @@ namespace adrilight
         List<IActionSettings> Actions { get; set; }
         int ConditionTypeIndex { get; set; }  // this is the index that point to type of the action, could be timmer or hot key
 
-        int Condition { get; set; }// this is the condition such as key stroke code 
-        List<IModifiersType> Modifiers { get; set; }
+        KeyModel StandardKey { get; set; }// this is the condition such as key stroke code 
+        List<ModifierKeys> Modifiers { get; set; }
         bool IsEnabled { get; set; }
      
         

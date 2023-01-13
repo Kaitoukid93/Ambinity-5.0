@@ -201,8 +201,8 @@ namespace adrilight.ViewModel
                 _currentSelectedAction = value;
             }
         }
-        private ObservableCollection<string> _currentSelectedShortKeys;
-        public ObservableCollection<string> CurrentSelectedShortKeys {
+        private ObservableCollection<KeyModel> _currentSelectedShortKeys;
+        public ObservableCollection<KeyModel> CurrentSelectedShortKeys {
             get { return _currentSelectedShortKeys; }
             set
             {
@@ -633,6 +633,7 @@ namespace adrilight.ViewModel
         public ICommand ScanSerialDeviceCommand { get; set; }
         public ICommand ScanOpenRGBDeviceCommand { get; set; }
         public ICommand SaveAllAutomationCommand { get; set; }
+        public ICommand SaveCurrentSelectedAutomationShortkeyCommand { get; set; }
         public ICommand OpenAddNewAutomationCommand { get; set; }
         public ICommand OpenActionsManagerWindowCommand { get; set; }
         public ICommand OpenHotKeySelectionWindowCommand { get; set; }
@@ -1308,7 +1309,7 @@ namespace adrilight.ViewModel
         //public static IShaderEffect ShaderEffect { get; set; }
 
         private static ReaderWriterLockSlim _readWriteLock = new ReaderWriterLockSlim();
-        
+
         public MainViewViewModel(IContext context,
             IDeviceSettings[] devices,
             IGeneralSettings generalSettings,
@@ -1332,7 +1333,7 @@ namespace adrilight.ViewModel
             SerialDeviceDetection = serialDeviceDetection ?? throw new ArgumentNullException(nameof(serialDeviceDetection));
 
             //ShaderEffect = shaderEffect ?? throw new ArgumentNullException();
-          
+
             AvailableModifiers = new ObservableCollection<IModifiersType> {
                 new ModifiersType { Name = "CTRL", ModifierKey = NonInvasiveKeyboardHookLibrary.ModifierKeys.Control, IsChecked = false },
                 new ModifiersType { Name = "SHIFT", ModifierKey = NonInvasiveKeyboardHookLibrary.ModifierKeys.Shift, IsChecked = false },
@@ -1358,7 +1359,7 @@ namespace adrilight.ViewModel
             WriteAutomationCollectionJson();
 
             //register hotkey from loaded automation//
-            
+
 
             //dummy device acts as add new button
             var addNewButton = new DeviceSettings {
@@ -1408,7 +1409,7 @@ namespace adrilight.ViewModel
                 }
             };
             CreateFWToolsFolderAndFiles();
-           
+
         }
 
         public void SetGifxelationPreviewImage(ByteFrame frame)
@@ -2468,6 +2469,13 @@ namespace adrilight.ViewModel
             {
                 SaveAllAutomation();
             });
+            SaveCurrentSelectedAutomationShortkeyCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                SaveCurrentSelectedAutomationShortkey();
+            });
             AddNewSolidColorCommand = new RelayCommand<string>((p) =>
                  {
                      return true;
@@ -2575,14 +2583,14 @@ namespace adrilight.ViewModel
                 SaveCurrentSelectedAction();
             }
             );
-            SaveCurrentSelectedAutomationCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                SaveCurrentSelectedAutomation();
-            }
-           );
+           // SaveCurrentSelectedAutomationCommand = new RelayCommand<string>((p) =>
+           // {
+           //     return true;
+           // }, (p) =>
+           // {
+           //     SaveCurrentSelectedAutomation();
+           // }
+           //);
             ExportCurrentProfileCommand = new RelayCommand<IDeviceProfile>((p) =>
             {
                 return true;
@@ -2735,12 +2743,12 @@ namespace adrilight.ViewModel
                 DeleteSelectedGif(p);
             });
 
-            DeleteSelectedAutomationCommand = new RelayCommand<string>((p) =>
+            DeleteSelectedAutomationCommand = new RelayCommand<IAutomationSettings>((p) =>
             {
                 return true;
             }, (p) =>
             {
-                DeleteSelectedAutomation();
+                DeleteSelectedAutomation(p);
             });
 
             SetIncreamentCommandfromZero = new RelayCommand<string>((p) =>
@@ -2893,12 +2901,12 @@ namespace adrilight.ViewModel
             {
                 OpenActionsManagerWindow(p);
             });
-            OpenHotKeySelectionWindowCommand = new RelayCommand<string>((p) =>
+            OpenHotKeySelectionWindowCommand = new RelayCommand<IAutomationSettings>((p) =>
             {
                 return true;
             }, (p) =>
             {
-                OpenHotKeySelectionWindow();
+                OpenHotKeySelectionWindow(p);
             });
             OpenActionsEditWindowCommand = new RelayCommand<string>((p) =>
             {
@@ -3606,18 +3614,23 @@ namespace adrilight.ViewModel
                 window.ShowDialog();
             }
         }
-        private void OpenHotKeySelectionWindow()
+        private void OpenHotKeySelectionWindow(IAutomationSettings selectedautomation)
         {
             if (AssemblyHelper.CreateInternalInstance($"View.{"HotKeySelectionWindow"}") is System.Windows.Window window)
             {
-                CurrentSelectedShortKeys = new ObservableCollection<string>();
-                //CurrentSelectedShortKeys.Add(KeyInterop.KeyFromVirtualKey(CurrentSelectedAutomation.Condition).ToString());
+                CurrentSelectedAutomation = selectedautomation;
+                RaisePropertyChanged(nameof(CurrentSelectedAutomation));
+                CurrentSelectedShortKeys = new ObservableCollection<KeyModel>();
                 CurrentSelectedModifiers = new ObservableCollection<string>();
+               
+                
+                //CurrentSelectedShortKeys.Add(KeyInterop.KeyFromVirtualKey(CurrentSelectedAutomation.Condition).ToString());
+
                 //foreach (var modifier in CurrentSelectedAutomation.Modifiers)
                 //{
                 //    CurrentSelectedModifiers.Add(modifier.Name);
                 //}
-                
+
                 window.Owner = System.Windows.Application.Current.MainWindow;
                 window.ShowDialog();
             }
@@ -3914,29 +3927,29 @@ namespace adrilight.ViewModel
             CurrentSelectedAction.ActionParameter = SelectedParameter;
         }
 
-        private void SaveCurrentSelectedAutomation()
-        {
-            CurrentSelectedAutomation.Modifiers = new List<IModifiersType>();
-            foreach (var modifier in AvailableModifiers)
-            {
-                if (modifier.IsChecked)
-                {
-                    CurrentSelectedAutomation.Modifiers.Add(modifier);
-                }
-            }
+        //private void SaveCurrentSelectedAutomation()
+        //{
+        //    CurrentSelectedAutomation.Modifiers = new List<NonInvasiveKeyboardHookLibrary.ModifierKeys>();
+        //    foreach (var modifier in AvailableModifiers)
+        //    {
+        //        if (modifier.IsChecked)
+        //        {
+        //            CurrentSelectedAutomation.Modifiers.Add(modifier);
+        //        }
+        //    }
 
-            WriteAutomationCollectionJson();
-            AvailableAutomations = new ObservableCollection<IAutomationSettings>();
-            foreach (var automation in LoadAutomationIfExist())
-            {
-                AvailableAutomations.Add(automation);
-            }
-            if (GeneralSettings.HotkeyEnable)
-            {
-                Unregister();
-                Register();
-            }
-        }
+        //    WriteAutomationCollectionJson();
+        //    AvailableAutomations = new ObservableCollection<IAutomationSettings>();
+        //    foreach (var automation in LoadAutomationIfExist())
+        //    {
+        //        AvailableAutomations.Add(automation);
+        //    }
+        //    if (GeneralSettings.HotkeyEnable)
+        //    {
+        //        Unregister();
+        //        Register();
+        //    }
+        //}
 
         private void SaveAllAutomation()
         {
@@ -3951,6 +3964,50 @@ namespace adrilight.ViewModel
                 Unregister();
                 Register();
             }
+        }
+        private NonInvasiveKeyboardHookLibrary.ModifierKeys ConvertStringtoModifier(string key)
+        {
+            NonInvasiveKeyboardHookLibrary.ModifierKeys returnKey = NonInvasiveKeyboardHookLibrary.ModifierKeys.WindowsKey;
+            switch (key)
+            {
+                case "Shift":
+                    returnKey = NonInvasiveKeyboardHookLibrary.ModifierKeys.Shift;
+                    break;
+                case "Ctrl":
+                    returnKey = NonInvasiveKeyboardHookLibrary.ModifierKeys.Control;
+                    break;
+                case "Alt":
+                    returnKey = NonInvasiveKeyboardHookLibrary.ModifierKeys.Alt;
+                    break;
+               
+            }
+            return returnKey;
+        }
+      
+        private void SaveCurrentSelectedAutomationShortkey()
+        {
+            var modifiers = CurrentSelectedModifiers.ToArray();
+            var key = CurrentSelectedShortKeys.ToArray();
+            CurrentSelectedAutomation.Modifiers = new List<NonInvasiveKeyboardHookLibrary.ModifierKeys>();
+            foreach (var modifier in modifiers)
+            {
+                
+                CurrentSelectedAutomation.Modifiers.Add(ConvertStringtoModifier(modifier));
+                
+            }
+            RaisePropertyChanged(nameof(CurrentSelectedAutomation.Modifiers));
+            CurrentSelectedAutomation.StandardKey = key[0];
+            WriteAutomationCollectionJson();
+            //AvailableAutomations = new ObservableCollection<IAutomationSettings>();
+            //foreach (var automation in LoadAutomationIfExist())
+            //{
+            //    AvailableAutomations.Add(automation);
+            //}
+            //if (GeneralSettings.HotkeyEnable)
+            //{
+            //    Unregister();
+            //    Register();
+            //}
         }
         private void SetCurrentSelectedOutputForCurrentSelectedDevice()
         {
@@ -4082,8 +4139,8 @@ namespace adrilight.ViewModel
             }
         }
 
-      
-        
+
+
 
         public void Register()
         {
@@ -4095,8 +4152,8 @@ namespace adrilight.ViewModel
                 {
                     foreach (var modifier in automation.Modifiers)
                     {
-                        var modifierkey = modifier.ModifierKey;
-                        modifierkeys.Add(modifierkey);
+                        
+                        modifierkeys.Add(modifier);
                     }
                 }
 
@@ -4107,13 +4164,13 @@ namespace adrilight.ViewModel
                     switch (modifierkeys.Count)
                     {
                         case 0:
-                            KeyboardHookManagerSingleton.Instance.RegisterHotkey(automation.Condition, () =>
+                            KeyboardHookManagerSingleton.Instance.RegisterHotkey(automation.StandardKey.KeyCode, () =>
                             {
                                 Task.Run(() =>
                                    {
                                        ExecuteAutomationActions(automation.Actions);
                                    });
-                               
+
                                 Debug.WriteLine(automation.Name + " excuted");
                                 if (GeneralSettings.NotificationEnabled)
                                     SendNotification(automation.Name);
@@ -4122,7 +4179,7 @@ namespace adrilight.ViewModel
                             break;
 
                         case 1:
-                            KeyboardHookManagerSingleton.Instance.RegisterHotkey(modifierkeys.First(), automation.Condition, () =>
+                            KeyboardHookManagerSingleton.Instance.RegisterHotkey(modifierkeys.First(), automation.StandardKey.KeyCode, () =>
                             {
                                 Task.Run(() =>
                                 {
@@ -4136,7 +4193,7 @@ namespace adrilight.ViewModel
                             break;
 
                         default:
-                            KeyboardHookManagerSingleton.Instance.RegisterHotkey(modifierkeys.ToArray(), automation.Condition, () =>
+                            KeyboardHookManagerSingleton.Instance.RegisterHotkey(modifierkeys.ToArray(), automation.StandardKey.KeyCode, () =>
                             {
                                 Task.Run(() =>
                                 {
@@ -4155,6 +4212,10 @@ namespace adrilight.ViewModel
                     //disable automation
                     automation.IsEnabled = false;
                     WriteAutomationCollectionJson();
+                }
+                catch(Exception ex)
+                {
+
                 }
             }
         }
@@ -5126,9 +5187,9 @@ namespace adrilight.ViewModel
             Process.GetCurrentProcess().Kill();
         }
 
-        private void DeleteSelectedAutomation()
+        private void DeleteSelectedAutomation(IAutomationSettings automation)
         {
-            AvailableAutomations.Remove(CurrentSelectedAutomation);
+            AvailableAutomations.Remove(automation);
             WriteAutomationCollectionJson();
         }
 
@@ -6726,7 +6787,7 @@ namespace adrilight.ViewModel
                 {
                     CurrentDevice.ActivateProfile(unsavedProfile);
                 });
-                
+
                 CurrentSelectedProfile = unsavedProfile;
             }
 

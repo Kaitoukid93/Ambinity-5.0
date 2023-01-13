@@ -163,6 +163,7 @@
     <Compile Include="Settings\IGeneralSettings.cs" />
     <Compile Include="Settings\IModifiersType.cs" />
     <Compile Include="Settings\IOutputSettings.cs" />
+    <Compile Include="Settings\KeyModel.cs" />
     <Compile Include="Settings\ModifiersType.cs" />
     <Compile Include="Settings\OutputSettings.cs" />
     <Compile Include="Settings\RateLimitedSender.cs" />

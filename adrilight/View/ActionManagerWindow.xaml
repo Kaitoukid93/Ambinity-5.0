@@ -11,10 +11,12 @@
            Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
-           
+           ResizeMode="NoResize"
            x:Name="window"
-           Height="450" 
-           Width="700" 
+           SizeToContent="Height"
+           MinHeight="300"
+           MaxHeight="800"
+           Width="500" 
            WindowStartupLocation="CenterOwner" 
            Left="0" Top="0">
 
@@ -25,7 +27,110 @@
                 <converters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
                 <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
                 <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
-                    
+                    <DropShadowEffect x:Key="Item.SelectedActive.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}"/>
+                    <DropShadowEffect x:Key="Item.MouseOver.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource DarkMaskBrush}}"/>
+                    <Style x:Key="ListViewContainerStyle" TargetType="{x:Type ListViewItem}">
+
+                        <Setter Property="SnapsToDevicePixels" Value="True"/>
+                        <Setter Property="Padding" Value="0"/>
+                        <!--<Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+                <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>-->
+                        <Setter Property="Background" Value="{StaticResource RegionBrush}"/>
+                        <Setter Property="BorderBrush" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="4"/>
+                        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+                        <Setter Property="Width" Value="auto"/>
+                        <Setter Property="Height" Value="auto"/>
+                        <Setter Property="Focusable" Value="False"/>
+                        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+
+                        <!--<Setter Property="ContextMenu">
+                    <Setter.Value>
+                        <ContextMenu >
+                            <MenuItem  Header="Share">
+                            </MenuItem>
+                            <MenuItem  Header="Delete" Command="{Binding PlacementTarget.Tag.LaunchDeleteSelectedDeviceWindowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" >
+                                <MenuItem.Icon>
+                                    <Path   Data="{StaticResource delete}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
+                        </ContextMenu>
+
+                    </Setter.Value>
+                </Setter>-->
+
+                        <Setter Property="Tag" Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListView}}" />
+                        <Setter Property="ContextMenu">
+                            <Setter.Value>
+                                <ContextMenu>
+                                    <MenuItem Command="{Binding PlacementTarget.Tag.DeleteSelectedAutomationCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding .}"  Header="Delete">
+                                        <MenuItem.Icon>
+                                            <Path   Data="{DynamicResource delete}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                        </MenuItem.Icon>
+
+
+                                    </MenuItem>
+                                    <MenuItem Command="{Binding PlacementTarget.Tag.LaunchPIDEditWindowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="Delete"  Header="Add to System Tray">
+                                        <MenuItem.Icon>
+                                            <Path   Data="{DynamicResource fullscreen}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                        </MenuItem.Icon>
+
+
+                                    </MenuItem>
+                                </ContextMenu>
+
+                            </Setter.Value>
+                        </Setter>
+
+
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" Margin="2" CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsMouseOver" Value="True"/>
+                                                <Condition Property="IsSelected" Value="False"/>
+                                            </MultiTrigger.Conditions>
+
+                                            <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
+                                            <!--<Setter Property="BorderThickness" TargetName="Bd" Value="4"/>-->
+                                            <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+                                            <Setter Property="Effect" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>
+                                        </MultiTrigger>
+
+
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+
+                                            <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+                                            <Setter Property="Effect" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+
+                                            <!--<Setter Property="BorderThickness" TargetName="Bd" Value="6"/>-->
+                                            <Setter Property="Effect" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>
+                                        </MultiTrigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{StaticResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
                 </ResourceDictionary>
 
             </ResourceDictionary.MergedDictionaries>
@@ -35,164 +140,104 @@
     <Grid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
             
-            <TextBlock Text="Automation Editor" Style="{StaticResource TextBlockLarge}">
+            <TextBlock Text="{Binding CurrentSelectedAutomation.Name}" Style="{StaticResource TextBlockLarge}">
                 
             </TextBlock>
+        <Grid Grid.Row="1">
+            <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="10" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Top">
+                
             
-            <GroupBox Grid.Row="1" HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Top" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{StaticResource GroupBoxOriginal}">
                 <GroupBox.HeaderTemplate>
                     <DataTemplate>
-                        <TextBlock FontWeight="SemiBold" Text="ACTIONS"/>
+                        <TextBlock FontWeight="SemiBold" Text="CHUỖI HÀNH ĐỘNG"/>
                     </DataTemplate>
                 </GroupBox.HeaderTemplate>
-                <DataGrid hc:DataGridAttach.ShowSelectAllButton="False"  SelectedItem="{Binding CurrentSelectedAction}" ItemsSource="{Binding CurrentSelectedAutomation.Actions}" hc:DataGridAttach.CanUnselectAllWithBlankArea="True" HeadersVisibility="All" RowHeaderWidth="0" AutoGenerateColumns="False">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn
-                                    Binding="{Binding TargetDeviceName}"
-                                    Header="Device" />
-                        <DataGridTemplateColumn Header="Action">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
 
-                                    <TextBlock Text="{Binding ActionType }" >
+                <ListView MaxHeight="300" Margin="0,10,0,10" HorizontalAlignment="Center"  SelectedItem="{Binding CurrentSelectedAction}" Background="Transparent" BorderThickness="0" ItemsSource="{Binding CurrentSelectedAutomation.Actions}">
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource ListViewContainerStyle}">
+                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.Template>
+                        <ControlTemplate TargetType="{x:Type ItemsControl}">
+                            <Border Margin="0" 
+                            SnapsToDevicePixels="False">
+                                <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                                    <ItemsPresenter />
+                                </hc:ScrollViewer>
+                            </Border>
+                        </ControlTemplate>
+                    </ListView.Template>
 
-                                    </TextBlock>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Header="Action Parameter">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Grid HorizontalAlignment="Left">
-                                        <!--<ItemsControl ItemsSource="{Binding AvailableParameters,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Height="0" Margin="15,0">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding Name}">
-                                                    
-                                                </TextBlock>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>-->
-                                        <!--<ComboBox SelectedIndex="{Binding ActionParameterIndex,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"  ItemsSource="{Binding AvailableParameters}" ItemContainerStyle="{StaticResource _ComboboxItemStyle}" Style="{StaticResource ComboBoxExtend}">
-                                        <ComboBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <TextBlock  Text="{Binding Name}"/>
-                                            </DataTemplate>
-                                        </ComboBox.ItemTemplate>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Border Height="auto" Width="450" CornerRadius="20" Background="{DynamicResource DarkOpacityBrush}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <!--icon-->
+                                    <Grid Grid.Column="0">
+                                        <Path HorizontalAlignment="Left" VerticalAlignment="Top" Fill="{DynamicResource PrimaryBrush}" Width="25" Height="25" Margin="12,12" Data="{DynamicResource auto }" Stretch="Uniform" >
 
-
-                                    </ComboBox>-->
-                                        <TextBlock Text="{Binding ActionParameter.Name}">
-
-                                        </TextBlock>
+                                        </Path>
                                     </Grid>
+                                    <!--Action-->
+                                    <Grid  Grid.Column="1">
+                                        <WrapPanel Orientation="Horizontal">
+                                            <Button HorizontalAlignment="Center" Height="auto" Width="auto" VerticalAlignment="Top" hc:BorderElement.CornerRadius="6" Margin="5,8" FontSize="15" FontWeight="SemiBold" Content="Activate" Padding="5,3" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0">
+                                                <Button.Background>
+                                                    <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
+                                                </Button.Background>
+                                            </Button>
+                                            <Button HorizontalAlignment="Center" Height="auto" Width="auto" VerticalAlignment="Top" hc:BorderElement.CornerRadius="6" Margin="5,8" FontSize="15" FontWeight="SemiBold" Content="Default profile" Padding="5,3" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0">
+                                                <Button.Background>
+                                                    <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
+                                                </Button.Background>
+                                            </Button>
+                                            <TextBlock Margin="5,10" HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Text="cho thiết bị" Style="{DynamicResource TextBlockSubTitle}">
 
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                        <DataGridTemplateColumn >
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Grid >
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="*"/>
+                                            </TextBlock>
 
-                                        </Grid.ColumnDefinitions>
-                                        <Button    Command="{Binding Path=DataContext.OpenActionsEditWindowCommand,RelativeSource= {RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}}" Grid.Column="0" Background="Transparent" hc:IconElement.Geometry="{StaticResource edit}" Style="{StaticResource ButtonBaseStyle}"/>
-                                        <Button Grid.Column="1" Background="Transparent" hc:IconElement.Geometry="{StaticResource delete}" Style="{StaticResource ButtonBaseStyle}"/>
-
+                                            <Button FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" Height="auto" Width="auto" VerticalAlignment="Top" hc:BorderElement.CornerRadius="6" Margin="5,8" Content="Ambino Basic" Padding="5,3" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0">
+                                                <Button.Background>
+                                                    <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
+                                                </Button.Background>
+                                            </Button>
+                                        </WrapPanel>
+                                       
 
                                     </Grid>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
+                                    <!--delete button-->
 
+                                    <Grid Grid.Column="2">
+                                        <Button BorderThickness="0" HorizontalAlignment="Right" Margin="10" VerticalAlignment="Top" Width="25" Height="25" Style="{DynamicResource ButtonIconCircular}" hc:IconElement.Geometry="{DynamicResource DeleteGeometry}" Background="{DynamicResource SecondaryRegionBrush}"/>
+                                    </Grid>
+                                </Grid>
+                            </Border>
 
-
-
-
-                        <!--<DataGridCheckBoxColumn d:DataContext="{d:DesignInstance viewModels:KeyboardShortcutViewModel}" 
-                                        Header="Is Active"
-                                        Binding="{Binding IsActive, UpdateSourceTrigger=PropertyChanged}" />
-
-                    <DataGridTextColumn d:DataContext="{d:DesignInstance viewModels:KeyboardShortcutViewModel}" 
-                                    Header="Last Run Time"
-                                    Binding="{Binding LastRunTime}" />-->
-                    </DataGrid.Columns>
-                </DataGrid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
             </GroupBox>
-            <Grid Grid.Row="2" x:Name="keycombination">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="auto"/>
-                </Grid.ColumnDefinitions>
-                <Grid>
-                    <Border  Background="{StaticResource RegionBrush}" CornerRadius="7" BorderThickness="1">
-                        <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Top" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{StaticResource GroupBoxOriginal}">
-                            <GroupBox.HeaderTemplate>
-                                <DataTemplate>
-                                    <TextBlock FontWeight="SemiBold" Text="MODIFIERS"/>
-                                </DataTemplate>
-                            </GroupBox.HeaderTemplate>
-                            <ListBox x:Name="Modifier_selection"  
-                             ItemsSource="{Binding AvailableModifiers}"
-                              ItemContainerStyle="{StaticResource _listBoxModeSelectionStyle}"  
-                              
-                              Background="Transparent"
-                              BorderThickness="0"
-                              Style="{StaticResource WrapPanelHorizontalListBox}">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    
-                                        <Grid>
-                                                <ToggleButton Width="auto" Height="auto" IsChecked="{Binding IsChecked}" Style="{StaticResource ToggleButtonCustom}" hc:StatusSwitchElement.HideUncheckedElement="True" >
-                                                    <hc:StatusSwitchElement.CheckedElement>
-                                                        <Border CornerRadius="4" BorderThickness="0" BorderBrush="{StaticResource BorderBrush}">
-                                                            <Grid>
-                                                                <Rectangle RadiusX="3" RadiusY="3" Stretch="Fill" Fill="{StaticResource PrimaryBrush}"/>
-                                                                <TextBlock Style="{StaticResource TextBlockDefaultBold}" Margin="6" Foreground="{StaticResource RegionBrush}" Text="{Binding Name}"/>
-                                                            </Grid>
-                                                            
-                                                        </Border>
-                                                    </hc:StatusSwitchElement.CheckedElement>
-                                                <Border CornerRadius="4" BorderThickness="0" BorderBrush="{StaticResource BorderBrush}">
-                                                    <Grid>
-                                                        <Rectangle RadiusX="3" RadiusY="3" Stretch="Fill" Fill="{StaticResource SecondaryRegionBrush}"/>
-                                                        <TextBlock Style="{StaticResource TextBlockDefaultBold}" Margin="6" Foreground="{StaticResource PrimaryTextBrush}" Text="{Binding Name}"/>
-                                                    </Grid>
-
-                                                </Border>
-                                            </ToggleButton>
-                                            </Grid>
-                                    
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-
-                        </ListBox>
-                            </GroupBox>
-                    </Border>
-                    
-                </Grid>
-                <Grid Grid.Column="1">
-                    <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Top" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{StaticResource GroupBoxOriginal}">
-                        <GroupBox.HeaderTemplate>
-                            <DataTemplate>
-                                <TextBlock FontWeight="SemiBold" Text="KEY"/>
-                            </DataTemplate>
-                        </GroupBox.HeaderTemplate>
-                        <local:KeySelectionButton HorizontalAlignment="Left" SelectedKey="{Binding CurrentSelectedAutomation.Condition, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                         Style="{StaticResource ButtonDefault}" />
-                    </GroupBox>
-                </Grid>
-             
-            </Grid>
-            <Grid Grid.Row="3" >
+            
+        </Grid>
+          
+           
+            <Grid Grid.Row="4" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
@@ -201,8 +246,102 @@
                 <Button Click="Button_Click" Command="{Binding SaveCurrentSelectedAutomationCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
                 <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
             </Grid>
-            
-       
+        <Grid Grid.Row="2" >
+            <StackPanel Margin="20">
+                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
+
+                </hc:Divider>
+                <Grid Name="Condition">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                        <GroupBox.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock FontWeight="SemiBold" Text="PHÍM TẮT KÍCH HOẠT"/>
+                            </DataTemplate>
+                        </GroupBox.HeaderTemplate>
+
+                        <Button CommandParameter="{Binding CurrentSelectedAutomation}" Command="{Binding OpenHotKeySelectionWindowCommand}" BorderThickness="0" Margin="0" HorizontalAlignment="Right" Height="50" Padding="5">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid>
+                                    <ListView x:Name="Modifier_display" 
+                                                     ItemsSource="{Binding CurrentSelectedAutomation.Modifiers}"
+                                                                            
+                                                     Background="Transparent"
+                                                     BorderThickness="0"
+                                                     Style="{StaticResource WrapPanelHorizontalListBox}">
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="3,0,3,0">
+                                                    <Border IsHitTestVisible="False" Height="30" MinWidth="30" Background="{DynamicResource PrimaryBrush}" BorderThickness="0" BorderBrush="{StaticResource BorderBrush}" CornerRadius="4">
+                                                        <TextBlock Style="{StaticResource TextBlockDefaultBold}" Foreground="Black" Margin="5" Text="{Binding .}"/>
+                                                    </Border>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+
+                                    </ListView>
+
+                                </Grid>
+                                <Grid Grid.Column="1">
+
+                                    <Border IsHitTestVisible="False" Height="30" MinWidth="30" Margin="3,0,3,0" Background="{DynamicResource PrimaryBrush}" BorderThickness="0" BorderBrush="{StaticResource BorderBrush}" CornerRadius="4">
+                                        <TextBlock Style="{StaticResource TextBlockDefaultBold}" Foreground="Black" Margin="5" Text="{Binding CurrentSelectedAutomation.StandardKey.Name}"/>
+                                    </Border>
+
+                                </Grid>
+                                <Grid Grid.Column="2">
+                                    <Path Fill="{DynamicResource PrimaryTextBrush}" Width="20" Height="20" Margin="10,5" Data="{DynamicResource edit}" Stretch="Uniform" >
+
+                                    </Path>
+                                </Grid>
+                            </Grid>
+                        </Button>
+
+
+                    </GroupBox>
+                    <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Phím tắt dùng để thực hiện cùng lúc các hành động bên trên"/>
+                </Grid>
+                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
+
+                </hc:Divider>
+
+                <Grid Name="Systemtray">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                        <GroupBox.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock FontWeight="SemiBold" Text="THÊM VÀO SYSTEM TRAY"/>
+                            </DataTemplate>
+                        </GroupBox.HeaderTemplate>
+
+
+                        <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding GeneralSettings.Autostart}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
+
+                        </ToggleButton>
+
+
+                    </GroupBox>
+                    <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Phím tắt dùng để thực hiện cùng lúc các hành động bên trên"/>
+                </Grid>
+                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
+
+                </hc:Divider>
+            </StackPanel>
+         
+        </Grid>
+
+
 
 
 
