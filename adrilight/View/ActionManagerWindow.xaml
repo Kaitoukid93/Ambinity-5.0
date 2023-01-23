@@ -27,7 +27,8 @@
                 <converters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
                 <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
                 <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
-                    <DropShadowEffect x:Key="Item.SelectedActive.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}"/>
+                    <SolidColorBrush x:Key="DefaultBackgroundColor" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
+                        <DropShadowEffect x:Key="Item.SelectedActive.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}"/>
                     <DropShadowEffect x:Key="Item.MouseOver.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource DarkMaskBrush}}"/>
                     <Style x:Key="ListViewContainerStyle" TargetType="{x:Type ListViewItem}">
 
@@ -60,29 +61,7 @@
                     </Setter.Value>
                 </Setter>-->
 
-                        <Setter Property="Tag" Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListView}}" />
-                        <Setter Property="ContextMenu">
-                            <Setter.Value>
-                                <ContextMenu>
-                                    <MenuItem Command="{Binding PlacementTarget.Tag.DeleteSelectedAutomationCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding .}"  Header="Delete">
-                                        <MenuItem.Icon>
-                                            <Path   Data="{DynamicResource delete}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                        </MenuItem.Icon>
-
-
-                                    </MenuItem>
-                                    <MenuItem Command="{Binding PlacementTarget.Tag.LaunchPIDEditWindowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="Delete"  Header="Add to System Tray">
-                                        <MenuItem.Icon>
-                                            <Path   Data="{DynamicResource fullscreen}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                        </MenuItem.Icon>
-
-
-                                    </MenuItem>
-                                </ContextMenu>
-
-                            </Setter.Value>
-                        </Setter>
-
+                        
 
                         <Setter Property="Template">
                             <Setter.Value>
@@ -136,20 +115,28 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-
-    <Grid Margin="5">
+   
+        <Grid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
+           
         </Grid.RowDefinitions>
+        
+            
+        
             
             <TextBlock Text="{Binding CurrentSelectedAutomation.Name}" Style="{StaticResource TextBlockLarge}">
                 
             </TextBlock>
-        <Grid Grid.Row="1">
-            <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="10" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Top">
+        <ScrollViewer  Grid.Row="1">
+            <Grid>
+           
+                <StackPanel>
+                
+           
+            <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Margin="10" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Top">
                 
             
                 <GroupBox.HeaderTemplate>
@@ -191,40 +178,96 @@
                                     </Grid.ColumnDefinitions>
                                     <!--icon-->
                                     <Grid Grid.Column="0">
-                                        <Path HorizontalAlignment="Left" VerticalAlignment="Top" Fill="{DynamicResource PrimaryBrush}" Width="25" Height="25" Margin="12,12" Data="{DynamicResource auto }" Stretch="Uniform" >
+                                                <Path HorizontalAlignment="Left" VerticalAlignment="Center" Fill="{DynamicResource PrimaryBrush}" Width="25" Height="25" Margin="12,12" Data="{DynamicResource auto}" Stretch="Uniform" >
 
                                         </Path>
                                     </Grid>
                                     <!--Action-->
-                                    <Grid  Grid.Column="1">
-                                        <WrapPanel Orientation="Horizontal">
-                                            <Button HorizontalAlignment="Center" Height="auto" Width="auto" VerticalAlignment="Top" hc:BorderElement.CornerRadius="6" Margin="5,8" FontSize="15" FontWeight="SemiBold" Content="Activate" Padding="5,3" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0">
-                                                <Button.Background>
-                                                    <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
-                                                </Button.Background>
-                                            </Button>
-                                            <Button HorizontalAlignment="Center" Height="auto" Width="auto" VerticalAlignment="Top" hc:BorderElement.CornerRadius="6" Margin="5,8" FontSize="15" FontWeight="SemiBold" Content="Default profile" Padding="5,3" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0">
-                                                <Button.Background>
-                                                    <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
-                                                </Button.Background>
-                                            </Button>
-                                            <TextBlock Margin="5,10" HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Text="cho thiết bị" Style="{DynamicResource TextBlockSubTitle}">
+                                            <hc:TransitioningContentControl Grid.Column="1">
+                                                <Grid>
+                                                    <WrapPanel VerticalAlignment="Center" Margin="5" Orientation="Horizontal">
+                                                        <Button Command="{Binding Path=DataContext.OpenTargetActionSelectionWindowCommand, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding .}"  HorizontalAlignment="Center" Height="auto" Width="auto" VerticalAlignment="Top" hc:BorderElement.CornerRadius="6" Margin="5" FontSize="15" FontWeight="SemiBold" Content="{Binding ActionType.Name}" Padding="5,3" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0">
+                                                            <Button.Background>
+                                                                <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
+                                                            </Button.Background>
+                                                        </Button>
+                                                        <Button CommandParameter="{Binding .}" Command="{Binding Path=DataContext.OpenTargetParamSelectionWindowCommand, RelativeSource={RelativeSource AncestorType=ListView}}" HorizontalAlignment="Center" Height="auto" Width="auto" VerticalAlignment="Top" hc:BorderElement.CornerRadius="6" Margin="5" FontSize="15" FontWeight="SemiBold" Content="{Binding ActionParameter.Name}" Padding="5,3" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0">
+                                                            <Button.Background>
+                                                                <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
+                                                            </Button.Background>
+                                                        </Button>
+                                                        <TextBlock Margin="7" HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Text="{Binding ActionType.LinkText}" Style="{DynamicResource TextBlockSubTitle}">
 
-                                            </TextBlock>
+                                                        </TextBlock>
 
-                                            <Button FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" Height="auto" Width="auto" VerticalAlignment="Top" hc:BorderElement.CornerRadius="6" Margin="5,8" Content="Ambino Basic" Padding="5,3" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0">
-                                                <Button.Background>
-                                                    <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
-                                                </Button.Background>
-                                            </Button>
-                                        </WrapPanel>
-                                       
+                                                        <Button CommandParameter="{Binding .}" Command="{Binding Path=DataContext.OpenTargetDeviceSelectionWindowCommand, RelativeSource={RelativeSource AncestorType=ListView}}" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" Height="auto" Width="auto" VerticalAlignment="Top" hc:BorderElement.CornerRadius="6" Margin="5" Content="{Binding TargetDeviceName,TargetNullValue='Chọn thiết bị'}" Padding="5,3" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0">
+                                                            <Button.Background>
+                                                                <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
+                                                            </Button.Background>
+                                                        </Button>
+                                                        <TextBlock Visibility="{Binding ActionType.IsValueDisplayed,Converter={StaticResource boolToVisibilityConvert}}" Margin="7" HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Text="{Binding ActionType.ToResultText}" Style="{DynamicResource TextBlockSubTitle}">
 
-                                    </Grid>
+                                                        </TextBlock>
+                                                        <Button Visibility="{Binding ActionType.IsValueDisplayed,Converter={StaticResource boolToVisibilityConvert}}" CommandParameter="{Binding .}" Command="{Binding Path=DataContext.OpenAutomationValuePickerWindowCommand, RelativeSource={RelativeSource AncestorType=ListView}}" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" Height="auto" Width="auto" VerticalAlignment="Top" hc:BorderElement.CornerRadius="6" Margin="5"  Padding="5,3"  BorderThickness="0">
+                                                            <Button.Style>
+                                                                <Style TargetType="Button" BasedOn="{StaticResource ButtonDefault}">
+                                                                    <Setter Property="Background" Value="{DynamicResource DefaultBackgroundColor }">
+
+                                                                    </Setter>
+                                                                    <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
+                                                                    <!--<Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding ActionParameter.Type}" Value="color">
+                                                                            <Setter Property="Foreground" Value="{Binding Path=ActionParameter.Value,Converter={StaticResource ColorToBrushConverter}}"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>-->
+                                                                </Style>
+                                                             
+                                                            </Button.Style>
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="auto"/>
+                                                                    <ColumnDefinition Width="auto"/>
+                                                                    
+                                                                </Grid.ColumnDefinitions>
+                                                                <Border  Margin="2,0,0,0" CornerRadius="4" Width="15" Height="15" Grid.Column="0">
+                                                                    <Border.Background>
+                                                                        <SolidColorBrush Color ="{Binding Path=ActionParameter.Value}"/>
+                                                                    </Border.Background>
+                                                                    <Border.Style>
+                                                                        <Style TargetType="Border">
+                                                                            <Setter Property="Visibility" Value="Collapsed">
+
+                                                                            </Setter>
+                                                                            
+                                                                            <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Path=ActionParameter.Type}" Value="color">
+                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                        </Style>
+
+                                                                    </Border.Style>
+                                                                </Border>
+                                                                <Grid Grid.Column="1">
+                                                                    <TextBlock Margin="5,0,0,0" Text="{Binding Path=ActionParameter.Value,TargetNullValue='Chọn màu'}"/>
+                                                                </Grid>
+                                                            </Grid>
+                                                          
+                                                        </Button>
+                                                    </WrapPanel>
+
+
+                                                </Grid>
+                                            </hc:TransitioningContentControl>
+                                    
                                     <!--delete button-->
 
                                     <Grid Grid.Column="2">
-                                        <Button BorderThickness="0" HorizontalAlignment="Right" Margin="10" VerticalAlignment="Top" Width="25" Height="25" Style="{DynamicResource ButtonIconCircular}" hc:IconElement.Geometry="{DynamicResource DeleteGeometry}" Background="{DynamicResource SecondaryRegionBrush}"/>
+                                                <Button CommandParameter="{Binding .}" Command="{Binding Path=DataContext.DeleteSelectedActionFromListCommand, RelativeSource={RelativeSource AncestorType=ListView}}" BorderThickness="0" HorizontalAlignment="Right" Margin="10" VerticalAlignment="Center" Width="25" Height="25" Style="{DynamicResource ButtonIconCircular}" hc:IconElement.Geometry="{DynamicResource AddGeometry}" Background="{DynamicResource SecondaryRegionBrush}">
+                                                    <Button.LayoutTransform>
+                                                        <RotateTransform Angle="-45" />
+                                                    </Button.LayoutTransform>
+                                                </Button>
                                     </Grid>
                                 </Grid>
                             </Border>
@@ -233,117 +276,189 @@
                     </ListView.ItemTemplate>
                 </ListView>
             </GroupBox>
-            
-        </Grid>
-          
-           
-            <Grid Grid.Row="4" >
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="auto"/>
-                </Grid.ColumnDefinitions>
-                <Button Click="Button_Click" Command="{Binding SaveCurrentSelectedAutomationCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
-                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
-            </Grid>
-        <Grid Grid.Row="2" >
-            <StackPanel Margin="20">
                 <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                 </hc:Divider>
-                <Grid Name="Condition">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto"/>
-                        <RowDefinition Height="auto"/>
-                    </Grid.RowDefinitions>
-                    <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
-                        <GroupBox.HeaderTemplate>
-                            <DataTemplate>
-                                <TextBlock FontWeight="SemiBold" Text="PHÍM TẮT KÍCH HOẠT"/>
-                            </DataTemplate>
-                        </GroupBox.HeaderTemplate>
+                <GroupBox   VerticalAlignment="Top"   hc:TitleElement.TitleWidth="150" Margin="10" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Left" hc:TitleElement.TitlePlacement="Top">
 
-                        <Button CommandParameter="{Binding CurrentSelectedAutomation}" Command="{Binding OpenHotKeySelectionWindowCommand}" BorderThickness="0" Margin="0" HorizontalAlignment="Right" Height="50" Padding="5">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid>
-                                    <ListView x:Name="Modifier_display" 
+
+                    <GroupBox.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock FontWeight="SemiBold" Text="GỢI Ý HÀNH ĐỘNG"/>
+                        </DataTemplate>
+                    </GroupBox.HeaderTemplate>
+
+                        <ListView MaxHeight="300" Margin="0,10,0,10" HorizontalAlignment="Center" Background="Transparent" BorderThickness="0" ItemsSource="{Binding AvailableActionsforCurrentDevice}">
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource ListViewContainerStyle}">
+                                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.Template>
+                            <ControlTemplate TargetType="{x:Type ItemsControl}">
+                                <Border Margin="0" 
+                            SnapsToDevicePixels="False">
+                                    <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                                        <ItemsPresenter />
+                                    </hc:ScrollViewer>
+                                </Border>
+                            </ControlTemplate>
+                        </ListView.Template>
+
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Border HorizontalAlignment="Left" BorderThickness="1" Height="auto" Width="auto" CornerRadius="10" Background="{DynamicResource DarkOpacityBrush}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <!--icon-->
+                                        <!--<Grid Grid.Column="0">
+                                                <Path HorizontalAlignment="Left" VerticalAlignment="Top" Fill="{DynamicResource PrimaryBrush}" Width="20" Height="20" Margin="12,12" Data="{Binding Geometry, Converter={converters:StaticResourceConverter}}" Stretch="Uniform" >
+
+                                            </Path>
+                                        </Grid>-->
+                                        <!--Action-->
+                                        <Grid  Grid.Column="1">
+                                            <TextBlock ToolTip="{Binding Description}" FontWeight="SemiBold" Style="{DynamicResource TextBlockSubTitle}" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding Name}">
+                                                
+                                            </TextBlock>
+                                        </Grid>
+                                        <!--add button-->
+
+                                        <Grid Grid.Column="2">
+                                                <Button Command="{Binding Path=DataContext.AddSelectedActionTypeToListCommand, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding .}" BorderThickness="0" HorizontalAlignment="Right" Margin="10" VerticalAlignment="Top" Width="25" Height="25" Style="{DynamicResource ButtonIconCircular}" hc:IconElement.Geometry="{DynamicResource AddGeometry}" ToolTip="Thêm vào chuỗi hành động" Background="{DynamicResource SecondaryRegionBrush}"/>
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </GroupBox>
+                    <Grid>
+                        <StackPanel Margin="20">
+                            <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
+
+                            </hc:Divider>
+                            <Grid Name="Condition">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                </Grid.RowDefinitions>
+                                <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                                    <GroupBox.HeaderTemplate>
+                                        <DataTemplate>
+                                            <TextBlock FontWeight="SemiBold" Text="PHÍM TẮT KÍCH HOẠT"/>
+                                        </DataTemplate>
+                                    </GroupBox.HeaderTemplate>
+
+                                    <Button CommandParameter="{Binding CurrentSelectedAutomation}" Command="{Binding OpenHotKeySelectionWindowCommand}" BorderThickness="0" Margin="0" HorizontalAlignment="Right" Height="50" Padding="5">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="auto"/>
+                                                <ColumnDefinition Width="auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid>
+                                                <ListView x:Name="Modifier_display" 
                                                      ItemsSource="{Binding CurrentSelectedAutomation.Modifiers}"
                                                                             
                                                      Background="Transparent"
                                                      BorderThickness="0"
                                                      Style="{StaticResource WrapPanelHorizontalListBox}">
-                                        <ListView.ItemTemplate>
-                                            <DataTemplate>
-                                                <Grid Margin="3,0,3,0">
-                                                    <Border IsHitTestVisible="False" Height="30" MinWidth="30" Background="{DynamicResource PrimaryBrush}" BorderThickness="0" BorderBrush="{StaticResource BorderBrush}" CornerRadius="4">
-                                                        <TextBlock Style="{StaticResource TextBlockDefaultBold}" Foreground="Black" Margin="5" Text="{Binding .}"/>
-                                                    </Border>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ListView.ItemTemplate>
+                                                    <ListView.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Grid Margin="3,0,3,0">
+                                                                <Border IsHitTestVisible="False" Height="30" MinWidth="30" Background="{DynamicResource PrimaryBrush}" BorderThickness="0" BorderBrush="{StaticResource BorderBrush}" CornerRadius="4">
+                                                                    <TextBlock Style="{StaticResource TextBlockDefaultBold}" Foreground="Black" Margin="5" Text="{Binding .}"/>
+                                                                </Border>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ListView.ItemTemplate>
 
-                                    </ListView>
+                                                </ListView>
 
-                                </Grid>
-                                <Grid Grid.Column="1">
+                                            </Grid>
+                                            <Grid Grid.Column="1">
 
-                                    <Border IsHitTestVisible="False" Height="30" MinWidth="30" Margin="3,0,3,0" Background="{DynamicResource PrimaryBrush}" BorderThickness="0" BorderBrush="{StaticResource BorderBrush}" CornerRadius="4">
-                                        <TextBlock Style="{StaticResource TextBlockDefaultBold}" Foreground="Black" Margin="5" Text="{Binding CurrentSelectedAutomation.StandardKey.Name}"/>
-                                    </Border>
+                                                <Border IsHitTestVisible="False" Height="30" MinWidth="30" Margin="3,0,3,0" Background="{DynamicResource PrimaryBrush}" BorderThickness="0" BorderBrush="{StaticResource BorderBrush}" CornerRadius="4">
+                                                    <TextBlock Style="{StaticResource TextBlockDefaultBold}" Foreground="Black" Margin="5" Text="{Binding CurrentSelectedAutomation.StandardKey.Name}"/>
+                                                </Border>
 
-                                </Grid>
-                                <Grid Grid.Column="2">
-                                    <Path Fill="{DynamicResource PrimaryTextBrush}" Width="20" Height="20" Margin="10,5" Data="{DynamicResource edit}" Stretch="Uniform" >
+                                            </Grid>
+                                            <Grid Grid.Column="2">
+                                                <Path Fill="{DynamicResource PrimaryTextBrush}" Width="20" Height="20" Margin="10,5" Data="{DynamicResource edit}" Stretch="Uniform" >
 
-                                    </Path>
-                                </Grid>
+                                                </Path>
+                                            </Grid>
+                                        </Grid>
+                                    </Button>
+
+
+                                </GroupBox>
+                                <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Phím tắt dùng để thực hiện cùng lúc các hành động bên trên"/>
                             </Grid>
-                        </Button>
+                            <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
+
+                            </hc:Divider>
+
+                            <Grid Name="Systemtray">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                </Grid.RowDefinitions>
+                                <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                                    <GroupBox.HeaderTemplate>
+                                        <DataTemplate>
+                                            <TextBlock FontWeight="SemiBold" Text="THÊM VÀO SYSTEM TRAY"/>
+                                        </DataTemplate>
+                                    </GroupBox.HeaderTemplate>
 
 
-                    </GroupBox>
-                    <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Phím tắt dùng để thực hiện cùng lúc các hành động bên trên"/>
-                </Grid>
-                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
+                                    <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding GeneralSettings.Autostart}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
 
-                </hc:Divider>
-
-                <Grid Name="Systemtray">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto"/>
-                        <RowDefinition Height="auto"/>
-                    </Grid.RowDefinitions>
-                    <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
-                        <GroupBox.HeaderTemplate>
-                            <DataTemplate>
-                                <TextBlock FontWeight="SemiBold" Text="THÊM VÀO SYSTEM TRAY"/>
-                            </DataTemplate>
-                        </GroupBox.HeaderTemplate>
+                                    </ToggleButton>
 
 
-                        <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding GeneralSettings.Autostart}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
+                                </GroupBox>
+                                <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Phím tắt dùng để thực hiện cùng lúc các hành động bên trên"/>
+                            </Grid>
+                            <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
-                        </ToggleButton>
+                            </hc:Divider>
 
+                        </StackPanel>
 
-                    </GroupBox>
-                    <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Phím tắt dùng để thực hiện cùng lúc các hành động bên trên"/>
-                </Grid>
-                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
-
-                </hc:Divider>
+                    </Grid>
+            
             </StackPanel>
-         
+            
         </Grid>
+        </ScrollViewer>
+
+        <Grid Grid.Row="2" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <Button Click="Button_Click" Command="{Binding SaveCurrentSelectedAutomationCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Save"/>
+                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
+            </Grid>
+        
 
 
 
 
-
+        
     </Grid>
+   
 </hc:Window>

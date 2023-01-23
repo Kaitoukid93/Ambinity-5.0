@@ -17,24 +17,23 @@ namespace adrilight
         private string _targetDeviceType;
         private string _targetDeviceName;
         
-        private string _actionType;
-        
+        private ActionType _actionType;
+    
        
         //private List<IActionParameter> _allAvailableParameters; // available parameters
         private IActionParameter _actionParameter;
-       
-
-        
-
-       
 
 
 
+
+
+
+   
 
         public string TargetDeviceUID { get => _targetDeviceUID; set { Set(() => TargetDeviceUID, ref _targetDeviceUID, value); } }
         public string TargetDeviceType { get => _targetDeviceType; set { Set(() => TargetDeviceType, ref _targetDeviceType, value); } }
         public string TargetDeviceName { get => _targetDeviceName; set { Set(() => TargetDeviceName, ref _targetDeviceName, value); } }
-        public string ActionType { get => _actionType; set { Set(() => ActionType, ref _actionType, value); } }
+        public ActionType ActionType { get => _actionType; set { Set(() => ActionType, ref _actionType, value); } }
         //public List<IActionParameter> AllAvailableParameters { get => _allAvailableParameters; set { Set(() => AllAvailableParameters, ref _allAvailableParameters, value); } }
        
         public IActionParameter ActionParameter { get => _actionParameter; set { Set(() => ActionParameter, ref _actionParameter, value); } }

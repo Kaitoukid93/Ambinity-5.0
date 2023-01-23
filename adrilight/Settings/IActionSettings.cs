@@ -17,9 +17,7 @@ namespace adrilight
         string TargetDeviceName { get; set; }
         string TargetDeviceType { get; set; }
 
-        
-  
-        string ActionType { get; set; }
+        ActionType ActionType { get; set; }
       
         IActionParameter ActionParameter{ get; set; }
         

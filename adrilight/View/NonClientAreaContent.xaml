@@ -31,10 +31,11 @@
             <Border BorderThickness="1" Effect="{DynamicResource EffectShadow3}" BorderBrush="{DynamicResource DarkMaskBrush}" Background="{StaticResource RegionBrush}" CornerRadius="7" Margin="15,0,15,15">
                 <StackPanel Orientation="Vertical">
                     <Button  HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding OpenAppSettingsWindowCommand}" hc:IconElement.Geometry="{StaticResource appsettings}" BorderBrush="Transparent" Margin="5"   Content="App Settings" Style="{StaticResource ButtonDefault}"/>
-
+                    <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding OpenSurfaceEditorWindowCommand }" hc:IconElement.Geometry="{StaticResource adjustposition}" CommandParameter="about" BorderBrush="Transparent"   Margin="5" Content="Surface Editor" Style="{StaticResource ButtonDefault}"/>
                     <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding OpenAutomationManagerWindowCommand }" hc:IconElement.Geometry="{StaticResource auto}" CommandParameter="automation" BorderBrush="Transparent"   Margin="5" Content="Automation Settings" Style="{StaticResource ButtonDefault}"/>
                     <!--<Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding OpenHardwareMonitorWindowCommand }" hc:IconElement.Geometry="{StaticResource motherboard}" CommandParameter="HWMonitor" BorderBrush="Transparent"   Margin="5" Content="About This Computer" Style="{StaticResource ButtonDefault}"/>-->
                     <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding OpenAboutWindowCommand }" hc:IconElement.Geometry="{StaticResource info}" CommandParameter="about" BorderBrush="Transparent"   Margin="5" Content="About" Style="{StaticResource ButtonDefault}"/>
+                    
                 </StackPanel>
 
             </Border>

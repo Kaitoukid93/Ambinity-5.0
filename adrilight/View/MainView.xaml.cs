@@ -37,6 +37,8 @@ namespace adrilight.View
             // this.DataContext = ViewModel;
             this.Height = SystemParameters.PrimaryScreenHeight * 0.9;
             this.Width = SystemParameters.PrimaryScreenWidth * 0.8;
+            
+
             noticon.Init();
        
             var view = DataContext as MainViewViewModel;

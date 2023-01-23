@@ -17,7 +17,8 @@ namespace adrilight
         string Type { get; set; }
         //string TargetDeviceType { get; set; }
         string Name { get; set; } 
-        string Value { get; set; }
+        object Value { get; set; }      
+        string Geometry { get; set; }
         
         
     }

@@ -102,7 +102,7 @@
                                             <Setter Property="Effect" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>
                                         </MultiTrigger>
 
-
+                    
                                         <MultiTrigger>
                                             <MultiTrigger.Conditions>
                                                 <Condition Property="Selector.IsSelectionActive" Value="False"/>
@@ -129,90 +129,7 @@
                             </Setter.Value>
                         </Setter>
                     </Style>
-                    <Style x:Key="_ListBoxOutputsCollectionStyle" TargetType="ListBoxItem">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="ListBoxItem">
-                                    <Border CornerRadius="5" Name="_Border"
-                                Padding="0"
-                                Margin="0"
-                                Background="Transparent"
-                                BorderBrush="Transparent"
-                                BorderThickness="0"
-                                SnapsToDevicePixels="true">
-                                        <ContentPresenter />
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="Selector.IsSelectionActive" Value="True"/>
-                                                <Condition Property="IsSelected" Value="True"/>
-                                            </MultiTrigger.Conditions>
-
-
-                                            <Setter Property="Background" TargetName="_Border" Value="{DynamicResource DarkOpacityBrush}"/>
-
-                                            <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
-                                        </MultiTrigger>
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="Selector.IsSelectionActive" Value="False"/>
-                                                <Condition Property="IsSelected" Value="True"/>
-                                            </MultiTrigger.Conditions>
-
-
-                                            <!--<Setter Property="Effect" TargetName="_Border" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>-->
-
-                                            <Setter Property="Background" TargetName="_Border" Value="{DynamicResource DarkOpacityBrush}"/>
-                                        </MultiTrigger>
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="IsMouseOver" Value="True"/>
-                                                <Condition Property="IsSelected" Value="False"/>
-                                            </MultiTrigger.Conditions>
-
-                                            <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
-
-                                            <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
-                                            <Setter Property="Background" TargetName="_Border" Value="{DynamicResource DarkMaskBrush}"/>
-                                            <Setter Property="Effect" TargetName="_Border" Value="{StaticResource Item.MouseOver.Border.Shadow}"/>
-                                        </MultiTrigger>
-
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                        <!--<Setter Property="ToolTip" Value="{Binding DocName}"/>-->
-                        <Setter Property="Tag" Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
-                        <Setter Property="ContextMenu">
-                            <Setter.Value>
-                                <ContextMenu>
-                                    <MenuItem Command="{Binding PlacementTarget.Tag.DeleteSelectedAutomationCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="Delete"  Header="Delete">
-                                        <MenuItem.Icon>
-                                            <Path   Data="{StaticResource delete}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                        </MenuItem.Icon>
-
-
-                                    </MenuItem>
-                                    <MenuItem Command="{Binding PlacementTarget.Tag.LaunchPIDEditWindowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="Delete"  Header="Add to System Tray">
-                                        <MenuItem.Icon>
-                                            <Path   Data="{DynamicResource fullscreen}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                        </MenuItem.Icon>
-
-
-                                    </MenuItem>
-                                </ContextMenu>
-
-                            </Setter.Value>
-                        </Setter>
-                       
-                        <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
-                        <Style.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}" />
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
+                    
                 </ResourceDictionary>
 
             </ResourceDictionary.MergedDictionaries>
@@ -236,7 +153,7 @@
             </Grid>
 
             <Grid Grid.Row="1" Margin="5">
-            <ListView  SelectedItem="{Binding CurrentSelectedAutomation}" Background="Transparent" BorderThickness="0" ItemsSource="{Binding AvailableAutomations}">
+            <ListView x:Name="itm" SelectedItem="{Binding CurrentSelectedAutomation}" Background="Transparent" BorderThickness="0" ItemsSource="{Binding AvailableAutomations}">
                 <ListView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel Orientation="Horizontal"/>
@@ -261,6 +178,13 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <Border Height="150" Width="150" CornerRadius="20" Background="{DynamicResource DarkOpacityBrush}">
+                            <!--<i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseLeftButtonDown">
+                                    <i:InvokeCommandAction 
+                                            Command="{Binding Path=DataContext.ExecuteAutomationFromManagerCommand, ElementName=itm}" 
+                                            CommandParameter="{Binding Actions}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>-->
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="auto"/>
@@ -280,7 +204,7 @@
                                     </Grid>
                                     <!--button-->
                                     <Grid Grid.Column="1">
-                                        <Button hc:IconElement.Geometry="{DynamicResource more}" Style="{DynamicResource ButtonIconCircular}" Margin="10" HorizontalAlignment="Right" VerticalAlignment="Top" Background="{DynamicResource SecondaryRegionBrush}"  Command="{Binding Path=DataContext.OpenActionsManagerWindowCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding .}"  BorderThickness="0">
+                                        <Button ToolTip="Tuỳ chỉnh" hc:IconElement.Geometry="{DynamicResource more}" Style="{DynamicResource ButtonIconCircular}" Margin="10" HorizontalAlignment="Right" VerticalAlignment="Top" Background="{DynamicResource SecondaryRegionBrush}"  Command="{Binding Path=DataContext.OpenActionsManagerWindowCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding .}"  BorderThickness="0">
 
                                         </Button>
                                     </Grid>

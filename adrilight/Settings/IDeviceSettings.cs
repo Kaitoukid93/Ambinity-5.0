@@ -59,5 +59,9 @@ namespace adrilight
         State CurrentState { get; set; }
        System.Drawing.Rectangle DeviceBoundRectangle { get; set; }
         void SetRectangle(System.Drawing.Rectangle rectangle);
+        void BrightnessUp(int value);
+        void BrightnessDown(int value);
+        void SpeedUp(int value);
+        void SpeedDown(int value);
     }
 }

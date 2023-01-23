@@ -180,14 +180,72 @@ namespace adrilight
         }
 
 
-        private Color GetCurrentAccentColor()
+        public Color GetCurrentAccentColor()
         {
 
             return Color.FromRgb(127, 0, 0);
 
         }
 
+        public void BrightnessUp(int value)
+        {
+            if (IsUnionMode)
+            {
+                if (UnionOutput.OutputBrightness < 100)
+                    UnionOutput.OutputBrightness += value;
+                if (UnionOutput.OutputBrightness > 100)
+                    UnionOutput.OutputBrightness = 100;
+            }
+            else
+            {
+                foreach (var output in AvailableOutputs)//possible replace with method from IOutputSettings
+                {
+                    if (output.OutputBrightness < 100)
+                        output.OutputBrightness += value;
+                    if (output.OutputBrightness > 100)
+                        output.OutputBrightness = 100;
+                }
+            }
 
+        }
+        public void SpeedUp(int value)
+        {
+
+            if (DeviceSpeed < 255)
+                DeviceSpeed += value;
+            if (DeviceSpeed > 255)
+                DeviceSpeed = 255;
+
+        }
+        public void SpeedDown(int value)
+        {
+
+            if (DeviceSpeed >20)
+                DeviceSpeed -= value;
+            if (DeviceSpeed < 20)
+                DeviceSpeed = 20;
+
+        }
+        public void BrightnessDown(int value)
+        {
+            if (IsUnionMode)
+            {
+                if (UnionOutput.OutputBrightness > 0)
+                    UnionOutput.OutputBrightness -= value;
+                if (UnionOutput.OutputBrightness < 0)
+                    UnionOutput.OutputBrightness = 0;
+            }
+            else
+            {
+                foreach (var output in AvailableOutputs)//possible replace with method from IOutputSettings
+                {
+                    if (output.OutputBrightness > 0)
+                        output.OutputBrightness -= value;
+                    if (output.OutputBrightness < 0)
+                        output.OutputBrightness = 0;
+                }
+            }
+        }
 
 
         //public void DeviceLocator(Color color) // this function send color signal to device to locate new device added

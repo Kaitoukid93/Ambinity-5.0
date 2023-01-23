@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using adrilight.Util;
 using NonInvasiveKeyboardHookLibrary;
+using System.Collections.ObjectModel;
 
 namespace adrilight
 {
@@ -18,11 +19,11 @@ namespace adrilight
      /// </summary>
      
         string Name { get; set; }
-        List<IActionSettings> Actions { get; set; }
+        ObservableCollection<IActionSettings> Actions { get; set; }
         int ConditionTypeIndex { get; set; }  // this is the index that point to type of the action, could be timmer or hot key
 
         KeyModel StandardKey { get; set; }// this is the condition such as key stroke code 
-        List<ModifierKeys> Modifiers { get; set; }
+        ObservableCollection<ModifierKeys> Modifiers { get; set; }
         bool IsEnabled { get; set; }
      
         

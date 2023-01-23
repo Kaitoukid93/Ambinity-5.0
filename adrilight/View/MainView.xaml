@@ -34,6 +34,31 @@
                 </ResourceDictionary>
 
             </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="_systemTrayContextMenuStyle" TargetType="MenuItem">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="MenuItem">
+                            <Border CornerRadius="4" Name="_Border"
+                                Padding="0"
+                                Margin="0"
+                                Background="Transparent"   
+                                BorderBrush="{StaticResource DarkMaskBrush}"
+                                BorderThickness="0"
+                                SnapsToDevicePixels="true">
+                                <MenuItem Header="{Binding Header}" Command="{Binding Action}" ItemsSource="{Binding Path=SubMenus}">
+                                    <MenuItem.Icon>
+                                        <Path Data="{Binding Geometry, Converter={converters:StaticResourceConverter}}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                    </MenuItem.Icon>
+                                </MenuItem>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+
+                <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+              
+
+            </Style>
             <Style TargetType="Button" x:Key="sideBtn" BasedOn="{StaticResource {x:Type Button}}">
                 <Setter Property="BorderThickness" Value="0"></Setter>
                 <Setter Property="Height" Value="46"></Setter>
@@ -170,23 +195,22 @@
 
                 <hc:NotifyIcon Click="OpenDashboard" x:Name="noticon" Token="Ambinity"  Text="Ambinity" >
                     <hc:NotifyIcon.ContextMenu>
-                        <ContextMenu>
+                        <ContextMenu >
+                            <!--<ContextMenu.ItemTemplate>
+                                <HierarchicalDataTemplate ItemsSource="{Binding SubMenus}"  DataType="{x:Type vm:SystemTrayContextMenu}">
+                                 
+                                </HierarchicalDataTemplate>
+                            </ContextMenu.ItemTemplate>-->
+
+
+
                             <MenuItem  Click="OpenDashboard" Header="Dashboard">
                                 <MenuItem.Icon>
                                     <Path   Data="{StaticResource dashboard}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                 </MenuItem.Icon>
 
                             </MenuItem>
-                            <MenuItem x:Name="ShortcutMenu" Tag="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" Header="Shortcut">
-                                <!--<MenuItem.ItemTemplate>
-                                    <HierarchicalDataTemplate ItemsSource="{Binding PlacementTarget.Tag.AvailableAutomations,RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                                        <TextBlock Text="{Binding Name}"></TextBlock>
-                                    </HierarchicalDataTemplate>
-                                </MenuItem.ItemTemplate>-->
-                                <MenuItem.Icon>
-                                    <Path   Data="{StaticResource auto}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                </MenuItem.Icon>
-                            </MenuItem>
+                         
                             <MenuItem  Command="hc:ControlCommands.ShutdownApp" Header="Exit">
                                 <MenuItem.Icon>
                                     <Path   Data="{StaticResource exit}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
