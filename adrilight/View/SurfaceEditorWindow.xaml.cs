@@ -29,7 +29,7 @@ namespace adrilight.View
         }
 
         private void OnScrolling(object sender, RoutedEventArgs e)
-        {
+        { 
             AttachedAdorner.OnScrolling();
         }
     }

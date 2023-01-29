@@ -289,6 +289,7 @@
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\VisualProperties.cs" />
+    <Compile Include="View\ScaleSelectionWindow.xaml.cs" />
     <Compile Include="View\SurfaceEditorWindow.xaml.cs" />
     <Compile Include="View\AutomationColorPickerWindow.xaml.cs" />
     <Compile Include="View\TargetDeviceSelectionWindow.xaml.cs" />
@@ -367,6 +368,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Properties\DesignTimeResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ScaleSelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -769,6 +774,5 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

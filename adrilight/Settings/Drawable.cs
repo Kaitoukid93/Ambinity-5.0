@@ -32,6 +32,7 @@ namespace adrilight
         private RelayCommand<double> topChangedCommand;
         private double _angle = 0;
         private bool _hasCustomBehavior;
+        private string _name;
 
         public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
         public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
@@ -59,11 +60,23 @@ namespace adrilight
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
+        public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
 
         public Drawable()
         {
             VisualProperties = new VisualProperties();
             Scale = new Point(1, 1);
+        }
+        public void SetScale(double scale)
+        {
+            //keep left and top the same
+            //scale width and height only
+            var oldWidth = Width;
+            var oldHeight = Height;
+            Width = scale * oldWidth;
+            Height = scale * oldHeight;
+            RaisePropertyChanged(nameof(Width));
+            RaisePropertyChanged(nameof(Height));
         }
         protected virtual void OnLeftChanged(double delta) { }
 

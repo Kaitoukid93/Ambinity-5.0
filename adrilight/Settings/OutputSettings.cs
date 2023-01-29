@@ -6,16 +6,18 @@ using GalaSoft.MvvmLight;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using Color = System.Windows.Media.Color;
 
 namespace adrilight
 {
-    internal class OutputSettings : ViewModelBase, IOutputSettings, IGroupable,IDrawable
+    internal class OutputSettings : ViewModelBase, IOutputSettings, IGroupable, IDrawable
     {
         private bool _isBorder = false;
         private string _outputName;
@@ -252,11 +254,13 @@ namespace adrilight
         private double _height = 100;
         private VisualProperties _visualProperties;
         private bool _shouldBringIntoView;
-        private Point _directionPoint;
+        private System.Windows.Point _directionPoint;
         private RelayCommand<double> leftChangedCommand;
         private RelayCommand<double> topChangedCommand;
         private double _angle = 0;
         private bool _hasCustomBehavior;
+        private string _name;
+
 
         public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
         public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
@@ -265,9 +269,9 @@ namespace adrilight
 
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
 
-        public double Width { get => _width; set { Set(() => Width, ref _width, value);OnWidthUpdated(); } }
+        public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }
 
-        public double Height { get => _height; set { Set(() => Height, ref _height, value);OnHeightUpdated(); } }
+        public double Height { get => _height; set { Set(() => Height, ref _height, value); OnHeightUpdated(); } }
 
         public VisualProperties VisualProperties { get => _visualProperties; set { Set(() => VisualProperties, ref _visualProperties, value); } }
 
@@ -279,16 +283,30 @@ namespace adrilight
 
         public bool ShouldBringIntoView { get => _shouldBringIntoView; set { Set(() => ShouldBringIntoView, ref _hasCustomBehavior, value); } }
 
-        public Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
+        public System.Windows.Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
 
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
+        public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
 
         public OutputSettings()
         {
             VisualProperties = new VisualProperties();
-            Scale = new Point(1, 1);
+            Scale = new System.Windows.Point(1, 1);
+        }
+        public void SetScale(double scale)
+        {
+            //keep left and top the same
+            //scale width and height only
+            Width *= scale;
+            Height *= scale;
+            OutputRectangleScaleHeight *= scale;
+            OutputRectangleScaleWidth *= scale;// these value is for setting new rectangle and it's position when parrents size is not stored( app startup)
+            SetRectangle(new Rectangle(OutputRectangle.Left, OutputRectangle.Top, (int)Width, (int)Height));
+            //we need to change ledsetup width and height too
+            RaisePropertyChanged(nameof(Width));
+            RaisePropertyChanged(nameof(Height));
         }
         protected virtual void OnLeftChanged(double delta) { }
 

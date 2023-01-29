@@ -248,7 +248,7 @@ namespace adrilight.Settings
                 OutputNumLED = 100,
                 OutputNumLEDX = numLEDX,
                 OutputNumLEDY = numLEDY,
-                OutputRectangle = new System.Drawing.Rectangle(0, 0, Screen.PrimaryScreen.Bounds.Width / 8, Screen.PrimaryScreen.Bounds.Height / 8),
+                OutputRectangle = new System.Drawing.Rectangle(0, 0, 100, 100),
                 OutputUniqueID = "",
                 OutputRGBLEDOrder = "GRB",
                 OutputIsVisible = true,

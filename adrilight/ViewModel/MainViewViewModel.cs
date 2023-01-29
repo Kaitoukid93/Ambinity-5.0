@@ -574,7 +574,10 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-
+        public ICommand OpenRectangleScaleCommand { get; set; }
+        public ICommand ResetToDefaultRectangleScaleCommand { get; set; }
+        public ICommand AglignSelectedItemstoLeftCommand { get; set; }
+        public ICommand AglignSelectedItemstoTopCommand { get; set; }
         public ICommand ExportCurrentColorEffectCommand { get; set; }
         public ICommand AddSelectedItemToGroupCommand { get; set; }
         public ICommand ExitCurrentRunningAppCommand { get; set; }
@@ -665,6 +668,7 @@ namespace adrilight.ViewModel
         public ICommand OpenDeviceConnectionSettingsWindowCommand { get; set; }
         public ICommand OpenDeviceFirmwareSettingsWindowCommand { get; set; }
         public ICommand RenameSelectedItemCommand { get; set; }
+        public ICommand SetSelectedItemScaleFactorCommand { get; set; }
         public ICommand OpenAdvanceSettingWindowCommand { get; set; }
         public ICommand CancelEditWizardCommand { get; set; }
         public ICommand ShowNameEditWindow { get; set; }
@@ -2625,6 +2629,46 @@ namespace adrilight.ViewModel
                 ExportCurrentColorEffect();
             }
           );
+            OpenRectangleScaleCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                OpenRectangleScaleWindow();
+            }
+          );
+            SetSelectedItemScaleFactorCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                SetSelectedItemScaleFactor();
+            }
+            );
+            ResetToDefaultRectangleScaleCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                ResetToDefaultRectangleScale();
+            }
+            );
+            AglignSelectedItemstoLeftCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                AglignSelectedItemstoLeft();
+            }
+            );
+            AglignSelectedItemstoTopCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                AglignSelectedItemstoTop();
+            }
+            );
             AddSelectedItemToGroupCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -5385,15 +5429,8 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged(nameof(SurfaceEditorItems));
             }
         }
-        private ObservableCollection<IDrawable> _surfaceEditorSelectedItems;
-        public ObservableCollection<IDrawable> SurfaceEditorSelectedItems {
-            get { return _surfaceEditorSelectedItems; }
-            set
-            {
-                _surfaceEditorSelectedItems = value;
-                RaisePropertyChanged(nameof(SurfaceEditorSelectedItems));
-            }
-        }
+
+        public ObservableCollection<IDrawable> SurfaceEditorSelectedItems { get; set; }
         private IDrawable _surfaceEditorSelectedItem;
         public IDrawable SurfaceEditorSelectedItem {
             get { return _surfaceEditorSelectedItem; }
@@ -5429,6 +5466,55 @@ namespace adrilight.ViewModel
                 }
             }
         }
+        private void OpenRectangleScaleWindow() // set scale for all surface editor selected items 
+        {
+
+
+            if (AssemblyHelper.CreateInternalInstance($"View.{"ScaleSelectionWindow"}") is System.Windows.Window window)
+            {
+
+                window.Owner = System.Windows.Application.Current.MainWindow;
+                window.ShowDialog();
+            }
+          
+        }
+        private double _itemScaleValue = 1.0;
+        public double ItemScaleValue {
+            get { return _itemScaleValue; }
+            set { _itemScaleValue = value; RaisePropertyChanged(nameof(ItemScaleValue)); }
+        }
+       private void SetSelectedItemScaleFactor()
+        {
+            foreach (var item in SurfaceEditorItems.OfType<IDrawable>().Where(d => d.IsSelected))
+            {
+                item.SetScale(ItemScaleValue);
+            }
+        }
+        private void ResetToDefaultRectangleScale()
+        {
+            foreach (var item in SurfaceEditorItems.OfType<IDrawable>().Where(d => d.IsSelected))
+            {
+                item.Width = 100.0;
+                item.Height = 100.0;
+                item.SetScale(1.0);
+            }
+        }
+        private void AglignSelectedItemstoLeft()
+        {
+            double minLeft = SurfaceEditorItems.OfType<IDrawable>().Where(d => d.IsSelected).Min(x => x.Left);
+            foreach (var item in SurfaceEditorItems.OfType<IDrawable>().Where(d => d.IsSelected))
+            {
+                item.Left = minLeft;
+            }
+        }
+        private void AglignSelectedItemstoTop()
+        {
+            double minTop = SurfaceEditorItems.OfType<IDrawable>().Where(d => d.IsSelected).Min(x => x.Top);
+            foreach (var item in SurfaceEditorItems.OfType<IDrawable>().Where(d => d.IsSelected))
+            {
+                item.Top = minTop;
+            }
+        }
         private void OpenSurfaceEditorWindow()
         {
             SurfaceEditorItems = new ObservableCollection<IDrawable>();
@@ -5448,7 +5534,10 @@ namespace adrilight.ViewModel
 
                         foreach (var output in device.AvailableOutputs)
                         {
-                            SurfaceEditorItems.Add((OutputSettings)output);
+                            var drawable = output as OutputSettings;
+                            drawable.Name = output.OutputName;
+                            SurfaceEditorItems.Add(drawable);
+
 
                         }
                     }
@@ -5478,8 +5567,8 @@ namespace adrilight.ViewModel
         }
         private void AddSelectedItemToGroup()
         {
-            var newGroup = new Group();        
-            newGroup.SetGroupedElements(SurfaceEditorSelectedItems.OfType<IDrawable>().Where(d => !(d is Group) && d is IGroupable).ToArray());
+            var newGroup = new Group();
+            newGroup.SetGroupedElements(SurfaceEditorItems.OfType<IDrawable>().Where(d => !(d is Group) && d is IGroupable && d.IsSelected).ToArray());
             newGroup.SetGroupSize();
             SurfaceEditorItems.Add(newGroup);
 

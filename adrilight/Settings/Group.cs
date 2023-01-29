@@ -28,6 +28,7 @@ namespace adrilight.Settings
         private RelayCommand<double> topChangedCommand;
         private double _angle = 0;
         private bool _hasCustomBehavior;
+        private string _name;
 
         public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
         public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
@@ -51,6 +52,7 @@ namespace adrilight.Settings
         public bool ShouldBringIntoView { get => _shouldBringIntoView; set { Set(() => ShouldBringIntoView, ref _hasCustomBehavior, value); } }
 
         public Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
+        public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
 
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
 
@@ -87,8 +89,18 @@ namespace adrilight.Settings
         protected virtual void OnIsSelectedChanged(bool value) { }
 
         public virtual void OnDrawingEnded(Action<object> callback = default) { }
-
-        public void SetGroupedElements(params IDrawable[] elements)
+        public void SetScale(double scale)
+        {
+            //keep left and top the same
+            //scale width and height only
+            var oldWidth = Width;
+            var oldHeight = Height;
+            Width = scale* oldWidth;
+            Height = scale * oldHeight;
+            RaisePropertyChanged(nameof(Width));
+            RaisePropertyChanged(nameof(Height));
+        }
+        internal void SetGroupedElements(params IDrawable[] elements)
         {
             Elements = new List<IDrawable>();
             elements.ToList().ForEach(e => ((IGroupable)e).Group = this);

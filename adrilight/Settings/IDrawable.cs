@@ -23,6 +23,7 @@ namespace adrilight
 
 
         double Top { get; set; }
+        string Name { get; set; }
 
 
         double Left { get; set; }
@@ -50,7 +51,7 @@ namespace adrilight
 
         bool ShouldBringIntoView { get; set; }
 
-
+        void SetScale(double scale);
         Point Scale { get; set; }
         ICommand LeftChangedCommand { get; }
 

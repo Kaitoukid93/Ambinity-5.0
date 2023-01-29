@@ -15,10 +15,10 @@
            x:Name="window"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
-           SizeToContent="Height"
+           
             ResizeMode="CanResize"
-           MaxHeight="1000" 
-           Width="400" 
+           Height="1000" 
+           Width="1000" 
            WindowStartupLocation="CenterOwner">
 
     <Window.Resources>
@@ -55,12 +55,13 @@
         <Grid Grid.Row=" 1" Grid.Column="1">
             <richCanvas:RichItemsControl
                  GridStyle="{StaticResource GridStyle}"
-                EnableSnapping="False"
+                EnableSnapping="True"
                 GridSpacing="10"
                 EnableGrid="true"
                 Scrolling="OnScrolling"
                 CanSelectMultipleItems="True"
-               
+                RealTimeDraggingEnabled="False"
+                RealTimeSelectionEnabled="False"
                 
                 SelectedItems="{Binding SurfaceEditorSelectedItems}" 
                 SelectedItem="{Binding SurfaceEditorSelectedItem}"  
@@ -90,10 +91,8 @@
                           
                             </Grid.Style>
                           
-                            <Grid Grid.Row="0">
-                                <TextBlock Style="{DynamicResource TextBlockDefault}" Text="{Binding OutputName}"/>
-                            </Grid>
-                            <Grid Grid.Row="1">
+                            
+                            <Grid>
                                 <ItemsControl   BorderBrush="Green" BorderThickness="{Binding IsBorder, Converter= {StaticResource booltoborderthicknessconverter}}"
                           Name="PreviewGird"  
                           
@@ -163,17 +162,17 @@
                         </Grid>
                     </DataTemplate>
                     <DataTemplate x:Key="SelectedAdornerTemplate">
-                        <Border BorderBrush="DodgerBlue"
-                            BorderThickness="1"
-                            Background="DodgerBlue">
+                        <Border BorderBrush="{DynamicResource SecondaryBorderBrush}"
+                            BorderThickness="1" CornerRadius="4"
+                            Background="{DynamicResource SecondaryRegionBrush}">
                             <TextBlock Foreground="White"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
                                    MaxWidth="60">
                                 <TextBlock.Text>
-                                    <MultiBinding StringFormat="{}{0} x {1}">
-                                        <Binding Path="Width" />
-                                        <Binding Path="Height" />
+                                    <MultiBinding StringFormat="{}{0} : {1}">
+                                        <Binding Path="Left" />
+                                        <Binding Path="Top" />
                                     </MultiBinding>
                                 </TextBlock.Text>
                             </TextBlock>
@@ -259,9 +258,51 @@
                             <Setter Property="ContextMenu">
                                 <Setter.Value>
                                     <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-                                        <MenuItem Header="Group" Icon="{StaticResource dashboard}"
-                                          Command="{Binding AddSelectedItemToGroupCommand}" />
-                                    </ContextMenu>
+                                    <MenuItem Header="Scale"
+                                          Command="{Binding OpenRectangleScaleCommand}" CommandParameter="open" >
+                                        <MenuItem.Icon>
+                                            <Path Data="{StaticResource fullsize}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="LED Setup"
+                                          Command="{Binding AddSelectedItemToGroupCommand}" >
+                                        <MenuItem.Icon>
+                                            <Path Data="{StaticResource ledsetup}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Properties"
+                                          Command="{Binding AddSelectedItemToGroupCommand}" >
+                                        <MenuItem.Icon>
+                                            <Path Data="{StaticResource info}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Live View"
+                                          Command="{Binding AddSelectedItemToGroupCommand}" >
+                                        <MenuItem.Icon>
+                                            <Path Data="{StaticResource brightness}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Reset Size"
+                                          Command="{Binding ResetToDefaultRectangleScaleCommand}" >
+                                        <MenuItem.Icon>
+                                            <Path Data="{StaticResource fullspectrum}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    
+                                        <MenuItem Header="Aglign Left"
+                                          Command="{Binding AglignSelectedItemstoLeftCommand}" >
+                                            <MenuItem.Icon>
+                                                <Path Data="{StaticResource left}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="Aglign Top"
+                                          Command="{Binding AglignSelectedItemstoTopCommand}" >
+                                            <MenuItem.Icon>
+                                                <Path Data="{StaticResource up}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                    
+                                </ContextMenu>
                                 </Setter.Value>
                             </Setter>
 
