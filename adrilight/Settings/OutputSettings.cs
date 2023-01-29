@@ -1,4 +1,5 @@
-﻿using adrilight.Spots;
+﻿using adrilight.Settings;
+using adrilight.Spots;
 using adrilight.Util;
 using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
@@ -8,13 +9,15 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace adrilight
 {
-    internal class OutputSettings :  ViewModelBase, IOutputSettings
+    internal class OutputSettings : ViewModelBase, IOutputSettings, IGroupable,IDrawable
     {
-       
+        private bool _isBorder = false;
         private string _outputName;
         private string _outputType;
         private int _outputID;
@@ -24,7 +27,7 @@ namespace adrilight
         private bool _isVissible = true;
         private string _outputDescription;
         private string _targetDevice;
-    
+
 
         private string _outputUniqueID;
         private string _outputRGBLEDOrder;
@@ -33,7 +36,7 @@ namespace adrilight
         private int _outputPowerVoltage;
         private int _outputPowerMiliamps;
         private byte _outputSaturationThreshold;
-        private bool _outputUseLinearLighting =true;
+        private bool _outputUseLinearLighting = true;
         private bool _outputIsSelected = false;
         private bool _outputIsEnable;
         private bool _outputParrentIsEnable = true;
@@ -50,7 +53,7 @@ namespace adrilight
         private int _outputPaletteSpeed = 20;
         private int _outputPaletteBlendStep;
         private Color _outputStaticColor;
-        private int _outputStaticColorMode=0;
+        private int _outputStaticColorMode = 0;
         private int _outputStaticColorGradientMode = 0;
         private int _outputScreenCapturePosition = 0;
         private int _outputScreenCaptureWB = 0;
@@ -60,13 +63,13 @@ namespace adrilight
         private int _sleepMode = 0;
         private IColorPalette _outputCurrentActivePalette;
         private ILEDSetup _outputLEDSetup;
-        private bool _isInSpotEditWizard=false;
+        private bool _isInSpotEditWizard = false;
         private string _geometry = "generaldevice";
         private int _outputSmoothness = 2;
         private int _outputPaletteChasingPosition = 2;
-        private int _outputScreenCaptureWBRed=100;
-        private int _outputScreenCaptureWBGreen=100;
-        private int _outputScreenCaptureWBBlue=100;
+        private int _outputScreenCaptureWBRed = 100;
+        private int _outputScreenCaptureWBGreen = 100;
+        private int _outputScreenCaptureWBBlue = 100;
         private int _outputScreenCapturePositionIndex = 0;
         private System.Drawing.Rectangle _outputRectangle;
         private System.Drawing.Rectangle _previewRectangle;
@@ -89,12 +92,15 @@ namespace adrilight
         private int _outputSelectedGifIndex = 0;
         private int _outputGridRow = 0;
         private int _outputGridColumn = 0;
-        
+        private Group _group;
+
+        public Group Group { get => _group; set => IsDraggable = value != null; }
+
 
         private int _outputGifSpeed = 20;
         private IGradientColorCard _outputSelectedGradient = new GradientColorCard("default", "application", "unknown", "auto create", Color.FromRgb(255, 127, 0), Color.FromRgb(0, 127, 255));
-
-        public string OutputName  { get => _outputName; set { Set(() => OutputName, ref _outputName, value);}}
+        public bool IsBorder { get => _isBorder; set { Set(() => IsBorder, ref _isBorder, value); } }
+        public string OutputName { get => _outputName; set { Set(() => OutputName, ref _outputName, value); } }
         [Reflectable]
         public int VUOrientation { get => _vUOrientation; set { Set(() => VUOrientation, ref _vUOrientation, value); } }
         [Reflectable]
@@ -149,11 +155,11 @@ namespace adrilight
         public int OutputSelectedMusicMode { get => _outputSelectedMusicMode; set { Set(() => OutputSelectedMusicMode, ref _outputSelectedMusicMode, value); } }
         [Reflectable]
         public int OutputSelectedMode { get => _outputSelectedMode; set { Set(() => OutputSelectedMode, ref _outputSelectedMode, value); } }
-      
 
-       
-    
-        
+
+
+
+
         [Reflectable]
         public int OutputSelectedMusicPalette { get => _outputSelectedMusicPalette; set { Set(() => OutputSelectedMusicPalette, ref _outputSelectedMusicPalette, value); } }
         [Reflectable]
@@ -179,7 +185,7 @@ namespace adrilight
         [Reflectable]
         public int OutputColorPaletteMode { get => _outputColorPaletteMode; set { Set(() => OutputColorPaletteMode, ref _outputColorPaletteMode, value); } }
         [Reflectable]
-        public int OutputStaticColorGradientMode { get =>_outputStaticColorGradientMode; set { Set(() => OutputStaticColorGradientMode, ref _outputStaticColorGradientMode, value); } }
+        public int OutputStaticColorGradientMode { get => _outputStaticColorGradientMode; set { Set(() => OutputStaticColorGradientMode, ref _outputStaticColorGradientMode, value); } }
         public int OutputScreenCapturePosition { get => _outputScreenCapturePosition; set { Set(() => OutputScreenCapturePosition, ref _outputScreenCapturePosition, value); } }
         [Reflectable]
         public int OutputScreenCaptureWB { get => _outputScreenCaptureWB; set { Set(() => OutputScreenCaptureWB, ref _outputScreenCaptureWB, value); } }
@@ -219,15 +225,15 @@ namespace adrilight
         [Reflectable]
         public double OutputRectangleScaleTop { get => _outputRectangleScaleTop; set { Set(() => OutputRectangleScaleTop, ref _outputRectangleScaleTop, value); } } // how many percent that output rectangle top take from the image, represent Y
         [Reflectable]
-        public  double OutputRectangleScaleLeft { get => _outputRectangleScaleLeft; set { Set(() => OutputRectangleScaleLeft, ref _outputRectangleScaleLeft, value); } } // how many percent that output rectangle top take from the image, represent X
+        public double OutputRectangleScaleLeft { get => _outputRectangleScaleLeft; set { Set(() => OutputRectangleScaleLeft, ref _outputRectangleScaleLeft, value); } } // how many percent that output rectangle top take from the image, represent X
         public System.Drawing.Rectangle PreviewRectangle { get => _previewRectangle; set { Set(() => PreviewRectangle, ref _previewRectangle, value); } }
 
         public bool OutputIsLoadingProfile { get => _outputIsLoadingProfile; set { Set(() => OutputIsLoadingProfile, ref _outputIsLoadingProfile, value); } }
-        
+
         public bool OutputIsBuildingLEDSetup { get => _outputIsBuildingLEDSetup; set { Set(() => OutputIsBuildingLEDSetup, ref _outputIsBuildingLEDSetup, value); } }
         [Reflectable]
-        public  bool OutputIsSystemSync { get => _outputIsSystemSync; set { Set(() => OutputIsSystemSync, ref _outputIsSystemSync, value); } }
-        public void SetRectangle (System.Drawing.Rectangle rectangle)
+        public bool OutputIsSystemSync { get => _outputIsSystemSync; set { Set(() => OutputIsSystemSync, ref _outputIsSystemSync, value); } }
+        public void SetRectangle(System.Drawing.Rectangle rectangle)
         {
             OutputRectangle = rectangle;
             RaisePropertyChanged(nameof(OutputRectangle));
@@ -237,5 +243,65 @@ namespace adrilight
             PreviewRectangle = rectangle;
             RaisePropertyChanged(nameof(PreviewRectangle));
         }
+        private double _top = 0;
+        private double _left = 0;
+        private bool _isSelected;
+        private bool _isSelectable = true;
+        private bool _isDraggable = true;
+        private double _width = 100;
+        private double _height = 100;
+        private VisualProperties _visualProperties;
+        private bool _shouldBringIntoView;
+        private Point _directionPoint;
+        private RelayCommand<double> leftChangedCommand;
+        private RelayCommand<double> topChangedCommand;
+        private double _angle = 0;
+        private bool _hasCustomBehavior;
+
+        public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
+        public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
+
+        public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
+
+        public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
+
+        public double Width { get => _width; set { Set(() => Width, ref _width, value);OnWidthUpdated(); } }
+
+        public double Height { get => _height; set { Set(() => Height, ref _height, value);OnHeightUpdated(); } }
+
+        public VisualProperties VisualProperties { get => _visualProperties; set { Set(() => VisualProperties, ref _visualProperties, value); } }
+
+        public bool IsSelectable { get => _isSelectable; set { Set(() => IsSelectable, ref _isSelectable, value); } }
+
+        public bool IsDraggable { get => _isDraggable; set { Set(() => IsDraggable, ref _isDraggable, value); } }
+
+        public bool HasCustomBehavior { get => _hasCustomBehavior; set { Set(() => HasCustomBehavior, ref _hasCustomBehavior, value); } }
+
+        public bool ShouldBringIntoView { get => _shouldBringIntoView; set { Set(() => ShouldBringIntoView, ref _hasCustomBehavior, value); } }
+
+        public Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
+
+        public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
+
+        public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
+
+        public OutputSettings()
+        {
+            VisualProperties = new VisualProperties();
+            Scale = new Point(1, 1);
+        }
+        protected virtual void OnLeftChanged(double delta) { }
+
+        protected virtual void OnTopChanged(double delta) { }
+
+        protected virtual void OnWidthUpdated() { }
+
+        protected virtual void OnHeightUpdated() { }
+
+        protected virtual void OnRotationChanged() { }
+
+        protected virtual void OnIsSelectedChanged(bool value) { }
+
+        public virtual void OnDrawingEnded(Action<object> callback = default) { }
     }
 }

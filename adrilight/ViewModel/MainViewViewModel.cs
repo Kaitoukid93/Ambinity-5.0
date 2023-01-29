@@ -576,6 +576,7 @@ namespace adrilight.ViewModel
         }
 
         public ICommand ExportCurrentColorEffectCommand { get; set; }
+        public ICommand AddSelectedItemToGroupCommand { get; set; }
         public ICommand ExitCurrentRunningAppCommand { get; set; }
         public ICommand ExecuteAutomationFromManagerCommand { get; set; }
         public ICommand UpdateAppCommand { get; set; }
@@ -1457,7 +1458,7 @@ namespace adrilight.ViewModel
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
 
-                if (newSerialDevices != null)
+                if (newSerialDevices != null && newSerialDevices.Count > 0)
                 {
 
 
@@ -1488,7 +1489,7 @@ namespace adrilight.ViewModel
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
 
-                if (oldSerialDevice != null)
+                if (oldSerialDevice != null && oldSerialDevice.Count > 0)
                 {
 
 
@@ -2622,6 +2623,14 @@ namespace adrilight.ViewModel
             }, (p) =>
             {
                 ExportCurrentColorEffect();
+            }
+          );
+            AddSelectedItemToGroupCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                AddSelectedItemToGroup();
             }
           );
             ExitCurrentRunningAppCommand = new RelayCommand<string>((p) =>
@@ -3916,7 +3925,7 @@ namespace adrilight.ViewModel
 
         private void SetCurrentActionTypeForSelectedAction(ActionType actionType)
         {
-            
+
             CurrentSelectedAction.ActionType = actionType;
             //reset the param too
             CurrentSelectedAction.ActionParameter = new ActionParameter { Name = "Thuộc tính", Type = "unknown", Value = "none" };
@@ -5367,15 +5376,17 @@ namespace adrilight.ViewModel
                 window.ShowDialog();
             }
         }
-        private ObservableCollection<IOutputSettings> _surfaceEditorItems;
-        public ObservableCollection<IOutputSettings> SurfaceEditorItems {
+        private ObservableCollection<IDrawable> _surfaceEditorItems;
+        public ObservableCollection<IDrawable> SurfaceEditorItems {
             get { return _surfaceEditorItems; }
-            set { _surfaceEditorItems = value;
+            set
+            {
+                _surfaceEditorItems = value;
                 RaisePropertyChanged(nameof(SurfaceEditorItems));
             }
         }
-        private ObservableCollection<IOutputSettings> _surfaceEditorSelectedItems;
-        public ObservableCollection<IOutputSettings> SurfaceEditorSelectedItems {
+        private ObservableCollection<IDrawable> _surfaceEditorSelectedItems;
+        public ObservableCollection<IDrawable> SurfaceEditorSelectedItems {
             get { return _surfaceEditorSelectedItems; }
             set
             {
@@ -5383,8 +5394,8 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged(nameof(SurfaceEditorSelectedItems));
             }
         }
-        private IOutputSettings _surfaceEditorSelectedItem;
-        public IOutputSettings SurfaceEditorSelectedItem {
+        private IDrawable _surfaceEditorSelectedItem;
+        public IDrawable SurfaceEditorSelectedItem {
             get { return _surfaceEditorSelectedItem; }
             set
             {
@@ -5420,8 +5431,8 @@ namespace adrilight.ViewModel
         }
         private void OpenSurfaceEditorWindow()
         {
-            SurfaceEditorItems = new ObservableCollection<IOutputSettings>();
-            SurfaceEditorSelectedItems = new ObservableCollection<IOutputSettings>();
+            SurfaceEditorItems = new ObservableCollection<IDrawable>();
+            SurfaceEditorSelectedItems = new ObservableCollection<IDrawable>();
             SurfaceEditorSelectedItems.CollectionChanged += SelectedItemsChanged;
             foreach (var device in AvailableDevices)
             {
@@ -5429,26 +5440,50 @@ namespace adrilight.ViewModel
                 {
                     if (device.IsUnionMode)
                     {
-                        SurfaceEditorItems.Add(device.UnionOutput);
+                        // SurfaceEditorItems.Add(device.UnionOutput);
                     }
                     else
                     {
+
+
                         foreach (var output in device.AvailableOutputs)
                         {
-                            SurfaceEditorItems.Add(output);
+                            SurfaceEditorItems.Add((OutputSettings)output);
+
                         }
                     }
 
                 }
             }
+            //add virtual border
+            var borderWidth = (int)SystemParameters.PrimaryScreenWidth;
+            var borderHeight = (int)SystemParameters.PrimaryScreenHeight;
+            var border = new OutputSettings() {
+                Top = 0,
+                Left = 0,
+                Width = borderWidth,
+                Height = borderHeight,
+                IsBorder = true
+            };
+            SurfaceEditorItems.Add(border);
+
+
+
             if (AssemblyHelper.CreateInternalInstance($"View.{"SurfaceEditorWindow"}") is System.Windows.Window window)
             {
-               
+
                 window.Owner = System.Windows.Application.Current.MainWindow;
                 window.ShowDialog();
             }
         }
+        private void AddSelectedItemToGroup()
+        {
+            var newGroup = new Group();        
+            newGroup.SetGroupedElements(SurfaceEditorSelectedItems.OfType<IDrawable>().Where(d => !(d is Group) && d is IGroupable).ToArray());
+            newGroup.SetGroupSize();
+            SurfaceEditorItems.Add(newGroup);
 
+        }
         private void ExportCurrentSelectedPaletteToFile(IColorPalette palette)
         {
             SaveFileDialog Export = new SaveFileDialog();
@@ -6212,7 +6247,7 @@ namespace adrilight.ViewModel
         //    //{
         //    //}
         //}
-       
+
         public void ReadDataDevice()
         {
             AvailableLightingMode = new ObservableCollection<ILightingMode>();

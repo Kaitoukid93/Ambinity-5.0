@@ -141,7 +141,16 @@
     <PackageReference Include="WpfAnimatedGif" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Adorners\HoverAdorner.cs" />
+    <Compile Include="Adorners\LineHoverAdorner.cs" />
+    <Compile Include="Adorners\ResizeAdorner.cs" />
+    <Compile Include="Adorners\ResizeLineAdorner.cs" />
     <Compile Include="App.xaml.cs" />
+    <Compile Include="Converter\BoolToBorderThicknessConverter.cs" />
+    <Compile Include="Converter\CommandToListConverter.cs" />
+    <Compile Include="Helpers\AttachedAdorner.cs" />
+    <Compile Include="Helpers\Behaviors\GroupBehavior.cs" />
+    <Compile Include="Helpers\EventToCommand.cs" />
     <Compile Include="Resources\IContext.cs" />
     <Compile Include="Resources\WpfContext.cs" />
     <Compile Include="Settings\ActionParameter.cs" />
@@ -157,6 +166,7 @@
     <Compile Include="Settings\DeviceProfile.cs" />
     <Compile Include="Settings\DeviceSettings.cs" />
     <Compile Include="Settings\GeneralSettings.cs" />
+    <Compile Include="Settings\Group.cs" />
     <Compile Include="Settings\IActionParameter.cs" />
     <Compile Include="Settings\IActionSettings.cs" />
     <Compile Include="Settings\IAutomationSettings.cs" />
@@ -165,10 +175,13 @@
     <Compile Include="Settings\IDeviceProfile.cs" />
     <Compile Include="Settings\IDeviceSettings.cs" />
     <Compile Include="Settings\IGeneralSettings.cs" />
+    <Compile Include="Settings\IGroupable.cs" />
     <Compile Include="Settings\IModifiersType.cs" />
+    <Compile Include="Settings\IDrawable.cs" />
     <Compile Include="Settings\IOutputSettings.cs" />
     <Compile Include="Settings\KeyModel.cs" />
     <Compile Include="Settings\ModifiersType.cs" />
+    <Compile Include="Settings\Drawable.cs" />
     <Compile Include="Settings\OutputSettings.cs" />
     <Compile Include="Settings\RateLimitedSender.cs" />
     <Compile Include="Settings\UserSettingsManager.cs" />
@@ -263,6 +276,7 @@
     <Compile Include="Extension\MathExtensions.cs" />
     <Compile Include="Extension\RawRectangleExtensions.cs" />
     <Compile Include="ViewModel\BaseViewModel.cs" />
+    <Compile Include="ViewModel\Drawable.cs" />
     <Compile Include="ViewModel\KeyboardHookManagerSingleton.cs" />
     <Compile Include="ViewModel\DeleteMessageDialogViewModel.cs" />
     <Compile Include="ViewModel\ExpandedOutputControlViewmodel.cs" />
@@ -274,6 +288,7 @@
     <Compile Include="ViewModel\UserIncreamentInputViewModel.cs" />
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
+    <Compile Include="ViewModel\VisualProperties.cs" />
     <Compile Include="View\SurfaceEditorWindow.xaml.cs" />
     <Compile Include="View\AutomationColorPickerWindow.xaml.cs" />
     <Compile Include="View\TargetDeviceSelectionWindow.xaml.cs" />

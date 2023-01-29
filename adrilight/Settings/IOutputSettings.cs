@@ -7,7 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using adrilight.Util;
-
+using System.Windows.Input;
+using adrilight.ViewModel;
+using System.Windows;
 
 namespace adrilight
 {
@@ -18,6 +20,7 @@ namespace adrilight
        
        
        
+        bool IsBorder { get; set; }
         string OutputName { get; set; }
         string OutputDescription { get; set; }
         int OutputNumLED { get; set; }
@@ -112,6 +115,9 @@ namespace adrilight
         ILEDSetup OutputLEDSetup { get; set; }
         void SetRectangle(System.Drawing.Rectangle rectangle);
         void SetPreviewRectangle(System.Drawing.Rectangle rectangle);
+
+
+ 
 
     }
 }

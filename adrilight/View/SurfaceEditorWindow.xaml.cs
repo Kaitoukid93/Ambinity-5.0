@@ -1,4 +1,5 @@
-﻿using HandyControl.Data;
+﻿using adrilight.Helpers;
+using HandyControl.Data;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -23,13 +24,13 @@ namespace adrilight.View
     {
         public SurfaceEditorWindow()
         {
-            InitializeComponent();
+            
             InitializeComponent();
         }
 
-     
-      
-        
-     
+        private void OnScrolling(object sender, RoutedEventArgs e)
+        {
+            AttachedAdorner.OnScrolling();
+        }
     }
 }
