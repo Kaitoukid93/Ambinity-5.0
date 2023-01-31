@@ -79,7 +79,7 @@ namespace adrilight.View
                 }
                 }
             };
-                view.IsCanvasLightingWindowOpen = true;
+               
                 view.IsSplitLightingWindowOpen = true;
                 //view.IsSplitLightingWindowOpen = true;
             }
@@ -118,7 +118,7 @@ namespace adrilight.View
             if (vm != null)
             {
                 vm.IsSplitLightingWindowOpen = false;
-                vm.IsCanvasLightingWindowOpen = false;
+                vm.IsRichCanvasWindowOpen = false;
                 if (vm.CurrentDevice != null)
                     vm.SaveCurrentProfile(vm.CurrentDevice.ActivatedProfileUID);
             }
@@ -138,7 +138,7 @@ namespace adrilight.View
             this.Visibility=Visibility.Visible;
             var vm = DataContext as MainViewViewModel;
             vm.IsSplitLightingWindowOpen = true;
-            vm.IsCanvasLightingWindowOpen = true;
+            
         }
     }
 }

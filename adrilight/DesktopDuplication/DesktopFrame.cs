@@ -26,35 +26,35 @@ namespace adrilight
         public DesktopFrame(IGeneralSettings userSettings, MainViewViewModel mainViewViewModel, int screen)
         {
             UserSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
-
+            
             ScreenToCapture = screen;
 
             MainViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             _retryPolicy = Policy.Handle<Exception>()
                 .WaitAndRetryForever(ProvideDelayDuration);
 
-          //  SystemEvents.DisplaySettingsChanged += new EventHandler(SystemEvents_DisplaySettingsChanged);
+            //  SystemEvents.DisplaySettingsChanged += new EventHandler(SystemEvents_DisplaySettingsChanged);
 
-            
+
             UserSettings.PropertyChanged += PropertyChanged;
             // SettingsViewModel.PropertyChanged += PropertyChanged;
             RefreshCapturingState();
 
             _log.Info($"DesktopDuplicatorReader created.");
         }
-
+        
         private void PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
 
-                
+
                 case nameof(MainViewModel.IsSplitLightingWindowOpen):
 
                     RefreshCapturingState();
                     break;
 
-           
+
             }
         }
 
@@ -71,11 +71,11 @@ namespace adrilight
         private Thread _workerThread;
         public ByteFrame Frame { get; set; }
         private int ScreenToCapture { get; set; }
-        
+
 
         public void RefreshCaptureSource()
         {
-            var isRunning =  IsRunning;
+            var isRunning = IsRunning;
             var shouldBeRunning = true;
             //  var shouldBeRefreshing = NeededRefreshing;
             if (isRunning && shouldBeRunning)
@@ -87,7 +87,7 @@ namespace adrilight
                 _desktopDuplicator = null;
                 _log.Debug("Stopped Desktop Duplication Reader.");
                 IsRunning = false;
-              
+
                 _log.Debug("starting the capturing");
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
@@ -175,7 +175,7 @@ namespace adrilight
             _log.Debug("Started Reading of First Desktop Frame.");
             Bitmap image = null;
             Frame = new ByteFrame();
-           
+
 
             try
             {
@@ -215,13 +215,13 @@ namespace adrilight
                     System.Runtime.InteropServices.Marshal.Copy(ptr, rgbValues, 0, bytes);
                     Frame.Frame = rgbValues;
                     Frame.FrameWidth = image.Width;
-                    Frame.FrameHeight = image.Height;  
+                    Frame.FrameHeight = image.Height;
                     //if(isPreviewRunning)
                     //    MainViewModel.ShaderImageUpdate(Frame);
 
 
 
-                        image.UnlockBits(bitmapData);
+                    image.UnlockBits(bitmapData);
                     int minFrameTimeInMs = 1000 / 60;
                     var elapsedMs = (int)frameTime.ElapsedMilliseconds;
                     if (elapsedMs < minFrameTimeInMs)
@@ -288,7 +288,7 @@ namespace adrilight
                 }
                 _lastObservedWidth = image.Width;
                 _lastObservedHeight = image.Height;
-            
+
             }
         }
 
@@ -300,7 +300,7 @@ namespace adrilight
         private Bitmap GetNextFrame(Bitmap reusableBitmap)
         {
 
-            
+
 
             if (_desktopDuplicator == null)
             {
@@ -314,8 +314,8 @@ namespace adrilight
                     {
                         _log.Error(ex, "could be secure desktop");
                     }
-                  //  UserSettings.ShouldbeRunning = false;
-                  //  RaisePropertyChanged(() => UserSettings.ShouldbeRunning);
+                    //  UserSettings.ShouldbeRunning = false;
+                    //  RaisePropertyChanged(() => UserSettings.ShouldbeRunning);
 
                     // _desktopDuplicator.Dispose();
                     // _desktopDuplicator = null;
@@ -328,7 +328,22 @@ namespace adrilight
 
             try
             {
-                return _desktopDuplicator.GetLatestFrame(reusableBitmap);
+                var latestFrame = _desktopDuplicator.GetLatestFrame(reusableBitmap);
+                if (reusableBitmap != null && (reusableBitmap.Width != latestFrame.Width || reusableBitmap.Height != latestFrame.Height))
+                {
+                    //new resolution detected, change current top left width height to match
+                    double scaleX = (double)latestFrame.Width / (double)reusableBitmap.Width;
+                    double scaleY = (double)latestFrame.Height / (double)reusableBitmap.Height;
+                    foreach(var device in MainViewModel.AvailableDevices.Where(d=>!(d.IsDummy)))
+                    {
+                        foreach(var output in device.AvailableOutputs)
+                        {
+                            output.OnResolutionChanged(scaleX,scaleY);
+                        }
+                    }
+
+                }
+                return latestFrame;
             }
             catch (Exception ex)
             {
@@ -351,7 +366,7 @@ namespace adrilight
                 {
                     _log.Error(ex, "Failed to release frame.");
                 }
-              
+
                 else
                 {
                     throw new DesktopDuplicationException("Unknown Device Error", ex);

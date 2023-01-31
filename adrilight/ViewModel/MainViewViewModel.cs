@@ -446,7 +446,7 @@ namespace adrilight.ViewModel
                                     break;
                             }
                             SetRectangleFromScale(CurrentOutput, CurrentOutput.OutputRectangleScaleLeft, CurrentOutput.OutputRectangleScaleTop, CurrentOutput.OutputRectangleScaleWidth, CurrentOutput.OutputRectangleScaleHeight, CanvasWidth, CanvasHeight);
-                            RaisePropertyChanged(nameof(CurrentOutput.OutputRectangle));
+                            //RaisePropertyChanged(nameof(CurrentOutput.OutputRectangle));
                             break;
 
                         case nameof(CurrentOutput.OutputMusicSensitivity):
@@ -575,8 +575,15 @@ namespace adrilight.ViewModel
             }
         }
         public ICommand OpenRectangleScaleCommand { get; set; }
+        public ICommand SaveCurretSurfaceLayoutCommand { get; set; }
+        public ICommand SetRandomOutputColorCommand { get; set; }
+        public ICommand LockSelectedItemCommand { get; set; }
+        public ICommand UnlockSelectedItemCommand { get; set; }
+        public ICommand SetSelectedItemLiveViewCommand { get; set; }
         public ICommand ResetToDefaultRectangleScaleCommand { get; set; }
         public ICommand AglignSelectedItemstoLeftCommand { get; set; }
+        public ICommand SpreadItemHorizontalCommand { get; set; }
+        public ICommand SpreadItemVerticalCommand { get; set; }
         public ICommand AglignSelectedItemstoTopCommand { get; set; }
         public ICommand ExportCurrentColorEffectCommand { get; set; }
         public ICommand AddSelectedItemToGroupCommand { get; set; }
@@ -1702,13 +1709,14 @@ namespace adrilight.ViewModel
             }
         }
 
-        private bool _isCanvasLightingWindowOpen;
+        private bool _isRichCanvasWindowOpen = false;
 
-        public bool IsCanvasLightingWindowOpen {
-            get => _isCanvasLightingWindowOpen;
+        public bool IsRichCanvasWindowOpen {
+            get => _isRichCanvasWindowOpen;
             set
             {
-                Set(ref _isCanvasLightingWindowOpen, value);
+                Set(ref _isRichCanvasWindowOpen, value);
+                RaisePropertyChanged();
                 // _log.Info($"IsSettingsWindowOpen is now {_isSettingsWindowOpen}");
             }
         }
@@ -2332,16 +2340,16 @@ namespace adrilight.ViewModel
                     device.UnionOutput.OutputSelectedGradient = CurrentOutput.OutputSelectedGradient;
                 }
             });
-            SetAllOutputRectangleSizeCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                foreach (var output in CurrentDevice.AvailableOutputs)
-                {
-                    output.SetRectangle(CurrentOutput.OutputRectangle);
-                }
-            });
+            //SetAllOutputRectangleSizeCommand = new RelayCommand<string>((p) =>
+            //{
+            //    return true;
+            //}, (p) =>
+            //{
+            //    foreach (var output in CurrentDevice.AvailableOutputs)
+            //    {
+            //        output.SetRectangle(CurrentOutput.OutputRectangle);
+            //    }
+            //});
 
             SelecFirmwareForCurrentDeviceCommand = new RelayCommand<string>((p) =>
             {
@@ -2637,6 +2645,14 @@ namespace adrilight.ViewModel
                 OpenRectangleScaleWindow();
             }
           );
+            SetSelectedItemLiveViewCommand = new RelayCommand<IOutputSettings>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                CurrentOutput = p;
+            }
+          );
             SetSelectedItemScaleFactorCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -2659,6 +2675,54 @@ namespace adrilight.ViewModel
             }, (p) =>
             {
                 AglignSelectedItemstoLeft();
+            }
+            );
+            LockSelectedItemCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                LockSelectedItem();
+            }
+            );
+            SetRandomOutputColorCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                SetRandomOutputColor();
+            }
+            );
+            SaveCurretSurfaceLayoutCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                SaveCurretSurfaceLayout();
+            }
+            );
+            UnlockSelectedItemCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                UnlockSelectedItem();
+            }
+       );
+            SpreadItemHorizontalCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                SpreadItemHorizontal();
+            }
+            );
+            SpreadItemVerticalCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                SpreadItemVertical();
             }
             );
             AglignSelectedItemstoTopCommand = new RelayCommand<string>((p) =>
@@ -3468,20 +3532,20 @@ namespace adrilight.ViewModel
                     CurrentOutput = CurrentDevice.AvailableOutputs[currentOutputID + 1];
                 }
             });
-            ResetDefaultAspectRatioCommand = new RelayCommand<string>((p) =>
-            {
-                return p != null;
-            }, (p) =>
-            {
-                double ratio = CurrentOutput.OutputNumLEDX / CurrentOutput.OutputNumLEDY;
-                int width = 100;
-                int height = (int)(100d / ratio);
-                CurrentOutput.SetRectangle(new Rectangle(0, 0, width, height));
-                AdjustingRectangleHeight = CurrentOutput.OutputRectangle.Height;
-                AdjustingRectangleWidth = CurrentOutput.OutputRectangle.Width;
-                AdjustingRectangleTop = CurrentOutput.OutputRectangle.Top;
-                AdjustingRectangleLeft = CurrentOutput.OutputRectangle.Left;
-            });
+            //ResetDefaultAspectRatioCommand = new RelayCommand<string>((p) =>
+            //{
+            //    return p != null;
+            //}, (p) =>
+            //{
+            //    double ratio = CurrentOutput.OutputNumLEDX / CurrentOutput.OutputNumLEDY;
+            //    int width = 100;
+            //    int height = (int)(100d / ratio);
+            //    CurrentOutput.SetRectangle(new Rectangle(0, 0, width, height));
+            //    AdjustingRectangleHeight = CurrentOutput.OutputRectangle.Height;
+            //    AdjustingRectangleWidth = CurrentOutput.OutputRectangle.Width;
+            //    AdjustingRectangleTop = CurrentOutput.OutputRectangle.Top;
+            //    AdjustingRectangleLeft = CurrentOutput.OutputRectangle.Left;
+            //});
             PreviousOutputCommand = new RelayCommand<string>((p) =>
         {
             return p != null;
@@ -4121,7 +4185,7 @@ namespace adrilight.ViewModel
             CurrentOutput.OutputRectangleScaleWidth = (double)AdjustingRectangleWidth / (double)CanvasWidth;
             CurrentOutput.OutputRectangleScaleLeft = (double)AdjustingRectangleLeft / (double)CanvasWidth;
             CurrentOutput.OutputRectangleScaleTop = (double)AdjustingRectangleTop / (double)CanvasHeight;// these value is for setting new rectangle and it's position when parrents size is not stored( app startup)
-            CurrentOutput.SetRectangle(new Rectangle(AdjustingRectangleLeft, AdjustingRectangleTop, AdjustingRectangleWidth, AdjustingRectangleHeight));
+            //CurrentOutput.SetRectangle(new Rectangle(AdjustingRectangleLeft, AdjustingRectangleTop, AdjustingRectangleWidth, AdjustingRectangleHeight));
         }
 
         private void ImportProfile()
@@ -5334,19 +5398,19 @@ namespace adrilight.ViewModel
             if (AssemblyHelper.CreateInternalInstance($"View.{"VIDEditWindow"}") is System.Windows.Window window)
             {
                 //caculate bound rect
-                var minX = CurrentDevice.AvailableOutputs.MinBy(p => p.OutputRectangle.Left).First().OutputRectangle.Left;// tìm hình có tọa độ X bé nhất trong danh sách
-                var minY = CurrentDevice.AvailableOutputs.MinBy(p => p.OutputRectangle.Top).First().OutputRectangle.Top; // tìm hình có tọa độ Y bé nhất
-                var maxXRect = CurrentDevice.AvailableOutputs.MaxBy(p => p.OutputRectangle.Left).First(); // tìm hình có tọa độ X lớn nhất
-                var maxX = maxXRect.OutputRectangle.Left + maxXRect.OutputRectangle.Width;                //X2 bằng tọa độ X lớn nhất + chiều dài của hình vừa tìm
-                var maxYRect = CurrentDevice.AvailableOutputs.MaxBy(p => p.OutputRectangle.Top).First(); // tương tự với Y2
-                var maxY = maxYRect.OutputRectangle.Top + maxYRect.OutputRectangle.Height;               // tương tự với Y2
-                var boundWidth = Math.Abs(maxX - minX);                                                  // có đươc chiều rộng của hình bao
-                var boundHeight = Math.Abs(maxY - minY);                                                 // có đươc chiều dài của hình bao
-                CurrentDevice.SetRectangle(new Rectangle(0, 0, boundWidth, boundHeight));
-                foreach (var output in CurrentDevice.AvailableOutputs)
-                {
-                    output.SetPreviewRectangle(new Rectangle(output.OutputRectangle.Left - minX, output.OutputRectangle.Top - minY, output.OutputRectangle.Width, output.OutputRectangle.Height));
-                }
+                //var minX = CurrentDevice.AvailableOutputs.MinBy(p => p.OutputRectangle.Left).First().OutputRectangle.Left;// tìm hình có tọa độ X bé nhất trong danh sách
+                //var minY = CurrentDevice.AvailableOutputs.MinBy(p => p.OutputRectangle.Top).First().OutputRectangle.Top; // tìm hình có tọa độ Y bé nhất
+                //var maxXRect = CurrentDevice.AvailableOutputs.MaxBy(p => p.OutputRectangle.Left).First(); // tìm hình có tọa độ X lớn nhất
+                //var maxX = maxXRect.OutputRectangle.Left + maxXRect.OutputRectangle.Width;                //X2 bằng tọa độ X lớn nhất + chiều dài của hình vừa tìm
+                //var maxYRect = CurrentDevice.AvailableOutputs.MaxBy(p => p.OutputRectangle.Top).First(); // tương tự với Y2
+                //var maxY = maxYRect.OutputRectangle.Top + maxYRect.OutputRectangle.Height;               // tương tự với Y2
+                //var boundWidth = Math.Abs(maxX - minX);                                                  // có đươc chiều rộng của hình bao
+                //var boundHeight = Math.Abs(maxY - minY);                                                 // có đươc chiều dài của hình bao
+                //CurrentDevice.SetRectangle(new Rectangle(0, 0, boundWidth, boundHeight));
+                //foreach (var output in CurrentDevice.AvailableOutputs)
+                //{
+                //    output.SetPreviewRectangle(new Rectangle(output.OutputRectangle.Left - minX, output.OutputRectangle.Top - minY, output.OutputRectangle.Width, output.OutputRectangle.Height));
+                //}
                 BackupSpots = new List<IDeviceSpot>();
                 foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
                 {
@@ -5403,10 +5467,10 @@ namespace adrilight.ViewModel
             {
                 GreyBitmap = new WriteableBitmap(CanvasWidth, CanvasHeight, 96, 96, PixelFormats.Bgr32, null);
 
-                AdjustingRectangleWidth = CurrentOutput.OutputRectangle.Width;
-                AdjustingRectangleHeight = CurrentOutput.OutputRectangle.Height;
-                AdjustingRectangleLeft = CurrentOutput.OutputRectangle.Left;
-                AdjustingRectangleTop = CurrentOutput.OutputRectangle.Top;
+                //AdjustingRectangleWidth = CurrentOutput.OutputRectangle.Width;
+                //AdjustingRectangleHeight = CurrentOutput.OutputRectangle.Height;
+                //AdjustingRectangleLeft = CurrentOutput.OutputRectangle.Left;
+                //AdjustingRectangleTop = CurrentOutput.OutputRectangle.Top;
                 window.Owner = System.Windows.Application.Current.MainWindow;
                 window.ShowDialog();
             }
@@ -5476,14 +5540,14 @@ namespace adrilight.ViewModel
                 window.Owner = System.Windows.Application.Current.MainWindow;
                 window.ShowDialog();
             }
-          
+
         }
         private double _itemScaleValue = 1.0;
         public double ItemScaleValue {
             get { return _itemScaleValue; }
             set { _itemScaleValue = value; RaisePropertyChanged(nameof(ItemScaleValue)); }
         }
-       private void SetSelectedItemScaleFactor()
+        private void SetSelectedItemScaleFactor()
         {
             foreach (var item in SurfaceEditorItems.OfType<IDrawable>().Where(d => d.IsSelected))
             {
@@ -5507,6 +5571,44 @@ namespace adrilight.ViewModel
                 item.Left = minLeft;
             }
         }
+        private void SpreadItemHorizontal()
+        {
+            //get min X
+            double spacing = 10.0;
+            double minLeft = SurfaceEditorItems.OfType<IDrawable>().Where(d => d.IsSelected).Min(x => x.Left);
+            var selectedItems = SurfaceEditorItems.OfType<IDrawable>().Where(d => d.IsSelected).ToArray();
+            for (int i = 0; i < selectedItems.Count(); i++)
+            {
+                if (i == 0)
+                    selectedItems[i].Left = minLeft;
+                else
+                {
+                    var previousLeft = selectedItems[i - 1].Left;
+                    selectedItems[i].Left = selectedItems[i - 1].Width + previousLeft + spacing;
+                }
+
+            }
+            AglignSelectedItemstoTop();
+        }
+        private void SpreadItemVertical()
+        {
+            //get min Y
+            double spacing = 10.0;
+            double minTop = SurfaceEditorItems.OfType<IDrawable>().Where(d => d.IsSelected).Min(x => x.Top);
+            var selectedItems = SurfaceEditorItems.OfType<IDrawable>().Where(d => d.IsSelected).ToArray();
+            for (int i = 0; i < selectedItems.Count(); i++)
+            {
+                if (i == 0)
+                    selectedItems[i].Top = minTop;
+                else
+                {
+                    var previousTop = selectedItems[i - 1].Top;
+                    selectedItems[i].Top = selectedItems[i - 1].Height + previousTop + spacing;
+                }
+
+            }
+            AglignSelectedItemstoLeft();
+        }
         private void AglignSelectedItemstoTop()
         {
             double minTop = SurfaceEditorItems.OfType<IDrawable>().Where(d => d.IsSelected).Min(x => x.Top);
@@ -5515,6 +5617,60 @@ namespace adrilight.ViewModel
                 item.Top = minTop;
             }
         }
+        private void LockSelectedItem()
+        {
+
+            foreach (var item in SurfaceEditorItems.OfType<IDrawable>().Where(d => d.IsSelected))
+            {
+                item.IsDraggable = false;
+            }
+        }
+        private void SetRandomOutputColor()
+        {
+            foreach (var device in AvailableDevices.Where(x => !x.IsDummy))
+            {
+                device.CurrentState = State.surfaceEditor;
+            }
+        }
+        private void UnlockSelectedItem()
+        {
+
+            foreach (var item in SurfaceEditorItems.OfType<IDrawable>().Where(d => d.IsSelected))
+            {
+                item.IsDraggable = true;
+            }
+        }
+        private void SaveCurretSurfaceLayout()
+        {
+            //get width and height of current border
+            var border = SurfaceEditorItems.OfType<IDrawable>().Where(d => d is Border).FirstOrDefault();
+            var maxX = SurfaceEditorItems.MaxBy(d => (d.Width + d.Left)).FirstOrDefault();
+            var maxY = SurfaceEditorItems.MaxBy(d => (d.Height + d.Top)).FirstOrDefault();
+            var minX = SurfaceEditorItems.MinBy(d => (d.Left)).FirstOrDefault();
+            var minY = SurfaceEditorItems.MinBy(d => (d.Top)).FirstOrDefault();
+            if ((maxX.Width+maxX.Left) > (border.Width + border.Left)|| 
+                (maxY.Height + maxX.Top) > (border.Height + border.Top)||
+                minX.Left<border.Left||
+                minY.Top<border.Top
+                )
+            {
+                //this indicate there is atleast one of the item jumping out of the border
+                HandyControl.Controls.MessageBox.Show("Kiểm tra lại vị trí, có thiết bị vượt ra ngoài ranh giới", "Out of range", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+           
+
+            foreach (var item in SurfaceEditorItems.OfType<IDrawable>().Where(d => !(d is Border)))
+            {
+                (item as OutputSettings).OutputRectangleScaleWidth = item.Width / border.Width;
+                (item as OutputSettings).OutputRectangleScaleHeight = item.Height / border.Height;
+                (item as OutputSettings).OutputRectangleScaleLeft = item.Left / border.Width;
+                (item as OutputSettings).OutputRectangleScaleTop = item.Top / border.Height;
+            }
+            surfaceeditorWindow.Close();
+            IsRichCanvasWindowOpen = false;
+        }
+
         private void OpenSurfaceEditorWindow()
         {
             SurfaceEditorItems = new ObservableCollection<IDrawable>();
@@ -5545,26 +5701,16 @@ namespace adrilight.ViewModel
                 }
             }
             //add virtual border
-            var borderWidth = (int)SystemParameters.PrimaryScreenWidth;
-            var borderHeight = (int)SystemParameters.PrimaryScreenHeight;
-            var border = new OutputSettings() {
-                Top = 0,
-                Left = 0,
-                Width = borderWidth,
-                Height = borderHeight,
-                IsBorder = true
-            };
+            Border border = new Border();
             SurfaceEditorItems.Add(border);
+            surfaceeditorWindow = new SurfaceEditorWindow();
+            IsRichCanvasWindowOpen = true;
+            surfaceeditorWindow.Owner = System.Windows.Application.Current.MainWindow;
+            surfaceeditorWindow.ShowDialog();
+            
 
-
-
-            if (AssemblyHelper.CreateInternalInstance($"View.{"SurfaceEditorWindow"}") is System.Windows.Window window)
-            {
-
-                window.Owner = System.Windows.Application.Current.MainWindow;
-                window.ShowDialog();
-            }
         }
+        SurfaceEditorWindow surfaceeditorWindow { get; set; }
         private void AddSelectedItemToGroup()
         {
             var newGroup = new Group();
@@ -7284,7 +7430,7 @@ namespace adrilight.ViewModel
                 var left = scaleX * parrentWidth;
                 var width = scaleWidth * parrentWidth;
                 var height = scaleHeight * parrentHeight;
-                target.SetRectangle(new Rectangle((int)left, (int)top, (int)width, (int)height));
+                //target.SetRectangle(new Rectangle((int)left, (int)top, (int)width, (int)height));
             }
         }
 
@@ -7361,7 +7507,7 @@ namespace adrilight.ViewModel
             CurrentLEDSetup = CurrentOutput.OutputLEDSetup;
             RaisePropertyChanged(nameof(CurrentDevice.SelectedOutput));
             IsSplitLightingWindowOpen = true;
-            IsCanvasLightingWindowOpen = false;
+
 
             //WriteDeviceInfoJson();
 

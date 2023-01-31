@@ -19,7 +19,7 @@ namespace adrilight
 {
     internal class OutputSettings : ViewModelBase, IOutputSettings, IGroupable, IDrawable
     {
-        private bool _isBorder = false;
+       
         private string _outputName;
         private string _outputType;
         private int _outputID;
@@ -73,8 +73,6 @@ namespace adrilight
         private int _outputScreenCaptureWBGreen = 100;
         private int _outputScreenCaptureWBBlue = 100;
         private int _outputScreenCapturePositionIndex = 0;
-        private System.Drawing.Rectangle _outputRectangle;
-        private System.Drawing.Rectangle _previewRectangle;
         private bool _outputIsLoadingProfile = false;
         private bool _outputIsBuildingLEDSetup = false;
         private int _outputMusicSensitivity = 10;
@@ -101,7 +99,6 @@ namespace adrilight
 
         private int _outputGifSpeed = 20;
         private IGradientColorCard _outputSelectedGradient = new GradientColorCard("default", "application", "unknown", "auto create", Color.FromRgb(255, 127, 0), Color.FromRgb(0, 127, 255));
-        public bool IsBorder { get => _isBorder; set { Set(() => IsBorder, ref _isBorder, value); } }
         public string OutputName { get => _outputName; set { Set(() => OutputName, ref _outputName, value); } }
         [Reflectable]
         public int VUOrientation { get => _vUOrientation; set { Set(() => VUOrientation, ref _vUOrientation, value); } }
@@ -218,8 +215,7 @@ namespace adrilight
         public int OutputMusicSensitivity { get => _outputMusicSensitivity; set { Set(() => OutputMusicSensitivity, ref _outputMusicSensitivity, value); } }
         [Reflectable]
         public int OutputScreenCapturePositionIndex { get => _outputScreenCapturePositionIndex; set { Set(() => OutputScreenCapturePositionIndex, ref _outputScreenCapturePositionIndex, value); } }
-        [Reflectable]
-        public System.Drawing.Rectangle OutputRectangle { get => _outputRectangle; set { Set(() => OutputRectangle, ref _outputRectangle, value); } }
+       
         [Reflectable]
         public double OutputRectangleScaleWidth { get => _outputRectangleScaleWidth; set { Set(() => OutputRectangleScaleWidth, ref _outputRectangleScaleWidth, value); } } // how many percent that output rectangle width take from the image
         [Reflectable]
@@ -228,23 +224,23 @@ namespace adrilight
         public double OutputRectangleScaleTop { get => _outputRectangleScaleTop; set { Set(() => OutputRectangleScaleTop, ref _outputRectangleScaleTop, value); } } // how many percent that output rectangle top take from the image, represent Y
         [Reflectable]
         public double OutputRectangleScaleLeft { get => _outputRectangleScaleLeft; set { Set(() => OutputRectangleScaleLeft, ref _outputRectangleScaleLeft, value); } } // how many percent that output rectangle top take from the image, represent X
-        public System.Drawing.Rectangle PreviewRectangle { get => _previewRectangle; set { Set(() => PreviewRectangle, ref _previewRectangle, value); } }
+       
 
         public bool OutputIsLoadingProfile { get => _outputIsLoadingProfile; set { Set(() => OutputIsLoadingProfile, ref _outputIsLoadingProfile, value); } }
 
         public bool OutputIsBuildingLEDSetup { get => _outputIsBuildingLEDSetup; set { Set(() => OutputIsBuildingLEDSetup, ref _outputIsBuildingLEDSetup, value); } }
         [Reflectable]
         public bool OutputIsSystemSync { get => _outputIsSystemSync; set { Set(() => OutputIsSystemSync, ref _outputIsSystemSync, value); } }
-        public void SetRectangle(System.Drawing.Rectangle rectangle)
-        {
-            OutputRectangle = rectangle;
-            RaisePropertyChanged(nameof(OutputRectangle));
-        }
-        public void SetPreviewRectangle(System.Drawing.Rectangle rectangle)
-        {
-            PreviewRectangle = rectangle;
-            RaisePropertyChanged(nameof(PreviewRectangle));
-        }
+        //public void SetRectangle(System.Drawing.Rectangle rectangle)
+        //{
+        //    OutputRectangle = rectangle;
+        //    RaisePropertyChanged(nameof(OutputRectangle));
+        //}
+        //public void SetPreviewRectangle(System.Drawing.Rectangle rectangle)
+        //{
+        //    PreviewRectangle = rectangle;
+        //    RaisePropertyChanged(nameof(PreviewRectangle));
+        //}
         private double _top = 0;
         private double _left = 0;
         private bool _isSelected;
@@ -303,10 +299,17 @@ namespace adrilight
             Height *= scale;
             OutputRectangleScaleHeight *= scale;
             OutputRectangleScaleWidth *= scale;// these value is for setting new rectangle and it's position when parrents size is not stored( app startup)
-            SetRectangle(new Rectangle(OutputRectangle.Left, OutputRectangle.Top, (int)Width, (int)Height));
+            //SetRectangle(new Rectangle(OutputRectangle.Left, OutputRectangle.Top, (int)Width, (int)Height));
             //we need to change ledsetup width and height too
             RaisePropertyChanged(nameof(Width));
             RaisePropertyChanged(nameof(Height));
+        }
+        public void OnResolutionChanged(double scaleX, double scaleY)
+        {
+            Width *= scaleX;
+            Height *= scaleY;
+            Left *= scaleX;
+            Top *= scaleY;
         }
         protected virtual void OnLeftChanged(double delta) { }
 

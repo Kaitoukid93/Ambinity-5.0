@@ -20,14 +20,14 @@ namespace adrilight
        
        
        
-        bool IsBorder { get; set; }
+     
         string OutputName { get; set; }
         string OutputDescription { get; set; }
         int OutputNumLED { get; set; }
         int OutputNumLEDX { get; set; }
         int OutputNumLEDY { get; set; }
-        System.Drawing.Rectangle OutputRectangle { get; set; }
-        System.Drawing.Rectangle PreviewRectangle { get; set; }
+        //System.Drawing.Rectangle OutputRectangle { get; set; }
+        //System.Drawing.Rectangle PreviewRectangle { get; set; }
         /// <summary>
         /// output capture position rev 2.0, using scale only
         /// </summary>
@@ -113,11 +113,12 @@ namespace adrilight
 
         IColorPalette OutputCurrentActivePalette { get; set; }
         ILEDSetup OutputLEDSetup { get; set; }
-        void SetRectangle(System.Drawing.Rectangle rectangle);
-        void SetPreviewRectangle(System.Drawing.Rectangle rectangle);
+        //void SetRectangle(System.Drawing.Rectangle rectangle);
+        //void SetPreviewRectangle(System.Drawing.Rectangle rectangle);
 
+        void OnResolutionChanged(double scaleX, double scaleY);
+        
 
- 
 
     }
 }

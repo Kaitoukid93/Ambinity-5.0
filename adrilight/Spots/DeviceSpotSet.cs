@@ -20,7 +20,7 @@ namespace adrilight
         private string JsonLEDSetupFileNameAndPath => Path.Combine(JsonPath, "adrilight-LEDSetups.json");
         public DeviceSpotSet(IOutputSettings outputSettings, IGeneralSettings generalSettings)
         {
-            OutputSettings = outputSettings ?? throw new ArgumentNullException(nameof(outputSettings));
+            OutputSettings = outputSettings as OutputSettings ?? throw new ArgumentNullException(nameof(outputSettings));
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
 
             OutputSettings.PropertyChanged += (_, e) => DecideRefresh(e.PropertyName);
@@ -37,7 +37,8 @@ namespace adrilight
                 case nameof(OutputSettings.OutputNumLEDX):
                 case nameof(OutputSettings.OutputNumLEDY):
                 case nameof(OutputSettings.OutputNumLED):
-                case nameof(OutputSettings.OutputRectangle):
+                case nameof(OutputSettings.Width):
+                case nameof(OutputSettings .Height):
                 case nameof(GeneralSettings.IsProfileLoading):
                 case nameof(OutputSettings.IsInSpotEditWizard):
                     //... there are more to come
@@ -70,7 +71,7 @@ namespace adrilight
 
 
 
-        private IOutputSettings OutputSettings { get; }
+        private OutputSettings OutputSettings { get; }
         private IGeneralSettings GeneralSettings { get; }
         private void Refresh()
         {
@@ -99,8 +100,8 @@ namespace adrilight
             string description = "Default LED Setup for Ambino Basic Rev 2";
             string type = "ABRev2";
             int setupID = outputSettings.OutputID;
-            int rectWidth = outputSettings.OutputRectangle.Width;
-            int rectHeight = outputSettings.OutputRectangle.Height;
+            int rectWidth = (int)(outputSettings as OutputSettings).Width;
+            int rectHeight = (int)(outputSettings as OutputSettings).Height;
 
             IDeviceSpot[] spots = new DeviceSpot[numLED];
             List<IDeviceSpot> reorderedSpots = new List<IDeviceSpot>();

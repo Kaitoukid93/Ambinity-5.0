@@ -11,7 +11,7 @@ using adrilight.Settings;
 
 namespace adrilight
 {
-    public enum State { sleep, dfu, speed, normal };
+    public enum State { sleep, dfu, speed, normal, surfaceEditor };
     public interface IDeviceSettings :  INotifyPropertyChanged
     {
       

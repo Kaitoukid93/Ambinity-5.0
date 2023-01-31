@@ -166,6 +166,7 @@
     <Compile Include="Settings\DeviceProfile.cs" />
     <Compile Include="Settings\DeviceSettings.cs" />
     <Compile Include="Settings\GeneralSettings.cs" />
+    <Compile Include="Settings\Border.cs" />
     <Compile Include="Settings\Group.cs" />
     <Compile Include="Settings\IActionParameter.cs" />
     <Compile Include="Settings\IActionSettings.cs" />

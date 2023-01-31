@@ -60,6 +60,7 @@ namespace adrilight
                 case nameof(OutputSettings.OutputIsLoadingProfile):
                 case nameof(OutputSettings.OutputIsEnabled):
                 case nameof(OutputSettings.OutputParrentIsEnable):
+                case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
                     RefreshCapturingState();
                     break;
 
@@ -101,7 +102,12 @@ namespace adrilight
         public void RefreshCapturingState()
         {
             var isRunning = _cancellationTokenSource != null;
-            var shouldBeRunning = OutputSettings.OutputIsEnabled && OutputSettings.OutputParrentIsEnable && OutputSettings.OutputSelectedMode == 0 && OutputSettings.IsInSpotEditWizard == false && OutputSettings.OutputIsLoadingProfile == false;
+            var shouldBeRunning = OutputSettings.OutputIsEnabled &&
+                OutputSettings.OutputParrentIsEnable &&
+                OutputSettings.OutputSelectedMode == 0 &&
+                OutputSettings.IsInSpotEditWizard == false &&
+                OutputSettings.OutputIsLoadingProfile == false &&
+                MainViewViewModel.IsRichCanvasWindowOpen == false;
             //  var shouldBeRefreshing = NeededRefreshing;
 
 
@@ -196,10 +202,12 @@ namespace adrilight
                     var frameTime = Stopwatch.StartNew();
                     var newImage = _retryPolicy.Execute(() => GetNextFrame(image, isPreviewRunning));
                     TraceFrameDetails(newImage);
-                    var width = OutputSettings.OutputRectangle.Width;
-                    var height = OutputSettings.OutputRectangle.Height;
-                    var x = OutputSettings.OutputRectangle.Left;
-                    var y = OutputSettings.OutputRectangle.Top;
+                    var scaleWidth = OutputSettings.OutputRectangleScaleWidth;
+                    var scaleHeight = OutputSettings.OutputRectangleScaleHeight;
+                    var scaleX = OutputSettings.OutputRectangleScaleLeft;
+                    var scaleY = OutputSettings.OutputRectangleScaleTop;
+                    var virtualWidth = (OutputSettings as OutputSettings).Width;
+                    var virtualHeight = (OutputSettings as OutputSettings).Height;
                     var brightness = OutputSettings.OutputBrightness / 100d;
                     var devicePowerVoltage = OutputSettings.OutputPowerVoltage;
                     var devicePowerMiliamps = OutputSettings.OutputPowerMiliamps;
@@ -213,9 +221,11 @@ namespace adrilight
                         continue;
                     }
                     image = newImage;
-
-
-
+                    var x = (int)(scaleX * image.Width);
+                    var y = (int)(scaleY * image.Height);
+                    var width = (int)(scaleWidth * image.Width);
+                    var height = (int)(scaleHeight * image.Height);
+                   
                     try
                     {
                         image.LockBits(new Rectangle(x, y, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppRgb, bitmapData);
@@ -253,8 +263,12 @@ namespace adrilight
                                 const int numberOfSteps = 15;
                                 int stepx = Math.Max(1, spot.Rectangle.Width / numberOfSteps);
                                 int stepy = Math.Max(1, spot.Rectangle.Height / numberOfSteps);
-
-                                GetAverageColorOfRectangularRegion(spot.Rectangle, stepy, stepx, bitmapData,
+                                Rectangle actualRectangle = new Rectangle(
+                                    (int)(width * spot.Rectangle.X / virtualWidth),
+                                    (int)(height * spot.Rectangle.Y / virtualHeight),
+                                    (int)(width * spot.Rectangle.Width / virtualWidth),
+                                    (int)(height * spot.Rectangle.Height / virtualHeight));
+                                GetAverageColorOfRectangularRegion(actualRectangle, stepy, stepx, bitmapData,
                                     out int sumR, out int sumG, out int sumB, out int count);
 
                                 var countInverse = 1f / count;
@@ -447,26 +461,26 @@ namespace adrilight
                     else if (ReusableBitmap != null && (ReusableBitmap.Width != CurrentFrame.FrameWidth || ReusableBitmap.Height != CurrentFrame.FrameHeight))
                     {
                         DesktopImage = new Bitmap(CurrentFrame.FrameWidth, CurrentFrame.FrameHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-                        //do the scale for current device position
-                        double scaleX = (double)CurrentFrame.FrameWidth / (double)ReusableBitmap.Width;
-                        double scaleY = (double)CurrentFrame.FrameHeight / (double)ReusableBitmap.Height;
-                        var x = (double)OutputSettings.OutputRectangle.X * scaleX;
-                        var y = (double)OutputSettings.OutputRectangle.Y * scaleX;
-                        var width = OutputSettings.OutputRectangle.Width * scaleX;
-                        var height = OutputSettings.OutputRectangle.Height * scaleY;
+                        //new resolution detected, change current top left width height to match
+                        //double scaleX = (double)CurrentFrame.FrameWidth / (double)ReusableBitmap.Width;
+                        //double scaleY = (double)CurrentFrame.FrameHeight / (double)ReusableBitmap.Height;
+                        //(OutputSettings as OutputSettings).Width *= scaleX;
+                        //(OutputSettings as OutputSettings).Height *= scaleY;
+                        //(OutputSettings as OutputSettings).Left *= scaleX;
+                        //(OutputSettings as OutputSettings).Top *= scaleY;
 
-                        OutputSettings.OutputRectangle = new Rectangle((int)x, (int)y, (int)width, (int)height);
+                        //OutputSettings.OutputRectangle = new Rectangle((int)x, (int)y, (int)width, (int)height);
 
 
                     }
                     else //this is when app start
                     {
                         DesktopImage = new Bitmap(CurrentFrame.FrameWidth, CurrentFrame.FrameHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-                        var width = OutputSettings.OutputRectangleScaleWidth * CurrentFrame.FrameWidth;
-                        var height = OutputSettings.OutputRectangleScaleHeight * CurrentFrame.FrameHeight;
-                        var x = OutputSettings.OutputRectangleScaleLeft * CurrentFrame.FrameWidth;
-                        var y = OutputSettings.OutputRectangleScaleTop * CurrentFrame.FrameHeight;
-                        OutputSettings.OutputRectangle = new Rectangle((int)x, (int)y, (int)width, (int)height);
+                        //var width = OutputSettings.OutputRectangleScaleWidth * CurrentFrame.FrameWidth;
+                        //var height = OutputSettings.OutputRectangleScaleHeight * CurrentFrame.FrameHeight;
+                        //var x = OutputSettings.OutputRectangleScaleLeft * CurrentFrame.FrameWidth;
+                        //var y = OutputSettings.OutputRectangleScaleTop * CurrentFrame.FrameHeight;
+                        //OutputSettings.OutputRectangle = new Rectangle((int)x, (int)y, (int)width, (int)height);
 
                     }
 

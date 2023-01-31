@@ -7,6 +7,7 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
+           xmlns:richCanvas="clr-namespace:RichCanvas;assembly=RichCanvas"
            xmlns:local="clr-namespace:adrilight.View"
            Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
@@ -187,24 +188,9 @@
                     </Style.Triggers>
                 </Style>
             </Grid.Style>
-            <Viewbox   HorizontalAlignment="Left" VerticalAlignment="Top"  Name="PreviewBox">
+            <richCanvas:RichItemsControl   HorizontalAlignment="Left" VerticalAlignment="Top"  Name="PreviewBox">
          
-                <Viewbox.ContextMenu>
-                    <ContextMenu Style="{StaticResource ContextMenuBaseStyle}">
-                        <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Edit Position ID"
-                                         Command="{Binding LaunchPIDEditWindowCommand}"
-                                          >
-                        </MenuItem>
-                        <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Edit Virtual ID"
-                                         
-                                          >
-                        </MenuItem>
-                        <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Edit Music ID"
-                                          
-                                          >
-                        </MenuItem>
-                    </ContextMenu>
-                </Viewbox.ContextMenu>
+              
                 <ItemsControl 
                           Name="PreviewGird"  
                           BorderThickness="1"
@@ -216,8 +202,8 @@
                             <Canvas HorizontalAlignment="Left" VerticalAlignment="Top" Name="PreviewCanvas"
                                
                                 Margin="0" 
-                                Width="{Binding CurrentOutput.OutputRectangle.Width}" 
-                                Height="{Binding CurrentOutput.OutputRectangle.Height}" >
+                                Width="{Binding CurrentOutput.Width}" 
+                                Height="{Binding CurrentOutput.Height}" >
                                
                             </Canvas>
                         </ItemsPanelTemplate>
@@ -256,7 +242,7 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-            </Viewbox>
+            </richCanvas:RichItemsControl>
             <Canvas
                 x:Name="dragSelectionCanvas"
                 Visibility="Collapsed">
@@ -279,84 +265,103 @@
                     </Style.Triggers>
                 </Style>
             </Grid.Style>
-            <Viewbox  HorizontalAlignment="Left" VerticalAlignment="Top"  >
-                <Viewbox.ContextMenu>
-                    <ContextMenu Style="{StaticResource ContextMenuBaseStyle}">
-                        <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Edit Position ID"
-                                         Command="{Binding LaunchPIDEditWindowCommand}"
-                                          >
-                        </MenuItem>
-                        <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Edit Virtual ID"
-                                         
-                                          >
-                        </MenuItem>
-                        <MenuItem Style="{StaticResource MenuItemBaseStyle}" Header="Edit Music ID"
-                                          
-                                          >
-                        </MenuItem>
-                    </ContextMenu>
-                </Viewbox.ContextMenu>
-                <ItemsControl 
-                          
-                          BorderThickness="1"
-                          HorizontalAlignment="Center"
-                          VerticalAlignment="Center" 
-                          ItemsSource="{Binding ActivatedSpots,Mode=TwoWay}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <Canvas HorizontalAlignment="Center" VerticalAlignment="Top" Name="PreviewCanvas"
-                               
-                                Margin="0" 
-                                Width="{Binding CurrentOutput.OutputRectangle.Width}" 
-                                Height="{Binding CurrentOutput.OutputRectangle.Height}" >
-                            </Canvas>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemContainerStyle>
-                        <Style TargetType="ContentPresenter">
-                            <Setter Property="Canvas.Left" Value="{Binding Rectangle.X}"/>
-                            <Setter Property="Canvas.Top" Value="{Binding Rectangle.Y}"/>
-                        </Style>
-                    </ItemsControl.ItemContainerStyle>
+            <richCanvas:RichItemsControl ItemsSource="{Binding CurrentOutput.OutputLEDSetup.Spots}"  HorizontalAlignment="Left" VerticalAlignment="Top"  >
+                <richCanvas:RichItemsControl.ItemContainerStyle>
+                    <Style TargetType="richCanvas:RichItemContainer">
 
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Grid>
-                                <Border  BorderBrush="OrangeRed" BorderThickness="{Binding BorderThickness}" Width="{Binding Rectangle.Width}" Height="{Binding Rectangle.Height}">
-                                    <Border.Background>
-                                        <SolidColorBrush Color="{Binding OnDemandColor}"  />
-                                    </Border.Background>
-                                    <Border.Style>
-                                        <Style TargetType="{x:Type Border}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type richCanvas:RichItemContainer}">
+                                    <Border x:Name="Bd" 
+                                            Padding="0"
+                                            SnapsToDevicePixels="True">
+                                        <ContentPresenter 
+                                            HorizontalAlignment="Center" 
+                                            SnapsToDevicePixels="True" 
+                                            VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsMouseOver" Value="True"/>
+                                                <Condition Property="IsSelected" Value="False"/>
+                                            </MultiTrigger.Conditions>
+                                            <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
+                                            <Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
+                                            <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryTextBrush}"/>
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsMouseOver" Value="False"/>
+                                                <Condition Property="IsSelected" Value="False"/>
+                                            </MultiTrigger.Conditions>
+                                            <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
+                                            <Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
+                                            <Setter Property="BorderBrush" TargetName="Bd" Value="Transparent"/>
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>
+                                            <Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>
+                                            <Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
+                                        </MultiTrigger>
 
-                                            <Style.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Opacity"  Value="0.5"/>
-                                                </Trigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                    <i:Interaction.Triggers>
-                                        <i:EventTrigger EventName="MouseDown" >
-                                            <i:InvokeCommandAction Command="{Binding DataContext.SetSpotPIDCommand,RelativeSource={RelativeSource AncestorType={x:Type local:PIDEditWindow}}}" CommandParameter="{Binding .}" />
-                                        </i:EventTrigger>
-                                    </i:Interaction.Triggers>
-                                    <Viewbox IsHitTestVisible="False">
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                     
+                   
+                        <Setter Property="Tag"
+                            Value="{Binding DataContext, ElementName=window}" />
+                        <!--<Setter Property="helpers:AttachedAdorner.HasHoverAdorner"
+                            Value="{Binding IsSelectable}" />-->
+                        <!--<Setter Property="helpers:AttachedAdorner.ShowResizeAdorner"
+                            Value="{Binding IsSelected}" />-->
+                        <Setter Property="Top"
+                            Value="{Binding Rectangle.Top, Mode=TwoWay}" />
 
-                                        <Grid IsHitTestVisible="False">
-                                            <TextBlock Margin="1" Padding="2" Visibility="{Binding IsIDVissible,Converter={StaticResource boolToVisibilityConvert},Mode=TwoWay}" HorizontalAlignment="Center" VerticalAlignment="Center"  Text="{Binding id}"  IsHitTestVisible="False"/>
-                                        </Grid>
-                                    </Viewbox>
-                                    
-                                    
-                                </Border>
-                                
-                               
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </Viewbox>
+                        <Setter Property="Left"
+                            Value="{Binding Rectangle.Left, Mode=TwoWay}" />
+
+                        <Setter Property="IsSelected"
+                            Value="{Binding IsSelected, Mode=TwoWay}" />
+
+                        <Setter Property="Width"
+                            Value="{Binding Rectangle.Width, Mode=TwoWay}" />
+
+                        <Setter Property="Height"
+                            Value="{Binding Rectangle.Height, Mode=TwoWay}" />
+
+                        <Setter Property="IsSelectable"
+                            Value="false" />
+
+                        <Setter Property="IsDraggable"
+                            Value="false" />
+
+                        <Setter Property="HasCustomBehavior"
+                            Value="{Binding HasCustomBehavior}" />
+
+                        <Setter Property="ShouldBringIntoView"
+                            Value="{Binding ShouldBringIntoView, Mode=TwoWay}" />
+
+                        <Setter Property="Scale"
+                            Value="{Binding Scale, Mode=TwoWay}" />
+
+                    </Style>
+                </richCanvas:RichItemsControl.ItemContainerStyle>
+
+            </richCanvas:RichItemsControl>
           
         </Grid>
         <Grid  Margin="20,0,0,0" Grid.Row="1" Grid.Column="0">

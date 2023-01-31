@@ -36,6 +36,7 @@ namespace adrilight.DesktopDuplication
         /// <param name="whichOutputDevice">The output device to duplicate (i.e. monitor). Begins with zero, which seems to correspond to the primary monitor.</param>
         public DesktopDuplicator(int whichGraphicsCardAdapter, int whichOutputDevice)
         {
+            
             Adapter1 adapter;
             try
             {
@@ -105,7 +106,7 @@ namespace adrilight.DesktopDuplication
 
 
         }
-
+       
         private static readonly FpsLogger _desktopFrameLogger = new FpsLogger("DesktopDuplication");
 
 

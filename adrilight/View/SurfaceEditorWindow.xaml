@@ -5,7 +5,8 @@
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-           xmlns:converters="clr-namespace:adrilight.Converter" xmlns:richCanvas="clr-namespace:RichCanvas;assembly=RichCanvas"
+           xmlns:converters="clr-namespace:adrilight.Converter" 
+           xmlns:richCanvas="clr-namespace:RichCanvas;assembly=RichCanvas"
            mc:Ignorable="d"
            xmlns:behaviors="clr-namespace:adrilight.Helpers.Behaviors"
            xmlns:helpers="clr-namespace:adrilight.Helpers"
@@ -17,7 +18,7 @@
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            
             ResizeMode="CanResize"
-           Height="1000" 
+           Height="800" 
            Width="1000" 
            WindowStartupLocation="CenterOwner">
 
@@ -29,30 +30,40 @@
                     <converters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
                     <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
                     <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
-                    <converters:BoolToBorderThicknessConverter x:Key="booltoborderthicknessconverter"/>
                     <converters:CommandToListConverter x:Key="CommandsToListConverter" />
+                    <DropShadowEffect x:Key="Item.SelectedActive.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}"/>
+                    <DropShadowEffect x:Key="Item.MouseOver.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource DarkMaskBrush}}"/>
                     <hc:Boolean2BooleanReConverter x:Key="booltoVreconv"/>
                     <GeometryDrawing x:Key="GridStyle"
                          Geometry="M0,0 L0,1 0.03,1 0.03,0.03 1,0.03 1,0 Z"
-                         Brush="Green" />
+                         Brush="{DynamicResource SecondaryBorderBrush}" />
                 </ResourceDictionary>
 
             </ResourceDictionary.MergedDictionaries>
 
         </ResourceDictionary>
-       
+
     </Window.Resources>
 
     <Grid Margin="10,0,10,10">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Grid Grid.Row=" 1" Grid.Column="1">
+  
+        <Grid Grid.Row="0">
+            <!--<ToolBarTray VerticalAlignment="Center">
+                <ToolBar Padding="6" Header="Live view">
+                    <CheckBox IsChecked="{Binding IsRichCanvasWindowOpen}" Margin="10,0,0,0"/>
+                    --><!--<Separator Margin="10,0,0,0"/>-->
+                    <!--<Button Command="{Binding SetRandomOutputColorCommand}" ToolTip="Mỗi thiết bị sẽ được tô màu riêng biệt ngẫu nhiên" Content="Set Random Color" Margin="10,0,0,0"/>--><!--
+                  
+                </ToolBar>
+          
+            </ToolBarTray>-->
+        </Grid>
+        <Grid Grid.Row=" 1">
             <richCanvas:RichItemsControl
                  GridStyle="{StaticResource GridStyle}"
                 EnableSnapping="True"
@@ -62,69 +73,46 @@
                 CanSelectMultipleItems="True"
                 RealTimeDraggingEnabled="False"
                 RealTimeSelectionEnabled="False"
+                Scale="0.5"
                 
                 SelectedItems="{Binding SurfaceEditorSelectedItems}" 
                 SelectedItem="{Binding SurfaceEditorSelectedItem}"  
                 ItemsSource="{Binding SurfaceEditorItems}">
-                
+
 
                 <richCanvas:RichItemsControl.Resources>
                     <DataTemplate DataType="{x:Type local:OutputSettings}">
-
                         <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <Grid.Style>
-                                <Style>
-                                    <Setter Property="richCanvas:RichItemContainer.ApplyTransform">
-                                        <Setter.Value>
-                                            <TransformGroup>
-                                                <ScaleTransform />
-                                                <TranslateTransform />
-                                                <RotateTransform Angle="{Binding Angle}" />
-                                            </TransformGroup>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                          
-                            </Grid.Style>
-                          
-                            
                             <Grid>
-                                <ItemsControl   BorderBrush="Green" BorderThickness="{Binding IsBorder, Converter= {StaticResource booltoborderthicknessconverter}}"
-                          Name="PreviewGird"  
-                          
-                          HorizontalAlignment="Left"
-                          VerticalAlignment="Top" 
-                          ItemsSource="{Binding OutputLEDSetup.Spots,Mode=TwoWay}">
+                                <ItemsControl Margin="0,-1,0,0"  
+                                    Name="PreviewGird"  
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Top" 
+                                    ItemsSource="{Binding OutputLEDSetup.Spots,Mode=TwoWay}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <Canvas HorizontalAlignment="Center" VerticalAlignment="Top" Name="PreviewCanvas"
-                               
-                                Margin="0" 
-                                Width="{Binding Width,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" 
-                                Height="{Binding Height, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" >
+                                            <Canvas 
+                                                HorizontalAlignment="Center" 
+                                                VerticalAlignment="Top" 
+                                                Name="PreviewCanvas"
+                                                Margin="0" 
+                                                Width="{Binding Width,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" 
+                                                Height="{Binding Height, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" >
                                             </Canvas>
-                                            
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemContainerStyle>
                                         <Style TargetType="ContentPresenter">
                                             <Setter Property="Canvas.Left" Value="{Binding Rectangle.X}"/>
                                             <Setter Property="Canvas.Top" Value="{Binding Rectangle.Y}"/>
-                                           
                                         </Style>
                                     </ItemsControl.ItemContainerStyle>
-
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Grid>
                                                 <Rectangle
                                                 ToolTip="{Binding id}" 
                                                 Stroke="OrangeRed" 
-                                               
                                                 StrokeThickness="{Binding BorderThickness}" 
                                                 Width="{Binding Rectangle.Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
                                                 Height="{Binding Rectangle.Height,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
@@ -133,32 +121,19 @@
                                                     </Rectangle.Fill>
                                                     <Rectangle.Style>
                                                         <Style TargetType="{x:Type Rectangle}">
-
                                                             <Style.Triggers>
                                                                 <Trigger Property="IsMouseOver" Value="True">
                                                                     <Setter Property="Opacity"  Value="0.5"/>
-
                                                                 </Trigger>
                                                             </Style.Triggers>
                                                         </Style>
                                                     </Rectangle.Style>
-
-                                                    <!--<i:Interaction.Triggers>
-                                                    -->
-                                                    <!--<i:EventTrigger EventName="MouseDown" >
-                                                        <i:InvokeCommandAction Command="{Binding DataContext.SetNextSpotVIDCommand,RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding .}" />
-                                                    </i:EventTrigger>-->
-                                                    <!--
-                                                   
-                                                </i:Interaction.Triggers>-->
-
                                                 </Rectangle>
                                             </Grid>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                             </Grid>
-
                         </Grid>
                     </DataTemplate>
                     <DataTemplate x:Key="SelectedAdornerTemplate">
@@ -184,142 +159,227 @@
                             BorderThickness="3">
                         </Border>
                     </DataTemplate>
-                    <DataTemplate DataType="{x:Type settings:Group}">
-                        <Rectangle Stroke="white"
-                               StrokeThickness="3"
+                    <DataTemplate DataType="{x:Type settings:Border}">
+                        <Grid>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Margin="20,10,5,5" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Screen" Style="{DynamicResource TextBlockLarge}"/>
+                                <TextBlock Margin="5,10" HorizontalAlignment="Left" VerticalAlignment="Top" Text="at" Style="{DynamicResource TextBlockLarge}"/>
+                                <TextBlock Margin="5,10" HorizontalAlignment="Left" VerticalAlignment="Top"  Style="{DynamicResource TextBlockLarge}">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0} x {1}">
+                                            <Binding Path="Width" />
+                                            <Binding Path="Height" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                                
+                            </StackPanel>
+                           
+                            <Rectangle Stroke="white"
+                                   Width="{Binding Width}"
+                                   Height="{Binding Height}"
+                               StrokeThickness="5"
                                Fill="Transparent"
                                StrokeDashArray="2"
                                IsHitTestVisible="{Binding IsSelectable}">
-                            <i:Interaction.Behaviors>
-                                <behaviors:GroupBehavior />
-                            </i:Interaction.Behaviors>
-                        </Rectangle>
+                            </Rectangle>
+                        </Grid>
+                      
                     </DataTemplate>
-                  
+
                 </richCanvas:RichItemsControl.Resources>
 
                 <richCanvas:RichItemsControl.ItemContainerStyle>
                     <Style TargetType="richCanvas:RichItemContainer">
+
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type richCanvas:RichItemContainer}">
+                                    <Border x:Name="Bd" 
+                                            Padding="0"
+                                            SnapsToDevicePixels="True">
+                                        <ContentPresenter 
+                                            HorizontalAlignment="Center" 
+                                            SnapsToDevicePixels="True" 
+                                            VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsMouseOver" Value="True"/>
+                                                <Condition Property="IsSelected" Value="False"/>
+                                            </MultiTrigger.Conditions>
+                                            <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
+                                            <Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
+                                            <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryTextBrush}"/>
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsMouseOver" Value="False"/>
+                                                <Condition Property="IsSelected" Value="False"/>
+                                            </MultiTrigger.Conditions>
+                                            <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
+                                            <Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
+                                            <Setter Property="BorderBrush" TargetName="Bd" Value="Transparent"/>
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>
+                                            <Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>
+                                            <Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
+                                        </MultiTrigger>
+
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
                         <Setter Property="IsDraggable"
                             Value="{Binding IsBorder,Converter={StaticResource booltoVreconv}}" />
                         <Setter Property="helpers:EventToCommand.Event"
                             Value="LeftChanged, TopChanged" />
-                            <Setter Property="helpers:EventToCommand.Command">
-                                <Setter.Value>
-                                    <MultiBinding Converter="{StaticResource CommandsToListConverter}">
-                                        <Binding Path="LeftChangedCommand" />
-                                        <Binding Path="TopChangedCommand" />
-                                    </MultiBinding>
-                                </Setter.Value>
-                            </Setter>
-  
-                            <Setter Property="helpers:EventToCommand.CanExecute"
+                        <Setter Property="helpers:EventToCommand.Command">
+                            <Setter.Value>
+                                <MultiBinding Converter="{StaticResource CommandsToListConverter}">
+                                    <Binding Path="LeftChangedCommand" />
+                                    <Binding Path="TopChangedCommand" />
+                                </MultiBinding>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="helpers:EventToCommand.CanExecute"
                             Value="{Binding IsSelected}" />
-
-                            <Setter Property="Tag"
+                        <Setter Property="Tag"
                             Value="{Binding DataContext, ElementName=window}" />
-
-                            <Setter Property="helpers:AttachedAdorner.HasHoverAdorner"
-                            Value="{Binding IsSelectable}" />
-
-                            <Setter Property="helpers:AttachedAdorner.ShowResizeAdorner"
-                            Value="{Binding IsSelected}" />
-
-                            <Setter Property="Top"
+                        <!--<Setter Property="helpers:AttachedAdorner.HasHoverAdorner"
+                            Value="{Binding IsSelectable}" />-->
+                        <!--<Setter Property="helpers:AttachedAdorner.ShowResizeAdorner"
+                            Value="{Binding IsSelected}" />-->
+                        <Setter Property="Top"
                             Value="{Binding Top, Mode=TwoWay}" />
 
-                            <Setter Property="Left"
+                        <Setter Property="Left"
                             Value="{Binding Left, Mode=TwoWay}" />
 
-                            <Setter Property="IsSelected"
+                        <Setter Property="IsSelected"
                             Value="{Binding IsSelected, Mode=TwoWay}" />
 
-                            <Setter Property="Width"
+                        <Setter Property="Width"
                             Value="{Binding Width, Mode=TwoWay}" />
 
-                            <Setter Property="Height"
+                        <Setter Property="Height"
                             Value="{Binding Height, Mode=TwoWay}" />
 
-                            <Setter Property="IsSelectable"
+                        <Setter Property="IsSelectable"
                             Value="{Binding IsSelectable}" />
 
-                            <Setter Property="IsDraggable"
+                        <Setter Property="IsDraggable"
                             Value="{Binding IsDraggable}" />
 
-                            <Setter Property="HasCustomBehavior"
+                        <Setter Property="HasCustomBehavior"
                             Value="{Binding HasCustomBehavior}" />
 
-                            <Setter Property="ShouldBringIntoView"
+                        <Setter Property="ShouldBringIntoView"
                             Value="{Binding ShouldBringIntoView, Mode=TwoWay}" />
 
-                            <Setter Property="Scale"
+                        <Setter Property="Scale"
                             Value="{Binding Scale, Mode=TwoWay}" />
 
-                            <Setter Property="ContextMenu">
-                                <Setter.Value>
-                                    <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-                                    <MenuItem Header="Scale"
+                        
+                        <Style.Triggers>
+                            <Trigger Property="IsDraggable" Value="True">
+                                <Setter Property="ContextMenu">
+                                    <Setter.Value>
+                                        <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                                            <MenuItem Header="Scale"
                                           Command="{Binding OpenRectangleScaleCommand}" CommandParameter="open" >
-                                        <MenuItem.Icon>
-                                            <Path Data="{StaticResource fullsize}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                        </MenuItem.Icon>
-                                    </MenuItem>
-                                    <MenuItem Header="LED Setup"
-                                          Command="{Binding AddSelectedItemToGroupCommand}" >
+                                                <MenuItem.Icon>
+                                                    <Path Data="{StaticResource fullsize}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <!--<MenuItem Header="LED Setup"
+                                          Command="{Binding LaunchPIDEditWindowCommand}" >
                                         <MenuItem.Icon>
                                             <Path Data="{StaticResource ledsetup}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                         </MenuItem.Icon>
-                                    </MenuItem>
-                                    <MenuItem Header="Properties"
-                                          Command="{Binding AddSelectedItemToGroupCommand}" >
-                                        <MenuItem.Icon>
-                                            <Path Data="{StaticResource info}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                        </MenuItem.Icon>
-                                    </MenuItem>
-                                    <MenuItem Header="Live View"
-                                          Command="{Binding AddSelectedItemToGroupCommand}" >
-                                        <MenuItem.Icon>
-                                            <Path Data="{StaticResource brightness}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                        </MenuItem.Icon>
-                                    </MenuItem>
-                                    <MenuItem Header="Reset Size"
-                                          Command="{Binding ResetToDefaultRectangleScaleCommand}" >
-                                        <MenuItem.Icon>
-                                            <Path Data="{StaticResource fullspectrum}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                        </MenuItem.Icon>
-                                    </MenuItem>
-                                    
-                                        <MenuItem Header="Aglign Left"
+                                    </MenuItem>-->
+                                            <MenuItem Header="Aglign Left"
                                           Command="{Binding AglignSelectedItemstoLeftCommand}" >
-                                            <MenuItem.Icon>
-                                                <Path Data="{StaticResource left}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem Header="Aglign Top"
+                                                <MenuItem.Icon>
+                                                    <Path Data="{StaticResource left}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Aglign Top"
                                           Command="{Binding AglignSelectedItemstoTopCommand}" >
-                                            <MenuItem.Icon>
-                                                <Path Data="{StaticResource up}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                    
-                                </ContextMenu>
-                                </Setter.Value>
-                            </Setter>
+                                                <MenuItem.Icon>
+                                                    <Path Data="{StaticResource up}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Horizontal Distribute"
+                                          Command="{Binding SpreadItemHorizontalCommand}" >
+                                                <MenuItem.Icon>
+                                                    <Path Data="{StaticResource up}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Vertical Distribute"
+                                          Command="{Binding SpreadItemVerticalCommand}" >
+                                                <MenuItem.Icon>
+                                                    <Path Data="{StaticResource up}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Lock"
+                                          Command="{Binding LockSelectedItemCommand}" CommandParameter="open" >
+                                                <MenuItem.Icon>
+                                                    <Path Data="{StaticResource static}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Properties"
+                                          Command="{Binding AddSelectedItemToGroupCommand}" >
+                                                <MenuItem.Icon>
+                                                    <Path Data="{StaticResource info}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
 
-                            <Style.Triggers>
-                                <Trigger Property="IsSelected"
-                                 Value="True">
-                                    <Setter Property="Opacity"
-                                    Value="0.6" />
-                                </Trigger>
-                            </Style.Triggers>
+                                        </ContextMenu>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsDraggable" Value="False">
+                                <Setter Property="ContextMenu">
+                                    <Setter.Value>
+                                        <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
 
-                       
+                                            <MenuItem Header="Unlock"
+                                          Command="{Binding UnlockSelectedItemCommand}" CommandParameter="unlock" >
+                                                <MenuItem.Icon>
+                                                    <Path Data="{StaticResource breathing}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                        </ContextMenu>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </Style.Triggers>
                     </Style>
                 </richCanvas:RichItemsControl.ItemContainerStyle>
             </richCanvas:RichItemsControl>
         </Grid>
-        
-
+        <Grid Grid.Row="2" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Button  Command="{Binding SaveCurretSurfaceLayoutCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Save"/>
+            <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
+        </Grid>
     </Grid>
 </hc:Window>

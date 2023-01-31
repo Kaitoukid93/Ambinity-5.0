@@ -12,6 +12,7 @@ namespace adrilight.Settings
 {
     internal class DefaulOutputCollection
     {
+      
         public static List<IOutputSettings> AvailableDefaultOutputs {
             get
             {
@@ -37,7 +38,13 @@ namespace adrilight.Settings
                 OutputNumLED = 100,
                 OutputNumLEDX = numLEDX,
                 OutputNumLEDY = numLEDY,
-                OutputRectangle = new System.Drawing.Rectangle(0, 0, Screen.PrimaryScreen.Bounds.Width / 8, Screen.PrimaryScreen.Bounds.Height / 8),
+                Top = 0,
+                Left = 0,
+                Width = 20.0 * numLEDX,
+                Height = 20.0 * numLEDY,
+                OutputRectangleScaleWidth = 20.0 * numLEDX / Screen.PrimaryScreen.Bounds.Width,
+                OutputRectangleScaleHeight = 20.0 * numLEDY / Screen.PrimaryScreen.Bounds.Height,
+                //OutputRectangle = new System.Drawing.Rectangle(0, 0, 20 * numLEDX, 20 * numLEDY),
                 OutputUniqueID = "",
                 OutputRGBLEDOrder = "GRB",
                 OutputIsVisible = true,
@@ -62,7 +69,7 @@ namespace adrilight.Settings
                 OutputBreathingSpeed = 20000,
                 LEDPerLED = 2,
                 OutputCurrentActivePalette = new ColorPalette("Full Rainbow", "Zooey", "RGBPalette16", "Full Color Spectrum", DefaultColorCollection.rainbow),
-                OutputLEDSetup = BuildLEDSetup(numLEDX, numLEDY, "Frame", id, new System.Drawing.Rectangle(0, 0, Screen.PrimaryScreen.Bounds.Width / 8, Screen.PrimaryScreen.Bounds.Height / 8), "Frame")
+                OutputLEDSetup = BuildLEDSetup(numLEDX, numLEDY, "Frame", id, 20 * numLEDX, 20 * numLEDY,"Frame")
                 // create ledsetup if neccesary
 
             };
@@ -81,7 +88,13 @@ namespace adrilight.Settings
                 OutputNumLED = 100,
                 OutputNumLEDX = numLED,
                 OutputNumLEDY = 1,
-                OutputRectangle = new System.Drawing.Rectangle(0, 0, Screen.PrimaryScreen.Bounds.Width / 8, Screen.PrimaryScreen.Bounds.Width / (8 * numLED)),
+                //OutputRectangle = new System.Drawing.Rectangle(0, 0, 20 * numLED, 20),
+                Top = 0,
+                Left = 0,
+                Width = 20 * numLED,
+                Height = 20.0,
+                OutputRectangleScaleWidth = 20.0 * numLED / Screen.PrimaryScreen.Bounds.Width,
+                OutputRectangleScaleHeight = 20.0 / Screen.PrimaryScreen.Bounds.Height,
                 OutputUniqueID = "",
                 OutputRGBLEDOrder = "GRB",
                 OutputIsVisible = true,
@@ -107,7 +120,7 @@ namespace adrilight.Settings
                 LEDPerSpot = ledPerSpot,
                 LEDPerLED = 2,
                 OutputCurrentActivePalette = new ColorPalette("Full Rainbow", "Zooey", "RGBPalette16", "Full Color Spectrum", DefaultColorCollection.rainbow),
-                OutputLEDSetup = BuildLEDSetup(numLED, 1, "Strip", id, new System.Drawing.Rectangle(0, 0, Screen.PrimaryScreen.Bounds.Width / 8, Screen.PrimaryScreen.Bounds.Width / (8 * numLED)), "Strip")
+                OutputLEDSetup = BuildLEDSetup(numLED, 1, "Strip", id, 20 * numLED, 20, "Strip")
                 // create ledsetup if neccesary
 
             };
@@ -125,7 +138,13 @@ namespace adrilight.Settings
                 OutputNumLED = 100,
                 OutputNumLEDX = numLED,
                 OutputNumLEDY = 1,
-                OutputRectangle = new System.Drawing.Rectangle(0, 0, Screen.PrimaryScreen.Bounds.Width / 8, Screen.PrimaryScreen.Bounds.Width / (8 * numLED)),
+                Top = 0,
+                Left = 0,
+                Width = 20 * numLED,
+                Height = 20.0,
+                OutputRectangleScaleWidth = 20.0 * numLED / Screen.PrimaryScreen.Bounds.Width,
+                OutputRectangleScaleHeight = 20.0 / Screen.PrimaryScreen.Bounds.Height,
+                //OutputRectangle = new System.Drawing.Rectangle(0, 0, 20*numLED, 20),
                 OutputUniqueID = "",
                 OutputRGBLEDOrder = "GRB",
                 OutputIsVisible = true,
@@ -150,7 +169,7 @@ namespace adrilight.Settings
                 OutputBreathingSpeed = 20000,
                 LEDPerSpot = ledPerSpot,
                 OutputCurrentActivePalette = new ColorPalette("Full Rainbow", "Zooey", "RGBPalette16", "Full Color Spectrum", DefaultColorCollection.rainbow),
-                OutputLEDSetup = BuildLEDSetup(numLED, 1, "Strip", id, new System.Drawing.Rectangle(0, 0, Screen.PrimaryScreen.Bounds.Width / 8, Screen.PrimaryScreen.Bounds.Width / (8 * numLED)), "Strip")
+                OutputLEDSetup = BuildLEDSetup(numLED, 1, "Strip", id, 20 * numLED, 20, "Strip")
                 // create ledsetup if neccesary
 
             };
@@ -167,7 +186,13 @@ namespace adrilight.Settings
                 OutputNumLED = 100,
                 OutputNumLEDX = numLEDX,
                 OutputNumLEDY = numLEDY,
-                OutputRectangle = new System.Drawing.Rectangle(0, 0, Screen.PrimaryScreen.Bounds.Width / 8, Screen.PrimaryScreen.Bounds.Height / 8),
+                Top = 0,
+                Left = 0,
+                Width = 20 * numLEDX,
+                Height = 20.0 * numLEDY,
+                OutputRectangleScaleWidth = 20.0 * numLEDX / Screen.PrimaryScreen.Bounds.Width,
+                OutputRectangleScaleHeight = 20.0 * numLEDY / Screen.PrimaryScreen.Bounds.Height,
+                //OutputRectangle = new System.Drawing.Rectangle(0, 0, 20 * numLEDX, 20 * numLEDY),
                 OutputUniqueID = "",
                 OutputRGBLEDOrder = "GRB",
                 OutputIsVisible = true,
@@ -192,7 +217,7 @@ namespace adrilight.Settings
                 OutputBreathingSpeed = 20000,
                 LEDPerSpot = ledPerSpot,
                 OutputCurrentActivePalette = new ColorPalette("Full Rainbow", "Zooey", "RGBPalette16", "Full Color Spectrum", DefaultColorCollection.rainbow),
-                OutputLEDSetup = BuildLEDSetup(numLEDX, numLEDY, "Matrix", id, new System.Drawing.Rectangle(0, 0, Screen.PrimaryScreen.Bounds.Width / 8, Screen.PrimaryScreen.Bounds.Height / 8), "Matrix")
+                OutputLEDSetup = BuildLEDSetup(numLEDX, numLEDY, "Frame", id, 20 * numLEDX, 20 * numLEDY, "Matrix")
                 // create ledsetup if neccesary
 
             };
@@ -208,7 +233,13 @@ namespace adrilight.Settings
                 OutputNumLED = 100,
                 OutputNumLEDX = numLEDX,
                 OutputNumLEDY = numLEDY,
-                OutputRectangle = new System.Drawing.Rectangle(0, 0, Screen.PrimaryScreen.Bounds.Width / 8, Screen.PrimaryScreen.Bounds.Height / 8),
+                Top = 0,
+                Left = 0,
+                Width = 20 * numLEDX,
+                Height = 20.0 * numLEDY,
+                OutputRectangleScaleWidth = 20.0 * numLEDX / Screen.PrimaryScreen.Bounds.Width,
+                OutputRectangleScaleHeight = 20.0 * numLEDY / Screen.PrimaryScreen.Bounds.Height,
+                //OutputRectangle = new System.Drawing.Rectangle(0, 0, 20 * numLEDX, 20 * numLEDY),
                 OutputUniqueID = "",
                 OutputRGBLEDOrder = "GRB",
                 OutputIsVisible = true,
@@ -232,7 +263,7 @@ namespace adrilight.Settings
                 OutputStaticColor = Color.FromRgb(0, 255, 0),
                 OutputBreathingSpeed = 20000,
                 OutputCurrentActivePalette = new ColorPalette("Full Rainbow", "Zooey", "RGBPalette16", "Full Color Spectrum", DefaultColorCollection.rainbow),
-                OutputLEDSetup = BuildLEDSetup(numLEDX, numLEDY, "Frame", id, new System.Drawing.Rectangle(0, 0, Screen.PrimaryScreen.Bounds.Width / 8, Screen.PrimaryScreen.Bounds.Height / 8), "Frame")
+                OutputLEDSetup = BuildLEDSetup(numLEDX, numLEDY, "Frame", id, 20 * numLEDX, 20 * numLEDY, "Frame")
                 // create ledsetup if neccesary
 
             };
@@ -248,7 +279,13 @@ namespace adrilight.Settings
                 OutputNumLED = 100,
                 OutputNumLEDX = numLEDX,
                 OutputNumLEDY = numLEDY,
-                OutputRectangle = new System.Drawing.Rectangle(0, 0, 100, 100),
+                Top = 0,
+                Left = 0,
+                Width = 20.0 * numLEDX,
+                Height = 20.0 * numLEDY,
+                OutputRectangleScaleWidth = 20.0 * numLEDX / Screen.PrimaryScreen.Bounds.Width,
+                OutputRectangleScaleHeight = 20.0 * numLEDY / Screen.PrimaryScreen.Bounds.Height,
+                //OutputRectangle = new System.Drawing.Rectangle(0, 0, 20 * numLEDX, 20 * numLEDY),
                 OutputUniqueID = "",
                 OutputRGBLEDOrder = "GRB",
                 OutputIsVisible = true,
@@ -273,13 +310,13 @@ namespace adrilight.Settings
                 OutputStaticColor = Color.FromRgb(0, 255, 0),
                 OutputBreathingSpeed = 20000,
                 OutputCurrentActivePalette = new ColorPalette("Full Rainbow", "Zooey", "RGBPalette16", "Full Color Spectrum", DefaultColorCollection.rainbow),
-                OutputLEDSetup = BuildLEDSetup(numLEDX, numLEDY, "Frame", id, new System.Drawing.Rectangle(0, 0, Screen.PrimaryScreen.Bounds.Width / 8, Screen.PrimaryScreen.Bounds.Height / 8), "Frame")
+                OutputLEDSetup = BuildLEDSetup(numLEDX, numLEDY, "Frame", id, 20 * numLEDX, 20 * numLEDY, "Frame")
                 // create ledsetup if neccesary
 
             };
             return outputSettings;
         }
-        private static ILEDSetup BuildLEDSetup(int matrixWidth, int matrixHeight, string name, int setupID, System.Drawing.Rectangle rectangle, string outputType) // general settings is for compare each device setting
+        private static ILEDSetup BuildLEDSetup(int matrixWidth, int matrixHeight, string name, int setupID, int width, int height, string outputType) // general settings is for compare each device setting
         {
 
             string owner = "Ambino";
@@ -291,7 +328,7 @@ namespace adrilight.Settings
             List<IDeviceSpot> reorderedSpots = new List<IDeviceSpot>();
 
             //Create default spot
-            var availableSpots = BuildMatrix(rectangle.Width, rectangle.Height, matrixWidth, matrixHeight);
+            var availableSpots = BuildMatrix(width, height, matrixWidth, matrixHeight);
             int counter = 0;
 
 
@@ -340,7 +377,7 @@ namespace adrilight.Settings
                     {
                         if (spot.YIndex == 0)
                             spot.IsActivated = true;
-                        
+
                         reorderedSpots.Add(spot);
                     }
                     break;
@@ -358,7 +395,7 @@ namespace adrilight.Settings
                 reorderedActiveSpots[counter++] = spot;
             }
 
-            ILEDSetup ledSetup = new LEDSetup(name, owner, type, description, reorderedActiveSpots, matrixWidth, matrixHeight, setupID, rectangle.Width, rectangle.Height);
+            ILEDSetup ledSetup = new LEDSetup(name, owner, type, description, reorderedActiveSpots, matrixWidth, matrixHeight, setupID, width, height);
 
 
 

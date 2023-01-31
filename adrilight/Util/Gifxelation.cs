@@ -213,10 +213,10 @@ namespace adrilight
                     else
                         _gifFrameIndex++;
                     var newImage = _retryPolicy.Execute(() => GetNextFrame(image, _gifFrameIndex, isPreviewRunning));
-                    var width = OutputSettings.OutputRectangle.Width;
-                    var height = OutputSettings.OutputRectangle.Height;
-                    var x = OutputSettings.OutputRectangle.Left;
-                    var y = OutputSettings.OutputRectangle.Top;
+                    var scaleWidth = OutputSettings.OutputRectangleScaleWidth;
+                    var scaleHeight = OutputSettings.OutputRectangleScaleHeight;
+                    var scaleX = OutputSettings.OutputRectangleScaleLeft;
+                    var scaleY = OutputSettings.OutputRectangleScaleTop;
                     var brightness = OutputSettings.OutputBrightness/100d;
                     var speed = OutputSettings.OutputGifSpeed;
                     if (newImage == null)
@@ -225,8 +225,11 @@ namespace adrilight
                         continue;
                     }
                     image = newImage;
-       
-                 
+                    var x = (int)(scaleX * image.Width);
+                    var y = (int)(scaleY * image.Height);
+                    var width = (int)(scaleWidth * image.Width);
+                    var height = (int)(scaleHeight * image.Height);
+
                     try
                     {
                         image.LockBits(new Rectangle(x, y, width, height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppRgb, bitmapData);
@@ -475,25 +478,25 @@ namespace adrilight
                     {
                         CurrentGifImage = new Bitmap(currentFrame.FrameWidth, currentFrame.FrameHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
                         //do the scale for current device position
-                        double scaleX = (double)currentFrame.FrameWidth / (double)ReusableBitmap.Width;
-                        double scaleY = (double)currentFrame.FrameHeight / (double)ReusableBitmap.Height;
-                        var x = (double)OutputSettings.OutputRectangle.X * scaleX;
-                        var y = (double)OutputSettings.OutputRectangle.Y * scaleX;
-                        var width = OutputSettings.OutputRectangle.Width * scaleX;
-                        var height = OutputSettings.OutputRectangle.Height * scaleY;
+                        //double scaleX = (double)currentFrame.FrameWidth / (double)ReusableBitmap.Width;
+                        //double scaleY = (double)currentFrame.FrameHeight / (double)ReusableBitmap.Height;
+                        //var x = (double)OutputSettings.OutputRectangle.X * scaleX;
+                        //var y = (double)OutputSettings.OutputRectangle.Y * scaleX;
+                        //var width = OutputSettings.OutputRectangle.Width * scaleX;
+                        //var height = OutputSettings.OutputRectangle.Height * scaleY;
 
-                        OutputSettings.OutputRectangle = new Rectangle((int)x, (int)y, (int)width, (int)height);
+                        //OutputSettings.OutputRectangle = new Rectangle((int)x, (int)y, (int)width, (int)height);
 
 
                     }
                     else //this is when app start
                     {
                         CurrentGifImage = new Bitmap(currentFrame.FrameWidth, currentFrame.FrameHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-                        var width = OutputSettings.OutputRectangleScaleWidth * currentFrame.FrameWidth;
-                        var height = OutputSettings.OutputRectangleScaleHeight * currentFrame.FrameHeight;
-                        var x = OutputSettings.OutputRectangleScaleLeft * currentFrame.FrameWidth;
-                        var y = OutputSettings.OutputRectangleScaleTop * currentFrame.FrameHeight;
-                        OutputSettings.OutputRectangle = new Rectangle((int)x, (int)y, (int)width, (int)height);
+                        //var width = OutputSettings.OutputRectangleScaleWidth * currentFrame.FrameWidth;
+                        //var height = OutputSettings.OutputRectangleScaleHeight * currentFrame.FrameHeight;
+                        //var x = OutputSettings.OutputRectangleScaleLeft * currentFrame.FrameWidth;
+                        //var y = OutputSettings.OutputRectangleScaleTop * currentFrame.FrameHeight;
+                        //OutputSettings.OutputRectangle = new Rectangle((int)x, (int)y, (int)width, (int)height);
 
                     }
 
