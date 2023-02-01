@@ -1148,8 +1148,8 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemContainerStyle>
                                     <Style TargetType="ContentPresenter">
-                                        <Setter Property="Canvas.Left" Value="{Binding Rectangle.X}"/>
-                                        <Setter Property="Canvas.Top" Value="{Binding Rectangle.Y}"/>
+                                        <Setter Property="Canvas.Left" Value="{Binding Left}"/>
+                                        <Setter Property="Canvas.Top" Value="{Binding Top}"/>
                                     </Style>
                                 </ItemsControl.ItemContainerStyle>
 
@@ -1161,8 +1161,8 @@
                                                 Stroke="OrangeRed" 
                                                
                                                 StrokeThickness="{Binding BorderThickness}" 
-                                                Width="{Binding Rectangle.Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
-                                                Height="{Binding Rectangle.Height,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                                Width="{Binding Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
+                                                Height="{Binding Height,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
                                                 <Rectangle.Fill>
                                                     <SolidColorBrush Color="{Binding OnDemandColor}"  />
                                                 </Rectangle.Fill>

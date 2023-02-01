@@ -261,13 +261,13 @@ namespace adrilight
                             , spot =>
                             {
                                 const int numberOfSteps = 15;
-                                int stepx = Math.Max(1, spot.Rectangle.Width / numberOfSteps);
-                                int stepy = Math.Max(1, spot.Rectangle.Height / numberOfSteps);
+                                int stepx = Math.Max(1, (int)(spot as IDrawable).Width / numberOfSteps);
+                                int stepy = Math.Max(1, (int)(spot as IDrawable).Height / numberOfSteps);
                                 Rectangle actualRectangle = new Rectangle(
-                                    (int)(width * spot.Rectangle.X / virtualWidth),
-                                    (int)(height * spot.Rectangle.Y / virtualHeight),
-                                    (int)(width * spot.Rectangle.Width / virtualWidth),
-                                    (int)(height * spot.Rectangle.Height / virtualHeight));
+                                    (int)(width * (spot as IDrawable).Left / virtualWidth),
+                                    (int)(height * (spot as IDrawable).Top / virtualHeight),
+                                    (int)(width * (spot as IDrawable).Width / virtualWidth),
+                                    (int)(height * (spot as IDrawable).Height / virtualHeight));
                                 GetAverageColorOfRectangularRegion(actualRectangle, stepy, stepx, bitmapData,
                                     out int sumR, out int sumG, out int sumB, out int count);
 

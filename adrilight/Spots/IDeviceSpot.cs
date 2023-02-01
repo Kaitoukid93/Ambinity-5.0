@@ -15,7 +15,7 @@ namespace adrilight.Spots
         bool IsEnabled { get; set; }
         Color OnDemandColor { get; }
         Color SentryColor { get; }
-        Rectangle Rectangle { get; set; }
+       
         bool IsFirst { get; set; }
         int RadiusX { get; set; }
         int RadiusY { get; set; }
@@ -39,7 +39,7 @@ namespace adrilight.Spots
         void SetCID(int cid);
         void SetStroke(double strokeThickness);
         void SetIDVissible (bool isIDVissible);
-        void SetRectangle(Rectangle rectangle);
+     
 
 
     }

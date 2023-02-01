@@ -264,17 +264,17 @@ namespace adrilight.View
             //
             // Clear the current selection.
             ////
-            foreach (var spot in ViewModel.CurrentOutput.OutputLEDSetup.Spots)
-            {
-                spot.SetStroke(0);
-            };
-            foreach (var spot in ViewModel.CurrentOutput.OutputLEDSetup.Spots)
-            {
-                Rect itemRect = new Rect(spot.Rectangle.X, spot.Rectangle.Y, spot.Rectangle.Width, spot.Rectangle.Height);
-                if (dragRect.IntersectsWith(itemRect))
-                    spot.SetStroke(0.5);
+            //foreach (var spot in ViewModel.CurrentOutput.OutputLEDSetup.Spots)
+            //{
+            //    spot.SetStroke(0);
+            //};
+            //foreach (var spot in ViewModel.CurrentOutput.OutputLEDSetup.Spots)
+            //{
+            //    Rect itemRect = new Rect(spot.Rectangle.X, spot.Rectangle.Y, spot.Rectangle.Width, spot.Rectangle.Height);
+            //    if (dragRect.IntersectsWith(itemRect))
+            //        spot.SetStroke(0.5);
 
-            }
+            //}
 
             ////
             //// Find and select all the list box items.

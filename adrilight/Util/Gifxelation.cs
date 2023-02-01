@@ -217,6 +217,8 @@ namespace adrilight
                     var scaleHeight = OutputSettings.OutputRectangleScaleHeight;
                     var scaleX = OutputSettings.OutputRectangleScaleLeft;
                     var scaleY = OutputSettings.OutputRectangleScaleTop;
+                    var virtualWidth = (OutputSettings as OutputSettings).Width;
+                    var virtualHeight = (OutputSettings as OutputSettings).Height;
                     var brightness = OutputSettings.OutputBrightness/100d;
                     var speed = OutputSettings.OutputGifSpeed;
                     if (newImage == null)
@@ -248,11 +250,16 @@ namespace adrilight
                         , spot =>
                         {
                             const int numberOfSteps = 15;
-                            int stepx = Math.Max(1, spot.Rectangle.Width / numberOfSteps);
-                            int stepy = Math.Max(1, spot.Rectangle.Height / numberOfSteps);
+                            int stepx = Math.Max(1, (int)(spot as IDrawable).Width / numberOfSteps);
+                            int stepy = Math.Max(1, (int)(spot as IDrawable).Height / numberOfSteps);
+                            Rectangle actualRectangle = new Rectangle(
+                                (int)(width * (spot as IDrawable).Left / virtualWidth),
+                                (int)(height * (spot as IDrawable).Top / virtualHeight),
+                                (int)(width * (spot as IDrawable).Width / virtualWidth),
+                                (int)(height * (spot as IDrawable).Height / virtualHeight));
 
-                            GetAverageColorOfRectangularRegion(spot.Rectangle, stepy, stepx, bitmapData,
-                                out int sumR, out int sumG, out int sumB, out int count);
+                            GetAverageColorOfRectangularRegion(actualRectangle, stepy, stepx, bitmapData,
+                                  out int sumR, out int sumG, out int sumB, out int count);
 
                             var countInverse = 1f / count;
 

@@ -316,7 +316,7 @@ namespace adrilight.Settings
             };
             return outputSettings;
         }
-        private static ILEDSetup BuildLEDSetup(int matrixWidth, int matrixHeight, string name, int setupID, int width, int height, string outputType) // general settings is for compare each device setting
+        private static ILEDSetup BuildLEDSetup(int matrixWidth, int matrixHeight, string name, int setupID, double width, double height, string outputType) // general settings is for compare each device setting
         {
 
             string owner = "Ambino";
@@ -415,7 +415,7 @@ namespace adrilight.Settings
             return ledSetup;
         }
 
-        private static IDeviceSpot[] BuildMatrix(int rectwidth, int rectheight, int spotsX, int spotsY)
+        private static IDeviceSpot[] BuildMatrix(double rectwidth, double rectheight, int spotsX, int spotsY)
         {
             int spacing = 1;
             if (spotsX == 0)

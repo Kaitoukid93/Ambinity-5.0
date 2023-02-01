@@ -277,7 +277,6 @@
     <Compile Include="Extension\MathExtensions.cs" />
     <Compile Include="Extension\RawRectangleExtensions.cs" />
     <Compile Include="ViewModel\BaseViewModel.cs" />
-    <Compile Include="ViewModel\Drawable.cs" />
     <Compile Include="ViewModel\KeyboardHookManagerSingleton.cs" />
     <Compile Include="ViewModel\DeleteMessageDialogViewModel.cs" />
     <Compile Include="ViewModel\ExpandedOutputControlViewmodel.cs" />
@@ -291,6 +290,7 @@
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\VisualProperties.cs" />
     <Compile Include="View\ScaleSelectionWindow.xaml.cs" />
+    <Compile Include="View\PIDEditCanvasWindow.xaml.cs" />
     <Compile Include="View\SurfaceEditorWindow.xaml.cs" />
     <Compile Include="View\AutomationColorPickerWindow.xaml.cs" />
     <Compile Include="View\TargetDeviceSelectionWindow.xaml.cs" />
@@ -373,6 +373,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\ScaleSelectionWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\PIDEditCanvasWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

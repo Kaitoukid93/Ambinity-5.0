@@ -5369,10 +5369,11 @@ namespace adrilight.ViewModel
                 window.ShowDialog();
             }
         }
-
+        public ObservableCollection<IDeviceSpot> selectedSpots { get; set; }
         private void LaunchPIDEditWindow()
         {
-            if (AssemblyHelper.CreateInternalInstance($"View.{"PIDEditWindow"}") is System.Windows.Window window)
+            selectedSpots = new ObservableCollection<IDeviceSpot>();
+            if (AssemblyHelper.CreateInternalInstance($"View.{"PIDEditCanvasWindow"}") is System.Windows.Window window)
             {
                 BackupSpots = new List<IDeviceSpot>();
                 foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)

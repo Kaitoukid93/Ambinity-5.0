@@ -1,4 +1,5 @@
-﻿using GalaSoft.MvvmLight;
+﻿using adrilight.ViewModel;
+using GalaSoft.MvvmLight;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -6,17 +7,21 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Color = System.Windows.Media.Color;
 
 namespace adrilight.Spots
 {
     [DebuggerDisplay("Spot: Rectangle={Rectangle}, Color={Red},{Green},{Blue}")]
-    sealed class DeviceSpot : ViewModelBase, IDisposable, IDeviceSpot
+    sealed class DeviceSpot : ViewModelBase, IDisposable, IDeviceSpot, IDrawable
     {
 
-        public DeviceSpot(int x, int y,int top, int left, int width, int height,int index,int positionIndex, int virtualIndex , int musicIndex, int columnIndex, bool isActivated, bool isIDVissible)
+        public DeviceSpot(int x, int y, double top, double left, double width, double height,int index,int positionIndex, int virtualIndex , int musicIndex, int columnIndex, bool isActivated, bool isIDVissible)
         {
-            Rectangle = new Rectangle(top, left, width, height);
+            Top = top;
+            Left = left;
+            Width = width;
+            Height = height;
        
 
             RadiusX = 0;
@@ -32,12 +37,17 @@ namespace adrilight.Spots
             IsActivated = isActivated;
             BorderThickness = 0;
             IsIDVissible = isIDVissible;
-
+            VisualProperties = new VisualProperties();
+            Scale = new System.Windows.Point(1, 1);
 
 
         }
-
-        public Rectangle Rectangle { get;  set; }
+        public DeviceSpot()
+        {
+            VisualProperties = new VisualProperties();
+            Scale = new System.Windows.Point(1, 1);
+        }
+        
         public int id { get; set; }
 
         private bool _isFirst;
@@ -97,11 +107,7 @@ namespace adrilight.Spots
             BorderThickness=strokeThickness;
             RaisePropertyChanged(nameof(BorderThickness));
         }
-        public void SetRectangle(Rectangle rectangle)
-        {
-            Rectangle = rectangle;
-            RaisePropertyChanged(nameof(Rectangle));
-        }
+      
         public void SetVID(int vid)
         {
             VID = vid;
@@ -167,6 +173,68 @@ namespace adrilight.Spots
 
             SetColor((byte)(dimFactor * Red), (byte)(dimFactor * Green), (byte)(dimFactor * Blue), true);
         }
+
+        private double _top = 0;
+        private double _left = 0;
+        private bool _isSelected;
+        private bool _isSelectable = true;
+        private bool _isDraggable = true;
+        private double _width = 100;
+        private double _height = 100;
+        private VisualProperties _visualProperties;
+        private bool _shouldBringIntoView;
+        private System.Windows.Point _directionPoint;
+        private RelayCommand<double> leftChangedCommand;
+        private RelayCommand<double> topChangedCommand;
+        private double _angle = 0;
+        private bool _hasCustomBehavior;
+        private string _name;
+
+
+        public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
+        public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
+
+        public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
+
+        public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
+
+        public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }
+
+        public double Height { get => _height; set { Set(() => Height, ref _height, value); OnHeightUpdated(); } }
+
+        public VisualProperties VisualProperties { get => _visualProperties; set { Set(() => VisualProperties, ref _visualProperties, value); } }
+
+        public bool IsSelectable { get => _isSelectable; set { Set(() => IsSelectable, ref _isSelectable, value); } }
+
+        public bool IsDraggable { get => _isDraggable; set { Set(() => IsDraggable, ref _isDraggable, value); } }
+
+        public bool HasCustomBehavior { get => _hasCustomBehavior; set { Set(() => HasCustomBehavior, ref _hasCustomBehavior, value); } }
+
+        public bool ShouldBringIntoView { get => _shouldBringIntoView; set { Set(() => ShouldBringIntoView, ref _hasCustomBehavior, value); } }
+
+        public System.Windows.Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
+
+        public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
+
+        public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
+        public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
+        public void SetScale(double scale)
+        {
+          
+        }
+        public  void OnLeftChanged(double delta) { }
+
+        public void OnTopChanged(double delta) { }
+
+        public void OnWidthUpdated() { }
+
+        public void OnHeightUpdated() { }
+
+        public void OnRotationChanged() { }
+
+        public void OnIsSelectedChanged(bool value) { }
+
+        public void OnDrawingEnded(Action<object> callback = default) { }
     }
 }
 

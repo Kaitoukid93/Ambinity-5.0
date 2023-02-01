@@ -65,11 +65,7 @@
             <Viewbox   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5" >
                 <Canvas Width="{Binding ShaderBitmap.Width}" Height="{Binding ShaderBitmap.Height}" Margin="0" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Image HorizontalAlignment="Center" VerticalAlignment="Center"   Source="{Binding ShaderBitmap}" />
-                    <Rectangle Stroke="White" StrokeThickness="1" Canvas.Left="{Binding CurrentOutput.OutputRectangle.Left}" Canvas.Top="{Binding CurrentOutput.OutputRectangle.Top}" Width="{Binding CurrentOutput.OutputRectangle.Width}" Height="{Binding CurrentOutput.OutputRectangle.Height}">
-                        <Rectangle.Fill>
-                            <SolidColorBrush Color="White" Opacity="0.2"></SolidColorBrush>
-                        </Rectangle.Fill>
-                    </Rectangle>
+                    
                    
                 </Canvas>
                 

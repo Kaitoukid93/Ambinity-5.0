@@ -254,33 +254,33 @@ namespace adrilight.View
 
             //
             // Clear the current selection.
-             if (!Keyboard.IsKeyDown(Key.LeftCtrl) && !Keyboard.IsKeyDown(Key.RightCtrl))
-            {
-                foreach (var spot in ViewModel.CurrentOutput.OutputLEDSetup.Spots)
-                {
-                    spot.SetStroke(0);
-                };
-            }
+            // if (!Keyboard.IsKeyDown(Key.LeftCtrl) && !Keyboard.IsKeyDown(Key.RightCtrl))
+            //{
+            //    foreach (var spot in ViewModel.CurrentOutput.OutputLEDSetup.Spots)
+            //    {
+            //        spot.SetStroke(0);
+            //    };
+            //}
 
-            foreach (var spot in ViewModel.CurrentOutput.OutputLEDSetup.Spots)
-            {
-                Rect itemRect = new Rect(spot.Rectangle.X, spot.Rectangle.Y, spot.Rectangle.Width, spot.Rectangle.Height);
-                if (dragRect.IntersectsWith(itemRect))
-                {
-                    if (spot.BorderThickness != 0)
-                    {
-                        spot.SetStroke(0);
+            //foreach (var spot in ViewModel.CurrentOutput.OutputLEDSetup.Spots)
+            //{
+            //    Rect itemRect = new Rect(spot.Rectangle.X, spot.Rectangle.Y, spot.Rectangle.Width, spot.Rectangle.Height);
+            //    if (dragRect.IntersectsWith(itemRect))
+            //    {
+            //        if (spot.BorderThickness != 0)
+            //        {
+            //            spot.SetStroke(0);
 
-                    }
-                    else
-                    {
-                        spot.SetStroke(0.5);
-                    }
+            //        }
+            //        else
+            //        {
+            //            spot.SetStroke(0.5);
+            //        }
 
-                }
+            //    }
 
 
-            }
+            //}
             //launch property window 
             
         }

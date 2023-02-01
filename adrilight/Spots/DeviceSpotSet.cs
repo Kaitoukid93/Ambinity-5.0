@@ -123,7 +123,10 @@ namespace adrilight
 
                     var x = spacing * spot.XIndex + (rectWidth - (matrixWidth * spotSize) - spacing * (matrixWidth - 1)) / 2 + spot.XIndex * spotSize;
                     var y = spacing * spot.YIndex + (rectHeight - (matrixHeight * spotSize) - spacing * (matrixHeight - 1)) / 2 + spot.YIndex * spotSize;
-                    spot.SetRectangle(new Rectangle(x,y, spotSize, spotSize));
+                    (spot as IDrawable).Top = y;
+                    (spot as IDrawable).Left = x;
+                    (spot as IDrawable).Width = spotSize;
+                    (spot as IDrawable).Height = spotSize;
                     }
                   
                 
@@ -228,7 +231,7 @@ namespace adrilight
             return ledSetups;
         }
 
-        private IDeviceSpot[] BuildMatrix(int rectwidth, int rectheight, int spotsX, int spotsY)
+        private IDeviceSpot[] BuildMatrix(double rectwidth, double rectheight, int spotsX, int spotsY)
         {
             int spacing = 1;
             if (spotsX == 0)
