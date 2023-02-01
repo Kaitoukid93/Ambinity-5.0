@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Media;
 using Color = System.Windows.Media.Color;
 
 namespace adrilight.Spots
@@ -16,13 +17,13 @@ namespace adrilight.Spots
     sealed class DeviceSpot : ViewModelBase, IDisposable, IDeviceSpot, IDrawable
     {
 
-        public DeviceSpot(int x, int y, double top, double left, double width, double height,int index,int positionIndex, int virtualIndex , int musicIndex, int columnIndex, bool isActivated, bool isIDVissible)
+        public DeviceSpot(int x, int y, double top, double left, double width, double height,int index,int positionIndex, int virtualIndex , int musicIndex, int columnIndex, bool isActivated, bool isIDVissible, string shape)
         {
             Top = top;
             Left = left;
             Width = width;
             Height = height;
-       
+            Shape = shape;
 
             RadiusX = 0;
             RadiusY = 0;
@@ -57,7 +58,7 @@ namespace adrilight.Spots
         }
         public int MID { get; set; }
         public bool IsIDVissible { get; set; }
-
+        public string Shape { get; set; }
         public Color OnDemandColor => Color.FromRgb(Red, Green, Blue);
         public Color SentryColor => Color.FromRgb(SentryRed, SentryGreen, SentryBlue);
         public Color OnDemandColorTransparent => Color.FromArgb(255, Red, Green, Blue);

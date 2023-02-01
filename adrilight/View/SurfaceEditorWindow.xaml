@@ -67,7 +67,7 @@
             <richCanvas:RichItemsControl
                  GridStyle="{StaticResource GridStyle}"
                 EnableSnapping="True"
-                GridSpacing="10"
+                GridSpacing="24"
                 EnableGrid="true"
                 Scrolling="OnScrolling"
                 CanSelectMultipleItems="True"
@@ -110,25 +110,26 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Grid>
-                                                <Rectangle
+                                                <Path Data="{Binding Shape,Converter={converters:StaticResourceConverter}}"
+                                                Stretch="Fill"
                                                 ToolTip="{Binding id}" 
                                                 Stroke="OrangeRed" 
                                                 StrokeThickness="{Binding BorderThickness}" 
                                                 Width="{Binding Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
                                                 Height="{Binding Height,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
-                                                    <Rectangle.Fill>
+                                                    <Path.Fill>
                                                         <SolidColorBrush Color="{Binding OnDemandColor}"  />
-                                                    </Rectangle.Fill>
-                                                    <Rectangle.Style>
-                                                        <Style TargetType="{x:Type Rectangle}">
+                                                    </Path.Fill>
+                                                    <Path.Style>
+                                                        <Style TargetType="{x:Type Path}">
                                                             <Style.Triggers>
                                                                 <Trigger Property="IsMouseOver" Value="True">
                                                                     <Setter Property="Opacity"  Value="0.5"/>
                                                                 </Trigger>
                                                             </Style.Triggers>
                                                         </Style>
-                                                    </Rectangle.Style>
-                                                </Rectangle>
+                                                    </Path.Style>
+                                                </Path>
                                             </Grid>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>

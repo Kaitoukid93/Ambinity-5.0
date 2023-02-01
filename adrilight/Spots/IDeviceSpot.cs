@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using Color = System.Windows.Media.Color;
+using System.Windows.Media;
 
 namespace adrilight.Spots
 {
@@ -29,7 +30,7 @@ namespace adrilight.Spots
         bool IsActivated { get; set; }
         double BorderThickness { get; set; }
         bool IsIDVissible { get; set; }
-
+        string Shape { get; set; }
         void DimLED(float dimFactor);
         void SetColor(byte red, byte green, byte blue, bool raiseEvents);
         void SetSentryColor(byte red, byte green, byte blue);

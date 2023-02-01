@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Windows.Media;
 namespace adrilight.Settings
 {
     internal class DefaultLEDSetupCollection
@@ -126,7 +126,7 @@ namespace adrilight.Settings
                     var y = spacing * j + (rectheight - (spotsY * spotSize) - spacing * (spotsY - 1)) / 2 + j * spotSize;
                     var index = counter;
 
-                    spotSet[index] = new DeviceSpot(i, j, x, y, spotSize, spotSize, index, index, index, index,j, false,false);
+                    spotSet[index] = new DeviceSpot(i, j, x, y, spotSize, spotSize, index, index, index, index,j, false,false, "genericCircle");
                     counter++;
 
                 }

@@ -157,6 +157,7 @@
     <Compile Include="Settings\ActionSettings.cs" />
     <Compile Include="Settings\ActionType.cs" />
     <Compile Include="Settings\AutomationSettings.cs" />
+    <Compile Include="Settings\PathGuide.cs" />
     <Compile Include="Settings\DefaulOutputCollection.cs" />
     <Compile Include="Settings\DefaultDeviceCollection.cs" />
     <Compile Include="Settings\DefaultLEDSetupCollection.cs" />

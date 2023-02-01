@@ -30,18 +30,18 @@ namespace adrilight.Util
         private readonly NLog.ILogger _log = LogManager.GetCurrentClassLogger();
 
 
-        public HWMonitor(IGeneralSettings generalSettings, MainViewViewModel mainViewViewModel, IDeviceSettings[] availableDevices)
+        public HWMonitor(IGeneralSettings generalSettings, MainViewViewModel mainViewViewModel)
         {
 
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
-            AvailableDevices = availableDevices ?? throw new ArgumentNullException(nameof(availableDevices));
+            
             RefreshHWState();
             _log.Info($"Hardware Monitor Created");
 
         }
         IComputer thisComputer { get; set; }
-        IDeviceSettings[] AvailableDevices { get; set; }
+       
        
        
         private LibreHardwareMonitor.Hardware.Computer computer { get; set; }
@@ -253,7 +253,7 @@ namespace adrilight.Util
                         });
                     }
                    
-                    foreach (var device in AvailableDevices.Where(x => x.DeviceType == "ABFANHUB"))
+                    foreach (var device in MainViewViewModel.AvailableDevices.Where(x => x.DeviceType == "ABFANHUB"))
                     {
 
                         device.DeviceSpeed = 200;
@@ -304,7 +304,7 @@ namespace adrilight.Util
                     //formular is if the fan speed changed more than 5% compare to last fan speed, apply the change
 
                     //it's time to tell the fan to update the speed
-                    foreach (var device in AvailableDevices.Where(x => x.DeviceType == "ABFANHUB"))
+                    foreach (var device in MainViewViewModel.AvailableDevices.Where(x => x.DeviceType == "ABFANHUB"))
                     {
 
                         if (Math.Abs((int)(medianSpeed * 255 / 100) - device.DeviceSpeed) > 15)

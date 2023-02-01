@@ -33,6 +33,7 @@
                     <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
                     <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
                     <converters:CommandToListConverter x:Key="CommandsToListConverter" />
+                    <converters:StaticResourceConverter x:Key="staticResourceConverter"/>
                     <DropShadowEffect x:Key="Item.SelectedActive.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}"/>
                     <DropShadowEffect x:Key="Item.MouseOver.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource DarkMaskBrush}}"/>
                     <hc:Boolean2BooleanReConverter x:Key="booltoVreconv"/>
@@ -68,45 +69,98 @@
         <Grid Grid.Row=" 1">
             <richCanvas:RichItemsControl
                  GridStyle="{StaticResource GridStyle}"
-                EnableSnapping="True"
+                EnableSnapping="False"
                 GridSpacing="10"
                 EnableGrid="true"
                 Scrolling="OnScrolling"
-                CanSelectMultipleItems="False"
+                CanSelectMultipleItems="True"
                 RealTimeDraggingEnabled="False"
                 RealTimeSelectionEnabled="False"
                 SelectedItems="{Binding selectedSpots}"
                 Scale="0.5"
-                ItemsSource="{Binding CurrentOutput.OutputLEDSetup.Spots}">
+                ItemsSource="{Binding PIDEditWindowsRichCanvasItems}">
 
 
                 <richCanvas:RichItemsControl.Resources>
                     <DataTemplate DataType="{x:Type spot:DeviceSpot}">
-                        <Rectangle ToolTip="{Binding id}" Stroke="OrangeRed" StrokeThickness="{Binding BorderThickness}" Width="{Binding Rectangle.Width}" Height="{Binding Rectangle.Height}">
-                            <Rectangle.Fill>
-                                <SolidColorBrush Color="{Binding OnDemandColor}"  />
-                            </Rectangle.Fill>
-                            <Rectangle.Style>
-                                <Style TargetType="{x:Type Rectangle}">
+                        <Grid>
+                            
+                            <Path Data="{Binding Shape,Converter={converters:StaticResourceConverter}}" 
+                              Stretch="Fill"
+                              Width="{Binding Width}"
+                              Height="{Binding Height}" 
+                              ToolTip="{Binding id}">
+                                <Path.Fill>
+                                    <SolidColorBrush Color="{Binding OnDemandColor}"  />
+                                </Path.Fill>
 
-                                    <Style.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Opacity"  Value="0.5"/>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Rectangle.Style>
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseDown" >
-                                    <i:InvokeCommandAction Command="{Binding DataContext.SetSpotActiveCommand,RelativeSource={RelativeSource AncestorType={x:Type view:PIDEditCanvasWindow}}}" CommandParameter="{Binding .}" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </Rectangle>
+                            </Path>
+                            <TextBlock Text="{Binding id}" Style="{DynamicResource TextBlockTitle}"/>
+                        </Grid>
+                      
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type settings:PathGuide}">
+                        <Path Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}" 
+                              Stretch="Fill"
+                              Fill="White"
+                              Opacity="0.2"
+                              Width="{Binding Width}"
+                              Height="{Binding Height}">
+                        </Path>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type settings:Border}">
+                        <Grid>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Margin="20,10,5,5" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Size" Style="{DynamicResource TextBlockLarge}"/>
+                               
+                                <TextBlock Margin="5,10" HorizontalAlignment="Left" VerticalAlignment="Top"  Style="{DynamicResource TextBlockLarge}">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0} x {1}">
+                                            <Binding Path="Width" />
+                                            <Binding Path="Height" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+
+                            </StackPanel>
+
+                            <Rectangle Margin="-5,-5,0,0" Stroke="white"
+                                   Width="{Binding Width}"
+                                   Height="{Binding Height}"
+                               StrokeThickness="5"
+                               Fill="Transparent"
+                               StrokeDashArray="2"
+                               IsHitTestVisible="{Binding IsSelectable}">
+                            </Rectangle>
+                        </Grid>
+
+                    </DataTemplate>
+                    <DataTemplate x:Key="SelectedAdornerTemplate">
+                        <Border BorderBrush="DodgerBlue"
+                            BorderThickness="1"
+                            Background="DodgerBlue">
+                            <TextBlock Foreground="White"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   MaxWidth="60">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}{0} x {1}">
+                                        <Binding Path="Width" />
+                                        <Binding Path="Height" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </Border>
+                    </DataTemplate>
+                    <DataTemplate x:Key="HoverAdornerTemplate">
+                        <Border BorderBrush="DodgerBlue"
+                            BorderThickness="3">
+                        </Border>
                     </DataTemplate>
                 </richCanvas:RichItemsControl.Resources>
                 <richCanvas:RichItemsControl.ItemContainerStyle>
                     <Style TargetType="richCanvas:RichItemContainer">
-                        <Setter Property="Template">
+                        <!--<Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="{x:Type richCanvas:RichItemContainer}">
                                     <Border x:Name="Bd" 
@@ -123,8 +177,8 @@
                                                 <Condition Property="IsMouseOver" Value="True"/>
                                                 <Condition Property="IsSelected" Value="False"/>
                                             </MultiTrigger.Conditions>
-                                            <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
-                                            <Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
+                                            --><!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>--><!--
+                                            <Setter Property="BorderThickness" TargetName="Bd" Value="3.0"/>
                                             <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryTextBrush}"/>
                                         </MultiTrigger>
                                         <MultiTrigger>
@@ -132,8 +186,8 @@
                                                 <Condition Property="IsMouseOver" Value="False"/>
                                                 <Condition Property="IsSelected" Value="False"/>
                                             </MultiTrigger.Conditions>
-                                            <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
-                                            <Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
+                                            --><!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>--><!--
+                                            <Setter Property="BorderThickness" TargetName="Bd" Value="3.0"/>
                                             <Setter Property="BorderBrush" TargetName="Bd" Value="Transparent"/>
                                         </MultiTrigger>
                                         <MultiTrigger>
@@ -142,7 +196,7 @@
                                                 <Condition Property="IsSelected" Value="True"/>
                                             </MultiTrigger.Conditions>
                                             <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>
-                                            <Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
+                                            <Setter Property="BorderThickness" TargetName="Bd" Value="3.0"/>
                                         </MultiTrigger>
                                         <MultiTrigger>
                                             <MultiTrigger.Conditions>
@@ -150,34 +204,34 @@
                                                 <Condition Property="IsSelected" Value="True"/>
                                             </MultiTrigger.Conditions>
                                             <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>
-                                            <Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
+                                            <Setter Property="BorderThickness" TargetName="Bd" Value="3.0"/>
                                         </MultiTrigger>
-
+                                    
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Setter.Value>
-                        </Setter>
+                        </Setter>-->
 
                         <Setter Property="Tag"
                             Value="{Binding DataContext, ElementName=window}" />
                         <!--<Setter Property="helpers:AttachedAdorner.HasHoverAdorner"
                             Value="{Binding IsSelectable}" />-->
-                        <!--<Setter Property="helpers:AttachedAdorner.ShowResizeAdorner"
-                            Value="{Binding IsSelected}" />-->
+                        <Setter Property="helpers:AttachedAdorner.ShowResizeAdorner"
+                            Value="{Binding IsSelected}" />
                         <Setter Property="Top"
-                            Value="{Binding Top}" />
+                            Value="{Binding Top,Mode=TwoWay}" />
 
                         <Setter Property="Left"
-                            Value="{Binding Left}" />
+                            Value="{Binding Left,Mode=TwoWay}" />
 
                         <Setter Property="IsSelected"
                             Value="{Binding IsSelected, Mode=TwoWay}" />
 
                         <Setter Property="Width"
-                            Value="{Binding Width}" />
+                            Value="{Binding Width,Mode=TwoWay}" />
 
                         <Setter Property="Height"
-                            Value="{Binding Height}" />
+                            Value="{Binding Height,Mode=TwoWay}" />
 
                         <Setter Property="IsSelectable"
                             Value="{Binding IsSelectable}" />
@@ -194,8 +248,8 @@
                         <Setter Property="Scale"
                             Value="{Binding Scale, Mode=TwoWay}" />
 
-
-                        <!--<Style.Triggers>
+                      
+                        <Style.Triggers>
                             <Trigger Property="IsDraggable" Value="True">
                                 <Setter Property="ContextMenu">
                                     <Setter.Value>
@@ -206,12 +260,12 @@
                                                     <Path Data="{StaticResource fullsize}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            --><!--<MenuItem Header="LED Setup"
+                                            <MenuItem Header="LED Setup"
                                           Command="{Binding LaunchPIDEditWindowCommand}" >
                                         <MenuItem.Icon>
                                             <Path Data="{StaticResource ledsetup}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                         </MenuItem.Icon>
-                                    </MenuItem>--><!--
+                                    </MenuItem>
                                             <MenuItem Header="Aglign Left"
                                           Command="{Binding AglignSelectedItemstoLeftCommand}" >
                                                 <MenuItem.Icon>
@@ -268,7 +322,7 @@
                                     </Setter.Value>
                                 </Setter>
                             </Trigger>
-                        </Style.Triggers>-->
+                        </Style.Triggers>
                     </Style>
                 </richCanvas:RichItemsControl.ItemContainerStyle>
             </richCanvas:RichItemsControl>

@@ -1156,18 +1156,18 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Grid>
-                                            <Rectangle
+                                            <Path Data="{Binding Shape,Converter={converters:StaticResourceConverter}}"
                                                 ToolTip="{Binding id}" 
                                                 Stroke="OrangeRed" 
-                                               
+                                                Stretch="Fill"
                                                 StrokeThickness="{Binding BorderThickness}" 
                                                 Width="{Binding Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
                                                 Height="{Binding Height,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
-                                                <Rectangle.Fill>
+                                                <Path.Fill>
                                                     <SolidColorBrush Color="{Binding OnDemandColor}"  />
-                                                </Rectangle.Fill>
-                                                <Rectangle.Style>
-                                                    <Style TargetType="{x:Type Rectangle}">
+                                                </Path.Fill>
+                                                <Path.Style>
+                                                    <Style TargetType="{x:Type Path}">
 
                                                         <Style.Triggers>
                                                             <Trigger Property="IsMouseOver" Value="True">
@@ -1176,7 +1176,7 @@
                                                             </Trigger>
                                                         </Style.Triggers>
                                                     </Style>
-                                                </Rectangle.Style>
+                                                </Path.Style>
 
                                                 <!--<i:Interaction.Triggers>
                                                     -->
@@ -1187,7 +1187,7 @@
                                                    
                                                 </i:Interaction.Triggers>-->
 
-                                            </Rectangle>
+                                            </Path>
                                         </Grid>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>

@@ -5369,10 +5369,36 @@ namespace adrilight.ViewModel
                 window.ShowDialog();
             }
         }
-        public ObservableCollection<IDeviceSpot> selectedSpots { get; set; }
+        public ObservableCollection<IDrawable> selectedSpots { get; set; }
+        private ObservableCollection<IDrawable> _pIDEditWindowsRichCanvasItems;
+        public ObservableCollection<IDrawable> PIDEditWindowsRichCanvasItems {
+            get { return _pIDEditWindowsRichCanvasItems; }
+            set { _pIDEditWindowsRichCanvasItems = value; RaisePropertyChanged(); }
+        }
         private void LaunchPIDEditWindow()
         {
-            selectedSpots = new ObservableCollection<IDeviceSpot>();
+            selectedSpots = new ObservableCollection<IDrawable>();
+            //add output border rect
+            PIDEditWindowsRichCanvasItems = new ObservableCollection<IDrawable>();
+            foreach(var spot in CurrentOutput.OutputLEDSetup.Spots)
+            {
+                PIDEditWindowsRichCanvasItems.Add(spot as DeviceSpot);
+            }
+            Border border = new Border() {
+                Width = (CurrentOutput as OutputSettings).Width,
+                Height = (CurrentOutput as OutputSettings).Height,
+                IsDraggable = false,
+                IsSelectable = false
+            };
+            PIDEditWindowsRichCanvasItems.Add(border);
+            PathGuide pathGuide = new PathGuide() {
+                Width = (CurrentOutput as OutputSettings).Width,
+                Height = (CurrentOutput as OutputSettings).Height,
+                IsDraggable = false,
+                IsSelectable = false,
+                Geometry = "ambinoFanPosition"
+            };
+            PIDEditWindowsRichCanvasItems.Add(pathGuide);
             if (AssemblyHelper.CreateInternalInstance($"View.{"PIDEditCanvasWindow"}") is System.Windows.Window window)
             {
                 BackupSpots = new List<IDeviceSpot>();
@@ -5380,9 +5406,9 @@ namespace adrilight.ViewModel
                 {
                     BackupSpots.Add(spot);
                 }
-                CurrentOutput.IsInSpotEditWizard = true;
+                //CurrentOutput.IsInSpotEditWizard = true;
                 ActivatedSpots = new List<IDeviceSpot>();
-                RaisePropertyChanged(nameof(CurrentOutput.IsInSpotEditWizard));
+               // RaisePropertyChanged(nameof(CurrentOutput.IsInSpotEditWizard));
 
                 foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
                 {

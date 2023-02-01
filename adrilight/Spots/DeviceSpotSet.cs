@@ -1,7 +1,7 @@
 ﻿using adrilight.DesktopDuplication;
 using adrilight.Extensions;
 using adrilight.Spots;
-
+using System.Windows.Media;
 using NLog;
 using System;
 using System.Drawing;
@@ -258,7 +258,7 @@ namespace adrilight
                     var y = spacing * j + (rectheight - (spotsY * spotSize) - spacing * (spotsY - 1)) / 2 + j * spotSize;
                     var index = counter;
 
-                    spotSet[index] = new DeviceSpot(i, j, x, y, spotSize, spotSize, index, index, i, index,j, false, false);
+                    spotSet[index] = new DeviceSpot(i, j, y, x, spotSize, spotSize, index, index, i, index,j, false, false,"genericCircle");
                     counter++;
 
                 }
