@@ -221,7 +221,10 @@ namespace adrilight.Spots
         public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
         public void SetScale(double scale)
         {
-          
+            Width *= scale;
+            Height *= scale;
+            RaisePropertyChanged(nameof(Width));
+            RaisePropertyChanged(nameof(Height));
         }
         public  void OnLeftChanged(double delta) { }
 
@@ -233,7 +236,18 @@ namespace adrilight.Spots
 
         public void OnRotationChanged() { }
 
-        public void OnIsSelectedChanged(bool value) { }
+        public void OnIsSelectedChanged(bool value) {
+        
+        if(value)
+            {
+                SetColor(255, 0, 0, true);
+            }
+            else
+            {
+                SetColor(0, 0, 0, true);
+            }
+        
+        }
 
         public void OnDrawingEnded(Action<object> callback = default) { }
     }

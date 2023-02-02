@@ -310,6 +310,14 @@ namespace adrilight
             Height *= scaleY;
             Left *= scaleX;
             Top *= scaleY;
+            foreach(var deviceSpot in OutputLEDSetup.Spots)
+            {
+                (deviceSpot as DeviceSpot).Width*=scaleX;
+                (deviceSpot as DeviceSpot).Height*= scaleY;
+                (deviceSpot as DeviceSpot).Left *= scaleX;
+                (deviceSpot as DeviceSpot).Top *= scaleY;
+               
+            }
         }
         protected virtual void OnLeftChanged(double delta) { }
 

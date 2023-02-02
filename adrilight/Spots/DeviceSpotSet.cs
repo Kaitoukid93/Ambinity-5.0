@@ -38,7 +38,7 @@ namespace adrilight
                 case nameof(OutputSettings.OutputNumLEDY):
                 case nameof(OutputSettings.OutputNumLED):
                 case nameof(OutputSettings.Width):
-                case nameof(OutputSettings .Height):
+                case nameof(OutputSettings.Height):
                 case nameof(GeneralSettings.IsProfileLoading):
                 case nameof(OutputSettings.IsInSpotEditWizard):
                     //... there are more to come
