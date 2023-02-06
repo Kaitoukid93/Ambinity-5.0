@@ -288,6 +288,7 @@
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\VisualProperties.cs" />
+    <Compile Include="View\VIDEditCanvasWindow.xaml.cs" />
     <Compile Include="View\RotateSelectionWindow.xaml.cs" />
     <Compile Include="View\NewItemParametersWindow.xaml.cs" />
     <Compile Include="View\ScaleSelectionWindow.xaml.cs" />
@@ -370,6 +371,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Properties\DesignTimeResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\VIDEditCanvasWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

@@ -5430,6 +5430,39 @@ namespace adrilight.ViewModel
             get { return _pIDEditWindowsRichCanvasItems; }
             set { _pIDEditWindowsRichCanvasItems = value; RaisePropertyChanged(); }
         }
+        private ObservableCollection<IDrawable> _vIDEditWindowsRichCanvasItems;
+        public ObservableCollection<IDrawable> VIDEditWindowsRichCanvasItems {
+            get { return _vIDEditWindowsRichCanvasItems; }
+            set { _vIDEditWindowsRichCanvasItems = value; RaisePropertyChanged(); }
+        }
+        private void LaunchVIDEditWindow()
+        {
+            selectedSpots = new ObservableCollection<IDrawable>();
+            //add output border rect
+            VIDEditWindowsRichCanvasItems = new ObservableCollection<IDrawable>();
+            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
+            {
+                (spot as IDrawable).IsResizeable = false;
+                (spot as IDrawable).IsDeleteable = true;
+                VIDEditWindowsRichCanvasItems.Add(spot as DeviceSpot);
+            }
+          
+            //this is maximum border(physical screen size) that device chose to capture from
+            BackupSpots = new List<IDeviceSpot>();
+            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
+            {
+                BackupSpots.Add(spot);
+            }
+           // CurrentOutput.IsInSpotEditWizard = true;
+            ActivatedSpots = new List<IDeviceSpot>();
+            // RaisePropertyChanged(nameof(CurrentOutput.IsInSpotEditWizard));
+
+
+            vidEditCanvasWindow = new VIDEditCanvasWindow();
+            vidEditCanvasWindow.Owner = System.Windows.Application.Current.MainWindow;
+            vidEditCanvasWindow.ShowDialog();
+
+        }
 
         private void LaunchPIDEditWindow()
         {
@@ -5496,34 +5529,7 @@ namespace adrilight.ViewModel
 
         }
 
-        private void LaunchVIDEditWindow()
-        {
-            if (AssemblyHelper.CreateInternalInstance($"View.{"VIDEditWindow"}") is System.Windows.Window window)
-            {
-                //caculate bound rect
-                //var minX = CurrentDevice.AvailableOutputs.MinBy(p => p.OutputRectangle.Left).First().OutputRectangle.Left;// tìm hình có tọa độ X bé nhất trong danh sách
-                //var minY = CurrentDevice.AvailableOutputs.MinBy(p => p.OutputRectangle.Top).First().OutputRectangle.Top; // tìm hình có tọa độ Y bé nhất
-                //var maxXRect = CurrentDevice.AvailableOutputs.MaxBy(p => p.OutputRectangle.Left).First(); // tìm hình có tọa độ X lớn nhất
-                //var maxX = maxXRect.OutputRectangle.Left + maxXRect.OutputRectangle.Width;                //X2 bằng tọa độ X lớn nhất + chiều dài của hình vừa tìm
-                //var maxYRect = CurrentDevice.AvailableOutputs.MaxBy(p => p.OutputRectangle.Top).First(); // tương tự với Y2
-                //var maxY = maxYRect.OutputRectangle.Top + maxYRect.OutputRectangle.Height;               // tương tự với Y2
-                //var boundWidth = Math.Abs(maxX - minX);                                                  // có đươc chiều rộng của hình bao
-                //var boundHeight = Math.Abs(maxY - minY);                                                 // có đươc chiều dài của hình bao
-                //CurrentDevice.SetRectangle(new Rectangle(0, 0, boundWidth, boundHeight));
-                //foreach (var output in CurrentDevice.AvailableOutputs)
-                //{
-                //    output.SetPreviewRectangle(new Rectangle(output.OutputRectangle.Left - minX, output.OutputRectangle.Top - minY, output.OutputRectangle.Width, output.OutputRectangle.Height));
-                //}
-                BackupSpots = new List<IDeviceSpot>();
-                foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                {
-                    BackupSpots.Add(spot);
-                }
-
-                window.Owner = System.Windows.Application.Current.MainWindow;
-                window.ShowDialog();
-            }
-        }
+    
 
         private void LaunchMIDEditWindow()
         {
@@ -5972,6 +5978,7 @@ namespace adrilight.ViewModel
                 (item as OutputSettings).OutputRectangleScaleHeight = item.Height / border.Height;
                 (item as OutputSettings).OutputRectangleScaleLeft = item.Left / border.Width;
                 (item as OutputSettings).OutputRectangleScaleTop = item.Top / border.Height;
+                item.IsSelected = false;
             }
             surfaceeditorWindow.Close();
             IsRichCanvasWindowOpen = false;
@@ -6011,6 +6018,7 @@ namespace adrilight.ViewModel
         }
         SurfaceEditorWindow surfaceeditorWindow { get; set; }
         PIDEditCanvasWindow pidEditCanvasWindow { get; set; }
+        VIDEditCanvasWindow vidEditCanvasWindow { get; set; }
         private void AddSelectedItemToGroup()
         {
             var newGroup = new Group();
