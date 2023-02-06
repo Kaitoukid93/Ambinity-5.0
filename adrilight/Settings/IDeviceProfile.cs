@@ -18,6 +18,6 @@ namespace adrilight.Settings
         string ProfileUID { get; set; }
         IOutputSettings UnionOutput { get; set; }
         IOutputSettings[] OutputSettings { get; set; }
-        void SaveProfile(IOutputSettings unionOutput, IOutputSettings[] availableOutputs);
+        void SaveProfile(IOutputSettings[] availableOutputs);
     }
 }

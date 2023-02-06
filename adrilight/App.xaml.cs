@@ -110,20 +110,9 @@ namespace adrilight
 
                             }
 
-                            var unionOutput = device.UnionOutput;
-
-                            if (unionOutput != null)
-                            {
-                                var unionOutputID = iD + unionOutput.OutputID.ToString();
-                                kernel.Bind<IOutputSettings>().ToConstant(unionOutput).Named(unionOutputID);
-
-                            }
                             //now inject
                             InjectingDevice(kernel, device);
-                            //since openRGBStream is single instance, we need to manually add device then refresh
-
-                           
-                           
+                            //since openRGBStream is single instance, we need to manually add device then refresh                                        
                         }
                         //now reboot whatever service rely on available devices
 
@@ -260,8 +249,6 @@ namespace adrilight
         {
             var iD = device.DeviceUID.ToString();
             var outputs = device.AvailableOutputs.ToList();
-            if (device.UnionOutput != null)
-                outputs.Add(device.UnionOutput);
             var connectionType = device.DeviceConnectionType;
            
                 switch (connectionType)
@@ -286,12 +273,12 @@ namespace adrilight
 
                 var outputID = iD + output.OutputID.ToString();
                 kernel.Bind<IRainbow>().To<Rainbow>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
-                kernel.Bind<IDeviceSpotSet>().To<DeviceSpotSet>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
+               // kernel.Bind<IDeviceSpotSet>().To<DeviceSpotSet>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
                 kernel.Bind<IMusic>().To<Music>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
                 kernel.Bind<IDesktopDuplicatorReader>().To<DesktopDuplicatorReader>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
                 kernel.Bind<IGifxelation>().To<Gifxelation>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
                 kernel.Bind<IStaticColor>().To<StaticColor>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
-                var spotset = kernel.Get<IDeviceSpotSet>(outputID);
+               // var spotset = kernel.Get<IDeviceSpotSet>(outputID);
                 var rainbow = kernel.Get<IRainbow>(outputID);
                 var screencapture = kernel.Get<IDesktopDuplicatorReader>(outputID);
                 var music = kernel.Get<IMusic>(outputID);

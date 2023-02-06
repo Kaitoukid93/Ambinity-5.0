@@ -17,15 +17,12 @@ using Color = System.Windows.Media.Color;
 
 namespace adrilight
 {
-    internal class OutputSettings : ViewModelBase, IOutputSettings, IGroupable, IDrawable
+    internal class OutputSettings : ViewModelBase, IOutputSettings, IDrawable
     {
        
         private string _outputName;
         private string _outputType;
         private int _outputID;
-        private int _outputNumLED;
-        private int _outputNumLEDX;
-        private int _outputNumLEDY;
         private bool _isVissible = true;
         private string _outputDescription;
         private string _targetDevice;
@@ -90,11 +87,8 @@ namespace adrilight
         private int _vUMode = 0;
         private IGifCard _outputSelectedGif = null;
         private int _outputSelectedGifIndex = 0;
-        private int _outputGridRow = 0;
-        private int _outputGridColumn = 0;
-        private Group _group;
-
-        public Group Group { get => _group; set => IsDraggable = value != null; }
+        private bool _isResizeable;
+        public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
 
 
         private int _outputGifSpeed = 20;
@@ -114,9 +108,6 @@ namespace adrilight
         public string OutputType { get => _outputType; set { Set(() => OutputType, ref _outputType, value); } }
         public string OutputDescription { get => _outputDescription; set { Set(() => OutputDescription, ref _outputDescription, value); } }
         public bool IsBrightnessPopupOpen { get => _isBrightnessPopupOpen; set { Set(() => IsBrightnessPopupOpen, ref _isBrightnessPopupOpen, value); } }
-        public int OutputNumLED { get => _outputNumLED; set { Set(() => OutputNumLED, ref _outputNumLED, value); } }
-        public int OutputNumLEDX { get => _outputNumLEDX; set { Set(() => OutputNumLEDX, ref _outputNumLEDX, value); } }
-        public int OutputNumLEDY { get => _outputNumLEDY; set { Set(() => OutputNumLEDY, ref _outputNumLEDY, value); } }
         public int LEDPerSpot { get => _lEDPerSpot; set { Set(() => LEDPerSpot, ref _lEDPerSpot, value); } }
         public int LEDPerLED { get => _lEDPerLED; set { Set(() => LEDPerLED, ref _lEDPerLED, value); } }
         [Reflectable]
@@ -256,7 +247,12 @@ namespace adrilight
         private double _angle = 0;
         private bool _hasCustomBehavior;
         private string _name;
-
+        private double _centerX;
+        private double _centerY;
+        private bool _isDeleteable;
+        public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
+        public double CenterX { get => _centerX; set { Set(() => CenterX, ref _centerX, value); } }
+        public double CenterY { get => _centerY; set { Set(() => CenterY, ref _centerY, value); } }
 
         public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
         public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
@@ -299,8 +295,16 @@ namespace adrilight
             Height *= scale;
             OutputRectangleScaleHeight *= scale;
             OutputRectangleScaleWidth *= scale;// these value is for setting new rectangle and it's position when parrents size is not stored( app startup)
-            //SetRectangle(new Rectangle(OutputRectangle.Left, OutputRectangle.Top, (int)Width, (int)Height));
-            //we need to change ledsetup width and height too
+                                               //SetRectangle(new Rectangle(OutputRectangle.Left, OutputRectangle.Top, (int)Width, (int)Height));
+                                               //we need to change ledsetup width and height too
+            foreach (var deviceSpot in OutputLEDSetup.Spots)
+            {
+                (deviceSpot as DeviceSpot).Width *= scale;
+                (deviceSpot as DeviceSpot).Height *= scale;
+                (deviceSpot as DeviceSpot).Left *= scale;
+                (deviceSpot as DeviceSpot).Top *= scale;
+
+            }
             RaisePropertyChanged(nameof(Width));
             RaisePropertyChanged(nameof(Height));
         }

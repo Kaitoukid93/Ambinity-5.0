@@ -157,10 +157,10 @@
     <Compile Include="Settings\ActionSettings.cs" />
     <Compile Include="Settings\ActionType.cs" />
     <Compile Include="Settings\AutomationSettings.cs" />
+    <Compile Include="Settings\ImageVisual.cs" />
     <Compile Include="Settings\PathGuide.cs" />
     <Compile Include="Settings\DefaulOutputCollection.cs" />
     <Compile Include="Settings\DefaultDeviceCollection.cs" />
-    <Compile Include="Settings\DefaultLEDSetupCollection.cs" />
     <Compile Include="Settings\DeviceCatergory.cs" />
     <Compile Include="Settings\DeviceFirmware.cs" />
     <Compile Include="Settings\DeviceHttpConnection.cs" />
@@ -191,9 +191,7 @@
     <Compile Include="Settings\XmlApiResponse.cs" />
     <Compile Include="Settings\XmlApiResponseParser.cs" />
     <Compile Include="Spots\DeviceSpot.cs" />
-    <Compile Include="Spots\DeviceSpotSet.cs" />
     <Compile Include="Spots\IDeviceSpot.cs" />
-    <Compile Include="Spots\IDeviceSpotSet.cs" />
     <Compile Include="Spots\ILEDSetup.cs" />
     <Compile Include="Spots\LEDSetup.cs" />
     <Compile Include="Util\DeviceDiscovery.cs" />
@@ -290,6 +288,8 @@
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\VisualProperties.cs" />
+    <Compile Include="View\RotateSelectionWindow.xaml.cs" />
+    <Compile Include="View\NewItemParametersWindow.xaml.cs" />
     <Compile Include="View\ScaleSelectionWindow.xaml.cs" />
     <Compile Include="View\PIDEditCanvasWindow.xaml.cs" />
     <Compile Include="View\SurfaceEditorWindow.xaml.cs" />
@@ -370,6 +370,14 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Properties\DesignTimeResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\RotateSelectionWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\NewItemParametersWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -697,6 +705,9 @@
     </EmbeddedResource>
     <None Include="adrilightApp.nuspec" />
     <EmbeddedResource Include="Animation\splashLoading.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AmbinoFactoryValue\Basic24.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <None Include="app.manifest" />

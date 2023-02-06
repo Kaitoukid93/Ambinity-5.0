@@ -19,7 +19,7 @@ namespace adrilight.Settings
         public string ProfileUID { get; set; }
         public IOutputSettings UnionOutput { get; set; }
         public IOutputSettings[] OutputSettings { get; set; }
-        public void SaveProfile(IOutputSettings unionOutput, IOutputSettings[] availableOutputs)
+        public void SaveProfile(IOutputSettings[] availableOutputs)
         {
             if (OutputSettings == null)
             {
@@ -43,16 +43,7 @@ namespace adrilight.Settings
 
 
             }
-            if(UnionOutput == null)
-            {
-                UnionOutput = new OutputSettings();
-            }
-            foreach (PropertyInfo property in UnionOutput.GetType().GetProperties())
-            {
-                if (Attribute.IsDefined(property, typeof(ReflectableAttribute)))
-                    property.SetValue(UnionOutput, property.GetValue(unionOutput, null), null);
-            }
-
+           
 
 
         }

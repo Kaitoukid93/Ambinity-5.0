@@ -40,7 +40,11 @@ namespace adrilight.Spots
         void SetCID(int cid);
         void SetStroke(double strokeThickness);
         void SetIDVissible (bool isIDVissible);
-     
+        void RebuildSpot(double newParrentWith, double newParrentHeight);
+        double ScaleLeft { get; set; }
+        double ScaleTop { get; set; }
+        double ScaleWidth { get; set; }
+        double ScaleHeight { get; set; }
 
 
     }

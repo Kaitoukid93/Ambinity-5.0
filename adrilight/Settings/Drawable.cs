@@ -33,7 +33,14 @@ namespace adrilight
         private double _angle = 0;
         private bool _hasCustomBehavior;
         private string _name;
-
+        private double _centerX;
+        private double _centerY;
+        private bool _isResizeable;
+        private bool _isDeleteable;
+        public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
+        public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
+        public double CenterX { get => _centerX; set { Set(() => CenterX, ref _centerX, value); } }
+        public double CenterY { get => _centerY; set { Set(() => CenterY, ref _centerY, value); } }
         public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
         public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
 

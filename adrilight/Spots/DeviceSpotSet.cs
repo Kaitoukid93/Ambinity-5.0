@@ -188,11 +188,11 @@ namespace adrilight
 
                 counter = 0;
 
-                IDeviceSpot[] reorderedActiveSpots = new DeviceSpot[reorderedSpots.Count];
+                List<IDeviceSpot> reorderedActiveSpots = new List<IDeviceSpot>();
 
                 foreach (var spot in reorderedSpots)
                 {
-                    reorderedActiveSpots[counter++] = spot;
+                    reorderedActiveSpots.Add(spot);
                 }
 
                 ledSetup = new LEDSetup(name, owner, type, description, reorderedActiveSpots, matrixWidth, matrixHeight, setupID, rectWidth, rectHeight);
@@ -231,7 +231,7 @@ namespace adrilight
             return ledSetups;
         }
 
-        private IDeviceSpot[] BuildMatrix(double rectwidth, double rectheight, int spotsX, int spotsY)
+        private List<IDeviceSpot> BuildMatrix(double rectwidth, double rectheight, int spotsX, int spotsY)
         {
             int spacing = 1;
             if (spotsX == 0)

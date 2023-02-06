@@ -44,7 +44,7 @@ namespace adrilight
         // private IDeviceSpotSet[] DeviceSpotSets { get; set; }
         private bool CheckSerialPort(string serialport)
         {
-          
+
             var available = true;
             int TestbaudRate = 1000000;
 
@@ -72,7 +72,7 @@ namespace adrilight
 
                     // BlockedComport.Add(serialport);
                     _log.Debug("Serial Port " + serialport + " access denied, added to Blacklist");
-                   // HandyControl.Controls.MessageBox.Show("Serial Port " + serialport + " is in use or unavailable, Please chose another COM Port", "Serial Port", MessageBoxButton.OK, MessageBoxImage.Error);
+                    // HandyControl.Controls.MessageBox.Show("Serial Port " + serialport + " is in use or unavailable, Please chose another COM Port", "Serial Port", MessageBoxButton.OK, MessageBoxImage.Error);
                     available = false;
 
                     //_log.Debug(ex, "Exception catched.");
@@ -109,9 +109,6 @@ namespace adrilight
                 case nameof(DeviceSettings.CurrentState):
                     RefreshTransferState();
                     break;
-                case nameof(DeviceSettings.IsUnionMode):
-                    RefreshTransferState();
-                    break;
             }
         }
 
@@ -124,7 +121,7 @@ namespace adrilight
 
             if (DeviceSettings.IsTransferActive && DeviceSettings.CurrentState == State.normal) // normal scenario
             {
-                
+
                 if (IsValid())
                 {
 
@@ -135,7 +132,7 @@ namespace adrilight
                 else
                 {
                     DeviceSettings.IsTransferActive = false;
-                   // DeviceSettings.OutputPort = null;
+                    // DeviceSettings.OutputPort = null;
                 }
             }
 
@@ -332,7 +329,7 @@ namespace adrilight
             {
                 const int colorsPerLed = 3;
                 int bufferLength = _messagePreamble.Length + 3 + 3
-                    + (currentOutput.OutputLEDSetup.Spots.Length * colorsPerLed * ledPerSpot);
+                    + (currentOutput.OutputLEDSetup.Spots.Count * colorsPerLed * ledPerSpot);
 
 
                 outputStream = ArrayPool<byte>.Shared.Rent(bufferLength);
@@ -345,8 +342,8 @@ namespace adrilight
 
 
 
-                byte lo = (byte)((currentOutput.OutputLEDSetup.Spots.Length * ledPerSpot) & 0xff);
-                byte hi = (byte)(((currentOutput.OutputLEDSetup.Spots.Length * ledPerSpot) >> 8) & 0xff);
+                byte lo = (byte)((currentOutput.OutputLEDSetup.Spots.Count * ledPerSpot) & 0xff);
+                byte hi = (byte)(((currentOutput.OutputLEDSetup.Spots.Count * ledPerSpot) >> 8) & 0xff);
                 byte chk = (byte)(hi ^ lo ^ 0x55);
                 outputStream[counter++] = hi;
                 outputStream[counter++] = lo;
@@ -364,9 +361,6 @@ namespace adrilight
                         if (!DeviceSettings.IsEnabled || !output.OutputIsEnabled)
                         {
 
-                            if (DeviceSettings.IsUnionMode)
-                                output.OutputLEDSetup.DimLED(0.99f);
-                            else
                                 output.OutputLEDSetup.DimLED(0.9f);
 
                         }
@@ -426,7 +420,7 @@ namespace adrilight
                                     }
                                     break;
                             }
-                           
+
                         }
 
                         break;
@@ -505,7 +499,6 @@ namespace adrilight
 
             frameCounter = 0;
             blackFrameCounter = 0;
-            bool isUnion = DeviceSettings.IsUnionMode;
 
             //retry after exceptions...
             bool isDisconnectedMessage = false;
@@ -534,89 +527,39 @@ namespace adrilight
                         //after this we know the device is successfully open the first time or reconnected, we reset the  message show flag
                         isDisconnectedMessage = false;
                         //send frame data
-                        if (isUnion)
+
+
+
+                        foreach (var output in DeviceSettings.AvailableOutputs)
                         {
 
-                            for (int i = 0; i < DeviceSettings.AvailableOutputs.Length; i++)
+                            var (outputBuffer, streamLength) = GetOutputStream(output, (byte)output.OutputID);
+                            serialPort.Write(outputBuffer, 0, streamLength);
+                            if (++frameCounter == 1024 && blackFrameCounter > 1000)
                             {
-                                var (outputBuffer, streamLength) = GetOutputStream(DeviceSettings.UnionOutput, (byte)i);
-                                serialPort.Write(outputBuffer, 0, streamLength);
-                                if (++frameCounter == 1024 && blackFrameCounter > 1000)
-                                {
-                                    //there is maybe something wrong here because most frames where black. report it once per run only
-                                    var settingsJson = JsonConvert.SerializeObject(DeviceSettings, Formatting.None);
-                                    _log.Info($"Sent {frameCounter} frames already. {blackFrameCounter} were completely black. Settings= {settingsJson}");
-                                }
-                                ArrayPool<byte>.Shared.Return(outputBuffer);
-
-                                //ws2812b LEDs need 30 µs = 0.030 ms for each led to set its color so there is a lower minimum to the allowed refresh rate
-                                //receiving over serial takes it time as well and the arduino does both tasks in sequence
-                                //+1 ms extra safe zone
-                                double fastLedTime;
-                                if (DeviceSettings.DeviceType == "ABHUBV2")
-                                    fastLedTime = ((192) / 3.0 * 0.030d);
-                                else
-                                    fastLedTime = ((streamLength - _messagePreamble.Length) / 3.0 * 0.030d);
-                                var serialTransferTime = outputBuffer.Length * 10 * 1000 / baudRate;
-                                var fanSpeedSettingTime = 0;
-                                if (DeviceSettings.DeviceType == "ABFANHUB")
-                                    if (i == 2) // this is the output that share the same dataline with Tx to little core on fanhub
-                                        fanSpeedSettingTime = 2; //so we need to increase sleep time to prevent package skipping
-
-                                var minTimespan = (int)(fastLedTime + serialTransferTime) + 1 + fanSpeedSettingTime;
-
-                                Thread.Sleep(minTimespan);
+                                //there is maybe something wrong here because most frames where black. report it once per run only
+                                var settingsJson = JsonConvert.SerializeObject(DeviceSettings, Formatting.None);
+                                _log.Info($"Sent {frameCounter} frames already. {blackFrameCounter} were completely black. Settings= {settingsJson}");
                             }
+                            ArrayPool<byte>.Shared.Return(outputBuffer);
+
+                            //ws2812b LEDs need 30 µs = 0.030 ms for each led to set its color so there is a lower minimum to the allowed refresh rate
+                            //receiving over serial takes it time as well and the arduino does both tasks in sequence
+                            //+1 ms extra safe zone
+                            double fastLedTime;
+                            if (DeviceSettings.DeviceType == "ABHUBV2")
+                                fastLedTime = ((192) / 3.0 * 0.030d);
+                            else
+                                fastLedTime = ((streamLength - _messagePreamble.Length) / 3.0 * 0.030d);
+                            var serialTransferTime = outputBuffer.Length * 10 * 1000 / baudRate;
+                            var fanSpeedSettingTime = 0;
+                            if (DeviceSettings.DeviceType == "ABFANHUB")
+                                if (output.OutputID == 2) // this is the output that share the same dataline with Tx to little core on fanhub
+                                    fanSpeedSettingTime = 2; //so we need to increase sleep time to prevent package skipping
+                            var minTimespan = (int)(fastLedTime + serialTransferTime) + 1 + fanSpeedSettingTime;
+
+                            Thread.Sleep(minTimespan);
                         }
-
-                        else
-                        {
-                            foreach (var output in DeviceSettings.AvailableOutputs)
-                            {
-
-                                var (outputBuffer, streamLength) = GetOutputStream(output, (byte)output.OutputID);
-                                serialPort.Write(outputBuffer, 0, streamLength);
-                                if (++frameCounter == 1024 && blackFrameCounter > 1000)
-                                {
-                                    //there is maybe something wrong here because most frames where black. report it once per run only
-                                    var settingsJson = JsonConvert.SerializeObject(DeviceSettings, Formatting.None);
-                                    _log.Info($"Sent {frameCounter} frames already. {blackFrameCounter} were completely black. Settings= {settingsJson}");
-                                }
-                                ArrayPool<byte>.Shared.Return(outputBuffer);
-
-                                //ws2812b LEDs need 30 µs = 0.030 ms for each led to set its color so there is a lower minimum to the allowed refresh rate
-                                //receiving over serial takes it time as well and the arduino does both tasks in sequence
-                                //+1 ms extra safe zone
-                                double fastLedTime;
-                                if (DeviceSettings.DeviceType == "ABHUBV2")
-                                    fastLedTime = ((192) / 3.0 * 0.030d);
-                                else
-                                    fastLedTime = ((streamLength - _messagePreamble.Length) / 3.0 * 0.030d);
-                                var serialTransferTime = outputBuffer.Length * 10 * 1000 / baudRate;
-                                var fanSpeedSettingTime = 0;
-                                if (DeviceSettings.DeviceType == "ABFANHUB")
-                                    if (output.OutputID == 2) // this is the output that share the same dataline with Tx to little core on fanhub
-                                        fanSpeedSettingTime = 2; //so we need to increase sleep time to prevent package skipping
-                                var minTimespan = (int)(fastLedTime + serialTransferTime) + 1 + fanSpeedSettingTime;
-
-                                Thread.Sleep(minTimespan);
-                            }
-                        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
                     }
                 }
@@ -630,10 +573,10 @@ namespace adrilight
                 {
 
 
-                  
+
                     _log.Debug(ex, "Exception catched.");
                     //to be safe, we reset the serial port
-                    if(!isDisconnectedMessage)
+                    if (!isDisconnectedMessage)
                     {
                         var result = HandyControl.Controls.MessageBox.Show("USB của " + DeviceSettings.DeviceName + " Đã ngắt kết nối!!!. Kiểm tra lại kết nối", "Mất kết nối", MessageBoxButton.OK, MessageBoxImage.Warning);
 
@@ -643,7 +586,7 @@ namespace adrilight
                             isDisconnectedMessage = true;
                         }
                     }
-                    
+
 
 
                     if (serialPort != null && serialPort.IsOpen)
@@ -656,10 +599,10 @@ namespace adrilight
                     Thread.Sleep(500);
                     //Stop();
                     // Dispose();
-                    
-                   // DeviceSettings.IsTransferActive = false;
-                   
-                    
+
+                    // DeviceSettings.IsTransferActive = false;
+
+
                 }
                 finally
                 {

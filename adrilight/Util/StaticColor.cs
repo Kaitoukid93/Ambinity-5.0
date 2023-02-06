@@ -135,7 +135,7 @@ namespace adrilight.Util
                 colorBank = GetColorGradientfromPalette(gradientPalette, 256).ToArray();
                 while (!token.IsCancellationRequested)
                 {
-                    var numLED = OutputSettings.OutputLEDSetup.Spots.Length;
+                    var numLED = OutputSettings.OutputLEDSetup.Spots.Count;
                     Color currentStaticColor = OutputSettings.OutputStaticColor;
                     var colorOutput = new OpenRGB.NET.Models.Color[numLED];
                     double peekBrightness = 0.0;

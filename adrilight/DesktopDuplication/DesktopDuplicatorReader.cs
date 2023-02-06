@@ -60,6 +60,7 @@ namespace adrilight
                 case nameof(OutputSettings.OutputIsLoadingProfile):
                 case nameof(OutputSettings.OutputIsEnabled):
                 case nameof(OutputSettings.OutputParrentIsEnable):
+                case nameof(OutputSettings.IsInSpotEditWizard):
                 case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
                     RefreshCapturingState();
                     break;
@@ -212,7 +213,7 @@ namespace adrilight
                     var devicePowerVoltage = OutputSettings.OutputPowerVoltage;
                     var devicePowerMiliamps = OutputSettings.OutputPowerMiliamps;
 
-                    var numLED = OutputSettings.OutputLEDSetup.Spots.Length * OutputSettings.LEDPerSpot * OutputSettings.LEDPerLED;
+                    var numLED = OutputSettings.OutputLEDSetup.Spots.Count * OutputSettings.LEDPerSpot * OutputSettings.LEDPerLED;
 
 
                     if (newImage == null)
@@ -261,13 +262,13 @@ namespace adrilight
                             , spot =>
                             {
                                 const int numberOfSteps = 15;
-                                int stepx = Math.Max(1, (int)(spot as IDrawable).Width / numberOfSteps);
-                                int stepy = Math.Max(1, (int)(spot as IDrawable).Height / numberOfSteps);
+                                int stepx = Math.Max(1, (int)(width * spot.ScaleWidth) / numberOfSteps);
+                                int stepy = Math.Max(1, (int)(height * spot.ScaleHeight) / numberOfSteps);
                                 Rectangle actualRectangle = new Rectangle(
-                                    (int)(width * (spot as IDrawable).Left / virtualWidth),
-                                    (int)(height * (spot as IDrawable).Top / virtualHeight),
-                                    (int)(width * (spot as IDrawable).Width / virtualWidth),
-                                    (int)(height * (spot as IDrawable).Height / virtualHeight));
+                                    (int)(width * spot.ScaleLeft),
+                                    (int)(height * spot.ScaleTop),
+                                    (int)(width * spot.ScaleWidth),
+                                    (int)(height * spot.ScaleHeight));
                                 GetAverageColorOfRectangularRegion(actualRectangle, stepy, stepx, bitmapData,
                                     out int sumR, out int sumG, out int sumB, out int count);
 
@@ -442,7 +443,7 @@ namespace adrilight
                 if (isPreviewRunning)
                 {
                     
-                        MainViewViewModel.ShaderImageUpdate(CurrentFrame);
+                      MainViewViewModel.ShaderImageUpdate(CurrentFrame);
                    
                    
                 }

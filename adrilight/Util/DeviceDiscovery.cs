@@ -147,7 +147,6 @@ namespace adrilight
                         convertedDevice.DeviceUID = openRGBDevice.Name + openRGBDevice.Version + openRGBDevice.Location;
                         convertedDevice.Geometry = "orgb";
                         convertedDevice.DeviceConnectionGeometry = "orgb";
-                        convertedDevice.UnionOutput = DefaulOutputCollection.GenericLEDStrip(openRGBDevice.Zones.Length, 1, "Uni-Zone", 1, false, "ledstrip");
                         convertedDevice.AvailableOutputs = new OutputSettings[openRGBDevice.Zones.Length];
                         int zoneCount = 0;
                         foreach (var zone in openRGBDevice.Zones)

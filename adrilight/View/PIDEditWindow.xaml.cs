@@ -87,7 +87,7 @@ namespace adrilight.View
         }
         private void PIDEditWindowClosed(object sender, CancelEventArgs e)
         {
-            ViewModel.CurrentOutput.OutputLEDSetup.Spots = ViewModel.BackupSpots.ToArray();
+           // ViewModel.CurrentOutput.OutputLEDSetup.Spots = ViewModel.BackupSpots;
             ViewModel.RaisePropertyChanged(nameof(ViewModel.CurrentOutput));
             //ViewModel.WriteDeviceInfoJson();
             ViewModel.CurrentOutput.IsInSpotEditWizard = false;

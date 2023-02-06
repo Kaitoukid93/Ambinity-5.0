@@ -1,10 +1,15 @@
 ﻿using adrilight.Spots;
 using adrilight.Util;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
 
@@ -26,24 +31,47 @@ namespace adrilight.Settings
         };
             }
         }
+        private static LEDSetup ReadFactoryLEDSetup (string resourceName)
+        {
+            LEDSetup ledSetup = new LEDSetup();
+            var assembly = Assembly.GetExecutingAssembly();
+            using (Stream resource = assembly.GetManifestResourceStream(resourceName))
+            {
+                if (resource == null)
+                {
+                    throw new ArgumentException("No such resource", "resourceName");
+                }
+                using (StreamReader reader = new StreamReader(resource))
+                {
+                    string json = reader.ReadToEnd(); //Make string equal to full file
+                    try
+                    {
+                        ledSetup = JsonConvert.DeserializeObject<LEDSetup>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    }
+                    catch (Exception)
+                    {
+                        HandyControl.Controls.MessageBox.Show("Corrupted or incompatible data File!!!", "LEDSetup Import", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+            return ledSetup;
+        }
         public static OutputSettings AmbinoBasic(int id, int numLEDX, int numLEDY, string name, bool isEnabled, string geometry)
         {
 
+            var ledSetup = ReadFactoryLEDSetup ("adrilight.AmbinoFactoryValue.Basic24.json");  
             var outputSettings = new OutputSettings { //24 inch led frame for Ambino Basic
                 OutputName = name,
                 TargetDevice = "ABBASIC",
                 Geometry = geometry,
                 OutputID = id,
                 OutputType = "Frame",
-                OutputNumLED = 100,
-                OutputNumLEDX = numLEDX,
-                OutputNumLEDY = numLEDY,
                 Top = 0,
                 Left = 0,
-                Width = 20.0 * numLEDX,
-                Height = 20.0 * numLEDY,
-                OutputRectangleScaleWidth = 20.0 * numLEDX / Screen.PrimaryScreen.Bounds.Width,
-                OutputRectangleScaleHeight = 20.0 * numLEDY / Screen.PrimaryScreen.Bounds.Height,
+                Width = ledSetup.PixelWidth,
+                Height = ledSetup.PixelHeight,
+                OutputRectangleScaleWidth = 1,
+                OutputRectangleScaleHeight = 1,
                 //OutputRectangle = new System.Drawing.Rectangle(0, 0, 20 * numLEDX, 20 * numLEDY),
                 OutputUniqueID = "",
                 OutputRGBLEDOrder = "GRB",
@@ -69,10 +97,10 @@ namespace adrilight.Settings
                 OutputBreathingSpeed = 20000,
                 LEDPerLED = 2,
                 OutputCurrentActivePalette = new ColorPalette("Full Rainbow", "Zooey", "RGBPalette16", "Full Color Spectrum", DefaultColorCollection.rainbow),
-                OutputLEDSetup = BuildLEDSetup(numLEDX, numLEDY, "Frame", id, 20 * numLEDX, 20 * numLEDY,"Frame")
-                // create ledsetup if neccesary
+                OutputLEDSetup = ledSetup
+            // create ledsetup if neccesary
 
-            };
+        };
             return outputSettings;
         }
 
@@ -85,9 +113,6 @@ namespace adrilight.Settings
                 Geometry = geometry,
                 OutputID = id,
                 OutputType = "Strip",
-                OutputNumLED = 100,
-                OutputNumLEDX = numLED,
-                OutputNumLEDY = 1,
                 //OutputRectangle = new System.Drawing.Rectangle(0, 0, 20 * numLED, 20),
                 Top = 0,
                 Left = 0,
@@ -135,9 +160,6 @@ namespace adrilight.Settings
                 OutputID = id,
                 Geometry = geometry,
                 OutputType = "Strip",
-                OutputNumLED = 100,
-                OutputNumLEDX = numLED,
-                OutputNumLEDY = 1,
                 Top = 0,
                 Left = 0,
                 Width = 20 * numLED,
@@ -183,9 +205,6 @@ namespace adrilight.Settings
                 Geometry = geometry,
                 OutputID = id,
                 OutputType = "Matrix",
-                OutputNumLED = 100,
-                OutputNumLEDX = numLEDX,
-                OutputNumLEDY = numLEDY,
                 Top = 0,
                 Left = 0,
                 Width = 20 * numLEDX,
@@ -230,9 +249,6 @@ namespace adrilight.Settings
                 OutputName = name,
                 OutputID = id,
                 OutputType = "Frame",
-                OutputNumLED = 100,
-                OutputNumLEDX = numLEDX,
-                OutputNumLEDY = numLEDY,
                 Top = 0,
                 Left = 0,
                 Width = 20 * numLEDX,
@@ -276,9 +292,6 @@ namespace adrilight.Settings
                 OutputName = name,
                 OutputID = id,
                 OutputType = "Frame",
-                OutputNumLED = 100,
-                OutputNumLEDX = numLEDX,
-                OutputNumLEDY = numLEDY,
                 Top = 0,
                 Left = 0,
                 Width = 20.0 * numLEDX,
@@ -387,12 +400,12 @@ namespace adrilight.Settings
 
             counter = 0;
 
-            IDeviceSpot[] reorderedActiveSpots = new DeviceSpot[reorderedSpots.Count];
+            ObservableCollection<IDeviceSpot> reorderedActiveSpots = new ObservableCollection<IDeviceSpot>();
 
             foreach (var spot in reorderedSpots)
             {
                 spot.SetVID(spot.VID * (256 / reorderedSpots.Count()));
-                reorderedActiveSpots[counter++] = spot;
+                reorderedActiveSpots.Add(spot);
             }
 
             ILEDSetup ledSetup = new LEDSetup(name, owner, type, description, reorderedActiveSpots, matrixWidth, matrixHeight, setupID, width, height);

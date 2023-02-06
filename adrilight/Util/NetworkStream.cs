@@ -216,7 +216,7 @@ namespace adrilight
             {
                 const int colorsPerLed = 4;
                 int bufferLength = _messageWARLSPreamble.Length 
-                    + (currentOutput.OutputLEDSetup.Spots.Length * colorsPerLed);
+                    + (currentOutput.OutputLEDSetup.Spots.Count * colorsPerLed);
 
 
                 outputStream = ArrayPool<byte>.Shared.Rent(bufferLength);

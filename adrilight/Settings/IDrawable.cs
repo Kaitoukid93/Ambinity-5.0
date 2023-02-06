@@ -20,7 +20,8 @@ namespace adrilight
 
 
         double Angle { get; set; }
-
+        double CenterX { get; set; }
+        double CenterY { get; set; }
 
         double Top { get; set; }
         string Name { get; set; }
@@ -31,7 +32,8 @@ namespace adrilight
 
         bool IsSelected { get; set; }
 
-
+        bool IsResizeable { get; set; }
+        bool IsDeleteable { get; set; }
         double Width { get; set; }
 
 

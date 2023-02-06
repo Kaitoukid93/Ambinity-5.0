@@ -100,7 +100,7 @@ namespace adrilight
                 {
                     double brightness = OutputSettings.OutputBrightness / 100d;
                     int paletteSource = OutputSettings.OutputSelectedChasingPalette;
-                    var numLED = OutputSettings.OutputLEDSetup.Spots.Length;
+                    var numLED = OutputSettings.OutputLEDSetup.Spots.Count;
                     var devicePowerVoltage = OutputSettings.OutputPowerVoltage;
                     var devicePowerMiliamps = OutputSettings.OutputPowerMiliamps;
                     //   var colorOutput = new OpenRGB.NET.Models.Color[numLED];

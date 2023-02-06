@@ -142,7 +142,7 @@ namespace adrilight
                 int musicMode = OutputSettings.OutputSelectedMusicMode;
                 var outputPowerVoltage = OutputSettings.OutputPowerVoltage;
                 var outputPowerMiliamps = OutputSettings.OutputPowerMiliamps;
-                var numLED = OutputSettings.OutputLEDSetup.Spots.Length * OutputSettings.LEDPerSpot * OutputSettings.LEDPerLED;
+                var numLED = OutputSettings.OutputLEDSetup.Spots.Count * OutputSettings.LEDPerSpot * OutputSettings.LEDPerLED;
 
 
                 while (!token.IsCancellationRequested)
@@ -285,12 +285,12 @@ namespace adrilight
             double[][] brightnessMap = new double[fft.Length][];
             int maxHeight=0;
             switch(orientation)
-            {
+            {//shoud define using a slider
                 case 0://horizontal
-                    maxHeight = OutputSettings.OutputNumLEDX;
+                    maxHeight = 10;
                     break;
                 case 1://vertical
-                    maxHeight = OutputSettings.OutputNumLEDY;
+                    maxHeight = 10;
                     break;
             }
 

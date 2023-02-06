@@ -32,7 +32,7 @@ namespace adrilight
         bool IsTransferActive { get; set; }
         int ActivatedProfileIndex { get; set; }
         IOutputSettings[] AvailableOutputs { get; set; }
-        IOutputSettings UnionOutput { get; set; }
+        
         string GroupName { get; set; }
         int SelectedOutput { get; set; }
         string Geometry { get; set; }
@@ -42,7 +42,6 @@ namespace adrilight
         string ActivatedProfileUID { get; set; }
         string DeviceConnectionType { get; set; }
         bool IsSelected { get; set; }
-        bool IsUnionMode { get; set; }
         bool IsSizeNeedUserDefine { get; set; }
         bool IsLoadingProfile { get; set; }
         int DeviceSpeed { get; set; }

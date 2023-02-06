@@ -193,7 +193,7 @@ namespace adrilight
 
 
                 //try load selected gif
-                var numLED = OutputSettings.OutputLEDSetup.Spots.Length * OutputSettings.LEDPerSpot * OutputSettings.LEDPerLED;
+                var numLED = OutputSettings.OutputLEDSetup.Spots.Count * OutputSettings.LEDPerSpot * OutputSettings.LEDPerLED;
                 var outputPowerVoltage = OutputSettings.OutputPowerVoltage;
                 var outputPowerMiliamps = OutputSettings.OutputPowerMiliamps;
 

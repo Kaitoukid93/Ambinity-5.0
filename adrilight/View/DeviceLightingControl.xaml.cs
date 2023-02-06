@@ -229,7 +229,7 @@ namespace adrilight.View
 
         private void ChangeOutputMode(object sender, RoutedEventArgs e)
         {
-            ViewModel.CurrentDevice.IsUnionMode = !ViewModel.CurrentDevice.IsUnionMode;
+           // ViewModel.CurrentDevice.IsUnionMode = !ViewModel.CurrentDevice.IsUnionMode;
             
         }
 

@@ -61,14 +61,9 @@
         </Grid>
 
         <Grid MaxHeight="250" Grid.Row="1" >
-            
+
             <Viewbox   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5" >
-                <Canvas Width="{Binding ShaderBitmap.Width}" Height="{Binding ShaderBitmap.Height}" Margin="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Image HorizontalAlignment="Center" VerticalAlignment="Center"   Source="{Binding ShaderBitmap}" />
-                    
-                   
-                </Canvas>
-                
+                <Image HorizontalAlignment="Center" VerticalAlignment="Center"   Source="{Binding ShaderBitmap}" />
             </Viewbox>
             
         </Grid>

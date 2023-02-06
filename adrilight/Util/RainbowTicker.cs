@@ -48,9 +48,9 @@ namespace adrilight
         // private IDeviceSettings ParrentDevice { get; }
         private MainViewViewModel MainViewViewModel { get; }
         private IDeviceSettings[] AllDeviceSettings { get; }
-        private IDeviceSpotSet[] AllDeviceSpotSet { get; }
+   
         private IGeneralSettings GeneralSettings { get; }
-        private IDeviceSpotSet DeviceSpotSet { get; }
+     
         private double _rainbowStartIndex;
         private double _musicStartIndex;
         private double _breathingBrightnessValue;

@@ -1,4 +1,5 @@
 ﻿using adrilight.Helpers;
+using adrilight.ViewModel;
 using HandyControl.Data;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,12 @@ namespace adrilight.View
             
             InitializeComponent();
         }
-
+        private MainViewViewModel ViewModel {
+            get
+            {
+                return (MainViewViewModel)this.DataContext;
+            }
+        }
         private void OnScrolling(object sender, RoutedEventArgs e)
         { 
             AttachedAdorner.OnScrolling();

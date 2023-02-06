@@ -68,7 +68,7 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" HorizontalAlignment="Left"  Margin="5,0,5,0"   Style="{StaticResource TextBlockDefaultSecLight}" Text="NumLED :"/>
                                     <Border HorizontalAlignment="Left"  Grid.Column="1"  BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4">
-                                        <TextBlock HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Margin="5,0,5,0"   Style="{StaticResource TextBlockDefault}" Text="{Binding CurrentOutput.OutputLEDSetup.Spots.Length}"/>
+                                        <TextBlock HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Margin="5,0,5,0"   Style="{StaticResource TextBlockDefault}" Text="{Binding CurrentOutput.OutputLEDSetup.Spots.Count}"/>
                                     </Border>
 
 
@@ -149,8 +149,6 @@
                                 <hc:TransitioningContentControl  TransitionMode="Top2Bottom">
                                     <Border Background="{StaticResource RegionBrush}" Effect="{DynamicResource EffectShadow3}" BorderThickness="1" BorderBrush="{StaticResource DarkMaskBrush}" CornerRadius="7" Margin="15,0,15,15">
                                         <StackPanel Orientation="Vertical">
-                                            <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding LaunchPIDEditWindowCommand}" hc:IconElement.Geometry="{StaticResource ledsetup}" BorderBrush="Transparent" Margin="5"   Content="LED Setup" Style="{StaticResource ButtonDefault}"/>
-                                            <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding LaunchPositionEditWindowCommand}" hc:IconElement.Width="15" hc:IconElement.Geometry="{StaticResource WindowRestoreGeometry}" BorderBrush="Transparent" Margin="5"   Content="Layout" Style="{StaticResource ButtonDefault}"/>
                                             <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding ImportPIDCommand}" hc:IconElement.Geometry="{StaticResource import}" CommandParameter="Import LED Setup" BorderBrush="Transparent"   Margin="5" Content="Import LED Setup" Style="{StaticResource ButtonDefault}"/>
                                             <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding ExportPIDCommand}" hc:IconElement.Geometry="{StaticResource export}" CommandParameter="Export LED Setup" BorderBrush="Transparent"   Margin="5" Content="Export LED Setup" Style="{StaticResource ButtonDefault}"/>
                                             <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding ShowNameEditWindow}" hc:IconElement.Geometry="{StaticResource editname}" CommandParameter="Rename" BorderBrush="Transparent"   Margin="5" Content="Rename" Style="{StaticResource ButtonDefault}"/>

@@ -49,10 +49,6 @@ namespace adrilight
                 case nameof(DeviceSettings.CurrentState):
                     RefreshTransferState();
                     break;
-                case nameof(DeviceSettings.IsUnionMode):
-
-                    RefreshTransferState();
-                    break;
             }
         }
 
@@ -165,7 +161,7 @@ namespace adrilight
         private OpenRGB.NET.Models.Color[] GetOutputStream(IOutputSettings output)
         {
             var currentOutput = output;
-            OpenRGB.NET.Models.Color[] outputColor = new OpenRGB.NET.Models.Color[currentOutput.OutputLEDSetup.Spots.Length];
+            OpenRGB.NET.Models.Color[] outputColor = new OpenRGB.NET.Models.Color[currentOutput.OutputLEDSetup.Spots.Count];
             int counter = 0;
             lock (currentOutput.OutputLEDSetup.Lock)
             {
@@ -179,9 +175,6 @@ namespace adrilight
                         if (!DeviceSettings.IsEnabled || !output.OutputIsEnabled)
                         {
 
-                            if (DeviceSettings.IsUnionMode)
-                                output.OutputLEDSetup.DimLED(0.99f);
-                            else
                                 output.OutputLEDSetup.DimLED(0.9f);
 
                         }
@@ -298,7 +291,6 @@ namespace adrilight
                 return;
             }
 
-            bool isUnion = DeviceSettings.IsUnionMode;
 
             //retry after exceptions...
             while (!cancellationToken.IsCancellationRequested)
@@ -314,31 +306,6 @@ namespace adrilight
 
 
                         //send frame data
-                        if (isUnion)
-                        {
-                            var deviceColors = new List<OpenRGB.NET.Models.Color>();
-                            for (int i = 0; i < DeviceSettings.AvailableOutputs.Length; i++)
-                            {
-
-                                var outputColor = GetOutputStream(DeviceSettings.UnionOutput);
-                                if (outputColor != null)
-                                {
-                                    foreach (var color in outputColor)
-                                        deviceColors.Add(color);
-
-
-                                }
-
-                            }
-                            lock (AmbinityClient.Lock)
-                            {
-                                AmbinityClient.Client.UpdateLeds(index, deviceColors.ToArray());
-                            }
-
-                        }
-
-                        else
-                        {
                             foreach (var output in DeviceSettings.AvailableOutputs)
                             {
 
@@ -362,7 +329,7 @@ namespace adrilight
                                 }
                                 
 
-                            }
+                            
                         }
                         Thread.Sleep(15);
                     }

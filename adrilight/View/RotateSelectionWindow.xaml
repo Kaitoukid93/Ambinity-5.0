@@ -1,4 +1,4 @@
-﻿<hc:Window x:Class="adrilight.View.ScaleSelectionWindow"
+﻿<hc:Window x:Class="adrilight.View.RotateSelectionWindow"
            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -14,7 +14,6 @@
            SizeToContent="Height"
            MinHeight="100" 
            Width="300" 
-           x:Name="window"
            WindowStartupLocation="CenterOwner">
 
     <Window.Resources>
@@ -27,10 +26,10 @@
 
     <Grid Margin="10">
         <StackPanel>
-            <TextBlock Text="Scale" Style="{StaticResource TextBlockLarge}">
+            <TextBlock Text="Rotate" Style="{StaticResource TextBlockLarge}">
 
             </TextBlock>
-            <hc:NumericUpDown Value="{Binding ItemScaleValue}" x:Name="scaleBox" DecimalPlaces="2" ShowClearButton="True"  hc:InfoElement.TitleWidth="90" hc:InfoElement.Placeholder="Scale is always greater than 0 and smaller than 10" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="Scaling factor" Style="{StaticResource NumericUpDownPlus}" hc:InfoElement.Necessary="True" Margin="0,15,0,0"/>
+            <hc:NumericUpDown Value="{Binding ItemRotateValue}" x:Name="scaleBox" DecimalPlaces="2" ShowClearButton="True"  hc:InfoElement.TitleWidth="90" hc:InfoElement.Placeholder="Scale is always greater than 0 and smaller than 10" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="Scaling factor" Style="{StaticResource NumericUpDownPlus}" hc:InfoElement.Necessary="True" Margin="0,15,0,0"/>
 
             <Grid >
                 <Grid.ColumnDefinitions>
@@ -38,7 +37,7 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Click="Button_Click" Command="{Binding SetSelectedItemScaleFactorCommand}" CommandParameter="{Binding ElementName=window,Path=ItemSource}"
+                <Button Click="Button_Click" Command="{Binding SetSelectedItemRotateFactorCommand}"
                         Margin="5,10,5,5" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
                 <Button Click="Button_Click" Background="Transparent" Margin="5,10,5,5" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
             </Grid>

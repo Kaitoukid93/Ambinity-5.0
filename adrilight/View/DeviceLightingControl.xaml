@@ -269,13 +269,7 @@
                 <Setter Property="ContextMenu">
                     <Setter.Value>
                         <ContextMenu>
-                            <MenuItem Command="{Binding PlacementTarget.Tag.LaunchPIDEditWindowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="ledsetup"  Header="LED Setup">
-                                <MenuItem.Icon>
-                                    <Path   Data="{StaticResource ledsetup}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                </MenuItem.Icon>
 
-
-                            </MenuItem>
                             <MenuItem Command="{Binding PlacementTarget.Tag.LaunchPositionEditWindowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="position"  Header="Layout">
                                 <MenuItem.Icon>
                                     <Path   Data="{StaticResource WindowRestoreGeometry}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
@@ -507,40 +501,17 @@
 
                     </hc:RunningBlock>
                     <!--<TextBlock FontSize="13" HorizontalAlignment="Left" Margin="2" Style="{StaticResource TextBlockDefault}" Text="{Binding CurrentDevice.DeviceDescription}" />-->
-                    <Grid Visibility="{Binding OutputModeChangeEnable,Converter={StaticResource boolToVisibilityConvert}}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock HorizontalAlignment="Left" Margin="0,0,10,0" FontSize="13" Style="{StaticResource TextBlockDefault}" Text="{Binding CurrentDeviceOutputMode}"/>
-                        <Button Height="20"  Click="ChangeOutputMode" Grid.Column="1" HorizontalAlignment="Left" Padding="0,0"    Style="{StaticResource ButtonDefault}" Background="Transparent" BorderBrush="Transparent">
-                            <Button.Content>
-                                <TextBlock Margin="0"  FontSize="13" Text="Change" Style="{StaticResource TextBlockDefaultPrimary}"/>
-                            </Button.Content>
-                        </Button>
-                    </Grid>
-                    <Grid Visibility="{Binding OutputModeChangeEnable,Converter={StaticResource Boolean2VisibilityReConverter}}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock HorizontalAlignment="Left" Margin="0,0,10,0" FontSize="13" Style="{StaticResource TextBlockDefault}" Text="Single Output Device"/>
-                        <Button Click="ChangeOutputMode" Grid.Column="1" HorizontalAlignment="Left" Padding="0"    Style="{StaticResource ButtonDefault}" Background="Transparent" BorderBrush="Transparent">
-                            <Button.Content>
-                                <TextBlock FontSize="13" Text="" Style="{StaticResource TextBlockDefaultPrimary}"/>
-                            </Button.Content>
-                        </Button>
-
-                    </Grid>
+               
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="auto"/>
                             <ColumnDefinition Width="auto"/>
                         </Grid.ColumnDefinitions>
-                        <Button Height="20" Margin="0,0,10,0" x:Name="ButtonRename" Click="RenameButtonClick" HorizontalAlignment="Left" Padding="0"    Style="{StaticResource ButtonDefault}" Background="Transparent" BorderBrush="Transparent">
-                            <Button.Content>
-                                <TextBlock FontSize="13" Text="Rename" Style="{StaticResource TextBlockDefaultPrimary}"/>
-                            </Button.Content>
+                        <Button Foreground="{DynamicResource PrimaryBrush}" Content="Rename"   x:Name="ButtonRename"  Height="auto" Width="auto" VerticalAlignment="Top" hc:BorderElement.CornerRadius="6" Margin="5" FontSize="15" FontWeight="SemiBold" Click="RenameButtonClick"  Padding="5,3" HorizontalAlignment="Left"    Style="{StaticResource ButtonDefault}" BorderBrush="Transparent">
+                            
+                            <Button.Background>
+                                <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
+                            </Button.Background>
                         </Button>
                         <!--<Button Height="20"  Margin="10,0,10,0" Grid.Column="1" x:Name="ButtonRemove"  HorizontalAlignment="Left" Padding="0" Command="{Binding LaunchDeleteSelectedDeviceWindowCommand}"  Style="{StaticResource ButtonDefault}" Background="Transparent" BorderBrush="Transparent">
                             <Button.Content>
@@ -841,36 +812,7 @@
             </Grid.ColumnDefinitions>
             <Border Margin="10" Padding="4,4,0,4"  Background="{StaticResource DarkOpacityBrush}" CornerRadius="7">
                 <Grid>
-                    <Grid x:Name="UnionOutputGrid">
-                        <Grid.Style>
-                            <Style TargetType="Grid">
-                                <Setter Property="Visibility" Value="Collapsed"></Setter>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding CurrentDevice.IsUnionMode}" Value="true">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Grid.Style>
-                        <local:UnionOutputControl  Margin="4">
-
-                        </local:UnionOutputControl>
-
-
-
-                    </Grid>
-
                     <Grid VerticalAlignment="Top" x:Name="outputsCollectionGrid">
-                        <Grid.Style>
-                            <Style TargetType="Grid">
-                                <Setter Property="Visibility" Value="Collapsed"></Setter>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding CurrentDevice.IsUnionMode}" Value="false">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Grid.Style>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="auto"/>
                             <ColumnDefinition Width="*"/>
@@ -1119,8 +1061,8 @@
 
                     <Grid Grid.Column="1">
                         <StackPanel>
-                            <Button Width="100" Margin="0,0,0,10" Command="{Binding SetCurrentLEDSetupSentryColorCommand }" ToolTip="Nhấn để đặt màu hiện tại làm màu khi tắt máy"  HorizontalAlignment="Right" VerticalAlignment="Top" Style="{StaticResource ButtonDefault}" Content="Snap" hc:IconElement.Geometry="{StaticResource sentry}" Background="Transparent" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"/>
-                            <Button Width="100" Command="{Binding OpenSpotMapWindowCommand }" ToolTip="Expand View" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Top" Style="{StaticResource ButtonDefault}" Content="Expand" hc:IconElement.Geometry="{StaticResource export}" Background="Transparent" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"/>
+                            <!--<Button Width="100" Margin="0,0,0,10" Command="{Binding SetCurrentLEDSetupSentryColorCommand }" ToolTip="Nhấn để đặt màu hiện tại làm màu khi tắt máy"  HorizontalAlignment="Right" VerticalAlignment="Top" Style="{StaticResource ButtonDefault}" Content="Snap" hc:IconElement.Geometry="{StaticResource sentry}" Background="Transparent" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"/>-->
+                            <Button Width="auto" Command="{Binding LaunchPIDEditWindowCommand }" ToolTip="Expand View" Margin="0" HorizontalAlignment="Right" VerticalAlignment="Top" Style="{StaticResource ButtonDefault}" Content="Cấu hình LED" hc:IconElement.Geometry="{StaticResource ledsetup}" Background="Transparent" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"/>
                         </StackPanel>
 
                     </Grid>
@@ -1135,7 +1077,7 @@
                           BorderThickness="1"
                           HorizontalAlignment="Center"
                           VerticalAlignment="Center" 
-                          ItemsSource="{Binding CurrentOutput.OutputLEDSetup.Spots,Mode=TwoWay}">
+                          ItemsSource="{Binding CurrentOutput.OutputLEDSetup.Spots}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <Canvas HorizontalAlignment="Center" VerticalAlignment="Top" Name="PreviewCanvas"

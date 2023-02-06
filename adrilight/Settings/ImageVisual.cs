@@ -6,11 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
 
 namespace adrilight.Settings
 {
-    public class Group : ViewModelBase, IDrawable
+    public class ImageVisual : ViewModelBase, IDrawable
     {
 
 
@@ -32,8 +33,10 @@ namespace adrilight.Settings
         private double _centerX;
         private double _centerY;
         private bool _isResizeable;
+        private string _imagePath;
         private bool _isDeleteable;
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
+        public string ImagePath { get => _imagePath; set { Set(() => ImagePath, ref _imagePath, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
         public double CenterX { get => _centerX; set { Set(() => CenterX, ref _centerX, value); } }
         public double CenterY { get => _centerY; set { Set(() => CenterY, ref _centerY, value); } }
@@ -65,26 +68,24 @@ namespace adrilight.Settings
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
 
-        public Group()
+        public ImageVisual()
         {
             VisualProperties = new VisualProperties();
             Scale = new Point(1, 1);
+            Width = Screen.PrimaryScreen.Bounds.Width;
+            Height = Screen.PrimaryScreen.Bounds.Height;
+            IsDraggable = true;
+            IsSelectable = true;
         }
-        public List<IDrawable> Elements { get; private set; }
+        
 
         protected virtual void OnLeftChanged(double delta)
         {
-            foreach(var item in Elements)
-            {
-                item.Left -= delta;
-            }
+            
         }
         protected virtual void OnTopChanged(double delta)
         {
-            foreach (var item in Elements)
-            {
-                item.Top -= delta;
-            }
+            
         }
 
         protected virtual void OnWidthUpdated() { }
@@ -107,22 +108,8 @@ namespace adrilight.Settings
             RaisePropertyChanged(nameof(Width));
             RaisePropertyChanged(nameof(Height));
         }
-        internal void SetGroupedElements(params IDrawable[] elements)
-        {
-            Elements = new List<IDrawable>();
-            elements.ToList().ForEach(e => ((IGroupable)e).Group = this);
-            Elements.AddRange(elements);
-        }
+      
 
-        internal void SetGroupSize()
-        {
-            if (Elements.Count > 0)
-            {
-                Left = Elements.Min(d => d.Left);
-                Top = Elements.Min(d => d.Top);
-                Width = Elements.Max(d => d.Left + d.Width) - Left;
-                Height = Elements.Max(d => d.Top + d.Height) - Top;
-            }
-        }
+      
     }
 }

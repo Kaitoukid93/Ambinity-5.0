@@ -57,17 +57,6 @@ namespace adrilight.Ninject
                             Bind<IOutputSettings>().ToConstant(output).Named(outputID);
 
                         }
-
-                        var unionOutput = device.UnionOutput;
-
-                        if (unionOutput != null)
-                        {
-                            var unionOutputID = iD + unionOutput.OutputID.ToString();
-                            Bind<IOutputSettings>().ToConstant(unionOutput).Named(unionOutputID);
-
-                        }
-
-
                     }
                 }
             }

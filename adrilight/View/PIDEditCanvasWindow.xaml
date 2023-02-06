@@ -18,11 +18,15 @@
            x:Name="window"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
-           
-            ResizeMode="CanResize"
+           ResizeMode="CanResize"
            Height="800" 
            Width="1000" 
            WindowStartupLocation="CenterOwner">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction Command="{Binding PIDWindowClosingCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
 
     <Window.Resources>
         <ResourceDictionary>
@@ -40,6 +44,7 @@
                     <GeometryDrawing x:Key="GridStyle"
                          Geometry="M0,0 L0,1 0.03,1 0.03,0.03 1,0.03 1,0 Z"
                          Brush="{DynamicResource SecondaryBorderBrush}" />
+
                 </ResourceDictionary>
 
             </ResourceDictionary.MergedDictionaries>
@@ -54,13 +59,15 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-  
+
         <Grid Grid.Row="0">
             <!--<ToolBarTray VerticalAlignment="Center">
                 <ToolBar Padding="6" Header="Live view">
                     <CheckBox IsChecked="{Binding IsRichCanvasWindowOpen}" Margin="10,0,0,0"/>
-                    --><!--<Separator Margin="10,0,0,0"/>-->
-                    <!--<Button Command="{Binding SetRandomOutputColorCommand}" ToolTip="Mỗi thiết bị sẽ được tô màu riêng biệt ngẫu nhiên" Content="Set Random Color" Margin="10,0,0,0"/>--><!--
+                    -->
+            <!--<Separator Margin="10,0,0,0"/>-->
+            <!--<Button Command="{Binding SetRandomOutputColorCommand}" ToolTip="Mỗi thiết bị sẽ được tô màu riêng biệt ngẫu nhiên" Content="Set Random Color" Margin="10,0,0,0"/>-->
+            <!--
                   
                 </ToolBar>
           
@@ -69,35 +76,99 @@
         <Grid Grid.Row=" 1">
             <richCanvas:RichItemsControl
                  GridStyle="{StaticResource GridStyle}"
-                EnableSnapping="False"
-                GridSpacing="10"
+                EnableSnapping="True"
+                GridSpacing="1"
                 EnableGrid="true"
                 Scrolling="OnScrolling"
                 CanSelectMultipleItems="True"
-                RealTimeDraggingEnabled="False"
+                RealTimeDraggingEnabled="True"
                 RealTimeSelectionEnabled="False"
                 SelectedItems="{Binding selectedSpots}"
-                Scale="0.5"
+                Scale="1"
+                MousePosition="{Binding MousePosition, Mode=OneWayToSource}"
                 ItemsSource="{Binding PIDEditWindowsRichCanvasItems}">
-
+                <richCanvas:RichItemsControl.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Thêm LED" Command="{Binding OpenAddNewDrawableItemCommand}">
+                            <MenuItem.Icon>
+                                <Path Data="{StaticResource addpalette}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Thêm ảnh" Command="{Binding AddImageToPIDCanvasCommand}">
+                            <MenuItem.Icon>
+                                <Path Data="{StaticResource addImage}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Clear" Command="{Binding ClearPIDCanvasCommand}">
+                            <MenuItem.Icon>
+                                <Path Data="{StaticResource clear}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </ContextMenu>
+                </richCanvas:RichItemsControl.ContextMenu>
 
                 <richCanvas:RichItemsControl.Resources>
                     <DataTemplate DataType="{x:Type spot:DeviceSpot}">
                         <Grid>
-                            
+                            <Grid.ToolTip>
+                                <Border CornerRadius="4" BorderThickness="0" Background="Transparent">
+                                    <StackPanel>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Margin="2" Text="Thứ tự LED : "/>
+                                            <TextBlock  Grid.Column="1" Margin="2" Text="{Binding id}"/>
+                                        </Grid>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Margin="2" Text="Kích thước : "/>
+                                            <TextBlock Grid.Column="1"  Margin="2">
+                                                <TextBlock.Text>
+                                                    <MultiBinding StringFormat="{}{0:F0} x {1:F0}">
+                                                        <Binding Path="Width" />
+                                                        <Binding Path="Height" />
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                        </Grid>
+
+                                    </StackPanel>
+                                </Border>
+                            </Grid.ToolTip>
+                            <Grid.Style>
+                                <Style>
+                                    <Setter Property="richCanvas:RichItemContainer.ApplyTransform">
+                                        <Setter.Value>
+                                            <TransformGroup >
+                                                <ScaleTransform/>
+                                                <TranslateTransform  />
+                                                <RotateTransform Angle="{Binding Angle}" />
+                                            </TransformGroup>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Grid.Style>
                             <Path Data="{Binding Shape,Converter={converters:StaticResourceConverter}}" 
                               Stretch="Fill"
                               Width="{Binding Width}"
-                              Height="{Binding Height}" 
-                              ToolTip="{Binding id}">
+                              Height="{Binding Height}">
                                 <Path.Fill>
                                     <SolidColorBrush Color="{Binding OnDemandColor}"  />
                                 </Path.Fill>
 
                             </Path>
-                            <TextBlock Text="{Binding id}" Style="{DynamicResource TextBlockTitle}"/>
+                            <TextBlock Foreground="White" Text="{Binding id}" Style="{DynamicResource TextBlockTitle}"/>
                         </Grid>
-                      
+
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type settings:ImageVisual}">
+                        <Image Source="{Binding ImagePath}"
+                           Stretch="Uniform" />
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type settings:PathGuide}">
                         <Path Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}" 
@@ -111,20 +182,9 @@
                     <DataTemplate DataType="{x:Type settings:Border}">
                         <Grid>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Margin="20,10,5,5" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Size" Style="{DynamicResource TextBlockLarge}"/>
-                               
-                                <TextBlock Margin="5,10" HorizontalAlignment="Left" VerticalAlignment="Top"  Style="{DynamicResource TextBlockLarge}">
-                                    <TextBlock.Text>
-                                        <MultiBinding StringFormat="{}{0} x {1}">
-                                            <Binding Path="Width" />
-                                            <Binding Path="Height" />
-                                        </MultiBinding>
-                                    </TextBlock.Text>
-                                </TextBlock>
-
                             </StackPanel>
 
-                            <Rectangle Margin="-5,-5,0,0" Stroke="white"
+                            <Rectangle Margin="-5,-5,0,0" Stroke="{DynamicResource SecondaryBorderBrush}"
                                    Width="{Binding Width}"
                                    Height="{Binding Height}"
                                StrokeThickness="5"
@@ -142,9 +202,9 @@
                             <TextBlock Foreground="White"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
-                                   MaxWidth="60">
+                                   Width="200">
                                 <TextBlock.Text>
-                                    <MultiBinding StringFormat="{}{0} x {1}">
+                                    <MultiBinding StringFormat="{}{0:F0} x {1:F0}">
                                         <Binding Path="Width" />
                                         <Binding Path="Height" />
                                     </MultiBinding>
@@ -177,7 +237,9 @@
                                                 <Condition Property="IsMouseOver" Value="True"/>
                                                 <Condition Property="IsSelected" Value="False"/>
                                             </MultiTrigger.Conditions>
-                                            --><!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>--><!--
+                                            -->
+                        <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
+                        <!--
                                             <Setter Property="BorderThickness" TargetName="Bd" Value="3.0"/>
                                             <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryTextBrush}"/>
                                         </MultiTrigger>
@@ -186,7 +248,9 @@
                                                 <Condition Property="IsMouseOver" Value="False"/>
                                                 <Condition Property="IsSelected" Value="False"/>
                                             </MultiTrigger.Conditions>
-                                            --><!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>--><!--
+                                            -->
+                        <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
+                        <!--
                                             <Setter Property="BorderThickness" TargetName="Bd" Value="3.0"/>
                                             <Setter Property="BorderBrush" TargetName="Bd" Value="Transparent"/>
                                         </MultiTrigger>
@@ -211,13 +275,13 @@
                                 </ControlTemplate>
                             </Setter.Value>
                         </Setter>-->
-
+                        <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
                         <Setter Property="Tag"
                             Value="{Binding DataContext, ElementName=window}" />
-                        <!--<Setter Property="helpers:AttachedAdorner.HasHoverAdorner"
-                            Value="{Binding IsSelectable}" />-->
+                        <Setter Property="helpers:AttachedAdorner.HasHoverAdorner"
+                            Value="{Binding IsSelectable}" />
                         <Setter Property="helpers:AttachedAdorner.ShowResizeAdorner"
-                            Value="{Binding IsSelected}" />
+                            Value="{Binding IsResizeable}" />
                         <Setter Property="Top"
                             Value="{Binding Top,Mode=TwoWay}" />
 
@@ -247,59 +311,51 @@
 
                         <Setter Property="Scale"
                             Value="{Binding Scale, Mode=TwoWay}" />
-
-                      
                         <Style.Triggers>
                             <Trigger Property="IsDraggable" Value="True">
                                 <Setter Property="ContextMenu">
                                     <Setter.Value>
                                         <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-                                            <MenuItem Header="Scale"
-                                          Command="{Binding OpenRectangleScaleCommand}" CommandParameter="open" >
+                                            <MenuItem Header="Thu phóng"
+                                          Command="{Binding OpenRectangleScaleCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}">
                                                 <MenuItem.Icon>
-                                                    <Path Data="{StaticResource fullsize}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                    <Path Data="{StaticResource scale}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="LED Setup"
-                                          Command="{Binding LaunchPIDEditWindowCommand}" >
-                                        <MenuItem.Icon>
-                                            <Path Data="{StaticResource ledsetup}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                        </MenuItem.Icon>
-                                    </MenuItem>
-                                            <MenuItem Header="Aglign Left"
-                                          Command="{Binding AglignSelectedItemstoLeftCommand}" >
+                                            <MenuItem Header="Căn lề trái"
+                                          Command="{Binding AglignSelectedItemstoLeftCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}" >
                                                 <MenuItem.Icon>
-                                                    <Path Data="{StaticResource left}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                    <Path Data="{StaticResource leftAglign}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="Aglign Top"
-                                          Command="{Binding AglignSelectedItemstoTopCommand}" >
+                                            <MenuItem Header="Căn lề trên"
+                                          Command="{Binding AglignSelectedItemstoTopCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}" >
                                                 <MenuItem.Icon>
-                                                    <Path Data="{StaticResource up}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                    <Path Data="{StaticResource topAglign}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="Horizontal Distribute"
-                                          Command="{Binding SpreadItemHorizontalCommand}" >
+                                            <MenuItem Header="Xếp ngang"
+                                          Command="{Binding SpreadItemHorizontalCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}" >
                                                 <MenuItem.Icon>
-                                                    <Path Data="{StaticResource up}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                    <Path Data="{StaticResource ledstrip}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="Vertical Distribute"
-                                          Command="{Binding SpreadItemVerticalCommand}" >
+                                            <MenuItem Header="Xếp dọc"
+                                          Command="{Binding SpreadItemVerticalCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}" >
                                                 <MenuItem.Icon>
-                                                    <Path Data="{StaticResource up}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                    <Path Data="{StaticResource ledStripVertical}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="Lock"
-                                          Command="{Binding LockSelectedItemCommand}" CommandParameter="open" >
+                                            <MenuItem Header="Khóa"
+                                          Command="{Binding LockSelectedItemCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}" >
                                                 <MenuItem.Icon>
-                                                    <Path Data="{StaticResource static}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                    <Path Data="{StaticResource lock}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="Properties"
-                                          Command="{Binding AddSelectedItemToGroupCommand}" >
+                                            <MenuItem Header="Xóa"
+                                          Command="{Binding DeleteSelectedItemsCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}" >
                                                 <MenuItem.Icon>
-                                                    <Path Data="{StaticResource info}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                    <Path Data="{StaticResource delete}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
 
@@ -312,10 +368,10 @@
                                     <Setter.Value>
                                         <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
 
-                                            <MenuItem Header="Unlock"
-                                          Command="{Binding UnlockSelectedItemCommand}" CommandParameter="unlock" >
+                                            <MenuItem Header="Mở khóa"
+                                          Command="{Binding UnlockSelectedItemCommand}" CommandParameter="PID" >
                                                 <MenuItem.Icon>
-                                                    <Path Data="{StaticResource breathing}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                    <Path Data="{StaticResource unlock}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
                                         </ContextMenu>
@@ -333,7 +389,7 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-            <Button  Command="{Binding SaveCurretSurfaceLayoutCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Save"/>
+            <Button  Command="{Binding SaveCurrentLEDSetupLayoutCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Save"/>
             <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
         </Grid>
     </Grid>

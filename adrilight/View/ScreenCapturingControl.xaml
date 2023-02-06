@@ -92,7 +92,7 @@
     <Grid>
         <StackPanel>
             <!--position-->
-            <Grid x:Name="Mode">
+            <Grid x:Name="capturingPosition">
                 <GroupBox VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{StaticResource GroupBoxOriginal}">
                     <GroupBox.HeaderTemplate>
                         <DataTemplate>
@@ -100,119 +100,56 @@
                         </DataTemplate>
                     </GroupBox.HeaderTemplate>
                     <Border  Background="{StaticResource RegionBrush}" CornerRadius="7" BorderThickness="1">
-                    <ListBox  x:Name="capturing_position"  
-                              SelectedIndex="{Binding CurrentOutput.OutputScreenCapturePositionIndex}"
-                              ItemContainerStyle="{StaticResource _listBoxModeSelectionStyle}"  
-                              
-                              Background="Transparent"
-                              BorderThickness="0"
-                              Style="{StaticResource WrapPanelHorizontalListBox}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0">
+                                <StackPanel Orientation="Horizontal">
+                                    <Grid>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Grid>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock  HorizontalAlignment="Center" VerticalAlignment="Center" Margin="15,10,5,10" Text="Kích thước : "/>
+                                                    <TextBlock Style="{DynamicResource TextBlockDefaultPrimary}" Margin="5,10" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1">
+                                                        <TextBlock.Text>
+                                                            <MultiBinding StringFormat="{}{0:F1} x {1:F1}">
+                                                                <Binding Path="CurrentOutput.OutputRectangleScaleWidth"/>
+                                                                <Binding Path="CurrentOutput.OutputRectangleScaleHeight"/>
+                                                            </MultiBinding>
+                                                        </TextBlock.Text>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Grid>
+                                            <hc:Divider LineStrokeThickness="1" Orientation="Vertical" MaxHeight="16"/>
+                                            <Grid>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,10,5,10" Text="Vị trí : "/>
+                                                    <TextBlock Style="{DynamicResource TextBlockDefaultPrimary}" Margin="5,10,15,10" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1">
+                                                        <TextBlock.Text>
+                                                            <MultiBinding StringFormat="{}{0:F1} - {1:F1}">
+                                                                <Binding Path="CurrentOutput.OutputRectangleScaleLeft"/>
+                                                                <Binding Path="CurrentOutput.OutputRectangleScaleTop"/>
+                                                            </MultiBinding>
+                                                        </TextBlock.Text>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Grid>
+                                   
+                                    <Grid>
+                                        <StackPanel Orientation="Vertical">
 
-                        <ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel>
-
-                                </WrapPanel>
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
-                        <ListBoxItem>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Path Stretch="Uniform" Margin="5" Data="{StaticResource fullscreen}" 
-                                      Width="20" 
-                                      Height="20" 
-                                      Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Full Screen" Style="{StaticResource TextBlockDefault}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
                             </Grid>
-                        </ListBoxItem>
-                        <ListBoxItem>
-                            <Grid>
-
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Path Stretch="Uniform" Margin="5" Data="{StaticResource left}" 
-                                      Width="20" 
-                                      Height="20" 
-                                      Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Left" Style="{StaticResource TextBlockDefault}"/>
+                            <Grid Grid.Column="1">
+                                <Button HorizontalAlignment="Right" Command="{Binding OpenSurfaceEditorWindowCommand}" Background="{DynamicResource DarkMaskBrush}" BorderThickness="0" Margin="5" hc:IconElement.Geometry="{DynamicResource edit}" Content="Edit" Style="{DynamicResource ButtonDefault}"/>
                             </Grid>
-                        </ListBoxItem>
-                        <ListBoxItem>
-                            <Grid>
-
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Path Stretch="Uniform" Margin="5" Data="{StaticResource right}" 
-                                      Width="20" 
-                                      Height="20" 
-                                      Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Right" Style="{StaticResource TextBlockDefault}"/>
-                            </Grid>
-                        </ListBoxItem>
-                        <ListBoxItem>
-                            <Grid>
-
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Path Stretch="Uniform" Margin="5" Data="{StaticResource up}" 
-                                      Width="20" 
-                                      Height="20" 
-                                      Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Top" Style="{StaticResource TextBlockDefault}"/>
-                            </Grid>
-                        </ListBoxItem>
-                        <ListBoxItem>
-                            <Grid>
-
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Path Stretch="Uniform" Margin="5" Data="{StaticResource down}" 
-                                      Width="20" 
-                                      Height="20" 
-                                      Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Bottom" Style="{StaticResource TextBlockDefault}"/>
-                            </Grid>
-                        </ListBoxItem>
-                        <ListBoxItem >
-
-                            <Grid Background="Transparent">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="MouseDown" >
-                                        <i:InvokeCommandAction Command="{Binding LaunchPositionEditWindowCommand }" />
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                    <Path Stretch="Uniform" Margin="5" Data="{StaticResource adjustposition}" 
-                                      Width="20" 
-                                      Height="20" 
-                                      Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="Custom" Style="{StaticResource TextBlockDefault}"/>
-                            </Grid>
-                        </ListBoxItem>
-
-
-                        <!--<RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource fullscreen }" IsChecked="{Binding CurrentOutput.OutputScreenCapturePosition,Mode=TwoWay}"  Style="{StaticResource RadioButtonIcon}" Content="Full Screen"/>
-                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource left }" IsChecked="{Binding IsLeftScreenRegionChecked,Mode=TwoWay}" Style="{StaticResource RadioButtonIcon}" Content="Left"/>
-                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource right}" IsChecked="{Binding IsRightScreenRegionChecked,Mode=TwoWay}" Content="Right" />
-                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource up}" IsChecked="{Binding IsTopScreenRegionChecked,Mode=TwoWay}" Content="Top"/>
-                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource down}" IsChecked="{Binding IsBottomScreenRegionChecked,Mode=TwoWay}" Content="Bottom"/>
-                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" IsChecked="{Binding IsCustomScreenRegionChecked,Mode=TwoWay}" hc:IconElement.Geometry="{StaticResource custom}" Content="Custom"/>-->
-                    </ListBox>
+                        </Grid>
                 </Border>
                 </GroupBox>
 

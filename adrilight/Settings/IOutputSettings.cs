@@ -23,9 +23,6 @@ namespace adrilight
      
         string OutputName { get; set; }
         string OutputDescription { get; set; }
-        int OutputNumLED { get; set; }
-        int OutputNumLEDX { get; set; }
-        int OutputNumLEDY { get; set; }
         //System.Drawing.Rectangle OutputRectangle { get; set; }
         //System.Drawing.Rectangle PreviewRectangle { get; set; }
         /// <summary>
@@ -107,6 +104,7 @@ namespace adrilight
         int OutputBreathingSpeed { get; set; }
         int SleepMode { get; set; }
         bool OutputIsSelected { get; set; }
+      
         //static color settings//
         IGradientColorCard OutputSelectedGradient { get; set; }
          bool OutputParrentIsEnable { get; set; }

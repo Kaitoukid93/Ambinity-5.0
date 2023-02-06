@@ -21,7 +21,11 @@
            Height="800" 
            Width="1000" 
            WindowStartupLocation="CenterOwner">
-
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction Command="{Binding SurfaceEditorWindowClosingCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -176,7 +180,7 @@
                                 
                             </StackPanel>
                            
-                            <Rectangle Stroke="white"
+                            <Rectangle Stroke="{DynamicResource SecondaryBorderBrush}"
                                    Width="{Binding Width}"
                                    Height="{Binding Height}"
                                StrokeThickness="5"
@@ -301,48 +305,43 @@
                                     <Setter.Value>
                                         <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
                                             <MenuItem Header="Scale"
-                                          Command="{Binding OpenRectangleScaleCommand}" CommandParameter="open" >
+                                          Command="{Binding OpenRectangleScaleCommand}" CommandParameter="{Binding SurfaceEditorItems}" >
                                                 <MenuItem.Icon>
-                                                    <Path Data="{StaticResource fullsize}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                    <Path Data="{StaticResource scale}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <!--<MenuItem Header="LED Setup"
-                                          Command="{Binding LaunchPIDEditWindowCommand}" >
-                                        <MenuItem.Icon>
-                                            <Path Data="{StaticResource ledsetup}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                        </MenuItem.Icon>
-                                    </MenuItem>-->
-                                            <MenuItem Header="Aglign Left"
-                                          Command="{Binding AglignSelectedItemstoLeftCommand}" >
+                                          
+                                            <MenuItem Header="Căn lề trái"
+                                          Command="{Binding AglignSelectedItemstoLeftCommand}" CommandParameter="{Binding SurfaceEditorItems}" >
                                                 <MenuItem.Icon>
-                                                    <Path Data="{StaticResource left}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                    <Path Data="{StaticResource leftAglign}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="Aglign Top"
-                                          Command="{Binding AglignSelectedItemstoTopCommand}" >
+                                            <MenuItem Header="Căn lề trên"
+                                          Command="{Binding AglignSelectedItemstoTopCommand}" CommandParameter="{Binding SurfaceEditorItems}" >
                                                 <MenuItem.Icon>
-                                                    <Path Data="{StaticResource up}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                    <Path Data="{StaticResource topAglign}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="Horizontal Distribute"
-                                          Command="{Binding SpreadItemHorizontalCommand}" >
+                                            <MenuItem Header="Xếp ngang"
+                                          Command="{Binding SpreadItemHorizontalCommand}" CommandParameter="{Binding SurfaceEditorItems}" >
                                                 <MenuItem.Icon>
-                                                    <Path Data="{StaticResource up}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                    <Path Data="{StaticResource ledstrip}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="Vertical Distribute"
-                                          Command="{Binding SpreadItemVerticalCommand}" >
+                                            <MenuItem Header="Xếp dọc"
+                                          Command="{Binding SpreadItemVerticalCommand}" CommandParameter="{Binding SurfaceEditorItems}" >
                                                 <MenuItem.Icon>
-                                                    <Path Data="{StaticResource up}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                    <Path Data="{StaticResource ledStripVertical}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="Lock"
-                                          Command="{Binding LockSelectedItemCommand}" CommandParameter="open" >
+                                            <MenuItem Header="Khóa"
+                                          Command="{Binding LockSelectedItemCommand}" CommandParameter="{Binding SurfaceEditorItems}" >
                                                 <MenuItem.Icon>
-                                                    <Path Data="{StaticResource static}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                    <Path Data="{StaticResource lock}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="Properties"
+                                            <MenuItem Header="Xem chi tiết"
                                           Command="{Binding AddSelectedItemToGroupCommand}" >
                                                 <MenuItem.Icon>
                                                     <Path Data="{StaticResource info}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
@@ -358,10 +357,10 @@
                                     <Setter.Value>
                                         <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
 
-                                            <MenuItem Header="Unlock"
-                                          Command="{Binding UnlockSelectedItemCommand}" CommandParameter="unlock" >
+                                            <MenuItem Header="Mở khóa"
+                                          Command="{Binding UnlockSelectedItemCommand}" CommandParameter="SUR" >
                                                 <MenuItem.Icon>
-                                                    <Path Data="{StaticResource breathing}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                    <Path Data="{StaticResource unlock}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
                                         </ContextMenu>
