@@ -203,12 +203,12 @@ namespace adrilight
                     var frameTime = Stopwatch.StartNew();
                     var newImage = _retryPolicy.Execute(() => GetNextFrame(image, isPreviewRunning));
                     TraceFrameDetails(newImage);
-                    var scaleWidth = OutputSettings.OutputRectangleScaleWidth;
-                    var scaleHeight = OutputSettings.OutputRectangleScaleHeight;
-                    var scaleX = OutputSettings.OutputRectangleScaleLeft;
-                    var scaleY = OutputSettings.OutputRectangleScaleTop;
-                    var virtualWidth = (OutputSettings as OutputSettings).Width;
-                    var virtualHeight = (OutputSettings as OutputSettings).Height;
+                    var scaleWidth = OutputSettings.OutputLEDSetup.ScaleWidth;
+                    var scaleHeight = OutputSettings.OutputLEDSetup.ScaleHeight;
+                    var scaleX = OutputSettings.OutputLEDSetup.ScaleLeft;
+                    var scaleY = OutputSettings.OutputLEDSetup.ScaleTop;
+                    var virtualWidth = (OutputSettings.OutputLEDSetup as LEDSetup).Width;
+                    var virtualHeight = (OutputSettings.OutputLEDSetup as LEDSetup).Height;
                     var brightness = OutputSettings.OutputBrightness / 100d;
                     var devicePowerVoltage = OutputSettings.OutputPowerVoltage;
                     var devicePowerMiliamps = OutputSettings.OutputPowerMiliamps;

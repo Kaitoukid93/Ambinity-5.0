@@ -28,10 +28,7 @@ namespace adrilight
         /// <summary>
         /// output capture position rev 2.0, using scale only
         /// </summary>
-        double OutputRectangleScaleWidth { get; set; } // how many percent that output rectangle width take from the image
-        double OutputRectangleScaleHeight{ get; set; } // how many percent that output rectangle height take from the image
-        double OutputRectangleScaleTop { get; set; }// how many percent that output rectangle top take from the image, represent Y
-        double OutputRectangleScaleLeft { get; set; }// how many percent that output rectangle top take from the image, represent X
+   
         bool IsVissible { get; set; }
 
       
@@ -114,7 +111,7 @@ namespace adrilight
         //void SetRectangle(System.Drawing.Rectangle rectangle);
         //void SetPreviewRectangle(System.Drawing.Rectangle rectangle);
 
-        void OnResolutionChanged(double scaleX, double scaleY);
+        
         
 
 

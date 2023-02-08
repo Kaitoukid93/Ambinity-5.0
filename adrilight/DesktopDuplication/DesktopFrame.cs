@@ -338,7 +338,7 @@ namespace adrilight
                     {
                         foreach(var output in device.AvailableOutputs)
                         {
-                            output.OnResolutionChanged(scaleX,scaleY);
+                            output.OutputLEDSetup.OnResolutionChanged(scaleX,scaleY);
                         }
                     }
 

@@ -1083,8 +1083,8 @@
                                         <Canvas HorizontalAlignment="Center" VerticalAlignment="Top" Name="PreviewCanvas"
                                
                                 Margin="0" 
-                                Width="{Binding CurrentOutput.Width,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" 
-                                Height="{Binding CurrentOutput.Height, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" >
+                                Width="{Binding CurrentOutput.OutputLEDSetup.Width,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" 
+                                Height="{Binding CurrentOutput.OutputLEDSetup.Height, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" >
                                         </Canvas>
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>

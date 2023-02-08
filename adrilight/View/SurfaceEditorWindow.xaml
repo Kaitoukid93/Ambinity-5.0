@@ -85,14 +85,14 @@
 
 
                 <richCanvas:RichItemsControl.Resources>
-                    <DataTemplate DataType="{x:Type local:OutputSettings}">
+                    <DataTemplate DataType="{x:Type local:LEDSetup}">
                         <Grid>
                             <Grid>
                                 <ItemsControl Margin="0,-1,0,0"  
                                     Name="PreviewGird"  
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Top" 
-                                    ItemsSource="{Binding OutputLEDSetup.Spots,Mode=TwoWay}">
+                                    ItemsSource="{Binding Spots,Mode=TwoWay}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <Canvas 

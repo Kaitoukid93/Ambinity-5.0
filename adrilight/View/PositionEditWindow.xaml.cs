@@ -40,7 +40,7 @@ namespace adrilight.View
             }
             else
             {
-                ViewModel.ApplyCurrentOuputCapturingPosition();
+               // ViewModel.ApplyCurrentOuputCapturingPosition();
                 this.Close();
             }
 
@@ -59,7 +59,7 @@ namespace adrilight.View
             }
             else
             {
-                ViewModel.ApplyCurrentOuputCapturingPosition();
+                //ViewModel.ApplyCurrentOuputCapturingPosition();
                 
             }
         }

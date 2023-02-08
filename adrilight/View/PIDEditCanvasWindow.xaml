@@ -76,7 +76,7 @@
         <Grid Grid.Row=" 1">
             <richCanvas:RichItemsControl
                  GridStyle="{StaticResource GridStyle}"
-                EnableSnapping="True"
+                EnableSnapping="False"
                 GridSpacing="20"
                 EnableGrid="true"
                 Scrolling="OnScrolling"

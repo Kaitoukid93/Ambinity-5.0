@@ -14,17 +14,20 @@ namespace adrilight.Spots
 
 
         string Name { get; set; }
+        string Geometry { get; set; }
         string Owner { get; set; }
         ObservableCollection<IDeviceSpot> Spots { get; set; }
         string TargetType { get; set; }
         string Description { get; set; }
-        int MatrixWidth { get; set; }
-        int MatrixHeight { get; set; }
-        double PixelWidth { get; set; }
-        double PixelHeight { get; set; }
         object Lock { get; }
         int SetupID { get; set; }    // to match with device ID
         void DimLED(float dimFactor);
+        public double ScaleTop { get; set; }
+        public double ScaleLeft { get; set; }
+        public double ScaleWidth { get; set; }
+        public double ScaleHeight { get; set; }
+        void OnResolutionChanged(double scaleX, double scaleY);
+        void RefreshSizeAndPosition();
     }
 
 }

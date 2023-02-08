@@ -197,7 +197,7 @@ namespace adrilight
                             var newColor = new OpenRGB.NET.Models.Color(colorBank[position].R, colorBank[position].G, colorBank[position].B);
                             var outputColor = Brightness.applyBrightness(newColor, brightness, numLED, outputPowerMiliamps, outputPowerVoltage);
                             ApplySmoothing(outputColor.R, outputColor.G, outputColor.B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
-                            if((OutputSettings as OutputSettings).IsSelected)
+                            if((OutputSettings.OutputLEDSetup as LEDSetup).IsSelected)
                             {
                                 spot.SetColor(21, 0, 255, isPreviewRunning);
                             }

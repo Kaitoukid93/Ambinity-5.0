@@ -66,12 +66,6 @@ namespace adrilight.Settings
                 Geometry = geometry,
                 OutputID = id,
                 OutputType = "Frame",
-                Top = 0,
-                Left = 0,
-                Width = ledSetup.PixelWidth,
-                Height = ledSetup.PixelHeight,
-                OutputRectangleScaleWidth = 1,
-                OutputRectangleScaleHeight = 1,
                 //OutputRectangle = new System.Drawing.Rectangle(0, 0, 20 * numLEDX, 20 * numLEDY),
                 OutputUniqueID = "",
                 OutputRGBLEDOrder = "GRB",
@@ -104,22 +98,15 @@ namespace adrilight.Settings
             return outputSettings;
         }
 
-        public static OutputSettings AmbinoEdge(int id, int numLED, string name, int ledPerSpot, bool isEnabled, string geometry)
+        public static OutputSettings AmbinoEdge(int id, string name, string geometry, string resource)
         {
-
+            var ledSetup = ReadFactoryLEDSetup(resource);
             var outputSettings = new OutputSettings { //24 inch led frame for Ambino Basic
                 OutputName = name,
                 TargetDevice = "ABEDGE",
                 Geometry = geometry,
                 OutputID = id,
-                OutputType = "Strip",
-                //OutputRectangle = new System.Drawing.Rectangle(0, 0, 20 * numLED, 20),
-                Top = 0,
-                Left = 0,
-                Width = 20 * numLED,
-                Height = 20.0,
-                OutputRectangleScaleWidth = 20.0 * numLED / Screen.PrimaryScreen.Bounds.Width,
-                OutputRectangleScaleHeight = 20.0 / Screen.PrimaryScreen.Bounds.Height,
+                OutputType = "Strip",            
                 OutputUniqueID = "",
                 OutputRGBLEDOrder = "GRB",
                 OutputIsVisible = true,
@@ -128,7 +115,7 @@ namespace adrilight.Settings
                 OutputPowerMiliamps = 900,
                 OutputSaturationThreshold = 10,
                 OutputUseLinearLighting = true,
-                OutputIsEnabled = isEnabled,
+                OutputIsEnabled = true,
                 OutputAtmosphereStartColor = Color.FromRgb(255, 0, 0),
                 OutputAtmosphereStopColor = Color.FromRgb(255, 0, 0),
                 OutputAtmosphereMode = "Dirrect",
@@ -142,10 +129,9 @@ namespace adrilight.Settings
                 OutputPaletteBlendStep = 16,
                 OutputStaticColor = Color.FromRgb(0, 255, 0),
                 OutputBreathingSpeed = 20000,
-                LEDPerSpot = ledPerSpot,
                 LEDPerLED = 2,
                 OutputCurrentActivePalette = new ColorPalette("Full Rainbow", "Zooey", "RGBPalette16", "Full Color Spectrum", DefaultColorCollection.rainbow),
-                OutputLEDSetup = BuildLEDSetup(numLED, 1, "Strip", id, 20 * numLED, 20, "Strip")
+                OutputLEDSetup = ledSetup
                 // create ledsetup if neccesary
 
             };
@@ -160,12 +146,7 @@ namespace adrilight.Settings
                 OutputID = id,
                 Geometry = geometry,
                 OutputType = "Strip",
-                Top = 0,
-                Left = 0,
-                Width = 20 * numLED,
-                Height = 20.0,
-                OutputRectangleScaleWidth = 20.0 * numLED / Screen.PrimaryScreen.Bounds.Width,
-                OutputRectangleScaleHeight = 20.0 / Screen.PrimaryScreen.Bounds.Height,
+ 
                 //OutputRectangle = new System.Drawing.Rectangle(0, 0, 20*numLED, 20),
                 OutputUniqueID = "",
                 OutputRGBLEDOrder = "GRB",
@@ -205,12 +186,7 @@ namespace adrilight.Settings
                 Geometry = geometry,
                 OutputID = id,
                 OutputType = "Matrix",
-                Top = 0,
-                Left = 0,
-                Width = 20 * numLEDX,
-                Height = 20.0 * numLEDY,
-                OutputRectangleScaleWidth = 20.0 * numLEDX / Screen.PrimaryScreen.Bounds.Width,
-                OutputRectangleScaleHeight = 20.0 * numLEDY / Screen.PrimaryScreen.Bounds.Height,
+
                 //OutputRectangle = new System.Drawing.Rectangle(0, 0, 20 * numLEDX, 20 * numLEDY),
                 OutputUniqueID = "",
                 OutputRGBLEDOrder = "GRB",
@@ -249,12 +225,6 @@ namespace adrilight.Settings
                 OutputName = name,
                 OutputID = id,
                 OutputType = "Frame",
-                Top = 0,
-                Left = 0,
-                Width = 20 * numLEDX,
-                Height = 20.0 * numLEDY,
-                OutputRectangleScaleWidth = 20.0 * numLEDX / Screen.PrimaryScreen.Bounds.Width,
-                OutputRectangleScaleHeight = 20.0 * numLEDY / Screen.PrimaryScreen.Bounds.Height,
                 //OutputRectangle = new System.Drawing.Rectangle(0, 0, 20 * numLEDX, 20 * numLEDY),
                 OutputUniqueID = "",
                 OutputRGBLEDOrder = "GRB",
@@ -292,12 +262,6 @@ namespace adrilight.Settings
                 OutputName = name,
                 OutputID = id,
                 OutputType = "Frame",
-                Top = 0,
-                Left = 0,
-                Width = 20.0 * numLEDX,
-                Height = 20.0 * numLEDY,
-                OutputRectangleScaleWidth = 20.0 * numLEDX / Screen.PrimaryScreen.Bounds.Width,
-                OutputRectangleScaleHeight = 20.0 * numLEDY / Screen.PrimaryScreen.Bounds.Height,
                 //OutputRectangle = new System.Drawing.Rectangle(0, 0, 20 * numLEDX, 20 * numLEDY),
                 OutputUniqueID = "",
                 OutputRGBLEDOrder = "GRB",

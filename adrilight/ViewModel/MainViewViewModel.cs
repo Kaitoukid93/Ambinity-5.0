@@ -401,55 +401,7 @@ namespace adrilight.ViewModel
                 {
                     switch (e.PropertyName)
                     {
-                        case nameof(CurrentOutput.OutputScreenCapturePositionIndex):
-                            switch (CurrentOutput.OutputScreenCapturePositionIndex)
-                            {
-                                case 0://full screen
-                                    CurrentOutput.OutputRectangleScaleHeight = 1;
-                                    CurrentOutput.OutputRectangleScaleWidth = 1;
-                                    CurrentOutput.OutputRectangleScaleLeft = 0;
-                                    CurrentOutput.OutputRectangleScaleTop = 0;
-                                    break;
-
-                                case 1: // left
-
-                                    CurrentOutput.OutputRectangleScaleHeight = 1;
-                                    CurrentOutput.OutputRectangleScaleWidth = 0.5;
-                                    CurrentOutput.OutputRectangleScaleLeft = 0;
-                                    CurrentOutput.OutputRectangleScaleTop = 0;
-
-                                    break;
-
-                                case 2: // right
-
-                                    CurrentOutput.OutputRectangleScaleHeight = 1;
-                                    CurrentOutput.OutputRectangleScaleWidth = 0.5;
-                                    CurrentOutput.OutputRectangleScaleLeft = 0.5;
-                                    CurrentOutput.OutputRectangleScaleTop = 0;
-
-                                    break;
-
-                                case 3: // top
-
-                                    CurrentOutput.OutputRectangleScaleHeight = 0.5;
-                                    CurrentOutput.OutputRectangleScaleWidth = 1;
-                                    CurrentOutput.OutputRectangleScaleLeft = 0;
-                                    CurrentOutput.OutputRectangleScaleTop = 0;
-
-                                    break;
-
-                                case 4: // bottom
-
-                                    CurrentOutput.OutputRectangleScaleHeight = 0.5;
-                                    CurrentOutput.OutputRectangleScaleWidth = 1;
-                                    CurrentOutput.OutputRectangleScaleLeft = 0;
-                                    CurrentOutput.OutputRectangleScaleTop = 0.5;
-
-                                    break;
-                            }
-                            SetRectangleFromScale(CurrentOutput, CurrentOutput.OutputRectangleScaleLeft, CurrentOutput.OutputRectangleScaleTop, CurrentOutput.OutputRectangleScaleWidth, CurrentOutput.OutputRectangleScaleHeight, CanvasWidth, CanvasHeight);
-                            //RaisePropertyChanged(nameof(CurrentOutput.OutputRectangle));
-                            break;
+                       
 
                         case nameof(CurrentOutput.OutputMusicSensitivity):
                             SensitivityThickness = new Thickness(0, 0, 0, CurrentOutput.OutputMusicSensitivity + 15);
@@ -1368,6 +1320,10 @@ namespace adrilight.ViewModel
             var settingsManager = new UserSettingsManager();
             foreach (IDeviceSettings device in devices)
             {
+                foreach(var output in device.AvailableOutputs)
+                {
+                    output.OutputLEDSetup.RefreshSizeAndPosition();
+                }
                 AvailableDevices.Add(device);
                 device.PropertyChanged += (_, __) => WriteDeviceInfoJson();
                 foreach (var output in device.AvailableOutputs)
@@ -2527,7 +2483,7 @@ namespace adrilight.ViewModel
                return true;
            }, (p) =>
            {
-               ApplyCurrentOuputCapturingPosition();
+              // ApplyCurrentOuputCapturingPosition();
            }
             );
             CreateNewPaletteCommand = new RelayCommand<string>((p) =>
@@ -4255,14 +4211,7 @@ namespace adrilight.ViewModel
             }
         }
 
-        public void ApplyCurrentOuputCapturingPosition()
-        {
-            CurrentOutput.OutputRectangleScaleHeight = (double)AdjustingRectangleHeight / (double)CanvasHeight;
-            CurrentOutput.OutputRectangleScaleWidth = (double)AdjustingRectangleWidth / (double)CanvasWidth;
-            CurrentOutput.OutputRectangleScaleLeft = (double)AdjustingRectangleLeft / (double)CanvasWidth;
-            CurrentOutput.OutputRectangleScaleTop = (double)AdjustingRectangleTop / (double)CanvasHeight;// these value is for setting new rectangle and it's position when parrents size is not stored( app startup)
-            //CurrentOutput.SetRectangle(new Rectangle(AdjustingRectangleLeft, AdjustingRectangleTop, AdjustingRectangleWidth, AdjustingRectangleHeight));
-        }
+      
 
         private void ImportProfile()
         {
@@ -5477,7 +5426,7 @@ namespace adrilight.ViewModel
                             foreach (var output in device.AvailableOutputs)
                             {
 
-                                VIDEditWindowsRichCanvasItems.Add(output as OutputSettings);
+                                VIDEditWindowsRichCanvasItems.Add(output.OutputLEDSetup as LEDSetup);
 
                             }
                         }
@@ -5486,7 +5435,7 @@ namespace adrilight.ViewModel
                         VIDEditWindowsRichCanvasItems.Clear();
 
 
-                        VIDEditWindowsRichCanvasItems.Add(CurrentOutput as OutputSettings);
+                        VIDEditWindowsRichCanvasItems.Add(CurrentOutput.OutputLEDSetup as LEDSetup);
 
                         //remove all other output, just keep current selected output
                         break;
@@ -5524,7 +5473,7 @@ namespace adrilight.ViewModel
                     foreach (var output in device.AvailableOutputs)
                     {
 
-                        VIDEditWindowsRichCanvasItems.Add(output as OutputSettings);
+                        VIDEditWindowsRichCanvasItems.Add(output.OutputLEDSetup as LEDSetup);
 
                     }
                 }
@@ -5536,11 +5485,11 @@ namespace adrilight.ViewModel
                 {
                     foreach (var output in CurrentDevice.AvailableOutputs)
                     {
-                        VIDEditWindowsRichCanvasItems.Add(output as OutputSettings);
+                        VIDEditWindowsRichCanvasItems.Add(output.OutputLEDSetup as LEDSetup);
                     }
                 }
                 else
-                    VIDEditWindowsRichCanvasItems.Add(CurrentOutput as OutputSettings);
+                    VIDEditWindowsRichCanvasItems.Add(CurrentOutput.OutputLEDSetup as LEDSetup);
             }
 
 
@@ -5998,6 +5947,7 @@ namespace adrilight.ViewModel
             var itemToRemove = new List<IDrawable>();
             foreach (var item in PIDEditWindowsRichCanvasItems.Where(s => s is DeviceSpot))
             {
+                item.IsSelected = false;
                 itemToRemove.Add(item);
             }
             foreach (var item in itemToRemove)
@@ -6089,15 +6039,15 @@ namespace adrilight.ViewModel
             }
             RaisePropertyChanged(nameof(CurrentOutput));
             //change output setting rectangle size and pos
-            (CurrentOutput as OutputSettings).Width = border.Width;
-            (CurrentOutput as OutputSettings).Height = border.Height;
-            (CurrentOutput as OutputSettings).Top = border.Top - screen.Top;
-            (CurrentOutput as OutputSettings).Left = border.Left - screen.Left;
+            (CurrentOutput.OutputLEDSetup as LEDSetup).Width = border.Width;
+            (CurrentOutput.OutputLEDSetup as LEDSetup).Height = border.Height;
+            (CurrentOutput.OutputLEDSetup as LEDSetup).Top = border.Top - screen.Top;
+            (CurrentOutput.OutputLEDSetup as LEDSetup).Left = border.Left - screen.Left;
             //change the scale too
-            (CurrentOutput as OutputSettings).OutputRectangleScaleLeft = (border.Left - screen.Left) / screen.Width;
-            (CurrentOutput as OutputSettings).OutputRectangleScaleTop = (border.Top - screen.Top) / screen.Height;
-            (CurrentOutput as OutputSettings).OutputRectangleScaleWidth = border.Width / screen.Width;
-            (CurrentOutput as OutputSettings).OutputRectangleScaleHeight = border.Height / screen.Height;
+            (CurrentOutput.OutputLEDSetup as LEDSetup).ScaleLeft = (border.Left - screen.Left) / screen.Width;
+            (CurrentOutput.OutputLEDSetup as LEDSetup).ScaleTop = (border.Top - screen.Top) / screen.Height;
+            (CurrentOutput.OutputLEDSetup as LEDSetup).ScaleWidth = border.Width / screen.Width;
+            (CurrentOutput.OutputLEDSetup as LEDSetup).ScaleHeight = border.Height / screen.Height;
             CurrentOutput.IsInSpotEditWizard = false;
             pidEditCanvasWindow.Close();
 
@@ -6124,10 +6074,10 @@ namespace adrilight.ViewModel
 
             foreach (var item in SurfaceEditorItems.OfType<IDrawable>().Where(d => !(d is Border)))
             {
-                (item as OutputSettings).OutputRectangleScaleWidth = item.Width / border.Width;
-                (item as OutputSettings).OutputRectangleScaleHeight = item.Height / border.Height;
-                (item as OutputSettings).OutputRectangleScaleLeft = item.Left / border.Width;
-                (item as OutputSettings).OutputRectangleScaleTop = item.Top / border.Height;
+                (CurrentOutput.OutputLEDSetup as LEDSetup).ScaleWidth = item.Width / border.Width;
+                (CurrentOutput.OutputLEDSetup as LEDSetup).ScaleHeight = item.Height / border.Height;
+                (CurrentOutput.OutputLEDSetup as LEDSetup).ScaleLeft = item.Left / border.Width;
+                (CurrentOutput.OutputLEDSetup as LEDSetup).ScaleTop = item.Top / border.Height;
                 item.IsSelected = false;
             }
             surfaceeditorWindow.Close();
@@ -6213,7 +6163,7 @@ namespace adrilight.ViewModel
 
                     foreach (var output in device.AvailableOutputs)
                     {
-                        var drawable = output as OutputSettings;
+                        var drawable = output.OutputLEDSetup as LEDSetup;
                         drawable.Name = output.OutputName;
                         SurfaceEditorItems.Add(drawable);
 

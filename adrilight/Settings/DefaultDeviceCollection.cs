@@ -173,7 +173,7 @@ namespace adrilight.Settings
                     RequiredFwVersion = ABEDGEFWVersion,
                     Geometry = "ambinoedge",
                     IsTransferActive = true,
-                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.AmbinoBasic(0, "LED Cạnh Bàn", "ledstrip", "adrilight.AmbinoFactoryValue.ABBasic24.json") }
+                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.AmbinoEdge(0, "LED Cạnh Bàn 1M2", "ledstrip", "adrilight.AmbinoFactoryValue.ABEDGE1M2.json") }
 
                 };
 
@@ -198,7 +198,7 @@ namespace adrilight.Settings
                     RequiredFwVersion = ABEDGEFWVersion,
                     Geometry = "ambinoedge",
                     IsTransferActive = true,
-                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.AmbinoBasic(0, "LED Cạnh Bàn", "ledstrip", "adrilight.AmbinoFactoryValue.ABBasic24.json") }
+                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.AmbinoBasic(0, "LED Cạnh Bàn 2M", "ledstrip", "adrilight.AmbinoFactoryValue.ABEDGE2M.json") }
 
                 };
 

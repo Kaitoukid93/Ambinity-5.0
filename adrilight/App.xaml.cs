@@ -105,6 +105,7 @@ namespace adrilight
                             kernel.Bind<IDeviceSettings>().ToConstant(device).Named(iD);
                             foreach (var output in device.AvailableOutputs)
                             {
+                                output.OutputLEDSetup.RefreshSizeAndPosition();
                                 var outputID = iD + output.OutputID.ToString();
                                 kernel.Bind<IOutputSettings>().ToConstant(output).Named(outputID);
 
@@ -270,7 +271,7 @@ namespace adrilight
             
             foreach (var output in outputs)
             {
-
+                
                 var outputID = iD + output.OutputID.ToString();
                 kernel.Bind<IRainbow>().To<Rainbow>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
                // kernel.Bind<IDeviceSpotSet>().To<DeviceSpotSet>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
