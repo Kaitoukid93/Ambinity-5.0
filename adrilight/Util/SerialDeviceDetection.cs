@@ -204,7 +204,7 @@ namespace adrilight.Util
                     switch (newDevice.DeviceName)
                     {
                         case "Ambino Basic":// General Ambino Basic USB Device
-                            newDevice = availableDefaultDevice.ambinoBasic24;
+                            newDevice = availableDefaultDevice.AmbinoBasic24Inch;
                             newDevice.DeviceName = "Ambino Basic";
                             newDevice.DeviceType = "ABBASIC";
                             newDevice.DeviceConnectionType = "wired";
@@ -214,7 +214,7 @@ namespace adrilight.Util
 
                             break;
                         case "Ambino EDGE":// General Ambino Basic USB Device
-                            newDevice = availableDefaultDevice.ambinoEdge1m2;
+                            newDevice = availableDefaultDevice.AmbinoEDGE1M2;
                             newDevice.DeviceName = "Ambino EDGE";
                             newDevice.DeviceConnectionType = "wired";
                             newDevice.DeviceType = "ABEDGE";

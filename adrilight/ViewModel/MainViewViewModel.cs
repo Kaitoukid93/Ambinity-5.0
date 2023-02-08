@@ -7213,7 +7213,7 @@ namespace adrilight.ViewModel
                     Geometry = "profile",
                     DeviceType = "ABBASIC24",
                     Description = "Default Profile for Ambino Basic",
-                    OutputSettings = availableDefaultDevice.ambinoBasic24.AvailableOutputs
+                    OutputSettings = availableDefaultDevice.AmbinoBasic24Inch.AvailableOutputs
                 };
                 var defaultAmbinobasic27 = new DeviceProfile {
                     Name = "Ambino Basic 27inch Default",
@@ -7222,7 +7222,7 @@ namespace adrilight.ViewModel
                     Geometry = "profile",
                     DeviceType = "ABBASIC27",
                     Description = "Default Profile for Ambino Basic",
-                    OutputSettings = availableDefaultDevice.ambinoBasic27.AvailableOutputs
+                    OutputSettings = availableDefaultDevice.AmbinoBasic27Inch.AvailableOutputs
                 };
                 var defaultAmbinobasic29 = new DeviceProfile {
                     Name = "Ambino Basic 29inch Default",
@@ -7231,7 +7231,7 @@ namespace adrilight.ViewModel
                     Geometry = "profile",
                     DeviceType = "ABBASIC29",
                     Description = "Default Profile for Ambino Basic",
-                    OutputSettings = availableDefaultDevice.ambinoBasic29.AvailableOutputs
+                    OutputSettings = availableDefaultDevice.AmbinoBasic29Inch.AvailableOutputs
                 };
                 var defaultAmbinobasic32 = new DeviceProfile {
                     Name = "Ambino Basic 32inch Default",
@@ -7240,7 +7240,7 @@ namespace adrilight.ViewModel
                     Geometry = "profile",
                     DeviceType = "ABBASIC32",
                     Description = "Default Profile for Ambino Basic",
-                    OutputSettings = availableDefaultDevice.ambinoBasic32.AvailableOutputs
+                    OutputSettings = availableDefaultDevice.AmbinoBasic32Inch.AvailableOutputs
                 };
                 var defaultAmbinobasic34 = new DeviceProfile {
                     Name = "Ambino Basic 34inch Default",
@@ -7249,7 +7249,7 @@ namespace adrilight.ViewModel
                     Geometry = "profile",
                     DeviceType = "ABBASIC34",
                     Description = "Default Profile for Ambino Basic",
-                    OutputSettings = availableDefaultDevice.ambinoBasic34.AvailableOutputs
+                    OutputSettings = availableDefaultDevice.AmbinoBasic34Inch.AvailableOutputs
                 };
                 var defaultAmbinoedge1m2 = new DeviceProfile {
                     Name = "Ambino EDGE 1m2 Default",
@@ -7258,7 +7258,7 @@ namespace adrilight.ViewModel
                     Geometry = "profile",
                     DeviceType = "ABEDGE1.2",
                     Description = "Default Profile for Ambino EDGE",
-                    OutputSettings = availableDefaultDevice.ambinoEdge1m2.AvailableOutputs
+                    OutputSettings = availableDefaultDevice.AmbinoEDGE1M2.AvailableOutputs
                 };
                 var defaultAmbinoedge2m = new DeviceProfile {
                     Name = "Ambino EDGE 2m Default",
@@ -7267,7 +7267,7 @@ namespace adrilight.ViewModel
                     Geometry = "profile",
                     DeviceType = "ABEDGE2.0",
                     Description = "Default Profile for Ambino EDGE",
-                    OutputSettings = availableDefaultDevice.ambinoEdge2m.AvailableOutputs
+                    OutputSettings = availableDefaultDevice.AmbinoEDGE2M.AvailableOutputs
                 };
                 loadedProfiles.Add(defaultFanHubProfile);
                 loadedProfiles.Add(defaultAmbinobasic24);
@@ -7488,19 +7488,19 @@ namespace adrilight.ViewModel
                 Description = "Ambino Ambient Lighting Kit",
                 Name = "AMBINO BASIC",
                 Geometry = "ambinobasic",
-                Devices = new DeviceSettings[] { availableDefaultDevice.ambinoBasic24,
-                                                 availableDefaultDevice.ambinoBasic27,
-                                                 availableDefaultDevice.ambinoBasic29,
-                                                 availableDefaultDevice.ambinoBasic32,
-                                                 availableDefaultDevice.ambinoBasic34
+                Devices = new DeviceSettings[] { availableDefaultDevice.AmbinoBasic24Inch,
+                                                 availableDefaultDevice.AmbinoBasic27Inch,
+                                                 availableDefaultDevice.AmbinoBasic29Inch,
+                                                 availableDefaultDevice.AmbinoBasic32Inch,
+                                                 availableDefaultDevice.AmbinoBasic34Inch
                 }
             };
             IDeviceCatergory ambinoEDGE = new DeviceCatergory {
                 Description = "Ambino Ambient Lighting Kit",
                 Name = "AMBINO EDGE",
                 Geometry = "ambinoedge",
-                Devices = new DeviceSettings[] { availableDefaultDevice.ambinoEdge1m2,
-                                                 availableDefaultDevice.ambinoEdge2m
+                Devices = new DeviceSettings[] { availableDefaultDevice.AmbinoEDGE1M2,
+                                                 availableDefaultDevice.AmbinoEDGE2M
                 }
             };
             IDeviceCatergory ambinoHUB = new DeviceCatergory {

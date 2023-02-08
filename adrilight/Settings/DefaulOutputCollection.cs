@@ -18,7 +18,7 @@ namespace adrilight.Settings
     internal class DefaulOutputCollection
     {
       
-        public static List<IOutputSettings> AvailableDefaultOutputsForAmbinoBasic {
+        public static List<OutputSettings> AvailableDefaultOutputsForAmbinoBasic {
             get
             {
                 return new List<OutputSettings> { AmbinoBasic(0, "LED Màn hình 24", "24inch","adrilight.AmbinoFactoryValue.ABBasic24.json"),
