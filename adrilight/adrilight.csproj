@@ -712,10 +712,21 @@
     <EmbeddedResource Include="Animation\splashLoading.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="AmbinoFactoryValue\AmbinoBasicDeviceList.json">
+    <EmbeddedResource Include="AmbinoFactoryValue\ABBasic24.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <None Include="AmbinoFactoryValue\EDGE1m2.json" />
+    <EmbeddedResource Include="AmbinoFactoryValue\ABBasic27.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AmbinoFactoryValue\ABBasic29.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AmbinoFactoryValue\ABBasic32.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AmbinoFactoryValue\ABBasic34.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <None Include="app.manifest" />
     <None Include="ApplicationInsights.config" />
     <EmbeddedResource Include="Gif\BitOcean.gif">
