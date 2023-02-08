@@ -208,7 +208,7 @@
                     <ListBox Background="Transparent" VerticalAlignment="Stretch" ScrollViewer.CanContentScroll="True"
                                                   ScrollViewer.VerticalScrollBarVisibility="Auto" 
                                                   ItemContainerStyle="{StaticResource _ListBoxCardsCollectionStyle}" 
-                                                  
+                                                  SelectedItem="{Binding CurrentActivePalette}"
                                                   x:Name="AvailableMPalette"
                                                   Margin="0,10,0,10"
                                                   BorderThickness="0"   

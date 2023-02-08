@@ -25,15 +25,10 @@ namespace adrilight.View
     {
         public VIDEditCanvasWindow()
         {
-            
+
             InitializeComponent();
-        }
-        private MainViewViewModel ViewModel {
-            get
-            {
-                return (MainViewViewModel)this.DataContext;
-            }
-        }
+        }    
+     
         private void OnScrolling(object sender, RoutedEventArgs e)
         { 
             AttachedAdorner.OnScrolling();

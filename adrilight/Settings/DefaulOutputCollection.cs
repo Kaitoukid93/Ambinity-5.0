@@ -18,22 +18,15 @@ namespace adrilight.Settings
     internal class DefaulOutputCollection
     {
       
-        public static List<IOutputSettings> AvailableDefaultOutputs {
+        public static List<OutputSettings> AvailableDefaultOutputsForAmbinoBasic {
             get
             {
-                return new List<IOutputSettings> { AmbinoBasic(0, 11, 7, "LED Màn hình 24", true, "24inch"),
-                                                   AmbinoBasic(0, 13, 7, "LED Màn hình 27", true, "27inch"),
-                                                   AmbinoBasic(0, 14, 7, "LED Màn hình 29", true, "29inch"),
-                                                   AmbinoBasic(0, 15, 8, "LED Màn hình 32", true, "32inch"),
-                                                   AmbinoBasic(0, 17, 7, "LED Màn hình 34", true, "34inch"),
-                                                   AmbinoEdge(0, 24, "LED Cạnh Bàn 1m2", 1, true, "ledstrip"),
-                                                   AmbinoEdge(0, 20, "LED Cạnh Bàn 2m", 2, true, "ledstrip")
-        };
+                return ReadFactoryLEDSetup("adrilight.AmbinoFactoryValue.AmbinoBasicDeviceList.json");
             }
         }
-        private static LEDSetup ReadFactoryLEDSetup (string resourceName)
+        private static List<OutputSettings> ReadFactoryLEDSetup (string resourceName)
         {
-            LEDSetup ledSetup = new LEDSetup();
+            var outputs = new List<OutputSettings>();
             var assembly = Assembly.GetExecutingAssembly();
             using (Stream resource = assembly.GetManifestResourceStream(resourceName))
             {
@@ -46,7 +39,14 @@ namespace adrilight.Settings
                     string json = reader.ReadToEnd(); //Make string equal to full file
                     try
                     {
-                        ledSetup = JsonConvert.DeserializeObject<LEDSetup>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                        var devices = JsonConvert.DeserializeObject<List<DeviceSettings>>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                        foreach(var device in devices)
+                        {
+                            foreach(var output in device.AvailableOutputs)
+                            {
+                                outputs.Add(output as OutputSettings);
+                            }
+                        }
                     }
                     catch (Exception)
                     {
@@ -54,102 +54,7 @@ namespace adrilight.Settings
                     }
                 }
             }
-            return ledSetup;
-        }
-        public static OutputSettings AmbinoBasic(int id, int numLEDX, int numLEDY, string name, bool isEnabled, string geometry)
-        {
-
-            var ledSetup = ReadFactoryLEDSetup ("adrilight.AmbinoFactoryValue.Basic24.json");  
-            var outputSettings = new OutputSettings { //24 inch led frame for Ambino Basic
-                OutputName = name,
-                TargetDevice = "ABBASIC",
-                Geometry = geometry,
-                OutputID = id,
-                OutputType = "Frame",
-                Top = 0,
-                Left = 0,
-                Width = ledSetup.PixelWidth,
-                Height = ledSetup.PixelHeight,
-                OutputRectangleScaleWidth = 1,
-                OutputRectangleScaleHeight = 1,
-                //OutputRectangle = new System.Drawing.Rectangle(0, 0, 20 * numLEDX, 20 * numLEDY),
-                OutputUniqueID = "",
-                OutputRGBLEDOrder = "GRB",
-                OutputIsVisible = true,
-                OutputBrightness = 80,
-                OutputPowerVoltage = 5,
-                OutputPowerMiliamps = 900,
-                OutputSaturationThreshold = 10,
-                OutputUseLinearLighting = true,
-                OutputIsEnabled = isEnabled,
-                OutputAtmosphereStartColor = Color.FromRgb(255, 0, 0),
-                OutputAtmosphereStopColor = Color.FromRgb(255, 0, 0),
-                OutputAtmosphereMode = "Dirrect",
-                OutputSelectedMusicMode = 0,
-                OutputSelectedMusicPalette = 0,
-                OutputSelectedMode = 1,
-                OutputSelectedAudioDevice = 0,
-                OutputSelectedDisplay = 0,
-                OutputSelectedChasingPalette = 0,
-                OutputPaletteSpeed = 1,
-                OutputPaletteBlendStep = 16,
-                OutputStaticColor = Color.FromRgb(0, 255, 0),
-                OutputBreathingSpeed = 20000,
-                LEDPerLED = 2,
-                OutputCurrentActivePalette = new ColorPalette("Full Rainbow", "Zooey", "RGBPalette16", "Full Color Spectrum", DefaultColorCollection.rainbow),
-                OutputLEDSetup = ledSetup
-            // create ledsetup if neccesary
-
-        };
-            return outputSettings;
-        }
-
-        public static OutputSettings AmbinoEdge(int id, int numLED, string name, int ledPerSpot, bool isEnabled, string geometry)
-        {
-
-            var outputSettings = new OutputSettings { //24 inch led frame for Ambino Basic
-                OutputName = name,
-                TargetDevice = "ABEDGE",
-                Geometry = geometry,
-                OutputID = id,
-                OutputType = "Strip",
-                //OutputRectangle = new System.Drawing.Rectangle(0, 0, 20 * numLED, 20),
-                Top = 0,
-                Left = 0,
-                Width = 20 * numLED,
-                Height = 20.0,
-                OutputRectangleScaleWidth = 20.0 * numLED / Screen.PrimaryScreen.Bounds.Width,
-                OutputRectangleScaleHeight = 20.0 / Screen.PrimaryScreen.Bounds.Height,
-                OutputUniqueID = "",
-                OutputRGBLEDOrder = "GRB",
-                OutputIsVisible = true,
-                OutputBrightness = 80,
-                OutputPowerVoltage = 5,
-                OutputPowerMiliamps = 900,
-                OutputSaturationThreshold = 10,
-                OutputUseLinearLighting = true,
-                OutputIsEnabled = isEnabled,
-                OutputAtmosphereStartColor = Color.FromRgb(255, 0, 0),
-                OutputAtmosphereStopColor = Color.FromRgb(255, 0, 0),
-                OutputAtmosphereMode = "Dirrect",
-                OutputSelectedMusicMode = 0,
-                OutputSelectedMusicPalette = 0,
-                OutputSelectedMode = 1,
-                OutputSelectedAudioDevice = 0,
-                OutputSelectedDisplay = 0,
-                OutputSelectedChasingPalette = 0,
-                OutputPaletteSpeed = 1,
-                OutputPaletteBlendStep = 16,
-                OutputStaticColor = Color.FromRgb(0, 255, 0),
-                OutputBreathingSpeed = 20000,
-                LEDPerSpot = ledPerSpot,
-                LEDPerLED = 2,
-                OutputCurrentActivePalette = new ColorPalette("Full Rainbow", "Zooey", "RGBPalette16", "Full Color Spectrum", DefaultColorCollection.rainbow),
-                OutputLEDSetup = BuildLEDSetup(numLED, 1, "Strip", id, 20 * numLED, 20, "Strip")
-                // create ledsetup if neccesary
-
-            };
-            return outputSettings;
+            return outputs;
         }
 
         public static OutputSettings GenericLEDStrip(int id, int numLED, string name, int ledPerSpot, bool isEnabled, string geometry)

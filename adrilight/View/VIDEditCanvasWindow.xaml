@@ -24,7 +24,7 @@
            WindowStartupLocation="CenterOwner">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closing">
-            <i:InvokeCommandAction Command="{Binding PIDWindowClosingCommand}" />
+            <i:InvokeCommandAction Command="{Binding SurfaceEditorWindowClosingCommand}" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
 
@@ -61,17 +61,33 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0">
-            <!--<ToolBarTray VerticalAlignment="Center">
-                <ToolBar Padding="6" Header="Live view">
-                    <CheckBox IsChecked="{Binding IsRichCanvasWindowOpen}" Margin="10,0,0,0"/>
-                    -->
-            <!--<Separator Margin="10,0,0,0"/>-->
-            <!--<Button Command="{Binding SetRandomOutputColorCommand}" ToolTip="Mỗi thiết bị sẽ được tô màu riêng biệt ngẫu nhiên" Content="Set Random Color" Margin="10,0,0,0"/>-->
-            <!--
-                  
+            <ToolBarTray IsLocked="True" VerticalAlignment="Center">
+                <ToolBar  Padding="6" Header="View">
+                    <Separator Margin="10,0" MaxHeight="25"/>
+                    <CheckBox IsChecked="{Binding ShowAllOutputPID}" Content="Hiện tất cả đầu ra"  Margin="10,0,0,0"/>
+                    <CheckBox IsChecked="{Binding ShowAllDevicePID}" Content="Hiện tất cả thiết bị"  Margin="10,0,5,0"/>
                 </ToolBar>
-          
-            </ToolBarTray>-->
+                <ToolBar Padding="6" Header="ID Settings">
+                    <Separator Margin="10,0" MaxHeight="25"/>
+                    <hc:NumericUpDown Margin="5,0" Value="{Binding CountVID}" x:Name="vidBox" DecimalPlaces="0" ShowClearButton="True"  hc:InfoElement.TitleWidth="30"  hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="{Binding CurrentIDType}" Style="{StaticResource NumericUpDownPlus}" hc:InfoElement.Necessary="False"/>
+                    <hc:NumericUpDown Margin="5,0" Value="{Binding GapVID}" x:Name="gapBox" DecimalPlaces="0" ShowClearButton="True"  hc:InfoElement.TitleWidth="auto"  hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="Space"  hc:InfoElement.Necessary="False">
+                        <hc:NumericUpDown.Style>
+                            <Style TargetType="hc:NumericUpDown" BasedOn="{StaticResource NumericUpDownPlus}">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentIDType}" Value="CID">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </hc:NumericUpDown.Style>
+                    </hc:NumericUpDown>
+
+                    <Separator Margin="10,0" MaxHeight="25"/>
+                    <Button Margin="5,0,0,0" BorderThickness="0" hc:IconElement.Geometry="{DynamicResource DeleteFillCircleGeometry}" Command="{Binding ResetCountCommand}" CommandParameter="ResetVID" ToolTip="Xóa tất cả VID hiện tại" Content="Xóa"/>
+                </ToolBar>
+
+            </ToolBarTray>
         </Grid>
         <Grid Grid.Row=" 1">
             <richCanvas:RichItemsControl
@@ -84,7 +100,7 @@
                 RealTimeDraggingEnabled="True"
                 RealTimeSelectionEnabled="False"
                 SelectedItems="{Binding selectedSpots}"
-                Scale="1"
+                Scale="0.5"
                 MousePosition="{Binding MousePosition, Mode=OneWayToSource}"
                 ItemsSource="{Binding VIDEditWindowsRichCanvasItems}">
                 <richCanvas:RichItemsControl.ContextMenu>
@@ -108,6 +124,119 @@
                 </richCanvas:RichItemsControl.ContextMenu>
 
                 <richCanvas:RichItemsControl.Resources>
+                    <DataTemplate DataType="{x:Type local:OutputSettings}">
+                        <Grid>
+                            <Grid>
+                                <ItemsControl Margin="0,-1,0,0"  
+                                    Name="PreviewGird"  
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Top" 
+                                    ItemsSource="{Binding OutputLEDSetup.Spots,Mode=TwoWay}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <Canvas 
+                                                HorizontalAlignment="Center" 
+                                                VerticalAlignment="Top" 
+                                                Name="PreviewCanvas"
+                                                Margin="0" 
+                                                Width="{Binding Width,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" 
+                                                Height="{Binding Height, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" >
+                                            </Canvas>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemContainerStyle>
+                                        <Style TargetType="ContentPresenter">
+                                            <Setter Property="Canvas.Left" Value="{Binding Left}"/>
+                                            <Setter Property="Canvas.Top" Value="{Binding Top}"/>
+                                        </Style>
+                                    </ItemsControl.ItemContainerStyle>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <!--<Grid.ToolTip>
+                                                    <Border CornerRadius="4" BorderThickness="0" Background="Transparent">
+                                                        <StackPanel>
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="auto"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBlock Margin="2" Text="Thứ tự LED : "/>
+                                                                <TextBlock  Grid.Column="1" Margin="2">
+                                                                   
+                                                                </TextBlock>
+                                                            </Grid>
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="auto"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBlock Margin="2" Text="Kích thước : "/>
+                                                                <TextBlock Grid.Column="1"  Margin="2">
+                                                                    <TextBlock.Text>
+                                                                        <MultiBinding StringFormat="{}{0:F0} x {1:F0}">
+                                                                            <Binding Path="Width" />
+                                                                            <Binding Path="Height" />
+                                                                        </MultiBinding>
+                                                                    </TextBlock.Text>
+                                                                </TextBlock>
+                                                            </Grid>
+
+                                                        </StackPanel>
+                                                    </Border>
+                                                </Grid.ToolTip>-->
+                                                <i:Interaction.Triggers>
+                                                    <i:EventTrigger EventName="MouseEnter" >
+                                                        <i:InvokeCommandAction Command="{Binding DataContext.SetSpotVIDCommand,RelativeSource={RelativeSource AncestorType={x:Type view:VIDEditCanvasWindow}}}" CommandParameter="{Binding .}" />
+                                                    </i:EventTrigger>
+                                                </i:Interaction.Triggers>
+                                                <Path Data="{Binding Shape,Converter={converters:StaticResourceConverter}}"
+                                                Stretch="Fill"
+                                                ToolTip="{Binding id}" 
+                                                StrokeThickness="{Binding BorderThickness}" 
+                                                Width="{Binding Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
+                                                Height="{Binding Height,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                                    <Path.Fill>
+                                                        <SolidColorBrush Color="{Binding OnDemandColor}"  />
+                                                    </Path.Fill>
+                                                    <Path.Style>
+                                                        <Style TargetType="{x:Type Path}">
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Opacity"  Value="0.5"/>
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Path.Style>
+                                                </Path>
+                                                <Viewbox Stretch="Uniform">
+                                                    <TextBlock Margin="5" Foreground="White">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock" BasedOn="{StaticResource TextBlockDefault}">
+                                                                <Setter Property="Text" Value="n"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding DataContext.CurrentIDType,RelativeSource={RelativeSource AncestorType={x:Type view:VIDEditCanvasWindow}}}" Value="VID">
+                                                                        <Setter Property="Text" Value="{Binding VID}"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding DataContext.CurrentIDType,RelativeSource={RelativeSource AncestorType={x:Type view:VIDEditCanvasWindow}}}" Value="FID">
+                                                                        <Setter Property="Text" Value="{Binding MID}"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding DataContext.CurrentIDType,RelativeSource={RelativeSource AncestorType={x:Type view:VIDEditCanvasWindow}}}" Value="CID">
+                                                                        <Setter Property="Text" Value="{Binding CID}"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </Viewbox>
+                                                
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
+                        </Grid>
+                    </DataTemplate>
                     <DataTemplate DataType="{x:Type spot:DeviceSpot}">
                         <Grid>
                             <i:Interaction.Triggers>
@@ -285,7 +414,7 @@
                         <Setter Property="Tag"
                             Value="{Binding DataContext, ElementName=window}" />
                         <Setter Property="helpers:AttachedAdorner.HasHoverAdorner"
-                            Value="false" />
+                            Value="False" />
                         <Setter Property="helpers:AttachedAdorner.ShowResizeAdorner"
                             Value="false" />
                         <Setter Property="Top"

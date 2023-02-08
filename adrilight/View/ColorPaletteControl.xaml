@@ -185,9 +185,9 @@
 
 
             </Grid>
-            <hc:Divider Visibility="{Binding ElementName=Order,Path=Visibility}" LineStroke="{StaticResource RegionBrush}" Margin="20,10,20,10">
+            <!--<hc:Divider Visibility="{Binding ElementName=Order,Path=Visibility}" LineStroke="{StaticResource RegionBrush}" Margin="20,10,20,10">
 
-            </hc:Divider>
+            </hc:Divider>-->
             <Grid x:Name="Order">
              
                 <GroupBox HorizontalAlignment="Left" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="15,5" Style="{StaticResource GroupBoxOriginal}">
@@ -284,7 +284,7 @@
                                 <Grid Background="Transparent">
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="MouseDown" >
-                                            <i:InvokeCommandAction Command="{Binding LaunchVIDEditWindowCommand }" />
+                                            <i:InvokeCommandAction Command="{Binding LaunchVIDEditWindowCommand }" CommandParameter="VID" />
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
 

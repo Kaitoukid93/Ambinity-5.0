@@ -156,24 +156,26 @@ namespace adrilight
                     var fft = new float[32];
                     if (AudioFrames.FFT != null)
                         fft = AudioFrames.FFT;
-                    
-                    lock (OutputSettings.OutputLEDSetup.Lock)
+                    switch (OutputSettings.OutputMusicDancingMode)
                     {
-                        int position = 0;
-                        foreach (var spot in OutputSettings.OutputLEDSetup.Spots)
-                        {
-                            position = (int)RainbowTicker.MusicStartIndex + spot.VID;
-                            int n = 0;
-                            if (position >= colorBank.Length)
-                                n = position / colorBank.Length;
-                            position = position - n * colorBank.Length; // run with VID
-
-                            
-                            //var brightness = 0.5;/*brightnessMap[spot.VID];*/
-                            var newColor = new OpenRGB.NET.Models.Color(colorBank[position].R, colorBank[position].G, colorBank[position].B);
-                            switch(OutputSettings.OutputMusicDancingMode)
+                        case 0:
+                            lock (OutputSettings.OutputLEDSetup.Lock)
                             {
-                                case 0: // equalizer mode
+                                int position = 0;
+                                foreach (var spot in OutputSettings.OutputLEDSetup.Spots)
+                                {
+                                    //get the color
+                                    position = (int)RainbowTicker.MusicStartIndex + spot.VID;
+                                    int n = 0;
+                                    if (position >= colorBank.Length)
+                                        n = position / colorBank.Length;
+                                    position = position - n * colorBank.Length; // run with VID
+
+                                    //get the brightness
+                                    //var brightness = 0.5;/*brightnessMap[spot.VID];*/
+                                    var newColor = new OpenRGB.NET.Models.Color(colorBank[position].R, colorBank[position].G, colorBank[position].B);
+
+                                    // equalizer mode
                                     var brightnessMap = SpectrumCreator(fft, 0, 1, 1, 0, 32);// get brightness map based on spectrum data
                                     var freq = spot.MID;
                                     var actualFreq = 32 * ((double)freq / 1023d);
@@ -183,31 +185,64 @@ namespace adrilight
                                     ApplySmoothing(outputColor.R, outputColor.G, outputColor.B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
                                     if (!OutputSettings.IsInSpotEditWizard)
                                         spot.SetColor(FinalR, FinalG, FinalB, isPreviewRunning);
-                                    break;
-                                case 1:
+
+                                }
+
+
+                            }
+                            break;
+
+                        case 1:
+                            lock (OutputSettings.OutputLEDSetup.Lock)
+                            {
+                                int position = 0;
+                                foreach (var spot in OutputSettings.OutputLEDSetup.Spots)
+                                {
+                                    //get the color
+                                    position = (int)RainbowTicker.MusicStartIndex + spot.VID;
+                                    int n = 0;
+                                    if (position >= colorBank.Length)
+                                        n = position / colorBank.Length;
+                                    position = position - n * colorBank.Length; // run with VID
+
+
+                                    //var brightness = 0.5;/*brightnessMap[spot.VID];*/
+                                    var newColor = new OpenRGB.NET.Models.Color(colorBank[position].R, colorBank[position].G, colorBank[position].B);
+
+                                    //get the brightness
+
+                                    //find which position this spot is in the brightness column
+                                    //this shoud not be related to pid
                                     var orientation = OutputSettings.VUOrientation;
-                                    var brightnessMapVU = SpectrumVUCreator(fft, 0, 0, orientation);
+                                    var brightnessMapVU = SpectrumVUCreator(fft, 0, 0, orientation, OutputSettings.OutputLEDSetup.Spots.Count);
                                     var column = spot.CID;
                                     var actualVUBrightness = 0d;
                                     switch (orientation)
                                     {
-                                        case 0:
-                                             actualVUBrightness = brightnessMapVU[column][spot.XIndex] / 255d;
+                                        case 0://due to the new ledsetup format, we need to get XIndex and YIndex base on actual position,but how the fuck we get it
+                                               //when user select all the spot available at that output?, we need to find a universal solution once and for all
+                                               //first find out how many group of led
+                                               //second set them in the group as order using  pid
+                                               //calculate each group max height and actual height
+                                               //display
+                                            actualVUBrightness = brightnessMapVU[column][spot.id] / 255d;
                                             break;
                                         case 1:
-                                             actualVUBrightness = brightnessMapVU[column][spot.YIndex] / 255d;
+                                            actualVUBrightness = brightnessMapVU[column][spot.id] / 255d;
                                             break;
                                     }
-                                    
+
                                     var outputColor1 = Brightness.applyBrightness(newColor, actualVUBrightness, numLED, outputPowerMiliamps, outputPowerVoltage);
                                     ApplySmoothing(outputColor1.R, outputColor1.G, outputColor1.B, out byte FinalR1, out byte FinalG1, out byte FinalB1, spot.Red, spot.Green, spot.Blue);
                                     if (!OutputSettings.IsInSpotEditWizard)
                                         spot.SetColor(FinalR1, FinalG1, FinalB1, isPreviewRunning);
-                                    break;
-                            }
-                           
 
-                        }
+                                }
+
+
+                            }
+
+                            break;
                     }
                     Thread.Sleep(10);
 
@@ -279,20 +314,20 @@ namespace adrilight
             return brightnessMap;
 
         }
-        public double[][] SpectrumVUCreator(float[] fft, int sensitivity, int vuMode, int orientation)//create brightnessmap based on input fft or volume
+        public double[][] SpectrumVUCreator(float[] fft, int sensitivity, int vuMode, int orientation, int maxHeight)//create brightnessmap based on input fft or volume
         {
 
             double[][] brightnessMap = new double[fft.Length][];
-            int maxHeight=0;
-            switch(orientation)
-            {//shoud define using a slider
-                case 0://horizontal
-                    maxHeight = 10;
-                    break;
-                case 1://vertical
-                    maxHeight = 10;
-                    break;
-            }
+            //int maxHeight=0;
+            //switch(orientation)
+            //{//shoud define using a slider
+            //    case 0://horizontal
+            //        maxHeight = 10;
+            //        break;
+            //    case 1://vertical
+            //        maxHeight = 10;
+            //        break;
+            //}
 
 
             //this function take the input as frequency and output the color but the brightness change as the frequency band's value
@@ -335,7 +370,7 @@ namespace adrilight
                         double[] brightnessColumn = new double[maxHeight];
                         for (int j = 0; j < maxHeight; j++)
                         {
-                            if (j < maxHeight-actualHeight)
+                            if (j < maxHeight - actualHeight)
                                 brightnessColumn[j] = 0;
                             else
                                 brightnessColumn[j] = 255;

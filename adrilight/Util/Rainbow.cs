@@ -64,12 +64,11 @@ namespace adrilight
                 case nameof(OutputSettings.OutputIsEnabled):
                 case nameof(OutputSettings.OutputSelectedMode):
                 case nameof(OutputSettings.OutputParrentIsEnable):
-
-
+                case nameof(OutputSettings.IsInSpotEditWizard):
                     RefreshColorState();
                     break;
                 case nameof(OutputSettings.OutputCurrentActivePalette):
-                case nameof(OutputSettings.IsInSpotEditWizard):
+               
                 case nameof(OutputSettings.OutputIsSystemSync):
 
 

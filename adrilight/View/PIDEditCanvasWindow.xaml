@@ -77,7 +77,7 @@
             <richCanvas:RichItemsControl
                  GridStyle="{StaticResource GridStyle}"
                 EnableSnapping="True"
-                GridSpacing="1"
+                GridSpacing="20"
                 EnableGrid="true"
                 Scrolling="OnScrolling"
                 CanSelectMultipleItems="True"
@@ -162,7 +162,9 @@
                                 </Path.Fill>
 
                             </Path>
-                            <TextBlock Foreground="White" Text="{Binding id}" Style="{DynamicResource TextBlockTitle}"/>
+                            <Viewbox Stretch="Uniform">
+                                <TextBlock Margin="5" Foreground="White" Text="{Binding id}" Style="{DynamicResource TextBlockDefault}"/>
+                            </Viewbox>
                         </Grid>
 
                     </DataTemplate>
@@ -334,14 +336,26 @@
                                                     <Path Data="{StaticResource topAglign}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="Xếp ngang"
-                                          Command="{Binding SpreadItemHorizontalCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}" >
+                                            <MenuItem Header="Xếp ngang phải"
+                                          Command="{Binding SpreadItemRightHorizontalCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}" >
                                                 <MenuItem.Icon>
                                                     <Path Data="{StaticResource ledstrip}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="Xếp dọc"
-                                          Command="{Binding SpreadItemVerticalCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}" >
+                                            <MenuItem Header="Xếp ngang trái"
+                                          Command="{Binding SpreadItemLeftHorizontalCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}" >
+                                                <MenuItem.Icon>
+                                                    <Path Data="{StaticResource ledstrip}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Xếp dọc dưới"
+                                          Command="{Binding SpreadItemDownVerticalCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}" >
+                                                <MenuItem.Icon>
+                                                    <Path Data="{StaticResource ledStripVertical}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Xếp dọc trên"
+                                          Command="{Binding SpreadItemUpVerticalCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}" >
                                                 <MenuItem.Icon>
                                                     <Path Data="{StaticResource ledStripVertical}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>

@@ -29,12 +29,12 @@ namespace adrilight.Settings
         //    return new List<DeviceSettings> { ambinoBasic24, ambinoBasic27, ambinoBasic29, ambinoBasic32, ambinoBasic34, ambinoEdge1m2, ambinoEdge2m, ambinoFanHub, ambinoHUBV3,ambinoBasicPWLED };
         //}
 
-        public  DeviceSettings ambinoBasic24 {
+        public DeviceSettings AmbinoBasicCore {
             get
             {
                 return new DeviceSettings {
-                    DeviceName = "Ambino Basic 24 inch",
-                    DeviceSerial = "ABBASIC24",
+                    DeviceName = "Ambino Basic",
+                    DeviceSerial = "ABBASIC",
                     DeviceType = "ABBASIC",
                     Manufacturer = "Ambino Vietnam",
                     FirmwareVersion = "1.0.0",
@@ -48,13 +48,38 @@ namespace adrilight.Settings
                     Geometry = "ambinobasic",
                     DeviceUID = Guid.NewGuid().ToString(),
                     IsTransferActive = true,
-                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.AmbinoBasic(0, 11, 7, "LED Màn hình 24", true, "24inch") }
+                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.AvailableDefaultOutputsForAmbinoBasic.Last() }
                 };
             }
-       
+
 
         }
-        public  DeviceSettings ambinoBasic27 {
+        public DeviceSettings AmbinoEDGECore {
+            get
+            {
+                return new DeviceSettings {
+                    DeviceName = "Ambino EDGE",
+                    DeviceSerial = "ABEDGE",
+                    DeviceType = "ABEDGE",
+                    Manufacturer = "Ambino Vietnam",
+                    DeviceConnectionType = "wired",
+                    FirmwareVersion = "1.0.0",
+                    DeviceUID = Guid.NewGuid().ToString(),
+                    ProductionDate = "2022",
+                    IsVisible = true,
+                    IsEnabled = true,
+                    OutputPort = "Không có",
+                    FwLocation = ABEDGEFW,
+                    RequiredFwVersion = ABEDGEFWVersion,
+                    Geometry = "ambinoedge",
+                    IsTransferActive = true,
+                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.AmbinoOutput(0, "LED Cạnh Bàn", "ledstrip", "adrilight.AmbinoFactoryValue.Basic24.json") }
+
+                };
+
+            }
+        }
+        public DeviceSettings ambinoBasic27 {
             get
             {
                 return new DeviceSettings {
@@ -73,13 +98,13 @@ namespace adrilight.Settings
                     RequiredFwVersion = ABBASICFWVersion,
                     Geometry = "ambinobasic",
                     IsTransferActive = true,
-                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.AmbinoBasic(0, 13, 7, "LED Màn hình 27", true, "27inch") }
+                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.AmbinoOutput(0, "LED Màn hình 27", "27inch", "adrilight.AmbinoFactoryValue.Basic24.json") }
                 };
 
-                }
-        } 
-      
-        public  DeviceSettings ambinoBasicPWLED {
+            }
+        }
+
+        public DeviceSettings ambinoBasicPWLED {
             get
             {
                 return new DeviceSettings {
@@ -98,13 +123,13 @@ namespace adrilight.Settings
                     RequiredFwVersion = ABBASICPWLEDFWVersion,
                     Geometry = "ambinobasic",
                     IsTransferActive = true,
-                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.AmbinoBasic(0, 13, 7, "LED Màn hình 27", true, "27inch") }
+                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.AmbinoOutput(0, "LED Màn hình 24", "24inch", "adrilight.AmbinoFactoryValue.Basic24.json") }
                 };
-                }
-         
+            }
+
 
         }
-        public  DeviceSettings ambinoBasic29 {
+        public DeviceSettings ambinoBasic29 {
             get
             {
                 return new DeviceSettings {
@@ -123,13 +148,13 @@ namespace adrilight.Settings
                     RequiredFwVersion = ABBASICFWVersion,
                     Geometry = "ambinobasic",
                     IsTransferActive = true,
-                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.AmbinoBasic(0, 14, 7, "LED Màn hình 29", true, "29inch") }
+                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.AmbinoOutput(0, "LED Màn hình 29", "29inch", "adrilight.AmbinoFactoryValue.Basic24.json") }
                 };
-                }
-        } 
+            }
+        }
 
-        
-        public  DeviceSettings ambinoBasic32 {
+
+        public DeviceSettings ambinoBasic32 {
             get
             {
                 return new DeviceSettings {
@@ -148,12 +173,12 @@ namespace adrilight.Settings
                     RequiredFwVersion = ABBASICFWVersion,
                     Geometry = "ambinobasic",
                     IsTransferActive = true,
-                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.AmbinoBasic(0, 15, 8, "LED Màn hình 32", true, "32inch") }
+                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.AmbinoOutput(0, "LED Màn hình 32", "32inch", "adrilight.AmbinoFactoryValue.Basic24.json") }
 
                 };
             }
-        } 
-        public  DeviceSettings ambinoBasic34 {
+        }
+        public DeviceSettings ambinoBasic34 {
             get
             {
                 return new DeviceSettings {
@@ -172,12 +197,12 @@ namespace adrilight.Settings
                     RequiredFwVersion = ABBASICFWVersion,
                     Geometry = "ambinobasic",
                     IsTransferActive = true,
-                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.AmbinoBasic(0, 17, 7, "LED Màn hình 34", true, "34inch") }
+                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.AmbinoOutput(0, "LED Màn hình 34", "34inch", "adrilight.AmbinoFactoryValue.Basic24.json") }
 
                 };
             }
-        }  
-        public  DeviceSettings ambinoEdge1m2 {
+        }
+        public DeviceSettings ambinoEdge1m2 {
             get
             {
                 return new DeviceSettings {
@@ -196,13 +221,13 @@ namespace adrilight.Settings
                     RequiredFwVersion = ABEDGEFWVersion,
                     Geometry = "ambinoedge",
                     IsTransferActive = true,
-                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.AmbinoEdge(0, 24, "LED Cạnh Bàn", 1, true, "ledstrip") }
+                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.AmbinoOutput(0, "LED Cạnh Bàn", "ledstrip", "adrilight.AmbinoFactoryValue.Basic24.json") }
 
                 };
 
             }
-        } 
-        public  DeviceSettings ambinoEdge2m {
+        }
+        public DeviceSettings ambinoEdge2m {
             get
             {
                 return new DeviceSettings {
@@ -221,12 +246,12 @@ namespace adrilight.Settings
                     RequiredFwVersion = ABEDGEFWVersion,
                     Geometry = "ambinoedge",
                     IsTransferActive = true,
-                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.AmbinoEdge(0, 20, "LED Cạnh Bàn", 2, true, "ledstrip") }
+                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.AmbinoOutput(0, "LED Cạnh Bàn", "ledstrip", "adrilight.AmbinoFactoryValue.Basic24.json") }
 
                 };
             }
-        } 
-        public  DeviceSettings ambinoFanHub {
+        }
+        public DeviceSettings ambinoFanHub {
             get
             {
                 return new DeviceSettings {
@@ -245,16 +270,16 @@ namespace adrilight.Settings
                     RequiredFwVersion = FanHubFWVersion,
                     Geometry = "ambinofanhub",
                     IsTransferActive = true,
-                    AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.GenericFan("Fan1",0, 5,5,true),
-                                                      DefaulOutputCollection.GenericFan("Fan2",1, 5,5,true),
-                                                      DefaulOutputCollection.GenericFan("Fan3",2, 5,5,true),
-                                                      DefaulOutputCollection.GenericFan("Fan4",3, 5,5,true),
-                                                      DefaulOutputCollection.GenericFan("Fan5",4, 5,5,true),
-                                                      DefaulOutputCollection.GenericFan("Fan6",5, 5,5,true),
-                                                      DefaulOutputCollection.GenericFan("Fan7",6, 5,5,true),
-                                                      DefaulOutputCollection.GenericFan("Fan8",7, 5,5,true),
-                                                      DefaulOutputCollection.GenericFan("Fan9",8, 5,5,true),
-                                                      DefaulOutputCollection.GenericFan("Fan10",9, 5,5,true),
+                    AvailableOutputs = new OutputSettings[] {  DefaulOutputCollection.AmbinoOutput(0, "Fan1", "fan", "adrilight.AmbinoFactoryValue.Basic24.json"),
+                                                               DefaulOutputCollection.AmbinoOutput(1, "Fan2", "fan", "adrilight.AmbinoFactoryValue.Basic24.json"),
+                                                               DefaulOutputCollection.AmbinoOutput(2, "Fan3", "fan", "adrilight.AmbinoFactoryValue.Basic24.json"),
+                                                               DefaulOutputCollection.AmbinoOutput(3, "Fan4", "fan", "adrilight.AmbinoFactoryValue.Basic24.json"),
+                                                               DefaulOutputCollection.AmbinoOutput(4, "Fan5", "fan", "adrilight.AmbinoFactoryValue.Basic24.json"),
+                                                               DefaulOutputCollection.AmbinoOutput(5, "Fan6", "fan", "adrilight.AmbinoFactoryValue.Basic24.json"),
+                                                               DefaulOutputCollection.AmbinoOutput(6, "Fan7", "fan", "adrilight.AmbinoFactoryValue.Basic24.json"),
+                                                               DefaulOutputCollection.AmbinoOutput(7, "Fan8", "fan", "adrilight.AmbinoFactoryValue.Basic24.json"),
+                                                               DefaulOutputCollection.AmbinoOutput(8, "Fan9", "fan", "adrilight.AmbinoFactoryValue.Basic24.json"),
+                                                               DefaulOutputCollection.AmbinoOutput(9, "Fan10", "fan", "adrilight.AmbinoFactoryValue.Basic24.json")
             },
 
 
@@ -262,8 +287,8 @@ namespace adrilight.Settings
 
                 };
             }
-        }  
-        public  DeviceSettings ambinoHUBV2 {
+        }
+        public DeviceSettings ambinoHUBV2 {
             get
             {
                 return new DeviceSettings {
@@ -282,17 +307,17 @@ namespace adrilight.Settings
                     IsTransferActive = true,
                     AvailableOutputs = new OutputSettings[] { DefaulOutputCollection.GenericLEDStrip(0, 16,"Dải LED 1", 1,true,"ledstrip"),
                                                       DefaulOutputCollection.GenericLEDStrip(1, 16, "Dải LED 2", 1,true,"ledstrip"),
-                                                      DefaulOutputCollection.AmbinoBasic(2, 11,7, "Màn 1",true,"24inch"),
-                                                      DefaulOutputCollection.AmbinoBasic(3, 11,7, "Màn 2",true,"24inch"),
-                                                      DefaulOutputCollection.AmbinoBasic(4, 11,7, "Màn 3",true,"24inch"),
-                                                      DefaulOutputCollection.GenericLEDStrip(5, 16,"Cạnh Bàn", 1,true,"ledstrip")
+                                                     DefaulOutputCollection.AmbinoOutput(2, "LED Màn hình 24", "24inch", "adrilight.AmbinoFactoryValue.Basic24.json"),
+                                                      DefaulOutputCollection.AmbinoOutput(3, "LED Màn hình 24", "24inch", "adrilight.AmbinoFactoryValue.Basic24.json"),
+                                                      DefaulOutputCollection.AmbinoOutput(4, "LED Màn hình 24", "24inch", "adrilight.AmbinoFactoryValue.Basic24.json"),
+                                                       DefaulOutputCollection.AmbinoOutput(5, "LED Cạnh Bàn", "ledstrip", "adrilight.AmbinoFactoryValue.Basic24.json")
 
             }
 
                 };
             }
         }
-        public  DeviceSettings ambinoHUBV3 {
+        public DeviceSettings ambinoHUBV3 {
             get
             {
                 return new DeviceSettings {
@@ -323,8 +348,8 @@ namespace adrilight.Settings
 
                 };
             }
-        } 
-        public  DeviceSettings ambinoRainPow {
+        }
+        public DeviceSettings ambinoRainPow {
             get
             {
                 return new DeviceSettings {
@@ -356,6 +381,6 @@ namespace adrilight.Settings
 
                 };
             }
-        } 
+        }
     }
 }

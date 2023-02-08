@@ -588,8 +588,11 @@ namespace adrilight.ViewModel
         public ICommand SetSelectedItemLiveViewCommand { get; set; }
         public ICommand ResetToDefaultRectangleScaleCommand { get; set; }
         public ICommand AglignSelectedItemstoLeftCommand { get; set; }
-        public ICommand SpreadItemHorizontalCommand { get; set; }
-        public ICommand SpreadItemVerticalCommand { get; set; }
+        public ICommand SpreadItemLeftHorizontalCommand { get; set; }
+        public ICommand SpreadItemRightHorizontalCommand { get; set; }
+
+        public ICommand SpreadItemUpVerticalCommand { get; set; }
+        public ICommand SpreadItemDownVerticalCommand { get; set; }
         public ICommand AglignSelectedItemstoTopCommand { get; set; }
         public ICommand ExportCurrentColorEffectCommand { get; set; }
         public ICommand AddSelectedItemToGroupCommand { get; set; }
@@ -2776,20 +2779,36 @@ namespace adrilight.ViewModel
                 }
             }
        );
-            SpreadItemHorizontalCommand = new RelayCommand<ObservableCollection<IDrawable>>((p) =>
+            SpreadItemRightHorizontalCommand = new RelayCommand<ObservableCollection<IDrawable>>((p) =>
             {
                 return true;
             }, (p) =>
             {
-                SpreadItemHorizontal(p);
+                SpreadItemHorizontal(p, 0);
             }
             );
-            SpreadItemVerticalCommand = new RelayCommand<ObservableCollection<IDrawable>>((p) =>
+            SpreadItemLeftHorizontalCommand = new RelayCommand<ObservableCollection<IDrawable>>((p) =>
             {
                 return true;
             }, (p) =>
             {
-                SpreadItemVertical(p);
+                SpreadItemHorizontal(p, 1);
+            }
+            );
+            SpreadItemUpVerticalCommand = new RelayCommand<ObservableCollection<IDrawable>>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                SpreadItemVertical(p, 1);
+            }
+           );
+            SpreadItemDownVerticalCommand = new RelayCommand<ObservableCollection<IDrawable>>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                SpreadItemVertical(p, 0);
             }
             );
             AglignSelectedItemstoTopCommand = new RelayCommand<ObservableCollection<IDrawable>>((p) =>
@@ -3234,7 +3253,8 @@ namespace adrilight.ViewModel
                 return true;
             }, (p) =>
             {
-                LaunchVIDEditWindow();
+                LaunchVIDEditWindow(p);
+
             });
             LaunchMIDEditWindowCommand = new RelayCommand<string>((p) =>
             {
@@ -3280,7 +3300,7 @@ namespace adrilight.ViewModel
 
                     CurrentDevice = p;
                     AvailableOutputForSelectedDevice = new List<IOutputSettings>();
-                    foreach (var defaultOutput in DefaulOutputCollection.AvailableDefaultOutputs)
+                    foreach (var defaultOutput in DefaulOutputCollection.AvailableDefaultOutputsForAmbinoBasic)
                     {
                         if (defaultOutput.TargetDevice == CurrentDevice.DeviceType)
                         {
@@ -3537,31 +3557,9 @@ namespace adrilight.ViewModel
                 return p != null;
             }, (p) =>
             {
-                //p.SetVID(ActivatedSpots.Count() - MaxLEDCount--);
-                //ReorderActivatedSpot();
 
-                if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) || Mouse.LeftButton == MouseButtonState.Pressed)
-                {
-                    //p.SetStroke(0.5);
-                    p.SetVID(CountVID += GapVID);
-                    p.IsEnabled = true;
-                    if (CountVID > 1023)
-                        CountVID = 0;
-                }
-                else if (Keyboard.IsKeyDown(Key.LeftShift))
-                {
-                    p.SetStroke(0.0);
-                    p.SetVID(0);
-                    p.IsEnabled = false;
-                    if (CountVID >= GapVID)
-                    {
-                        CountVID -= GapVID;
-                    }
-                    else
-                        CountVID = 0;
-                }
+                SetSpotID(p);
 
-                //p.SetIDVissible(true);
             });
             NextOutputCommand = new RelayCommand<string>((p) =>
             {
@@ -3628,28 +3626,50 @@ namespace adrilight.ViewModel
             return p != null;
         }, (p) =>
         {
-            switch (p)
-            {
-                case "ResetPID":
-                    Count = 0;
-                    foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                    {
-                        spot.SetStroke(0);
-                    }
-                    break;
 
-                case "ResetVID":
-                    Count = 0;
-                    foreach (var output in CurrentDevice.AvailableOutputs)
+            switch (CurrentIDType)
+            {
+                case "VID":
+                    foreach (var device in AvailableDevices.Where(d => !d.IsDummy))
                     {
-                        foreach (var spot in output.OutputLEDSetup.Spots)
+                        foreach (var output in device.AvailableOutputs)
                         {
-                            spot.SetStroke(0);
-                            spot.SetVID(0);
-                            spot.IsEnabled = false;
+                            foreach (var spot in output.OutputLEDSetup.Spots)
+                            {
+
+                                spot.SetVID(0);
+                                spot.IsEnabled = false;
+                            }
                         }
                     }
+                    break;
+                case "FID":
+                    foreach (var device in AvailableDevices.Where(d => !d.IsDummy))
+                    {
+                        foreach (var output in device.AvailableOutputs)
+                        {
+                            foreach (var spot in output.OutputLEDSetup.Spots)
+                            {
 
+                                spot.SetMID(0);
+                                spot.IsEnabled = false;
+                            }
+                        }
+                    }
+                    break;
+                case "CID":
+                    foreach (var device in AvailableDevices.Where(d => !d.IsDummy))
+                    {
+                        foreach (var output in device.AvailableOutputs)
+                        {
+                            foreach (var spot in output.OutputLEDSetup.Spots)
+                            {
+
+                                spot.SetCID(0);
+                                spot.IsEnabled = false;
+                            }
+                        }
+                    }
                     break;
             }
         });
@@ -5435,29 +5455,106 @@ namespace adrilight.ViewModel
             get { return _vIDEditWindowsRichCanvasItems; }
             set { _vIDEditWindowsRichCanvasItems = value; RaisePropertyChanged(); }
         }
-        private void LaunchVIDEditWindow()
+        private bool _showAllDevicePID = false;
+        private bool _showAllOutputPID = false;
+        public bool ShowAllDevicePID {
+            get { return _showAllDevicePID; }
+            set
+            {
+                _showAllDevicePID = value;
+                if (value)
+                    ShowAllOutputPID = value;
+                RaisePropertyChanged();
+                RaisePropertyChanged(nameof(ShowAllOutputPID));
+                switch (value)
+                {
+                    case true:
+                        //clear canvas anyway
+                        //show all output and device
+                        VIDEditWindowsRichCanvasItems.Clear();
+                        foreach (var device in AvailableDevices.Where(d => !d.IsDummy))
+                        {
+                            foreach (var output in device.AvailableOutputs)
+                            {
+
+                                VIDEditWindowsRichCanvasItems.Add(output as OutputSettings);
+
+                            }
+                        }
+                        break;
+                    case false:
+                        VIDEditWindowsRichCanvasItems.Clear();
+
+
+                        VIDEditWindowsRichCanvasItems.Add(CurrentOutput as OutputSettings);
+
+                        //remove all other output, just keep current selected output
+                        break;
+                }
+            }
+        }
+        public bool ShowAllOutputPID {
+            get { return _showAllOutputPID; }
+            set
+            {
+                _showAllOutputPID = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private string _currentIDType;
+        public string CurrentIDType {
+            get { return _currentIDType; }
+            set { _currentIDType = value; }
+        }
+
+        private void LaunchVIDEditWindow(string idType)
         {
+            CurrentIDType = idType;
             selectedSpots = new ObservableCollection<IDrawable>();
+            //reset all count
+            CountVID = 0;
+            GapVID = 0;
             //add output border rect
             VIDEditWindowsRichCanvasItems = new ObservableCollection<IDrawable>();
-            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
+            if (ShowAllDevicePID)
             {
-                (spot as IDrawable).IsResizeable = false;
-                (spot as IDrawable).IsDeleteable = true;
-                VIDEditWindowsRichCanvasItems.Add(spot as DeviceSpot);
+                foreach (var device in AvailableDevices.Where(d => !d.IsDummy))
+                {
+                    foreach (var output in device.AvailableOutputs)
+                    {
+
+                        VIDEditWindowsRichCanvasItems.Add(output as OutputSettings);
+
+                    }
+                }
             }
-          
+
+            else
+            {
+                if (ShowAllOutputPID)
+                {
+                    foreach (var output in CurrentDevice.AvailableOutputs)
+                    {
+                        VIDEditWindowsRichCanvasItems.Add(output as OutputSettings);
+                    }
+                }
+                else
+                    VIDEditWindowsRichCanvasItems.Add(CurrentOutput as OutputSettings);
+            }
+
+
             //this is maximum border(physical screen size) that device chose to capture from
             BackupSpots = new List<IDeviceSpot>();
             foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
             {
                 BackupSpots.Add(spot);
             }
-           // CurrentOutput.IsInSpotEditWizard = true;
+            // CurrentOutput.IsInSpotEditWizard = true;
             ActivatedSpots = new List<IDeviceSpot>();
             // RaisePropertyChanged(nameof(CurrentOutput.IsInSpotEditWizard));
 
-
+            IsRichCanvasWindowOpen = true;
             vidEditCanvasWindow = new VIDEditCanvasWindow();
             vidEditCanvasWindow.Owner = System.Windows.Application.Current.MainWindow;
             vidEditCanvasWindow.ShowDialog();
@@ -5475,22 +5572,22 @@ namespace adrilight.ViewModel
                 (spot as IDrawable).IsDeleteable = true;
                 PIDEditWindowsRichCanvasItems.Add(spot as DeviceSpot);
             }
-            Border border = new Border() {
-                Width = (CurrentOutput as OutputSettings).Width,
-                Height = (CurrentOutput as OutputSettings).Height,
-                IsDraggable = true,
-                IsSelectable = true,
-                IsResizeable = true,
-                IsDeleteable = false,
-                ShouldBringIntoView = true
+            //Border border = new Border() {
+            //    Width = (CurrentOutput as OutputSettings).Width,
+            //    Height = (CurrentOutput as OutputSettings).Height,
+            //    IsDraggable = true,
+            //    IsSelectable = true,
+            //    IsResizeable = true,
+            //    IsDeleteable = false,
+            //    ShouldBringIntoView = true
 
-            };
+            //};
             //this is maximum border(physical screen size) that device chose to capture from
             Border screen = new Border() {
                 Width = Screen.PrimaryScreen.Bounds.Width,
                 Height = Screen.PrimaryScreen.Bounds.Height,
-                IsDraggable = true,
-                IsSelectable = true,
+                IsDraggable = false,
+                IsSelectable = false,
                 IsResizeable = false,
                 IsDeleteable = false,
                 ShouldBringIntoView = false
@@ -5506,7 +5603,6 @@ namespace adrilight.ViewModel
                 Geometry = "basic24"
             };
             PIDEditWindowsRichCanvasItems.Insert(0, pathGuide);
-            PIDEditWindowsRichCanvasItems.Insert(0, border);
             PIDEditWindowsRichCanvasItems.Insert(0, screen);
 
             BackupSpots = new List<IDeviceSpot>();
@@ -5529,7 +5625,7 @@ namespace adrilight.ViewModel
 
         }
 
-    
+
 
         private void LaunchMIDEditWindow()
         {
@@ -5714,43 +5810,84 @@ namespace adrilight.ViewModel
                 item.Left = minLeft;
             }
         }
-        private void SpreadItemHorizontal(ObservableCollection<IDrawable> itemSource)
+        private void SpreadItemHorizontal(ObservableCollection<IDrawable> itemSource, int dirrection)
         {
             //get min X
             double spacing = 10.0;
             double minLeft = itemSource.OfType<IDrawable>().Where(d => d.IsSelected).Min(x => x.Left);
             var selectedItems = itemSource.OfType<IDrawable>().Where(d => d.IsSelected).ToArray();
-            for (int i = 0; i < selectedItems.Count(); i++)
+            switch (dirrection)
             {
-                if (i == 0)
-                    selectedItems[i].Left = minLeft;
-                else
-                {
-                    var previousLeft = selectedItems[i - 1].Left;
-                    selectedItems[i].Left = selectedItems[i - 1].Width + previousLeft + spacing;
-                }
+                case 0:
+                    for (int i = 0; i < selectedItems.Count(); i++)
+                    {
+                        if (i == 0)
+                            selectedItems[i].Left = minLeft;
+                        else
+                        {
+                            var previousLeft = selectedItems[i - 1].Left;
+                            selectedItems[i].Left = selectedItems[i - 1].Width + previousLeft + spacing;
+                        }
+
+                    }
+                    AglignSelectedItemstoTop(itemSource);
+                    break;
+                case 1:
+                    for (int i = 0; i < selectedItems.Count(); i++)
+                    {
+                        if (i == 0)
+                            selectedItems[i].Left = minLeft;
+                        else
+                        {
+                            var previousLeft = selectedItems[i - 1].Left;
+                            selectedItems[i].Left = previousLeft - (selectedItems[i].Width + spacing);
+                        }
+
+                    }
+                    AglignSelectedItemstoTop(itemSource);
+                    break;
 
             }
-            AglignSelectedItemstoTop(itemSource);
         }
-        private void SpreadItemVertical(ObservableCollection<IDrawable> itemSource)
+        private void SpreadItemVertical(ObservableCollection<IDrawable> itemSource, int dirrection)
         {
             //get min Y
             double spacing = 10.0;
             double minTop = itemSource.OfType<IDrawable>().Where(d => d.IsSelected).Min(x => x.Top);
             var selectedItems = itemSource.OfType<IDrawable>().Where(d => d.IsSelected).ToArray();
-            for (int i = 0; i < selectedItems.Count(); i++)
+            switch (dirrection)
             {
-                if (i == 0)
-                    selectedItems[i].Top = minTop;
-                else
-                {
-                    var previousTop = selectedItems[i - 1].Top;
-                    selectedItems[i].Top = selectedItems[i - 1].Height + previousTop + spacing;
-                }
+                case 0:
+                    for (int i = 0; i < selectedItems.Count(); i++)
+                    {
+                        if (i == 0)
+                            selectedItems[i].Top = minTop;
+                        else
+                        {
+                            var previousTop = selectedItems[i - 1].Top;
+                            selectedItems[i].Top = selectedItems[i - 1].Height + previousTop + spacing;
+                        }
+
+                    }
+                    AglignSelectedItemstoLeft(itemSource);
+                    break;
+                case 1:
+                    for (int i = 0; i < selectedItems.Count(); i++)
+                    {
+                        if (i == 0)
+                            selectedItems[i].Top = minTop;
+                        else
+                        {
+                            var previousTop = selectedItems[i - 1].Top;
+                            selectedItems[i].Top = previousTop - (selectedItems[i].Height + spacing);
+                        }
+
+                    }
+                    AglignSelectedItemstoLeft(itemSource);
+                    break;
 
             }
-            AglignSelectedItemstoLeft(itemSource);
+
         }
         private void AglignSelectedItemstoTop(ObservableCollection<IDrawable> itemSource)
         {
@@ -5849,7 +5986,7 @@ namespace adrilight.ViewModel
                 newItems.Add(newItem);
 
             }
-            SpreadItemHorizontal(newItems);
+            SpreadItemHorizontal(newItems, 0);
             foreach (var item in newItems)
             {
                 PIDEditWindowsRichCanvasItems.Add(item);
@@ -5892,28 +6029,41 @@ namespace adrilight.ViewModel
                 item.IsDraggable = true;
             }
         }
+
+
         private void SaveCurrentLEDSetupLayout()
         {
             //get width and height of current border
-            var border = PIDEditWindowsRichCanvasItems.OfType<IDrawable>().Where(d => d is Border && d.IsResizeable).FirstOrDefault();
+            if (PIDEditWindowsRichCanvasItems.OfType<IDrawable>().Where(d => d is DeviceSpot).Count() == 0)
+            {
+                HandyControl.Controls.MessageBox.Show("Bạn phải thêm ít nhất 1 LED", "Invalid LED number", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            
             var screen = PIDEditWindowsRichCanvasItems.OfType<IDrawable>().Where(d => d is Border && !d.IsResizeable).FirstOrDefault();
             var maxX = PIDEditWindowsRichCanvasItems.OfType<IDrawable>().Where(d => d is DeviceSpot).MaxBy(d => (d.Width + d.Left)).FirstOrDefault();
             var maxY = PIDEditWindowsRichCanvasItems.OfType<IDrawable>().Where(d => d is DeviceSpot).MaxBy(d => (d.Height + d.Top)).FirstOrDefault();
             var minX = PIDEditWindowsRichCanvasItems.OfType<IDrawable>().Where(d => d is DeviceSpot).MinBy(d => (d.Left)).FirstOrDefault();
             var minY = PIDEditWindowsRichCanvasItems.OfType<IDrawable>().Where(d => d is DeviceSpot).MinBy(d => (d.Top)).FirstOrDefault();
             //check if there is any item is out of the border
-            if ((maxX.Width + maxX.Left) > (border.Width + border.Left) ||
-                (maxY.Height + maxX.Top) > (border.Height + border.Top) ||
-                minX.Left < border.Left ||
-                minY.Top < border.Top
-                )
-            {
-                //this indicate there is atleast one of the item jumping out of the border
-                HandyControl.Controls.MessageBox.Show("Kiểm tra lại vị trí, có LED vượt ra ngoài ranh giới", "Out of range", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+            var border = new Border() {
+                Left = minX.Left,
+                Top = minY.Top,
+                Width = maxX.Width + maxX.Left - minX.Left,
+                Height = maxY.Height + maxY.Top - minY.Top
+            };
+            //if ((maxX.Width + maxX.Left) > (border.Width + border.Left) ||
+            //    (maxY.Height + maxX.Top) > (border.Height + border.Top) ||
+            //    minX.Left < border.Left ||
+            //    minY.Top < border.Top
+            //    )
+            //{
+            //    //this indicate there is atleast one of the item jumping out of the border
+            //    HandyControl.Controls.MessageBox.Show("Kiểm tra lại vị trí, có LED vượt ra ngoài ranh giới", "Out of range", MessageBoxButton.OK, MessageBoxImage.Error);
+            //    return;
+            //}
             //check if the border is out of the screen
-            if (border.Left < screen.Left || border.Left + border.Width > screen.Width || border.Top < screen.Top || border.Top + border.Height > screen.Height)
+            if (border.Left < screen.Left || border.Left + border.Width > screen.Width + screen.Left || border.Top < screen.Top || border.Top + border.Height > screen.Height + screen.Height)
             {
                 HandyControl.Controls.MessageBox.Show("Vị trí hoặc kích thước của thiết bị vượt ra ngoài giới hạn màn hình", "Out of range", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -5983,7 +6133,74 @@ namespace adrilight.ViewModel
             surfaceeditorWindow.Close();
             IsRichCanvasWindowOpen = false;
         }
+        private void SetSpotID(IDeviceSpot spot)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) || Mouse.LeftButton == MouseButtonState.Pressed)
+            {
+                switch (CurrentIDType)
+                {
+                    case "VID":
+                        spot.SetVID(CountVID += GapVID);
+                        spot.IsEnabled = true;
+                        if (CountVID > 1023)
+                            CountVID = 0;
+                        break;
+                    case "FID":
+                        spot.SetMID(CountVID += GapVID);
+                        spot.IsEnabled = true;
+                        if (CountVID > 1023)
+                            CountVID = 0;
+                        break;
+                    case "CID":
+                        spot.SetCID(CountVID += GapVID);
+                        spot.IsEnabled = true;
+                        if (CountVID > 32)
+                            CountVID = 0;
+                        break;
 
+                }
+
+            }
+            else if (Keyboard.IsKeyDown(Key.LeftShift))
+            {
+                switch (CurrentIDType)
+                {
+                    case "VID":
+                        spot.SetVID(0);
+                        spot.IsEnabled = false;
+                        if (CountVID >= GapVID)
+                        {
+                            CountVID -= GapVID;
+                        }
+                        else
+                            CountVID = 0;
+                        break;
+                    case "FID":
+                        spot.SetMID(0);
+                        spot.IsEnabled = false;
+                        if (CountVID >= GapVID)
+                        {
+                            CountVID -= GapVID;
+                        }
+                        else
+                            CountVID = 0;
+                        break;
+                    case "CID":
+                        spot.SetCID(0);
+                        spot.IsEnabled = false;
+                        if (CountVID >= GapVID)
+                        {
+                            CountVID -= GapVID;
+                        }
+                        else
+                            CountVID = 0;
+                        break;
+
+                }
+
+            }
+
+        }
         private void OpenSurfaceEditorWindow()
         {
             SurfaceEditorItems = new ObservableCollection<IDrawable>();

@@ -295,7 +295,7 @@
                                     </Grid.ColumnDefinitions>
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="MouseDown" >
-                                            <i:InvokeCommandAction Command="{Binding LaunchMIDEditWindowCommand }" />
+                                            <i:InvokeCommandAction Command="{Binding LaunchVIDEditWindowCommand}" CommandParameter="FID"/>
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                     <Path Stretch="Uniform" Margin="5" Data="{StaticResource custom}" 
@@ -418,7 +418,7 @@
                 </GroupBox>
 
                 <Grid Margin="15,0,15,0" Grid.Column="1">
-                    <Button Command="{Binding LaunchCIDEditWindowCommand}" hc:IconElement.Geometry="{StaticResource fft}" Content="Chọn tần số"/>
+                    <Button Command="{Binding LaunchVIDEditWindowCommand}" CommandParameter="CID" hc:IconElement.Geometry="{StaticResource fft}" Content="Chọn tần số"/>
                 </Grid>
 
             </Grid>
