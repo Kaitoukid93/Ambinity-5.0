@@ -64,11 +64,10 @@
 
                                 <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <WrapPanel>
-
-                                        </WrapPanel>
+                                        <WrapPanel Orientation="Vertical"/>
                                     </ItemsPanelTemplate>
                                 </ListBox.ItemsPanel>
+                             
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
                                         <Grid>
@@ -94,7 +93,11 @@
 
             </Grid>
             <Grid>
-                <hc:NumericUpDown Value="{Binding NewItemSize}" x:Name="sizebox" DecimalPlaces="1" ShowClearButton="True"  hc:InfoElement.TitleWidth="90"  hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="SIZE" Style="{StaticResource NumericUpDownPlus}" hc:InfoElement.Necessary="True" Margin="0,15,10,0"/>
+                <StackPanel>
+                    <hc:NumericUpDown Value="{Binding NewItemWidth}" x:Name="width" DecimalPlaces="1" ShowClearButton="True"  hc:InfoElement.TitleWidth="90"  hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="WIDTH" Style="{StaticResource NumericUpDownPlus}" hc:InfoElement.Necessary="True" Margin="0,15,10,0"/>
+                    <hc:NumericUpDown Value="{Binding NewItemHeight}" x:Name="height" DecimalPlaces="1" ShowClearButton="True"  hc:InfoElement.TitleWidth="90"  hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="HEIGHT" Style="{StaticResource NumericUpDownPlus}" hc:InfoElement.Necessary="True" Margin="0,15,10,0"/>
+                </StackPanel>
+              
             </Grid>
             <Grid>
                 <hc:NumericUpDown Value="{Binding ItemNumber}" x:Name="numberbox" DecimalPlaces="0" ShowClearButton="True"  hc:InfoElement.TitleWidth="90"   hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="QUANTITY" Style="{StaticResource NumericUpDownPlus}" hc:InfoElement.Necessary="True" Margin="0,15,10,0"/>

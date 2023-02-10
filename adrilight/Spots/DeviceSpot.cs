@@ -17,12 +17,16 @@ namespace adrilight.Spots
     sealed class DeviceSpot : ViewModelBase, IDisposable, IDeviceSpot, IDrawable
     {
 
-        public DeviceSpot(int x, int y, double top, double left, double width, double height,int index,int positionIndex, int virtualIndex , int musicIndex, int columnIndex, bool isActivated, bool isIDVissible, string shape)
+        public DeviceSpot(int x, int y, double top, double left, double width, double height, double scaleTop, double scaleLeft, double scaleWidth, double scaleHeight, int index, int positionIndex, int virtualIndex, int musicIndex, int columnIndex, bool isActivated, bool isIDVissible, string shape)
         {
             Top = top;
             Left = left;
             Width = width;
             Height = height;
+            ScaleTop = scaleTop;
+            ScaleLeft = scaleLeft;
+            ScaleWidth = scaleWidth;
+            ScaleHeight = scaleHeight;
             Shape = shape;
 
             RadiusX = 0;
@@ -48,7 +52,7 @@ namespace adrilight.Spots
             VisualProperties = new VisualProperties();
             Scale = new System.Windows.Point(1, 1);
         }
-        
+
         public int id { get; set; }
 
         private bool _isFirst;
@@ -63,7 +67,7 @@ namespace adrilight.Spots
         public Color SentryColor => Color.FromRgb(SentryRed, SentryGreen, SentryBlue);
         public Color OnDemandColorTransparent => Color.FromArgb(255, Red, Green, Blue);
         public int RadiusX { get; set; }
-        public int RadiusY { get;  set; }
+        public int RadiusY { get; set; }
         public string ID { get; set; }
         public int VID { get; set; }
         public bool IsEnabled { get; set; } = true;
@@ -99,25 +103,25 @@ namespace adrilight.Spots
             SentryRed = red;
             SentryGreen = green;
             SentryBlue = blue;
-           
 
-           
+
+
         }
         public void SetStroke(double strokeThickness)
         {
-            BorderThickness=strokeThickness;
+            BorderThickness = strokeThickness;
             RaisePropertyChanged(nameof(BorderThickness));
         }
-      
+
         public void SetVID(int vid)
         {
             VID = vid;
-          
 
-            
-                RaisePropertyChanged(nameof(VID));
-                
-            
+
+
+            RaisePropertyChanged(nameof(VID));
+
+
         }
         public void SetMID(int mid)
         {
@@ -249,9 +253,9 @@ namespace adrilight.Spots
             Left = newParrentWidth * ScaleLeft;
         }
 
-            
 
-        public  void OnLeftChanged(double delta) { }
+
+        public void OnLeftChanged(double delta) { }
 
         public void OnTopChanged(double delta) { }
 
@@ -261,9 +265,10 @@ namespace adrilight.Spots
 
         public void OnRotationChanged() { }
 
-        public void OnIsSelectedChanged(bool value) {
-        
-        if(value)
+        public void OnIsSelectedChanged(bool value)
+        {
+
+            if (value)
             {
                 SetColor(255, 0, 0, true);
             }
@@ -271,7 +276,7 @@ namespace adrilight.Spots
             {
                 SetColor(0, 0, 0, true);
             }
-        
+
         }
 
         public void OnDrawingEnded(Action<object> callback = default) { }

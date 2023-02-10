@@ -151,11 +151,11 @@ namespace adrilight
                 }
                 catch (Exception ex)
                 {
-                    if (ex.Message == "ORGB busy")
-                    {
-                        // no device available
-                        HandyControl.Controls.MessageBox.Show("Không có thiết bị bên thứ ba nào được tìm thấy");
-                    }
+                    //if (ex.Message == "ORGB busy")
+                    //{
+                    //    // no device available
+                    //    HandyControl.Controls.MessageBox.Show("Không có thiết bị bên thứ ba nào được tìm thấy");
+                    //}
                 }
             }
 

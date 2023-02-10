@@ -13,7 +13,8 @@
            ResizeMode="NoResize"
             SizeToContent="Height"
            MaxHeight="1000" 
-           Width="400" 
+           Width="400"
+            
            WindowStartupLocation="CenterOwner" 
            Left="0" Top="0">
 
@@ -139,15 +140,29 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
-            <TextBlock  VerticalAlignment="Top" Margin="20,0,20,20" Text="Cấu hình LED" Style="{StaticResource TextBlockLarge}">
+            <TextBlock Style="{DynamicResource TextBlockLarge}" Text="Chọn loại LED"  VerticalAlignment="Top" Margin="20,0,20,20">
+             
 
             </TextBlock>
         </Grid>
         <Grid Grid.Row="1">
-            <!-- LED Setup collection view-->
 
-            <hc:TransitioningContentControl >
-                <ListBox x:Name="outputList" Background="Transparent"  ScrollViewer.CanContentScroll="True"
+       
+          
+            <!--Output Selection-->
+            <Grid>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding OOTBStage}" Value="1">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
+                    <ListBox x:Name="outputList" Background="Transparent"  ScrollViewer.CanContentScroll="True"
                                                   ScrollViewer.VerticalScrollBarVisibility="Auto" 
                                                   ItemContainerStyle="{StaticResource _ListBoxCardsCollectionStyle}"      
                                                   SelectedItem="{Binding SelectedOutputForCurrentDevice}"
@@ -159,31 +174,33 @@
                                                   ItemsSource="{Binding AvailableOutputForSelectedDevice }">
 
 
-                    <ListBox.ItemTemplate>
-                        <DataTemplate DataType="data:CardModel">
-                            <hc:Card BorderBrush="Transparent" ToolTip="{Binding Description}" hc:BorderElement.CornerRadius="2"  MaxWidth="120"  Effect="{StaticResource EffectShadow2}"  Footer="{Binding OutputName}">
-                                <Border Margin="0,0,0,0" Background="Transparent" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="data:CardModel">
+                                <hc:Card BorderBrush="Transparent" ToolTip="{Binding Description}" hc:BorderElement.CornerRadius="2"  MaxWidth="120"  Effect="{StaticResource EffectShadow2}"  Footer="{Binding OutputName}">
+                                    <Border Margin="0,0,0,0" Background="Transparent" HorizontalAlignment="Center" VerticalAlignment="Center">
 
-                                    <Path Margin="10" Data="{Binding Geometry, Converter={converters:StaticResourceConverter}}" Width="72" Height="72" Fill="{StaticResource PrimaryBrush}" Stretch="Uniform" />
-                                </Border>
+                                        <Path Margin="10" Data="{Binding Geometry, Converter={converters:StaticResourceConverter}}" Width="72" Height="72" Fill="{StaticResource PrimaryBrush}" Stretch="Uniform" />
+                                    </Border>
 
-                                <hc:Card.FooterTemplate>
-                                    <DataTemplate>
+                                    <hc:Card.FooterTemplate>
+                                        <DataTemplate>
 
-                                        <TextBlock Margin="5" TextWrapping="NoWrap" TextTrimming="None" Style="{StaticResource TextBlockDefault}" Text="{Binding DataContext.OutputName,RelativeSource={RelativeSource AncestorType=hc:Card}}" HorizontalAlignment="Center"/>
-
-
-                                    </DataTemplate>
-                                </hc:Card.FooterTemplate>
+                                            <TextBlock Margin="5" TextWrapping="NoWrap" TextTrimming="None" Style="{StaticResource TextBlockDefault}" Text="{Binding DataContext.OutputName,RelativeSource={RelativeSource AncestorType=hc:Card}}" HorizontalAlignment="Center"/>
 
 
-                            </hc:Card>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
+                                        </DataTemplate>
+                                    </hc:Card.FooterTemplate>
 
-                </ListBox>
-            </hc:TransitioningContentControl>
 
+                                </hc:Card>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+
+                    </ListBox>
+                </hc:TransitioningContentControl>
+            </Grid>
+         
+        
         </Grid>
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
@@ -191,13 +208,8 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-            <Button Click="Done_Button_Click" Command="{Binding SetCurrentSelectedOutputForCurrentSelectedDeviceCommand}" Margin="10"  Grid.Column="2" Content="Done" CommandParameter="done">
-
-            </Button>
-
-
-            <Button Click="Cancel_Button_Click" Background="Transparent" Margin="10" Grid.Column="1" Content="Cancel">
-
+            <Button  Click="Done_Button_Click" Command="{Binding SetCurrentSelectedOutputForCurrentSelectedOutputCommand}" CommandParameter="done" Margin="10"  Grid.Column="2" Content="Done">
+                
             </Button>
 
         </Grid>

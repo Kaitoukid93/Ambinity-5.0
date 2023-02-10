@@ -227,24 +227,28 @@ namespace adrilight.Util
                             newDevice.DeviceType = "ABFANHUB";
                             newDevice.DeviceConnectionType = "wired";
                             newDevice.OutputPort = device;
+                            newDevice.IsSizeNeedUserDefine = true;
                             break;
                         case "Ambino HubV2":
                             newDevice = availableDefaultDevice.ambinoHUBV2;
                             newDevice.DeviceType = "ABHUBV2";
                             newDevice.DeviceConnectionType = "wired";
                             newDevice.OutputPort = device;
+                            newDevice.IsSizeNeedUserDefine = true;
                             break;
                         case "Ambino HubV3":
                             newDevice = availableDefaultDevice.ambinoHUBV3;
                             newDevice.DeviceType = "ABHUBV3";
                             newDevice.DeviceConnectionType = "wired";
                             newDevice.OutputPort = device;
+                            newDevice.IsSizeNeedUserDefine = true;
                             break;
                         case "Ambino RainPow":
                             newDevice = availableDefaultDevice.ambinoRainPow;
                             newDevice.DeviceType = "ABRP";
                             newDevice.DeviceConnectionType = "wired";
                             newDevice.OutputPort = device;
+                            newDevice.IsSizeNeedUserDefine = true;
                             break;
                     }
 

@@ -140,30 +140,45 @@
                                     </StackPanel>
                                 </Border>
                             </Grid.ToolTip>
-                            <Grid.Style>
-                                <Style>
-                                    <Setter Property="richCanvas:RichItemContainer.ApplyTransform">
-                                        <Setter.Value>
-                                            <TransformGroup >
-                                                <ScaleTransform/>
-                                                <TranslateTransform  />
-                                                <RotateTransform Angle="{Binding Angle}" />
-                                            </TransformGroup>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </Grid.Style>
-                            <Path Data="{Binding Shape,Converter={converters:StaticResourceConverter}}" 
+                            <Path RenderTransformOrigin="0.5,0.5" Data="{Binding Shape,Converter={converters:StaticResourceConverter}}" 
                               Stretch="Fill"
                               Width="{Binding Width}"
                               Height="{Binding Height}">
                                 <Path.Fill>
                                     <SolidColorBrush Color="{Binding OnDemandColor}"  />
                                 </Path.Fill>
-
+                                <Path.Style>
+                                    <Style TargetType="{x:Type Path}">
+                                        <Setter Property="RenderTransform">
+                                            <Setter.Value>
+                                                <TransformGroup >
+                                                    <ScaleTransform/>
+                                                    <TranslateTransform  />
+                                                    <RotateTransform Angle="{Binding Angle}" />
+                                                </TransformGroup>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Path.Style>
                             </Path>
-                            <Viewbox Stretch="Uniform">
-                                <TextBlock Margin="5" Foreground="White" Text="{Binding id}" Style="{DynamicResource TextBlockDefault}"/>
+                            <Viewbox RenderTransformOrigin="0.5,0.5" Stretch="Uniform">
+                                <Viewbox.Style>
+                                    <Style TargetType="{x:Type Viewbox}">
+                                        <Setter Property="RenderTransform">
+                                            <Setter.Value>
+                                                <TransformGroup >
+                                                    <ScaleTransform/>
+                                                    <TranslateTransform  />
+                                                    <RotateTransform Angle="{Binding Angle}" />
+                                                </TransformGroup>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Viewbox.Style>
+                             
+                                    <TextBlock Margin="5" Foreground="White" Text="{Binding id}" Style="{DynamicResource TextBlockDefault}"/>
+                             
+                                
                             </Viewbox>
                         </Grid>
 
@@ -277,6 +292,7 @@
                                 </ControlTemplate>
                             </Setter.Value>
                         </Setter>-->
+                        
                         <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
                         <Setter Property="Tag"
                             Value="{Binding DataContext, ElementName=window}" />
@@ -320,6 +336,12 @@
                                         <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
                                             <MenuItem Header="Thu phóng"
                                           Command="{Binding OpenRectangleScaleCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}">
+                                                <MenuItem.Icon>
+                                                    <Path Data="{StaticResource scale}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Xoay"
+                                          Command="{Binding OpenRectangleRotateCommand}" CommandParameter="rotate">
                                                 <MenuItem.Icon>
                                                     <Path Data="{StaticResource scale}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>

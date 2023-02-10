@@ -116,7 +116,7 @@
                     <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                     </hc:Divider>
-                    <Grid Name="OpenRGBEnable">
+                    <Grid Visibility="Collapsed" Name="OpenRGBEnable">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"/>
                             <RowDefinition Height="auto"/>

@@ -37,7 +37,7 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Click="Button_Click" Command="{Binding SetSelectedItemRotateFactorCommand}"
+                <Button Click="Button_Click" Command="{Binding SetSelectedItemRotateFactorCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}"
                         Margin="5,10,5,5" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
                 <Button Click="Button_Click" Background="Transparent" Margin="5,10,5,5" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
             </Grid>

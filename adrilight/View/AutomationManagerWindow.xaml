@@ -69,13 +69,6 @@
 
 
                                     </MenuItem>
-                                    <MenuItem Command="{Binding PlacementTarget.Tag.LaunchPIDEditWindowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="Delete"  Header="Add to System Tray">
-                                        <MenuItem.Icon>
-                                            <Path   Data="{DynamicResource fullscreen}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                        </MenuItem.Icon>
-
-
-                                    </MenuItem>
                                 </ContextMenu>
 
                             </Setter.Value>

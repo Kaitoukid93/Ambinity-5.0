@@ -342,8 +342,8 @@ namespace adrilight
 
 
 
-                byte lo = (byte)((currentOutput.OutputLEDSetup.Spots.Count * ledPerSpot) & 0xff);
-                byte hi = (byte)(((currentOutput.OutputLEDSetup.Spots.Count * ledPerSpot) >> 8) & 0xff);
+                byte lo = (byte)((currentOutput.OutputLEDSetup.Spots.Count == 0 ? 1 : currentOutput.OutputLEDSetup.Spots.Count * ledPerSpot) & 0xff);
+                byte hi = (byte)(((currentOutput.OutputLEDSetup.Spots.Count == 0 ? 1 : currentOutput.OutputLEDSetup.Spots.Count * ledPerSpot) >> 8) & 0xff);
                 byte chk = (byte)(hi ^ lo ^ 0x55);
                 outputStream[counter++] = hi;
                 outputStream[counter++] = lo;
@@ -355,77 +355,88 @@ namespace adrilight
                 var parrentIsEnabled = DeviceSettings.IsEnabled;
                 var allBlack = true;
                 //}
-                switch (DeviceSettings.CurrentState)
+                if (currentOutput.OutputLEDSetup.Spots.Count == 0)//this could be PID has removed all items
+                                                                  //add 1 dummy
                 {
-                    case State.normal: // get data from ledsetup
-                        if (!DeviceSettings.IsEnabled || !output.OutputIsEnabled)
-                        {
+                    outputStream[counter++] = 0; // blue
+                    outputStream[counter++] = 0; // green
+                    outputStream[counter++] = 0; // red
+                }
+                else
+                {
+                    switch (DeviceSettings.CurrentState)
+                    {
+                        case State.normal: // get data from ledsetup
+                            if (!DeviceSettings.IsEnabled || !output.OutputIsEnabled)
+                            {
 
                                 output.OutputLEDSetup.DimLED(0.9f);
 
-                        }
-
-
-                        foreach (DeviceSpot spot in currentOutput.OutputLEDSetup.Spots)
-                        {
-
-                            var RGBOrder = currentOutput.OutputRGBLEDOrder;
-                            var reOrderedColor = ReOrderSpotColor(RGBOrder, spot.Red, spot.Green, spot.Blue);
-                            for (int i = 0; i < ledPerSpot; i++)
-                            {
-
-                                outputStream[counter++] = reOrderedColor[0]; // blue
-                                outputStream[counter++] = reOrderedColor[1]; // green
-                                outputStream[counter++] = reOrderedColor[2]; // red
                             }
 
-                            allBlack = allBlack && spot.Red == 0 && spot.Green == 0 && spot.Blue == 0;
 
-
-
-
-
-                        }
-                        break;
-                    case State.sleep: // send black frame data
-                        foreach (DeviceSpot spot in currentOutput.OutputLEDSetup.Spots)
-                        {
-
-                            switch (currentOutput.SleepMode)
+                            foreach (DeviceSpot spot in currentOutput.OutputLEDSetup.Spots)
                             {
-                                case 0:
-                                    if (isEnabled && parrentIsEnabled)
-                                    {
 
-                                        for (int i = 0; i < ledPerSpot; i++)
-                                        {
-                                            outputStream[counter++] = 0; // blue
-                                            outputStream[counter++] = 0; // green
-                                            outputStream[counter++] = 0; // red
-                                        }
-                                    }
-                                    break;
-                                case 1:
-                                    if (isEnabled && parrentIsEnabled)
-                                    {
-                                        var RGBOrder = currentOutput.OutputRGBLEDOrder;
-                                        var reOrderedColor = ReOrderSpotColor(RGBOrder, spot.SentryRed, spot.SentryGreen, spot.SentryBlue);
-                                        for (int i = 0; i < ledPerSpot; i++)
+                                var RGBOrder = currentOutput.OutputRGBLEDOrder;
+                                var reOrderedColor = ReOrderSpotColor(RGBOrder, spot.Red, spot.Green, spot.Blue);
+                                for (int i = 0; i < ledPerSpot; i++)
+                                {
+
+                                    outputStream[counter++] = reOrderedColor[0]; // blue
+                                    outputStream[counter++] = reOrderedColor[1]; // green
+                                    outputStream[counter++] = reOrderedColor[2]; // red
+                                }
+
+                                allBlack = allBlack && spot.Red == 0 && spot.Green == 0 && spot.Blue == 0;
+
+
+
+
+
+                            }
+                            break;
+                        case State.sleep: // send black frame data
+                            foreach (DeviceSpot spot in currentOutput.OutputLEDSetup.Spots)
+                            {
+
+                                switch (currentOutput.SleepMode)
+                                {
+                                    case 0:
+                                        if (isEnabled && parrentIsEnabled)
                                         {
 
-                                            outputStream[counter++] = reOrderedColor[0]; // blue
-                                            outputStream[counter++] = reOrderedColor[1]; // green
-                                            outputStream[counter++] = reOrderedColor[2]; // red
+                                            for (int i = 0; i < ledPerSpot; i++)
+                                            {
+                                                outputStream[counter++] = 0; // blue
+                                                outputStream[counter++] = 0; // green
+                                                outputStream[counter++] = 0; // red
+                                            }
                                         }
-                                    }
-                                    break;
+                                        break;
+                                    case 1:
+                                        if (isEnabled && parrentIsEnabled)
+                                        {
+                                            var RGBOrder = currentOutput.OutputRGBLEDOrder;
+                                            var reOrderedColor = ReOrderSpotColor(RGBOrder, spot.SentryRed, spot.SentryGreen, spot.SentryBlue);
+                                            for (int i = 0; i < ledPerSpot; i++)
+                                            {
+
+                                                outputStream[counter++] = reOrderedColor[0]; // blue
+                                                outputStream[counter++] = reOrderedColor[1]; // green
+                                                outputStream[counter++] = reOrderedColor[2]; // red
+                                            }
+                                        }
+                                        break;
+                                }
+
                             }
 
-                        }
+                            break;
 
-                        break;
-
+                    }
                 }
+
 
 
 
@@ -552,11 +563,9 @@ namespace adrilight
                             else
                                 fastLedTime = ((streamLength - _messagePreamble.Length) / 3.0 * 0.030d);
                             var serialTransferTime = outputBuffer.Length * 10 * 1000 / baudRate;
-                            var fanSpeedSettingTime = 0;
-                            if (DeviceSettings.DeviceType == "ABFANHUB")
-                                if (output.OutputID == 2) // this is the output that share the same dataline with Tx to little core on fanhub
-                                    fanSpeedSettingTime = 2; //so we need to increase sleep time to prevent package skipping
-                            var minTimespan = (int)(fastLedTime + serialTransferTime) + 1 + fanSpeedSettingTime;
+                            var minTimespan = (int)(fastLedTime + serialTransferTime);
+
+
 
                             Thread.Sleep(minTimespan);
                         }

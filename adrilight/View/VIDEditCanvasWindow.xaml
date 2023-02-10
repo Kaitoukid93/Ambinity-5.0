@@ -92,7 +92,7 @@
         <Grid Grid.Row=" 1">
             <richCanvas:RichItemsControl
                  GridStyle="{StaticResource GridStyle}"
-                EnableSnapping="True"
+                EnableSnapping="False"
                 GridSpacing="1"
                 EnableGrid="true"
                 Scrolling="OnScrolling"
@@ -103,25 +103,7 @@
                 Scale="0.5"
                 MousePosition="{Binding MousePosition, Mode=OneWayToSource}"
                 ItemsSource="{Binding VIDEditWindowsRichCanvasItems}">
-                <richCanvas:RichItemsControl.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Thêm LED" Command="{Binding OpenAddNewDrawableItemCommand}">
-                            <MenuItem.Icon>
-                                <Path Data="{StaticResource addpalette}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                            </MenuItem.Icon>
-                        </MenuItem>
-                        <MenuItem Header="Thêm ảnh" Command="{Binding AddImageToPIDCanvasCommand}">
-                            <MenuItem.Icon>
-                                <Path Data="{StaticResource addImage}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                            </MenuItem.Icon>
-                        </MenuItem>
-                        <MenuItem Header="Clear" Command="{Binding ClearPIDCanvasCommand}">
-                            <MenuItem.Icon>
-                                <Path Data="{StaticResource clear}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                            </MenuItem.Icon>
-                        </MenuItem>
-                    </ContextMenu>
-                </richCanvas:RichItemsControl.ContextMenu>
+              
 
                 <richCanvas:RichItemsControl.Resources>
                     <DataTemplate DataType="{x:Type local:LEDSetup}">
@@ -146,8 +128,10 @@
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemContainerStyle>
                                         <Style TargetType="ContentPresenter">
-                                            <Setter Property="Canvas.Left" Value="{Binding Left}"/>
-                                            <Setter Property="Canvas.Top" Value="{Binding Top}"/>
+                                            <Setter Property="Canvas.Left" Value="{Binding Left,Mode=TwoWay}"/>
+                                            <Setter Property="Canvas.Top" Value="{Binding Top,Mode=TwoWay}"/>
+                                            <Setter Property="Width" Value="{Binding Width,Mode=TwoWay}"/>
+                                            <Setter Property="Height" Value="{Binding Height,Mode=TwoWay}"/>
                                         </Style>
                                     </ItemsControl.ItemContainerStyle>
                                     <ItemsControl.ItemTemplate>
@@ -192,10 +176,7 @@
                                                 </i:Interaction.Triggers>
                                                 <Path Data="{Binding Shape,Converter={converters:StaticResourceConverter}}"
                                                 Stretch="Fill"
-                                                ToolTip="{Binding id}" 
-                                                StrokeThickness="{Binding BorderThickness}" 
-                                                Width="{Binding Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
-                                                Height="{Binding Height,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                                ToolTip="{Binding id}">
                                                     <Path.Fill>
                                                         <SolidColorBrush Color="{Binding OnDemandColor}"  />
                                                     </Path.Fill>
@@ -206,28 +187,55 @@
                                                                     <Setter Property="Opacity"  Value="0.5"/>
                                                                 </Trigger>
                                                             </Style.Triggers>
+                                                           
+                                                                <Setter Property="RenderTransform">
+                                                                    <Setter.Value>
+                                                                        <TransformGroup >
+                                                                            <ScaleTransform/>
+                                                                            <TranslateTransform  />
+                                                                            <RotateTransform Angle="{Binding Angle}" />
+                                                                        </TransformGroup>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
                                                         </Style>
                                                     </Path.Style>
                                                 </Path>
-                                                <Viewbox Stretch="Uniform">
-                                                    <TextBlock Margin="5" Foreground="White">
-                                                        <TextBlock.Style>
-                                                            <Style TargetType="TextBlock" BasedOn="{StaticResource TextBlockDefault}">
-                                                                <Setter Property="Text" Value="n"/>
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding DataContext.CurrentIDType,RelativeSource={RelativeSource AncestorType={x:Type view:VIDEditCanvasWindow}}}" Value="VID">
-                                                                        <Setter Property="Text" Value="{Binding VID}"/>
-                                                                    </DataTrigger>
-                                                                    <DataTrigger Binding="{Binding DataContext.CurrentIDType,RelativeSource={RelativeSource AncestorType={x:Type view:VIDEditCanvasWindow}}}" Value="FID">
-                                                                        <Setter Property="Text" Value="{Binding MID}"/>
-                                                                    </DataTrigger>
-                                                                    <DataTrigger Binding="{Binding DataContext.CurrentIDType,RelativeSource={RelativeSource AncestorType={x:Type view:VIDEditCanvasWindow}}}" Value="CID">
-                                                                        <Setter Property="Text" Value="{Binding CID}"/>
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </TextBlock.Style>
-                                                    </TextBlock>
+                                                <Viewbox RenderTransformOrigin="0.5,0.5" Stretch="Uniform">
+                                                    
+                                                        <TextBlock Margin="5"   Foreground="White">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock" BasedOn="{StaticResource TextBlockDefault}">
+                                                                    
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding DataContext.CurrentIDType,RelativeSource={RelativeSource AncestorType={x:Type view:VIDEditCanvasWindow}}}" Value="VID">
+                                                                            <Setter Property="Text" Value="{Binding VID}"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding DataContext.CurrentIDType,RelativeSource={RelativeSource AncestorType={x:Type view:VIDEditCanvasWindow}}}" Value="FID">
+                                                                            <Setter Property="Text" Value="{Binding MID}"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding DataContext.CurrentIDType,RelativeSource={RelativeSource AncestorType={x:Type view:VIDEditCanvasWindow}}}" Value="CID">
+                                                                            <Setter Property="Text" Value="{Binding CID}"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    
+                                                  
+                                                    <Viewbox.Style>
+                                                        <Style TargetType="{x:Type Viewbox}">
+                                                            <Setter Property="RenderTransform">
+                                                                <Setter.Value>
+                                                                    <TransformGroup >
+                                                                        <ScaleTransform/>
+                                                                        <TranslateTransform  />
+                                                                        <RotateTransform Angle="{Binding Angle}" />
+                                                                    </TransformGroup>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </Style>
+                                                    </Viewbox.Style>
                                                 </Viewbox>
                                                 
                                             </Grid>
@@ -237,7 +245,7 @@
                             </Grid>
                         </Grid>
                     </DataTemplate>
-                    <DataTemplate DataType="{x:Type spot:DeviceSpot}">
+                    <!--<DataTemplate DataType="{x:Type spot:DeviceSpot}">
                         <Grid>
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseEnter" >
@@ -275,19 +283,7 @@
                                     </StackPanel>
                                 </Border>
                             </Grid.ToolTip>
-                            <Grid.Style>
-                                <Style>
-                                    <Setter Property="richCanvas:RichItemContainer.ApplyTransform">
-                                        <Setter.Value>
-                                            <TransformGroup >
-                                                <ScaleTransform/>
-                                                <TranslateTransform  />
-                                                <RotateTransform Angle="{Binding Angle}" />
-                                            </TransformGroup>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </Grid.Style>
+                           
                             <Path Data="{Binding Shape,Converter={converters:StaticResourceConverter}}" 
                               Stretch="Fill"
                               Width="{Binding Width}"
@@ -295,12 +291,25 @@
                                 <Path.Fill>
                                     <SolidColorBrush Color="{Binding OnDemandColor}"  />
                                 </Path.Fill>
-
+                                <Path.Style>
+                                    <Style TargetType="{x:Type Path}">
+                                        <Setter Property="RenderTransform">
+                                            <Setter.Value>
+                                                <TransformGroup >
+                                                    <ScaleTransform/>
+                                                    <TranslateTransform  />
+                                                    <RotateTransform Angle="{Binding Angle}" />
+                                                </TransformGroup>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Path.Style>
                             </Path>
+                            
                             <TextBlock Foreground="White" Text="{Binding VID}" Style="{DynamicResource TextBlockTitle}"/>
                         </Grid>
 
-                    </DataTemplate>
+                    </DataTemplate>-->
                     <DataTemplate DataType="{x:Type settings:ImageVisual}">
                         <Image Source="{Binding ImagePath}"
                            Stretch="Uniform" />
