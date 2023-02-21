@@ -4,6 +4,7 @@ using adrilight.Settings;
 using adrilight.Spots;
 using adrilight.Util;
 using adrilight.View;
+using Emgu.CV;
 using GalaSoft.MvvmLight;
 using HandyControl.Controls;
 using HandyControl.Data;
@@ -21,6 +22,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
@@ -57,6 +59,7 @@ namespace adrilight.ViewModel
         private string JsonOpenRGBDevicesFileNameAndPath => Path.Combine(JsonPath, "adrilight-openrgbdevices.json");
         private string JsonGifsFileNameAndPath => Path.Combine(JsonPath, "Gif");
         private string JsonFWToolsFileNameAndPath => Path.Combine(JsonPath, "FWTools");
+        private string JsonAnimationFileNameAndPath => Path.Combine(JsonPath, "Animation");
         private string JsonFWToolsFWListFileNameAndPath => Path.Combine(JsonPath, "adrilight-fwlist.json");
         private string JsonGifsCollectionFileNameAndPath => Path.Combine(JsonPath, "adrilight-gifCollection.json");
         private string JsonGroupFileNameAndPath => Path.Combine(JsonPath, "adrilight-groupInfos.json");
@@ -526,6 +529,7 @@ namespace adrilight.ViewModel
         public ICommand OpenRectangleScaleCommand { get; set; }
         public ICommand OpenAvailableLedSetupForCurrentDeviceWindowCommand { get; set; }
         public ICommand NextOOTBCommand { get; set; }
+        public ICommand OpenTutorialCommand { get; set; }
         public ICommand FinishOOTBCommand { get; set; }
         public ICommand PrevioustOOTBCommand { get; set; }
         public ICommand SkipOOTBCommand { get; set; }
@@ -851,21 +855,21 @@ namespace adrilight.ViewModel
             }
         }
 
-        //public IDeviceProfile CurrentSelectedProfile {
-        //    get { return AvailableProfilesForCurrentDevice.Where(p => p.ProfileUID == CurrentDevice.ActivatedProfileUID).FirstOrDefault(); }
-        //    set
-        //    {
-        //        if (value != null)
-        //        {
-        //            //_currentSelectedProfile = value;
-        //            if (value.ProfileUID != CurrentDevice.ActivatedProfileUID)// change profile
-        //                LoadProfile(value);
-        //            RaisePropertyChanged();
-        //        }
+        public IDeviceProfile CurrentSelectedProfile {
+            get { return AvailableProfilesForCurrentDevice.Where(p => p.ProfileUID == CurrentDevice.ActivatedProfileUID).FirstOrDefault(); }
+            set
+            {
+                if (value != null)
+                {
+                    //_currentSelectedProfile = value;
+                    if (value.ProfileUID != CurrentDevice.ActivatedProfileUID)// change profile
+                        LoadProfile(value);
+                    RaisePropertyChanged();
+                }
 
-        //        //RaisePropertyChanged(nameof(CurrentDevice.AvailableOutputs));
-        //    }
-        //}
+                //RaisePropertyChanged(nameof(CurrentDevice.AvailableOutputs));
+            }
+        }
 
         private ObservableCollection<IDeviceSettings> _displayCards;
 
@@ -1020,17 +1024,7 @@ namespace adrilight.ViewModel
             }
         }
 
-        private ObservableCollection<IModifiersType> _availableModifiers;
 
-        public ObservableCollection<IModifiersType> AvailableModifiers {
-            get { return _availableModifiers; }
-            set
-            {
-                if (_availableModifiers == value) return;
-                _availableModifiers = value;
-                RaisePropertyChanged();
-            }
-        }
 
         private ObservableCollection<string> _availableMatrixStartPoint;
 
@@ -1075,8 +1069,7 @@ namespace adrilight.ViewModel
                 _shaderBitmap = value;
                 RaisePropertyChanged(nameof(ShaderBitmap));
 
-                RaisePropertyChanged(() => CanvasWidth);
-                RaisePropertyChanged(() => CanvasHeight);
+
             }
         }
 
@@ -1111,8 +1104,6 @@ namespace adrilight.ViewModel
                 _gifxelationBitmap = value;
                 RaisePropertyChanged(nameof(GifxelationBitmap));
 
-                RaisePropertyChanged(() => CanvasWidth);
-                RaisePropertyChanged(() => CanvasHeight);
             }
         }
 
@@ -1147,8 +1138,7 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged(nameof(ToolbarVisible));
             }
         }
-        public int CanvasWidth => CurrentOutput.OutputSelectedMode == 0 ? ShaderBitmap?.PixelWidth ?? 240 : GifxelationBitmap?.PixelWidth ?? 240;
-        public int CanvasHeight => CurrentOutput.OutputSelectedMode == 0 ? ShaderBitmap?.PixelHeight ?? 135 : GifxelationBitmap?.PixelHeight ?? 135;
+
 
         private int _parrentLocation;
 
@@ -1315,13 +1305,7 @@ namespace adrilight.ViewModel
             AmbinityClient = ambinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
             SerialDeviceDetection = serialDeviceDetection ?? throw new ArgumentNullException(nameof(serialDeviceDetection));
 
-            //ShaderEffect = shaderEffect ?? throw new ArgumentNullException();
 
-            AvailableModifiers = new ObservableCollection<IModifiersType> {
-                new ModifiersType { Name = "CTRL", ModifierKey = NonInvasiveKeyboardHookLibrary.ModifierKeys.Control, IsChecked = false },
-                new ModifiersType { Name = "SHIFT", ModifierKey = NonInvasiveKeyboardHookLibrary.ModifierKeys.Shift, IsChecked = false },
-                new ModifiersType { Name = "ALT", ModifierKey = NonInvasiveKeyboardHookLibrary.ModifierKeys.Alt, IsChecked = false }
-            };
             var settingsManager = new UserSettingsManager();
             foreach (IDeviceSettings device in devices)
             {
@@ -1370,11 +1354,21 @@ namespace adrilight.ViewModel
                     case nameof(GeneralSettings.Autostart):
                         if (GeneralSettings.Autostart)
                         {
-                            StartUpManager.AddApplicationToAllUserStartup();
+                            StartUpManager.AddApplicationToTaskScheduler(GeneralSettings.StartupDelaySecond);
                         }
                         else
                         {
-                            StartUpManager.RemoveApplicationFromAllUserStartup();
+                            StartUpManager.RemoveApplicationFromTaskScheduler("Ambinity Service");
+                        }
+                        break;
+                    case nameof(GeneralSettings.StartupDelaySecond):
+                        if (GeneralSettings.Autostart)
+                        {
+                            StartUpManager.AddApplicationToTaskScheduler(GeneralSettings.StartupDelaySecond);
+                        }
+                        else
+                        {
+                            StartUpManager.RemoveApplicationFromTaskScheduler("Ambinity Service");
                         }
                         break;
 
@@ -1403,23 +1397,30 @@ namespace adrilight.ViewModel
         {
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
-                if (frame != null)
+                if (GifxelationBitmap == null)
                 {
-                    var MatrixBitmap = new WriteableBitmap(frame.FrameWidth, frame.FrameHeight, 96, 96, PixelFormats.Bgra32, null);
-                    MatrixBitmap.Lock();
-                    IntPtr pixelAddress = MatrixBitmap.BackBuffer;
-                    Marshal.Copy(frame.Frame, 0, pixelAddress, frame.Frame.Length);
-
-                    MatrixBitmap.AddDirtyRect(new Int32Rect(0, 0, frame.FrameWidth, frame.FrameHeight));
-
-                    MatrixBitmap.Unlock();
-                    GifxelationBitmap = MatrixBitmap;
-                    //RaisePropertyChanged(() => DeviceRectWidthMax);
-                    //RaisePropertyChanged(() => DeviceRectHeightMax);
+                    GifxelationBitmap = new WriteableBitmap(frame.FrameWidth, frame.FrameHeight, 96, 96, PixelFormats.Bgra32, null);
                 }
                 else
                 {
-                    //notify the UI show error message
+                    if (frame != null)
+                    {
+                        GifxelationBitmap.Lock();
+                        IntPtr pixelAddress = GifxelationBitmap.BackBuffer;
+                        Marshal.Copy(frame.Frame, 0, pixelAddress, frame.Frame.Length);
+
+                        GifxelationBitmap.AddDirtyRect(new Int32Rect(0, 0, frame.FrameWidth, frame.FrameHeight));
+
+                        GifxelationBitmap.Unlock();
+                        //ShaderBitmap = MatrixBitmap;
+                        //RaisePropertyChanged(() => DeviceRectWidthMax);
+                        //RaisePropertyChanged(() => DeviceRectHeightMax);
+                    }
+                    else
+                    {
+                        //notify the UI show error message
+                    }
+
                 }
             });
         }
@@ -1501,24 +1502,36 @@ namespace adrilight.ViewModel
         {
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
-                if (frame != null)
+                if (ShaderBitmap == null)
                 {
-                    var MatrixBitmap = new WriteableBitmap(frame.FrameWidth, frame.FrameHeight, 96, 96, PixelFormats.Bgra32, null);
-                    MatrixBitmap.Lock();
-                    IntPtr pixelAddress = MatrixBitmap.BackBuffer;
-                    Marshal.Copy(frame.Frame, 0, pixelAddress, frame.Frame.Length);
-
-                    MatrixBitmap.AddDirtyRect(new Int32Rect(0, 0, frame.FrameWidth, frame.FrameHeight));
-
-                    MatrixBitmap.Unlock();
-                    ShaderBitmap = MatrixBitmap;
-                    //RaisePropertyChanged(() => DeviceRectWidthMax);
-                    //RaisePropertyChanged(() => DeviceRectHeightMax);
+                    ShaderBitmap = new WriteableBitmap(frame.FrameWidth, frame.FrameHeight, 96, 96, PixelFormats.Bgra32, null);
                 }
-                else
+                else if (ShaderBitmap != null && (ShaderBitmap.Width != frame.FrameWidth || ShaderBitmap.Height != frame.FrameHeight))
                 {
-                    //notify the UI show error message
+                    ShaderBitmap = new WriteableBitmap(frame.FrameWidth, frame.FrameHeight, 96, 96, PixelFormats.Bgra32, null);
                 }
+                else if (ShaderBitmap != null && ShaderBitmap.Width == frame.FrameWidth && ShaderBitmap.Height == frame.FrameHeight)
+                {
+                    if (frame != null)
+                    {
+                        ShaderBitmap.Lock();
+                        IntPtr pixelAddress = ShaderBitmap.BackBuffer;
+                        Marshal.Copy(frame.Frame, 0, pixelAddress, frame.Frame.Length);
+
+                        ShaderBitmap.AddDirtyRect(new Int32Rect(0, 0, frame.FrameWidth, frame.FrameHeight));
+
+                        ShaderBitmap.Unlock();
+                        //ShaderBitmap = MatrixBitmap;
+                        //RaisePropertyChanged(() => DeviceRectWidthMax);
+                        //RaisePropertyChanged(() => DeviceRectHeightMax);
+                    }
+                    else
+                    {
+                        //notify the UI show error message
+                    }
+
+                }
+
             });
         }
 
@@ -2389,14 +2402,6 @@ namespace adrilight.ViewModel
             {
                 OpenPasswordDialog();
             });
-            LaunchPositionEditWindowCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                OpenPositionEditWindow();
-            });
-
             AddNewGradientCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -2830,8 +2835,8 @@ namespace adrilight.ViewModel
                 return true;
             }, (p) =>
             {
-                if(SelectedOutputForCurrentDevice!=null)
-                SetCurrentSelectedOutputForCurrentSelectedOutput();
+                if (SelectedOutputForCurrentDevice != null)
+                    SetCurrentSelectedOutputForCurrentSelectedOutput();
             }
 
           );
@@ -3349,16 +3354,24 @@ namespace adrilight.ViewModel
                 if (OOTBStage < 2)
                     OOTBStage++;
             });
+
+            OpenTutorialCommand = new RelayCommand<string>((p) =>
+           {
+               return p != null;
+           }, (p) =>
+{
+    System.Diagnostics.Process.Start("https://github.com/Kaitoukid93/Ambinity-5.0/wiki/VID-l%C3%A0-g%C3%AC%3F-C%C3%A1ch-s%E1%BB%AD-d%E1%BB%A5ng");
+});
             FinishOOTBCommand = new RelayCommand<string>((p) =>
-            {
-                return p != null;
-            }, (p) =>
-            {
-               
-                CurrentDevice.IsSizeNeedUserDefine = false;
-                GotoChild(CurrentDevice);
-                OOTBWindows.Close();
-            });
+                        {
+                            return p != null;
+                        }, (p) =>
+                        {
+
+                            CurrentDevice.IsSizeNeedUserDefine = false;
+                            GotoChild(CurrentDevice);
+                            OOTBWindows.Close();
+                        });
 
             PrevioustOOTBCommand = new RelayCommand<string>((p) =>
             {
@@ -4313,7 +4326,8 @@ namespace adrilight.ViewModel
         public void SaveCurrentProfile(string profileUID)
         {
             var currentProfile = AvailableProfiles.Where(p => p.ProfileUID == profileUID).FirstOrDefault();
-            currentProfile.SaveProfile(CurrentDevice.AvailableOutputs);
+            if (currentProfile != null)
+                currentProfile.SaveProfile(CurrentDevice.AvailableOutputs);
 
             WriteDeviceProfileCollection();
 
@@ -5495,6 +5509,22 @@ namespace adrilight.ViewModel
             set
             {
                 _showAllOutputPID = value;
+                if (value)
+                {
+                    foreach (var output in CurrentDevice.AvailableOutputs)
+                    {
+
+                        VIDEditWindowsRichCanvasItems.Add(output.OutputLEDSetup as LEDSetup);
+
+                    }
+                }
+                else
+                {
+                    VIDEditWindowsRichCanvasItems.Clear();
+
+
+                    VIDEditWindowsRichCanvasItems.Add(CurrentOutput.OutputLEDSetup as LEDSetup);
+                }
                 RaisePropertyChanged();
             }
         }
@@ -5580,16 +5610,15 @@ namespace adrilight.ViewModel
 
             //};
             //this is maximum border(physical screen size) that device chose to capture from
-            Border screen = new Border() {
-                Width = Screen.PrimaryScreen.Bounds.Width,
-                Height = Screen.PrimaryScreen.Bounds.Height,
-                IsDraggable = false,
-                IsSelectable = false,
-                IsResizeable = false,
-                IsDeleteable = false,
-                ShouldBringIntoView = false
 
-            };
+            ScreenBound screen = new ScreenBound();
+            screen.Width = Screen.AllScreens[CurrentOutput.OutputLEDSetup.OutputSelectedDisplay].Bounds.Width;
+            screen.Height = Screen.AllScreens[CurrentOutput.OutputLEDSetup.OutputSelectedDisplay].Bounds.Height;
+            screen.Top = Screen.AllScreens[CurrentOutput.OutputLEDSetup.OutputSelectedDisplay].Bounds.Top;
+            screen.Left = Screen.AllScreens[CurrentOutput.OutputLEDSetup.OutputSelectedDisplay].Bounds.Left;
+            PIDEditWindowsRichCanvasItems.Insert(0, screen);
+
+
 
             PathGuide pathGuide = new PathGuide() {
                 Width = 200,
@@ -5600,7 +5629,7 @@ namespace adrilight.ViewModel
                 Geometry = "AmbinoA1Guide"
             };
             PIDEditWindowsRichCanvasItems.Insert(0, pathGuide);
-            PIDEditWindowsRichCanvasItems.Insert(0, screen);
+
 
             BackupSpots = new List<IDeviceSpot>();
             foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
@@ -5663,20 +5692,6 @@ namespace adrilight.ViewModel
             }
         }
 
-        private void OpenPositionEditWindow()
-        {
-            if (AssemblyHelper.CreateInternalInstance($"View.{"PositionEditWindow"}") is System.Windows.Window window)
-            {
-                GreyBitmap = new WriteableBitmap(CanvasWidth, CanvasHeight, 96, 96, PixelFormats.Bgr32, null);
-
-                //AdjustingRectangleWidth = CurrentOutput.OutputRectangle.Width;
-                //AdjustingRectangleHeight = CurrentOutput.OutputRectangle.Height;
-                //AdjustingRectangleLeft = CurrentOutput.OutputRectangle.Left;
-                //AdjustingRectangleTop = CurrentOutput.OutputRectangle.Top;
-                window.Owner = System.Windows.Application.Current.MainWindow;
-                window.ShowDialog();
-            }
-        }
 
         private void OpenAboutWindow()
         {
@@ -6088,7 +6103,7 @@ namespace adrilight.ViewModel
                 return;
             }
 
-            var screen = PIDEditWindowsRichCanvasItems.OfType<IDrawable>().Where(d => d is Border && !d.IsResizeable).FirstOrDefault();
+            var screen = PIDEditWindowsRichCanvasItems.OfType<IDrawable>().Where(d => d is ScreenBound && !d.IsResizeable).FirstOrDefault();
             var maxX = PIDEditWindowsRichCanvasItems.OfType<IDrawable>().Where(d => d is DeviceSpot).MaxBy(d => (d.Width + d.Left)).FirstOrDefault();
             var maxY = PIDEditWindowsRichCanvasItems.OfType<IDrawable>().Where(d => d is DeviceSpot).MaxBy(d => (d.Height + d.Top)).FirstOrDefault();
             var minX = PIDEditWindowsRichCanvasItems.OfType<IDrawable>().Where(d => d is DeviceSpot).MinBy(d => (d.Left)).FirstOrDefault();
@@ -6139,8 +6154,8 @@ namespace adrilight.ViewModel
             //change output setting rectangle size and pos
             (CurrentOutput.OutputLEDSetup as LEDSetup).Width = border.Width;
             (CurrentOutput.OutputLEDSetup as LEDSetup).Height = border.Height;
-            (CurrentOutput.OutputLEDSetup as LEDSetup).Top = border.Top - screen.Top;
-            (CurrentOutput.OutputLEDSetup as LEDSetup).Left = border.Left - screen.Left;
+            (CurrentOutput.OutputLEDSetup as LEDSetup).Top = border.Top;
+            (CurrentOutput.OutputLEDSetup as LEDSetup).Left = border.Left;
             //change the scale too
             (CurrentOutput.OutputLEDSetup as LEDSetup).ScaleLeft = (border.Left - screen.Left) / screen.Width;
             (CurrentOutput.OutputLEDSetup as LEDSetup).ScaleTop = (border.Top - screen.Top) / screen.Height;
@@ -6153,31 +6168,71 @@ namespace adrilight.ViewModel
         private void SaveCurretSurfaceLayout()
         {
             //get width and height of current border
-            var border = SurfaceEditorItems.OfType<IDrawable>().Where(d => d is Border).FirstOrDefault();
-            var maxX = SurfaceEditorItems.MaxBy(d => (d.Width + d.Left)).FirstOrDefault();
-            var maxY = SurfaceEditorItems.MaxBy(d => (d.Height + d.Top)).FirstOrDefault();
-            var minX = SurfaceEditorItems.MinBy(d => (d.Left)).FirstOrDefault();
-            var minY = SurfaceEditorItems.MinBy(d => (d.Top)).FirstOrDefault();
-            if ((maxX.Width + maxX.Left) > (border.Width + border.Left) ||
-                (maxY.Height + maxX.Top) > (border.Height + border.Top) ||
-                minX.Left < border.Left ||
-                minY.Top < border.Top
-                )
+            var screens = SurfaceEditorItems.OfType<IDrawable>().Where(d => d is ScreenBound);
+            //var maxX = SurfaceEditorItems.MaxBy(d => (d.Width + d.Left)).FirstOrDefault();
+            //var maxY = SurfaceEditorItems.MaxBy(d => (d.Height + d.Top)).FirstOrDefault();
+            //var minX = SurfaceEditorItems.MinBy(d => (d.Left)).FirstOrDefault();
+            //var minY = SurfaceEditorItems.MinBy(d => (d.Top)).FirstOrDefault();
+            //if ((maxX.Width + maxX.Left) > (border.Width + border.Left) ||
+            //    (maxY.Height + maxX.Top) > (border.Height + border.Top) ||
+            //    minX.Left < border.Left ||
+            //    minY.Top < border.Top
+            //    )
+            foreach (var item in SurfaceEditorItems.Where(i => i is LEDSetup))
             {
-                //this indicate there is atleast one of the item jumping out of the border
-                HandyControl.Controls.MessageBox.Show("Kiểm tra lại vị trí, có thiết bị vượt ra ngoài ranh giới", "Out of range", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+                var itemRect = new Rectangle(
+                        (int)item.Left,
+                        (int)item.Top,
+                        (int)item.Width,
+                        (int)item.Height);
+                int screenCount = 0;
+                foreach (var screen in screens)
+                {
+                    var screenRect = new Rectangle(
+                        (int)screen.Left,
+                        (int)screen.Top,
+                        (int)screen.Width,
+                        (int)screen.Height);
+                    if (Rectangle.Intersect(screenRect, itemRect).Equals(itemRect))
+                    {
+                        //this is the pool our current item is in
+                        //set output selected display for this item
+                        (item as LEDSetup).OutputSelectedDisplay = (screen as ScreenBound).Index;
+                        //set scale base on this pool width and height
+                        (item as LEDSetup).ScaleWidth = item.Width / screen.Width;
+                        (item as LEDSetup).ScaleHeight = item.Height / screen.Height;
+                        (item as LEDSetup).ScaleLeft = (item.Left - screen.Left) / screen.Width;
+                        (item as LEDSetup).ScaleTop = (item.Top - screen.Top) / screen.Height;
+                        item.IsSelected = false;
+                        (item as LEDSetup).IsScreenCaptureEnabled = true;
+                        screenCount++;
+                    }
+                }
+                if (screenCount == 0)
+                {
+                    //we not save this position for now
+                    //this item is no in any pool
+                    //we disable screen capture for this device
+                    (item as LEDSetup).IsScreenCaptureEnabled = false;
+                    HandyControl.Controls.MessageBox.Show("Những thiết bị nằm ngoài ranh giới sẽ không sử dụng được tính năng sáng theo màn hình", "Out of range", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    //return;
+                }
 
 
-            foreach (var item in SurfaceEditorItems.OfType<IDrawable>().Where(d => !(d is Border)))
-            {
-                (item as LEDSetup).ScaleWidth = item.Width / border.Width;
-                (item as LEDSetup).ScaleHeight = item.Height / border.Height;
-                (item as LEDSetup).ScaleLeft = item.Left / border.Width;
-                (item as LEDSetup).ScaleTop = item.Top / border.Height;
-                item.IsSelected = false;
             }
+
+            //since we got multiple screen support, we need to define dynamic border
+            //we need to define if any part of current item is outside of the border
+            //in ordinary way, we just need a trip through all item to check but it's overkill and not smart
+            //to be able to do this, using intersect
+            //foreach (var item in SurfaceEditorItems.OfType<IDrawable>().Where(d => !(d is Border)))
+            //{
+            //    (item as LEDSetup).ScaleWidth = item.Width / border.Width;
+            //    (item as LEDSetup).ScaleHeight = item.Height / border.Height;
+            //    (item as LEDSetup).ScaleLeft = item.Left / border.Width;
+            //    (item as LEDSetup).ScaleTop = item.Top / border.Height;
+            //    item.IsSelected = false;
+            //}
             surfaceeditorWindow.Close();
             IsRichCanvasWindowOpen = false;
         }
@@ -6264,16 +6319,32 @@ namespace adrilight.ViewModel
                         var drawable = output.OutputLEDSetup as LEDSetup;
                         drawable.Name = output.OutputName;
                         SurfaceEditorItems.Add(drawable);
-
-
                     }
 
 
                 }
             }
-            //add virtual border
-            Border border = new Border();
-            SurfaceEditorItems.Add(border);
+            //add virtual borders
+            if (GeneralSettings.IsMultipleScreenEnable)
+            {
+                for (int i = 0; i < Screen.AllScreens.Length; i++)
+                {
+                    ScreenBound screen = new ScreenBound();
+                    screen.Width = Screen.AllScreens[i].Bounds.Width;
+                    screen.Height = Screen.AllScreens[i].Bounds.Height;
+                    screen.Top = Screen.AllScreens[i].Bounds.Top;
+                    screen.Left = Screen.AllScreens[i].Bounds.Left;
+                    screen.Index = i;
+                    SurfaceEditorItems.Add(screen);
+                }
+            }
+            else
+            {
+                ScreenBound screen = new ScreenBound();
+                SurfaceEditorItems.Add(screen);
+            }
+
+
             surfaceeditorWindow = new SurfaceEditorWindow();
             IsRichCanvasWindowOpen = true;
             surfaceeditorWindow.Owner = System.Windows.Application.Current.MainWindow;
@@ -7936,7 +8007,15 @@ namespace adrilight.ViewModel
                 }
             }
         }
-
+        private bool _isRenderingVideo;
+        public bool IsRenderingVideo {
+            get { return _isRenderingVideo; }
+            set
+            {
+                _isRenderingVideo = value;
+                RaisePropertyChanged();
+            }
+        }
         public void ImportGif()
         {
             OpenFileDialog Import = new OpenFileDialog();
@@ -7945,24 +8024,161 @@ namespace adrilight.ViewModel
             Import.CheckPathExists = true;
             Import.DefaultExt = "gif";
             Import.Multiselect = false;
-            Import.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.gif;*.tif;...";
+            Import.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.gif;*.tif;...|All files (*.*)|*.*";
             Import.FilterIndex = 2;
 
             Import.ShowDialog();
 
             if (!string.IsNullOrEmpty(Import.FileName) && File.Exists(Import.FileName))
             {
-                var source = Import.FileNames;
-                var name = System.IO.Path.GetFileNameWithoutExtension(source.FirstOrDefault());
 
-                var owner = "User";
-                var description = "User Import";
-                var importedGif = new GifCard { Name = name, Source = source.FirstOrDefault(), Owner = owner, Description = description };
-                AvailableGifs.Add(importedGif);
-                WriteGifCollectionJson();
+                //rendering new video or gif in background thread, turn the is rendering flag on
+                //but what do we do when the resolution changed, because all the devices are now scale based size
+                //simple answer, we make gif frame scale based too,or just using scale of device respect to gif border
+                //but first scale to 100*100 frame size
+                IsRenderingVideo = true;
+                var result = LoadFrameData(Import.FileName, out ByteFrame[] renderedFrame);
+                if (!result)
+                {
+                    //show error message
+                }
+                else
+                {
+                    //save byte frame to disk,get the path and put in to new gifcard model
+                    var renderedFrames = JsonConvert.SerializeObject(renderedFrame, new JsonSerializerSettings() {
+                        TypeNameHandling = TypeNameHandling.Auto
+                    });
+                    var source = Import.FileNames;
+                    var name = System.IO.Path.GetFileNameWithoutExtension(source.FirstOrDefault());
+                    Directory.CreateDirectory(JsonPath);
+                    var path = Path.Combine(JsonPath, name + "rendered");
+                    File.WriteAllText(path, renderedFrames);
+                    var owner = "User";
+                    var description = "User Import";
+                    var importedGif = new GifCard { Name = name, Source = path, Owner = owner, Description = description };
+                    AvailableGifs.Add(importedGif);
+                    WriteGifCollectionJson();
+                    Growl.Success("Animation imported successfully!");
+                }
+
+            }
+        }
+        public bool LoadFrameData(string path, out ByteFrame[] renderedFrames)
+        {
+            renderedFrames = null;
+            var fileType = Path.GetExtension(path);
+            switch (fileType)
+            {
+                case ".gif":
+                    renderedFrames = LoadGifFromDisk(path);
+                    break;
+                case ".avi":
+                    renderedFrames = LoadVideoFileFromDisk(path);
+                    break;
+            }
+            return renderedFrames != null;
+        }
+        public ByteFrame[] LoadVideoFileFromDisk(string path)
+        {
+            try
+            {
+                VideoCapture capture = new VideoCapture(path);
+                Mat m = new Mat();
+                var totalFrame = (int)capture.GetCaptureProperty(Emgu.CV.CvEnum.CapProp.FrameCount);
+                var renderedFrames = new ByteFrame[totalFrame];
+                for (int i = 0; i < totalFrame; i++)
+                {
+                    //get frame from position
+                    capture.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.PosFrames, i);
+                    capture.Read(m);
+                    var currentFrame = m.ToBitmap();
+                    var resizedBmp = new Bitmap(currentFrame, 100, 100);
+                    var rect = new Rectangle(0, 0, resizedBmp.Width, resizedBmp.Height);
+                    BitmapData bmpData = resizedBmp.LockBits(rect, ImageLockMode.ReadWrite, resizedBmp.PixelFormat);
+
+                    // Get the address of the first line.
+                    IntPtr ptr = bmpData.Scan0;
+                    // Declare an array to hold the bytes of the bitmap.
+                    int bytes = Math.Abs(bmpData.Stride) * resizedBmp.Height;
+                    byte[] rgbValues = new byte[bytes];
+
+                    // Copy the RGB values into the array.
+                    System.Runtime.InteropServices.Marshal.Copy(ptr, rgbValues, 0, bytes);
+                    var frame = new ByteFrame();
+                    frame.Frame = rgbValues;
+                    frame.FrameWidth = resizedBmp.Width;
+                    frame.FrameHeight = resizedBmp.Height;
+
+
+                    renderedFrames[i] = frame;
+                    resizedBmp.UnlockBits(bmpData);
+                }
+                capture.Dispose();
+                GC.Collect();
+                return renderedFrames;
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
 
+        public ByteFrame[] LoadGifFromDisk(string path)
+        {
+            try
+            {
+                using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+                {
+                    using (System.Drawing.Image imageToLoad = System.Drawing.Image.FromStream(fs))
+                    {
+                        var frameDim = new FrameDimension(imageToLoad.FrameDimensionsList[0]);
+                        var frameCount = imageToLoad.GetFrameCount(frameDim);
+                        var renderedFrames = new ByteFrame[frameCount];
+                        for (int i = 0; i < frameCount; i++)
+                        {
+                            imageToLoad.SelectActiveFrame(frameDim, i);
+
+                            var resizedBmp = new Bitmap(imageToLoad, 100, 100);
+
+                            var rect = new System.Drawing.Rectangle(0, 0, resizedBmp.Width, resizedBmp.Height);
+                            System.Drawing.Imaging.BitmapData bmpData =
+                                resizedBmp.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite,
+                                resizedBmp.PixelFormat);
+
+                            // Get the address of the first line.
+                            IntPtr ptr = bmpData.Scan0;
+
+                            // Declare an array to hold the bytes of the bitmap.
+                            int bytes = Math.Abs(bmpData.Stride) * resizedBmp.Height;
+                            byte[] rgbValues = new byte[bytes];
+
+                            // Copy the RGB values into the array.
+                            System.Runtime.InteropServices.Marshal.Copy(ptr, rgbValues, 0, bytes);
+                            var frame = new ByteFrame();
+                            frame.Frame = rgbValues;
+                            frame.FrameWidth = resizedBmp.Width;
+                            frame.FrameHeight = resizedBmp.Height;
+
+
+                            renderedFrames[i] = frame;
+                            resizedBmp.UnlockBits(bmpData);
+
+                        }
+                        imageToLoad.Dispose();
+                        fs.Close();
+                        GC.Collect();
+
+                        return renderedFrames;
+                    }
+
+                }
+
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
         public void IncreaseVID(IDeviceSpot spot)
         {
             spot.VID = 5;
@@ -8002,17 +8218,6 @@ namespace adrilight.ViewModel
             return filteredProfiles;
         }
 
-        private void SetRectangleFromScale(IOutputSettings target, double scaleX, double scaleY, double scaleWidth, double scaleHeight, int parrentWidth, int parrentHeight)
-        {
-            if (ShaderBitmap != null || GifxelationBitmap != null)
-            {
-                var top = scaleY * parrentHeight;
-                var left = scaleX * parrentWidth;
-                var width = scaleWidth * parrentWidth;
-                var height = scaleHeight * parrentHeight;
-                //target.SetRectangle(new Rectangle((int)left, (int)top, (int)width, (int)height));
-            }
-        }
 
         public void GotoChild(IDeviceSettings selectedDevice)
         {
@@ -8021,35 +8226,35 @@ namespace adrilight.ViewModel
             IsDashboardType = false;
             foreach (var output in CurrentDevice.AvailableOutputs)
             {
-                output.OutputUniqueID = CurrentDevice.DeviceID.ToString() + output.OutputID.ToString();
+                output.OutputUniqueID = CurrentDevice.DeviceUID.ToString() + output.OutputID.ToString();
             }
             AvailableProfilesForCurrentDevice = new ObservableCollection<IDeviceProfile>();
             AvailableProfilesForCurrentDevice = ProfileFilter(CurrentDevice);
-            CurrentSelectedProfile = null;
-            if (CurrentDevice.ActivatedProfileUID != null)
-            {
-                CurrentSelectedProfile = AvailableProfilesForCurrentDevice.Where(p => p.ProfileUID == CurrentDevice.ActivatedProfileUID).FirstOrDefault();
-            }
-            if (CurrentSelectedProfile == null || CurrentDevice.ActivatedProfileUID == null)
-            {   //create new profile for this device
-                IDeviceProfile unsavedProfile = new DeviceProfile {
-                    Name = "Unsaved Profile",
-                    Geometry = "profile",
-                    Owner = "Auto Created",
-                    DeviceType = CurrentDevice.DeviceType,
-                    ProfileUID = Guid.NewGuid().ToString()
-                };
-                //get output data
-                unsavedProfile.SaveProfile(CurrentDevice.AvailableOutputs);
-                AvailableProfiles.Add(unsavedProfile);
-                WriteDeviceProfileCollection();
-                Task.Run(() =>
-                {
-                    CurrentDevice.ActivateProfile(unsavedProfile);
-                });
+            //CurrentSelectedProfile = null;
+            //if (CurrentDevice.ActivatedProfileUID != null)
+            //{
+            //    CurrentSelectedProfile = AvailableProfilesForCurrentDevice.Where(p => p.ProfileUID == CurrentDevice.ActivatedProfileUID).FirstOrDefault();
+            //}
+            //if (CurrentSelectedProfile == null || CurrentDevice.ActivatedProfileUID == null)
+            //{   //create new profile for this device
+            //    IDeviceProfile unsavedProfile = new DeviceProfile {
+            //        Name = "Unsaved Profile",
+            //        Geometry = "profile",
+            //        Owner = "Auto Created",
+            //        DeviceType = CurrentDevice.DeviceType,
+            //        ProfileUID = Guid.NewGuid().ToString()
+            //    };
+            //    //get output data
+            //    unsavedProfile.SaveProfile(CurrentDevice.AvailableOutputs);
+            //    AvailableProfiles.Add(unsavedProfile);
+            //    WriteDeviceProfileCollection();
+            //    Task.Run(() =>
+            //    {
+            //        CurrentDevice.ActivateProfile(unsavedProfile);
+            //    });
 
-                CurrentSelectedProfile = unsavedProfile;
-            }
+            //    CurrentSelectedProfile = unsavedProfile;
+            //}
 
             if (CurrentDevice.AvailableOutputs.Length > 1)
             {

@@ -157,16 +157,7 @@
             </Grid.ColumnDefinitions>
             <Grid Margin="10">
                 <Viewbox   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5" >
-                    <Canvas Width="{Binding CanvasWidth}" Height="{Binding CanvasHeight}" Margin="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Image HorizontalAlignment="Center" VerticalAlignment="Center"   Source="{Binding GifxelationBitmap}" />
-                        <Rectangle Stroke="White" StrokeThickness="1" Canvas.Left="{Binding CurrentOutput.OutputRectangle.Left}" Canvas.Top="{Binding CurrentOutput.OutputRectangle.Top}" Width="{Binding CurrentOutput.OutputRectangle.Width}" Height="{Binding CurrentOutput.OutputRectangle.Height}">
-                            <Rectangle.Fill>
-                                <SolidColorBrush Color="White" Opacity="0.2"></SolidColorBrush>
-                            </Rectangle.Fill>
-                        </Rectangle>
-
-                    </Canvas>
-
+                    <Image HorizontalAlignment="Center" VerticalAlignment="Center"   Source="{Binding GifxelationBitmap}" />
                 </Viewbox>
             </Grid>
 

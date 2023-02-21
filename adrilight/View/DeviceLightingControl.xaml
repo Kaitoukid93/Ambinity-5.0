@@ -589,7 +589,8 @@
                                             <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,5,5,5">
 
                                             </hc:Divider>
-                                            <ListBox  SelectedItem="{Binding CurrentSelectedProfile}" IsSynchronizedWithCurrentItem="False"
+                                            <ListBox IsSynchronizedWithCurrentItem="False"
+                                                     SelectedItem="{Binding CurrentSelectedProfile,Mode=TwoWay}"
                                                  ItemContainerStyle="{StaticResource _listBoxModeSelectionStyle}"  
                                                  Background="Transparent"
                                                  BorderThickness="0"

@@ -21,6 +21,9 @@ using adrilight.DesktopDuplication;
 using Polly;
 using System.Runtime.InteropServices;
 using System.Windows;
+using Emgu.CV;
+using Emgu.CV.Structure;
+using Newtonsoft.Json;
 
 namespace adrilight
 {
@@ -36,7 +39,7 @@ namespace adrilight
         public static Rectangle ImageRect { get; set; }
         public static Bitmap WorkingBitmap { get; set; }
         public static Bitmap LoadedStillBitmap { get; set; }
-        public  ByteFrame[] LoadedGifImage { get; set; }
+        public ByteFrame[] LoadedGifImage { get; set; }
         public static FrameDimension LoadedGifFrameDim { get; set; }
         public static int LoadedGifFrameCount { get; set; }
         public static int GifMillisconds { get; set; } = 0;
@@ -79,10 +82,10 @@ namespace adrilight
                 case nameof(OutputSettings.OutputIsEnabled):
                 case nameof(OutputSettings.OutputSelectedMode):
                 case nameof(OutputSettings.OutputParrentIsEnable):
-
+                case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
                     RefreshColorState();
                     break;
-                
+
                 case nameof(OutputSettings.IsInSpotEditWizard):
                 case nameof(OutputSettings.OutputIsSystemSync):
                 case nameof(OutputSettings.OutputSelectedGif):
@@ -100,7 +103,11 @@ namespace adrilight
         {
 
             var isRunning = _cancellationTokenSource != null && IsRunning;
-            var shouldBeRunning = OutputSettings.OutputIsEnabled && OutputSettings.OutputParrentIsEnable && OutputSettings.OutputSelectedMode == 4 && OutputSettings.IsInSpotEditWizard == false;
+            var shouldBeRunning = OutputSettings.OutputIsEnabled
+                && OutputSettings.OutputParrentIsEnable
+                && OutputSettings.OutputSelectedMode == 4
+                && OutputSettings.IsInSpotEditWizard == false;
+              
 
             if (isRunning && !shouldBeRunning)
             {
@@ -125,7 +132,12 @@ namespace adrilight
         private void ColorPaletteChanged()
         {
             var isRunning = _cancellationTokenSource != null && IsRunning;
-            var shouldBeRunning = OutputSettings.OutputIsEnabled && OutputSettings.OutputParrentIsEnable && OutputSettings.OutputSelectedMode == 4 && OutputSettings.IsInSpotEditWizard == false;
+            var shouldBeRunning =
+                OutputSettings.OutputIsEnabled &&
+                OutputSettings.OutputParrentIsEnable &&
+                OutputSettings.OutputSelectedMode == 4 &&
+                OutputSettings.IsInSpotEditWizard == false &&
+                MainViewViewModel.IsRichCanvasWindowOpen == false;
 
 
             if (isRunning && shouldBeRunning)
@@ -133,16 +145,16 @@ namespace adrilight
                 if (OutputSettings.OutputSelectedGif == null)
                 //load test
                 {
-                    LoadGifFromDisk(testGifPath);
+                    LoadedGifImage = null;
 
                 }
                 else
                 {
-                    bool result = LoadGifFromDisk(OutputSettings.OutputSelectedGif.Source);
+                    bool result = LoadByteFrame(OutputSettings.OutputSelectedGif.Source);
                     if (!result)
                     {
                         HandyControl.Controls.MessageBox.Show("Ảnh động được chọn cho " + OutputSettings.OutputName + " đã bị xóa, vui long chọn ảnh khác", "Gif is not available", MessageBoxButton.OK, MessageBoxImage.Error);
-                        LoadGifFromDisk(testGifPath);
+                        LoadedGifImage = null;
                     }
                 }
 
@@ -156,7 +168,19 @@ namespace adrilight
 
         private readonly Policy _retryPolicy;
 
-
+        private bool LoadByteFrame(string path)
+        {
+            try
+            {
+                var json = File.ReadAllText(path);
+                LoadedGifImage = JsonConvert.DeserializeObject<ByteFrame[]>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+            }
+            catch(Exception ex)
+            {
+                return false;
+            }
+            return true;
+        }
 
         public void Run(CancellationToken token)
 
@@ -169,22 +193,22 @@ namespace adrilight
             _log.Debug("Started Rainbow Color.");
 
 
-            if (OutputSettings.OutputSelectedGif == null)
-            //load test
-            {
-                LoadGifFromDisk(testGifPath);
+            //if (OutputSettings.OutputSelectedGif == null)
+            ////load test
+            //{
+            //    LoadedGifImage = null;
 
-            }
-            else
-            {
-                bool result = LoadGifFromDisk(OutputSettings.OutputSelectedGif.Source);
-                if(!result)
-                {
-                    HandyControl.Controls.MessageBox.Show("Ảnh động được chọn cho " + OutputSettings.OutputName + " đã bị xóa, vui long chọn ảnh khác", "Gif is not available", MessageBoxButton.OK, MessageBoxImage.Error);
-                    LoadGifFromDisk(testGifPath);
-                }
-            }
-
+            //}
+            //else
+            //{
+            //    bool result = LoadByteFrame(OutputSettings.OutputSelectedGif.Source);
+            //    if (!result)
+            //    {
+            //        HandyControl.Controls.MessageBox.Show("Ảnh động được chọn cho " + OutputSettings.OutputName + " đã bị xóa, vui long chọn ảnh khác", "Gif is not available", MessageBoxButton.OK, MessageBoxImage.Error);
+            //        LoadedGifImage = null;
+            //    }
+            //}
+           
             Bitmap image = null;
             BitmapData bitmapData = new BitmapData();
             Frame = new ByteFrame();
@@ -207,7 +231,8 @@ namespace adrilight
                     if (currentOutput != null && currentOutput.OutputUniqueID == OutputSettings.OutputUniqueID)
                         outputIsSelected = true;
                     bool isPreviewRunning = MainViewViewModel.IsSplitLightingWindowOpen && outputIsSelected;
-
+                    if (LoadedGifImage == null)
+                        continue;
                     if (_gifFrameIndex >= LoadedGifImage.Length - 1)
                         _gifFrameIndex = 0;
                     else
@@ -219,7 +244,7 @@ namespace adrilight
                     var scaleY = OutputSettings.OutputLEDSetup.ScaleTop;
                     var virtualWidth = (OutputSettings.OutputLEDSetup as LEDSetup).Width;
                     var virtualHeight = (OutputSettings.OutputLEDSetup as LEDSetup).Height;
-                    var brightness = OutputSettings.OutputBrightness/100d;
+                    var brightness = OutputSettings.OutputBrightness / 100d;
                     var speed = OutputSettings.OutputGifSpeed;
                     if (newImage == null)
                     {
@@ -255,8 +280,8 @@ namespace adrilight
                             Rectangle actualRectangle = new Rectangle(
                                 (int)(width * (spot as IDrawable).Left / virtualWidth),
                                 (int)(height * (spot as IDrawable).Top / virtualHeight),
-                                (int)(width * (spot as IDrawable).Width / virtualWidth),
-                                (int)(height * (spot as IDrawable).Height / virtualHeight));
+                                (int)Math.Max(1,(width * (spot as IDrawable).Width / virtualWidth)),
+                                (int)Math.Max(1,(height * (spot as IDrawable).Height / virtualHeight)));
 
                             GetAverageColorOfRectangularRegion(actualRectangle, stepy, stepx, bitmapData,
                                   out int sumR, out int sumG, out int sumB, out int count);
@@ -380,64 +405,8 @@ namespace adrilight
         }
 
 
-        public  bool LoadGifFromDisk(string path)
-        {
-            try
-            {
-                using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
-                {
-                    using (System.Drawing.Image imageToLoad = System.Drawing.Image.FromStream(fs))
-                    {
-                        var frameDim = new FrameDimension(imageToLoad.FrameDimensionsList[0]);
-                        var frameCount = imageToLoad.GetFrameCount(frameDim);
-                        LoadedGifImage = new ByteFrame[frameCount];
-                        for (int i = 0; i < frameCount; i++)
-                        {
-                            imageToLoad.SelectActiveFrame(frameDim, i);
-
-                            var resizedBmp = new Bitmap(imageToLoad, 240, 135);
-
-                            var rect = new System.Drawing.Rectangle(0, 0, resizedBmp.Width, resizedBmp.Height);
-                            System.Drawing.Imaging.BitmapData bmpData =
-                                resizedBmp.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite,
-                                resizedBmp.PixelFormat);
-
-                            // Get the address of the first line.
-                            IntPtr ptr = bmpData.Scan0;
-
-                            // Declare an array to hold the bytes of the bitmap.
-                            int bytes = Math.Abs(bmpData.Stride) * resizedBmp.Height;
-                            byte[] rgbValues = new byte[bytes];
-
-                            // Copy the RGB values into the array.
-                            System.Runtime.InteropServices.Marshal.Copy(ptr, rgbValues, 0, bytes);
-                            var frame = new ByteFrame();
-                            frame.Frame = rgbValues;
-                            frame.FrameWidth = resizedBmp.Width;
-                            frame.FrameHeight = resizedBmp.Height;
-
-
-                            LoadedGifImage[i] = frame;
-                            resizedBmp.UnlockBits(bmpData);
-
-                        }
-                        imageToLoad.Dispose();
-                        fs.Close();
-                        GC.Collect();
-                        
-                        return true;
-                    }
-                    
-                }
-               
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
-
+   
+       
         public static void DisposeWorkingBitmap()
         {
             if (WorkingBitmap != null)
@@ -465,6 +434,10 @@ namespace adrilight
             {
                 // get current working bitmap at frameIndex
                 Bitmap CurrentGifImage;
+                if (LoadedGifImage == null)
+                {
+                    return null;
+                }
                 var currentFrame = LoadedGifImage[frameIndex];
                 if (isPreviewRunning)
                 {

@@ -28,12 +28,14 @@ namespace adrilight.Ninject
             Bind<IDeviceDiscovery>().To<DeviceDiscovery>().InSingletonScope();
 
             int index = 0;
-            foreach (var screen in Screen.AllScreens)
-            {
-                Bind<IDesktopFrame>().To<DesktopFrame>().InSingletonScope().WithConstructorArgument("screen", index++);
-            }
+            if (generalSettings.IsMultipleScreenEnable)
+                foreach (var screen in Screen.AllScreens)
+                {
+                    Bind<IDesktopFrame>().To<DesktopFrame>().InSingletonScope().WithConstructorArgument("screen", index++);
+                }
 
-
+            else
+                Bind<IDesktopFrame>().To<DesktopFrame>().InSingletonScope().WithConstructorArgument("screen", index);
 
             Bind<IRainbowTicker>().To<RainbowTicker>().InSingletonScope();
 

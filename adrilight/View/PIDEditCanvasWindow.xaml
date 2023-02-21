@@ -212,6 +212,22 @@
                         </Grid>
 
                     </DataTemplate>
+                    <DataTemplate DataType="{x:Type settings:ScreenBound}">
+                        <Grid>
+                            <StackPanel Orientation="Horizontal">
+                            </StackPanel>
+
+                            <Rectangle Margin="-5,-5,0,0" Stroke="{DynamicResource SecondaryBorderBrush}"
+                                   Width="{Binding Width}"
+                                   Height="{Binding Height}"
+                               StrokeThickness="5"
+                               Fill="Transparent"
+                               StrokeDashArray="2"
+                               IsHitTestVisible="{Binding IsSelectable}">
+                            </Rectangle>
+                        </Grid>
+
+                    </DataTemplate>
                     <DataTemplate x:Key="SelectedAdornerTemplate">
                         <Border BorderBrush="DodgerBlue"
                             BorderThickness="1"

@@ -17,13 +17,14 @@ namespace adrilight
         int SelectedAudioDevice { get; set; }
         bool OpenRGBConfigRequested { get; set; }
         bool IsInBetaChanel { get; set; }
+        bool IsMultipleScreenEnable { get; set; }
         int DeviceDiscoveryMode { get; set; }
         bool OpenRGBAskAgain { get; set; }
         bool HWMonitorAskAgain { get; set; }
         bool UpdaterAskAgain { get; set; }
         bool AudioDeviceAskAgain { get; set; }
         bool FrimwareUpgradeIsInProgress { get; set; }
-
+        int StartupDelaySecond { get; set; }
         bool IsOpenRGBEnabled { get; set; }
         bool IsProfileLoading { get; set; }
         bool StartMinimized { get; set; }

@@ -16,7 +16,6 @@ using NLog;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using adrilight.Spots;
-
 namespace adrilight
 {
     internal class Rainbow : IRainbow

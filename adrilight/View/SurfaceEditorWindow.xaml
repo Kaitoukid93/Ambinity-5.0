@@ -202,6 +202,33 @@
                         </Grid>
                       
                     </DataTemplate>
+                    <DataTemplate DataType="{x:Type settings:ScreenBound}">
+                        <Grid>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Margin="20,10,5,5" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Screen" Style="{DynamicResource TextBlockLarge}"/>
+                                <TextBlock Margin="5,10" HorizontalAlignment="Left" VerticalAlignment="Top" Text="at" Style="{DynamicResource TextBlockLarge}"/>
+                                <TextBlock Margin="5,10" HorizontalAlignment="Left" VerticalAlignment="Top"  Style="{DynamicResource TextBlockLarge}">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0} x {1}">
+                                            <Binding Path="Width" />
+                                            <Binding Path="Height" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+
+                            </StackPanel>
+
+                            <Rectangle Stroke="{DynamicResource SecondaryBorderBrush}"
+                                   Width="{Binding Width}"
+                                   Height="{Binding Height}"
+                               StrokeThickness="5"
+                               Fill="Transparent"
+                               StrokeDashArray="2"
+                               IsHitTestVisible="{Binding IsSelectable}">
+                            </Rectangle>
+                        </Grid>
+
+                    </DataTemplate>
 
                 </richCanvas:RichItemsControl.Resources>
 

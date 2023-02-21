@@ -132,14 +132,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <StackPanel Margin="5" Orientation="Horizontal">
-            <!--<Path Margin="5" Data="{StaticResource colorpalette}" 
-          Width="30" 
-          Height="30" 
-          Fill="White"
-          Stretch="Uniform" />-->
-            <!--<TextBlock  Margin="5" HorizontalAlignment="Left" Text="Color Palette" Style="{StaticResource TextBlockTitleBold}"/>-->
-        </StackPanel>
+      
         <Grid Grid.Row="1" >
 
 
@@ -153,20 +146,23 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Grid Margin="15,0" HorizontalAlignment="Left">
+                <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid>
-                        <Path Margin="5" Data="{StaticResource colorpalette}" 
+                        <StackPanel Margin="15" Orientation="Horizontal">
+                            <Path Margin="5" Data="{DynamicResource colorpalette}" 
           Width="30" 
           Height="30" 
-          Fill="{StaticResource PrimaryTextBrush}"
+          Fill="White"
           Stretch="Uniform" />
+                            <TextBlock  Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" Text="CHỌN DẢI MÀU" Style="{DynamicResource TextBlockDefault}" FontWeight="SemiBold"/>
+                        </StackPanel>
                     </Grid>
 
-                    <TextBlock Grid.Column="1" Style="{StaticResource TextBlockDefault}" FontWeight="SemiBold" Grid.Row="0" Margin="10, 10, 10, 10"  Text="CHỌN DẢI MÀU"  VerticalAlignment="Center"  HorizontalAlignment="Left"/>
+                
                 </Grid>
 
                 <Grid HorizontalAlignment="Right" Grid.Column="1">

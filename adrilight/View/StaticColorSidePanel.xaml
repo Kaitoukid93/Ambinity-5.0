@@ -259,7 +259,14 @@
                         <ColumnDefinition Width="auto"/>
                         
                     </Grid.ColumnDefinitions>
-                    <TextBlock Style="{StaticResource TextBlockDefault}" Grid.Row="0" Margin="15, 15, 15, 15"  Text="CHỌN MÀU"  FontWeight="SemiBold" VerticalAlignment="Center"  HorizontalAlignment="Left"/>
+                    <StackPanel Margin="15" Orientation="Horizontal">
+                        <Path Margin="5" Data="{DynamicResource static}" 
+          Width="30" 
+          Height="30" 
+          Fill="White"
+          Stretch="Uniform" />
+                        <TextBlock  Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" Text="CHỌN MÀU" Style="{DynamicResource TextBlockDefault}" FontWeight="SemiBold"/>
+                    </StackPanel>
                     <Grid HorizontalAlignment="Right" Margin="15" Grid.Row="1">
 
 
@@ -319,8 +326,15 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
-                <TextBlock Style="{StaticResource TextBlockDefault}" Grid.Row="0" Margin="15, 15, 15, 15"  Text="CHỌN GRADIENT" FontWeight="SemiBold"  VerticalAlignment="Center"  HorizontalAlignment="Left"/>
-            <Grid>
+                <StackPanel Margin="15" Orientation="Horizontal">
+                    <Path Margin="5" Data="{DynamicResource atmosphere}" 
+          Width="30" 
+          Height="30" 
+          Fill="White"
+          Stretch="Uniform" />
+                    <TextBlock  Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" Text="CHỌN GRADIENT" Style="{DynamicResource TextBlockDefault}" FontWeight="SemiBold"/>
+                </StackPanel>
+                <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition Width="Auto"/>

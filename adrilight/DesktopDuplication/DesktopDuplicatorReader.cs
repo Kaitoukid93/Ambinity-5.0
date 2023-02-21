@@ -61,6 +61,7 @@ namespace adrilight
                 case nameof(OutputSettings.OutputIsEnabled):
                 case nameof(OutputSettings.OutputParrentIsEnable):
                 case nameof(OutputSettings.IsInSpotEditWizard):
+                case nameof(OutputSettings.OutputLEDSetup.IsScreenCaptureEnabled):
                 case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
                     RefreshCapturingState();
                     break;
@@ -108,7 +109,8 @@ namespace adrilight
                 OutputSettings.OutputSelectedMode == 0 &&
                 OutputSettings.IsInSpotEditWizard == false &&
                 OutputSettings.OutputIsLoadingProfile == false &&
-                MainViewViewModel.IsRichCanvasWindowOpen == false;
+                MainViewViewModel.IsRichCanvasWindowOpen == false&&
+                OutputSettings.OutputLEDSetup.IsScreenCaptureEnabled==true;
             //  var shouldBeRefreshing = NeededRefreshing;
 
 
@@ -429,15 +431,15 @@ namespace adrilight
             {
                 ByteFrame CurrentFrame = null;
                 Bitmap DesktopImage;
-                if(OutputSettings.OutputSelectedDisplay>= DesktopFrame.Length)
+                if(OutputSettings.OutputLEDSetup.OutputSelectedDisplay>= DesktopFrame.Length)
                 {
                     HandyControl.Controls.MessageBox.Show( "màn hình không khả dụng","Sáng theo màn hình", MessageBoxButton.OK, MessageBoxImage.Error);
                     CurrentFrame = DesktopFrame.FirstOrDefault().Frame;
-                    OutputSettings.OutputSelectedDisplay = 0;
+                    OutputSettings.OutputLEDSetup.OutputSelectedDisplay = 0;
                 }
                 else
                 {
-                    CurrentFrame = DesktopFrame[OutputSettings.OutputSelectedDisplay].Frame;
+                    CurrentFrame = DesktopFrame[OutputSettings.OutputLEDSetup.OutputSelectedDisplay].Frame;
                 }
                
                 if (isPreviewRunning)

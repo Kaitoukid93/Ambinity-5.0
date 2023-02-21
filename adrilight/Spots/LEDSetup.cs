@@ -63,7 +63,8 @@ namespace adrilight
             VisualProperties = new VisualProperties();
             Scale = new Point(1, 1);
         }
-
+        private bool _isScreenCaptureEnabled = true;
+        private int _outputSelectedDisplay;
         private double _top = 0;
         private double _left = 0;
         private bool _isSelected;
@@ -87,11 +88,12 @@ namespace adrilight
         private double _scaleLeft;
         private double _scaleWidth=1;
         private double _scaleHeight=1;
+        public int OutputSelectedDisplay { get => _outputSelectedDisplay; set { Set(() => OutputSelectedDisplay, ref _outputSelectedDisplay, value); } }
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
         public double CenterX { get => _centerX; set { Set(() => CenterX, ref _centerX, value); } }
         public double CenterY { get => _centerY; set { Set(() => CenterY, ref _centerY, value); } }
-  
+        public bool IsScreenCaptureEnabled { get => _isScreenCaptureEnabled; set { Set(() => IsScreenCaptureEnabled, ref _isScreenCaptureEnabled, value); } }
         public double ScaleTop { get => _scaleTop; set { Set(() => ScaleTop, ref _scaleTop, value); } }
         public double ScaleLeft { get => _scaleLeft; set { Set(() => ScaleLeft, ref _scaleLeft, value); } }
         public double ScaleWidth { get => _scaleWidth; set { Set(() => ScaleWidth, ref _scaleWidth, value); } }

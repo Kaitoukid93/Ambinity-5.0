@@ -67,7 +67,7 @@ namespace adrilight
         Color[] OutputSentryModeColorSource { get; set; }
         int OutputSelectedAudioDevice { get; set; }
         int OutputColorPaletteMode { get; set; }
-        int OutputSelectedDisplay { get; set; }
+       
         int OutputSelectedMode { get; set; }
         bool IsInSpotEditWizard { get; set; }
         string Geometry { get; set; }

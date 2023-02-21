@@ -183,9 +183,24 @@ namespace adrilight
                                     var actualBrightness = brightnessMap[(int)actualFreq] * brightnessCap;
                                     var outputColor = Brightness.applyBrightness(newColor, actualBrightness, numLED, outputPowerMiliamps, outputPowerVoltage);
                                     ApplySmoothing(outputColor.R, outputColor.G, outputColor.B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
-                                    if (!OutputSettings.IsInSpotEditWizard)
-                                        spot.SetColor(FinalR, FinalG, FinalB, isPreviewRunning);
 
+                                    if ((OutputSettings.OutputLEDSetup as LEDSetup).IsSelected)
+                                    {
+                                        spot.SetColor(21, 0, 255, isPreviewRunning);
+                                    }
+                                    else
+                                    {
+                                        if (!OutputSettings.IsInSpotEditWizard)
+                                        {
+                                            if (spot.IsEnabled)
+                                                spot.SetColor(FinalR, FinalG, FinalB, isPreviewRunning);
+                                            else
+                                            {
+                                                spot.SetColor(0, 0, 0, isPreviewRunning);
+                                            }
+
+                                        }
+                                    }
                                 }
 
 
@@ -234,8 +249,23 @@ namespace adrilight
 
                                     var outputColor1 = Brightness.applyBrightness(newColor, actualVUBrightness, numLED, outputPowerMiliamps, outputPowerVoltage);
                                     ApplySmoothing(outputColor1.R, outputColor1.G, outputColor1.B, out byte FinalR1, out byte FinalG1, out byte FinalB1, spot.Red, spot.Green, spot.Blue);
-                                    if (!OutputSettings.IsInSpotEditWizard)
-                                        spot.SetColor(FinalR1, FinalG1, FinalB1, isPreviewRunning);
+                                    if ((OutputSettings.OutputLEDSetup as LEDSetup).IsSelected)
+                                    {
+                                        spot.SetColor(21, 0, 255, isPreviewRunning);
+                                    }
+                                    else
+                                    {
+                                        if (!OutputSettings.IsInSpotEditWizard)
+                                        {
+                                            if (spot.IsEnabled)
+                                                spot.SetColor(FinalR1, FinalG1, FinalB1, isPreviewRunning);
+                                            else
+                                            {
+                                                spot.SetColor(0, 0, 0, isPreviewRunning);
+                                            }
+
+                                        }
+                                    }
 
                                 }
 

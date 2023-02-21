@@ -26,6 +26,8 @@ namespace adrilight.Spots
         public double ScaleLeft { get; set; }
         public double ScaleWidth { get; set; }
         public double ScaleHeight { get; set; }
+        int OutputSelectedDisplay { get; set; }
+        bool IsScreenCaptureEnabled { get; set; }
         void OnResolutionChanged(double scaleX, double scaleY);
         void RefreshSizeAndPosition();
     }

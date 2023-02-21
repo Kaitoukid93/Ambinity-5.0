@@ -137,13 +137,13 @@
                 <ColumnDefinition Width="*"/>
 
             </Grid.ColumnDefinitions>
-            <StackPanel Margin="5" Orientation="Horizontal">
-                <!--<Path Margin="5" Data="{StaticResource colorpalette}" 
+            <StackPanel Margin="15" Orientation="Horizontal">
+                <Path Margin="5" Data="{DynamicResource colorpalette}" 
           Width="30" 
           Height="30" 
           Fill="White"
-          Stretch="Uniform" />-->
-                <!--<TextBlock  Margin="5" HorizontalAlignment="Left" Text="Color Palette" Style="{StaticResource TextBlockTitleBold}"/>-->
+          Stretch="Uniform" />
+                <TextBlock  Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" Text="CHỌN DẢI MÀU" Style="{DynamicResource TextBlockDefault}" FontWeight="SemiBold"/>
             </StackPanel>
 
 
@@ -176,7 +176,7 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-            <TextBlock Style="{StaticResource TextBlockDefault}" Grid.Row="0" FontWeight="SemiBold"  Margin="15, 15,15, 15"  Text="CHỌN DẢI MÀU"  VerticalAlignment="Center"  HorizontalAlignment="Left"/>
+        
             <Grid> 
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>

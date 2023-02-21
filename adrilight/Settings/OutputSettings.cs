@@ -46,7 +46,7 @@ namespace adrilight
         private int _outputSelectedMusicPalette;
         private Color[] _outputSentryModeColorSource;
         private int _outputSelectedAudioDevice;
-        private int _outputSelectedDisplay;
+       
         private int _outputSelectedChasingPalette;
         private int _outputSelectedMode;
         private int _outputPaletteSpeed = 20;
@@ -83,7 +83,7 @@ namespace adrilight
         private int _vUMode = 0;
         private IGifCard _outputSelectedGif = null;
         private int _outputSelectedGifIndex = 0;
-
+        
 
 
         private int _outputGifSpeed = 20;
@@ -150,9 +150,7 @@ namespace adrilight
         [Reflectable]
         public Color[] OutputSentryModeColorSource { get => _outputSentryModeColorSource; set { Set(() => OutputSentryModeColorSource, ref _outputSentryModeColorSource, value); } }
         [Reflectable]
-        public int OutputSelectedAudioDevice { get => _outputSelectedAudioDevice; set { Set(() => OutputSelectedAudioDevice, ref _outputSelectedAudioDevice, value); } }
-        [Reflectable]
-        public int OutputSelectedDisplay { get => _outputSelectedDisplay; set { Set(() => OutputSelectedDisplay, ref _outputSelectedDisplay, value); } }
+        public int OutputSelectedAudioDevice { get => _outputSelectedAudioDevice; set { Set(() => OutputSelectedAudioDevice, ref _outputSelectedAudioDevice, value); } } 
         [Reflectable]
         public int OutputSelectedChasingPalette { get => _outputSelectedChasingPalette; set { Set(() => OutputSelectedChasingPalette, ref _outputSelectedChasingPalette, value); } }
         [Reflectable]
@@ -201,8 +199,10 @@ namespace adrilight
         public int OutputMusicSensitivity { get => _outputMusicSensitivity; set { Set(() => OutputMusicSensitivity, ref _outputMusicSensitivity, value); } }
         [Reflectable]
         public int OutputScreenCapturePositionIndex { get => _outputScreenCapturePositionIndex; set { Set(() => OutputScreenCapturePositionIndex, ref _outputScreenCapturePositionIndex, value); } }
-       
-     
+
+
+ 
+    
 
         public bool OutputIsLoadingProfile { get => _outputIsLoadingProfile; set { Set(() => OutputIsLoadingProfile, ref _outputIsLoadingProfile, value); } }
 

@@ -1,23 +1,20 @@
-﻿using adrilight.Settings;
-using adrilight.Spots;
-using adrilight.Util;
-using adrilight.ViewModel;
+﻿using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Media;
 
-namespace adrilight
+namespace adrilight.Settings
 {
-    public abstract class Drawable : ViewModelBase, IDrawable
+    public class ScreenBound : ViewModelBase, IDrawable
     {
-     
+
+
         private double _top = 0;
         private double _left = 0;
         private bool _isSelected;
@@ -37,6 +34,8 @@ namespace adrilight
         private double _centerY;
         private bool _isResizeable;
         private bool _isDeleteable;
+        private int _index;
+        public int Index { get => _index; set { Set(() => Index, ref _index, value); } }
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
         public double CenterX { get => _centerX; set { Set(() => CenterX, ref _centerX, value); } }
@@ -48,9 +47,9 @@ namespace adrilight
 
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
 
-        public double Width { get => _width; set { Set(() => Width, ref _width, value);OnWidthUpdated(); } }
+        public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }
 
-        public double Height { get => _height; set { Set(() => Height, ref _height, value);OnHeightUpdated(); } }
+        public double Height { get => _height; set { Set(() => Height, ref _height, value); OnHeightUpdated(); } }
 
         public VisualProperties VisualProperties { get => _visualProperties; set { Set(() => VisualProperties, ref _visualProperties, value); } }
 
@@ -63,31 +62,31 @@ namespace adrilight
         public bool ShouldBringIntoView { get => _shouldBringIntoView; set { Set(() => ShouldBringIntoView, ref _hasCustomBehavior, value); } }
 
         public Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
+        public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
 
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
-        public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
 
-        public Drawable()
+        public ScreenBound()
         {
             VisualProperties = new VisualProperties();
             Scale = new Point(1, 1);
+            Width = Screen.PrimaryScreen.Bounds.Width;
+            Height = Screen.PrimaryScreen.Bounds.Height;
+            IsDraggable = false;
+            IsSelectable = false;
         }
-        public void SetScale(double scale)
-        {
-            //keep left and top the same
-            //scale width and height only
-            var oldWidth = Width;
-            var oldHeight = Height;
-            Width = scale * oldWidth;
-            Height = scale * oldHeight;
-            RaisePropertyChanged(nameof(Width));
-            RaisePropertyChanged(nameof(Height));
-        }
-        protected virtual void OnLeftChanged(double delta) { }
+        
 
-        protected virtual void OnTopChanged(double delta) { }
+        protected virtual void OnLeftChanged(double delta)
+        {
+            
+        }
+        protected virtual void OnTopChanged(double delta)
+        {
+            
+        }
 
         protected virtual void OnWidthUpdated() { }
 
@@ -98,5 +97,19 @@ namespace adrilight
         protected virtual void OnIsSelectedChanged(bool value) { }
 
         public virtual void OnDrawingEnded(Action<object> callback = default) { }
+        public void SetScale(double scale)
+        {
+            //keep left and top the same
+            //scale width and height only
+            var oldWidth = Width;
+            var oldHeight = Height;
+            Width = scale* oldWidth;
+            Height = scale * oldHeight;
+            RaisePropertyChanged(nameof(Width));
+            RaisePropertyChanged(nameof(Height));
+        }
+      
+
+      
     }
 }

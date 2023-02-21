@@ -80,7 +80,11 @@ namespace adrilight
         {
             if (settings.Autostart)
             {
-                StartUpManager.AddApplicationToTaskScheduler();
+                StartUpManager.AddApplicationToTaskScheduler(settings.StartupDelaySecond);
+            }
+            else
+            {
+                StartUpManager.RemoveApplicationFromTaskScheduler("Ambinity Service");
             }
           
         }

@@ -85,6 +85,8 @@
 
                     <Separator Margin="10,0" MaxHeight="25"/>
                     <Button Margin="5,0,0,0" BorderThickness="0" hc:IconElement.Geometry="{DynamicResource DeleteFillCircleGeometry}" Command="{Binding ResetCountCommand}" CommandParameter="ResetVID" ToolTip="Xóa tất cả VID hiện tại" Content="Xóa"/>
+                    <Separator Margin="10,0" MaxHeight="25"/>
+                    <Button Margin="5,0,0,0" BorderThickness="0" hc:IconElement.Geometry="{DynamicResource info}" Command="{Binding OpenTutorialCommand}" CommandParameter="ResetVID" ToolTip="Hướng dẫn sử dụng VID Editor" Content="Hướng dẫn"/>
                 </ToolBar>
 
             </ToolBarTray>

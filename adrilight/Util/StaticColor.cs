@@ -189,8 +189,23 @@ namespace adrilight.Util
                                     var newColor = new OpenRGB.NET.Models.Color(currentStaticColor.R, currentStaticColor.G, currentStaticColor.B);
                                     var outputColor = Brightness.applyBrightness(newColor, breathingbrightness, numLED, outputPowerMiliamps, outputPowerVoltage);
                                     ApplySmoothing(outputColor.R, outputColor.G, outputColor.B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
-                                    if (!OutputSettings.IsInSpotEditWizard)
-                                        spot.SetColor(FinalR, FinalG, FinalB, isPreviewRunning);
+                                    if ((OutputSettings.OutputLEDSetup as LEDSetup).IsSelected)
+                                    {
+                                        spot.SetColor(21, 0, 255, isPreviewRunning);
+                                    }
+                                    else
+                                    {
+                                        if (!OutputSettings.IsInSpotEditWizard)
+                                        {
+                                            if (spot.IsEnabled)
+                                                spot.SetColor(FinalR, FinalG, FinalB, isPreviewRunning);
+                                            else
+                                            {
+                                                spot.SetColor(0, 0, 0, isPreviewRunning);
+                                            }
+
+                                        }
+                                    }
                                 }
                                 break;
                             case 2:
@@ -207,8 +222,23 @@ namespace adrilight.Util
                                     var brightness = OutputSettings.OutputBrightness / 100d;                                   
                                     var newColor = new OpenRGB.NET.Models.Color(colorBank[position].R, colorBank[position].G, colorBank[position].B);
                                     var outputColor = Brightness.applyBrightness(newColor, brightness, numLED, outputPowerMiliamps, outputPowerVoltage);
-                                    if (!OutputSettings.IsInSpotEditWizard)
-                                        spot.SetColor(outputColor.R, outputColor.G, outputColor.B, isPreviewRunning);
+                                    if ((OutputSettings.OutputLEDSetup as LEDSetup).IsSelected)
+                                    {
+                                        spot.SetColor(21, 0, 255, isPreviewRunning);
+                                    }
+                                    else
+                                    {
+                                        if (!OutputSettings.IsInSpotEditWizard)
+                                        {
+                                            if (spot.IsEnabled)
+                                                spot.SetColor(outputColor.R, outputColor.G, outputColor.B, isPreviewRunning);
+                                            else
+                                            {
+                                                spot.SetColor(0, 0, 0, isPreviewRunning);
+                                            }
+
+                                        }
+                                    }
                                 }
 
 

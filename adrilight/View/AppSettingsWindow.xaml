@@ -11,7 +11,7 @@
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
           
-            
+            SizeToContent="Width"
            Height="550" 
            Width="400" 
            WindowStartupLocation="CenterOwner" 
@@ -58,10 +58,17 @@
                                     <TextBlock FontWeight="SemiBold" Text="START WITH WINDOWS"/>
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
+                            <Grid HorizontalAlignment="Right">
+                                <StackPanel Orientation="Horizontal">
+                                    <hc:NumericUpDown Style="{DynamicResource NumericUpDownPlus}" hc:InfoElement.TitleWidth="50" hc:InfoElement.Title="Delay" hc:InfoElement.TitlePlacement="Left" Margin="10" Value="{Binding GeneralSettings.StartupDelaySecond}"/>
+                                    
+                                    <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding GeneralSettings.Autostart}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
 
-                            <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding GeneralSettings.Autostart}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
-
-                            </ToggleButton>
+                                    </ToggleButton>
+                                </StackPanel>
+                            </Grid>
+                          
+                           
 
 
                         </GroupBox>
@@ -135,6 +142,26 @@
 
                         </GroupBox>
                         <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Tắt tùy chọn này nếu bạn không muốn đồng bộ các thiết bị OpenRGB"/>
+                    </Grid>
+                    <Grid Visibility="Visible" Name="MultipleScreen">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="200" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                            <GroupBox.HeaderTemplate>
+                                <DataTemplate>
+                                    <TextBlock FontWeight="SemiBold" Text="MULTIPLE SCREEN SUPPORT"/>
+                                </DataTemplate>
+                            </GroupBox.HeaderTemplate>
+
+                            <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding GeneralSettings.IsMultipleScreenEnable}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
+
+                            </ToggleButton>
+
+
+                        </GroupBox>
+                        <TextBlock TextWrapping="Wrap" Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Cho phép capture nhiều hơn một màn hình, tắt đi nếu gặp lỗi khi dùng nhiều màn hình"/>
                     </Grid>
                     <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
