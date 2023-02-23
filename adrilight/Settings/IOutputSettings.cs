@@ -10,6 +10,7 @@ using adrilight.Util;
 using System.Windows.Input;
 using adrilight.ViewModel;
 using System.Windows;
+using adrilight_effect_analyzer.Model;
 
 namespace adrilight
 {
@@ -41,6 +42,7 @@ namespace adrilight
         bool OutputIsBuildingLEDSetup { get; set; }
         int OutputGifSpeed { get; set; }
         IGifCard OutputSelectedGif { get; set; }
+        MotionCard OutputSelectedMotion { get; set; }
         string OutputUniqueID { get; set; }
         string OutputRGBLEDOrder { get; set; }
         bool OutputIsVisible { get; set; }

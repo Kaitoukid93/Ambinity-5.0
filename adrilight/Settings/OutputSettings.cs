@@ -2,6 +2,7 @@
 using adrilight.Spots;
 using adrilight.Util;
 using adrilight.ViewModel;
+using adrilight_effect_analyzer.Model;
 using GalaSoft.MvvmLight;
 using System;
 using System.Collections.Generic;
@@ -83,7 +84,9 @@ namespace adrilight
         private int _vUMode = 0;
         private IGifCard _outputSelectedGif = null;
         private int _outputSelectedGifIndex = 0;
-        
+        private MotionCard _outputSelectedMotion;
+
+
 
 
         private int _outputGifSpeed = 20;
@@ -201,8 +204,10 @@ namespace adrilight
         public int OutputScreenCapturePositionIndex { get => _outputScreenCapturePositionIndex; set { Set(() => OutputScreenCapturePositionIndex, ref _outputScreenCapturePositionIndex, value); } }
 
 
- 
-    
+        [Reflectable]
+        public MotionCard OutputSelectedMotion { get => _outputSelectedMotion; set { Set(() => OutputSelectedMotion, ref _outputSelectedMotion, value); } }
+
+
 
         public bool OutputIsLoadingProfile { get => _outputIsLoadingProfile; set { Set(() => OutputIsLoadingProfile, ref _outputIsLoadingProfile, value); } }
 

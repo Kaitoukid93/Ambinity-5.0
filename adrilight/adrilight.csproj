@@ -242,6 +242,7 @@
     <Compile Include="Util\DefaultColorCollection.cs" />
     <Compile Include="Util\FakeSerialPort.cs" />
     <Compile Include="Util\FpsLogger.cs" />
+    <Compile Include="Util\MotionCard.cs" />
     <Compile Include="Util\GifCard.cs" />
     <Compile Include="Util\Gifxelation.cs" />
     <Compile Include="Util\GradientColor.cs" />
@@ -770,6 +771,12 @@
     <EmbeddedResource Include="AmbinoFactoryValue\ABA1.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="AmbinoFactoryValue\Bouncing.AML">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AmbinoFactoryValue\Shooting.AML">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <None Include="app.manifest" />
     <None Include="ApplicationInsights.config" />
     <EmbeddedResource Include="Gif\BitOcean.gif">
@@ -850,6 +857,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\adrilight_effect_analyzer\adrilight_effect_analyzer.csproj">
+      <Project>{8966a6b0-cec4-4337-a5be-af363303e02a}</Project>
+      <Name>adrilight_effect_analyzer</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

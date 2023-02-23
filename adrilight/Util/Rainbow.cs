@@ -16,6 +16,13 @@ using NLog;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using adrilight.Spots;
+using adrilight_effect_analyzer.Model;
+using System.IO;
+using Newtonsoft.Json;
+using System.Reflection;
+using System.Windows;
+using Frame = adrilight_effect_analyzer.Model.Frame;
+
 namespace adrilight
 {
     internal class Rainbow : IRainbow
@@ -23,7 +30,7 @@ namespace adrilight
 
 
         private readonly NLog.ILogger _log = LogManager.GetCurrentClassLogger();
-
+        private string testMotionPath = "adrilight.AmbinoFactoryValue.Shooting.AML";
         public Rainbow(IOutputSettings outputSettings, IRainbowTicker rainbowTicker, IGeneralSettings generalSettings, MainViewViewModel mainViewViewModel)
         {
             OutputSettings = outputSettings ?? throw new ArgumentNullException(nameof(outputSettings));
@@ -67,7 +74,7 @@ namespace adrilight
                     RefreshColorState();
                     break;
                 case nameof(OutputSettings.OutputCurrentActivePalette):
-               
+
                 case nameof(OutputSettings.OutputIsSystemSync):
 
 
@@ -140,18 +147,51 @@ namespace adrilight
             {
 
 
-
-                var numLED = OutputSettings.OutputLEDSetup.Spots.Count * OutputSettings.LEDPerSpot * OutputSettings.LEDPerLED;
+                // per Session variables
+                var realNumLED = OutputSettings.OutputLEDSetup.Spots.Count * OutputSettings.LEDPerSpot * OutputSettings.LEDPerLED;
+                var numLED = OutputSettings.OutputLEDSetup.Spots.Count;
                 var outputPowerVoltage = OutputSettings.OutputPowerVoltage;
                 var outputPowerMiliamps = OutputSettings.OutputPowerMiliamps;
                 var effectSpeed = OutputSettings.OutputPaletteSpeed;
                 var frequency = OutputSettings.OutputPaletteBlendStep;
                 var colorNum = GeneralSettings.SystemRainbowMaxTick;
                 Color[] paletteSource = OutputSettings.OutputCurrentActivePalette.Colors;
-                colorBank = GetColorGradientfromPaletteWithFixedColorPerGap(paletteSource, 18).ToArray();
-                double StartIndex = 0d;
-                int OutputStartIndex = 0;
 
+                //load frame from selected motion
+                var motion = ReadMotionFromResource(testMotionPath); // load test
+                Frame[] resizedFrames = new Frame[motion.Frames.Count];                                                //scale motion
+                if (inSync) // take VID as the position in the Total LED array
+                {
+
+                    int frameCount = 0;
+                    foreach (var frame in motion.Frames)
+                    {
+                        //scale each frame
+                        var resizedFrame = new Frame();
+                        resizedFrame.BrightnessData = ResizeFrame(frame.BrightnessData, frame.BrightnessData.Length, GeneralSettings.SystemRainbowMaxTick);
+                        resizedFrames[frameCount++] = resizedFrame;
+
+                    }
+                    colorBank = ResizePalette(paletteSource, GeneralSettings.SystemRainbowMaxTick);
+                }
+                else // take VID as PID and the color always full loop
+                {
+
+                    int frameCount = 0;
+                    foreach (var frame in motion.Frames)
+                    {
+                        //scale each frame
+                        var resizedFrame = new Frame();
+                        resizedFrame.BrightnessData = ResizeFrame(frame.BrightnessData, frame.BrightnessData.Length, numLED);
+                        resizedFrames[frameCount++] = resizedFrame;
+
+                    }
+                    colorBank = ResizePalette(paletteSource, numLED);
+                }
+
+
+                int OutputStartIndex = 0;
+                int currentFrameIndex = 0;
 
                 while (!token.IsCancellationRequested)
                 {
@@ -159,32 +199,30 @@ namespace adrilight
                     var currentOutput = MainViewViewModel.CurrentOutput;
                     if (currentOutput != null && currentOutput.OutputUniqueID == OutputSettings.OutputUniqueID)
                         outputIsSelected = true;
-                    bool isPreviewRunning = (MainViewViewModel.IsSplitLightingWindowOpen && outputIsSelected)||MainViewViewModel.IsRichCanvasWindowOpen;
+                    bool isPreviewRunning = (MainViewViewModel.IsSplitLightingWindowOpen && outputIsSelected) || MainViewViewModel.IsRichCanvasWindowOpen;
                     double speed = OutputSettings.OutputPaletteSpeed / 5d;
-                    StartIndex += speed;
-                    if (StartIndex > GeneralSettings.SystemRainbowMaxTick)
-                    {
-                        StartIndex = 0;
-                    }
-                    if (inSync)
-                    {
-                        OutputStartIndex = (int)RainbowTicker.RainbowStartIndex;
-                    }
-                    else
-                    {
-                        OutputStartIndex = (int)StartIndex;
-                    }
 
+
+                    OutputStartIndex = (int)RainbowTicker.RainbowStartIndex;
+                    
                     lock (OutputSettings.OutputLEDSetup.Lock)
                     {
 
                         int position = 0;
+
                         foreach (var spot in OutputSettings.OutputLEDSetup.Spots)
                         {
 
                             //caculate the overlap 
+                            if (inSync) // take VID as the position in the Total LED array
+                            {
+                                position = OutputStartIndex + spot.VID;
 
-                            position = OutputStartIndex + spot.VID;
+                            }
+                            else // take VID as PID and the color always full loop
+                            {
+                                position =  spot.id;
+                            }
                             int n = 0;
                             if (position >= colorBank.Length)
                                 //position = Math.Abs(colorBank.Length - position);
@@ -192,11 +230,11 @@ namespace adrilight
                             position -= n * colorBank.Length; // run with VID
 
 
-                            var brightness = OutputSettings.OutputBrightness / 100d;
+                            var brightness = ((resizedFrames[currentFrameIndex].BrightnessData[position]) * OutputSettings.OutputBrightness) / (255 * 100d);
                             var newColor = new OpenRGB.NET.Models.Color(colorBank[position].R, colorBank[position].G, colorBank[position].B);
-                            var outputColor = Brightness.applyBrightness(newColor, brightness, numLED, outputPowerMiliamps, outputPowerVoltage);
+                            var outputColor = Brightness.applyBrightness(newColor, brightness, realNumLED, outputPowerMiliamps, outputPowerVoltage);
                             ApplySmoothing(outputColor.R, outputColor.G, outputColor.B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
-                            if((OutputSettings.OutputLEDSetup as LEDSetup).IsSelected)
+                            if ((OutputSettings.OutputLEDSetup as LEDSetup).IsSelected)
                             {
                                 spot.SetColor(21, 0, 255, isPreviewRunning);
                             }
@@ -213,14 +251,20 @@ namespace adrilight
 
                                 }
                             }
-                           
+
 
 
                         }
 
 
                     }
-                    Thread.Sleep(10);
+                    if(currentFrameIndex<resizedFrames.Length-1)
+                    currentFrameIndex++;
+                    else
+                    {
+                        currentFrameIndex = 0;
+                    }
+                    Thread.Sleep(30);
 
 
                 }
@@ -288,6 +332,32 @@ namespace adrilight
             byte b = (byte)((right.Color.B - left.Color.B) * offset + left.Color.B);
             return Color.FromRgb(r, g, b);
         }
+
+        private static Motion ReadMotionFromResource(string resourceName)
+        {
+            Motion motion = new Motion();
+            var assembly = Assembly.GetExecutingAssembly();
+            using (Stream resource = assembly.GetManifestResourceStream(resourceName))
+            {
+                if (resource == null)
+                {
+                    throw new ArgumentException("No such resource", "resourceName");
+                }
+                using (StreamReader reader = new StreamReader(resource))
+                {
+                    string json = reader.ReadToEnd(); //Make string equal to full file
+                    try
+                    {
+                        motion = JsonConvert.DeserializeObject<Motion>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    }
+                    catch (Exception)
+                    {
+                        HandyControl.Controls.MessageBox.Show("Corrupted or incompatible data File!!!", "LEDSetup Import", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+            return motion;
+        }
         [Obsolete]
         public GradientStopCollection GradientPaletteColor(Color[] ColorCollection)
         {
@@ -313,7 +383,42 @@ namespace adrilight
             return gradientPalette;
         }
 
-
+        // thanks to https://tech-algorithm.com/articles/nearest-neighbor-image-scaling/
+        // modified to use with 1 diemsional array only
+        private byte[] ResizeFrame(byte[] pixels, int w1, int w2)
+        {
+            byte[] temp = new byte[w2];
+            int x_ratio = (int)((w1 << 16) / w2) + 1;
+            int y_ratio = 1;
+            int x2, y2;
+            for (int i = 0; i < 1; i++)
+            {
+                for (int j = 0; j < w2; j++)
+                {
+                    x2 = ((j * x_ratio) >> 16);
+                    y2 = ((i * y_ratio) >> 16);
+                    temp[(i * w2) + j] = pixels[(y2 * w1) + x2];
+                }
+            }
+            return temp;
+        }
+        public Color[] ResizePalette(Color[] inputPalette, int newSize)
+        {
+            Color[] temp = new Color[newSize];
+            int x_ratio = (int)((16 << 16) / newSize) + 1;
+            int y_ratio = 1;
+            int x2, y2;
+            for (int i = 0; i < 1; i++)
+            {
+                for (int j = 0; j < newSize; j++)
+                {
+                    x2 = ((j * x_ratio) >> 16);
+                    y2 = ((i * y_ratio) >> 16);
+                    temp[(i * newSize) + j] = inputPalette[(y2 * 16) + x2];
+                }
+            }
+            return temp;
+        }
         public static IEnumerable<Color> GetColorGradient(Color from, Color to, int totalNumberOfColors)
         {
             if (totalNumberOfColors < 2)
@@ -351,6 +456,7 @@ namespace adrilight
             return colorList;
 
         }
+
         public static IEnumerable<Color> GetColorGradientfromPalette(Color[] colorCollection, int colorNum)
         {
             var colors = new List<Color>();
@@ -382,6 +488,20 @@ namespace adrilight
             colors = colors.Concat(lastGradient).ToList();
             return colors;
 
+        }
+        public static Motion GetByteFrameFromDisk(string path)
+        {
+            var frames = new Motion();
+            try
+            {
+                var json = File.ReadAllText(path);
+                frames = JsonConvert.DeserializeObject<Motion>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            return frames;
         }
 
 

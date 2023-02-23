@@ -1,4 +1,5 @@
-﻿using GalaSoft.MvvmLight;
+﻿using adrilight_effect_analyzer.Model;
+using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using Microsoft.Win32;
 using Newtonsoft.Json;
@@ -38,8 +39,8 @@ namespace adrilight_effect_analyzer.ViewModel
             }
         );
         }
-        private ObservableCollection<DisplayPixel> _currentFrame;
-        public ObservableCollection<DisplayPixel> CurrentFrame
+        private Frame _currentFrame;
+        public Frame CurrentFrame
         {
             get
             {
@@ -51,8 +52,8 @@ namespace adrilight_effect_analyzer.ViewModel
                 RaisePropertyChanged(nameof(CurrentFrame));
             }
         }
-        private MotionLayer _layer;
-        public MotionLayer Layer
+        private Motion _layer;
+        public Motion Layer
         {
             get { return _layer; }
             set
@@ -76,7 +77,7 @@ namespace adrilight_effect_analyzer.ViewModel
             Import.ShowDialog();
 
 
-            Layer = new MotionLayer();
+            Layer = new Motion();
             foreach(var filename in Import.FileNames)
             {
                 BitmapData bitmapData = new BitmapData();
@@ -100,7 +101,7 @@ namespace adrilight_effect_analyzer.ViewModel
                 }
                 byte[] brightnessMap = new byte[rectSet.Length];
                 int pixelCount = 0;
-                CurrentFrame = new ObservableCollection<DisplayPixel>();
+                CurrentFrame = new Frame(256);
                 foreach (var rect in rectSet)
                 {
                     const int numberOfSteps = 15;
@@ -112,14 +113,14 @@ namespace adrilight_effect_analyzer.ViewModel
                     System.Windows.Media.Color pixelColor = new System.Windows.Media.Color();
                     pixelColor = System.Windows.Media.Color.FromRgb((byte)(sumR * countInverse), (byte)(sumG * countInverse), (byte)(sumB * countInverse));
                     //add displaypixel to current frame
-                    CurrentFrame.Add(new DisplayPixel(rect, pixelColor));
+                    
                 }
-                var newFrame = new MotionFrame();
-                foreach(var pixel in CurrentFrame)
+                var newFrame = new Frame(256);
+                for (int i= 0;i < brightnessMap.Count(); i++)
                 {
-                    newFrame.FrameData.Add(new DisplayPixel(pixel.Rect, pixel.FillColor));
+                    newFrame.BrightnessData[i] = brightnessMap[i];
                 }
-                Layer.Frame.Add(newFrame);
+                Layer.Frames.Add(newFrame);
 
                 //display frame at preview
                 //store current frame to json file
@@ -154,39 +155,8 @@ namespace adrilight_effect_analyzer.ViewModel
                 count += stepCount;
             }
         }
-        public class DisplayPixel
-        { 
-           public DisplayPixel(Rectangle rect,System.Windows.Media.Color fillColor)
-            {
-                FillColor = fillColor;
-                Rect = rect;
-            }
-            public System.Windows.Media.Color FillColor { get; set; }
-            public Rectangle Rect { get; set; }
-            
-        }
-        public class MotionFrame
-        {
-            public MotionFrame()
-            {
-                FrameData = new ObservableCollection<DisplayPixel>();
-            }
-            public ObservableCollection<DisplayPixel> FrameData { get; set; }
-            public int PixelCount { get; set; }
-           
-
-        }
-        public class MotionLayer //contain list of frame to form a motion
-        {
-            public MotionLayer()
-            {
-                Frame = new ObservableCollection<MotionFrame>();
-            }
-            public ObservableCollection<MotionFrame> Frame { get; set; }
-            public int FrameCount { get; set; }
-
-
-        }
+    
+       
 
         private Rectangle[] BuildMatrix(int rectwidth, int rectheight, int spotsX, int spotsY)
         {
