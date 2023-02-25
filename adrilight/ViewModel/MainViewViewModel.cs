@@ -4,6 +4,7 @@ using adrilight.Settings;
 using adrilight.Spots;
 using adrilight.Util;
 using adrilight.View;
+using adrilight_effect_analyzer.Model;
 using Emgu.CV;
 using GalaSoft.MvvmLight;
 using HandyControl.Controls;
@@ -35,6 +36,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using TimeLineTool;
 using Un4seen.BassWasapi;
 using Color = System.Windows.Media.Color;
 using ColorConverter = System.Windows.Media.ColorConverter;
@@ -668,6 +670,7 @@ namespace adrilight.ViewModel
         public ICommand BackToPreviousWizardStateCommand { get; set; }
         public ICommand LaunchPositionEditWindowCommand { get; set; }
         public ICommand LaunchPIDEditWindowCommand { get; set; }
+        public ICommand LaunchCompositionEditWindowCommand { get; set; }
         public ICommand LaunchVIDEditWindowCommand { get; set; }
         public ICommand LaunchMIDEditWindowCommand { get; set; }
         public ICommand LaunchCIDEditWindowCommand { get; set; }
@@ -1321,7 +1324,7 @@ namespace adrilight.ViewModel
                 }
 
             }
-
+         
             AvailableAutomations = new ObservableCollection<IAutomationSettings>();
             foreach (var automation in LoadAutomationIfExist())
             {
@@ -3067,6 +3070,14 @@ namespace adrilight.ViewModel
             {
                 LaunchPIDEditWindow();
             });
+            LaunchCompositionEditWindowCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                LaunchCompositionEditWindow();
+            });
+
             LaunchDeleteSelectedDeviceWindowCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -4868,6 +4879,15 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        private ObservableCollection<ITimeLineDataItem> _availableMotions;
+        public ObservableCollection<ITimeLineDataItem> AvailableMotions {
+            get { return _availableMotions; }
+            set
+            {
+                _availableMotions = value;
+                RaisePropertyChanged();
+            }
+        }
 
         private bool _reloadDeviceLoadingVissible = false;
 
@@ -5587,7 +5607,64 @@ namespace adrilight.ViewModel
             vidEditCanvasWindow.ShowDialog();
 
         }
-
+        CompositionEditWindow compositionEditWindow { get; set; }
+        private Composition _currentSelectedComposition;
+        public Composition CurrentSelectedComposition {
+            get { return _currentSelectedComposition; }
+            set
+            {
+                _currentSelectedComposition = value;
+                RaisePropertyChanged();
+            }
+        }
+        private double _currentCompositionFrame;
+       
+        public double CurrentCompositionFrame {
+            get { return _currentCompositionFrame; }
+            set { _currentCompositionFrame = value; RaisePropertyChanged(); }
+        }
+        private double _timeLineHeight=30;
+        public double TimeLineHeight {
+            get { return _timeLineHeight; }
+            set { _timeLineHeight = value; RaisePropertyChanged(); }
+        }
+        private double _unitSize=1;
+        public double UnitSize {
+            get { return _unitSize; }
+            set { _unitSize = value; RaisePropertyChanged(); }
+        }
+        private void LaunchCompositionEditWindow()
+        {
+            ////////// testing binding logic/////////
+            CurrentSelectedComposition = new Composition();
+            CurrentSelectedComposition.Layers = new ObservableCollection<MotionLayer>();
+            var layer1 = new MotionLayer();
+            var layer2 = new MotionLayer();
+            var bouncing = new MotionCard() {
+                Name = "Bouncing",
+                StartFrame = 5,
+                EndFrame = 125,
+                TrimEnd = 0,
+                TrimStart = 0,
+                OriginalDuration = 120
+            };
+            var bouncing2 = new MotionCard() {
+                Name = "Chasing",
+                StartFrame = 20,
+                EndFrame = 300,
+                TrimEnd = 0,
+                TrimStart = 0,
+                OriginalDuration = 280
+            };
+            layer1.Motions.Add(bouncing);
+            layer2.Motions.Add(bouncing2);
+            CurrentSelectedComposition.Layers.Add(layer1);
+            CurrentSelectedComposition.Layers.Add(layer2);
+            ///////
+            compositionEditWindow = new CompositionEditWindow();
+            compositionEditWindow.Owner = System.Windows.Application.Current.MainWindow;
+            compositionEditWindow.ShowDialog();
+        }
         private void LaunchPIDEditWindow()
         {
             selectedSpots = new ObservableCollection<IDrawable>();
@@ -7138,11 +7215,13 @@ namespace adrilight.ViewModel
             var music = new LightingMode { Name = "Music Reactive", Geometry = "music", Description = "Screen sampling to LED" };
             var staticcolor = new LightingMode { Name = "Static Color", Geometry = "static", Description = "Screen sampling to LED" };
             var gifxelation = new LightingMode { Name = "Gifxelation", Geometry = "gifxelation", Description = "Screen sampling to LED" };
+            var composition = new LightingMode { Name = "Composition", Geometry = "gifxelation", Description = "Screen sampling to LED" };
             AvailableLightingMode.Add(screencapture);
             AvailableLightingMode.Add(palette);
             AvailableLightingMode.Add(music);
             AvailableLightingMode.Add(staticcolor);
             AvailableLightingMode.Add(gifxelation);
+            AvailableLightingMode.Add(composition);
             AvailableBaudrates = new ObservableCollection<int> {
                 9600,
                 19200,
@@ -7226,7 +7305,25 @@ namespace adrilight.ViewModel
           "Dashboard",
            "Settings",
         };
-
+            AvailableMotions = new ObservableCollection<ITimeLineDataItem>();
+            var bouncing = new MotionCard() {
+                Name = "Bouncing",
+                StartFrame = 5,
+                EndFrame = 125,
+                TrimEnd = 0,
+                TrimStart = 0,
+                OriginalDuration = 120
+            };
+            var bouncing2 = new MotionCard() {
+                Name = "Chasing",
+                StartFrame = 20,
+                EndFrame = 300,
+                TrimEnd = 0,
+                TrimStart = 0,
+                OriginalDuration = 280
+            };
+            AvailableMotions.Add(bouncing);
+            AvailableMotions.Add(bouncing2);
             AvailablePallete = new ObservableCollection<IColorPalette>();
             foreach (var loadedPalette in LoadPaletteIfExists())
             {
@@ -8230,6 +8327,7 @@ namespace adrilight.ViewModel
             }
             AvailableProfilesForCurrentDevice = new ObservableCollection<IDeviceProfile>();
             AvailableProfilesForCurrentDevice = ProfileFilter(CurrentDevice);
+            
             //CurrentSelectedProfile = null;
             //if (CurrentDevice.ActivatedProfileUID != null)
             //{

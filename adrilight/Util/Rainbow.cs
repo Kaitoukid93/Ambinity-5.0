@@ -30,7 +30,7 @@ namespace adrilight
 
 
         private readonly NLog.ILogger _log = LogManager.GetCurrentClassLogger();
-        private string testMotionPath = "adrilight.AmbinoFactoryValue.Shooting.AML";
+        private string testMotionPath = "adrilight.AmbinoFactoryValue.StripeMoving.AML";
         public Rainbow(IOutputSettings outputSettings, IRainbowTicker rainbowTicker, IGeneralSettings generalSettings, MainViewViewModel mainViewViewModel)
         {
             OutputSettings = outputSettings ?? throw new ArgumentNullException(nameof(outputSettings));
@@ -189,7 +189,7 @@ namespace adrilight
                     colorBank = ResizePalette(paletteSource, numLED);
                 }
 
-
+                //need separate color index 
                 int OutputStartIndex = 0;
                 int currentFrameIndex = 0;
 
@@ -264,7 +264,7 @@ namespace adrilight
                     {
                         currentFrameIndex = 0;
                     }
-                    Thread.Sleep(30);
+                    Thread.Sleep(10);
 
 
                 }

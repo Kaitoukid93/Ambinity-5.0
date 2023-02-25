@@ -7,12 +7,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using TimeLineTool;
+using System.Collections.ObjectModel;
 
 namespace adrilight.Util
 {
-    public class MotionCard : ITimeLineDataItem // for displaying motion at rainbow control panel
+    public class Composition // for displaying motion at rainbow control panel
     {
-       
+
 
         public string Owner { get; set; }
         public string Type { get; set; }
@@ -21,12 +22,6 @@ namespace adrilight.Util
 
 
         //timeline data item inheritance
-        public double StartFrame { get; set; }
-        public double EndFrame { get; set; }
-        public Boolean TimelineViewExpanded { get; set; }
-        public String Name { get; set; }
-        public double TrimStart { get; set; }
-        public double TrimEnd { get; set; }
-        public double OriginalDuration { get; set; }
+        public ObservableCollection<MotionLayer> Layers {get;set;}
     }
 }

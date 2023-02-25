@@ -108,7 +108,6 @@
       <Version>4.4.0.4099</Version>
     </PackageReference>
     <PackageReference Include="Expression.Blend.Sdk" Version="1.0.2" />
-    <PackageReference Include="gong-wpf-dragdrop" Version="3.1.1" />
     <PackageReference Include="HandyControls" Version="3.3.11" />
     <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.0" />
     <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
@@ -242,6 +241,8 @@
     <Compile Include="Util\DefaultColorCollection.cs" />
     <Compile Include="Util\FakeSerialPort.cs" />
     <Compile Include="Util\FpsLogger.cs" />
+    <Compile Include="Util\Composition.cs" />
+    <Compile Include="Util\MotionLayer.cs" />
     <Compile Include="Util\MotionCard.cs" />
     <Compile Include="Util\GifCard.cs" />
     <Compile Include="Util\Gifxelation.cs" />
@@ -323,7 +324,10 @@
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\VisualProperties.cs" />
+    <Compile Include="View\CompositionControl.xaml.cs" />
+    <Compile Include="View\CompositionSidePanel.xaml.cs" />
     <Compile Include="View\OOTBWindow.xaml.cs" />
+    <Compile Include="View\CompositionEditWindow.xaml.cs" />
     <Compile Include="View\VIDEditCanvasWindow.xaml.cs" />
     <Compile Include="View\RotateSelectionWindow.xaml.cs" />
     <Compile Include="View\NewItemParametersWindow.xaml.cs" />
@@ -409,7 +413,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="View\CompositionControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\CompositionSidePanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="View\LEDSetupSelectionWindows.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\CompositionEditWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -777,6 +793,9 @@
     <EmbeddedResource Include="AmbinoFactoryValue\Shooting.AML">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="AmbinoFactoryValue\StripeMoving.AML">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <None Include="app.manifest" />
     <None Include="ApplicationInsights.config" />
     <EmbeddedResource Include="Gif\BitOcean.gif">
@@ -859,6 +878,14 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\CodeProjectTimelineDemo\gong-wpf-dragdrop\GongSolutions.Wpf.DragDrop\GongSolutions.Wpf.DragDrop.csproj">
+      <Project>{0c6674cc-6d49-414a-9b41-d4e175028ffb}</Project>
+      <Name>GongSolutions.Wpf.DragDrop</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\CodeProjectTimelineDemo\TimeLineTool\TimeLineTool.csproj">
+      <Project>{7439A26A-46E1-42A0-9D58-2E38289675F6}</Project>
+      <Name>TimeLineTool</Name>
+    </ProjectReference>
     <ProjectReference Include="..\adrilight_effect_analyzer\adrilight_effect_analyzer.csproj">
       <Project>{8966a6b0-cec4-4337-a5be-af363303e02a}</Project>
       <Name>adrilight_effect_analyzer</Name>

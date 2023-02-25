@@ -72,6 +72,9 @@
             <DataTemplate x:Key="GifxelationControlPanel">
                 <local:GifxelationControl Margin="4"/>
             </DataTemplate>
+            <DataTemplate x:Key="CompositionControlPanel">
+                <local:CompositionControl Margin="4"/>
+            </DataTemplate>
             <DataTemplate x:Key="CapturingSidePanel">
                 <local:ScreenCapturingSidePanel Margin="4"/>
             </DataTemplate>
@@ -86,6 +89,9 @@
             </DataTemplate>
             <DataTemplate x:Key="GifxelationSidePanel">
                 <local:GifxelationSidePanel Margin="4"/>
+            </DataTemplate>
+            <DataTemplate x:Key="CompositionSidePanel">
+                <local:CompositionSidePanel Margin="4"/>
             </DataTemplate>
 
 
@@ -106,6 +112,9 @@
                     <DataTrigger Binding="{Binding Path=DataContext.CurrentOutput.OutputSelectedMode, RelativeSource={RelativeSource AncestorType={x:Type ContentControl}}}" Value="4">
                         <Setter Property="ContentTemplate" Value="{StaticResource GifxelationControlPanel}" />
                     </DataTrigger>
+                    <DataTrigger Binding="{Binding Path=DataContext.CurrentOutput.OutputSelectedMode, RelativeSource={RelativeSource AncestorType={x:Type ContentControl}}}" Value="5">
+                        <Setter Property="ContentTemplate" Value="{StaticResource CompositionControlPanel}" />
+                    </DataTrigger>
                 </Style.Triggers>
             </Style>
             <Style x:Key="sidePanelStyle" TargetType="{x:Type ContentControl}">
@@ -124,6 +133,9 @@
                     </DataTrigger>
                     <DataTrigger Binding="{Binding Path=DataContext.CurrentOutput.OutputSelectedMode, RelativeSource={RelativeSource AncestorType={x:Type ContentControl}}}" Value="4">
                         <Setter Property="ContentTemplate" Value="{StaticResource GifxelationSidePanel}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Path=DataContext.CurrentOutput.OutputSelectedMode, RelativeSource={RelativeSource AncestorType={x:Type ContentControl}}}" Value="5">
+                        <Setter Property="ContentTemplate" Value="{StaticResource CompositionSidePanel}" />
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
