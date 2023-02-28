@@ -29,6 +29,7 @@ using System.IO.Ports;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -528,7 +529,12 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        public ICommand CompositionNextFrameCommand { get; set; }
+        public ICommand ToggleCompositionPlayingStateCommand { get; set; }
+        public ICommand CompositionFrameStartOverCommand { get; set; }
+        public ICommand CompositionPreviousFrameCommand { get; set; }
         public ICommand OpenRectangleScaleCommand { get; set; }
+        public ICommand SetSelectedMotionCommand { get; set; }
         public ICommand OpenAvailableLedSetupForCurrentDeviceWindowCommand { get; set; }
         public ICommand NextOOTBCommand { get; set; }
         public ICommand OpenTutorialCommand { get; set; }
@@ -906,7 +912,32 @@ namespace adrilight.ViewModel
                 return _AvailableComPorts;
             }
         }
+        public IList<double> _availableMotionSpeed;
 
+        public IList<double> AvailableMotionSpeed {
+            get
+            {
+                return _availableMotionSpeed;
+            }
+            set
+            {
+                _availableMotionSpeed = value;
+                RaisePropertyChanged();
+            }
+        }
+        public IList<string> _availableMotionDirrection;
+
+        public IList<string> AvailableMotionDirrection {
+            get
+            {
+                return _availableMotionDirrection;
+            }
+            set
+            {
+                _availableMotionDirrection = value;
+                RaisePropertyChanged();
+            }
+        }
         private ObservableCollection<string> _caseEffects;
 
         public ObservableCollection<string> CaseEffects {
@@ -2580,6 +2611,55 @@ namespace adrilight.ViewModel
                 OpenRectangleScaleWindow(p);
             }
           );
+            SetSelectedMotionCommand = new RelayCommand<ITimeLineDataItem>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                //show right property panel
+                CurrentSelectedMotion = p;
+            }
+        );
+            CompositionNextFrameCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                //show right property panel
+                if(CurrentCompositionFrame<9600)
+                CurrentCompositionFrame++;
+            }
+     );
+            ToggleCompositionPlayingStateCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                //show right property panel
+                CurrentCompositionPlayingState = !CurrentCompositionPlayingState;
+            }
+);
+            CompositionPreviousFrameCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                //show right property panel
+                if(CurrentCompositionFrame>0)
+                CurrentCompositionFrame--;
+            }
+
+);
+            CompositionFrameStartOverCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                //show right property panel
+                CurrentCompositionFrame = 0;
+            }
+
+);
             OpenAvailableLedSetupForCurrentDeviceWindowCommand = new RelayCommand<OutputSettings>((p) =>
             {
                 return true;
@@ -5617,6 +5697,20 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        private ITimeLineDataItem _currentSelectedMotion;
+        public ITimeLineDataItem CurrentSelectedMotion {
+            get { return _currentSelectedMotion; }
+            set
+            {
+                _currentSelectedMotion = value;
+                RaisePropertyChanged();
+            }
+        }
+        private bool _currentCompositionPlayingState;
+        public bool CurrentCompositionPlayingState {
+            get { return _currentCompositionPlayingState; }
+            set { _currentCompositionPlayingState = value; RaisePropertyChanged(); }
+        }
         private double _currentCompositionFrame;
        
         public double CurrentCompositionFrame {
@@ -5640,6 +5734,11 @@ namespace adrilight.ViewModel
             CurrentSelectedComposition.Layers = new ObservableCollection<MotionLayer>();
             var layer1 = new MotionLayer();
             var layer2 = new MotionLayer();
+            var emptyLayer = new MotionLayer();
+            var emptyLayer1 = new MotionLayer();
+            var emptyLayer2 = new MotionLayer();
+            var emptyLayer3 = new MotionLayer();
+            var emptyLayer4 = new MotionLayer();
             var bouncing = new MotionCard() {
                 Name = "Bouncing",
                 StartFrame = 5,
@@ -5660,6 +5759,11 @@ namespace adrilight.ViewModel
             layer2.Motions.Add(bouncing2);
             CurrentSelectedComposition.Layers.Add(layer1);
             CurrentSelectedComposition.Layers.Add(layer2);
+            CurrentSelectedComposition.Layers.Add(emptyLayer);
+            CurrentSelectedComposition.Layers.Add(emptyLayer1);
+            CurrentSelectedComposition.Layers.Add(emptyLayer2);
+            CurrentSelectedComposition.Layers.Add(emptyLayer3);
+            CurrentSelectedComposition.Layers.Add(emptyLayer4);
             ///////
             compositionEditWindow = new CompositionEditWindow();
             compositionEditWindow.Owner = System.Windows.Application.Current.MainWindow;
@@ -7244,6 +7348,7 @@ namespace adrilight.ViewModel
            "Strip, Bar",
            "Matrix"
         };
+            
             AvailableMatrixOrientation = new ObservableCollection<string>
     {
            "Dọc",
@@ -7305,6 +7410,16 @@ namespace adrilight.ViewModel
           "Dashboard",
            "Settings",
         };
+            AvailableMotionDirrection = new List<string>();
+            AvailableMotionDirrection.Add("Normal");
+            AvailableMotionDirrection.Add("Reverse");
+            AvailableMotionSpeed = new List<double>();
+            AvailableMotionSpeed.Add(0.25);
+            AvailableMotionSpeed.Add(0.50);
+            AvailableMotionSpeed.Add(1.00);
+            AvailableMotionSpeed.Add(1.25);
+            AvailableMotionSpeed.Add(1.50);
+            AvailableMotionSpeed.Add(2.00);
             AvailableMotions = new ObservableCollection<ITimeLineDataItem>();
             var bouncing = new MotionCard() {
                 Name = "Bouncing",
