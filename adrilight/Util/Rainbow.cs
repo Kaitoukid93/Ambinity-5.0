@@ -159,7 +159,7 @@ namespace adrilight
 
                 //load frame from selected motion
                 var motion = ReadMotionFromResource(testMotionPath); // load test
-                Frame[] resizedFrames = new Frame[motion.Frames.Count];                                                //scale motion
+                Frame[] resizedFrames = new Frame[motion.Frames.Length];                                                //scale motion
                 if (inSync) // take VID as the position in the Total LED array
                 {
 
@@ -335,7 +335,7 @@ namespace adrilight
 
         private static Motion ReadMotionFromResource(string resourceName)
         {
-            Motion motion = new Motion();
+            Motion motion = new Motion(256);
             var assembly = Assembly.GetExecutingAssembly();
             using (Stream resource = assembly.GetManifestResourceStream(resourceName))
             {
@@ -491,7 +491,7 @@ namespace adrilight
         }
         public static Motion GetByteFrameFromDisk(string path)
         {
-            var frames = new Motion();
+            var frames = new Motion(256);
             try
             {
                 var json = File.ReadAllText(path);

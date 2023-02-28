@@ -796,6 +796,9 @@
     <EmbeddedResource Include="AmbinoFactoryValue\StripeMoving.AML">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="AmbinoFactoryValue\NewBouncing.AML">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <None Include="app.manifest" />
     <None Include="ApplicationInsights.config" />
     <EmbeddedResource Include="Gif\BitOcean.gif">

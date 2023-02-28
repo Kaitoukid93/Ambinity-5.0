@@ -77,11 +77,11 @@ namespace adrilight_effect_analyzer.ViewModel
             Import.ShowDialog();
 
 
-            Layer = new Motion();
-            foreach(var filename in Import.FileNames)
+            Layer = new Motion(Import.FileNames.Length);
+            for(int i=0;i<Import.FileNames.Length;i++)
             {
                 BitmapData bitmapData = new BitmapData();
-                Bitmap curentFrame = new Bitmap(filename);
+                Bitmap curentFrame = new Bitmap(Import.FileNames[i]);
                 var frameWidth = curentFrame.Width;
                 var frameHeight = curentFrame.Height;
 
@@ -116,11 +116,11 @@ namespace adrilight_effect_analyzer.ViewModel
                     
                 }
                 var newFrame = new Frame(256);
-                for (int i= 0;i < brightnessMap.Count(); i++)
+                for (int j= 0;j < brightnessMap.Count(); j++)
                 {
-                    newFrame.BrightnessData[i] = brightnessMap[i];
+                    newFrame.BrightnessData[j] = brightnessMap[j];
                 }
-                Layer.Frames.Add(newFrame);
+                Layer.Frames[i] = newFrame;
 
                 //display frame at preview
                 //store current frame to json file

@@ -5739,7 +5739,7 @@ namespace adrilight.ViewModel
             var emptyLayer2 = new MotionLayer();
             var emptyLayer3 = new MotionLayer();
             var emptyLayer4 = new MotionLayer();
-            var bouncing = new MotionCard() {
+            var bouncing = new TempDataType() {
                 Name = "Bouncing",
                 StartFrame = 5,
                 EndFrame = 125,
@@ -5747,7 +5747,7 @@ namespace adrilight.ViewModel
                 TrimStart = 0,
                 OriginalDuration = 120
             };
-            var bouncing2 = new MotionCard() {
+            var bouncing2 = new TempDataType() {
                 Name = "Chasing",
                 StartFrame = 20,
                 EndFrame = 300,
@@ -5764,10 +5764,62 @@ namespace adrilight.ViewModel
             CurrentSelectedComposition.Layers.Add(emptyLayer2);
             CurrentSelectedComposition.Layers.Add(emptyLayer3);
             CurrentSelectedComposition.Layers.Add(emptyLayer4);
-            ///////
+
+            //catch collection changed to resize motions from source (path)
+            foreach(var layer in CurrentSelectedComposition.Layers)
+            {
+                layer.Motions.CollectionChanged += (s, e) =>
+                {
+                    switch (e.Action)
+                    {
+                        case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+                            var newMotions = e.NewItems;
+                            foreach(TempDataType temp in newMotions)
+                            {
+                                //load motion from disk
+                                var motion = ReadMotionFromResource(testMotionPath); // load test
+                                //resize motion 
+                                ResizeMotion(motion, CurrentOutput.OutputLEDSetup.Spots.Count());
+                            }
+                            break;
+                    }
+                };
+            }
+           
+                    ///////
             compositionEditWindow = new CompositionEditWindow();
             compositionEditWindow.Owner = System.Windows.Application.Current.MainWindow;
             compositionEditWindow.ShowDialog();
+        }
+        private string testMotionPath = "adrilight.AmbinoFactoryValue.NewBouncing.AML";
+        private static Motion ReadMotionFromResource(string resourceName)
+        {
+            Motion motion = new Motion(256);
+            var assembly = Assembly.GetExecutingAssembly();
+            using (Stream resource = assembly.GetManifestResourceStream(resourceName))
+            {
+                if (resource == null)
+                {
+                    throw new ArgumentException("No such resource", "resourceName");
+                }
+                using (StreamReader reader = new StreamReader(resource))
+                {
+                    string json = reader.ReadToEnd(); //Make string equal to full file
+                    try
+                    {
+                        motion = JsonConvert.DeserializeObject<Motion>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    }
+                    catch (Exception)
+                    {
+                        HandyControl.Controls.MessageBox.Show("Corrupted or incompatible data File!!!", "LEDSetup Import", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+            return motion;
+        }
+        public Motion ResizeMotion( Motion input, int framesize)
+        {
+            return null;
         }
         private void LaunchPIDEditWindow()
         {
