@@ -80,8 +80,8 @@
                     <TextBlock Text="{Binding Path=Name}" />
                 </Border>
             </DataTemplate>
-         
-            <DataTemplate  DataType="{x:Type ut:MotionCard}"
+
+            <DataTemplate  DataType="{x:Type tt:TempDataType}"
                        x:Key="UsedTemplateProperty">
                 <Border  BorderThickness="1"
                     BorderBrush="Transparent"
@@ -89,19 +89,31 @@
                     Margin="0"
                     Height="100"
                     
-                    Background="{DynamicResource PrimaryBrush}">
-                 
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Setter Property="Opacity" Value="1"/>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Opacity" Value="0.8"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
+                    Background="{Binding Color,Converter={StaticResource ColorToBrushConverter},Mode=TwoWay}">
+
                     
+                    <Border.ToolTip>
+                        <Grid>
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Margin="2" Style="{DynamicResource TextBlockDefault}" Text="StartFrame: "/>
+                                    <TextBlock Style="{DynamicResource TextBlockDefault}" Text="{Binding StartFrame}"/>
+                                    
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Margin="2" Style="{DynamicResource TextBlockDefault}" Text="EndFrame: "/>
+                                    <TextBlock Style="{DynamicResource TextBlockDefault}" Text="{Binding EndFrame}"/>
+
+                                </StackPanel>
+                              
+                            </StackPanel>
+                            
+
+
+
+                            </Grid>
+                    </Border.ToolTip>
+
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="MouseLeftButtonDown">
                             <i:InvokeCommandAction 
@@ -109,14 +121,15 @@
                        CommandParameter="{Binding .}" />
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
-                    <!--<Border.Style>
+                    <Border.Style>
                         <Style TargetType="Border">
+                            
                             <Setter Property="ContextMenu">
                                 <Setter.Value>
                                     <ContextMenu >
-                                        <MenuItem  Header="Set Color" 
+                                        <MenuItem  Header="Cut" 
                                                    CommandParameter="{Binding .}" 
-                                                   Command="{Binding PlacementTarget.Tag.OpenColorSelectForMotionCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                                                   Command="{Binding PlacementTarget.Tag.CutSelectedMotionCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                                           >
                                             <MenuItem.Icon>
                                                 <Path   Data="{DynamicResource selected}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
@@ -136,25 +149,38 @@
                                 </Setter.Value>
                             </Setter>
                             <Setter Property="Tag" Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ItemsControl}}" />
+                            <Setter Property="Opacity" Value="1"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Opacity" Value="0.8"/>
+                                </Trigger>
+                            </Style.Triggers>
                         </Style>
-                    </Border.Style>-->
-                    <StackPanel Orientation="Horizontal" >
+                    </Border.Style>
+                    <Border HorizontalAlignment="Left" Margin="0" Background="{DynamicResource DarkOpacityBrush}">
+                        
+                  
+                    <StackPanel  Orientation="Horizontal" >
                         <TextBlock Margin="2" Foreground="White" Text="{Binding Path=Name,Mode=TwoWay}" />
 
                         <Grid>
-                            <TextBlock Foreground="White" Margin="2">
-                                <TextBlock.Text>
-                                    <MultiBinding StringFormat="{}: {0:F0} -> {1:F0}">
+                            <TextBlock Margin="2" TextWrapping="Wrap" Foreground="White">
+                                    <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}: {0:F0} : {1:F0}">
                                         <Binding Path="StartFrame" Mode="TwoWay" />
                                         <Binding Path="EndFrame" Mode="TwoWay" />
                                     </MultiBinding>
                                 </TextBlock.Text>
                             </TextBlock>
+
+
+
                         </Grid>
 
                     </StackPanel>
+                    </Border>
                 </Border>
-                
+
             </DataTemplate>
             <Style x:Key="_ListBoxCardsCollectionStyle" TargetType="ListBoxItem">
                 <Setter Property="Template">
@@ -361,7 +387,7 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0">
-                         
+
                         </Grid>
                         <Grid Grid.Row="1">
                             <hc:TransitioningContentControl >
@@ -457,14 +483,14 @@
                                                     <Button.Style>
                                                         <Style TargetType="Button" BasedOn="{StaticResource ButtonDefault}">
                                                             <Setter Property="hc:IconElement.Geometry" Value="{DynamicResource playComposition}"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding CurrentCompositionPlayingState,Mode=TwoWay}" Value="true">
-                                                                <Setter Property="hc:IconElement.Geometry" Value="{DynamicResource pauseComposition}"/>
-                                                            </DataTrigger>
-                                                            <DataTrigger Binding="{Binding CurrentCompositionPlayingState,Mode=TwoWay}" Value="false">
-                                                                <Setter Property="hc:IconElement.Geometry" Value="{DynamicResource playComposition}"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding CurrentCompositionPlayingState,Mode=TwoWay}" Value="true">
+                                                                    <Setter Property="hc:IconElement.Geometry" Value="{DynamicResource pauseComposition}"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding CurrentCompositionPlayingState,Mode=TwoWay}" Value="false">
+                                                                    <Setter Property="hc:IconElement.Geometry" Value="{DynamicResource playComposition}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
                                                         </Style>
                                                     </Button.Style>
                                                 </Button>
@@ -478,15 +504,15 @@
 
                                 </Border>
                                 <ToolBarTray  Margin="10" IsLocked="True" VerticalAlignment="Center">
-                                <ToolBar Background="Transparent"  Padding="6" Header="View">
-                                    <Separator Margin="10,0" MaxHeight="25"/>
-                                    <CheckBox IsChecked="{Binding ShowAllOutputPID}" Content="Hiện màu"  Margin="10,0,0,0"/>
-                                    <CheckBox IsChecked="{Binding ShowAllDevicePID}" Content="Hiện frame"  Margin="10,0,5,0"/>
-                              
-                                    <hc:NumericUpDown Value="{Binding TimeLineHeight}" ShowClearButton="False" Minimum="20" Maximum="100" Margin="5,0" Style="{DynamicResource NumericUpDownPlus}" x:Name="height" DecimalPlaces="0" hc:InfoElement.TitleWidth="auto"  hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="Height"  hc:InfoElement.Necessary="False"/>
+                                    <ToolBar Background="Transparent"  Padding="6" Header="View">
+                                        <Separator Margin="10,0" MaxHeight="25"/>
+                                        <CheckBox IsChecked="{Binding ShowAllOutputPID}" Content="Hiện màu"  Margin="10,0,0,0"/>
+                                        <CheckBox IsChecked="{Binding ShowAllDevicePID}" Content="Hiện frame"  Margin="10,0,5,0"/>
+
+                                        <hc:NumericUpDown Value="{Binding TimeLineHeight}" ShowClearButton="False" Minimum="20" Maximum="100" Margin="5,0" Style="{DynamicResource NumericUpDownPlus}" x:Name="height" DecimalPlaces="0" hc:InfoElement.TitleWidth="auto"  hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="Height"  hc:InfoElement.Necessary="False"/>
                                     </ToolBar>
-                                <ToolBar Background="Transparent" Padding="6" Header="Composition">
-                                    <Separator Margin="10,0" MaxHeight="25"/>
+                                    <ToolBar Background="Transparent" Padding="6" Header="Composition">
+                                        <Separator Margin="10,0" MaxHeight="25"/>
                                         <Button Margin="5,0,0,0" BorderThickness="0" hc:IconElement.Geometry="{DynamicResource export}" Command="{Binding OpenTutorialCommand}" CommandParameter="ResetVID" ToolTip="Hướng dẫn sử dụng VID Editor" Content="Export"/>
                                         <Button Foreground="{DynamicResource PrimaryBrush}" Margin="5,0,0,0" BorderThickness="0" hc:IconElement.Geometry="{DynamicResource renderComposition}" Command="{Binding OpenTutorialCommand}" CommandParameter="ResetVID" ToolTip="Hướng dẫn sử dụng VID Editor" Content="Render">
                                             <Button.Background>
@@ -494,14 +520,14 @@
                                             </Button.Background>
                                         </Button>
 
-                                            <Separator Margin="10,0" MaxHeight="25"/>
-                                    <Button Margin="5,0,0,0" BorderThickness="0" hc:IconElement.Geometry="{DynamicResource info}" Command="{Binding OpenTutorialCommand}" CommandParameter="ResetVID" ToolTip="Hướng dẫn sử dụng VID Editor" Content="Hướng dẫn"/>
-                                </ToolBar>
+                                        <Separator Margin="10,0" MaxHeight="25"/>
+                                        <Button Margin="5,0,0,0" BorderThickness="0" hc:IconElement.Geometry="{DynamicResource info}" Command="{Binding OpenTutorialCommand}" CommandParameter="ResetVID" ToolTip="Hướng dẫn sử dụng VID Editor" Content="Hướng dẫn"/>
+                                    </ToolBar>
 
-                            </ToolBarTray>
+                                </ToolBarTray>
                             </StackPanel>
                         </Grid>
-                      
+
                         <StackPanel Grid.Column="0" MinHeight="200" Margin="7,0,10,10" Grid.Row="1" Orientation="Vertical">
                             <ScrollViewer HorizontalAlignment="Stretch"
                                       HorizontalScrollBarVisibility="Auto"
@@ -527,14 +553,14 @@
                                                         Height="{Binding Path=DataContext.TimeLineHeight, RelativeSource={RelativeSource AncestorType=ItemsControl},Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
                                                         UnitSize="{Binding Path=DataContext.UnitSize, RelativeSource={RelativeSource AncestorType=ItemsControl},Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
                                                         CurrentTimePoint="{Binding Path=DataContext.CurrentCompositionFrame, RelativeSource={RelativeSource AncestorType=ItemsControl},Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
-                                                        Items="{Binding Motions}"
+                                                        Items="{Binding Motions,Mode=TwoWay}"
                                                         MinimumUnitWidth="20"
                                                         Background="{DynamicResource SecondaryRegionBrush}"
                                                         DrawTimeGrid="True"
                                                         MinWidth="50"
                                                         ViewLevel="Frame"
                                                         SynchedWithSiblings="True" >
-                                                        
+
                                                 </tt:TimeLineControl>
 
                                             </DataTemplate>
@@ -549,7 +575,13 @@
                         </StackPanel>
                         <!--Scale slider-->
                         <Grid Grid.Row="2">
-                            <Slider Margin="5,10" Minimum="1" Maximum="10" TickFrequency="0.1" IsSnapToTickEnabled="true" Value="{Binding UnitSize,Mode=TwoWay}" HorizontalAlignment="Stretch"/>
+                            <StackPanel>
+                                
+                             
+                                
+                           
+                            <Slider Width="200" Margin="5,10" Minimum="1" Maximum="10" TickFrequency="0.1" IsSnapToTickEnabled="true" Value="{Binding UnitSize,Mode=TwoWay}" HorizontalAlignment="Left"/>
+                            </StackPanel>
                         </Grid>
                         <Grid Grid.Row="0"  Grid.RowSpan="3" Grid.Column="1">
                             <hc:Divider Margin="10,20,10,20" Style="{DynamicResource DividerBaseStyle}" VerticalAlignment="Stretch"  LineStroke="{DynamicResource RegionBrush}" Orientation="Vertical"/>
@@ -565,156 +597,156 @@
                             </TextBlock>
                             <hc:ScrollViewer Grid.Row="1"  HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
                                 <Grid>
-                                    
+
                                     <StackPanel Grid.Row="1">
-                                <Grid Name="AccentColor">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="auto"/>
-                                        <RowDefinition Height="auto"/>
-                                    </Grid.RowDefinitions>
-                                    <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
-                                        <GroupBox.HeaderTemplate>
-                                            <DataTemplate>
-                                                <TextBlock FontWeight="SemiBold" Text="FILL COLOR"/>
-                                            </DataTemplate>
-                                        </GroupBox.HeaderTemplate>
+                                        <Grid Name="FillColor">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="auto"/>
+                                                <RowDefinition Height="auto"/>
+                                            </Grid.RowDefinitions>
+                                            <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                                                <GroupBox.HeaderTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock FontWeight="SemiBold" Text="FILL COLOR"/>
+                                                    </DataTemplate>
+                                                </GroupBox.HeaderTemplate>
 
-                                        <Button Command="{Binding AddNewSolidColorCommand}" CommandParameter="accent" BorderBrush="Transparent" hc:BorderElement.CornerRadius="7" Width="32" Height="32" HorizontalAlignment="Right" Background="{Binding GeneralSettings.AccentColor,Converter={StaticResource ColorToBrushConverter}}"  Style="{StaticResource ButtonDefault}">
+                                                <Button Command="{Binding AddNewSolidColorCommand}" CommandParameter="motion" BorderBrush="Transparent" hc:BorderElement.CornerRadius="7" Width="32" Height="32" HorizontalAlignment="Right" Background="{Binding CurrentSelectedMotion.Color,Converter={StaticResource ColorToBrushConverter},Mode=TwoWay}"  Style="{StaticResource ButtonDefault}">
 
-                                        </Button>
+                                                </Button>
 
 
-                                    </GroupBox>
-                                    <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Đổi màu của chuyển động được chọn"/>
-                                </Grid>
+                                            </GroupBox>
+                                            <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Đổi màu của chuyển động được chọn"/>
+                                        </Grid>
 
-                                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
+                                        <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
-                                </hc:Divider>
-                                <Grid Name="StartFrame">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="auto"/>
-                                        <RowDefinition Height="auto"/>
-                                    </Grid.RowDefinitions>
-                                    <GroupBox   VerticalAlignment="Center"  Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
-                                        <GroupBox.HeaderTemplate>
-                                            <DataTemplate>
-                                                <TextBlock FontWeight="SemiBold" Text="START FRAME"/>
-                                            </DataTemplate>
-                                        </GroupBox.HeaderTemplate>
+                                        </hc:Divider>
+                                        <Grid Name="StartFrame">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="auto"/>
+                                                <RowDefinition Height="auto"/>
+                                            </Grid.RowDefinitions>
+                                            <GroupBox   VerticalAlignment="Center"  Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                                                <GroupBox.HeaderTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock FontWeight="SemiBold" Text="START FRAME"/>
+                                                    </DataTemplate>
+                                                </GroupBox.HeaderTemplate>
 
-                                        <!--<Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
+                                                <!--<Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
                                       Width="20" 
                                       Height="20" 
                                       Fill="{StaticResource PrimaryTextBrush}"/>-->
-                                        <Grid  HorizontalAlignment="Right" Margin="0,0,0,0">
-                                            <hc:NumericUpDown Style="{DynamicResource NumericUpDownPlus}" ShowClearButton="True" Minimum="0"/>
+                                                <Grid  HorizontalAlignment="Right" Margin="0,0,0,0">
+                                                    <hc:NumericUpDown Style="{DynamicResource NumericUpDownPlus}" ShowClearButton="True" Minimum="0"/>
+
+                                                </Grid>
+
+
+
+                                            </GroupBox>
+                                            <TextBlock  Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Chọn thời điểm bắt đầu cho chuyển động"/>
 
                                         </Grid>
+                                        <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
+                                        </hc:Divider>
+                                        <Grid Name="Opacity">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="auto"/>
+                                                <RowDefinition Height="auto"/>
+                                            </Grid.RowDefinitions>
+                                            <GroupBox   VerticalAlignment="Center"  Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                                                <GroupBox.HeaderTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock FontWeight="SemiBold" Text="OPACITY"/>
+                                                    </DataTemplate>
+                                                </GroupBox.HeaderTemplate>
 
-
-                                    </GroupBox>
-                                    <TextBlock  Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Chọn thời điểm bắt đầu cho chuyển động"/>
-                                   
-                                </Grid>
-                                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
-
-                                </hc:Divider>
-                                <Grid Name="Opacity">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="auto"/>
-                                        <RowDefinition Height="auto"/>
-                                    </Grid.RowDefinitions>
-                                    <GroupBox   VerticalAlignment="Center"  Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
-                                        <GroupBox.HeaderTemplate>
-                                            <DataTemplate>
-                                                <TextBlock FontWeight="SemiBold" Text="OPACITY"/>
-                                            </DataTemplate>
-                                        </GroupBox.HeaderTemplate>
-
-                                        <!--<Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
+                                                <!--<Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
                                       Width="20" 
                                       Height="20" 
                                       Fill="{StaticResource PrimaryTextBrush}"/>-->
-                                        <Grid  HorizontalAlignment="Right" Margin="0,10,0,0">
-                                            <Slider Width="100" Minimum="0" Maximum="100"/>
+                                                <Grid  HorizontalAlignment="Right" Margin="0,10,0,0">
+                                                    <Slider Width="100" Minimum="0" Maximum="100"/>
+
+                                                </Grid>
+
+
+
+                                            </GroupBox>
+                                            <TextBlock  Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Độ đậm nhạt của chuyển động"/>
 
                                         </Grid>
 
+                                        <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
+                                        </hc:Divider>
+                                        <Grid Name="speed">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="auto"/>
+                                                <RowDefinition Height="auto"/>
+                                            </Grid.RowDefinitions>
+                                            <GroupBox   VerticalAlignment="Center"  Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                                                <GroupBox.HeaderTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock FontWeight="SemiBold" Text="SPEED"/>
+                                                    </DataTemplate>
+                                                </GroupBox.HeaderTemplate>
 
-                                    </GroupBox>
-                                    <TextBlock  Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Độ đậm nhạt của chuyển động"/>
-
-                                </Grid>
-
-                                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
-
-                                </hc:Divider>
-                                <Grid Name="speed">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="auto"/>
-                                        <RowDefinition Height="auto"/>
-                                    </Grid.RowDefinitions>
-                                    <GroupBox   VerticalAlignment="Center"  Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
-                                        <GroupBox.HeaderTemplate>
-                                            <DataTemplate>
-                                                <TextBlock FontWeight="SemiBold" Text="SPEED"/>
-                                            </DataTemplate>
-                                        </GroupBox.HeaderTemplate>
-
-                                        <!--<Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
+                                                <!--<Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
                                       Width="20" 
                                       Height="20" 
                                       Fill="{StaticResource PrimaryTextBrush}"/>-->
-                                        <Grid  HorizontalAlignment="Right" Margin="0,0,10,0">
-                                            <ItemsControl ItemsSource="{Binding AvailableMotionSpeed}" Height="0" Margin="15,0"/>
-                                            <ComboBox  ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch"   ItemsSource="{Binding AvailableMotionSpeed}"  Style="{StaticResource ComboBoxBaseStyle}"/>
+                                                <Grid  HorizontalAlignment="Right" Margin="0,0,10,0">
+                                                    <ItemsControl ItemsSource="{Binding AvailableMotionSpeed}" Height="0" Margin="15,0"/>
+                                                    <ComboBox  ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch"   ItemsSource="{Binding AvailableMotionSpeed}"  Style="{StaticResource ComboBoxBaseStyle}"/>
+
+                                                </Grid>
+
+
+                                            </GroupBox>
+                                            <TextBlock  Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Thay đổi độ nhanh chậm của chuyển động"/>
 
                                         </Grid>
+                                        <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
+                                        </hc:Divider>
+                                        <Grid Name="dirrection">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="auto"/>
+                                                <RowDefinition Height="auto"/>
+                                            </Grid.RowDefinitions>
+                                            <GroupBox   VerticalAlignment="Center"  Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                                                <GroupBox.HeaderTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock FontWeight="SemiBold" Text="DIRRECTION"/>
+                                                    </DataTemplate>
+                                                </GroupBox.HeaderTemplate>
 
-                                    </GroupBox>
-                                    <TextBlock  Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Thay đổi độ nhanh chậm của chuyển động"/>
-
-                                </Grid>
-                                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
-
-                                </hc:Divider>
-                                <Grid Name="dirrection">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="auto"/>
-                                        <RowDefinition Height="auto"/>
-                                    </Grid.RowDefinitions>
-                                    <GroupBox   VerticalAlignment="Center"  Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
-                                        <GroupBox.HeaderTemplate>
-                                            <DataTemplate>
-                                                <TextBlock FontWeight="SemiBold" Text="DIRRECTION"/>
-                                            </DataTemplate>
-                                        </GroupBox.HeaderTemplate>
-
-                                        <!--<Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
+                                                <!--<Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
                                       Width="20" 
                                       Height="20" 
                                       Fill="{StaticResource PrimaryTextBrush}"/>-->
-                                        <Grid  HorizontalAlignment="Right" Margin="0,0,10,0">
-                                            <ItemsControl ItemsSource="{Binding AvailableMotionDirrection}" Height="0" Margin="15,0"/>
-                                            <ComboBox  ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch"   ItemsSource="{Binding AvailableMotionDirrection}"  Style="{StaticResource ComboBoxBaseStyle}"/>
+                                                <Grid  HorizontalAlignment="Right" Margin="0,0,10,0">
+                                                    <ItemsControl ItemsSource="{Binding AvailableMotionDirrection}" Height="0" Margin="15,0"/>
+                                                    <ComboBox  ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch"   ItemsSource="{Binding AvailableMotionDirrection}"  Style="{StaticResource ComboBoxBaseStyle}"/>
+
+                                                </Grid>
+
+
+                                            </GroupBox>
+                                            <TextBlock  Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Thay đổi chiều của chuyển động"/>
 
                                         </Grid>
+                                    </StackPanel>
 
-
-                                    </GroupBox>
-                                        <TextBlock  Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Thay đổi chiều của chuyển động"/>
-
-                                </Grid>
-                            </StackPanel>
-                         
                                 </Grid>
                             </hc:ScrollViewer>
                         </Grid>
-                       
+
                     </Grid>
                 </Border>
             </Grid>

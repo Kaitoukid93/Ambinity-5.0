@@ -530,6 +530,7 @@ namespace adrilight.ViewModel
             }
         }
         public ICommand CompositionNextFrameCommand { get; set; }
+        public ICommand CutSelectedMotionCommand { get; set; }
         public ICommand ToggleCompositionPlayingStateCommand { get; set; }
         public ICommand CompositionFrameStartOverCommand { get; set; }
         public ICommand CompositionPreviousFrameCommand { get; set; }
@@ -1355,7 +1356,7 @@ namespace adrilight.ViewModel
                 }
 
             }
-         
+
             AvailableAutomations = new ObservableCollection<IAutomationSettings>();
             foreach (var automation in LoadAutomationIfExist())
             {
@@ -2512,6 +2513,11 @@ namespace adrilight.ViewModel
                         ThemeManager.Current.AccentColor = new SolidColorBrush(CurrentPickedColor);
                         GeneralSettings.AccentColor = CurrentPickedColor;
                         break;
+                    case "motion":
+                        CurrentSelectedMotion.Color = CurrentPickedColor;
+                        RaisePropertyChanged(nameof(CurrentSelectedMotion.Color));
+                        //notify UI
+                        break;
                 }
             }
             );
@@ -2626,8 +2632,17 @@ namespace adrilight.ViewModel
             }, (p) =>
             {
                 //show right property panel
-                if(CurrentCompositionFrame<9600)
-                CurrentCompositionFrame++;
+                if (CurrentCompositionFrame < 9600)
+                    CurrentCompositionFrame++;
+            }
+     );
+            CutSelectedMotionCommand = new RelayCommand<ITimeLineDataItem>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                //show right property panel
+                CutSelectedMotion(p);
             }
      );
             ToggleCompositionPlayingStateCommand = new RelayCommand<string>((p) =>
@@ -2645,8 +2660,8 @@ namespace adrilight.ViewModel
             }, (p) =>
             {
                 //show right property panel
-                if(CurrentCompositionFrame>0)
-                CurrentCompositionFrame--;
+                if (CurrentCompositionFrame > 0)
+                    CurrentCompositionFrame--;
             }
 
 );
@@ -5712,17 +5727,17 @@ namespace adrilight.ViewModel
             set { _currentCompositionPlayingState = value; RaisePropertyChanged(); }
         }
         private double _currentCompositionFrame;
-       
+
         public double CurrentCompositionFrame {
             get { return _currentCompositionFrame; }
             set { _currentCompositionFrame = value; RaisePropertyChanged(); }
         }
-        private double _timeLineHeight=30;
+        private double _timeLineHeight = 30;
         public double TimeLineHeight {
             get { return _timeLineHeight; }
             set { _timeLineHeight = value; RaisePropertyChanged(); }
         }
-        private double _unitSize=1;
+        private double _unitSize = 1;
         public double UnitSize {
             get { return _unitSize; }
             set { _unitSize = value; RaisePropertyChanged(); }
@@ -5745,7 +5760,8 @@ namespace adrilight.ViewModel
                 EndFrame = 125,
                 TrimEnd = 0,
                 TrimStart = 0,
-                OriginalDuration = 120
+                OriginalDuration = 120,
+                Color = Color.FromRgb(255, 255, 0)
             };
             var bouncing2 = new TempDataType() {
                 Name = "Chasing",
@@ -5753,7 +5769,8 @@ namespace adrilight.ViewModel
                 EndFrame = 300,
                 TrimEnd = 0,
                 TrimStart = 0,
-                OriginalDuration = 280
+                OriginalDuration = 280,
+                Color = Color.FromRgb(255, 0, 0)
             };
             layer1.Motions.Add(bouncing);
             layer2.Motions.Add(bouncing2);
@@ -5766,7 +5783,7 @@ namespace adrilight.ViewModel
             CurrentSelectedComposition.Layers.Add(emptyLayer4);
 
             //catch collection changed to resize motions from source (path)
-            foreach(var layer in CurrentSelectedComposition.Layers)
+            foreach (var layer in CurrentSelectedComposition.Layers)
             {
                 layer.Motions.CollectionChanged += (s, e) =>
                 {
@@ -5774,19 +5791,19 @@ namespace adrilight.ViewModel
                     {
                         case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
                             var newMotions = e.NewItems;
-                            foreach(TempDataType temp in newMotions)
+                            foreach (TempDataType temp in newMotions)
                             {
                                 //load motion from disk
                                 var motion = ReadMotionFromResource(testMotionPath); // load test
-                                //resize motion 
-                                ResizeMotion(motion, CurrentOutput.OutputLEDSetup.Spots.Count());
+                                //the resize state is implemeting inside render state
+                                //ResizeMotion(motion, CurrentOutput.OutputLEDSetup.Spots.Count());
                             }
                             break;
                     }
                 };
             }
-           
-                    ///////
+
+            ///////
             compositionEditWindow = new CompositionEditWindow();
             compositionEditWindow.Owner = System.Windows.Application.Current.MainWindow;
             compositionEditWindow.ShowDialog();
@@ -5817,7 +5834,26 @@ namespace adrilight.ViewModel
             }
             return motion;
         }
-        public Motion ResizeMotion( Motion input, int framesize)
+        public void CutSelectedMotion(ITimeLineDataItem motion)
+        {
+            if (motion.StartFrame < CurrentCompositionFrame && CurrentCompositionFrame < motion.EndFrame)
+            {
+                var totalDuration = motion.OriginalDuration;
+                motion.EndFrame = CurrentCompositionFrame;
+                motion.OriginalDuration = motion.EndFrame - motion.StartFrame;
+                //create new motion with the cutted out part
+                var newMotion = new TempDataType() { StartFrame = CurrentCompositionFrame,
+                OriginalDuration = totalDuration-motion.OriginalDuration, Color = motion.Color,Name=motion.Name+"_1",
+                EndFrame = CurrentCompositionFrame+ totalDuration - motion.OriginalDuration
+                }; 
+
+                var currentLayer = CurrentSelectedComposition.Layers.Where(l => l.Motions.Contains(motion)).FirstOrDefault();
+                currentLayer.Motions.Insert(currentLayer.Motions.IndexOf(motion)+1,newMotion);
+
+
+            }
+        }
+        public Motion ResizeMotion(Motion input, int framesize)
         {
             return null;
         }
@@ -7400,7 +7436,7 @@ namespace adrilight.ViewModel
            "Strip, Bar",
            "Matrix"
         };
-            
+
             AvailableMatrixOrientation = new ObservableCollection<string>
     {
            "Dọc",
@@ -7479,7 +7515,9 @@ namespace adrilight.ViewModel
                 EndFrame = 125,
                 TrimEnd = 0,
                 TrimStart = 0,
-                OriginalDuration = 120
+                OriginalDuration = 120,
+                Color = Color.FromRgb(0, 0, 255)
+
             };
             var bouncing2 = new MotionCard() {
                 Name = "Chasing",
@@ -7487,7 +7525,8 @@ namespace adrilight.ViewModel
                 EndFrame = 300,
                 TrimEnd = 0,
                 TrimStart = 0,
-                OriginalDuration = 280
+                OriginalDuration = 280,
+                Color = Color.FromRgb(0, 255, 255)
             };
             AvailableMotions.Add(bouncing);
             AvailableMotions.Add(bouncing2);
@@ -8494,7 +8533,7 @@ namespace adrilight.ViewModel
             }
             AvailableProfilesForCurrentDevice = new ObservableCollection<IDeviceProfile>();
             AvailableProfilesForCurrentDevice = ProfileFilter(CurrentDevice);
-            
+
             //CurrentSelectedProfile = null;
             //if (CurrentDevice.ActivatedProfileUID != null)
             //{
