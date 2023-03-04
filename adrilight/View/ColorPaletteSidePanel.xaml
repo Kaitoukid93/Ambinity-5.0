@@ -115,7 +115,13 @@
                                     <Path   Data="{StaticResource delete}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                 </MenuItem.Icon>
                             </MenuItem>
-
+                            <MenuItem  Header="Upload" CommandParameter="{Binding .}" 
+                                          Command="{Binding PlacementTarget.Tag.UploadSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                                          >
+                                <MenuItem.Icon>
+                                    <Path   Data="{StaticResource delete}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
                         </ContextMenu>
 
                     </Setter.Value>

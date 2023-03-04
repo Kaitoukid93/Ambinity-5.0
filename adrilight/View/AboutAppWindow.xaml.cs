@@ -24,7 +24,7 @@ namespace adrilight.View
         public AboutAppWindow()
         {
             InitializeComponent();
-            InitializeComponent();
+            
         }
 
      

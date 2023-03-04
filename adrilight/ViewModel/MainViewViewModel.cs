@@ -5,6 +5,9 @@ using adrilight.Spots;
 using adrilight.Util;
 using adrilight.View;
 using adrilight_effect_analyzer.Model;
+using Dropbox.Api;
+using Dropbox.Api.Files;
+using DropBoxServer;
 using Emgu.CV;
 using GalaSoft.MvvmLight;
 using HandyControl.Controls;
@@ -15,6 +18,7 @@ using MoreLinq;
 using Newtonsoft.Json;
 using NonInvasiveKeyboardHookLibrary;
 using OpenRGB.NET.Models;
+using SharpDX.WIC;
 using Squirrel;
 using System;
 using System.Collections.Generic;
@@ -30,6 +34,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -39,6 +44,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using TimeLineTool;
 using Un4seen.BassWasapi;
+using Bitmap = System.Drawing.Bitmap;
+using BitmapSource = System.Windows.Media.Imaging.BitmapSource;
 using Color = System.Windows.Media.Color;
 using ColorConverter = System.Windows.Media.ColorConverter;
 using ColorPalette = adrilight.Util.ColorPalette;
@@ -66,8 +73,9 @@ namespace adrilight.ViewModel
         private string JsonFWToolsFWListFileNameAndPath => Path.Combine(JsonPath, "adrilight-fwlist.json");
         private string JsonGifsCollectionFileNameAndPath => Path.Combine(JsonPath, "adrilight-gifCollection.json");
         private string JsonGroupFileNameAndPath => Path.Combine(JsonPath, "adrilight-groupInfos.json");
-        private string JsonPaletteFileNameAndPath => Path.Combine(JsonPath, "adrilight-PaletteCollection.json");
+        private string JsonPaletteFileNameAndPath => Path.Combine(JsonPath, "ColorPalette");
         private string JsonGradientFileNameAndPath => Path.Combine(JsonPath, "adrilight-GradientCollection.json");
+
         private const string ADRILIGHT_RELEASES = "https://github.com/Kaitoukid93/Ambinity_Developer_Release";
 
         #region constant string
@@ -689,6 +697,7 @@ namespace adrilight.ViewModel
         public ICommand ExportCurrentSelectedPaletteToFileCommand { get; set; }
         public ICommand EditSelectedPaletteSaveConfirmCommand { get; set; }
         public ICommand DeleteSelectedPaletteCommand { get; set; }
+        public ICommand UploadSelectedPaletteCommand { get; set; }
         public ICommand DeleteSelectedGifCommand { get; set; }
         public ICommand CreateNewPaletteCommand { get; set; }
         public ICommand RequestingBetaChanelCommand { get; set; }
@@ -3031,6 +3040,13 @@ namespace adrilight.ViewModel
             {
                 DeleteSelectedPalette(p);
             });
+            UploadSelectedPaletteCommand = new RelayCommand<IColorPalette>((p) =>
+           {
+               return true;
+           }, (p) =>
+           {
+               UploadSelectedPalette(p);
+           });
             DeleteSelectedGradientCommand = new RelayCommand<IGradientColorCard>((p) =>
             {
                 return true;
@@ -5842,13 +5858,16 @@ namespace adrilight.ViewModel
                 motion.EndFrame = CurrentCompositionFrame;
                 motion.OriginalDuration = motion.EndFrame - motion.StartFrame;
                 //create new motion with the cutted out part
-                var newMotion = new TempDataType() { StartFrame = CurrentCompositionFrame,
-                OriginalDuration = totalDuration-motion.OriginalDuration, Color = motion.Color,Name=motion.Name+"_1",
-                EndFrame = CurrentCompositionFrame+ totalDuration - motion.OriginalDuration
-                }; 
+                var newMotion = new TempDataType() {
+                    StartFrame = CurrentCompositionFrame,
+                    OriginalDuration = totalDuration - motion.OriginalDuration,
+                    Color = motion.Color,
+                    Name = motion.Name + "_1",
+                    EndFrame = CurrentCompositionFrame + totalDuration - motion.OriginalDuration
+                };
 
                 var currentLayer = CurrentSelectedComposition.Layers.Where(l => l.Motions.Contains(motion)).FirstOrDefault();
-                currentLayer.Motions.Insert(currentLayer.Motions.IndexOf(motion)+1,newMotion);
+                currentLayer.Motions.Insert(currentLayer.Motions.IndexOf(motion) + 1, newMotion);
 
 
             }
@@ -6692,7 +6711,7 @@ namespace adrilight.ViewModel
             IColorPalette newpalette = new ColorPalette(name, owner, "RGBPalette16", description, colors);
             AvailablePallete.Add(newpalette);
 
-            WritePaletteCollectionJson();
+            //WritePaletteCollectionJson();
             AvailablePallete.Clear();
             foreach (var palette in LoadPaletteIfExists())
             {
@@ -6788,7 +6807,24 @@ namespace adrilight.ViewModel
             AvailableAutomations.Remove(automation);
             WriteAutomationCollectionJson();
         }
+        private DropBoxHelpers dbxhlprs { get; set; }
+        private void UploadSelectedPalette(IColorPalette selectedpalette)
+        {
+            if (selectedpalette != null)
+            {
+                //serialize current selected palette
+                var palette = JsonConvert.SerializeObject(selectedpalette, new JsonSerializerSettings() {
+                    TypeNameHandling = TypeNameHandling.Auto
+                });
+                if(dbxhlprs == null)
+                {
+                    dbxhlprs = new DropBoxHelpers();
+                    dbxhlprs.Client = new DropboxClient("sl.BZ6BfMYlYs0CzGAzC7Wdi8sTMbe5iwbzFdlTCScCGceQa6bIkCrEkGNZOQnFKVAOPhzueISPmhqlXQynC04kWc9sKUz9Y5MIjtL83QiBG-pGBZVFg7oezYEFmxj4d7S1IN5tWYR3Dht-");
+                }
+                Task.Run(async () => await dbxhlprs.UploadContent("/colorpalettes" + "/" + selectedpalette.Name+".col", palette));
 
+            }
+        }
         private void DeleteSelectedPalette(IColorPalette selectedpalette)
         {
             if (AvailablePallete.Count == 1)
@@ -6805,7 +6841,7 @@ namespace adrilight.ViewModel
                 return;
             }
             AvailablePallete.Remove(selectedpalette);
-            WritePaletteCollectionJson();
+            //WritePaletteCollectionJson();
             AvailablePallete.Clear();
             foreach (var palette in LoadPaletteIfExists())
             {
@@ -6877,7 +6913,7 @@ namespace adrilight.ViewModel
             var lastSelectedPaletteIndex = CurrentOutput.OutputSelectedChasingPalette;
             if (param == "save")
             {
-                WritePaletteCollectionJson();
+                //WritePaletteCollectionJson();
             }
 
             //reload all available palette;
@@ -7413,7 +7449,7 @@ namespace adrilight.ViewModel
             AvailableLightingMode.Add(music);
             AvailableLightingMode.Add(staticcolor);
             AvailableLightingMode.Add(gifxelation);
-            AvailableLightingMode.Add(composition);
+            //AvailableLightingMode.Add(composition);
             AvailableBaudrates = new ObservableCollection<int> {
                 9600,
                 19200,
@@ -7535,7 +7571,7 @@ namespace adrilight.ViewModel
             {
                 AvailablePallete.Add(loadedPalette);
             }
-            WritePaletteCollectionJson();
+            //WritePaletteCollectionJson();
             AvailableGifs = new ObservableCollection<IGifCard>();
             foreach (var loadedGif in LoadGifIfExist())
             {
@@ -7577,6 +7613,7 @@ namespace adrilight.ViewModel
         {
             if (!File.Exists(JsonPaletteFileNameAndPath))
             {
+                
                 //create default palette
                 var palettes = new List<IColorPalette>();
                 IColorPalette rainbow = new ColorPalette("Full Rainbow", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.rainbow);
@@ -7602,17 +7639,33 @@ namespace adrilight.ViewModel
                 palettes.Add(france);
                 palettes.Add(badtrip);
                 palettes.Add(lemon);
+                //create colorPalette directory
+                Directory.CreateDirectory(JsonPaletteFileNameAndPath);
+                foreach (var palette in palettes)
+                {
+                    var json = JsonConvert.SerializeObject(palette, new JsonSerializerSettings() {
+                        TypeNameHandling = TypeNameHandling.Auto
+                    });
+                    File.WriteAllText(Path.Combine(JsonPaletteFileNameAndPath, palette.Name + ".col"), json);
+                }
+
 
                 return palettes;
+                //coppy all internal palettes to local 
+
+            }
+            string[] exisetedPalettes = Directory.GetFiles(JsonPaletteFileNameAndPath);
+            var loadedPaletteCard = new List<IColorPalette>();
+            foreach (var paletteFile in exisetedPalettes)
+            {
+                var json = File.ReadAllText(paletteFile);
+
+                var existPaletteCard = JsonConvert.DeserializeObject<ColorPalette>(json);
+
+                loadedPaletteCard.Add(existPaletteCard);
+
             }
 
-            var json = File.ReadAllText(JsonPaletteFileNameAndPath);
-            var loadedPaletteCard = new List<IColorPalette>();
-            var existPaletteCard = JsonConvert.DeserializeObject<List<ColorPalette>>(json);
-            foreach (var paletteCard in existPaletteCard)
-            {
-                loadedPaletteCard.Add(paletteCard);
-            }
 
             return loadedPaletteCard;
         }
@@ -8302,7 +8355,7 @@ namespace adrilight.ViewModel
                     IColorPalette importedPaletteCard = new ColorPalette(name, owner, "Imported from local file", description, color);
                     AvailablePallete.Add(importedPaletteCard);
                     RaisePropertyChanged(nameof(AvailablePallete));
-                    WritePaletteCollectionJson();
+                    //WritePaletteCollectionJson();
                 }
                 catch (FormatException)
                 {
