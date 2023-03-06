@@ -245,6 +245,7 @@
     <Compile Include="Util\FakeSerialPort.cs" />
     <Compile Include="Util\FpsLogger.cs" />
     <Compile Include="Util\Composition.cs" />
+    <Compile Include="Util\StoreCategory.cs" />
     <Compile Include="Util\MotionLayer.cs" />
     <Compile Include="Util\MotionCard.cs" />
     <Compile Include="Util\GifCard.cs" />
@@ -327,6 +328,7 @@
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\VisualProperties.cs" />
+    <Compile Include="View\AmbinoOnlineStoreView.xaml.cs" />
     <Compile Include="View\MotionCollectionView.xaml.cs" />
     <Compile Include="View\CompositionControl.xaml.cs" />
     <Compile Include="View\CompositionSidePanel.xaml.cs" />
@@ -414,6 +416,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Properties\DesignTimeResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\AmbinoOnlineStoreView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

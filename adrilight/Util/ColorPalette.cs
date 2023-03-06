@@ -21,6 +21,10 @@ namespace adrilight.Util
 
 
         }
+        public ColorPalette()
+        {
+
+        }
 
     public string Name { get; set; }
     public string Owner { get; set; }

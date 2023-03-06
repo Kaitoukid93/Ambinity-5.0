@@ -28,6 +28,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IdentityModel.Claims;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
@@ -173,7 +174,7 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-
+      
         public List<string> AvailableRGBOrders {
             get
             {
@@ -538,6 +539,7 @@ namespace adrilight.ViewModel
             }
         }
         public ICommand CompositionNextFrameCommand { get; set; }
+        public ICommand DownloadSelectedPaletteCommand { get; set; }
         public ICommand CutSelectedMotionCommand { get; set; }
         public ICommand ToggleCompositionPlayingStateCommand { get; set; }
         public ICommand CompositionFrameStartOverCommand { get; set; }
@@ -636,6 +638,7 @@ namespace adrilight.ViewModel
         public ICommand OpenAutomationValuePickerWindowCommand { get; set; }
         public ICommand OpenActionsEditWindowCommand { get; set; }
         public ICommand OpenAutomationManagerWindowCommand { get; set; }
+        public ICommand OpenAmbinoStoreWindowCommand { get; set; }
         public ICommand SetCurrentActionTypeForSelectedActionCommand { get; set; }
         public ICommand SetCurrentActionTargetDeviceForSelectedActionCommand { get; set; }
         public ICommand SetCurrentActionParamForSelectedActionCommand { get; set; }
@@ -3285,6 +3288,20 @@ namespace adrilight.ViewModel
             {
                 OpenAutomationManagerWindow();
             });
+            OpenAmbinoStoreWindowCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                OpenAmbinoStoreWindow();
+            });
+            DownloadSelectedPaletteCommand = new RelayCommand<ColorPalette>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                DownloadSelectedPalette(p);
+            });
             SetCurrentActionTypeForSelectedActionCommand = new RelayCommand<ActionType>((p) =>
             {
                 return true;
@@ -4328,6 +4345,94 @@ namespace adrilight.ViewModel
             CurrentSelectedAction.ActionParameter.Value = color;
             RaisePropertyChanged(nameof(CurrentSelectedAction.ActionParameter.Value));
         }
+        private ObservableCollection<StoreCategory> _availableStoreCategories;
+        public ObservableCollection<StoreCategory> AvailableStoreCategories {
+            get { return _availableStoreCategories; }
+            set { _availableStoreCategories = value; RaisePropertyChanged();}
+        }
+        private ObservableCollection<BitmapImage> _availableCarouselImage;
+        public ObservableCollection<BitmapImage> AvailableCarouselImage {
+            get { return _availableCarouselImage; }
+            set { _availableCarouselImage = value; RaisePropertyChanged(); }
+        }
+        private bool _carouselImageLoading;
+        public bool CarouselImageLoading {
+            get { return _carouselImageLoading; }
+            set { _carouselImageLoading = value; RaisePropertyChanged(); }
+        }
+        private ObservableCollection<IColorPalette> _availableOnlinePalettes;
+        public ObservableCollection<IColorPalette> AvailableOnlinePalettes {
+            get { return _availableOnlinePalettes; }
+            set { _availableOnlinePalettes = value; RaisePropertyChanged(); }
+        }
+        public AmbinoOnlineStoreView StoreWindow { get; set; }
+        private void DownloadSelectedPalette(ColorPalette selectedPalette)
+        {
+            AvailablePallete.Add(selectedPalette);
+        }
+        private async void OpenAmbinoStoreWindow()
+        {
+            StoreWindow = new AmbinoOnlineStoreView();
+            StoreWindow.Owner = System.Windows.Application.Current.MainWindow;
+            StoreWindow.Show();
+            
+            AvailableStoreCategories = new ObservableCollection<StoreCategory>();
+            AvailableCarouselImage = new ObservableCollection<BitmapImage>();
+            AvailableOnlinePalettes = new ObservableCollection<IColorPalette>();
+            var palettes = new StoreCategory() {
+                Name = "Color Palettes",
+                Type = "Palette",
+                Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
+                Geometry = "colorpalette"
+            };
+            var gif = new StoreCategory() {
+                Name = "Gifxelations",
+                Type = "Gif",
+                Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
+                Geometry = "colorpalette"
+            };
+            var gradient = new StoreCategory() {
+                Name = "Gradients",
+                Type = "Gradient",
+                Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
+                Geometry = "colorpalette"
+            };
+            var chasingPatterns = new StoreCategory() {
+                Name = "Chasing Patterns",
+                Type = "Pattern",
+                Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
+                Geometry = "colorpalette"
+            };
+            AvailableStoreCategories.Add(palettes);
+            AvailableStoreCategories.Add(gif);
+            AvailableStoreCategories.Add(gradient);
+            AvailableStoreCategories.Add(chasingPatterns);
+            CarouselImageLoading = true;
+            //get carousel image
+            if (dbxhlprs == null)
+            {
+                dbxhlprs = new DropBoxHelpers();
+                dbxhlprs.Client = new DropboxClient("sl.BaCa4Gc6U23vKhI6XOhlTatv0T-Oed8mmSmSC0Tvistf7j-PcO_BJZRpFUa5aFMlygbkCpnMRv62vx3l3AOCK8cfI1WIp_1-Qtf9oFOKklWVKwy1kcXJ4EplaUjUjnQ6XbSI-15ukFvH");
+            }
+                
+            var ListpaletteAddress = await dbxhlprs.GetAllFilesAddressInFolder("colorpalettes");
+           foreach(var paletteAddress in ListpaletteAddress)
+            {
+
+                 
+                var palette = await dbxhlprs.DownloadFile<ColorPalette>(paletteAddress);
+                
+                   
+                    AvailableOnlinePalettes.Add(palette);
+                
+                   
+                
+
+            }
+            CarouselImageLoading = false;
+           
+        }
+       
 
         private void OpenAutomationManagerWindow()
         {
@@ -6712,12 +6817,11 @@ namespace adrilight.ViewModel
             AvailablePallete.Add(newpalette);
 
             //WritePaletteCollectionJson();
-            AvailablePallete.Clear();
-            foreach (var palette in LoadPaletteIfExists())
-            {
-                AvailablePallete.Add(palette);
-            }
-            CurrentOutput.OutputSelectedChasingPalette = lastSelectedPaletteIndex;
+             var json = JsonConvert.SerializeObject(newpalette, new JsonSerializerSettings() {
+                    TypeNameHandling = TypeNameHandling.Auto
+                });
+                File.WriteAllText(Path.Combine(JsonPaletteFileNameAndPath, newpalette.Name + ".col"), json);
+            
         }
 
         private void CreateNewAutomation()
@@ -6819,7 +6923,7 @@ namespace adrilight.ViewModel
                 if(dbxhlprs == null)
                 {
                     dbxhlprs = new DropBoxHelpers();
-                    dbxhlprs.Client = new DropboxClient("sl.BZ6BfMYlYs0CzGAzC7Wdi8sTMbe5iwbzFdlTCScCGceQa6bIkCrEkGNZOQnFKVAOPhzueISPmhqlXQynC04kWc9sKUz9Y5MIjtL83QiBG-pGBZVFg7oezYEFmxj4d7S1IN5tWYR3Dht-");
+                    dbxhlprs.Client = new DropboxClient("sl.BaCa4Gc6U23vKhI6XOhlTatv0T-Oed8mmSmSC0Tvistf7j-PcO_BJZRpFUa5aFMlygbkCpnMRv62vx3l3AOCK8cfI1WIp_1-Qtf9oFOKklWVKwy1kcXJ4EplaUjUjnQ6XbSI-15ukFvH");
                 }
                 Task.Run(async () => await dbxhlprs.UploadContent("/colorpalettes" + "/" + selectedpalette.Name+".col", palette));
 
@@ -6965,7 +7069,7 @@ namespace adrilight.ViewModel
             var window = new PaletteEditWindow(praram);
             window.Owner = System.Windows.Application.Current.MainWindow;
             CurrentEditingColors = new ObservableCollection<Color>();
-            foreach (var color in CurrentActivePalette.Colors)
+            foreach (var color in CurrentOutput.OutputCurrentActivePalette.Colors)
             {
                 CurrentEditingColors.Add(color);
             }
@@ -7056,6 +7160,10 @@ namespace adrilight.ViewModel
         //}
         public void SetCustomColor(int index)
         {
+            if(CurrentActivePalette==null)
+            {
+                CurrentActivePalette = new ColorPalette();
+            }
             CurrentEditingColors[index] = CurrentPickedColor;
             CurrentActivePalette.SetColor(index, CurrentPickedColor);
             CurrentOutput.OutputCurrentActivePalette.SetColor(index, CurrentPickedColor);
