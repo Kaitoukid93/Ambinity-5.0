@@ -9,6 +9,7 @@ using Dropbox.Api;
 using Dropbox.Api.Files;
 using DropBoxServer;
 using Emgu.CV;
+using FTPServer;
 using GalaSoft.MvvmLight;
 using HandyControl.Controls;
 using HandyControl.Data;
@@ -18,6 +19,7 @@ using MoreLinq;
 using Newtonsoft.Json;
 using NonInvasiveKeyboardHookLibrary;
 using OpenRGB.NET.Models;
+using Renci.SshNet;
 using SharpDX.WIC;
 using Squirrel;
 using System;
@@ -25,6 +27,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.ComponentModel.Composition.Primitives;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -45,6 +48,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using TimeLineTool;
 using Un4seen.BassWasapi;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 using Bitmap = System.Drawing.Bitmap;
 using BitmapSource = System.Windows.Media.Imaging.BitmapSource;
 using Color = System.Windows.Media.Color;
@@ -174,7 +178,7 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-      
+
         public List<string> AvailableRGBOrders {
             get
             {
@@ -4348,7 +4352,7 @@ namespace adrilight.ViewModel
         private ObservableCollection<StoreCategory> _availableStoreCategories;
         public ObservableCollection<StoreCategory> AvailableStoreCategories {
             get { return _availableStoreCategories; }
-            set { _availableStoreCategories = value; RaisePropertyChanged();}
+            set { _availableStoreCategories = value; RaisePropertyChanged(); }
         }
         private ObservableCollection<BitmapImage> _availableCarouselImage;
         public ObservableCollection<BitmapImage> AvailableCarouselImage {
@@ -4368,14 +4372,40 @@ namespace adrilight.ViewModel
         public AmbinoOnlineStoreView StoreWindow { get; set; }
         private void DownloadSelectedPalette(ColorPalette selectedPalette)
         {
-            AvailablePallete.Add(selectedPalette);
+            //find the palette with the same name
+            var sameNamePalette = AvailablePallete.Where(p => p.Name == selectedPalette.Name).FirstOrDefault();
+            if(CheckEqualityObjects(selectedPalette,sameNamePalette))
+                HandyControl.Controls.MessageBox.Show("ColorPaletteExisted", "File Existed", MessageBoxButton.OK, MessageBoxImage.Error);
+            else
+            {
+                AvailablePallete.Add(selectedPalette);
+                //save to local disk
+                var paletteJson = JsonConvert.SerializeObject(selectedPalette, new JsonSerializerSettings() {
+                    TypeNameHandling = TypeNameHandling.Auto
+                });
+                File.WriteAllText(Path.Combine(JsonPaletteFileNameAndPath,selectedPalette.Name+".col"), paletteJson);
+
+            }
+
+
+
         }
+        private bool CheckEqualityObjects(object object1, object object2)
+        {
+            string object1String = JsonConvert.SerializeObject(object1, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto
+            });
+            string object2String = JsonConvert.SerializeObject(object2, new JsonSerializerSettings() {
+                TypeNameHandling = TypeNameHandling.Auto
+            });
+            return (string.Equals(object2String,object1String));
+        }
+        private const string paletteFolderpath = "/home/adrilight_enduser/ftp/files/ColorPalettes";
         private async void OpenAmbinoStoreWindow()
         {
             StoreWindow = new AmbinoOnlineStoreView();
             StoreWindow.Owner = System.Windows.Application.Current.MainWindow;
             StoreWindow.Show();
-            
+
             AvailableStoreCategories = new ObservableCollection<StoreCategory>();
             AvailableCarouselImage = new ObservableCollection<BitmapImage>();
             AvailableOnlinePalettes = new ObservableCollection<IColorPalette>();
@@ -4409,30 +4439,32 @@ namespace adrilight.ViewModel
             AvailableStoreCategories.Add(chasingPatterns);
             CarouselImageLoading = true;
             //get carousel image
-            if (dbxhlprs == null)
+            if (FTPHlprs == null)
             {
-                dbxhlprs = new DropBoxHelpers();
-                dbxhlprs.Client = new DropboxClient("sl.BaCa4Gc6U23vKhI6XOhlTatv0T-Oed8mmSmSC0Tvistf7j-PcO_BJZRpFUa5aFMlygbkCpnMRv62vx3l3AOCK8cfI1WIp_1-Qtf9oFOKklWVKwy1kcXJ4EplaUjUjnQ6XbSI-15ukFvH");
+                string host = @"103.148.57.184";
+                string userName = "adrilight_publicuser";
+                string password = @"@drilightPublic";
+                FTPHlprs = new FTPServerHelpers();
+                FTPHlprs.sFTP = new SftpClient(host, 22, userName, password);
+                
+
             }
-                
-            var ListpaletteAddress = await dbxhlprs.GetAllFilesAddressInFolder("colorpalettes");
-           foreach(var paletteAddress in ListpaletteAddress)
+            if(!FTPHlprs.sFTP.IsConnected)
             {
-
-                 
-                var palette = await dbxhlprs.DownloadFile<ColorPalette>(paletteAddress);
-                
-                   
-                    AvailableOnlinePalettes.Add(palette);
-                
-                   
-                
-
+                FTPHlprs.sFTP.Connect();
+            }
+            //get all available files
+            var listPaletteAddress = await FTPHlprs.GetAllFilesAddressInFolder(paletteFolderpath);
+            //display all available files to the view 
+            foreach(var address in listPaletteAddress)
+            {
+                var palette = FTPHlprs.GetFiles<ColorPalette>(address);
+                AvailableOnlinePalettes.Add(palette.Result);
             }
             CarouselImageLoading = false;
-           
+
         }
-       
+
 
         private void OpenAutomationManagerWindow()
         {
@@ -6772,19 +6804,17 @@ namespace adrilight.ViewModel
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             Export.RestoreDirectory = true;
 
-            string[] paletteData = new string[19];
-            paletteData[0] = palette.Name;
-            paletteData[1] = palette.Owner;
-            paletteData[2] = palette.Description;
-            for (int i = 0; i < palette.Colors.Length; i++)
-            {
-                paletteData[i + 3] = palette.Colors[i].ToString();
-            }
+            var profilejson = JsonConvert.SerializeObject(palette, new JsonSerializerSettings() {
+                TypeNameHandling = TypeNameHandling.Auto
+            });
+
             if (Export.ShowDialog() == DialogResult.OK)
             {
-                System.IO.File.WriteAllLines(Export.FileName, paletteData);
-                Growl.Success("Palette saved successfully!");
+                Directory.CreateDirectory(JsonPath);
+                File.WriteAllText(Export.FileName, profilejson);
+                Growl.Success("Profile exported successfully!");
             }
+            
         }
 
         public void SetPreviewVisualizerFFT(float[] fft, Color[] previewStrip)
@@ -6817,11 +6847,11 @@ namespace adrilight.ViewModel
             AvailablePallete.Add(newpalette);
 
             //WritePaletteCollectionJson();
-             var json = JsonConvert.SerializeObject(newpalette, new JsonSerializerSettings() {
-                    TypeNameHandling = TypeNameHandling.Auto
-                });
-                File.WriteAllText(Path.Combine(JsonPaletteFileNameAndPath, newpalette.Name + ".col"), json);
-            
+            var json = JsonConvert.SerializeObject(newpalette, new JsonSerializerSettings() {
+                TypeNameHandling = TypeNameHandling.Auto
+            });
+            File.WriteAllText(Path.Combine(JsonPaletteFileNameAndPath, newpalette.Name + ".col"), json);
+
         }
 
         private void CreateNewAutomation()
@@ -6911,7 +6941,7 @@ namespace adrilight.ViewModel
             AvailableAutomations.Remove(automation);
             WriteAutomationCollectionJson();
         }
-        private DropBoxHelpers dbxhlprs { get; set; }
+        private FTPServerHelpers FTPHlprs { get; set; }
         private void UploadSelectedPalette(IColorPalette selectedpalette)
         {
             if (selectedpalette != null)
@@ -6920,12 +6950,7 @@ namespace adrilight.ViewModel
                 var palette = JsonConvert.SerializeObject(selectedpalette, new JsonSerializerSettings() {
                     TypeNameHandling = TypeNameHandling.Auto
                 });
-                if(dbxhlprs == null)
-                {
-                    dbxhlprs = new DropBoxHelpers();
-                    dbxhlprs.Client = new DropboxClient("sl.BaCa4Gc6U23vKhI6XOhlTatv0T-Oed8mmSmSC0Tvistf7j-PcO_BJZRpFUa5aFMlygbkCpnMRv62vx3l3AOCK8cfI1WIp_1-Qtf9oFOKklWVKwy1kcXJ4EplaUjUjnQ6XbSI-15ukFvH");
-                }
-                Task.Run(async () => await dbxhlprs.UploadContent("/colorpalettes" + "/" + selectedpalette.Name+".col", palette));
+
 
             }
         }
@@ -7160,7 +7185,7 @@ namespace adrilight.ViewModel
         //}
         public void SetCustomColor(int index)
         {
-            if(CurrentActivePalette==null)
+            if (CurrentActivePalette == null)
             {
                 CurrentActivePalette = new ColorPalette();
             }
@@ -7719,9 +7744,9 @@ namespace adrilight.ViewModel
 
         public List<IColorPalette> LoadPaletteIfExists()
         {
-            if (!File.Exists(JsonPaletteFileNameAndPath))
+            if (!Directory.Exists(JsonPaletteFileNameAndPath))
             {
-                
+
                 //create default palette
                 var palettes = new List<IColorPalette>();
                 IColorPalette rainbow = new ColorPalette("Full Rainbow", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.rainbow);
@@ -8442,30 +8467,21 @@ namespace adrilight.ViewModel
 
             if (!string.IsNullOrEmpty(Import.FileName) && File.Exists(Import.FileName))
             {
-                var lines = File.ReadAllLines(Import.FileName);
-                if (lines.Length < 19)
-                {
-                    HandyControl.Controls.MessageBox.Show("Corrupted Color Palette data File!!!");
-                    return;
-                }
+                var json = File.ReadAllText(Import.FileName);
 
-                var name = lines[0];
-                var owner = lines[1];
-                var description = lines[2];
-                var color = new System.Windows.Media.Color[16];
                 try
                 {
-                    for (int i = 0; i < color.Length; i++)
-                    {
-                        color[i] = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(lines[i + 3]);
-                    }
+                    var importedPaletteCard = JsonConvert.DeserializeObject<ColorPalette>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    var lines = File.ReadAllLines(Import.FileName);
 
-                    IColorPalette importedPaletteCard = new ColorPalette(name, owner, "Imported from local file", description, color);
+
                     AvailablePallete.Add(importedPaletteCard);
                     RaisePropertyChanged(nameof(AvailablePallete));
                     //WritePaletteCollectionJson();
                 }
-                catch (FormatException)
+
+
+                catch (Exception ex)
                 {
                     HandyControl.Controls.MessageBox.Show("Corrupted Color Palette data File!!!");
                 }

@@ -128,6 +128,9 @@
     <PackageReference Include="SharpVectors" Version="1.7.7" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.4" />
     <PackageReference Include="squirrel.windows" Version="2.0.2-netcore" />
+    <PackageReference Include="SSH.NET">
+      <Version>2020.0.2</Version>
+    </PackageReference>
     <PackageReference Include="System.Drawing.Common">
       <Version>4.7.2</Version>
     </PackageReference>
@@ -910,6 +913,10 @@
     <ProjectReference Include="..\DropBoxServer\DropBoxServer.csproj">
       <Project>{70622579-52B5-4E44-8B3D-54715A0410A0}</Project>
       <Name>DropBoxServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FTPServer\FTPServer.csproj">
+      <Project>{5B8BF436-7610-4335-80EB-809A7E7A655F}</Project>
+      <Name>FTPServer</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
