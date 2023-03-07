@@ -6,15 +6,18 @@
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
+           xmlns:ut ="clr-namespace:adrilight.Util"
+           xmlns:mt ="clr-namespace:adrilight_effect_analyzer.Model;assembly=adrilight_effect_analyzer"
            mc:Ignorable="d"
            Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
-           SizeToContent="Height"
-            ResizeMode="NoResize"
-           MaxHeight="1000" 
-           Width="800" 
-           WindowStartupLocation="CenterOwner">
+           
+           Title="Adrilight Store"
+           
+           Height="500" 
+           Width="1000" 
+           WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -24,6 +27,202 @@
                     <converters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
                     <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
                     <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
+                    <DropShadowEffect x:Key="Item.SelectedActive.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource DarkMaskBrush}}"/>
+                    <DropShadowEffect x:Key="Item.MouseOver.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource DarkMaskBrush}}"/>
+                    <Style x:Key="ListViewContainerStyle" TargetType="{x:Type ListViewItem}">
+
+                        <Setter Property="SnapsToDevicePixels" Value="True"/>
+                        <Setter Property="Padding" Value="0"/>
+                        <!--<Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+                <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>-->
+                        <Setter Property="Background" Value="{StaticResource RegionBrush}"/>
+                        <Setter Property="BorderBrush" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="4"/>
+                        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+                        <Setter Property="Width" Value="auto"/>
+                        <Setter Property="Height" Value="auto"/>
+                        <Setter Property="Focusable" Value="False"/>
+                        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+
+                        <!--<Setter Property="ContextMenu">
+                    <Setter.Value>
+                        <ContextMenu >
+                            <MenuItem  Header="Share">
+                            </MenuItem>
+                            <MenuItem  Header="Delete" Command="{Binding PlacementTarget.Tag.LaunchDeleteSelectedDeviceWindowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" >
+                                <MenuItem.Icon>
+                                    <Path   Data="{StaticResource delete}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
+                        </ContextMenu>
+
+                    </Setter.Value>
+                </Setter>-->
+
+                        <!--<Setter Property="Tag" Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListView}}" />
+                        <Setter Property="ContextMenu">
+                            <Setter.Value>
+                                <ContextMenu>
+                                    <MenuItem Command="{Binding PlacementTarget.Tag.DeleteSelectedAutomationCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding .}"  Header="Delete">
+                                        <MenuItem.Icon>
+                                            <Path   Data="{DynamicResource delete}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                        </MenuItem.Icon>
+
+
+                                    </MenuItem>
+                                </ContextMenu>
+
+                            </Setter.Value>
+                        </Setter>-->
+
+
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" Margin="2,8" CornerRadius="7" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsMouseOver" Value="True"/>
+                                                <Condition Property="IsSelected" Value="False"/>
+                                            </MultiTrigger.Conditions>
+
+                                            <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
+                                            <!--<Setter Property="BorderThickness" TargetName="Bd" Value="4"/>-->
+                                            <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+                                            <Setter Property="Effect" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>
+                                        </MultiTrigger>
+
+
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+
+                                            <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+                                            <Setter Property="Effect" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+
+                                            <!--<Setter Property="BorderThickness" TargetName="Bd" Value="6"/>-->
+                                            <Setter Property="Effect" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>
+                                        </MultiTrigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{StaticResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+
+                    <DataTemplate x:Key="_onlineColorPalette" DataType="{x:Type ut:ColorPalette}">
+                        <hc:Card BorderBrush="Transparent" ToolTip="{Binding Description}" hc:BorderElement.CornerRadius="7" Height="160"  Width="160"  Effect="{StaticResource EffectShadow2}"  Footer="{Binding Name}">
+                            <Border  CornerRadius="7,7,0,0" Style="{StaticResource BorderClip}">
+                                <ItemsControl ItemsSource="{Binding Colors}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <UniformGrid Columns="16" Rows="1">
+
+                                            </UniformGrid>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border   Background="{Binding ., Converter={StaticResource ColorToBrushConverter}, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                            </Border>
+
+                            <hc:Card.FooterTemplate>
+                                <DataTemplate>
+                                    <!--Name and description+download-->
+                                    <Grid>
+
+                                       
+                                        <!--Name and description-->
+                                        <Grid>
+                                            <StackPanel>
+                                                <TextBlock Margin="12,12" VerticalAlignment="Top" HorizontalAlignment="Left" TextWrapping="Wrap" Text="{Binding DataContext.Name,RelativeSource={RelativeSource AncestorType=hc:Card}}" Style="{DynamicResource TextBlockSubTitleBold}"/>
+                                                <TextBlock HorizontalAlignment="Left" Margin="12,10,10,12" TextWrapping="Wrap" Text="{Binding DataContext.Owner,RelativeSource={RelativeSource AncestorType=hc:Card}}" Style="{DynamicResource TextBlockDefaultSecLight}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <!--download button-->
+                                        <Grid>
+                                            <Button Margin="12" HorizontalAlignment="Right" VerticalAlignment="Bottom" Padding="2" Width="40" Height="25" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0" Content="Get" Command="{Binding Path=DataContext.DownloadSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
+                                                <Button.Background>
+                                                    <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.2"/>
+                                                </Button.Background>
+                                            </Button>
+                                        </Grid>
+
+                                    </Grid>
+                                </DataTemplate>
+                            </hc:Card.FooterTemplate>
+
+
+                        </hc:Card>
+                    </DataTemplate>
+                    <DataTemplate x:Key="_onlineChasingPattern" DataType="{x:Type mt:Motion}">
+                        <hc:Card BorderBrush="Transparent" ToolTip="{Binding Description}" hc:BorderElement.CornerRadius="7" Height="160"  Width="160"  Effect="{StaticResource EffectShadow2}"  Footer="{Binding Name}">
+                            <Border  CornerRadius="7,7,0,0" Style="{StaticResource BorderClip}">
+                                <!--<ItemsControl ItemsSource="{Binding Frames[0]}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <UniformGrid Columns="16" Rows="1">
+
+                                            </UniformGrid>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border   Background="{Binding ., Converter={StaticResource ColorToBrushConverter}, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>-->
+
+                            </Border>
+
+                            <hc:Card.FooterTemplate>
+                                <DataTemplate>
+                                    <!--Name and description+download-->
+                                    <Grid>
+
+
+                                        <!--Name and description-->
+                                        <Grid>
+                                            <StackPanel>
+                                                <TextBlock Margin="12,12" VerticalAlignment="Top" HorizontalAlignment="Left" TextWrapping="Wrap" Text="{Binding DataContext.Name,RelativeSource={RelativeSource AncestorType=hc:Card}}" Style="{DynamicResource TextBlockSubTitleBold}"/>
+                                                <TextBlock HorizontalAlignment="Left" Margin="12,10,10,12" TextWrapping="Wrap" Text="{Binding DataContext.Owner,RelativeSource={RelativeSource AncestorType=hc:Card}}" Style="{DynamicResource TextBlockDefaultSecLight}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <!--download button-->
+                                        <Grid>
+                                            <Button Margin="12" HorizontalAlignment="Right" VerticalAlignment="Bottom" Padding="2" Width="40" Height="25" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0" Content="Get" Command="{Binding Path=DataContext.DownloadSelectedChasingPattern, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
+                                                <Button.Background>
+                                                    <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.2"/>
+                                                </Button.Background>
+                                            </Button>
+                                        </Grid>
+
+                                    </Grid>
+                                </DataTemplate>
+                            </hc:Card.FooterTemplate>
+
+
+                        </hc:Card>
+                    </DataTemplate>
                 </ResourceDictionary>
 
             </ResourceDictionary.MergedDictionaries>
@@ -39,7 +238,7 @@
         </Grid.RowDefinitions>
         <!--Logo and name of the store-->
         <Grid>
-            
+
         </Grid>
         <!--Content-->
         <Grid Grid.Row="1">
@@ -49,7 +248,7 @@
             </Grid.ColumnDefinitions>
             <!--side panel category selection-->
             <Grid>
-                <ListBox BorderThickness="0" Background="Transparent" ItemsSource="{Binding AvailableStoreCategories}" ItemContainerStyle="{DynamicResource _listBoxModeSelectionStyle}">
+                <ListBox SelectedItem="{Binding CurrentSelectedCategory,Mode=TwoWay}" BorderThickness="0" Background="Transparent" ItemsSource="{Binding AvailableStoreCategories}" ItemContainerStyle="{DynamicResource _listBoxModeSelectionStyle}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Border CornerRadius="4">
@@ -78,38 +277,53 @@
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <!--Store Carousel-->
+                <!--Store Carousel in the future-->
                 <Grid>
-                    <!--<hc:TransitioningContentControl>
-                        <hc:Carousel ItemsSource="{Binding AvailableCarouselImage}" Margin="32" IsCenter="True" AutoRun="True" MaxWidth="600" Height="330" VerticalAlignment="Center">
-                            <hc:Carousel.ItemTemplate>
-                                <DataTemplate>
-                                    <Image Source="{Binding .}"/>
-                                </DataTemplate>
-                            </hc:Carousel.ItemTemplate>
-                        </hc:Carousel>
-                    </hc:TransitioningContentControl>
-                    <hc:LoadingLine Width="200" Visibility="{Binding CarouselImageLoading,Converter={StaticResource Boolean2VisibilityReConverter}}"/>-->
+                  
                 </Grid>
                 <!--List of content-->
                 <Grid Grid.Row="1">
-                    <hc:LoadingLine Width="200" Visibility="{Binding CarouselImageLoading,Converter={StaticResource Boolean2VisibilityConverter}}"/>
-                    <ListBox Background="Transparent" BorderThickness="0" ItemsSource="{Binding AvailableOnlinePalettes}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel>
-                                    <TextBlock Text="{Binding Name}" Style="{DynamicResource TextBlockDefault}"/>
-                                    <Button Content="Download" Command="{Binding Path=DataContext.DownloadSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding .}"/>
-                                </StackPanel>
-                               
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
                    
+                    <ListView  Background="Transparent" BorderThickness="0" ItemsSource="{Binding AvailableOnlineItems}">
+                        <ListView.Style>
+                            <Style TargetType="ListView">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding CurrentSelectedCategory.Type}" Value="Palette">
+                                        <Setter Property="ItemTemplate" Value="{DynamicResource _onlineColorPalette}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding CurrentSelectedCategory.Type}" Value="Pattern">
+                                        <Setter Property="ItemTemplate" Value="{DynamicResource _onlineChasingPattern}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                            
+                        </ListView.Style>
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource ListViewContainerStyle}">
+                                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.Template>
+                            <ControlTemplate TargetType="{x:Type ItemsControl}">
+                                <Border Margin="0" 
+                            SnapsToDevicePixels="False">
+                                    <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                                        <ItemsPresenter />
+                                    </hc:ScrollViewer>
+                                </Border>
+                            </ControlTemplate>
+                        </ListView.Template>
+                    </ListView>
+                    <hc:LoadingLine HorizontalAlignment="Center" VerticalAlignment="Center" Width="200" Visibility="{Binding CarouselImageLoading,Converter={StaticResource Boolean2VisibilityConverter}}"/>
                 </Grid>
             </Grid>
         </Grid>
-      
+
 
 
 

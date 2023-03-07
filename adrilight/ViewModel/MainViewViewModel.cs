@@ -543,6 +543,7 @@ namespace adrilight.ViewModel
             }
         }
         public ICommand CompositionNextFrameCommand { get; set; }
+        public ICommand DownloadSelectedChasingPattern { get; set; }
         public ICommand DownloadSelectedPaletteCommand { get; set; }
         public ICommand CutSelectedMotionCommand { get; set; }
         public ICommand ToggleCompositionPlayingStateCommand { get; set; }
@@ -3306,6 +3307,13 @@ namespace adrilight.ViewModel
             {
                 DownloadSelectedPalette(p);
             });
+            DownloadSelectedChasingPattern = new RelayCommand<Motion>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+               // DownloadSelectedPalette(p);
+            });
             SetCurrentActionTypeForSelectedActionCommand = new RelayCommand<ActionType>((p) =>
             {
                 return true;
@@ -4354,6 +4362,21 @@ namespace adrilight.ViewModel
             get { return _availableStoreCategories; }
             set { _availableStoreCategories = value; RaisePropertyChanged(); }
         }
+        private StoreCategory _currentSelectedCategory;
+        public StoreCategory CurrentSelectedCategory {
+            get { return _currentSelectedCategory; }
+            set {
+                //clear collection
+                if(AvailableOnlineItems!=null)
+                AvailableOnlineItems.Clear();
+                _currentSelectedCategory = value;
+                RaisePropertyChanged();
+                CarouselImageLoading = true;
+                Task.Run(() => UpdateStoreView());
+                
+                
+            }
+        }
         private ObservableCollection<BitmapImage> _availableCarouselImage;
         public ObservableCollection<BitmapImage> AvailableCarouselImage {
             get { return _availableCarouselImage; }
@@ -4364,10 +4387,10 @@ namespace adrilight.ViewModel
             get { return _carouselImageLoading; }
             set { _carouselImageLoading = value; RaisePropertyChanged(); }
         }
-        private ObservableCollection<IColorPalette> _availableOnlinePalettes;
-        public ObservableCollection<IColorPalette> AvailableOnlinePalettes {
-            get { return _availableOnlinePalettes; }
-            set { _availableOnlinePalettes = value; RaisePropertyChanged(); }
+        private ObservableCollection<object> _availableOnlineItems;
+        public ObservableCollection<object> AvailableOnlineItems {
+            get { return _availableOnlineItems; }
+            set { _availableOnlineItems = value; RaisePropertyChanged(); }
         }
         public AmbinoOnlineStoreView StoreWindow { get; set; }
         private void DownloadSelectedPalette(ColorPalette selectedPalette)
@@ -4390,6 +4413,24 @@ namespace adrilight.ViewModel
 
 
         }
+        private async void UpdateStoreView()
+        {
+            
+            switch (CurrentSelectedCategory.Type)
+            {
+                case "Palette":
+                     await GetStoreItem<ColorPalette>(paletteFolderpath);
+                    CarouselImageLoading = false;
+                    break;
+
+                case "Pattern":
+                    await GetStoreItem<Motion>(chasingPatternsFolderPath);
+                    CarouselImageLoading = false;
+                    break;
+
+            }
+           
+        }
         private bool CheckEqualityObjects(object object1, object object2)
         {
             string object1String = JsonConvert.SerializeObject(object1, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto
@@ -4400,44 +4441,12 @@ namespace adrilight.ViewModel
             return (string.Equals(object2String,object1String));
         }
         private const string paletteFolderpath = "/home/adrilight_enduser/ftp/files/ColorPalettes";
-        private async void OpenAmbinoStoreWindow()
-        {
-            StoreWindow = new AmbinoOnlineStoreView();
-            StoreWindow.Owner = System.Windows.Application.Current.MainWindow;
-            StoreWindow.Show();
+        private const string chasingPatternsFolderPath = "/home/adrilight_enduser/ftp/files/ChasingPatterns";
 
-            AvailableStoreCategories = new ObservableCollection<StoreCategory>();
-            AvailableCarouselImage = new ObservableCollection<BitmapImage>();
-            AvailableOnlinePalettes = new ObservableCollection<IColorPalette>();
-            var palettes = new StoreCategory() {
-                Name = "Color Palettes",
-                Type = "Palette",
-                Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
-                Geometry = "colorpalette"
-            };
-            var gif = new StoreCategory() {
-                Name = "Gifxelations",
-                Type = "Gif",
-                Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
-                Geometry = "colorpalette"
-            };
-            var gradient = new StoreCategory() {
-                Name = "Gradients",
-                Type = "Gradient",
-                Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
-                Geometry = "colorpalette"
-            };
-            var chasingPatterns = new StoreCategory() {
-                Name = "Chasing Patterns",
-                Type = "Pattern",
-                Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
-                Geometry = "colorpalette"
-            };
-            AvailableStoreCategories.Add(palettes);
-            AvailableStoreCategories.Add(gif);
-            AvailableStoreCategories.Add(gradient);
-            AvailableStoreCategories.Add(chasingPatterns);
-            CarouselImageLoading = true;
+        private async Task GetStoreItem<T>(string itemFolderPath)
+        {
+            AvailableOnlineItems = new ObservableCollection<object>();
+           
             //get carousel image
             if (FTPHlprs == null)
             {
@@ -4446,23 +4455,72 @@ namespace adrilight.ViewModel
                 string password = @"@drilightPublic";
                 FTPHlprs = new FTPServerHelpers();
                 FTPHlprs.sFTP = new SftpClient(host, 22, userName, password);
-                
+
 
             }
-            if(!FTPHlprs.sFTP.IsConnected)
+            if (!FTPHlprs.sFTP.IsConnected)
             {
                 FTPHlprs.sFTP.Connect();
             }
             //get all available files
-            var listPaletteAddress = await FTPHlprs.GetAllFilesAddressInFolder(paletteFolderpath);
+            var listItemAddress = await FTPHlprs.GetAllFilesAddressInFolder(itemFolderPath);
             //display all available files to the view 
-            foreach(var address in listPaletteAddress)
+            foreach (var address in listItemAddress)
             {
-                var palette = FTPHlprs.GetFiles<ColorPalette>(address);
-                AvailableOnlinePalettes.Add(palette.Result);
-            }
-            CarouselImageLoading = false;
+                var item = FTPHlprs.GetFiles<T>(address);
+                await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                {
+                    AvailableOnlineItems.Add(item.Result);
 
+                });
+                
+            }
+          
+
+        }
+        private void OpenAmbinoStoreWindow()
+        {
+            StoreWindow = new AmbinoOnlineStoreView();
+            StoreWindow.Owner = System.Windows.Application.Current.MainWindow;
+            StoreWindow.Show();
+            if(AvailableStoreCategories==null)
+            {
+                AvailableStoreCategories = new ObservableCollection<StoreCategory>();
+                var palettes = new StoreCategory() {
+                    Name = "Color Palettes",
+                    Type = "Palette",
+                    Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
+                    Geometry = "colorpalette"
+                };
+                var gif = new StoreCategory() {
+                    Name = "Gifxelations",
+                    Type = "Gif",
+                    Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
+                    Geometry = "colorpalette"
+                };
+                var gradient = new StoreCategory() {
+                    Name = "Gradients",
+                    Type = "Gradient",
+                    Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
+                    Geometry = "colorpalette"
+                };
+                var chasingPatterns = new StoreCategory() {
+                    Name = "Chasing Patterns",
+                    Type = "Pattern",
+                    Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
+                    Geometry = "colorpalette"
+                };
+
+                AvailableStoreCategories.Add(palettes);
+                AvailableStoreCategories.Add(gif);
+                AvailableStoreCategories.Add(gradient);
+                AvailableStoreCategories.Add(chasingPatterns);
+
+            }
+
+            AvailableCarouselImage = new ObservableCollection<BitmapImage>();
+            
+          
         }
 
 
