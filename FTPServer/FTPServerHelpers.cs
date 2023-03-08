@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using static System.Net.WebRequestMethods;
+using System.Windows.Media.Imaging;
+
 
 namespace FTPServer
 {
@@ -42,13 +42,46 @@ namespace FTPServer
                 return null;
             }
         }
-    
 
 
 
+        public async Task<BitmapImage> GetThumb(string thumbPath)  // this method get all file from dropbox adrilight App folder to temp folder
+        {
+            try
+            {
+                var thumb = new BitmapImage();
+                using (var remoteFileStream = sFTP.OpenRead(thumbPath))
+                {
+                   thumb  = StreamToImageSource(remoteFileStream);
+                }
 
+                return await Task.FromResult(thumb);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("An exception has been caught " + e.ToString());
+                return null;
+            }
+        }
+        BitmapImage StreamToImageSource(Stream stream)
+        {
+            var memory = new MemoryStream();
+            stream.CopyTo(memory);
+            using (memory)
+            {
+                memory.Position = 0;
+                BitmapImage bitmapimage = new BitmapImage();
+                bitmapimage.BeginInit();
+                bitmapimage.StreamSource = memory;
+                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapimage.EndInit();
+                bitmapimage.Freeze();
 
-    public async Task<T> GetFiles<T>(string filePath)
+                return bitmapimage;
+            }
+        }
+
+        public async Task<T> GetFiles<T>(string filePath) //only use for text format
     {
             try
             {

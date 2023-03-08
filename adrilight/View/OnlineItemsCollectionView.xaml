@@ -119,9 +119,9 @@
                         </Setter>
                     </Style>
 
-                    <DataTemplate x:Key="_onlineColorPalette" DataType="{x:Type ut:ColorPalette}">
+                    <DataTemplate x:Key="_onlineItemTemplate" DataType="{x:Type ut:OnlineItemModel}">
                         <hc:Card BorderBrush="Transparent" ToolTip="{Binding Description}" hc:BorderElement.CornerRadius="7" Height="160"  Width="160"  Effect="{StaticResource EffectShadow2}"  Footer="{Binding Name}">
-                            <Border  CornerRadius="7,7,0,0" Style="{StaticResource BorderClip}">
+                            <Border Margin="10"  CornerRadius="7,7,0,0" Style="{StaticResource BorderClip}">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="MouseLeftButtonDown">
                                         <i:InvokeCommandAction 
@@ -129,20 +129,7 @@
                                             CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}"/>
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
-                                <ItemsControl ItemsSource="{Binding Colors}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <UniformGrid Columns="16" Rows="1">
-
-                                            </UniformGrid>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border   Background="{Binding ., Converter={StaticResource ColorToBrushConverter}, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                                <Image Source="{Binding Thumb}" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
 
                             </Border>
 
@@ -175,7 +162,7 @@
 
                         </hc:Card>
                     </DataTemplate>
-                    <DataTemplate x:Key="_onlineChasingPattern" DataType="{x:Type mt:Motion}">
+                    <!--<DataTemplate x:Key="_onlineChasingPattern" DataType="{x:Type mt:Motion}">
                         <hc:Card BorderBrush="Transparent" ToolTip="{Binding Description}" hc:BorderElement.CornerRadius="7" Height="160"  Width="160"  Effect="{StaticResource EffectShadow2}"  Footer="{Binding Name}">
                             <Border Background="Red"  CornerRadius="7,7,0,0" Style="{StaticResource BorderClip}">
                                 <i:Interaction.Triggers>
@@ -185,7 +172,7 @@
                                             CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}"/>
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
-                                <!--<ItemsControl ItemsSource="{Binding Frames[0]}">
+                                --><!--<ItemsControl ItemsSource="{Binding Frames[0]}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <UniformGrid Columns="16" Rows="1">
@@ -198,24 +185,24 @@
                                             <Border   Background="{Binding ., Converter={StaticResource ColorToBrushConverter}, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
-                                </ItemsControl>-->
+                                </ItemsControl>--><!--
 
                             </Border>
 
                             <hc:Card.FooterTemplate>
                                 <DataTemplate>
-                                    <!--Name and description+download-->
+                                    --><!--Name and description+download--><!--
                                     <Grid>
 
 
-                                        <!--Name and description-->
+                                        --><!--Name and description--><!--
                                         <Grid>
                                             <StackPanel>
                                                 <TextBlock Margin="12,12" VerticalAlignment="Top" HorizontalAlignment="Left" TextWrapping="Wrap" Text="{Binding DataContext.Name,RelativeSource={RelativeSource AncestorType=hc:Card}}" Style="{DynamicResource TextBlockSubTitleBold}"/>
                                                 <TextBlock HorizontalAlignment="Left" Margin="12,10,10,12" TextWrapping="Wrap" Text="{Binding DataContext.Owner,RelativeSource={RelativeSource AncestorType=hc:Card}}" Style="{DynamicResource TextBlockDefaultSecLight}"/>
                                             </StackPanel>
                                         </Grid>
-                                        <!--download button-->
+                                        --><!--download button--><!--
                                         <Grid>
                                             <Button Margin="12" HorizontalAlignment="Right" VerticalAlignment="Bottom" Padding="2" Width="40" Height="25" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0" Content="Get" Command="{Binding Path=DataContext.DownloadSelectedChasingPattern, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
                                                 <Button.Background>
@@ -230,7 +217,7 @@
 
 
                         </hc:Card>
-                    </DataTemplate>
+                    </DataTemplate>-->
                 </ResourceDictionary>
 
             </ResourceDictionary.MergedDictionaries>
@@ -252,20 +239,8 @@
             <!--List of content-->
             <Grid Grid.Row="1">
 
-                <ListView  Background="Transparent" BorderThickness="0" ItemsSource="{Binding AvailableOnlineItems}">
-                    <ListView.Style>
-                        <Style TargetType="ListView">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentSelectedCategory.Type}" Value="Palette">
-                                    <Setter Property="ItemTemplate" Value="{DynamicResource _onlineColorPalette}"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding CurrentSelectedCategory.Type}" Value="Pattern">
-                                    <Setter Property="ItemTemplate" Value="{DynamicResource _onlineChasingPattern}"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-
-                    </ListView.Style>
+                <ListView ItemTemplate="{DynamicResource _onlineItemTemplate}" Background="Transparent" BorderThickness="0" ItemsSource="{Binding AvailableOnlineItems}">
+                
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel Orientation="Horizontal"/>

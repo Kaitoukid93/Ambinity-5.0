@@ -233,6 +233,8 @@
     <Compile Include="Spots\IDeviceSpot.cs" />
     <Compile Include="Spots\ILEDSetup.cs" />
     <Compile Include="Spots\LEDSetup.cs" />
+    <Compile Include="Util\IOnlineItemModel.cs" />
+    <Compile Include="Util\OnlineItemModel.cs" />
     <Compile Include="Util\DeviceDiscovery.cs" />
     <Compile Include="Util\AdrilightUpdater.cs" />
     <Compile Include="Util\AmbinoColorEffect .cs" />

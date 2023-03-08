@@ -31,7 +31,7 @@
                         <local:OnlineItemsCollectionView/>
                     </DataTemplate>
                     <DataTemplate x:Key="_detailsView">
-                        <local:ChasingPatternPreviewZone/>
+                        <local:OnlineItemDetailView/>
                     </DataTemplate>
                     <Style x:Key="_rightPanelView" TargetType="{x:Type ContentControl}">
                         <Style.Triggers>
