@@ -914,6 +914,7 @@ namespace adrilight.ViewModel
 
 
         public ICommand SelectCardCommand { get; set; }
+        public ICommand SelectOnlineItemCommand { get; set; }
         public ICommand LightingModeSelection { get; set; }
         public ICommand ShowAddNewCommand { get; set; }
         public ICommand RefreshDeviceCommand { get; set; }
@@ -3406,7 +3407,13 @@ namespace adrilight.ViewModel
             {
                 DeviceRectSavePosition();
             });
-
+            SelectOnlineItemCommand = new RelayCommand<object>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                gotoItemDetails(p);
+            });
             SelectCardCommand = new RelayCommand<IDeviceSettings>((p) =>
             {
                 return p != null;
@@ -4371,6 +4378,7 @@ namespace adrilight.ViewModel
                 AvailableOnlineItems.Clear();
                 _currentSelectedCategory = value;
                 RaisePropertyChanged();
+              CurrentOnlineStoreView = "Collections";
                 CarouselImageLoading = true;
                 Task.Run(() => UpdateStoreView());
                 
@@ -4422,11 +4430,21 @@ namespace adrilight.ViewModel
                      await GetStoreItem<ColorPalette>(paletteFolderpath);
                     CarouselImageLoading = false;
                     break;
-
                 case "Pattern":
                     await GetStoreItem<Motion>(chasingPatternsFolderPath);
                     CarouselImageLoading = false;
                     break;
+                case "Gifxelation":
+                    await GetStoreItem<Motion>(gifxelationsFolderPath);
+                    CarouselImageLoading = false;
+                    break;
+                case "Gradient":
+                    await GetStoreItem<Motion>(outputLEDSetupsFolderPath);
+                    CarouselImageLoading = false;
+                    break;
+                case "LEDSetup":
+                    break;
+
 
             }
            
@@ -4442,6 +4460,8 @@ namespace adrilight.ViewModel
         }
         private const string paletteFolderpath = "/home/adrilight_enduser/ftp/files/ColorPalettes";
         private const string chasingPatternsFolderPath = "/home/adrilight_enduser/ftp/files/ChasingPatterns";
+        private const string gifxelationsFolderPath = "/home/adrilight_enduser/ftp/files/Gifxelations";
+        private const string outputLEDSetupsFolderPath = "/home/adrilight_enduser/ftp/files/OutputLEDSetup";
 
         private async Task GetStoreItem<T>(string itemFolderPath)
         {
@@ -4460,26 +4480,49 @@ namespace adrilight.ViewModel
             }
             if (!FTPHlprs.sFTP.IsConnected)
             {
-                FTPHlprs.sFTP.Connect();
+                try
+                {
+                    FTPHlprs.sFTP.Connect();
+                }
+                catch(Exception ex)
+                {
+                    HandyControl.Controls.MessageBox.Show("Server không khả dụng ở thời điểm hiện tại, vui lòng thử lại sau", "Server notfound", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
             }
             //get all available files
             var listItemAddress = await FTPHlprs.GetAllFilesAddressInFolder(itemFolderPath);
             //display all available files to the view 
-            foreach (var address in listItemAddress)
+            if(listItemAddress.Count > 0)
             {
-                var item = FTPHlprs.GetFiles<T>(address);
-                await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                foreach (var address in listItemAddress)
                 {
-                    AvailableOnlineItems.Add(item.Result);
+                    var item = FTPHlprs.GetFiles<T>(address);
+                    await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                    {
+                        AvailableOnlineItems.Add(item.Result);
 
-                });
-                
+                    });
+
+                }
             }
+            else
+            {
+                HandyControl.Controls.MessageBox.Show("Không có item nào cho mục này, vui lòng thử lại sau", "Item notfound", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+          
           
 
         }
+        private string _currentOnlineStoreView;
+        public string CurrentOnlineStoreView {
+            get { return _currentOnlineStoreView; }
+            set { _currentOnlineStoreView = value; RaisePropertyChanged(); }
+        }
         private void OpenAmbinoStoreWindow()
         {
+            CurrentOnlineStoreView = "Collections";
             StoreWindow = new AmbinoOnlineStoreView();
             StoreWindow.Owner = System.Windows.Application.Current.MainWindow;
             StoreWindow.Show();
@@ -4507,6 +4550,12 @@ namespace adrilight.ViewModel
                 var chasingPatterns = new StoreCategory() {
                     Name = "Chasing Patterns",
                     Type = "Pattern",
+                    Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
+                    Geometry = "colorpalette"
+                };
+                var outputLEDSetup = new StoreCategory() {
+                    Name = "LED Setups",
+                    Type = "LEDSetup",
                     Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
                     Geometry = "colorpalette"
                 };
@@ -8755,8 +8804,23 @@ namespace adrilight.ViewModel
             }
             return filteredProfiles;
         }
+        private string _currentSelectedOnlineItemType;
+        public string CurrentSelectedOnlineItemType {
+            get { return _currentSelectedOnlineItemType; }
+            set { _currentSelectedOnlineItemType = value; RaisePropertyChanged(); }
+        }
+        private object _currentSelectedOnlineItem;
+        public object CurrentSelectedOnlineItem {
+            get { return _currentSelectedOnlineItem; }
+            set { _currentSelectedOnlineItem = value; RaisePropertyChanged(); }
+        }
+        public void gotoItemDetails(object item)
+        {
+            CurrentSelectedOnlineItemType = item.GetType().ToString();
+            CurrentSelectedOnlineItem = item;
+            CurrentOnlineStoreView = "Details";
 
-
+        }
         public void GotoChild(IDeviceSettings selectedDevice)
         {
             CurrentDevice = selectedDevice;

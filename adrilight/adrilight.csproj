@@ -331,6 +331,11 @@
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\VisualProperties.cs" />
+    <Compile Include="View\OnlineItemsCollectionView.xaml.cs" />
+    <Compile Include="View\ChasingPatternPreviewZone.xaml.cs" />
+    <Compile Include="View\GifxelationPreviewZone.xaml.cs" />
+    <Compile Include="View\ColorPalettePreviewZone.xaml.cs" />
+    <Compile Include="View\OnlineItemDetailView.xaml.cs" />
     <Compile Include="View\AmbinoOnlineStoreView.xaml.cs" />
     <Compile Include="View\MotionCollectionView.xaml.cs" />
     <Compile Include="View\CompositionControl.xaml.cs" />
@@ -419,6 +424,26 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Properties\DesignTimeResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\OnlineItemsCollectionView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ChasingPatternPreviewZone.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\GifxelationPreviewZone.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ColorPalettePreviewZone.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\OnlineItemDetailView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
