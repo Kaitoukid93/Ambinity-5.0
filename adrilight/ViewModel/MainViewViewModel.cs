@@ -35,6 +35,7 @@ using System.IdentityModel.Claims;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -48,6 +49,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using TimeLineTool;
 using Un4seen.BassWasapi;
+using static Dropbox.Api.TeamLog.AdminAlertSeverityEnum;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 using Bitmap = System.Drawing.Bitmap;
 using BitmapSource = System.Windows.Media.Imaging.BitmapSource;
@@ -3410,9 +3412,9 @@ namespace adrilight.ViewModel
             SelectOnlineItemCommand = new RelayCommand<IOnlineItemModel>((p) =>
             {
                 return true;
-            }, (p) =>
+            }, async(p) =>   
             {
-                gotoItemDetails(p);
+                await gotoItemDetails(p);
             });
             SelectCardCommand = new RelayCommand<IDeviceSettings>((p) =>
             {
@@ -4501,6 +4503,8 @@ namespace adrilight.ViewModel
                     var infoPath = address + "/info.json";
                     var thumb = FTPHlprs.GetThumb(address + "/thumb.png").Result;
                     var info = FTPHlprs.GetFiles<OnlineItemModel>(infoPath).Result;
+                    info.Path = address;
+                  
                     info.Thumb = thumb;
                     await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
                     {
@@ -8833,10 +8837,19 @@ namespace adrilight.ViewModel
             get { return _currentSelectedOnlineItem; }
             set { _currentSelectedOnlineItem = value; RaisePropertyChanged(); }
         }
-        public void gotoItemDetails(IOnlineItemModel item)
+        public async Task gotoItemDetails(IOnlineItemModel item)
         {
             //CurrentSelectedOnlineItemType = item.GetType().ToString();
             CurrentSelectedOnlineItem = item;
+            var screenshotsPath = item.Path + "/screenshots";
+            var screenshotsListAddress = await FTPHlprs.GetAllFilesAddressInFolder(screenshotsPath);
+            item.Screenshots = new List<BitmapImage>();
+            foreach (var screenshotAddress in screenshotsListAddress)
+            {
+                var screenshot = FTPHlprs.GetThumb(screenshotAddress).Result;
+                item.Screenshots.Add(screenshot);
+            }
+            
             CurrentOnlineStoreView = "Details";
 
         }

@@ -121,14 +121,14 @@
 
                     <DataTemplate x:Key="_onlineItemTemplate" DataType="{x:Type ut:OnlineItemModel}">
                         <hc:Card BorderBrush="Transparent" ToolTip="{Binding Description}" hc:BorderElement.CornerRadius="7" Height="160"  Width="160"  Effect="{StaticResource EffectShadow2}"  Footer="{Binding Name}">
-                            <Border Margin="10"  CornerRadius="7,7,0,0" Style="{StaticResource BorderClip}">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="MouseLeftButtonDown">
-                                        <i:InvokeCommandAction 
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseLeftButtonDown">
+                                    <i:InvokeCommandAction 
                                             Command="{Binding Path=DataContext.SelectOnlineItemCommand, RelativeSource={RelativeSource AncestorType=ListView}}" 
                                             CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}"/>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <Border Margin="10"  CornerRadius="7,7,0,0" Style="{StaticResource BorderClip}">
                                 <Image Source="{Binding Thumb}" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
 
                             </Border>

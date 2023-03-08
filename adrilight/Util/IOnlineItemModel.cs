@@ -17,6 +17,7 @@ namespace adrilight.Util
         string Description { get; set; }
         string Path { get; set; }
         BitmapImage Thumb { get; set; }
+        List<BitmapImage> Screenshots { get; set; }
 
     }
 }
