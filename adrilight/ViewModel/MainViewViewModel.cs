@@ -43,6 +43,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -61,6 +62,7 @@ using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
 using Point = System.Windows.Point;
 using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
 using SplashScreen = adrilight.View.SplashScreen;
+using MdXaml;
 
 namespace adrilight.ViewModel
 {
@@ -8842,6 +8844,7 @@ namespace adrilight.ViewModel
             //CurrentSelectedOnlineItemType = item.GetType().ToString();
             CurrentSelectedOnlineItem = item;
             var screenshotsPath = item.Path + "/screenshots";
+            var descriptionPath = item.Path + "/description.md";
             var screenshotsListAddress = await FTPHlprs.GetAllFilesAddressInFolder(screenshotsPath);
             item.Screenshots = new List<BitmapImage>();
             foreach (var screenshotAddress in screenshotsListAddress)
@@ -8849,7 +8852,8 @@ namespace adrilight.ViewModel
                 var screenshot = FTPHlprs.GetThumb(screenshotAddress).Result;
                 item.Screenshots.Add(screenshot);
             }
-            
+            var description = await FTPHlprs.GetStringContent(descriptionPath);
+            item.MarkDownDescription = description;
             CurrentOnlineStoreView = "Details";
 
         }

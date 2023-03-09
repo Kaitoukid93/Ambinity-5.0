@@ -7,6 +7,7 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            xmlns:local ="clr-namespace:adrilight.View"
+             xmlns:mdxam="clr-namespace:MdXaml;assembly=MdXaml"
            mc:Ignorable="d"
            Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
@@ -64,7 +65,7 @@
                 <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
 
 
-                    <Border MinHeight="250" CornerRadius="7" Background="{DynamicResource RegionBrush}" Margin="10">
+                    <Border MinHeight="220" CornerRadius="7" Background="{DynamicResource RegionBrush}" Margin="10">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="auto"/>
@@ -166,36 +167,7 @@
                                 <hc:Carousel Margin="0,0,0,15"  ItemsSource="{Binding CurrentSelectedOnlineItem.Screenshots}"  IsCenter="True" AutoRun="True" MaxWidth="900" Height="330" VerticalAlignment="Center">
                                     <hc:Carousel.ItemTemplate>
                                         <DataTemplate>
-                                            <Grid
-                                                 Width="600"
-                                                 Height="300"
-                                                 Margin="0,0,0,0"
-                                                 HorizontalAlignment="Left"
-                                                 VerticalAlignment="Top">
-
-                                                <!--  Add rounded corners here  -->
-                                                <Border
-                                                    Name="Mask"
-                                                    Grid.RowSpan="2"
-                                                    Margin="-5"
-                                                    Background="Black"
-                                                    CornerRadius="18 0 0 18" />
-
-                                                <!--  Image  -->
-                                                <Grid Grid.RowSpan="2">
-                                                    <Grid.OpacityMask>
-                                                        <VisualBrush Visual="{Binding ElementName=Mask}" />
-                                                    </Grid.OpacityMask>
-
-                                                    <Image
-                                                         Margin="-5"
-                                                         Source="{Binding}"
-                                                         Stretch="UniformToFill" />
-                                                </Grid>
-
-                                            </Grid>
-
-
+                                            <Image Width="600" Source="{Binding}"/>
                                         </DataTemplate>
                                     </hc:Carousel.ItemTemplate>
                                 </hc:Carousel>
@@ -206,11 +178,46 @@
             </Grid>
             <!--Description-->
             <Grid Grid.Row="2">
-                <Border CornerRadius="7" Background="{DynamicResource DarkMaskBrush}" Margin="10">
-                    <Grid>
+                <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
 
-                    </Grid>
-                </Border>
+
+                    <Border CornerRadius="7" Background="{DynamicResource DarkOpacityBrush}" Margin="10">
+                        <StackPanel>
+
+                            <Grid>
+                                <TextBlock Margin="20,15,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Description" Style="{DynamicResource TextBlockSubTitleBold}"/>
+                            </Grid>
+                            <hc:Divider Margin="0,15"/>
+                            <Grid MaxHeight="300">
+                             
+                                    
+                               
+                                <mdxam:MarkdownScrollViewer VerticalScrollBarVisibility="Auto" Margin="15"  Markdown="{Binding CurrentSelectedOnlineItem.MarkDownDescription}">
+                                    <mdxam:MarkdownScrollViewer.MarkdownStyle>
+                                        <Style 
+                                               TargetType="FlowDocument"
+                                               BasedOn="{x:Static mdxam:MarkdownStyle.Standard}">
+                                            <Style.Resources>
+                                                <Style TargetType="Paragraph">
+                                                    
+                                                    <Style.Triggers>
+                                                        <Trigger Property="Tag" Value="Heading2">
+                                                            <Setter Property="FontSize"   Value="30" />
+                                                            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                                                            <Setter Property="FontWeight" Value="Light" />
+                                                            <Setter Property="Margin" Value="0"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Style.Resources>
+                                        </Style>
+                                    </mdxam:MarkdownScrollViewer.MarkdownStyle>
+                                </mdxam:MarkdownScrollViewer>
+                             
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </hc:TransitioningContentControl>
             </Grid>
 
         </Grid>

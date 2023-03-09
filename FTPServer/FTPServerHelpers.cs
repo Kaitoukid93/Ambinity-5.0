@@ -32,7 +32,7 @@ namespace FTPServer
                     listFilesAddress.Add(folderPath + "/" + file.Name);
 
                 }
-                
+
                 return await Task.FromResult(listFilesAddress);
 
             }
@@ -52,7 +52,7 @@ namespace FTPServer
                 var thumb = new BitmapImage();
                 using (var remoteFileStream = sFTP.OpenRead(thumbPath))
                 {
-                   thumb  = StreamToImageSource(remoteFileStream);
+                    thumb = StreamToImageSource(remoteFileStream);
                 }
 
                 return await Task.FromResult(thumb);
@@ -82,7 +82,7 @@ namespace FTPServer
         }
 
         public async Task<T> GetFiles<T>(string filePath) //only use for text format
-    {
+        {
             try
             {
                 T file;
@@ -97,23 +97,46 @@ namespace FTPServer
                 }
 
                 return await Task.FromResult(file);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("An exception has been caught " + e.ToString());
+                return default(T);
+            }
+
         }
-        catch (Exception e)
+        public async Task<string> GetStringContent(string filePath) //only use for text format
         {
-            Console.WriteLine("An exception has been caught " + e.ToString());
-            return default(T);
+            try
+            {
+                string content;
+
+
+                using (var remoteFileStream = sFTP.OpenRead(filePath))
+                {
+                    var textReader = new System.IO.StreamReader(remoteFileStream);
+                    content = textReader.ReadToEnd();
+                   
+                }
+
+                return await Task.FromResult(content);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("An exception has been caught " + e.ToString());
+                return "";
+            }
+
+        }
+        public static T DeserializeFromStream<T>(Stream stream)
+        {
+            var serializer = new JsonSerializer();
+            using (var sr = new StreamReader(stream))
+            using (var jsonTextReader = new JsonTextReader(sr))
+            {
+                return serializer.Deserialize<T>(jsonTextReader);
+            }
         }
 
     }
-    public static T DeserializeFromStream<T>(Stream stream)
-    {
-        var serializer = new JsonSerializer();
-        using (var sr = new StreamReader(stream))
-        using (var jsonTextReader = new JsonTextReader(sr))
-        {
-            return serializer.Deserialize<T>(jsonTextReader);
-        }
-    }
-
-}
 }

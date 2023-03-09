@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -24,6 +25,8 @@ namespace adrilight.Util
         public string Path { get; set; }
         public BitmapImage Thumb { get; set; }
         public List<BitmapImage> Screenshots { get; set; }
+        public string MarkDownDescription { get; set; }
+       
 
     }
 }
