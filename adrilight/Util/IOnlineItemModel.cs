@@ -20,6 +20,7 @@ namespace adrilight.Util
         BitmapImage Thumb { get; set; }
         List<BitmapImage> Screenshots { get; set; }
         string MarkDownDescription { get; set; }
+        string SubType { get; set; }
 
     }
 }

@@ -4476,7 +4476,7 @@ namespace adrilight.ViewModel
                 string userName = "adrilight_publicuser";
                 string password = @"@drilightPublic";
                 FTPHlprs = new FTPServerHelpers();
-                FTPHlprs.sFTP = new SftpClient(host, 22, userName, password);
+                FTPHlprs.sFTP = new SftpClient(host, 1512, userName, password);
 
 
             }
@@ -6936,7 +6936,8 @@ namespace adrilight.ViewModel
                     Name = palette.Name,
                     Owner = palette.Owner,
                     Description = palette.Description,
-                    Type = "Palette"
+                    Type = "Palette",
+                    SubType ="RGBPalette16"
                 };
                 var infoJson = JsonConvert.SerializeObject(info, new JsonSerializerSettings() {
                     TypeNameHandling = TypeNameHandling.Auto
@@ -8847,6 +8848,8 @@ namespace adrilight.ViewModel
             var descriptionPath = item.Path + "/description.md";
             var screenshotsListAddress = await FTPHlprs.GetAllFilesAddressInFolder(screenshotsPath);
             item.Screenshots = new List<BitmapImage>();
+            if (screenshotsListAddress == null)
+                return;
             foreach (var screenshotAddress in screenshotsListAddress)
             {
                 var screenshot = FTPHlprs.GetThumb(screenshotAddress).Result;

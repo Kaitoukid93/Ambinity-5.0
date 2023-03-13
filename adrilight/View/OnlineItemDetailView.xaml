@@ -54,14 +54,9 @@
     <hc:ScrollViewer>
 
 
-        <Grid Margin="10,0,10,10">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-            </Grid.RowDefinitions>
+        <StackPanel>
             <!--Header-->
-            <Grid Grid.Row="0">
+            <Grid>
                 <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
 
 
@@ -90,12 +85,12 @@
                                     </Grid>
                                     <Grid>
                                         <StackPanel Margin="10,0" Orientation="Horizontal">
-                                            <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+                                            <Grid ToolTip="Số lượt download" VerticalAlignment="Center" HorizontalAlignment="Center">
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="auto"/>
                                                     <RowDefinition Height="auto"/>
                                                 </Grid.RowDefinitions>
-                                                <Grid Grid.Row="0">
+                                                <Grid Margin="0,0,0,3" Grid.Row="0">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="auto"/>
                                                         <ColumnDefinition Width="auto"/>
@@ -104,11 +99,11 @@
                                                         <Path HorizontalAlignment="Center" VerticalAlignment="Center" Width="15" Height="15" Data="{DynamicResource download}"  Fill="{DynamicResource PrimaryBrush}" Stretch="Uniform"/>
                                                     </Grid>
                                                     <Grid Grid.Column="0">
-                                                        <TextBlock HorizontalAlignment="Center"  Text="123" Style="{DynamicResource TextBlockTitleBold}"/>
+                                                        <TextBlock  HorizontalAlignment="Center"  Text="123" Style="{DynamicResource TextBlockTitleBold}"/>
                                                     </Grid>
                                                 </Grid>
 
-                                                <TextBlock HorizontalAlignment="Center" Grid.Row="1" Margin="2" Text="Download" Style="{DynamicResource TextBlockDefault}"/>
+                                                <TextBlock Margin="0,3,0,0" HorizontalAlignment="Center" Grid.Row="1"  Text="Download" Style="{DynamicResource TextBlockDefault}"/>
                                             </Grid>
                                             <hc:Divider Margin="20,0,10,0" LineStrokeThickness="1" LineStroke="{DynamicResource BorderBrush}" Orientation="Vertical" MaxHeight="60"/>
                                             <Grid>
@@ -120,15 +115,21 @@
                                                         </Grid.RowDefinitions>
 
                                                         <TextBlock HorizontalAlignment="Center" Margin="2" Text="{Binding CurrentSelectedOnlineItem.Type}" Style="{DynamicResource TextBlockTitleBold}"/>
-                                                        <TextBlock HorizontalAlignment="Center" Grid.Row="1" Margin="2" Text="Type" Style="{DynamicResource TextBlockDefault}"/>
+                                                        <TextBlock HorizontalAlignment="Center" Grid.Row="1" Margin="2" Text="Hạng mục" Style="{DynamicResource TextBlockDefault}"/>
                                                     </Grid>
                                                 </Button>
 
                                             </Grid>
                                             <hc:Divider Margin="10,0" LineStrokeThickness="1" LineStroke="{DynamicResource BorderBrush}" Orientation="Vertical" MaxHeight="60"/>
                                             <Grid>
-
-
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="auto"/>
+                                                    <RowDefinition Height="auto"/>
+                                                </Grid.RowDefinitions>
+                                                <Grid>
+                                                    <Path Margin="10,10,0,3" HorizontalAlignment="Center" VerticalAlignment="Center" Width="25" Height="25" Data="{Binding CurrentSelectedOnlineItem.SubType,Converter={converters:StaticResourceConverter}}"  Fill="{DynamicResource PrimaryBrush}" Stretch="Uniform"/>
+                                                </Grid>
+                                                <TextBlock Margin="10,3,0,0" HorizontalAlignment="Center" Grid.Row="1"  Text="Kiểu" Style="{DynamicResource TextBlockDefault}"/>
                                             </Grid>
                                         </StackPanel>
                                     </Grid>
@@ -152,7 +153,7 @@
                 </hc:TransitioningContentControl>
             </Grid>
             <!--Preview-->
-            <Grid Grid.Row="1">
+            <Grid>
                 <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
 
 
@@ -177,7 +178,7 @@
                 </hc:TransitioningContentControl>
             </Grid>
             <!--Description-->
-            <Grid Grid.Row="2">
+            <Grid>
                 <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
 
 
@@ -219,7 +220,63 @@
                     </Border>
                 </hc:TransitioningContentControl>
             </Grid>
+            <!--comment and rating section-->
+            <Grid>
+                <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
 
-        </Grid>
+
+                    <Border CornerRadius="7" Background="{DynamicResource DarkOpacityBrush}" Margin="10">
+                        <StackPanel>
+
+                            <Grid>
+                                <TextBlock Margin="20,15,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Rating and reviews" Style="{DynamicResource TextBlockSubTitleBold}"/>
+                            </Grid>
+                            <hc:Divider Margin="0,15"/>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                </Grid.RowDefinitions>
+                                <!--rating-->
+                                <Grid Grid.Row="0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <!--rating nummeric dispay-->
+                                    <Grid Grid.Column="0">
+                                        <StackPanel>
+                                            <TextBlock Margin="5" Text="3.9" FontWeight="SemiBold" FontSize="60" Style="{DynamicResource TextBlockDefault}"/>
+                                            <TextBlock Margin="0" Text="1000 RATINGS" Style="{DynamicResource TextBlockDefaultSecLight}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <!--rating chart display-->
+                                    <Grid Grid.Column="1">
+                                        <StackPanel>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid Grid.Column="0">
+                                                    <Path   Data="{DynamicResource StarGeometry}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                </Grid>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Grid>
+                                </Grid>
+                                <!--review-->
+                                <Grid Grid.Row="1">
+                                    
+                                </Grid>
+                            </Grid>
+                            
+                        </StackPanel>
+                    </Border>
+                </hc:TransitioningContentControl>
+
+            </Grid>
+
+        </StackPanel>
     </hc:ScrollViewer>
 </UserControl>
