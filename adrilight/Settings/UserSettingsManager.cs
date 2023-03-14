@@ -18,8 +18,8 @@ namespace adrilight
         private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
 
         private string JsonFileNameAndPath => Path.Combine(JsonPath, "adrilight-settings.json");
-        private string JsonDeviceFileNameAndPath => Path.Combine(JsonPath, "adrilight-deviceInfos.json");
-        private string JsonGroupFileNameAndPath => Path.Combine(JsonPath, "adrilight-groupInfos.json");
+        private string DevicesCollectionFolderPath => Path.Combine(JsonPath, "Devices");
+     
 
         private void SaveSettings(IGeneralSettings generalSettings)
         {
@@ -27,21 +27,7 @@ namespace adrilight
             Directory.CreateDirectory(JsonPath);
             File.WriteAllText(JsonFileNameAndPath, json);
         }
-        public void SaveDeviceSettings(List<DeviceSettings> deviceSettings)
-        {
-            var devices = new List<DeviceSettings>();
-            foreach (var item in deviceSettings)
-            {
-                if (!item.IsDummy)
-                    devices.Add(item);
-            }
-
-            var json = JsonConvert.SerializeObject(devices, new JsonSerializerSettings() {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
-            Directory.CreateDirectory(JsonPath);
-            File.WriteAllText(JsonDeviceFileNameAndPath, json);
-        }
+       
 
         public IGeneralSettings LoadIfExists()
         {
@@ -64,14 +50,15 @@ namespace adrilight
 
         public List<DeviceSettings> LoadDeviceIfExists()
         {
-            if (!File.Exists(JsonDeviceFileNameAndPath)) return null;
+            var devices  = new List<DeviceSettings>();
+            if (!Directory.Exists(DevicesCollectionFolderPath)) return null; // no device has been added
 
-            var json = File.ReadAllText(JsonDeviceFileNameAndPath);
-
-            var devices = JsonConvert.DeserializeObject<List<DeviceSettings>>(json, new JsonSerializerSettings() {TypeNameHandling = TypeNameHandling.Auto});
-            
-            
-
+            foreach(var folder in Directory.GetDirectories(DevicesCollectionFolderPath))
+            {
+                var json = File.ReadAllText(Path.Combine(folder,"config.json"));
+                var device = JsonConvert.DeserializeObject<DeviceSettings>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                devices.Add(device);
+            }
             return devices;
         }
      

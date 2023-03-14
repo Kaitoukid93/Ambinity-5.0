@@ -103,11 +103,11 @@ namespace adrilight
                         {
                             var iD = device.DeviceUID.ToString();
                             kernel.Bind<IDeviceSettings>().ToConstant(device).Named(iD);
-                            device.PropertyChanged += (_, __) => MainViewViewModel.WriteDeviceInfoJson();
+                            device.PropertyChanged += (_, __) => MainViewViewModel.WriteSingleDeviceInfoJson(device);
                             
                             foreach (var output in device.AvailableOutputs)
                             {
-                                output.PropertyChanged += (_, __) => MainViewViewModel.WriteDeviceInfoJson();
+                                output.PropertyChanged += (_, __) => MainViewViewModel.WriteSingleDeviceInfoJson(device);
                                 output.OutputLEDSetup.RefreshSizeAndPosition();
                                 
                                 var outputID = iD + output.OutputID.ToString();

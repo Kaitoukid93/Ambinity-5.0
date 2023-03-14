@@ -192,6 +192,7 @@
     <Compile Include="Helpers\AttachedAdorner.cs" />
     <Compile Include="Helpers\Behaviors\GroupBehavior.cs" />
     <Compile Include="Helpers\EventToCommand.cs" />
+    <Compile Include="Helpers\ResourceHelpers.cs" />
     <Compile Include="Resources\IContext.cs" />
     <Compile Include="Resources\WpfContext.cs" />
     <Compile Include="Settings\ActionParameter.cs" />
@@ -236,7 +237,11 @@
     <Compile Include="Spots\IDeviceSpot.cs" />
     <Compile Include="Spots\ILEDSetup.cs" />
     <Compile Include="Spots\LEDSetup.cs" />
+    <Compile Include="Util\ILightingModeParameter.cs" />
     <Compile Include="Util\IOnlineItemModel.cs" />
+    <Compile Include="Util\LightingModeEnum.cs" />
+    <Compile Include="Util\LightingModeParameter.cs" />
+    <Compile Include="Util\LightingModeParameterEnum.cs" />
     <Compile Include="Util\OnlineItemModel.cs" />
     <Compile Include="Util\DeviceDiscovery.cs" />
     <Compile Include="Util\AdrilightUpdater.cs" />
@@ -336,6 +341,7 @@
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\VisualProperties.cs" />
+    <Compile Include="View\OnlineItemExporterView.xaml.cs" />
     <Compile Include="View\OnlineItemsCollectionView.xaml.cs" />
     <Compile Include="View\ChasingPatternPreviewZone.xaml.cs" />
     <Compile Include="View\GifxelationPreviewZone.xaml.cs" />
@@ -429,6 +435,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Properties\DesignTimeResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\OnlineItemExporterView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -781,6 +791,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <EmbeddedResource Include="Resources\Thumbnails\ambino_basic_thumb.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

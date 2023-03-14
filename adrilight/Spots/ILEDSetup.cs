@@ -16,6 +16,7 @@ namespace adrilight.Spots
         string Name { get; set; }
         string Geometry { get; set; }
         string Owner { get; set; }
+        string Thumbnail { get; set; }
         ObservableCollection<IDeviceSpot> Spots { get; set; }
         string TargetType { get; set; }
         string Description { get; set; }

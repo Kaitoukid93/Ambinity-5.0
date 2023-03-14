@@ -164,7 +164,7 @@
             </DataTemplate>-->
             <Style x:Key="selectableContentStyle" TargetType="{x:Type ContentControl}">
                 <Style.Triggers>
-                    <DataTrigger Binding="{Binding ElementName=DashboardLeftMenu, Path=SelectedItem}" Value="Dashboard">
+                    <DataTrigger Binding="{Binding CurrentView}" Value="dashboard">
                         <Setter Property="ContentTemplate" Value="{StaticResource dashboardTemplate}" />
                     </DataTrigger>
                     <!--<DataTrigger Binding="{Binding ElementName=DashboardLeftMenu, Path=SelectedItem}" Value="Settings">
@@ -176,7 +176,7 @@
                     <!--<DataTrigger Binding="{Binding Path=SelectedVerticalMenuItem.Text}" Value="Canvas Lighting">
                         <Setter Property="ContentTemplate" Value="{StaticResource canvasLightingTemplate}" />
                     </DataTrigger>-->
-                    <DataTrigger Binding="{Binding Path=SelectedVerticalMenuItem.Text}" Value="Lighting">
+                    <DataTrigger Binding="{Binding CurrentView}" Value="details">
                         <Setter Property="ContentTemplate" Value="{StaticResource lightingTemplate}" />
                     </DataTrigger>
                     <!--<DataTrigger Binding="{Binding Path=SelectedVerticalMenuItem.Text}" Value="Group Lighting">
@@ -271,55 +271,7 @@
                         </StackPanel>
                     </hc:TransitioningContentControl>
                     </Grid>
-                    <Grid Visibility="Collapsed">
-                        
-                    
-                    <hc:TransitioningContentControl  TransitionMode="Right2LeftWithFade">
-
-
-                        <StackPanel  Margin="0,7,0,0">
-
-                            <DockPanel>
-                                
-
-
-                                <Grid Margin="10">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition/>
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                   
-
-                                    <ListBox SelectedIndex="0"  Name="DashboardLeftMenu" ScrollViewer.CanContentScroll="False" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" VirtualizingStackPanel.IsVirtualizing="True"  ItemsSource="{Binding AvailableMenu}" BorderThickness="0" SelectionMode="Single" Style="{StaticResource ListBoxTransparent}">
-                                        <ListBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <Image Width="16" Height="16" Source="/Resources/Image/screen.png" />
-                                                    <hc:HighlightTextBlock Margin="6,0,0,0" SourceText="{Binding .}"/>
-                                                   
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </ListBox.ItemTemplate>
-                                        <ListBox.GroupStyle>
-                                            <GroupStyle ContainerStyle="{StaticResource DemoGroupItemStyle}"/>
-                                        </ListBox.GroupStyle>
-                                    </ListBox>
-                                </Grid>
-                                <hc:Interaction.Triggers>
-                                    <!--<hc:EventTrigger EventName="SelectionChanged">
-                                        <hc:EventToCommand Command="{Binding SwitchDemoCmd}" PassEventArgsToCommand="True" />
-                                    </hc:EventTrigger>-->
-                                </hc:Interaction.Triggers>
-
-                            </DockPanel>
-
-                        </StackPanel>
-                    </hc:TransitioningContentControl>
-                    </Grid>
+                  
                     <Grid Grid.Column="1">
                         
                     

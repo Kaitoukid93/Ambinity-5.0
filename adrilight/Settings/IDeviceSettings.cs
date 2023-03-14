@@ -36,6 +36,7 @@ namespace adrilight
         string GroupName { get; set; }
         int SelectedOutput { get; set; }
         string Geometry { get; set; }
+        string DeviceThumbnail { get; set; }
         string DeviceConnectionGeometry { get; set; }
         int Baudrate { get; set; }
         string DeviceUID { get; set; }

@@ -63,6 +63,8 @@ using Point = System.Windows.Point;
 using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
 using SplashScreen = adrilight.View.SplashScreen;
 using MdXaml;
+using HandyControl.Tools;
+using adrilight.Helpers;
 
 namespace adrilight.ViewModel
 {
@@ -78,14 +80,28 @@ namespace adrilight.ViewModel
         private string JsonOpenRGBDevicesFileNameAndPath => Path.Combine(JsonPath, "adrilight-openrgbdevices.json");
         private string JsonGifsFileNameAndPath => Path.Combine(JsonPath, "Gif");
         private string JsonFWToolsFileNameAndPath => Path.Combine(JsonPath, "FWTools");
-        private string JsonAnimationFileNameAndPath => Path.Combine(JsonPath, "Animation");
+
         private string JsonFWToolsFWListFileNameAndPath => Path.Combine(JsonPath, "adrilight-fwlist.json");
         private string JsonGifsCollectionFileNameAndPath => Path.Combine(JsonPath, "adrilight-gifCollection.json");
         private string JsonGroupFileNameAndPath => Path.Combine(JsonPath, "adrilight-groupInfos.json");
-        private string JsonPaletteFileNameAndPath => Path.Combine(JsonPath, "ColorPalette");
+
         private string JsonGradientFileNameAndPath => Path.Combine(JsonPath, "adrilight-GradientCollection.json");
 
         private const string ADRILIGHT_RELEASES = "https://github.com/Kaitoukid93/Ambinity_Developer_Release";
+
+
+        #region database local folder paths
+        private string PalettesCollectionFolderPath => Path.Combine(JsonPath, "ColorPalettes");
+        private string AnimationsCollectionFolderPath => Path.Combine(JsonPath, "Animations");
+        private string ChasingPatternsCollectionFolderPath => Path.Combine(JsonPath, "ChasingPatterns");
+        private string AutomationsCollectionFolderPath => Path.Combine(JsonPath, "Automations");
+        private string DevicesCollectionFolderPath => Path.Combine(JsonPath, "Devices");
+        private string LEDSetupsCollectionFolderPath => Path.Combine(JsonPath, "LEDSetups");
+        private string GradientsCollectionFolderPath => Path.Combine(JsonPath, "Gradients");
+        private string SolidColorsCollectionFolderPath => Path.Combine(JsonPath, "SolidColors");
+
+        #endregion
+
 
         #region constant string
 
@@ -286,30 +302,9 @@ namespace adrilight.ViewModel
 
 
 
-        private VerticalMenuItem _selectedVerticalMenuItem;
+     
 
-        public VerticalMenuItem SelectedVerticalMenuItem {
-            get { return _selectedVerticalMenuItem; }
-            set
-            {
-                if (_selectedVerticalMenuItem == value) return;
-                _selectedVerticalMenuItem = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private bool _isDashboardType = true;
-
-        public bool IsDashboardType {
-            get { return _isDashboardType; }
-            set
-            {
-                if (_isDashboardType == value) return;
-                _isDashboardType = value;
-                RaisePropertyChanged();
-                LoadMenuByType(value);
-            }
-        }
+   
 
         private string _buildVersion = "";
 
@@ -380,22 +375,6 @@ namespace adrilight.ViewModel
                 if (_appName == value) return;
                 _appName = value;
                 RaisePropertyChanged();
-            }
-        }
-
-        private ViewModelBase _currentView;
-
-        private ViewModelBase _detailView;
-        private ViewModelBase _deviceSettingView;
-        private ViewModelBase _appSettingView;
-        private ViewModelBase _faqSettingView;
-
-        public ViewModelBase CurrentView {
-            get { return _currentView; }
-            set
-            {
-                _currentView = value;
-                RaisePropertyChanged("CurrentView");
             }
         }
 
@@ -547,6 +526,7 @@ namespace adrilight.ViewModel
             }
         }
         public ICommand CompositionNextFrameCommand { get; set; }
+        public ICommand LaunchAdrilightStoreItemCeatorWindowCommand { get; set; }
         public ICommand DownloadSelectedChasingPattern { get; set; }
         public ICommand DownloadSelectedPaletteCommand { get; set; }
         public ICommand CutSelectedMotionCommand { get; set; }
@@ -985,17 +965,7 @@ namespace adrilight.ViewModel
             }
         }
 
-        private ObservableCollection<string> _availableEffects;
 
-        public ObservableCollection<string> AvailableEffects {
-            get { return _availableEffects; }
-            set
-            {
-                if (_availableEffects == value) return;
-                _availableEffects = value;
-                RaisePropertyChanged();
-            }
-        }
 
         private ObservableCollection<IColorPalette> _availablePallete;
 
@@ -1308,10 +1278,10 @@ namespace adrilight.ViewModel
             }
         }
 
-        public ObservableCollection<string> AvailableFrequency { get; private set; }
 
-        public ObservableCollection<string> AvailableMusicPalette { get; private set; }
-        public ObservableCollection<string> AvailableMusicMode { get; private set; }
+
+
+
         public ObservableCollection<string> AvailableMenu { get; private set; }
         public ICommand SelectGif { get; set; }
         public BitmapImage gifimage;
@@ -1329,9 +1299,8 @@ namespace adrilight.ViewModel
                 }
             }
         }
-
+        public ResourceHelpers ResourceHlprs { get; private set; }  
         public IGeneralSettings GeneralSettings { get; }
-
 
         public ISerialStream[] SerialStreams { get; }
         public IAmbinityClient AmbinityClient { get; set; }
@@ -1349,8 +1318,6 @@ namespace adrilight.ViewModel
             IAudioFrame audioFrame,
             ISerialStream[] serialStreams
 
-           //IShaderEffect shaderEffect
-
            )
         {
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
@@ -1361,7 +1328,7 @@ namespace adrilight.ViewModel
             Context = context ?? throw new ArgumentNullException(nameof(context));
             AmbinityClient = ambinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
             SerialDeviceDetection = serialDeviceDetection ?? throw new ArgumentNullException(nameof(serialDeviceDetection));
-
+            
 
             var settingsManager = new UserSettingsManager();
             foreach (IDeviceSettings device in devices)
@@ -1371,10 +1338,10 @@ namespace adrilight.ViewModel
                     output.OutputLEDSetup.RefreshSizeAndPosition();
                 }
                 AvailableDevices.Add(device);
-                device.PropertyChanged += (_, __) => WriteDeviceInfoJson();
+                device.PropertyChanged += (_, __) => WriteSingleDeviceInfoJson(device);
                 foreach (var output in device.AvailableOutputs)
                 {
-                    output.PropertyChanged += (_, __) => WriteDeviceInfoJson();
+                    output.PropertyChanged += (_, __) => WriteSingleDeviceInfoJson(device);
                 }
 
             }
@@ -1481,7 +1448,54 @@ namespace adrilight.ViewModel
                 }
             });
         }
+        private void WriteDeviceInfo(IDeviceSettings device)
+        {
+            // create directory based on device name and UID
+            //check if device collection folder path is exist
+            if(!Directory.Exists(DevicesCollectionFolderPath))
+            {
+                Directory.CreateDirectory(DevicesCollectionFolderPath);
+            }
+            var directory = Path.Combine(DevicesCollectionFolderPath, device.DeviceName + "-" + device.DeviceUID);
+            Directory.CreateDirectory(directory);
+            // write thumbnail
+            //if this device is ambino legacy, search resource fo the thumbnail
+            ResourceHlprs.CopyResource("adrilight.Resources.Thumbnails.ambino_basic_thumb.png", Path.Combine(directory, "thumbnail.png"));
+            //set thumbnail
+            device.DeviceThumbnail = Path.Combine(directory, "thumbnail.png");
+            // finally write infojson
+            WriteSingleDeviceInfoJson(device);
+           
 
+
+
+        }
+        
+        public void WriteSingleDeviceInfoJson(IDeviceSettings device)
+        {
+            var directory = Path.Combine(DevicesCollectionFolderPath, device.DeviceName + "-" + device.DeviceUID);
+            var fileToWrite = Path.Combine(directory, "config.json");
+            var json = JsonConvert.SerializeObject(device, new JsonSerializerSettings() {
+                TypeNameHandling = TypeNameHandling.Auto
+            });
+
+            // Set Status to Locked
+            _readWriteLock.EnterWriteLock();
+            try
+            {
+                // Append text to the file
+                using (StreamWriter sw = new StreamWriter(fileToWrite))
+                {
+                    sw.Write(json);
+                    sw.Close();
+                }
+            }
+            finally
+            {
+                // Release lock
+                _readWriteLock.ExitWriteLock();
+            }
+        }
         public void FoundNewDevice(List<IDeviceSettings> newSerialDevices, List<IDeviceSettings> newOpenRGBDevices)
         {
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
@@ -1493,8 +1507,9 @@ namespace adrilight.ViewModel
 
                     foreach (var serialDevice in newSerialDevices)
                     {
-
+                        WriteDeviceInfo(serialDevice);
                         AvailableDevices.Insert(0, serialDevice);
+                       
 
                     }
                     if (newOpenRGBDevices != null)
@@ -1508,7 +1523,7 @@ namespace adrilight.ViewModel
                         }
                     }
 
-                    WriteDeviceInfoJson();
+                    //WriteDeviceInfoJson();
                 }
             });
 
@@ -1537,7 +1552,7 @@ namespace adrilight.ViewModel
 
                         //restart it's serialstram by 
                         //setting the transferactive to true, no matter it;s active or not
-
+                        WriteSingleDeviceInfoJson(oldDevice);
                     }
                     //if (oldOpenRGBDevices != null)
                     //{
@@ -1550,7 +1565,7 @@ namespace adrilight.ViewModel
                     //    }
                     //}
 
-                    WriteDeviceInfoJson();
+                    
                 }
             });
 
@@ -2262,22 +2277,9 @@ namespace adrilight.ViewModel
 
         public override void ReadData()
         {
+            CurrentView = "dashboard";
             LoadContextMenu();
-            LoadMenu();
-            LoadMenuByType(true);
-            ReadDataDevice();
-            // ReadFAQ();
-
-            //CurrentView = _allDeviceView.CreateViewModel();
-            //VIDs command//
-
-            ZerolAllCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                ShowZeroingDialog();
-            });
+            LoadData();
             SetActivePaletteAllOutputsCommand = new RelayCommand<IColorPalette>((p) =>
             {
                 return true;
@@ -3098,13 +3100,7 @@ namespace adrilight.ViewModel
                 SetIncreament(10, 1, 0, PreviewSpots.Length - 1);
             });
 
-            UserInputIncreamentCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                ShowIncreamentDataDialog();
-            });
+         
 
             ImportEffectCommand = new RelayCommand<string>((p) =>
             {
@@ -3114,14 +3110,7 @@ namespace adrilight.ViewModel
                 ImportEffect();
             });
 
-            SelectMenuItem = new RelayCommand<VerticalMenuItem>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                ChangeView(p);
-            });
-            SelectedVerticalMenuItem = MenuItems.FirstOrDefault();
+        
 
             DeleteSelectedDeviceCommand = new RelayCommand<string>((p) =>
             {
@@ -3137,13 +3126,7 @@ namespace adrilight.ViewModel
             {
                 DeleteSelectedDevices();
             });
-            AdjustPositionCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                ShowAdjustPositon();
-            });
+          
             ImportPaletteCardFromFileCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -3171,6 +3154,7 @@ namespace adrilight.ViewModel
             }, (p) =>
             {
                 ExportCurrentOutputPID();
+                
             });
             ImportPIDCommand = new RelayCommand<string>((p) =>
             {
@@ -3215,6 +3199,14 @@ namespace adrilight.ViewModel
             }, (p) =>
             {
                 OpenFFTPickerWindow();
+            });
+            LaunchAdrilightStoreItemCeatorWindowCommand = new RelayCommand<object>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                CurrentOnlineItemToExport = p;
+                LaunchAdrilightStoreItemCreatorWindow();
             });
             ShowBrightnessAdjustmentPopupCommand = new RelayCommand<IOutputSettings>((p) =>
             {
@@ -3317,7 +3309,7 @@ namespace adrilight.ViewModel
                 return true;
             }, (p) =>
             {
-               // DownloadSelectedPalette(p);
+                // DownloadSelectedPalette(p);
             });
             SetCurrentActionTypeForSelectedActionCommand = new RelayCommand<ActionType>((p) =>
             {
@@ -3414,7 +3406,7 @@ namespace adrilight.ViewModel
             SelectOnlineItemCommand = new RelayCommand<IOnlineItemModel>((p) =>
             {
                 return true;
-            }, async(p) =>   
+            }, async (p) =>
             {
                 await gotoItemDetails(p);
             });
@@ -3981,21 +3973,7 @@ namespace adrilight.ViewModel
             {
                 ShowAddNewWindow();
             });
-            //ScanSerialDeviceCommand = new RelayCommand<string>((p) =>
-            //{
-            //    return true;
-            //}, (p) =>
-            //{
-            //    ScanSerialDevice();
-            //    ScanOpenRGBDevices();
-            //});
-            //ScanOpenRGBDeviceCommand = new RelayCommand<string>((p) =>
-            //{
-            //    return true;
-            //}, (p) =>
-            //{
-            //    ScanOpenRGBDevices();
-            //});
+          
             BackCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -4376,17 +4354,18 @@ namespace adrilight.ViewModel
         private StoreCategory _currentSelectedCategory;
         public StoreCategory CurrentSelectedCategory {
             get { return _currentSelectedCategory; }
-            set {
+            set
+            {
                 //clear collection
-                if(AvailableOnlineItems!=null)
-                AvailableOnlineItems.Clear();
+                if (AvailableOnlineItems != null)
+                    AvailableOnlineItems.Clear();
                 _currentSelectedCategory = value;
                 RaisePropertyChanged();
-              CurrentOnlineStoreView = "Collections";
+                CurrentOnlineStoreView = "Collections";
                 CarouselImageLoading = true;
                 Task.Run(() => UpdateStoreView());
-                
-                
+
+
             }
         }
         private ObservableCollection<BitmapImage> _availableCarouselImage;
@@ -4409,7 +4388,7 @@ namespace adrilight.ViewModel
         {
             //find the palette with the same name
             var sameNamePalette = AvailablePallete.Where(p => p.Name == selectedPalette.Name).FirstOrDefault();
-            if(CheckEqualityObjects(selectedPalette,sameNamePalette))
+            if (CheckEqualityObjects(selectedPalette, sameNamePalette))
                 HandyControl.Controls.MessageBox.Show("ColorPaletteExisted", "File Existed", MessageBoxButton.OK, MessageBoxImage.Error);
             else
             {
@@ -4418,7 +4397,7 @@ namespace adrilight.ViewModel
                 var paletteJson = JsonConvert.SerializeObject(selectedPalette, new JsonSerializerSettings() {
                     TypeNameHandling = TypeNameHandling.Auto
                 });
-                File.WriteAllText(Path.Combine(JsonPaletteFileNameAndPath,selectedPalette.Name+".col"), paletteJson);
+                File.WriteAllText(Path.Combine(PalettesCollectionFolderPath, selectedPalette.Name + ".col"), paletteJson);
 
             }
 
@@ -4427,11 +4406,11 @@ namespace adrilight.ViewModel
         }
         private async void UpdateStoreView()
         {
-            
+
             switch (CurrentSelectedCategory.Type)
             {
                 case "Palette":
-                     await GetStoreItem(paletteFolderpath);
+                    await GetStoreItem(paletteFolderpath);
                     CarouselImageLoading = false;
                     break;
                 case "Pattern":
@@ -4449,16 +4428,17 @@ namespace adrilight.ViewModel
 
 
             }
-           
+
         }
         private bool CheckEqualityObjects(object object1, object object2)
         {
-            string object1String = JsonConvert.SerializeObject(object1, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto
+            string object1String = JsonConvert.SerializeObject(object1, new JsonSerializerSettings() {
+                TypeNameHandling = TypeNameHandling.Auto
             });
             string object2String = JsonConvert.SerializeObject(object2, new JsonSerializerSettings() {
                 TypeNameHandling = TypeNameHandling.Auto
             });
-            return (string.Equals(object2String,object1String));
+            return (string.Equals(object2String, object1String));
         }
         private const string paletteFolderpath = "/home/adrilight_enduser/ftp/files/ColorPalettes";
         private const string chasingPatternsFolderPath = "/home/adrilight_enduser/ftp/files/ChasingPatterns";
@@ -4468,7 +4448,7 @@ namespace adrilight.ViewModel
         private async Task GetStoreItem(string itemFolderPath)
         {
             AvailableOnlineItems = new ObservableCollection<IOnlineItemModel>();
-           
+
             //get carousel image
             if (FTPHlprs == null)
             {
@@ -4486,7 +4466,7 @@ namespace adrilight.ViewModel
                 {
                     FTPHlprs.sFTP.Connect();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     HandyControl.Controls.MessageBox.Show("Server không khả dụng ở thời điểm hiện tại, vui lòng thử lại sau", "Server notfound", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
@@ -4495,7 +4475,7 @@ namespace adrilight.ViewModel
             //get all available files
             var listItemAddress = await FTPHlprs.GetAllFilesAddressInFolder(itemFolderPath);
             //display all available files to the view 
-            if(listItemAddress.Count > 0)
+            if (listItemAddress.Count > 0)
             {
                 foreach (var address in listItemAddress)
                 {
@@ -4506,11 +4486,11 @@ namespace adrilight.ViewModel
                     var thumb = FTPHlprs.GetThumb(address + "/thumb.png").Result;
                     var info = FTPHlprs.GetFiles<OnlineItemModel>(infoPath).Result;
                     info.Path = address;
-                  
+
                     info.Thumb = thumb;
                     await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
                     {
-                      
+
                         AvailableOnlineItems.Add(info);
 
                     });
@@ -4522,8 +4502,8 @@ namespace adrilight.ViewModel
                 HandyControl.Controls.MessageBox.Show("Không có item nào cho mục này, vui lòng thử lại sau", "Item notfound", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-          
-          
+
+
 
         }
         private string _currentOnlineStoreView;
@@ -4537,7 +4517,7 @@ namespace adrilight.ViewModel
             StoreWindow = new AmbinoOnlineStoreView();
             StoreWindow.Owner = System.Windows.Application.Current.MainWindow;
             StoreWindow.Show();
-            if(AvailableStoreCategories==null)
+            if (AvailableStoreCategories == null)
             {
                 AvailableStoreCategories = new ObservableCollection<StoreCategory>();
                 var palettes = new StoreCategory() {
@@ -4579,8 +4559,8 @@ namespace adrilight.ViewModel
             }
 
             AvailableCarouselImage = new ObservableCollection<BitmapImage>();
-            
-          
+
+
         }
 
 
@@ -5370,7 +5350,7 @@ namespace adrilight.ViewModel
                             var fwOutputLocation = Path.Combine(JsonFWToolsFileNameAndPath, currentDeviceFirmwareInfo.Name);
                             try
                             {
-                                CopyResource(currentDeviceFirmwareInfo.ResourceName, fwOutputLocation);
+                                ResourceHlprs.CopyResource(currentDeviceFirmwareInfo.ResourceName, fwOutputLocation);
                             }
                             catch (ArgumentException)
                             {
@@ -5382,7 +5362,7 @@ namespace adrilight.ViewModel
                             if (GeneralSettings.DriverRequested)
                             {
                                 //coppy resource
-                                CopyResource("adrilight.Tools.FWTools.CH372DRV.EXE", Path.Combine(JsonFWToolsFileNameAndPath, "CH372DRV.EXE"));
+                                ResourceHlprs.CopyResource("adrilight.Tools.FWTools.CH372DRV.EXE", Path.Combine(JsonFWToolsFileNameAndPath, "CH372DRV.EXE"));
                                 //launch driver installer
                                 System.Diagnostics.Process.Start(Path.Combine(JsonFWToolsFileNameAndPath, "CH372DRV.EXE"));
                                 GeneralSettings.DriverRequested = false;
@@ -5528,24 +5508,39 @@ namespace adrilight.ViewModel
             Export.OverwritePrompt = true;
 
             Export.Title = "Xuất dữ liệu";
-            Export.FileName = CurrentOutput.OutputName + " LED Setup";
+            Export.FileName = CurrentOutput.OutputName + " LEDSetup";
             Export.CheckFileExists = false;
             Export.CheckPathExists = true;
-            Export.DefaultExt = "json";
-            Export.Filter = "All files (*.*)|*.*";
             Export.InitialDirectory =
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             Export.RestoreDirectory = true;
 
-            var ledsetupjson = JsonConvert.SerializeObject(CurrentOutput.OutputLEDSetup, new JsonSerializerSettings() {
+            var ledsetupJson = JsonConvert.SerializeObject(CurrentOutput.OutputLEDSetup, new JsonSerializerSettings() {
                 TypeNameHandling = TypeNameHandling.Auto
             });
 
             if (Export.ShowDialog() == DialogResult.OK)
             {
-                Directory.CreateDirectory(JsonPath);
-                File.WriteAllText(Export.FileName, ledsetupjson);
-                Growl.Success("LED Setup saved successfully!");
+                //create directory with same name
+                var newFolder = Directory.CreateDirectory(Export.FileName);
+                var contentFolder = Directory.CreateDirectory(Path.Combine(Export.FileName, "content")).ToString();
+                //create main content 
+                File.WriteAllText(Path.Combine(Export.FileName, "content", CurrentOutput.OutputLEDSetup.Name + ".json"), ledsetupJson);
+                //create info
+                var info = new OnlineItemModel() {
+                    Name = CurrentOutput.OutputLEDSetup.Name,
+                    Owner = CurrentOutput.OutputLEDSetup.Owner,
+                    Description = CurrentOutput.OutputLEDSetup.Description,
+                    Type = "LEDSetup",
+                    SubType = CurrentOutput.OutputLEDSetup.TargetType
+                };
+                var infoJson = JsonConvert.SerializeObject(info, new JsonSerializerSettings() {
+                    TypeNameHandling = TypeNameHandling.Auto
+                });
+                File.WriteAllText(Path.Combine(Export.FileName, "info.json"), infoJson);
+                //create image, require user input later thumb.png???
+
+
             }
         }
 
@@ -5803,7 +5798,7 @@ namespace adrilight.ViewModel
             CurrentSelectedDeviceToAdd.DeviceID = AvailableDevices.Count + 1;
             CurrentSelectedDeviceToAdd.DeviceUID = Guid.NewGuid().ToString();
             AvailableDevices.Insert(0, CurrentSelectedDeviceToAdd);
-            WriteDeviceInfoJson();
+            //WriteDeviceInfoJson();
             //  OpenRGBStream.Dispose();
             // System.Windows.Forms.Application.Restart();
             //  Process.GetCurrentProcess().Kill();
@@ -6906,6 +6901,24 @@ namespace adrilight.ViewModel
             SurfaceEditorItems.Add(newGroup);
 
         }
+        OnlineItemExporterView itemExporter { get; set;}
+        public object CurrentOnlineItemToExport { get; set; }
+        private void LaunchAdrilightStoreItemCreatorWindow()
+        {
+            //set current selected online item
+            CurrentSelectedOnlineItem = new OnlineItemModel() {
+                Name = "Change Name here",
+                Description = "Edit Description here",
+                Owner = "Enter the Name of the owner(ex ambino, corsair)",
+            };
+            itemExporter = new OnlineItemExporterView();
+            itemExporter.ShowDialog();
+
+        }
+        private void ExportCurrentItemToAdrilightStore<T>(T item)
+        {
+            //
+        }
         private void ExportCurrentSelectedPaletteToFile(IColorPalette palette)
         {
             SaveFileDialog Export = new SaveFileDialog();
@@ -6928,26 +6941,26 @@ namespace adrilight.ViewModel
             {
                 //create directory with same name
                 var newFolder = Directory.CreateDirectory(Export.FileName);
-                var contentFolder = Directory.CreateDirectory(Path.Combine(Export.FileName,"content")).ToString();
+                var contentFolder = Directory.CreateDirectory(Path.Combine(Export.FileName, "content")).ToString();
                 //create main content 
-                File.WriteAllText(Path.Combine(Export.FileName,"content",palette.Name+".col"), paletteJson);
+                File.WriteAllText(Path.Combine(Export.FileName, "content", palette.Name + ".col"), paletteJson);
                 //create info
                 var info = new OnlineItemModel() {
                     Name = palette.Name,
                     Owner = palette.Owner,
                     Description = palette.Description,
                     Type = "Palette",
-                    SubType ="RGBPalette16"
+                    SubType = "RGBPalette16"
                 };
                 var infoJson = JsonConvert.SerializeObject(info, new JsonSerializerSettings() {
                     TypeNameHandling = TypeNameHandling.Auto
                 });
                 File.WriteAllText(Path.Combine(Export.FileName, "info.json"), infoJson);
                 //create image, require user input later thumb.png???
-                
+
 
             }
-            
+
         }
 
         public void SetPreviewVisualizerFFT(float[] fft, Color[] previewStrip)
@@ -6983,7 +6996,7 @@ namespace adrilight.ViewModel
             var json = JsonConvert.SerializeObject(newpalette, new JsonSerializerSettings() {
                 TypeNameHandling = TypeNameHandling.Auto
             });
-            File.WriteAllText(Path.Combine(JsonPaletteFileNameAndPath, newpalette.Name + ".col"), json);
+            File.WriteAllText(Path.Combine(PalettesCollectionFolderPath, newpalette.Name + ".col"), json);
 
         }
 
@@ -7392,12 +7405,12 @@ namespace adrilight.ViewModel
             if (!Directory.Exists(JsonFWToolsFileNameAndPath))
             {
                 Directory.CreateDirectory(JsonFWToolsFileNameAndPath);
-                CopyResource("adrilight.Tools.FWTools.busybox.exe", Path.Combine(JsonFWToolsFileNameAndPath, "busybox.exe"));
-                CopyResource("adrilight.Tools.FWTools.CH375DLL.dll", Path.Combine(JsonFWToolsFileNameAndPath, "CH375DLL.dll"));
-                CopyResource("adrilight.Tools.FWTools.libgcc_s_sjlj-1.dll", Path.Combine(JsonFWToolsFileNameAndPath, "libgcc_s_sjlj-1.dll"));
-                CopyResource("adrilight.Tools.FWTools.libusb-1.0.dll", Path.Combine(JsonFWToolsFileNameAndPath, "libusb-1.0.dll"));
-                CopyResource("adrilight.Tools.FWTools.libusbK.dll", Path.Combine(JsonFWToolsFileNameAndPath, "libusbK.dll"));
-                CopyResource("adrilight.Tools.FWTools.vnproch55x.exe", Path.Combine(JsonFWToolsFileNameAndPath, "vnproch55x.exe"));
+                ResourceHlprs.CopyResource("adrilight.Tools.FWTools.busybox.exe", Path.Combine(JsonFWToolsFileNameAndPath, "busybox.exe"));
+                ResourceHlprs.CopyResource("adrilight.Tools.FWTools.CH375DLL.dll", Path.Combine(JsonFWToolsFileNameAndPath, "CH375DLL.dll"));
+                ResourceHlprs.CopyResource("adrilight.Tools.FWTools.libgcc_s_sjlj-1.dll", Path.Combine(JsonFWToolsFileNameAndPath, "libgcc_s_sjlj-1.dll"));
+                ResourceHlprs.CopyResource("adrilight.Tools.FWTools.libusb-1.0.dll", Path.Combine(JsonFWToolsFileNameAndPath, "libusb-1.0.dll"));
+                ResourceHlprs.CopyResource("adrilight.Tools.FWTools.libusbK.dll", Path.Combine(JsonFWToolsFileNameAndPath, "libusbK.dll"));
+                ResourceHlprs.CopyResource("adrilight.Tools.FWTools.vnproch55x.exe", Path.Combine(JsonFWToolsFileNameAndPath, "vnproch55x.exe"));
                 //required fw version
             }
             CreateRequiredFwVersionJson();
@@ -7598,13 +7611,13 @@ namespace adrilight.ViewModel
                 Directory.CreateDirectory(JsonGifsFileNameAndPath);
                 //coppy embeded gif to adrilight folder in appdata
 
-                CopyResource("adrilight.Gif.Rainbow.gif", Path.Combine(JsonGifsFileNameAndPath, "Rainbow.gif"));
-                CopyResource("adrilight.Gif.BitOcean.gif", Path.Combine(JsonGifsFileNameAndPath, "BitOcean.gif"));
-                CopyResource("adrilight.Gif.DigitalBlue.gif", Path.Combine(JsonGifsFileNameAndPath, "DigitalBlue.gif"));
-                CopyResource("adrilight.Gif.HexWave.gif", Path.Combine(JsonGifsFileNameAndPath, "HexWave.gif"));
-                CopyResource("adrilight.Gif.Hypnotic.gif", Path.Combine(JsonGifsFileNameAndPath, "Hypnotic.gif"));
-                CopyResource("adrilight.Gif.Plasma.gif", Path.Combine(JsonGifsFileNameAndPath, "Plasma.gif"));
-                CopyResource("adrilight.Gif.Blob.gif", Path.Combine(JsonGifsFileNameAndPath, "Blob.gif"));
+                ResourceHlprs.CopyResource("adrilight.Gif.Rainbow.gif", Path.Combine(JsonGifsFileNameAndPath, "Rainbow.gif"));
+                ResourceHlprs.CopyResource("adrilight.Gif.BitOcean.gif", Path.Combine(JsonGifsFileNameAndPath, "BitOcean.gif"));
+                ResourceHlprs.CopyResource("adrilight.Gif.DigitalBlue.gif", Path.Combine(JsonGifsFileNameAndPath, "DigitalBlue.gif"));
+                ResourceHlprs.CopyResource("adrilight.Gif.HexWave.gif", Path.Combine(JsonGifsFileNameAndPath, "HexWave.gif"));
+                ResourceHlprs.CopyResource("adrilight.Gif.Hypnotic.gif", Path.Combine(JsonGifsFileNameAndPath, "Hypnotic.gif"));
+                ResourceHlprs.CopyResource("adrilight.Gif.Plasma.gif", Path.Combine(JsonGifsFileNameAndPath, "Plasma.gif"));
+                ResourceHlprs.CopyResource("adrilight.Gif.Blob.gif", Path.Combine(JsonGifsFileNameAndPath, "Blob.gif"));
 
                 return new()
             {
@@ -7662,46 +7675,10 @@ namespace adrilight.ViewModel
             return loadedGifs;
         }
 
-        private void CopyResource(string resourceName, string file)
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            using (Stream resource = assembly.GetManifestResourceStream(resourceName))
-            {
-                if (resource == null)
-                {
-                    throw new ArgumentException("No such resource", "resourceName");
-                }
-                using (Stream output = File.OpenWrite(file))
-                {
-                    resource.CopyTo(output);
-                }
-            }
-        }
-
-        //public void ScanOpenRGBDevices()
-        //{
-        //    AvailableOpenRGBDevices = new ObservableCollection<Device>();
-
-        //    var detectedDevices = AmbinityClient.ScanNewDevice();
-        //    if (detectedDevices != null)
-        //    {
-        //        foreach (var device in detectedDevices)
-        //        {
-        //            var uid = device.Name + device.Version + device.Location;
-        //            if (!AvailableDevices.Any(p => p.DeviceUID == uid))//this device is existed, not gonna show
-        //            {
-        //                AvailableOpenRGBDevices.Add(device);
-        //            }
 
 
-        //        }
-        //    }
-        //    //else
-        //    //{
-        //    //}
-        //}
 
-        public void ReadDataDevice()
+        public void LoadAvailableLightingMode()
         {
             AvailableLightingMode = new ObservableCollection<ILightingMode>();
             var screencapture = new LightingMode { Name = "Screen Capture", Geometry = "ambilight", Description = "Screen sampling to LED" };
@@ -7715,7 +7692,9 @@ namespace adrilight.ViewModel
             AvailableLightingMode.Add(music);
             AvailableLightingMode.Add(staticcolor);
             AvailableLightingMode.Add(gifxelation);
-            //AvailableLightingMode.Add(composition);
+        }
+        private void LoadAvailableBaudRate()
+        {
             AvailableBaudrates = new ObservableCollection<int> {
                 9600,
                 19200,
@@ -7731,75 +7710,9 @@ namespace adrilight.ViewModel
                 2000000,
                 2500000,
             };
-
-            AvailableLayout = new ObservableCollection<string>
+        }
+        private void LoadAvailableChasingPatterns()
         {
-           "Square, Ring, Rectangle",
-           "Strip, Bar",
-           "Matrix"
-        };
-
-            AvailableMatrixOrientation = new ObservableCollection<string>
-    {
-           "Dọc",
-           "Ngang",
-        };
-
-            AvailableMatrixStartPoint = new ObservableCollection<string>
-    {
-           "Top Left",
-           "Top Right",
-           "Bottom Right",
-           "Bottom Left"
-        };
-            AvailableRotation = new ObservableCollection<string>
-    {
-           "0",
-           "90",
-           "180",
-           "360"
-        };
-            AvailableEffects = new ObservableCollection<string>
-      {
-            "Sáng theo màn hình",
-           "Sáng theo dải màu",
-           "Sáng màu tĩnh",
-           "Sáng theo nhạc",
-           "Atmosphere",
-           "Canvas Lighting",
-           "Group Lighting"
-        };
-            AvailableMusicPalette = new ObservableCollection<string>
-    {
-           "Rainbow",
-           "Cafe",
-           "Jazz",
-           "Party",
-           "Custom"
-        };
-            AvailableFrequency = new ObservableCollection<string>
-    {
-           "1",
-           "2",
-           "3",
-           "4"
-        };
-            AvailableMusicMode = new ObservableCollection<string>
-    {
-          "Equalizer",
-           "VU metter",
-           "End to End",
-           "Push Pull",
-          "Symetric VU",
-          "Floating VU",
-          "Center VU",
-          "Naughty boy"
-        };
-            AvailableMenu = new ObservableCollection<string>
-    {
-          "Dashboard",
-           "Settings",
-        };
             AvailableMotionDirrection = new List<string>();
             AvailableMotionDirrection.Add("Normal");
             AvailableMotionDirrection.Add("Reverse");
@@ -7832,52 +7745,69 @@ namespace adrilight.ViewModel
             };
             AvailableMotions.Add(bouncing);
             AvailableMotions.Add(bouncing2);
+        }
+        private void LoadAvailablePalettes()
+        {
             AvailablePallete = new ObservableCollection<IColorPalette>();
             foreach (var loadedPalette in LoadPaletteIfExists())
             {
                 AvailablePallete.Add(loadedPalette);
             }
-            //WritePaletteCollectionJson();
+        }
+        private void LoadAvailableAnimations()
+        {
             AvailableGifs = new ObservableCollection<IGifCard>();
             foreach (var loadedGif in LoadGifIfExist())
             {
                 AvailableGifs.Add(loadedGif);
             }
             WriteGifCollectionJson();
-
+        }
+        private void LoadAvailableGradients()
+        {
             AvailableGradient = new ObservableCollection<IGradientColorCard>();
             foreach (var gradient in LoadGradientIfExists())
             {
                 AvailableGradient.Add(gradient);
             }
+        }
+        private void LoadAvailableSolidColors()
+        {
             AvailableSolidColors = new ObservableCollection<Color>();
             foreach (var color in LoadSolidColorIfExists())
             {
                 AvailableSolidColors.Add(color);
             }
-
+        }
+        private void LoadAvailableProfiles()
+        {
             AvailableProfiles = new ObservableCollection<IDeviceProfile>();
             foreach (var profile in LoadDeviceProfileIfExist())
             {
                 AvailableProfiles.Add(profile);
             }
             WriteDeviceProfileCollection();
-            //CurrentCustomZoneColor = new ObservableCollection<System.Windows.Media.Color>();
-            //var shareMenu = new PaletteCardContextMenu("Share");
-            //var shareMenuOptions = new List<PaletteCardContextMenu>();
-            //shareMenuOptions.Add(new PaletteCardContextMenu("File Export"));
-            //shareMenuOptions.Add(new PaletteCardContextMenu("Ambinity Post"));
-            //shareMenu.MenuItem = shareMenuOptions;
+        }
 
-            //PaletteCardOptions = new List<PaletteCardContextMenu>();
-            //PaletteCardOptions.Add(shareMenu);
-            //PaletteCardOptions.Add(new PaletteCardContextMenu("Create new"));
-            //PaletteCardOptions.Add(new PaletteCardContextMenu("Import"));
+        public void LoadData()
+        {
+            if(ResourceHlprs==null)
+                ResourceHlprs = new ResourceHelpers();
+            LoadAvailableLightingMode();
+            LoadAvailablePalettes();
+            LoadAvailableAnimations();
+            LoadAvailableBaudRate();
+            LoadAvailableChasingPatterns();
+            LoadAvailableGradients();
+            LoadAvailableProfiles();
+            LoadAvailableSolidColors();
+
+
         }
 
         public List<IColorPalette> LoadPaletteIfExists()
         {
-            if (!Directory.Exists(JsonPaletteFileNameAndPath))
+            if (!Directory.Exists(PalettesCollectionFolderPath))
             {
 
                 //create default palette
@@ -7906,13 +7836,13 @@ namespace adrilight.ViewModel
                 palettes.Add(badtrip);
                 palettes.Add(lemon);
                 //create colorPalette directory
-                Directory.CreateDirectory(JsonPaletteFileNameAndPath);
+                Directory.CreateDirectory(PalettesCollectionFolderPath);
                 foreach (var palette in palettes)
                 {
                     var json = JsonConvert.SerializeObject(palette, new JsonSerializerSettings() {
                         TypeNameHandling = TypeNameHandling.Auto
                     });
-                    File.WriteAllText(Path.Combine(JsonPaletteFileNameAndPath, palette.Name + ".col"), json);
+                    File.WriteAllText(Path.Combine(PalettesCollectionFolderPath, palette.Name + ".col"), json);
                 }
 
 
@@ -7920,7 +7850,7 @@ namespace adrilight.ViewModel
                 //coppy all internal palettes to local 
 
             }
-            string[] exisetedPalettes = Directory.GetFiles(JsonPaletteFileNameAndPath);
+            string[] exisetedPalettes = Directory.GetFiles(PalettesCollectionFolderPath);
             var loadedPaletteCard = new List<IColorPalette>();
             foreach (var paletteFile in exisetedPalettes)
             {
@@ -8284,7 +8214,7 @@ namespace adrilight.ViewModel
         private void DeleteSelectedDevice()
         {
             AvailableDevices.Remove(CurrentDevice);
-            WriteDeviceInfoJson();
+            //WriteDeviceInfoJson();
             AmbinityClient.Dispose();
             System.Windows.Forms.Application.Restart();
             Process.GetCurrentProcess().Kill();
@@ -8297,129 +8227,70 @@ namespace adrilight.ViewModel
                 AvailableDevices.Remove(device);
             }
             ToolbarVisible = false;
-            WriteDeviceInfoJson();
+            //WriteDeviceInfoJson();
 
         }
 
-        public async void ShowIncreamentDataDialog()
-        {
-            //UserIncreamentInputViewModel dialogViewModel = new UserIncreamentInputViewModel(PreviewSpots);
-            //var view = new View.UserIncreamentInput();
-            //view.DataContext = dialogViewModel;
-            //bool UserResult = (bool)await DialogHost.Show(view, "mainDialog");
-            //if (UserResult)
-            //{
-            //    var startIndex = dialogViewModel.StartIndex;
-            //    var spacing = dialogViewModel.Spacing;
-            //    var startPoint = dialogViewModel.StartPoint;
-            //    var endPoint = dialogViewModel.EndPoint;
-            //    SetIncreament(startIndex, spacing, startPoint, endPoint);
-            //    //apply increament function
-            //}
-        }
+     
 
-        public async void ShowZeroingDialog()
-        {
-            //UserIncreamentInputViewModel dialogViewModel = new UserIncreamentInputViewModel(PreviewSpots);
-            //var view = new View.UserNumberInput();
-            //view.DataContext = dialogViewModel;
-            //bool UserResult = (bool)await DialogHost.Show(view, "mainDialog");
-            //if (UserResult)
-            //{
-            //    var spreadNumber = dialogViewModel.SpreadNumber;
 
-            //    SetZerotoAll(spreadNumber);
-            //    //apply increament function
-            //}
-        }
+    
 
-        public async void ShowAdjustPositon()
-        {
-            //var view = new View.DeviceRectPositon();
-            //var allDevices = AvailableDevices.ToArray();
-            ////AdjustPostionViewModel dialogViewModel = new AdjustPostionViewModel(DeviceRectX, DeviceRectY, DeviceRectWidth, DeviceRectHeight, allDevices, ShaderBitmap, CurrentOutput.OutputSelectedMode);
-            //view.DataContext = dialogViewModel;
-            //bool dialogResult = (bool)await DialogHost.Show(view, "mainDialog");
-            //if (dialogResult)
-            //{   //save current device rect position to json database
-            //    DeviceRectX = dialogViewModel.DeviceRectX / 4;
-            //    DeviceRectY = dialogViewModel.DeviceRectY / 4;
-            //    //DeviceRectX = CurrentDevice.DeviceRectLeft;
-            //    //DeviceRectY = CurrentDevice.DeviceRectTop;
-
-            //    //RaisePropertyChanged(() => CurrentDevice.DeviceRectLeft);
-            //    //RaisePropertyChanged(() => CurrentDevice.DeviceRectTop);
-            //    RaisePropertyChanged(() => DeviceRectX);
-            //    RaisePropertyChanged(() => DeviceRectY);
-            //    //RaisePropertyChanged(() => DeviceRectWidthMax);
-            //    //RaisePropertyChanged(() => DeviceRectHeightMax);
-
-            //}
-        }
-
-        public void DeleteCard(IDeviceSettings device)
-        {
-            AvailableDevices.Remove(device);
-            WriteDeviceInfoJson();
-        }
+      
 
         /// <summary>
         /// Change View
         /// </summary>
         /// <param name="menuItem"></param>
-        public void ChangeView(VerticalMenuItem menuItem)
-        {
-            SelectedVerticalMenuItem = menuItem;
-            SetMenuItemActiveStatus(menuItem.Text);
-        }
+    
 
-        public void WriteDeviceInfoJson()
-        {
-            var devices = new List<IDeviceSettings>();
-            foreach (var item in AvailableDevices)
-            {
-                if (!item.IsDummy)
-                    devices.Add(item);
-            }
-
-            var json = JsonConvert.SerializeObject(devices, new JsonSerializerSettings() {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
-
-            // Set Status to Locked
-            _readWriteLock.EnterWriteLock();
-            try
-            {
-                // Append text to the file
-                using (StreamWriter sw = new StreamWriter(JsonDeviceFileNameAndPath))
-                {
-                    sw.Write(json);
-                    sw.Close();
-                }
-            }
-            finally
-            {
-                // Release lock
-                _readWriteLock.ExitWriteLock();
-            }
-            //Directory.CreateDirectory(JsonPath);
-            //await File.WriteAllTextAsync(JsonDeviceFileNameAndPath, json);
-        }
-
-        //public void WriteOpenRGBDeviceInfoJson()
+        //public void WriteDeviceInfoJson()
         //{
-        //    var devices = new List<Device>();
-        //    foreach (var item in AvailableOpenRGBDevices)
+        //    var devices = new List<IDeviceSettings>();
+        //    foreach (var item in AvailableDevices)
         //    {
-        //        devices.Add(item);
+        //        if (!item.IsDummy)
+        //            devices.Add(item);
         //    }
 
         //    var json = JsonConvert.SerializeObject(devices, new JsonSerializerSettings() {
         //        TypeNameHandling = TypeNameHandling.Auto
         //    });
-        //    Directory.CreateDirectory(JsonPath);
-        //    File.WriteAllText(JsonOpenRGBDevicesFileNameAndPath, json);
+
+        //    // Set Status to Locked
+        //    _readWriteLock.EnterWriteLock();
+        //    try
+        //    {
+        //        // Append text to the file
+        //        using (StreamWriter sw = new StreamWriter(JsonDeviceFileNameAndPath))
+        //        {
+        //            sw.Write(json);
+        //            sw.Close();
+        //        }
+        //    }
+        //    finally
+        //    {
+        //        // Release lock
+        //        _readWriteLock.ExitWriteLock();
+        //    }
+        //    //Directory.CreateDirectory(JsonPath);
+        //    //await File.WriteAllTextAsync(JsonDeviceFileNameAndPath, json);
         //}
+
+        ////public void WriteOpenRGBDeviceInfoJson()
+        ////{
+        ////    var devices = new List<Device>();
+        ////    foreach (var item in AvailableOpenRGBDevices)
+        ////    {
+        ////        devices.Add(item);
+        ////    }
+
+        ////    var json = JsonConvert.SerializeObject(devices, new JsonSerializerSettings() {
+        ////        TypeNameHandling = TypeNameHandling.Auto
+        ////    });
+        ////    Directory.CreateDirectory(JsonPath);
+        ////    File.WriteAllText(JsonOpenRGBDevicesFileNameAndPath, json);
+        ////}
 
         public void WriteGifCollectionJson()
         {
@@ -8469,7 +8340,7 @@ namespace adrilight.ViewModel
             }
             var json = JsonConvert.SerializeObject(palettes, Formatting.Indented);
             Directory.CreateDirectory(JsonPath);
-            File.WriteAllText(JsonPaletteFileNameAndPath, json);
+            File.WriteAllText(PalettesCollectionFolderPath, json);
         }
 
         public void WriteAutomationCollectionJson()
@@ -8860,11 +8731,15 @@ namespace adrilight.ViewModel
             CurrentOnlineStoreView = "Details";
 
         }
+        private string _currentView;
+        public string CurrentView {
+            get { return _currentView; }
+            set { _currentView = value; RaisePropertyChanged(); }
+        }
         public void GotoChild(IDeviceSettings selectedDevice)
         {
             CurrentDevice = selectedDevice;
-            SelectedVerticalMenuItem = MenuItems.FirstOrDefault(t => t.Text == lighting);
-            IsDashboardType = false;
+            CurrentView = "details";
             foreach (var output in CurrentDevice.AvailableOutputs)
             {
                 output.OutputUniqueID = CurrentDevice.DeviceUID.ToString() + output.OutputID.ToString();
@@ -8954,34 +8829,15 @@ namespace adrilight.ViewModel
         public void BackToDashboard()
         {
             SaveCurrentProfile(CurrentDevice.ActivatedProfileUID);
-            IsDashboardType = true;
-            SelectedVerticalMenuItem = MenuItems.FirstOrDefault();
-            CurrentDevice.IsLoading = false;
-            //SetMenuItemActiveStatus(dashboard);
+            CurrentView = "dashboard";
         }
 
-        public void BackToDashboardAndDelete(IDeviceSettings device)
-        {
-            //Cards.Remove(device);
-            //IsDashboardType = true;
-            //SelectedVerticalMenuItem = MenuItems.FirstOrDefault();
-            //SetMenuItemActiveStatus(dashboard);
-        }
+       
 
         /// <summary>
         /// Load vertical menu
         /// </summary>
-        public void LoadMenu()
-        {
-            MenuItems = new ObservableCollection<VerticalMenuItem>();
-            MenuItems.Add(new VerticalMenuItem() { Text = dashboard, IsActive = true, Type = MenuButtonType.Dashboard });
-            MenuItems.Add(new VerticalMenuItem() { Text = deviceSetting, IsActive = false, Type = MenuButtonType.Dashboard });
-            MenuItems.Add(new VerticalMenuItem() { Text = appSetting, IsActive = false, Type = MenuButtonType.Dashboard });
-            MenuItems.Add(new VerticalMenuItem() { Text = canvasLighting, IsActive = false, Type = MenuButtonType.Dashboard });
-            MenuItems.Add(new VerticalMenuItem() { Text = general, IsActive = true, Type = MenuButtonType.DeviceSettings });
-            MenuItems.Add(new VerticalMenuItem() { Text = lighting, IsActive = false, Type = MenuButtonType.DeviceSettings });
-            MenuItems.Add(new VerticalMenuItem() { Text = groupLighting, IsActive = false, Type = MenuButtonType.GroupLighting });
-        }
+     
         public void LoadContextMenu()
         {
             AvailableContextMenus = new ObservableCollection<SystemTrayContextMenu>();
@@ -9005,30 +8861,5 @@ namespace adrilight.ViewModel
             AvailableContextMenus.Add(dashboard);
         }
 
-        /// <summary>
-        /// set active state
-        /// </summary>
-        /// <param name="key"></param>
-        public void SetMenuItemActiveStatus(string key)
-        {
-            foreach (var item in MenuItems)
-            {
-                item.IsActive = item.Text == key;
-            }
-        }
-
-        /// <summary>
-        /// hide show vertical menu item
-        /// </summary>
-        /// <param name="isDashboard"></param>
-        private void LoadMenuByType(bool isDashboard)
-        {
-            if (MenuItems == null) return;
-            foreach (var item in MenuItems)
-            {
-                item.IsVisible = item.Type == MenuButtonType.Dashboard ? isDashboard : !isDashboard;
-            }
-            RaisePropertyChanged(nameof(MenuItems));
-        }
     }
 }

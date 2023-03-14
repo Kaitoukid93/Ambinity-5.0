@@ -49,6 +49,7 @@ namespace adrilight
         private string _deviceUID;
         private string _deviceConnectionType = "";
         private bool _isSelected = false;
+        private string _deviceThumbnail;
         
         private bool _isLoadingProfile = false;
         private string _activatedProfileUID;
@@ -64,6 +65,7 @@ namespace adrilight
         private string _deviceActualSpeed = "n/a";
         private bool _isLoadingSpeed = false;
         private System.Drawing.Rectangle _deviceBoundRectangle;
+        public string DeviceThumbnail { get => _deviceThumbnail; set { Set(() => DeviceThumbnail, ref _deviceThumbnail, value); } }
 
         public System.Drawing.Rectangle DeviceBoundRectangle { get => _deviceBoundRectangle; set { Set(() => DeviceBoundRectangle, ref _deviceBoundRectangle, value); } }
         public State CurrentState { get => _currentState; set { Set(() => CurrentState, ref _currentState, value); } }

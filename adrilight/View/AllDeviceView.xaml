@@ -279,12 +279,9 @@
                                     <!--delete device button-->
                                     
                                     <!--Icon-->
-                                    <Border Padding="5" HorizontalAlignment="Left" VerticalAlignment="Center"  Margin="0,0,0,0" Width="71" Height="71" CornerRadius="7" >
-                                        <Border.Background>
-                                            <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
-                                        </Border.Background>
-                                        <Path Data="{Binding Geometry, Converter={converters:StaticResourceConverter}}" Width="35" Height="35" Fill="{StaticResource PrimaryBrush}" Stretch="Uniform" />
-                                    </Border>
+                                    <Border Padding="5" HorizontalAlignment="Left" VerticalAlignment="Center"  Margin="0,0,0,0" Width="100" Height="100" CornerRadius="7" >
+                                                <Image HorizontalAlignment="Left" Source="{Binding DeviceThumbnail}" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" />
+                                            </Border>
                                     
 
                                     <!--device information-->
@@ -292,7 +289,7 @@
                                         <!--Big icon-->
                                        
                                         <StackPanel  
-                                            Margin="0,40,0,20"
+                                            Margin="0,0,0,20"
                                             Grid.Row="1" 
                                             >
                                             <hc:RunningBlock 

@@ -19,7 +19,7 @@ namespace adrilight
     {
         private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
         private string JsonLEDSetupFileNameAndPath => Path.Combine(JsonPath, "adrilight-LEDSetups.json");
-        public LEDSetup(string name, string owner, string type, string description, ObservableCollection<IDeviceSpot> spots, int setupID, double pixelWidth, double pixelHeight,double scaleWidth,double scaleHeight)
+        public LEDSetup(string name, string owner, string type, string description, ObservableCollection<IDeviceSpot> spots, int setupID, double pixelWidth, double pixelHeight, double scaleWidth, double scaleHeight)
         {
             Name = name;
             Owner = owner;
@@ -35,7 +35,7 @@ namespace adrilight
             Scale = new Point(1, 1);
 
         }
-        
+
         private ObservableCollection<IDeviceSpot> _spots;
         public string Name { get; set; }
         public string Owner { get; set; }
@@ -45,7 +45,7 @@ namespace adrilight
         public ObservableCollection<IDeviceSpot> Spots { get => _spots; set { Set(() => Spots, ref _spots, value); RaisePropertyChanged(); } }
         public object Lock { get; } = new object();
         public int SetupID { get; set; }    // to match with device ID
-
+        public string Thumbnail { get; set; }
         public void DimLED(float dimFactor)
         {
             foreach (var spot in Spots)
@@ -86,8 +86,8 @@ namespace adrilight
         private bool _isResizeable;
         private double _scaleTop;
         private double _scaleLeft;
-        private double _scaleWidth=1;
-        private double _scaleHeight=1;
+        private double _scaleWidth = 1;
+        private double _scaleHeight = 1;
         public int OutputSelectedDisplay { get => _outputSelectedDisplay; set { Set(() => OutputSelectedDisplay, ref _outputSelectedDisplay, value); } }
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
@@ -125,8 +125,8 @@ namespace adrilight
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
-    
-     
+
+
         public void SetScale(double scale)
         {
             //keep left and top the same
@@ -135,8 +135,8 @@ namespace adrilight
             Height *= scale;
             ScaleHeight *= scale;
             ScaleHeight *= scale;// these value is for setting new rectangle and it's position when parrents size is not stored( app startup)
-                                               //SetRectangle(new Rectangle(OutputRectangle.Left, OutputRectangle.Top, (int)Width, (int)Height));
-                                               //we need to change ledsetup width and height too
+                                 //SetRectangle(new Rectangle(OutputRectangle.Left, OutputRectangle.Top, (int)Width, (int)Height));
+                                 //we need to change ledsetup width and height too
             foreach (var deviceSpot in Spots)
             {
                 (deviceSpot as DeviceSpot).Width *= scale;
@@ -171,7 +171,7 @@ namespace adrilight
             Height = screenHeight * ScaleHeight;
             Left = screenWidth * ScaleLeft;
             Top = screenHeight * ScaleTop;
-            foreach(var spot in Spots)
+            foreach (var spot in Spots)
             {
                 spot.RebuildSpot(Width, Height);
             }
