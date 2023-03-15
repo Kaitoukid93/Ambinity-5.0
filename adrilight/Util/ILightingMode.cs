@@ -39,6 +39,7 @@ namespace adrilight.Util
         /// List of parameters that this mode have
         /// </summary>
         List<LightingModeParameter> Parameters { get; set; }
+        void BrightnessUp(int upValue);
 
        
 

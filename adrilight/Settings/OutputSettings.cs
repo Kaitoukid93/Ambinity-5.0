@@ -64,7 +64,7 @@ namespace adrilight
         //private IColorPalette _outputCurrentActivePalette;
         private ILEDSetup _outputLEDSetup;
         //private bool _isInSpotEditWizard = false;
-        //private string _geometry = "generaldevice";
+        private string _geometry = "generaldevice";
         //private int _outputSmoothness = 2;
         //private int _outputPaletteChasingPosition = 2;
         //private int _outputScreenCaptureWBRed = 100;
@@ -85,17 +85,19 @@ namespace adrilight
         //private IGifCard _outputSelectedGif = null;
         //private int _outputSelectedGifIndex = 0;
         //private MotionCard _outputSelectedMotion;
+        private int _currentActiveLightingModeIndex;
+        private List<ILightingMode> _availableLightingMode;
+        
 
 
 
-
-        private int _outputGifSpeed = 20;
-        private IGradientColorCard _outputSelectedGradient = new GradientColorCard("default", "application", "unknown", "auto create", Color.FromRgb(255, 127, 0), Color.FromRgb(0, 127, 255));
+        //private int _outputGifSpeed = 20;
+        //private IGradientColorCard _outputSelectedGradient = new GradientColorCard("default", "application", "unknown", "auto create", Color.FromRgb(255, 127, 0), Color.FromRgb(0, 127, 255));
         public string OutputName { get => _outputName; set { Set(() => OutputName, ref _outputName, value); } }
         //[Reflectable]
         //public int VUOrientation { get => _vUOrientation; set { Set(() => VUOrientation, ref _vUOrientation, value); } }
-        [Reflectable]
-        public int OutputGifSpeed { get => _outputGifSpeed; set { Set(() => OutputGifSpeed, ref _outputGifSpeed, value); } }
+        //[Reflectable]
+        //public int OutputGifSpeed { get => _outputGifSpeed; set { Set(() => OutputGifSpeed, ref _outputGifSpeed, value); } }
         [Reflectable]
         public string TargetDevice { get => _targetDevice; set { Set(() => TargetDevice, ref _targetDevice, value); } }
         //[Reflectable]
@@ -108,8 +110,8 @@ namespace adrilight
         //public bool IsBrightnessPopupOpen { get => _isBrightnessPopupOpen; set { Set(() => IsBrightnessPopupOpen, ref _isBrightnessPopupOpen, value); } }
         public int LEDPerSpot { get => _lEDPerSpot; set { Set(() => LEDPerSpot, ref _lEDPerSpot, value); } }
         public int LEDPerLED { get => _lEDPerLED; set { Set(() => LEDPerLED, ref _lEDPerLED, value); } }
-        [Reflectable]
-        public IGradientColorCard OutputSelectedGradient { get => _outputSelectedGradient; set { Set(() => OutputSelectedGradient, ref _outputSelectedGradient, value); } }
+        //[Reflectable]
+        //public IGradientColorCard OutputSelectedGradient { get => _outputSelectedGradient; set { Set(() => OutputSelectedGradient, ref _outputSelectedGradient, value); } }
         //[Reflectable]
         //public int OutputSelectedGifIndex { get => _outputSelectedGifIndex; set { Set(() => OutputSelectedGifIndex, ref _outputSelectedGifIndex, value); } }
         //[Reflectable]
@@ -118,7 +120,7 @@ namespace adrilight
         public bool OutputIsSelected { get => _outputIsSelected; set { Set(() => OutputIsSelected, ref _outputIsSelected, value); } }
         public bool OutputIsPreviewRunning { get => _outputIsPreviewRunning; set { Set(() => OutputIsPreviewRunning, ref _outputIsPreviewRunning, value); } }
         public string OutputUniqueID { get => _outputUniqueID; set { Set(() => OutputUniqueID, ref _outputUniqueID, value); } }
-        [Reflectable]
+        //[Reflectable]
         public string OutputRGBLEDOrder { get => _outputRGBLEDOrder; set { Set(() => OutputRGBLEDOrder, ref _outputRGBLEDOrder, value); } }
         public bool OutputIsVisible { get => _outputIsVisible; set { Set(() => OutputIsVisible, ref _outputIsVisible, value); } }
         //[Reflectable]
@@ -129,7 +131,7 @@ namespace adrilight
         //public byte OutputSaturationThreshold { get => _outputSaturationThreshold; set { Set(() => OutputSaturationThreshold, ref _outputSaturationThreshold, value); } }
         //[Reflectable]
         //public bool OutputUseLinearLighting { get => _outputUseLinearLighting; set { Set(() => OutputUseLinearLighting, ref _outputUseLinearLighting, value); } }
-        [Reflectable]
+        //[Reflectable]
         public bool OutputIsEnabled { get => _outputIsEnable; set { Set(() => OutputIsEnabled, ref _outputIsEnable, value); } }
         public bool OutputParrentIsEnable { get => _outputParrentIsEnable; set { Set(() => OutputParrentIsEnable, ref _outputParrentIsEnable, value); } }
         //[Reflectable]
@@ -150,7 +152,7 @@ namespace adrilight
 
         //[Reflectable]
         //public int OutputSelectedMusicPalette { get => _outputSelectedMusicPalette; set { Set(() => OutputSelectedMusicPalette, ref _outputSelectedMusicPalette, value); } }
-        [Reflectable]
+        //[Reflectable]
         public Color[] OutputSentryModeColorSource { get => _outputSentryModeColorSource; set { Set(() => OutputSentryModeColorSource, ref _outputSentryModeColorSource, value); } }
         //[Reflectable]
         //public int OutputSelectedAudioDevice { get => _outputSelectedAudioDevice; set { Set(() => OutputSelectedAudioDevice, ref _outputSelectedAudioDevice, value); } } 
@@ -184,7 +186,7 @@ namespace adrilight
         //[Reflectable]
         public ILEDSetup OutputLEDSetup { get => _outputLEDSetup; set { Set(() => OutputLEDSetup, ref _outputLEDSetup, value); } }
         //public bool IsInSpotEditWizard { get => _isInSpotEditWizard; set { Set(() => IsInSpotEditWizard, ref _isInSpotEditWizard, value); } }
-        [Reflectable]
+        //[Reflectable]
         public string Geometry { get => _geometry; set { Set(() => Geometry, ref _geometry, value); } }
         //[Reflectable]
         //public int OutputSmoothness { get => _outputSmoothness; set { Set(() => OutputSmoothness, ref _outputSmoothness, value); } }
@@ -212,6 +214,11 @@ namespace adrilight
         public bool OutputIsLoadingProfile { get => _outputIsLoadingProfile; set { Set(() => OutputIsLoadingProfile, ref _outputIsLoadingProfile, value); } }
 
         public bool OutputIsBuildingLEDSetup { get => _outputIsBuildingLEDSetup; set { Set(() => OutputIsBuildingLEDSetup, ref _outputIsBuildingLEDSetup, value); } }
+
+        public List<ILightingMode> AvailableLightingMode { get => _availableLightingMode; set { Set(() => AvailableLightingMode, ref _availableLightingMode, value); } }
+        public ILightingMode CurrentActiveLightingMode => AvailableLightingMode[CurrentActiveLightingModeIndex];
+        public int CurrentActiveLightingModeIndex { get => _currentActiveLightingModeIndex; set { Set(() => CurrentActiveLightingModeIndex, ref _currentActiveLightingModeIndex, value); } }
+
         //[Reflectable]
         //public bool OutputIsSystemSync { get => _outputIsSystemSync; set { Set(() => OutputIsSystemSync, ref _outputIsSystemSync, value); } }
         //public void SetRectangle(System.Drawing.Rectangle rectangle)
@@ -224,6 +231,10 @@ namespace adrilight
         //    PreviewRectangle = rectangle;
         //    RaisePropertyChanged(nameof(PreviewRectangle));
         //}
-       
+        public void BrightnessUp(int upValue)
+        {
+            //brightness up current active mode
+            CurrentActiveLightingMode.BrightnessUp(upValue);
+        }
     }
 }

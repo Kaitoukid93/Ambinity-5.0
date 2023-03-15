@@ -178,10 +178,7 @@ namespace adrilight
         {
               foreach (var output in AvailableOutputs)//possible replace with method from IOutputSettings
                 {
-                    if (output.OutputBrightness < 100)
-                        output.OutputBrightness += value;
-                    if (output.OutputBrightness > 100)
-                        output.OutputBrightness = 100;
+                    output.BrightnessUp(value);
                 }
         }
         public void SpeedUp(int value)
@@ -206,13 +203,13 @@ namespace adrilight
         {
          
            
-                foreach (var output in AvailableOutputs)//possible replace with method from IOutputSettings
-                {
-                    if (output.OutputBrightness > 0)
-                        output.OutputBrightness -= value;
-                    if (output.OutputBrightness < 0)
-                        output.OutputBrightness = 0;
-                }
+                //foreach (var output in AvailableOutputs)//possible replace with method from IOutputSettings
+                //{
+                //    if (output.OutputBrightness > 0)
+                //        output.OutputBrightness -= value;
+                //    if (output.OutputBrightness < 0)
+                //        output.OutputBrightness = 0;
+                //}
             
         }
 

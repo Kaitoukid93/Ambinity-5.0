@@ -38,5 +38,14 @@ namespace adrilight.Util
         /// List of parameters that this mode have
         /// </summary>
         public List<LightingModeParameter> Parameters { get; set; }
+        public void BrightnessUp(int upValue)
+        {
+            //find the brightness param and add value
+            var brightnessParam = Parameters.Where(p=> p.Type == LightingModeParameterEnum.Brightness).FirstOrDefault();
+            var currentValue = (int)brightnessParam.Value;
+            var targetValue = currentValue + upValue;
+            brightnessParam.Value = targetValue;
+
+        }
     }
 }

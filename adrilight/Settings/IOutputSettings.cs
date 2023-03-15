@@ -96,7 +96,9 @@ namespace adrilight
         //int OutputBreathingSpeed { get; set; }
         int SleepMode { get; set; }
         bool OutputIsSelected { get; set; }
-      
+        List<ILightingMode> AvailableLightingMode { get; set; }
+        ILightingMode CurrentActiveLightingMode { get;}
+        int CurrentActiveLightingModeIndex { get; set; }
         //static color settings//
         //IGradientColorCard OutputSelectedGradient { get; set; }
          bool OutputParrentIsEnable { get; set; }
@@ -106,7 +108,7 @@ namespace adrilight
         //void SetRectangle(System.Drawing.Rectangle rectangle);
         //void SetPreviewRectangle(System.Drawing.Rectangle rectangle);
 
-        
+        void BrightnessUp(int upValue);
         
 
 
