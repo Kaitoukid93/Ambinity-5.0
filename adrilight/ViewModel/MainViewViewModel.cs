@@ -88,6 +88,126 @@ namespace adrilight.ViewModel
         private string JsonGradientFileNameAndPath => Path.Combine(JsonPath, "adrilight-GradientCollection.json");
 
         private const string ADRILIGHT_RELEASES = "https://github.com/Kaitoukid93/Ambinity_Developer_Release";
+        #region default lighting mode by ambino
+         /// <summary>
+         /// Legacy ColorPalette mode
+         /// </summary>
+         public ILightingMode ColorPalette {
+            get
+            {
+                return new LightingMode() {
+                    Name = "Color Palette",
+                    BasedOn = LightingModeEnum.Rainbow,
+                    Creator = "ambino",
+                    Owner = "ambino",
+                    Description = "Sáng theo dải màu với chuyển động tùy chọn",
+                    Parameters = { ChasingPatterns, GenericDirrectionParameter, GenericBrightnessParameter, GenericSpeedParameter }
+
+                };
+            }
+        }
+        /// <summary>
+        /// Legacy Music mode
+        /// </summary>
+        public ILightingMode MusicReactive {
+            get
+            {
+                return new LightingMode() {
+                    Name = "Music Reactive",
+                    BasedOn = LightingModeEnum.Rainbow,
+                    Creator = "ambino",
+                    Owner = "ambino",
+                    Description = "Màu LED chuyển động theo nhạc",
+                    Parameters = { ChasingPatterns, GenericDirrectionParameter, GenericBrightnessParameter, GenericSpeedParameter }
+
+                };
+            }
+        }
+
+        #endregion
+
+
+        #region default lightingmode parameter defined by ambino
+        public LightingModeParameter GenericSpeedParameter {
+            get
+            {
+                return new LightingModeParameter() {
+
+                    Name = "Speed",
+                    Description = "Speed of Motion",
+                    Type = LightingModeParameterEnum.Speed,
+                    Template = LightingModeParameterTemplateEnum.ValueSlider,
+                    Value = 50
+
+                };
+            }
+        }
+        public LightingModeParameter GenericDirrectionParameter {
+            get
+            {
+                return new LightingModeParameter() {
+
+                    Name = "Dirrection",
+                    Description = "Speed of Motion",
+                    Type = LightingModeParameterEnum.Direction,
+                    Template = LightingModeParameterTemplateEnum.ListSelection,
+                    Value = 1,
+                    AvailableValue = new List<object>() { "Foward", "Reverse" }
+
+                };
+            }
+        }
+        public LightingModeParameter GenericBrightnessParameter {
+            get
+            {
+                return new LightingModeParameter() {
+
+                    Name = "Brightness",
+                    Description = "Brightness of LEDs",
+                    Type = LightingModeParameterEnum.Brightness,
+                    Template = LightingModeParameterTemplateEnum.ValueSlider,
+                    Value = 50
+
+                };
+            }
+        }
+        /// <summary>
+        /// Use this for rainbow engine to select chasing pattern from database
+        /// </summary>
+        public LightingModeParameter ChasingPatterns {
+            get
+            {
+                return new LightingModeParameter() {
+
+                    Name = "Pattern",
+                    Description = "The motion to be colored",
+                    Type = LightingModeParameterEnum.ChasingPattern,
+                    Template = LightingModeParameterTemplateEnum.ListSelection,
+                    Value = 50
+
+                };
+            }
+        }
+        /// <summary>
+        /// Use this for rainbow engine to select chasing pattern from database
+        /// </summary>
+        public LightingModeParameter ColorMode {
+            get
+            {
+                return new LightingModeParameter() {
+
+                    Name = "ColorMode",
+                    Description = "How the color being used",
+                    Type = LightingModeParameterEnum.ColorMode,
+                    Template = LightingModeParameterTemplateEnum.ListSelection,
+                    Value = 0,
+                    AvailableValue = new List<object>() { "Solid", "Random", "Cyclic", "Full" }
+
+
+                };
+            }
+        }
+        #endregion
 
 
         #region database local folder paths
@@ -1507,6 +1627,8 @@ namespace adrilight.ViewModel
 
                     foreach (var serialDevice in newSerialDevices)
                     {
+                        //add available mode
+
                         WriteDeviceInfo(serialDevice);
                         AvailableDevices.Insert(0, serialDevice);
                        
@@ -7680,18 +7802,18 @@ namespace adrilight.ViewModel
 
         public void LoadAvailableLightingMode()
         {
-            AvailableLightingMode = new ObservableCollection<ILightingMode>();
-            var screencapture = new LightingMode { Name = "Screen Capture", Geometry = "ambilight", Description = "Screen sampling to LED" };
-            var palette = new LightingMode { Name = "Color Palette", Geometry = "colorpalette", Description = "Screen sampling to LED" };
-            var music = new LightingMode { Name = "Music Reactive", Geometry = "music", Description = "Screen sampling to LED" };
-            var staticcolor = new LightingMode { Name = "Static Color", Geometry = "static", Description = "Screen sampling to LED" };
-            var gifxelation = new LightingMode { Name = "Gifxelation", Geometry = "gifxelation", Description = "Screen sampling to LED" };
-            var composition = new LightingMode { Name = "Composition", Geometry = "gifxelation", Description = "Screen sampling to LED" };
-            AvailableLightingMode.Add(screencapture);
-            AvailableLightingMode.Add(palette);
-            AvailableLightingMode.Add(music);
-            AvailableLightingMode.Add(staticcolor);
-            AvailableLightingMode.Add(gifxelation);
+            //AvailableLightingMode = new ObservableCollection<ILightingMode>();
+            //var screencapture = new LightingMode { Name = "Screen Capture", Geometry = "ambilight", Description = "Screen sampling to LED" };
+            //var palette = new LightingMode { Name = "Color Palette", Geometry = "colorpalette", Description = "Screen sampling to LED" };
+            //var music = new LightingMode { Name = "Music Reactive", Geometry = "music", Description = "Screen sampling to LED" };
+            //var staticcolor = new LightingMode { Name = "Static Color", Geometry = "static", Description = "Screen sampling to LED" };
+            //var gifxelation = new LightingMode { Name = "Gifxelation", Geometry = "gifxelation", Description = "Screen sampling to LED" };
+            //var composition = new LightingMode { Name = "Composition", Geometry = "gifxelation", Description = "Screen sampling to LED" };
+            //AvailableLightingMode.Add(screencapture);
+            //AvailableLightingMode.Add(palette);
+            //AvailableLightingMode.Add(music);
+            //AvailableLightingMode.Add(staticcolor);
+            //AvailableLightingMode.Add(gifxelation);
         }
         private void LoadAvailableBaudRate()
         {
