@@ -242,6 +242,7 @@
     <Compile Include="Util\LightingModeEnum.cs" />
     <Compile Include="Util\LightingModeParameter.cs" />
     <Compile Include="Util\LightingModeParameterEnum.cs" />
+    <Compile Include="Util\LightingModeParameterTemplateEnum.cs" />
     <Compile Include="Util\OnlineItemModel.cs" />
     <Compile Include="Util\DeviceDiscovery.cs" />
     <Compile Include="Util\AdrilightUpdater.cs" />

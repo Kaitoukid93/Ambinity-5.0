@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace adrilight.Util
 {
@@ -14,8 +15,16 @@ namespace adrilight.Util
         /// </summary>
         object Value { get; set; }
         /// <summary>
-        /// this is the type of lighting mode, use to get the data template
+        /// this is the template of lighting mode, use to get the data template
+        /// </summary>
+        LightingModeParameterTemplateEnum Template { get; set; }
+        /// <summary>
+        /// this is the type of lighting mode, used for the background process to find this param
         /// </summary>
         LightingModeParameterEnum Type { get; set; }
+        /// <summary>
+        /// this is the list of available value, used for list selection type
+        /// </summary>
+        List<object> AvailableValue { get; set; }
     }
 }
