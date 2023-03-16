@@ -39,7 +39,7 @@ namespace adrilight.View
                 return (MainViewViewModel)this.DataContext;
             }
         }
-        private void ButtonMode_OnClick(object sender, RoutedEventArgs e) => PopupMode.IsOpen = true;
+        //private void ButtonMode_OnClick(object sender, RoutedEventArgs e) => PopupMode.IsOpen = true;
         private void ButtonProfile_OnClick(object sender, RoutedEventArgs e) => profile_selection.IsOpen = true;
         //private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         //{
@@ -225,7 +225,7 @@ namespace adrilight.View
 
        
 
-        private void NewModeSelected(object sender, SelectionChangedEventArgs e) => PopupMode.IsOpen = false;
+        //private void NewModeSelected(object sender, SelectionChangedEventArgs e) => PopupMode.IsOpen = false;
 
         private void ChangeOutputMode(object sender, RoutedEventArgs e)
         {

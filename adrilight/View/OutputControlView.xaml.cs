@@ -20,9 +20,9 @@ namespace adrilight.View
     /// <summary>
     /// Interaction logic for PaletteEditWindow.xaml
     /// </summary>
-    public partial class AppSettingsWindow
+    public partial class OutputControlView
     {
-        public AppSettingsWindow()
+        public OutputControlView()
         {
             InitializeComponent();
         }

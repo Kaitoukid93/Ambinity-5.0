@@ -336,6 +336,7 @@
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\VisualProperties.cs" />
+    <Compile Include="View\OutputControlView.xaml.cs" />
     <Compile Include="View\DeviceControlView.xaml.cs" />
     <Compile Include="View\OnlineItemExporterView.xaml.cs" />
     <Compile Include="View\OnlineItemsCollectionView.xaml.cs" />
@@ -431,6 +432,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Properties\DesignTimeResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\OutputControlView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

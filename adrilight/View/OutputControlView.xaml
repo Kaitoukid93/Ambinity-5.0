@@ -1,4 +1,4 @@
-﻿<hc:Window x:Class="adrilight.View.AppSettingsWindow"
+﻿<UserControl x:Class="adrilight.View.OutputControlView"
            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -10,14 +10,9 @@
            Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
-          
-            SizeToContent="Width"
-           Height="550" 
-           Width="400" 
-           WindowStartupLocation="CenterOwner" 
-           Left="0" Top="0">
+          >
 
-    <Window.Resources>
+    <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary
@@ -30,7 +25,7 @@
             </ResourceDictionary.MergedDictionaries>
 
         </ResourceDictionary>
-    </Window.Resources>
+    </UserControl.Resources>
     <Border Margin="1,1,1,1">
 
 
@@ -364,4 +359,4 @@
             </Grid>
         </hc:ScrollViewer>
     </Border>
-</hc:Window>
+</UserControl>

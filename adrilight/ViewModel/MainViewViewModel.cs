@@ -1634,7 +1634,12 @@ namespace adrilight.ViewModel
                             output.AvailableLightingMode.Add(ColorPalette);
                             output.AvailableLightingMode.Add(MusicReactive);
                             output.CurrentActiveLightingModeIndex = 0;// set default ligting mode
-                            output.ControlableProperties =
+                            output.ControlableProperties.Add(new OutputControlableProperty() {
+                                Name = "Lighting",
+                                Description = "Lighting Control for Current Output",
+                                Icon = "brightness",
+                                Type = OutputControlablePropertyEnum.Lighting
+                            });
 
                         }
                         WriteDeviceInfo(serialDevice);
