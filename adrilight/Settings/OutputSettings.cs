@@ -85,8 +85,7 @@ namespace adrilight
         //private IGifCard _outputSelectedGif = null;
         //private int _outputSelectedGifIndex = 0;
         //private MotionCard _outputSelectedMotion;
-        private int _currentActiveLightingModeIndex;
-        private List<ILightingMode> _availableLightingMode;
+    
         private List<OutputControlableProperty> _outputControlableProperty;
         
         
