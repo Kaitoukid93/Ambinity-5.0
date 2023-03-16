@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace adrilight.Util
 {
-    public interface ILightingModeParameter : INotifyPropertyChanged
+    public interface IModeParameter : INotifyPropertyChanged
     {
         string Name { get; set; }
         /// <summary>
@@ -17,14 +17,22 @@ namespace adrilight.Util
         /// <summary>
         /// this is the template of lighting mode, use to get the data template
         /// </summary>
-        LightingModeParameterTemplateEnum Template { get; set; }
+        ModeParameterTemplateEnum Template { get; set; }
         /// <summary>
         /// this is the type of lighting mode, used for the background process to find this param
         /// </summary>
-        LightingModeParameterEnum Type { get; set; }
+        ModeParameterEnum Type { get; set; }
         /// <summary>
         /// this is the list of available value, used for list selection type
         /// </summary>
         List<object> AvailableValue { get; set; }
+        /// <summary>
+        /// this is the min value, used for prevent the value to undershoot
+        /// </summary>
+        int MinValue { get; set; }
+        /// <summary>
+        /// this is the max value, used for prevent the value to overshoot
+        /// </summary>
+        int MaxValue { get; set; }
     }
 }

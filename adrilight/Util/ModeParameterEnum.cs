@@ -1,6 +1,6 @@
 ﻿namespace adrilight.Util
 {
-    public enum LightingModeParameterEnum
+    public enum ModeParameterEnum
     {
           /// <summary>
         ///    this is Brightness Type, contains brightness value of current Mode

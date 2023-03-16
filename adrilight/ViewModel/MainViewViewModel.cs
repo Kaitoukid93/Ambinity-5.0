@@ -89,10 +89,10 @@ namespace adrilight.ViewModel
 
         private const string ADRILIGHT_RELEASES = "https://github.com/Kaitoukid93/Ambinity_Developer_Release";
         #region default lighting mode by ambino
-         /// <summary>
-         /// Legacy ColorPalette mode
-         /// </summary>
-         public ILightingMode ColorPalette {
+        /// <summary>
+        /// Legacy ColorPalette mode
+        /// </summary>
+        public IControlMode ColorPalette {
             get
             {
                 return new LightingMode() {
@@ -109,7 +109,7 @@ namespace adrilight.ViewModel
         /// <summary>
         /// Legacy Music mode
         /// </summary>
-        public ILightingMode MusicReactive {
+        public IControlMode MusicReactive {
             get
             {
                 return new LightingMode() {
@@ -118,7 +118,36 @@ namespace adrilight.ViewModel
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Màu LED chuyển động theo nhạc",
-                    Parameters = { ChasingPatterns, GenericDirrectionParameter, GenericBrightnessParameter, GenericSpeedParameter }
+                    Parameters = { GenericDirrectionParameter, GenericBrightnessParameter, GenericSpeedParameter }
+
+                };
+            }
+        }
+
+        public IControlMode FanSpeedAuto {
+            get
+            {
+                return new SpeedMode() {
+                    Name = "Auto Speed",
+                    //BasedOn = LightingModeEnum.Rainbow,
+                    Creator = "ambino",
+                    Owner = "ambino",
+                    Description = "Tốc độ Fan thay đổi theo nhiệt độ",
+                    //Parameters = { ChasingPatterns, GenericDirrectionParameter, GenericBrightnessParameter, GenericSpeedParameter }
+
+                };
+            }
+        }
+        public IControlMode FanSpeedManual {
+            get
+            {
+                return new SpeedMode() {
+                    Name = "Manual Speed",
+                    //BasedOn = LightingModeEnum.Rainbow,
+                    Creator = "ambino",
+                    Owner = "ambino",
+                    Description = "Cố định tốc độ Fan",
+                    Parameters = { GenericSpeedParameter }
 
                 };
             }
@@ -128,45 +157,47 @@ namespace adrilight.ViewModel
 
 
         #region default lightingmode parameter defined by ambino
-        public LightingModeParameter GenericSpeedParameter {
+        public IModeParameter GenericSpeedParameter {
             get
             {
-                return new LightingModeParameter() {
+                return new ModeParameter() {
 
                     Name = "Speed",
                     Description = "Speed of Motion",
-                    Type = LightingModeParameterEnum.Speed,
-                    Template = LightingModeParameterTemplateEnum.ValueSlider,
+                    Type = ModeParameterEnum.Speed,
+                    Template = ModeParameterTemplateEnum.ValueSlider,
                     Value = 50
 
                 };
             }
         }
-        public LightingModeParameter GenericDirrectionParameter {
+        public IModeParameter GenericDirrectionParameter {
             get
             {
-                return new LightingModeParameter() {
+                return new ModeParameter() {
 
                     Name = "Dirrection",
                     Description = "Speed of Motion",
-                    Type = LightingModeParameterEnum.Direction,
-                    Template = LightingModeParameterTemplateEnum.ListSelection,
+                    Type = ModeParameterEnum.Direction,
+                    Template = ModeParameterTemplateEnum.ListSelection,
                     Value = 1,
                     AvailableValue = new List<object>() { "Foward", "Reverse" }
 
                 };
             }
         }
-        public LightingModeParameter GenericBrightnessParameter {
+        public IModeParameter GenericBrightnessParameter {
             get
             {
-                return new LightingModeParameter() {
+                return new ModeParameter() {
 
                     Name = "Brightness",
                     Description = "Brightness of LEDs",
-                    Type = LightingModeParameterEnum.Brightness,
-                    Template = LightingModeParameterTemplateEnum.ValueSlider,
-                    Value = 50
+                    Type = ModeParameterEnum.Brightness,
+                    Template = ModeParameterTemplateEnum.ValueSlider,
+                    Value = 50,
+                    MinValue = 20,
+                    MaxValue = 100
 
                 };
             }
@@ -174,16 +205,17 @@ namespace adrilight.ViewModel
         /// <summary>
         /// Use this for rainbow engine to select chasing pattern from database
         /// </summary>
-        public LightingModeParameter ChasingPatterns {
+        public IModeParameter ChasingPatterns {
             get
             {
-                return new LightingModeParameter() {
+                return new ModeParameter() {
 
                     Name = "Pattern",
                     Description = "The motion to be colored",
-                    Type = LightingModeParameterEnum.ChasingPattern,
-                    Template = LightingModeParameterTemplateEnum.ListSelection,
-                    Value = 50
+                    Type = ModeParameterEnum.ChasingPattern,
+                    Template = ModeParameterTemplateEnum.ListSelection,
+                    Value = 50,
+                    AvailableValue = new List<object>() { "bouncing", "fucking", "humping" }
 
                 };
             }
@@ -191,15 +223,15 @@ namespace adrilight.ViewModel
         /// <summary>
         /// Use this for rainbow engine to select chasing pattern from database
         /// </summary>
-        public LightingModeParameter ColorMode {
+        public IModeParameter ColorMode {
             get
             {
-                return new LightingModeParameter() {
+                return new ModeParameter() {
 
                     Name = "ColorMode",
                     Description = "How the color being used",
-                    Type = LightingModeParameterEnum.ColorMode,
-                    Template = LightingModeParameterTemplateEnum.ListSelection,
+                    Type = ModeParameterEnum.ColorMode,
+                    Template = ModeParameterTemplateEnum.ListSelection,
                     Value = 0,
                     AvailableValue = new List<object>() { "Solid", "Random", "Cyclic", "Full" }
 
@@ -422,9 +454,9 @@ namespace adrilight.ViewModel
 
 
 
-     
 
-   
+
+
 
         private string _buildVersion = "";
 
@@ -645,6 +677,7 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+      
         public ICommand CompositionNextFrameCommand { get; set; }
         public ICommand LaunchAdrilightStoreItemCeatorWindowCommand { get; set; }
         public ICommand DownloadSelectedChasingPattern { get; set; }
@@ -1419,7 +1452,7 @@ namespace adrilight.ViewModel
                 }
             }
         }
-        public ResourceHelpers ResourceHlprs { get; private set; }  
+        public ResourceHelpers ResourceHlprs { get; private set; }
         public IGeneralSettings GeneralSettings { get; }
 
         public ISerialStream[] SerialStreams { get; }
@@ -1448,14 +1481,14 @@ namespace adrilight.ViewModel
             Context = context ?? throw new ArgumentNullException(nameof(context));
             AmbinityClient = ambinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
             SerialDeviceDetection = serialDeviceDetection ?? throw new ArgumentNullException(nameof(serialDeviceDetection));
-            
+
 
             var settingsManager = new UserSettingsManager();
             foreach (IDeviceSettings device in devices)
             {
                 foreach (var output in device.AvailableOutputs)
                 {
-                   // output.OutputLEDSetup.RefreshSizeAndPosition();
+                    // output.OutputLEDSetup.RefreshSizeAndPosition();
                 }
                 AvailableDevices.Add(device);
                 device.PropertyChanged += (_, __) => WriteSingleDeviceInfoJson(device);
@@ -1572,7 +1605,7 @@ namespace adrilight.ViewModel
         {
             // create directory based on device name and UID
             //check if device collection folder path is exist
-            if(!Directory.Exists(DevicesCollectionFolderPath))
+            if (!Directory.Exists(DevicesCollectionFolderPath))
             {
                 Directory.CreateDirectory(DevicesCollectionFolderPath);
             }
@@ -1585,12 +1618,12 @@ namespace adrilight.ViewModel
             device.DeviceThumbnail = Path.Combine(directory, "thumbnail.png");
             // finally write infojson
             WriteSingleDeviceInfoJson(device);
-           
+
 
 
 
         }
-        
+
         public void WriteSingleDeviceInfoJson(IDeviceSettings device)
         {
             var directory = Path.Combine(DevicesCollectionFolderPath, device.DeviceName + "-" + device.DeviceUID);
@@ -1628,23 +1661,37 @@ namespace adrilight.ViewModel
                     foreach (var serialDevice in newSerialDevices)
                     {
                         //add available mode
-                        foreach(var output in serialDevice.AvailableOutputs)
+                        foreach (var output in serialDevice.AvailableOutputs)
                         {
+
                             //in the future, if you want to disable some of the mode for specific device, just dont add to the list
-                            output.AvailableLightingMode.Add(ColorPalette);
-                            output.AvailableLightingMode.Add(MusicReactive);
-                            output.CurrentActiveLightingModeIndex = 0;// set default ligting mode
+                            //add controlable property, for fan hub, add speed control
                             output.ControlableProperties.Add(new OutputControlableProperty() {
                                 Name = "Lighting",
                                 Description = "Lighting Control for Current Output",
                                 Icon = "brightness",
-                                Type = OutputControlablePropertyEnum.Lighting
+                                Type = OutputControlablePropertyEnum.Lighting,
+                                AvailableControlMode = new List<IControlMode>() { ColorPalette, MusicReactive },
+                                CurrentActiveControlModeIndex = 0 // change this to change deffault lightingmode
+
                             });
+                            //example of adding speed mode
+                            output.ControlableProperties.Add(new OutputControlableProperty() {
+                                Name = "Speed",
+                                Description = "Speed Control for Current Output",
+                                Icon = "fanspeed",
+                                Type = OutputControlablePropertyEnum.Speed,
+                                AvailableControlMode = new List<IControlMode>() { FanSpeedAuto, FanSpeedManual },
+                                CurrentActiveControlModeIndex = 0 // change this to change deffault lightingmode
+
+                            });
+
+
 
                         }
                         WriteDeviceInfo(serialDevice);
                         AvailableDevices.Insert(0, serialDevice);
-                       
+
 
                     }
                     if (newOpenRGBDevices != null)
@@ -1676,18 +1723,18 @@ namespace adrilight.ViewModel
                     {
                         //set first device found active again since it's recconected
 
-                        var oldDevice = AvailableDevices.Where(p => p.OutputPort == serialDevice.OutputPort).FirstOrDefault();
-                        if (oldDevice.IsTransferActive == true)
-                        {
-                            //try to poke it
-                            oldDevice.IsTransferActive = false;
-                        }
-                        oldDevice.IsTransferActive = true;
-                        RaisePropertyChanged(nameof(oldDevice.IsTransferActive));
+                        //var oldDevice = AvailableDevices.Where(p => p.OutputPort == serialDevice.OutputPort).FirstOrDefault();
+                        //if (oldDevice.IsTransferActive == true)
+                        //{
+                        //    //try to poke it
+                        //    oldDevice.IsTransferActive = false;
+                        //}
+                        //oldDevice.IsTransferActive = true;
+                        //RaisePropertyChanged(nameof(oldDevice.IsTransferActive));
 
                         //restart it's serialstram by 
                         //setting the transferactive to true, no matter it;s active or not
-                        WriteSingleDeviceInfoJson(oldDevice);
+                       // WriteSingleDeviceInfoJson(oldDevice);
                     }
                     //if (oldOpenRGBDevices != null)
                     //{
@@ -1700,7 +1747,7 @@ namespace adrilight.ViewModel
                     //    }
                     //}
 
-                    
+
                 }
             });
 
@@ -1945,27 +1992,7 @@ namespace adrilight.ViewModel
             }
         }
 
-        private ObservableCollection<ILightingMode> _availableLightingMode;
 
-        public ObservableCollection<ILightingMode> AvailableLightingMode {
-            get => _availableLightingMode;
-            set
-            {
-                Set(ref _availableLightingMode, value);
-                // _log.Info($"IsSettingsWindowOpen is now {_isSettingsWindowOpen}");
-            }
-        }
-
-        private ILightingMode _currentSelectedLightingMode;
-
-        public ILightingMode CurrentSelectedLightingMode {
-            get => _currentSelectedLightingMode;
-            set
-            {
-                Set(ref _currentSelectedLightingMode, value);
-                // _log.Info($"IsSettingsWindowOpen is now {_isSettingsWindowOpen}");
-            }
-        }
 
         private IAutomationSettings _currentSelectedAutomation;
 
@@ -2760,14 +2787,14 @@ namespace adrilight.ViewModel
             }
           );
 
-          //  ExportCurrentColorEffectCommand = new RelayCommand<string>((p) =>
-          //  {
-          //      return true;
-          //  }, (p) =>
-          //  {
-          //      //ExportCurrentColorEffect();
-          //  }
-          //);
+            //  ExportCurrentColorEffectCommand = new RelayCommand<string>((p) =>
+            //  {
+            //      return true;
+            //  }, (p) =>
+            //  {
+            //      //ExportCurrentColorEffect();
+            //  }
+            //);
             OpenRectangleScaleCommand = new RelayCommand<ObservableCollection<IDrawable>>((p) =>
             {
                 return true;
@@ -2795,6 +2822,7 @@ namespace adrilight.ViewModel
                     CurrentCompositionFrame++;
             }
      );
+      
             CutSelectedMotionCommand = new RelayCommand<ITimeLineDataItem>((p) =>
             {
                 return true;
@@ -3235,7 +3263,7 @@ namespace adrilight.ViewModel
                 SetIncreament(10, 1, 0, PreviewSpots.Length - 1);
             });
 
-         
+
 
             ImportEffectCommand = new RelayCommand<string>((p) =>
             {
@@ -3245,7 +3273,7 @@ namespace adrilight.ViewModel
                 ImportEffect();
             });
 
-        
+
 
             DeleteSelectedDeviceCommand = new RelayCommand<string>((p) =>
             {
@@ -3261,7 +3289,7 @@ namespace adrilight.ViewModel
             {
                 DeleteSelectedDevices();
             });
-          
+
             ImportPaletteCardFromFileCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -3289,7 +3317,7 @@ namespace adrilight.ViewModel
             }, (p) =>
             {
                 ExportCurrentOutputPID();
-                
+
             });
             ImportPIDCommand = new RelayCommand<string>((p) =>
             {
@@ -4108,7 +4136,7 @@ namespace adrilight.ViewModel
             {
                 ShowAddNewWindow();
             });
-          
+
             BackCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -7036,7 +7064,7 @@ namespace adrilight.ViewModel
             SurfaceEditorItems.Add(newGroup);
 
         }
-        OnlineItemExporterView itemExporter { get; set;}
+        OnlineItemExporterView itemExporter { get; set; }
         public object CurrentOnlineItemToExport { get; set; }
         private void LaunchAdrilightStoreItemCreatorWindow()
         {
@@ -7926,7 +7954,7 @@ namespace adrilight.ViewModel
 
         public void LoadData()
         {
-            if(ResourceHlprs==null)
+            if (ResourceHlprs == null)
                 ResourceHlprs = new ResourceHelpers();
             LoadAvailableLightingMode();
             LoadAvailablePalettes();
@@ -8368,18 +8396,18 @@ namespace adrilight.ViewModel
 
         }
 
-     
 
 
-    
 
-      
+
+
+
 
         /// <summary>
         /// Change View
         /// </summary>
         /// <param name="menuItem"></param>
-    
+
 
         //public void WriteDeviceInfoJson()
         //{
@@ -8873,6 +8901,9 @@ namespace adrilight.ViewModel
             get { return _currentView; }
             set { _currentView = value; RaisePropertyChanged(); }
         }
+
+
+
         public void GotoChild(IDeviceSettings selectedDevice)
         {
             CurrentDevice = selectedDevice;
@@ -8969,12 +9000,12 @@ namespace adrilight.ViewModel
             CurrentView = "dashboard";
         }
 
-       
+
 
         /// <summary>
         /// Load vertical menu
         /// </summary>
-     
+
         public void LoadContextMenu()
         {
             AvailableContextMenus = new ObservableCollection<SystemTrayContextMenu>();

@@ -1,6 +1,6 @@
 ﻿namespace adrilight.Util
 {
-    public  enum LightingModeParameterTemplateEnum
+    public  enum ModeParameterTemplateEnum
     {
         /// <summary>
         ///    this is common value slider type

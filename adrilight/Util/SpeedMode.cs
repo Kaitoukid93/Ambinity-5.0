@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace adrilight.Util
 {
-    internal class LightingMode: ViewModelBase, IControlMode
+    internal class SpeedMode: ViewModelBase, IControlMode
     {
         //bool Autostart { get; set; }
 
 
-        public LightingMode() {
+        public SpeedMode() {
             Parameters = new List<IModeParameter>();
         }
 
@@ -40,13 +40,13 @@ namespace adrilight.Util
         /// List of parameters that this mode have
         /// </summary>
         public List<IModeParameter> Parameters { get; set; }
-        public void BrightnessUp(int upValue)
+        public void SpeedUp(int upValue)
         {
             //find the brightness param and add value
-            var brightnessParam = Parameters.Where(p=> p.Type == ModeParameterEnum.Brightness).FirstOrDefault();
-            var currentValue = (int)brightnessParam.Value;
+            var speedParam = Parameters.Where(p=> p.Type == ModeParameterEnum.Speed).FirstOrDefault();
+            var currentValue = (int)speedParam.Value;
             var targetValue = currentValue + upValue;
-            brightnessParam.Value = targetValue;
+            speedParam.Value = targetValue;
 
         }
     }

@@ -11,6 +11,7 @@ using System.Windows.Input;
 using adrilight.ViewModel;
 using System.Windows;
 using adrilight_effect_analyzer.Model;
+using Newtonsoft.Json;
 
 namespace adrilight
 {
@@ -68,7 +69,7 @@ namespace adrilight
         string Geometry { get; set; }
         //int OutputMusicVisualizerFreq { get; set; }
      
-        List<OutputControlableProperty> ControlableProperties { get; set; }
+        List<IOutputControlableProperty> ControlableProperties { get; set; }
 
 
 
@@ -96,12 +97,14 @@ namespace adrilight
         //int OutputBreathingSpeed { get; set; }
         int SleepMode { get; set; }
         bool OutputIsSelected { get; set; }
-        List<ILightingMode> AvailableLightingMode { get; set; }
-        ILightingMode CurrentActiveLightingMode { get;}
-        int CurrentActiveLightingModeIndex { get; set; }
+        //List<ILightingMode> AvailableLightingMode { get; set; }
+        //ILightingMode CurrentActiveLightingMode { get;}
+        int CurrentActiveControlPropertyIndex { get; set; }
+        
+        IOutputControlableProperty CurrentActiveControlProperty { get; set; }
         //static color settings//
         //IGradientColorCard OutputSelectedGradient { get; set; }
-         bool OutputParrentIsEnable { get; set; }
+        bool OutputParrentIsEnable { get; set; }
 
         //IColorPalette OutputCurrentActivePalette { get; set; }
         ILEDSetup OutputLEDSetup { get; set; }

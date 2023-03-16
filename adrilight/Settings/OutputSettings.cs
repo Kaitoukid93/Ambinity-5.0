@@ -4,6 +4,7 @@ using adrilight.Util;
 using adrilight.ViewModel;
 using adrilight_effect_analyzer.Model;
 using GalaSoft.MvvmLight;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -20,7 +21,7 @@ namespace adrilight
 {
     internal class OutputSettings : ViewModelBase, IOutputSettings
     {
-       
+
         private string _outputName;
         private string _outputType;
         private int _outputID;
@@ -80,20 +81,22 @@ namespace adrilight
         private int _lEDPerSpot = 1;
         private int _lEDPerLED = 1;
         private bool _outputIsPreviewRunning = false;
+        private int _currentActiveControlPropertyIndex;
+
         //private int _vUOrientation = 0;
         //private int _vUMode = 0;
         //private IGifCard _outputSelectedGif = null;
         //private int _outputSelectedGifIndex = 0;
         //private MotionCard _outputSelectedMotion;
-    
-        private List<OutputControlableProperty> _outputControlableProperty;
-        
-        
+
+        private List<IOutputControlableProperty> _outputControlableProperty;
+        private IOutputControlableProperty _currentActiveControlableProperty;
+
 
         public OutputSettings()
         {
-            AvailableLightingMode = new List<ILightingMode>();
-            ControlableProperties = new List<OutputControlableProperty>();
+            //AvailableLightingMode = new List<ILightingMode>();
+            ControlableProperties = new List<IOutputControlableProperty>();
         }
 
         //private int _outputGifSpeed = 20;
@@ -220,11 +223,23 @@ namespace adrilight
 
         public bool OutputIsBuildingLEDSetup { get => _outputIsBuildingLEDSetup; set { Set(() => OutputIsBuildingLEDSetup, ref _outputIsBuildingLEDSetup, value); } }
 
-        public List<ILightingMode> AvailableLightingMode { get => _availableLightingMode; set { Set(() => AvailableLightingMode, ref _availableLightingMode, value); } }
-        public ILightingMode CurrentActiveLightingMode => AvailableLightingMode[CurrentActiveLightingModeIndex];
-        public int CurrentActiveLightingModeIndex { get => _currentActiveLightingModeIndex; set { Set(() => CurrentActiveLightingModeIndex, ref _currentActiveLightingModeIndex, value); } }
+        //public List<ILightingMode> AvailableLightingMode { get => _availableLightingMode; set { Set(() => AvailableLightingMode, ref _availableLightingMode, value); } }
+        //public ILightingMode CurrentActiveLightingMode => AvailableLightingMode[CurrentActiveLightingModeIndex];
+        //public int CurrentActiveLightingModeIndex { get => _currentActiveLightingModeIndex; set { Set(() => CurrentActiveLightingModeIndex, ref _currentActiveLightingModeIndex, value); } }
 
-        public List<OutputControlableProperty> ControlableProperties { get => _outputControlableProperty; set { Set(() => ControlableProperties, ref _outputControlableProperty, value); } }
+        public List<IOutputControlableProperty> ControlableProperties { get => _outputControlableProperty; set { Set(() => ControlableProperties, ref _outputControlableProperty, value); } }
+
+        public int CurrentActiveControlPropertyIndex { get => _currentActiveControlPropertyIndex; set { Set(() => CurrentActiveControlPropertyIndex, ref _currentActiveControlPropertyIndex, value); OnPropertySelectionChanged(); } }
+
+        private void OnPropertySelectionChanged()
+        {
+            CurrentActiveControlProperty = ControlableProperties[CurrentActiveControlPropertyIndex];
+            RaisePropertyChanged(nameof(CurrentActiveControlProperty));
+        }
+        [JsonIgnore]
+        public IOutputControlableProperty CurrentActiveControlProperty { get; set; }
+
+       
 
         //[Reflectable]
         //public bool OutputIsSystemSync { get => _outputIsSystemSync; set { Set(() => OutputIsSystemSync, ref _outputIsSystemSync, value); } }
@@ -241,7 +256,10 @@ namespace adrilight
         public void BrightnessUp(int upValue)
         {
             //brightness up current active mode
-            CurrentActiveLightingMode.BrightnessUp(upValue);
+            //controlable lighting property
+            var lightingControl = ControlableProperties.Where(c => c.Type == OutputControlablePropertyEnum.Lighting).FirstOrDefault();
+            var currentLightingMode = lightingControl.CurrentActiveControlMode as LightingMode;
+            currentLightingMode.BrightnessUp(upValue);
         }
     }
 }

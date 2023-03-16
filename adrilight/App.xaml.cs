@@ -205,7 +205,7 @@ namespace adrilight
             var kernel = new StandardKernel(new DeviceSettingsInjectModule());
             //Load setting từ file Json//
             var settingsManager = new UserSettingsManager();
-            var existedDevice = settingsManager.LoadDeviceIfExists();
+            var existedDevice = kernel.GetAll<IDeviceSettings>();
             kernel.Bind(x => x.FromThisAssembly()
               .SelectAllClasses()
               .BindAllInterfaces());

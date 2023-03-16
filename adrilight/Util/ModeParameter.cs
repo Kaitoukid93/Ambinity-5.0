@@ -4,13 +4,13 @@ using System.Windows.Documents;
 
 namespace adrilight.Util
 {
-    public class LightingModeParameter : ViewModelBase, ILightingModeParameter
+    public class ModeParameter : ViewModelBase, IModeParameter // parameter specific for lighting control
     {
         private string _name;
         private string _description;
         private object _value;
-        private LightingModeParameterTemplateEnum _template;
-        private LightingModeParameterEnum _type;
+        private ModeParameterTemplateEnum _template;
+        private ModeParameterEnum _type;
         private int _minValue;
         private int _maxValue;
         private List<object> _availableValue;
@@ -32,8 +32,8 @@ namespace adrilight.Util
         /// <summary>
         /// this is the type of lighting mode, use to get the data template
         /// </summary>
-        public LightingModeParameterTemplateEnum Template { get => _template; set { Set(() => Template, ref _template, value); } }
-        public LightingModeParameterEnum Type { get => _type; set { Set(() => Type, ref _type, value); } }
+        public ModeParameterTemplateEnum Template { get => _template; set { Set(() => Template, ref _template, value); } }
+        public ModeParameterEnum Type { get => _type; set { Set(() => Type, ref _type, value); } }
 
         /// <summary>
         /// this is the min and max value of this parameter , use to set min or max value of the template (slider, nummeric updown

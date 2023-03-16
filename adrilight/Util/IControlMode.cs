@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace adrilight.Util
 {
-    public interface ILightingMode : INotifyPropertyChanged
+    public interface IControlMode : INotifyPropertyChanged
     {
         //bool Autostart { get; set; }
 
@@ -38,8 +38,8 @@ namespace adrilight.Util
         /// <summary>
         /// List of parameters that this mode have
         /// </summary>
-        List<LightingModeParameter> Parameters { get; set; }
-        void BrightnessUp(int upValue);
+        List<IModeParameter> Parameters { get; set; }
+       
 
        
 

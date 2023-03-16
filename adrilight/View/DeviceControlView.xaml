@@ -223,6 +223,7 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+
             <Style x:Key="_ListBoxOutputsCollectionStyle" TargetType="ListBoxItem">
                 <Setter Property="Template">
                     <Setter.Value>
@@ -331,8 +332,115 @@
                     </Trigger>
                 </Style.Triggers>
             </Style>
-            
 
+            <Style x:Key="_listBoxControlPropertyStyle" TargetType="ListBoxItem">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBoxItem">
+                            <Border CornerRadius="4" Name="_Border"
+                                Padding="0"
+                                Margin="0"
+                                Background="Transparent"
+                                BorderBrush="Transparent"
+                                BorderThickness="0"
+                                SnapsToDevicePixels="true">
+                                <ContentPresenter />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                        <Condition Property="IsSelected" Value="True"/>
+                                    </MultiTrigger.Conditions>
+
+
+                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource DarkOpacityBrush}"/>
+
+                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+                                </MultiTrigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                        <Condition Property="IsSelected" Value="True"/>
+                                    </MultiTrigger.Conditions>
+
+
+                                    <!--<Setter Property="Effect" TargetName="_Border" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>-->
+
+                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource DarkOpacityBrush}"/>
+                                </MultiTrigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsMouseOver" Value="True"/>
+                                        <Condition Property="IsSelected" Value="False"/>
+                                    </MultiTrigger.Conditions>
+
+                                    <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
+
+                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource RegionBrush}"/>
+                                    <Setter Property="Effect" TargetName="_Border" Value="{StaticResource Item.MouseOver.Border.Shadow}"/>
+                                </MultiTrigger>
+
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <!--<Setter Property="ToolTip" Value="{Binding DocName}"/>-->
+                <Setter Property="Tag" Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
+                <Setter Property="ContextMenu">
+                    <Setter.Value>
+                        <ContextMenu>
+
+                            <MenuItem Command="{Binding PlacementTarget.Tag.LaunchPositionEditWindowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="position"  Header="Layout">
+                                <MenuItem.Icon>
+                                    <Path   Data="{StaticResource WindowRestoreGeometry}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                </MenuItem.Icon>
+
+
+                            </MenuItem>
+                            <MenuItem Command="{Binding PlacementTarget.Tag.ImportPIDCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"  Header="Import LED Setup" >
+                                <MenuItem.Icon>
+                                    <Path   Data="{StaticResource import}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem  Command="{Binding PlacementTarget.Tag.ExportPIDCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" Header="Export LED Setup" >
+                                <MenuItem.Icon>
+                                    <Path   Data="{StaticResource export}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Command="{Binding PlacementTarget.Tag.ShowNameEditWindow, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="rename"  Header="Rename" >
+                                <MenuItem.Icon>
+                                    <Path   Data="{StaticResource editname}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
+
+                            <MenuItem CommandParameter="advance" Command="{Binding PlacementTarget.Tag.OpenAdvanceSettingWindowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" Header="Advance Settings" >
+                                <MenuItem.Icon>
+                                    <Path   Data="{StaticResource advancesettings}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
+
+                        </ContextMenu>
+
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="ContextMenuService.Placement" Value="Right">
+
+                </Setter>
+                <Setter Property="ContextMenuService.VerticalOffset" Value="0">
+
+                </Setter>
+                <Setter Property="ContextMenuService.HorizontalOffset" Value="5">
+
+                </Setter>
+                <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
             <Style x:Key="_listBoxGeneralModeSelectionStyle" TargetType="ListBoxItem">
                 <Setter Property="Template">
                     <Setter.Value>
@@ -468,7 +576,7 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
-       <!--device info and hardware control-->
+        <!--device info and hardware control-->
 
         <Grid>
             <Grid.ColumnDefinitions>
@@ -514,14 +622,14 @@
 
                     </hc:RunningBlock>
                     <!--<TextBlock FontSize="13" HorizontalAlignment="Left" Margin="2" Style="{StaticResource TextBlockDefault}" Text="{Binding CurrentDevice.DeviceDescription}" />-->
-               
+
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="auto"/>
                             <ColumnDefinition Width="auto"/>
                         </Grid.ColumnDefinitions>
                         <Button Foreground="{DynamicResource PrimaryBrush}" Content="Rename"   x:Name="ButtonRename"  Height="auto" Width="auto" VerticalAlignment="Top" hc:BorderElement.CornerRadius="6" Margin="5" FontSize="15" FontWeight="SemiBold" Click="RenameButtonClick"  Padding="5,3" HorizontalAlignment="Left"    Style="{StaticResource ButtonDefault}" BorderBrush="Transparent">
-                            
+
                             <Button.Background>
                                 <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
                             </Button.Background>
@@ -830,52 +938,55 @@
                 </Grid.ColumnDefinitions>
                 <!--OutputControlViewSelector-->
                 <Grid Grid.Column="0">
-                    <Border Margin="10,10,2,10" Background="{DynamicResource MainContentBackgroundBrush}" CornerRadius="7,0,0,7" Width="50">
-                        <ListBox Margin="0" VerticalAlignment="Top" ItemContainerStyle="{DynamicResource _ListBoxOutputsCollectionStyle}" Background="Transparent" BorderThickness="0" Style="{DynamicResource WrapPanelVerticalListBox}">
-                            <ListBoxItem>
-                                <Path Fill="White" Stretch="Uniform" Margin="5" Data="{DynamicResource moon}" 
+                    <Border VerticalAlignment="Top" Height="auto" Margin="10,10,2,10" Background="{DynamicResource MainContentBackgroundBrush}"  Width="50">
+                        <ListBox SelectedIndex="{Binding CurrentOutput.CurrentActiveControlPropertyIndex,Mode=TwoWay}" ItemsSource="{Binding CurrentOutput.ControlableProperties,Mode=TwoWay}" Margin="0" VerticalAlignment="Top" ItemContainerStyle="{DynamicResource _listBoxControlPropertyStyle}" Background="Transparent" BorderThickness="0" Style="{DynamicResource WrapPanelVerticalListBox}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Path Fill="White" Stretch="Uniform" Margin="5" Data="{Binding Icon,Converter={converters:StaticResourceConverter}}"
                                       Width="20" 
                                       Height="20" >
-                                </Path>
-                            </ListBoxItem>
-                            <ListBoxItem />
-                            <ListBoxItem />
-                         
+                                    </Path>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
                         </ListBox>
-                        
+
                     </Border>
                 </Grid>
                 <!--ControlView-->
                 <Grid Grid.Column="1">
-                    <Border Margin="2,10,10,10" CornerRadius="0,7,7,0" Background="{DynamicResource MainContentBackgroundBrush}" Width="500">
+                    <Border Margin="2,10,10,10"  Background="{DynamicResource MainContentBackgroundBrush}" Width="500">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                        <Grid Grid.Row="0">
-                            
+                            <!--output collections-->
+                            <Grid Grid.Row="0">
+
+                            </Grid>
+                            <!--ControlView-->
+                            <Grid Grid.Row="1">
+                                <local:OutputControlView>
+                                    
+                                </local:OutputControlView>
+                            </Grid>
                         </Grid>
-                        <Grid Grid.Row="1">
-                            
-                        </Grid>
+
+                    </Border>
                 </Grid>
 
-                </Border>
-            </Grid>
-              
 
             </Grid>
-            
-            
+
+
             <!--device  Preview-->
             <Grid Grid.Column="1">
-                
+
             </Grid>
         </Grid>
-        
-      
-    
+
+
+
 
 
 

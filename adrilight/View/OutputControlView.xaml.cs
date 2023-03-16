@@ -29,7 +29,7 @@ namespace adrilight.View
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            //this.Close();
         }
 
         //private void ToggleButton_MouseDown(object sender, MouseButtonEventArgs e)
