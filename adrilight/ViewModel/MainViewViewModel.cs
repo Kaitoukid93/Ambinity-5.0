@@ -525,114 +525,114 @@ namespace adrilight.ViewModel
                     {
 
 
-                        case nameof(CurrentOutput.OutputMusicSensitivity):
-                            SensitivityThickness = new Thickness(0, 0, 0, CurrentOutput.OutputMusicSensitivity + 15);
-                            RaisePropertyChanged(nameof(SensitivityThickness));
-                            break;
+                        //case nameof(CurrentOutput.OutputMusicSensitivity):
+                        //    SensitivityThickness = new Thickness(0, 0, 0, CurrentOutput.OutputMusicSensitivity + 15);
+                        //    RaisePropertyChanged(nameof(SensitivityThickness));
+                        //    break;
 
-                        case nameof(CurrentOutput.OutputMusicVisualizerFreq):
-                            if (CurrentOutput.OutputMusicVisualizerFreq == 0) // bass configuration
-                            {
-                                foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                                {
-                                    spot.SetMID(20);
-                                }
-                            }
-                            else if (CurrentOutput.OutputMusicVisualizerFreq == 1)// mid configuration
-                            {
-                                foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                                {
-                                    spot.SetMID(100);
-                                }
-                            }
-                            else if (CurrentOutput.OutputMusicVisualizerFreq == 2)// treble configuration
-                            {
-                                foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                                {
-                                    spot.SetMID(500);
-                                }
-                            }
-                            else if (CurrentOutput.OutputMusicVisualizerFreq == 3)// Full range configuration
-                            {
-                                foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                                {
-                                    var mid = (spot.id * 1024 / CurrentOutput.OutputLEDSetup.Spots.Count);
-                                    spot.SetMID(mid);
-                                }
-                            }
-                            RaisePropertyChanged(nameof(SensitivityThickness));
-                            break;
+                        //case nameof(CurrentOutput.OutputMusicVisualizerFreq):
+                        //    if (CurrentOutput.OutputMusicVisualizerFreq == 0) // bass configuration
+                        //    {
+                        //        foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
+                        //        {
+                        //            spot.SetMID(20);
+                        //        }
+                        //    }
+                        //    else if (CurrentOutput.OutputMusicVisualizerFreq == 1)// mid configuration
+                        //    {
+                        //        foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
+                        //        {
+                        //            spot.SetMID(100);
+                        //        }
+                        //    }
+                        //    else if (CurrentOutput.OutputMusicVisualizerFreq == 2)// treble configuration
+                        //    {
+                        //        foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
+                        //        {
+                        //            spot.SetMID(500);
+                        //        }
+                        //    }
+                        //    else if (CurrentOutput.OutputMusicVisualizerFreq == 3)// Full range configuration
+                        //    {
+                        //        foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
+                        //        {
+                        //            var mid = (spot.id * 1024 / CurrentOutput.OutputLEDSetup.Spots.Count);
+                        //            spot.SetMID(mid);
+                        //        }
+                        //    }
+                        //    RaisePropertyChanged(nameof(SensitivityThickness));
+                        //    break;
 
-                        case nameof(CurrentOutput.OutputPaletteChasingPosition):
-                            switch (CurrentOutput.OutputPaletteChasingPosition)
-                            {
-                                case 0:
-                                    foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                                    {
-                                        spot.SetStroke(0.5);
-                                    }
-                                    SetIDMode = "VID";
-                                    ProcessSelectedSpotsWithRange(0, 64);
-                                    foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                                    {
-                                        spot.SetStroke(0);
-                                    }
-                                    break;
+                        //case nameof(CurrentOutput.OutputPaletteChasingPosition):
+                        //    switch (CurrentOutput.OutputPaletteChasingPosition)
+                        //    {
+                        //        case 0:
+                        //            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
+                        //            {
+                        //                spot.SetStroke(0.5);
+                        //            }
+                        //            SetIDMode = "VID";
+                        //            ProcessSelectedSpotsWithRange(0, 64);
+                        //            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
+                        //            {
+                        //                spot.SetStroke(0);
+                        //            }
+                        //            break;
 
-                                case 1:
-                                    foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                                    {
-                                        spot.SetStroke(0.5);
-                                    }
-                                    SetIDMode = "VID";
-                                    ProcessSelectedSpotsWithRange(0, 128);
-                                    foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                                    {
-                                        spot.SetStroke(0);
-                                    }
-                                    break;
+                        //        case 1:
+                        //            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
+                        //            {
+                        //                spot.SetStroke(0.5);
+                        //            }
+                        //            SetIDMode = "VID";
+                        //            ProcessSelectedSpotsWithRange(0, 128);
+                        //            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
+                        //            {
+                        //                spot.SetStroke(0);
+                        //            }
+                        //            break;
 
-                                case 2:
-                                    foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                                    {
-                                        spot.SetStroke(0.5);
-                                    }
-                                    SetIDMode = "VID";
-                                    ProcessSelectedSpotsWithRange(0, 256);
-                                    foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                                    {
-                                        spot.SetStroke(0);
-                                    }
-                                    break;
+                        //        case 2:
+                        //            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
+                        //            {
+                        //                spot.SetStroke(0.5);
+                        //            }
+                        //            SetIDMode = "VID";
+                        //            ProcessSelectedSpotsWithRange(0, 256);
+                        //            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
+                        //            {
+                        //                spot.SetStroke(0);
+                        //            }
+                        //            break;
 
-                                case 3:
-                                    foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                                    {
-                                        spot.SetStroke(0.5);
-                                    }
-                                    SetIDMode = "VID";
-                                    ProcessSelectedSpotsWithRange(0, 512);
-                                    foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                                    {
-                                        spot.SetStroke(0);
-                                    }
-                                    break;
+                        //        case 3:
+                        //            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
+                        //            {
+                        //                spot.SetStroke(0.5);
+                        //            }
+                        //            SetIDMode = "VID";
+                        //            ProcessSelectedSpotsWithRange(0, 512);
+                        //            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
+                        //            {
+                        //                spot.SetStroke(0);
+                        //            }
+                        //            break;
 
-                                case 4:
-                                    foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                                    {
-                                        spot.SetStroke(0.5);
-                                    }
-                                    SetIDMode = "VID";
-                                    ProcessSelectedSpotsWithRange(0, 1024);
-                                    foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                                    {
-                                        spot.SetStroke(0);
-                                    }
-                                    break;
-                            }
+                        //        case 4:
+                        //            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
+                        //            {
+                        //                spot.SetStroke(0.5);
+                        //            }
+                        //            SetIDMode = "VID";
+                        //            ProcessSelectedSpotsWithRange(0, 1024);
+                        //            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
+                        //            {
+                        //                spot.SetStroke(0);
+                        //            }
+                        //            break;
+                        //    }
 
-                            break;
+                        //    break;
 
                         case nameof(CurrentOutput.OutputIsEnabled):
                             if (CurrentDevice.AvailableOutputs.Length == 1)
@@ -1455,7 +1455,7 @@ namespace adrilight.ViewModel
             {
                 foreach (var output in device.AvailableOutputs)
                 {
-                    output.OutputLEDSetup.RefreshSizeAndPosition();
+                   // output.OutputLEDSetup.RefreshSizeAndPosition();
                 }
                 AvailableDevices.Add(device);
                 device.PropertyChanged += (_, __) => WriteSingleDeviceInfoJson(device);
@@ -1628,7 +1628,15 @@ namespace adrilight.ViewModel
                     foreach (var serialDevice in newSerialDevices)
                     {
                         //add available mode
+                        foreach(var output in serialDevice.AvailableOutputs)
+                        {
+                            //in the future, if you want to disable some of the mode for specific device, just dont add to the list
+                            output.AvailableLightingMode.Add(ColorPalette);
+                            output.AvailableLightingMode.Add(MusicReactive);
+                            output.CurrentActiveLightingModeIndex = 0;// set default ligting mode
+                            output.ControlableProperties =
 
+                        }
                         WriteDeviceInfo(serialDevice);
                         AvailableDevices.Insert(0, serialDevice);
                        
@@ -1965,38 +1973,38 @@ namespace adrilight.ViewModel
             }
         }
 
-        private IColorPalette _currentActivePalette;
+        //private IColorPalette _currentActivePalette;
 
-        public IColorPalette CurrentActivePalette {
-            get { return _currentActivePalette; }
-            set
-            {
-                if (value != null)
-                {
-                    _currentActivePalette = value;
-                    CurrentOutput.OutputCurrentActivePalette = value;
-                    RaisePropertyChanged(nameof(CurrentOutput.OutputCurrentActivePalette));
-                }
+        //public IColorPalette CurrentActivePalette {
+        //    get { return _currentActivePalette; }
+        //    set
+        //    {
+        //        if (value != null)
+        //        {
+        //            _currentActivePalette = value;
+        //            CurrentOutput.OutputCurrentActivePalette = value;
+        //            RaisePropertyChanged(nameof(CurrentOutput.OutputCurrentActivePalette));
+        //        }
 
-                //SetCurrentDeviceSelectedPalette(value);
-            }
-        }
+        //        //SetCurrentDeviceSelectedPalette(value);
+        //    }
+        //}
 
-        private IGifCard _currentActiveGif;
+        //private IGifCard _currentActiveGif;
 
-        public IGifCard CurrentActiveGif {
-            get { return _currentActiveGif; }
-            set
-            {
-                if (value != null)
-                {
-                    _currentActiveGif = value;
-                    CurrentOutput.OutputSelectedGif = value;
-                }
+        //public IGifCard CurrentActiveGif {
+        //    get { return _currentActiveGif; }
+        //    set
+        //    {
+        //        if (value != null)
+        //        {
+        //            _currentActiveGif = value;
+        //            CurrentOutput.OutputSelectedGif = value;
+        //        }
 
-                //SetCurrentDeviceSelectedPalette(value);
-            }
-        }
+        //        //SetCurrentDeviceSelectedPalette(value);
+        //    }
+        //}
 
         private ObservableCollection<Color> _currentEditingColors;
 
@@ -2149,7 +2157,7 @@ namespace adrilight.ViewModel
             set
             {
                 _selectedSolidColor = value;
-                CurrentOutput.OutputStaticColor = value;
+                //CurrentOutput.OutputStaticColor = value;
 
                 RaisePropertyChanged();
             }
@@ -2302,7 +2310,7 @@ namespace adrilight.ViewModel
                 if (value != null)
                 {
                     _currentSelectedGradient = value;
-                    CurrentOutput.OutputSelectedGradient = value;
+                    //CurrentOutput.OutputSelectedGradient = value;
                     RaisePropertyChanged();
                 }
             }
@@ -2416,7 +2424,7 @@ namespace adrilight.ViewModel
             {
                 foreach (var output in CurrentDevice.AvailableOutputs)
                 {
-                    output.OutputSelectedMode = CurrentOutput.OutputSelectedMode;
+                    //output.OutputSelectedMode = CurrentOutput.OutputSelectedMode;
                 }
             });
             SetAllOutputSelectedGifCommand = new RelayCommand<string>((p) =>
@@ -2426,8 +2434,8 @@ namespace adrilight.ViewModel
             {
                 foreach (var output in CurrentDevice.AvailableOutputs)
                 {
-                    output.OutputSelectedGif = CurrentOutput.OutputSelectedGif;
-                    output.OutputSelectedGifIndex = CurrentOutput.OutputSelectedGifIndex;
+                    //output.OutputSelectedGif = CurrentOutput.OutputSelectedGif;
+                    //output.OutputSelectedGifIndex = CurrentOutput.OutputSelectedGifIndex;
                 }
             });
 
@@ -2440,7 +2448,7 @@ namespace adrilight.ViewModel
                 {
                     foreach (var output in device.AvailableOutputs)
                     {
-                        output.OutputSelectedMode = CurrentOutput.OutputSelectedMode;
+                        //output.OutputSelectedMode = CurrentOutput.OutputSelectedMode;
                     }
 
                 }
@@ -2454,7 +2462,7 @@ namespace adrilight.ViewModel
                 {
                     foreach (var output in device.AvailableOutputs)
                     {
-                        output.OutputStaticColor = CurrentOutput.OutputStaticColor;
+                        //output.OutputStaticColor = CurrentOutput.OutputStaticColor;
                     }
 
                 }
@@ -2468,7 +2476,7 @@ namespace adrilight.ViewModel
                 {
                     foreach (var output in device.AvailableOutputs)
                     {
-                        output.OutputSelectedGradient = CurrentOutput.OutputSelectedGradient;
+                        //output.OutputSelectedGradient = CurrentOutput.OutputSelectedGradient;
                     }
 
                 }
@@ -2505,7 +2513,7 @@ namespace adrilight.ViewModel
             {
                 foreach (var output in CurrentDevice.AvailableOutputs)
                 {
-                    output.OutputStaticColor = CurrentOutput.OutputStaticColor;
+                    //output.OutputStaticColor = CurrentOutput.OutputStaticColor;
                 }
             });
             SetAllOutputSelectedGradientColorCommand = new RelayCommand<string>((p) =>
@@ -2515,7 +2523,7 @@ namespace adrilight.ViewModel
             {
                 foreach (var output in CurrentDevice.AvailableOutputs)
                 {
-                    output.OutputSelectedGradient = CurrentOutput.OutputSelectedGradient;
+                    //output.OutputSelectedGradient = CurrentOutput.OutputSelectedGradient;
                 }
             });
             UpdateCurrentSelectedDeviceFirmwareCommand = new RelayCommand<string>((p) =>
@@ -2534,8 +2542,8 @@ namespace adrilight.ViewModel
                 {
                     foreach (var output in device.AvailableOutputs)
                     {
-                        output.OutputSelectedGif = CurrentOutput.OutputSelectedGif;
-                        output.OutputSelectedGifIndex = CurrentOutput.OutputSelectedGifIndex;
+                        //output.OutputSelectedGif = CurrentOutput.OutputSelectedGif;
+                        //output.OutputSelectedGifIndex = CurrentOutput.OutputSelectedGifIndex;
                     }
 
                 }
@@ -2687,7 +2695,7 @@ namespace adrilight.ViewModel
                        return true;
                    }, (p) =>
                    {
-                       CreateNewPalette();
+                       //CreateNewPalette();
                    });
             RequestingBetaChanelCommand = new RelayCommand<string>((p) =>
             {
@@ -2747,14 +2755,14 @@ namespace adrilight.ViewModel
             }
           );
 
-            ExportCurrentColorEffectCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                ExportCurrentColorEffect();
-            }
-          );
+          //  ExportCurrentColorEffectCommand = new RelayCommand<string>((p) =>
+          //  {
+          //      return true;
+          //  }, (p) =>
+          //  {
+          //      //ExportCurrentColorEffect();
+          //  }
+          //);
             OpenRectangleScaleCommand = new RelayCommand<ObservableCollection<IDrawable>>((p) =>
             {
                 return true;
@@ -2835,7 +2843,7 @@ namespace adrilight.ViewModel
                 return true;
             }, (p) =>
             {
-                CurrentOutput.IsInSpotEditWizard = false;
+                //CurrentOutput.IsInSpotEditWizard = false;
             }
         );
             SurfaceEditorWindowClosingCommand = new RelayCommand<string>((p) =>
@@ -3330,13 +3338,13 @@ namespace adrilight.ViewModel
                 CurrentOnlineItemToExport = p;
                 LaunchAdrilightStoreItemCreatorWindow();
             });
-            ShowBrightnessAdjustmentPopupCommand = new RelayCommand<IOutputSettings>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                p.IsBrightnessPopupOpen = true;
-            });
+            //ShowBrightnessAdjustmentPopupCommand = new RelayCommand<IOutputSettings>((p) =>
+            //{
+            //    return true;
+            //}, (p) =>
+            //{
+            //    p.IsBrightnessPopupOpen = true;
+            //});
             SendCurrentDeviceSpeedCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -3605,23 +3613,23 @@ namespace adrilight.ViewModel
                       //WriteDeviceInfoJson();
                       RaisePropertyChanged(nameof(CurrentOutput));
                   });
-            JumpToNextWizardStateCommand = new RelayCommand<string>((p) =>
-            {
-                return p != null;
-            }, (p) =>
-            {
-                CurrentLEDEditWizardState++;
+            //JumpToNextWizardStateCommand = new RelayCommand<string>((p) =>
+            //{
+            //    return p != null;
+            //}, (p) =>
+            //{
+            //    CurrentLEDEditWizardState++;
 
-                if (CurrentLEDEditWizardState == 1)
-                {
-                    GrabActivatedSpot();
-                }
-                else if (CurrentLEDEditWizardState == 2)
-                {
-                    ReorderActivatedSpot();
-                    CurrentOutput.IsInSpotEditWizard = false;
-                }
-            });
+            //    if (CurrentLEDEditWizardState == 1)
+            //    {
+            //        GrabActivatedSpot();
+            //    }
+            //    else if (CurrentLEDEditWizardState == 2)
+            //    {
+            //        ReorderActivatedSpot();
+            //        //CurrentOutput.IsInSpotEditWizard = false;
+            //    }
+            //});
             NextOOTBCommand = new RelayCommand<string>((p) =>
             {
                 return p != null;
@@ -3750,29 +3758,29 @@ namespace adrilight.ViewModel
                  }, (p) =>
                  {
                  });
-            BackToPreviousWizardStateCommand = new RelayCommand<string>((p) =>
-                 {
-                     return p != null;
-                 }, (p) =>
-                 {
-                     CurrentOutput.IsInSpotEditWizard = true;
-                     CurrentLEDEditWizardState--;
+            //BackToPreviousWizardStateCommand = new RelayCommand<string>((p) =>
+            //     {
+            //         return p != null;
+            //     }, (p) =>
+            //     {
+            //         CurrentOutput.IsInSpotEditWizard = true;
+            //         CurrentLEDEditWizardState--;
 
-                     //if (CurrentLEDEditWizardState == 1)
-                     //{
-                     //    BufferSpots = new IDeviceSpot[MaxLEDCount];
-                     //    GrabActivatedSpot();
+            //         //if (CurrentLEDEditWizardState == 1)
+            //         //{
+            //         //    BufferSpots = new IDeviceSpot[MaxLEDCount];
+            //         //    GrabActivatedSpot();
 
-                     //}
-                     //else if (CurrentLEDEditWizardState == 2)
-                     //{
-                     //    ReorderActivatedSpot();
-                     //}
-                     //else if (CurrentLEDEditWizardState == 3)
-                     //{
-                     //    RunTestSequence();
-                     //}
-                 });
+            //         //}
+            //         //else if (CurrentLEDEditWizardState == 2)
+            //         //{
+            //         //    ReorderActivatedSpot();
+            //         //}
+            //         //else if (CurrentLEDEditWizardState == 3)
+            //         //{
+            //         //    RunTestSequence();
+            //         //}
+            //     });
 
             SetSpotActiveCommand = new RelayCommand<IDeviceSpot>((p) =>
             {
@@ -5022,49 +5030,49 @@ namespace adrilight.ViewModel
             // CurrentDevice.AvailableOutputs[0].IsInSpotEditWizard = false;
             //GotoChild(CurrentDevice);
         }
-        private void ExportCurrentColorEffect()
-        {
-            SaveFileDialog Export = new SaveFileDialog();
-            Export.CreatePrompt = true;
-            Export.OverwritePrompt = true;
+        //private void ExportCurrentColorEffect()
+        //{
+        //    SaveFileDialog Export = new SaveFileDialog();
+        //    Export.CreatePrompt = true;
+        //    Export.OverwritePrompt = true;
 
-            Export.Title = "Xuất dữ liệu";
-            Export.FileName = NewEffectName;
-            Export.CheckFileExists = false;
-            Export.CheckPathExists = true;
-            Export.DefaultExt = "ACE";
-            Export.Filter = "All files (*.*)|*.*";
-            Export.InitialDirectory =
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            Export.RestoreDirectory = true;
-            //init new effect
-            var listLEDSetup = new List<ILEDSetup>();
+        //    Export.Title = "Xuất dữ liệu";
+        //    Export.FileName = NewEffectName;
+        //    Export.CheckFileExists = false;
+        //    Export.CheckPathExists = true;
+        //    Export.DefaultExt = "ACE";
+        //    Export.Filter = "All files (*.*)|*.*";
+        //    Export.InitialDirectory =
+        //    Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        //    Export.RestoreDirectory = true;
+        //    //init new effect
+        //    var listLEDSetup = new List<ILEDSetup>();
 
-            foreach (var output in CurrentDevice.AvailableOutputs)
-            {
-                listLEDSetup.Add(output.OutputLEDSetup);
-            }
+        //    foreach (var output in CurrentDevice.AvailableOutputs)
+        //    {
+        //        listLEDSetup.Add(output.OutputLEDSetup);
+        //    }
 
-            IAmbinoColorEffect effect = new AmbinoColorEffect {
-                Name = NewEffectName,
-                TargetType = CurrentDevice.DeviceType,
-                ColorPalette = CurrentActivePalette,
-                Description = _newEffectDescription,
-                EffectVersion = "1.0.0",
-                OutputLEDSetup = listLEDSetup.ToArray(),
-            };
+        //    IAmbinoColorEffect effect = new AmbinoColorEffect {
+        //        Name = NewEffectName,
+        //        TargetType = CurrentDevice.DeviceType,
+        //        ColorPalette = CurrentActivePalette,
+        //        Description = _newEffectDescription,
+        //        EffectVersion = "1.0.0",
+        //        OutputLEDSetup = listLEDSetup.ToArray(),
+        //    };
 
-            var coloreffectjson = JsonConvert.SerializeObject(effect, new JsonSerializerSettings() {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
+        //    var coloreffectjson = JsonConvert.SerializeObject(effect, new JsonSerializerSettings() {
+        //        TypeNameHandling = TypeNameHandling.Auto
+        //    });
 
-            if (Export.ShowDialog() == DialogResult.OK)
-            {
-                Directory.CreateDirectory(JsonPath);
-                File.WriteAllText(Export.FileName, coloreffectjson);
-                Growl.Success("Profile exported successfully!");
-            }
-        }
+        //    if (Export.ShowDialog() == DialogResult.OK)
+        //    {
+        //        Directory.CreateDirectory(JsonPath);
+        //        File.WriteAllText(Export.FileName, coloreffectjson);
+        //        Growl.Success("Profile exported successfully!");
+        //    }
+        //}
 
         private void ExportCurrentProfile(IDeviceProfile profile)
         {
@@ -5292,8 +5300,8 @@ namespace adrilight.ViewModel
                             case "color":
                                 foreach (var output in targetDevice.AvailableOutputs)
                                 {
-                                    output.OutputStaticColor = (Color)ColorConverter.ConvertFromString((string)action.ActionParameter.Value);
-                                    output.OutputSelectedMode = 3;
+                                    //output.OutputStaticColor = (Color)ColorConverter.ConvertFromString((string)action.ActionParameter.Value);
+                                    //output.OutputSelectedMode = 3;
                                 }
 
                                 break;
@@ -6296,7 +6304,7 @@ namespace adrilight.ViewModel
             {
                 BackupSpots.Add(spot);
             }
-            CurrentOutput.IsInSpotEditWizard = true;
+            //CurrentOutput.IsInSpotEditWizard = true;
             ActivatedSpots = new List<IDeviceSpot>();
             // RaisePropertyChanged(nameof(CurrentOutput.IsInSpotEditWizard));
 
@@ -6421,13 +6429,13 @@ namespace adrilight.ViewModel
         {
             AvailableOutputForSelectedDevice = new List<IOutputSettings>();
 
-            foreach (var defaultOutput in DefaulOutputCollection.AvailableDefaultOutputsForAmbinoDevices.Where(o => o.TargetDevice == CurrentDevice.DeviceType))
-            {
-                if (defaultOutput.TargetDevice == CurrentDevice.DeviceType)
-                {
-                    AvailableOutputForSelectedDevice.Add(defaultOutput);
-                }
-            }
+            //foreach (var defaultOutput in DefaulOutputCollection.AvailableDefaultOutputsForAmbinoDevices.Where(o => o.TargetDevice == CurrentDevice.DeviceType))
+            //{
+            //    if (defaultOutput.TargetDevice == CurrentDevice.DeviceType)
+            //    {
+            //        AvailableOutputForSelectedDevice.Add(defaultOutput);
+            //    }
+            //}
             var window = new LEDSetupSelectionWindows();
             window.Owner = System.Windows.Application.Current.MainWindow;
             window.ShowDialog();
@@ -6821,7 +6829,7 @@ namespace adrilight.ViewModel
             (CurrentOutput.OutputLEDSetup as LEDSetup).ScaleTop = (border.Top - screen.Top) / screen.Height;
             (CurrentOutput.OutputLEDSetup as LEDSetup).ScaleWidth = border.Width / screen.Width;
             (CurrentOutput.OutputLEDSetup as LEDSetup).ScaleHeight = border.Height / screen.Height;
-            CurrentOutput.IsInSpotEditWizard = false;
+            //CurrentOutput.IsInSpotEditWizard = false;
             pidEditCanvasWindow.Close();
 
         }
@@ -7094,33 +7102,33 @@ namespace adrilight.ViewModel
             }
         }
 
-        private void CreateNewPalette()
-        {
-            var lastSelectedPaletteIndex = CurrentOutput.OutputSelectedChasingPalette;
-            var name = NewPaletteName;
-            var owner = NewPaletteOwner;
-            var description = NewPaletteDescription;
-            var colors = new System.Windows.Media.Color[16];
-            int counter = 0;
-            foreach (var color in CurrentEditingColors)
-            {
-                colors[counter++] = color;
-            }
-            AvailablePallete.Clear();
-            foreach (var palette in LoadPaletteIfExists())
-            {
-                AvailablePallete.Add(palette);
-            }
-            IColorPalette newpalette = new ColorPalette(name, owner, "RGBPalette16", description, colors);
-            AvailablePallete.Add(newpalette);
+        //private void CreateNewPalette()
+        //{
+        //    var lastSelectedPaletteIndex = CurrentOutput.OutputSelectedChasingPalette;
+        //    var name = NewPaletteName;
+        //    var owner = NewPaletteOwner;
+        //    var description = NewPaletteDescription;
+        //    var colors = new System.Windows.Media.Color[16];
+        //    int counter = 0;
+        //    foreach (var color in CurrentEditingColors)
+        //    {
+        //        colors[counter++] = color;
+        //    }
+        //    AvailablePallete.Clear();
+        //    foreach (var palette in LoadPaletteIfExists())
+        //    {
+        //        AvailablePallete.Add(palette);
+        //    }
+        //    IColorPalette newpalette = new ColorPalette(name, owner, "RGBPalette16", description, colors);
+        //    AvailablePallete.Add(newpalette);
 
-            //WritePaletteCollectionJson();
-            var json = JsonConvert.SerializeObject(newpalette, new JsonSerializerSettings() {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
-            File.WriteAllText(Path.Combine(PalettesCollectionFolderPath, newpalette.Name + ".col"), json);
+        //    //WritePaletteCollectionJson();
+        //    var json = JsonConvert.SerializeObject(newpalette, new JsonSerializerSettings() {
+        //        TypeNameHandling = TypeNameHandling.Auto
+        //    });
+        //    File.WriteAllText(Path.Combine(PalettesCollectionFolderPath, newpalette.Name + ".col"), json);
 
-        }
+        //}
 
         private void CreateNewAutomation()
         {
@@ -7165,8 +7173,8 @@ namespace adrilight.ViewModel
         {
             foreach (var output in CurrentDevice.AvailableOutputs)
             {
-                output.OutputCurrentActivePalette = palette;
-                output.OutputSelectedChasingPalette = CurrentOutput.OutputSelectedChasingPalette;
+                //output.OutputCurrentActivePalette = palette;
+                //output.OutputSelectedChasingPalette = CurrentOutput.OutputSelectedChasingPalette;
             }
         }
 
@@ -7176,8 +7184,8 @@ namespace adrilight.ViewModel
             {
                 foreach (var output in device.AvailableOutputs)
                 {
-                    output.OutputCurrentActivePalette = palette;
-                    output.OutputSelectedChasingPalette = CurrentOutput.OutputSelectedChasingPalette;
+                    //output.OutputCurrentActivePalette = palette;
+                    //output.OutputSelectedChasingPalette = CurrentOutput.OutputSelectedChasingPalette;
                 }
 
             }
@@ -7244,8 +7252,8 @@ namespace adrilight.ViewModel
             {
                 AvailablePallete.Add(palette);
             }
-            CurrentOutput.OutputSelectedChasingPalette = 0;
-            CurrentActivePalette = AvailablePallete.First();
+            //CurrentOutput.OutputSelectedChasingPalette = 0;
+            //CurrentActivePalette = AvailablePallete.First();
         }
 
         private void DeleteSelectedGif(IGifCard gif)
@@ -7264,7 +7272,7 @@ namespace adrilight.ViewModel
                 return;
             }
             AvailableGifs.Remove(gif);
-            CurrentActiveGif = AvailableGifs.Last();
+            //CurrentActiveGif = AvailableGifs.Last();
             WriteGifCollectionJson();
 
             //AvailableGifs.Clear();
@@ -7306,55 +7314,55 @@ namespace adrilight.ViewModel
 
         private void SaveCurrentEditedPalette(string param)
         {
-            //AvailablePallete[CurrentOutput.OutputSelectedChasingPalette] = CurrentActivePalette;
-            var lastSelectedPaletteIndex = CurrentOutput.OutputSelectedChasingPalette;
-            if (param == "save")
-            {
-                //WritePaletteCollectionJson();
-            }
-
-            //reload all available palette;
-            AvailablePallete.Clear();
-
-            foreach (var palette in LoadPaletteIfExists())
-            {
-                AvailablePallete.Add(palette);
-            }
-            CurrentOutput.OutputSelectedChasingPalette = lastSelectedPaletteIndex;
-            //CurrentActivePalette = AvailablePallete[CurrentOutput.OutputSelectedChasingPalette];
-            //var result = HandyControl.Controls.MessageBox.Show(new MessageBoxInfo {
-            //    Message = "Bạn có muốn ghi đè lên dải màu hiện tại?",
-            //    Caption = "Lưu dải màu",
-            //    Button = MessageBoxButton.YesNo,
-            //    IconBrushKey = ResourceToken.AccentBrush,
-            //    IconKey = ResourceToken.AskGeometry,
-            //    StyleKey = "MessageBoxCustom"
-            //});
-            //if (result == MessageBoxResult.Yes) // overwrite current palette
+            ////AvailablePallete[CurrentOutput.OutputSelectedChasingPalette] = CurrentActivePalette;
+            //var lastSelectedPaletteIndex = CurrentOutput.OutputSelectedChasingPalette;
+            //if (param == "save")
             //{
-            //    var activePalette = CurrentOutput.OutputCurrentActivePalette;
-            //    CurrentActivePaletteCard.Thumbnail = activePalette;
-            //    SetCurrentDeviceSelectedPalette(CurrentActivePaletteCard);
-            //    WritePaletteCollectionJson();
-            //    //reload all available palette;
-            //    AvailablePallete.Clear();
-            //    foreach (var palette in LoadPaletteIfExists())
-            //    {
-            //        AvailablePallete.Add(palette);
-            //    }
-
-            //    CurrentCustomZoneColor.Clear();
-            //    foreach (var color in CurrentOutput.OutputCurrentActivePalette)
-            //    {
-            //        CurrentCustomZoneColor.Add(color);
-            //    }
-            //    RaisePropertyChanged(nameof(CurrentCustomZoneColor));
+            //    //WritePaletteCollectionJson();
             //}
 
-            //else // open create new dialog
+            ////reload all available palette;
+            //AvailablePallete.Clear();
+
+            //foreach (var palette in LoadPaletteIfExists())
             //{
-            //OpenCreateNewDialog();
+            //    AvailablePallete.Add(palette);
             //}
+            //CurrentOutput.OutputSelectedChasingPalette = lastSelectedPaletteIndex;
+            ////CurrentActivePalette = AvailablePallete[CurrentOutput.OutputSelectedChasingPalette];
+            ////var result = HandyControl.Controls.MessageBox.Show(new MessageBoxInfo {
+            ////    Message = "Bạn có muốn ghi đè lên dải màu hiện tại?",
+            ////    Caption = "Lưu dải màu",
+            ////    Button = MessageBoxButton.YesNo,
+            ////    IconBrushKey = ResourceToken.AccentBrush,
+            ////    IconKey = ResourceToken.AskGeometry,
+            ////    StyleKey = "MessageBoxCustom"
+            ////});
+            ////if (result == MessageBoxResult.Yes) // overwrite current palette
+            ////{
+            ////    var activePalette = CurrentOutput.OutputCurrentActivePalette;
+            ////    CurrentActivePaletteCard.Thumbnail = activePalette;
+            ////    SetCurrentDeviceSelectedPalette(CurrentActivePaletteCard);
+            ////    WritePaletteCollectionJson();
+            ////    //reload all available palette;
+            ////    AvailablePallete.Clear();
+            ////    foreach (var palette in LoadPaletteIfExists())
+            ////    {
+            ////        AvailablePallete.Add(palette);
+            ////    }
+
+            ////    CurrentCustomZoneColor.Clear();
+            ////    foreach (var color in CurrentOutput.OutputCurrentActivePalette)
+            ////    {
+            ////        CurrentCustomZoneColor.Add(color);
+            ////    }
+            ////    RaisePropertyChanged(nameof(CurrentCustomZoneColor));
+            ////}
+
+            ////else // open create new dialog
+            ////{
+            ////OpenCreateNewDialog();
+            ////}
         }
 
         public void OpenEditPaletteDialog(string praram)
@@ -7362,10 +7370,10 @@ namespace adrilight.ViewModel
             var window = new PaletteEditWindow(praram);
             window.Owner = System.Windows.Application.Current.MainWindow;
             CurrentEditingColors = new ObservableCollection<Color>();
-            foreach (var color in CurrentOutput.OutputCurrentActivePalette.Colors)
-            {
-                CurrentEditingColors.Add(color);
-            }
+            //foreach (var color in CurrentOutput.OutputCurrentActivePalette.Colors)
+            //{
+            //    CurrentEditingColors.Add(color);
+            //}
             //CurrentCustomZoneColor = palette;
 
             RaisePropertyChanged(nameof(CurrentEditingColors));
@@ -7453,16 +7461,16 @@ namespace adrilight.ViewModel
         //}
         public void SetCustomColor(int index)
         {
-            if (CurrentActivePalette == null)
-            {
-                CurrentActivePalette = new ColorPalette();
-            }
-            CurrentEditingColors[index] = CurrentPickedColor;
-            CurrentActivePalette.SetColor(index, CurrentPickedColor);
-            CurrentOutput.OutputCurrentActivePalette.SetColor(index, CurrentPickedColor);
+            //if (CurrentActivePalette == null)
+            //{
+            //    CurrentActivePalette = new ColorPalette();
+            //}
+            //CurrentEditingColors[index] = CurrentPickedColor;
+            //CurrentActivePalette.SetColor(index, CurrentPickedColor);
+            //CurrentOutput.OutputCurrentActivePalette.SetColor(index, CurrentPickedColor);
 
-            RaisePropertyChanged(nameof(CurrentActivePalette));
-            RaisePropertyChanged(nameof(CurrentOutput.OutputCurrentActivePalette));
+            //RaisePropertyChanged(nameof(CurrentActivePalette));
+            //RaisePropertyChanged(nameof(CurrentOutput.OutputCurrentActivePalette));
         }
 
         public void CurrentSpotSetVIDChanged()
@@ -7990,7 +7998,7 @@ namespace adrilight.ViewModel
 
         public List<IDeviceProfile> LoadDeviceProfileIfExist()
         {
-            var availableDefaultDevice = new DefaultDeviceCollection();
+            var availableDefaultDevice = new List<IDeviceSettings>();
             var loadedProfiles = new List<IDeviceProfile>();
             if (!File.Exists(JsonDeviceProfileFileNameAndPath))
             {
@@ -8001,7 +8009,7 @@ namespace adrilight.ViewModel
                     Geometry = "profile",
                     DeviceType = "ABFANHUB",
                     Description = "Default Profile for Ambino Fan HUB",
-                    OutputSettings = availableDefaultDevice.ambinoFanHub.AvailableOutputs
+                    //OutputSettings = availableDefaultDevice.ambinoFanHub.AvailableOutputs
                 };
                 var defaultAmbinobasic24 = new DeviceProfile {
                     Name = "Ambino Basic 24inch Default",
@@ -8010,7 +8018,7 @@ namespace adrilight.ViewModel
                     Geometry = "profile",
                     DeviceType = "ABBASIC24",
                     Description = "Default Profile for Ambino Basic",
-                    OutputSettings = availableDefaultDevice.AmbinoBasic24Inch.AvailableOutputs
+                    //OutputSettings = availableDefaultDevice.AmbinoBasic24Inch.AvailableOutputs
                 };
                 var defaultAmbinobasic27 = new DeviceProfile {
                     Name = "Ambino Basic 27inch Default",
@@ -8019,7 +8027,7 @@ namespace adrilight.ViewModel
                     Geometry = "profile",
                     DeviceType = "ABBASIC27",
                     Description = "Default Profile for Ambino Basic",
-                    OutputSettings = availableDefaultDevice.AmbinoBasic27Inch.AvailableOutputs
+                    //OutputSettings = availableDefaultDevice.AmbinoBasic27Inch.AvailableOutputs
                 };
                 var defaultAmbinobasic29 = new DeviceProfile {
                     Name = "Ambino Basic 29inch Default",
@@ -8028,7 +8036,7 @@ namespace adrilight.ViewModel
                     Geometry = "profile",
                     DeviceType = "ABBASIC29",
                     Description = "Default Profile for Ambino Basic",
-                    OutputSettings = availableDefaultDevice.AmbinoBasic29Inch.AvailableOutputs
+                    //OutputSettings = availableDefaultDevice.AmbinoBasic29Inch.AvailableOutputs
                 };
                 var defaultAmbinobasic32 = new DeviceProfile {
                     Name = "Ambino Basic 32inch Default",
@@ -8037,7 +8045,7 @@ namespace adrilight.ViewModel
                     Geometry = "profile",
                     DeviceType = "ABBASIC32",
                     Description = "Default Profile for Ambino Basic",
-                    OutputSettings = availableDefaultDevice.AmbinoBasic32Inch.AvailableOutputs
+                    //OutputSettings = availableDefaultDevice.AmbinoBasic32Inch.AvailableOutputs
                 };
                 var defaultAmbinobasic34 = new DeviceProfile {
                     Name = "Ambino Basic 34inch Default",
@@ -8046,7 +8054,7 @@ namespace adrilight.ViewModel
                     Geometry = "profile",
                     DeviceType = "ABBASIC34",
                     Description = "Default Profile for Ambino Basic",
-                    OutputSettings = availableDefaultDevice.AmbinoBasic34Inch.AvailableOutputs
+                    //OutputSettings = availableDefaultDevice.AmbinoBasic34Inch.AvailableOutputs
                 };
                 var defaultAmbinoedge1m2 = new DeviceProfile {
                     Name = "Ambino EDGE 1m2 Default",
@@ -8055,7 +8063,7 @@ namespace adrilight.ViewModel
                     Geometry = "profile",
                     DeviceType = "ABEDGE1.2",
                     Description = "Default Profile for Ambino EDGE",
-                    OutputSettings = availableDefaultDevice.AmbinoEDGE1M2.AvailableOutputs
+                    //OutputSettings = availableDefaultDevice.AmbinoEDGE1M2.AvailableOutputs
                 };
                 var defaultAmbinoedge2m = new DeviceProfile {
                     Name = "Ambino EDGE 2m Default",
@@ -8064,7 +8072,7 @@ namespace adrilight.ViewModel
                     Geometry = "profile",
                     DeviceType = "ABEDGE2.0",
                     Description = "Default Profile for Ambino EDGE",
-                    OutputSettings = availableDefaultDevice.AmbinoEDGE2M.AvailableOutputs
+                    //OutputSettings = availableDefaultDevice.AmbinoEDGE2M.AvailableOutputs
                 };
                 loadedProfiles.Add(defaultFanHubProfile);
                 loadedProfiles.Add(defaultAmbinobasic24);
@@ -8277,9 +8285,10 @@ namespace adrilight.ViewModel
         }
 
         public async void ShowAddNewWindow()
-        {
+        {/*
+           
             //Device Catergory to group type of device in the add new window, this could be moved to add new window open code
-            var availableDefaultDevice = new DefaultDeviceCollection();
+            var availableDefaultDevice = new List<IDeviceSettings>();
             AvailableDeviceCatergoryToAdd = new ObservableCollection<IDeviceCatergory>();
             IDeviceCatergory ambinoBasic = new DeviceCatergory {
                 Description = "Ambino Ambient Lighting Kit",
@@ -8331,6 +8340,7 @@ namespace adrilight.ViewModel
 
             //System.Windows.Forms.Application.Restart();
             //    Process.GetCurrentProcess().Kill();
+            */
         }
 
         private void DeleteSelectedDevice()
@@ -8905,7 +8915,7 @@ namespace adrilight.ViewModel
             }
             CurrentDevice.SelectedOutput = 0;
             CurrentOutput = CurrentDevice.AvailableOutputs[CurrentDevice.SelectedOutput];
-            CurrentSelectedGradient = CurrentOutput.OutputSelectedGradient;
+            //CurrentSelectedGradient = CurrentOutput.OutputSelectedGradient;
             CurrentLEDSetup = CurrentOutput.OutputLEDSetup;
             RaisePropertyChanged(nameof(CurrentDevice.SelectedOutput));
             IsSplitLightingWindowOpen = true;

@@ -145,7 +145,7 @@
                 <local:AllDeviceView/>
             </DataTemplate>
             <DataTemplate x:Key="lightingTemplate">
-                <local:DeviceLightingControl/>
+                <local:DeviceControlView/>
             </DataTemplate>
             <!--<DataTemplate x:Key="groupLightingTemplate">
                 <local:GroupLighting/>

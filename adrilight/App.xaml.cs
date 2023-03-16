@@ -108,7 +108,7 @@ namespace adrilight
                             foreach (var output in device.AvailableOutputs)
                             {
                                 output.PropertyChanged += (_, __) => MainViewViewModel.WriteSingleDeviceInfoJson(device);
-                                output.OutputLEDSetup.RefreshSizeAndPosition();
+                                //output.OutputLEDSetup.RefreshSizeAndPosition();
                                 
                                 var outputID = iD + output.OutputID.ToString();
                                 kernel.Bind<IOutputSettings>().ToConstant(output).Named(outputID);
@@ -271,24 +271,24 @@ namespace adrilight
                         break;
 
                 }
-                var serialStream = kernel.Get<ISerialStream>(iD);
+                //var serialStream = kernel.Get<ISerialStream>(iD);
             
             foreach (var output in outputs)
             {
                 
                 var outputID = iD + output.OutputID.ToString();
-                kernel.Bind<IRainbow>().To<Rainbow>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
-               // kernel.Bind<IDeviceSpotSet>().To<DeviceSpotSet>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
-                kernel.Bind<IMusic>().To<Music>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
-                kernel.Bind<IDesktopDuplicatorReader>().To<DesktopDuplicatorReader>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
-                kernel.Bind<IGifxelation>().To<Gifxelation>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
-                kernel.Bind<IStaticColor>().To<StaticColor>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
-               // var spotset = kernel.Get<IDeviceSpotSet>(outputID);
-                var rainbow = kernel.Get<IRainbow>(outputID);
-                var screencapture = kernel.Get<IDesktopDuplicatorReader>(outputID);
-                var music = kernel.Get<IMusic>(outputID);
-                var staticColor = kernel.Get<IStaticColor>(outputID);
-                var gifxelation = kernel.Get<IGifxelation>(outputID);
+               // kernel.Bind<IRainbow>().To<Rainbow>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
+               //// kernel.Bind<IDeviceSpotSet>().To<DeviceSpotSet>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
+               // kernel.Bind<IMusic>().To<Music>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
+               // kernel.Bind<IDesktopDuplicatorReader>().To<DesktopDuplicatorReader>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
+               // kernel.Bind<IGifxelation>().To<Gifxelation>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
+               // kernel.Bind<IStaticColor>().To<StaticColor>().InSingletonScope().Named(outputID).WithConstructorArgument("outputSettings", kernel.Get<IOutputSettings>(outputID));
+               //// var spotset = kernel.Get<IDeviceSpotSet>(outputID);
+               // var rainbow = kernel.Get<IRainbow>(outputID);
+               // var screencapture = kernel.Get<IDesktopDuplicatorReader>(outputID);
+               // var music = kernel.Get<IMusic>(outputID);
+               // var staticColor = kernel.Get<IStaticColor>(outputID);
+               // var gifxelation = kernel.Get<IGifxelation>(outputID);
 
             }
 

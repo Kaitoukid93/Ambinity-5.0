@@ -189,6 +189,7 @@
     <Compile Include="App.xaml.cs" />
     <Compile Include="Converter\BoolToBorderThicknessConverter.cs" />
     <Compile Include="Converter\CommandToListConverter.cs" />
+    <Compile Include="DesktopDuplication\DesktopDuplicator.cs" />
     <Compile Include="Helpers\AttachedAdorner.cs" />
     <Compile Include="Helpers\Behaviors\GroupBehavior.cs" />
     <Compile Include="Helpers\EventToCommand.cs" />
@@ -199,11 +200,11 @@
     <Compile Include="Settings\ActionSettings.cs" />
     <Compile Include="Settings\ActionType.cs" />
     <Compile Include="Settings\AutomationSettings.cs" />
+    <Compile Include="Settings\OutputControlableProperty.cs" />
+    <Compile Include="Settings\OutputControlablePropertyEnum.cs" />
     <Compile Include="Settings\ScreenBound.cs" />
     <Compile Include="Settings\ImageVisual.cs" />
     <Compile Include="Settings\PathGuide.cs" />
-    <Compile Include="Settings\DefaulOutputCollection.cs" />
-    <Compile Include="Settings\DefaultDeviceCollection.cs" />
     <Compile Include="Settings\DeviceCatergory.cs" />
     <Compile Include="Settings\DeviceFirmware.cs" />
     <Compile Include="Settings\DeviceHttpConnection.cs" />
@@ -248,7 +249,6 @@
     <Compile Include="Util\AdrilightUpdater.cs" />
     <Compile Include="Util\AmbinoColorEffect .cs" />
     <Compile Include="Util\AssemblyHelper.cs" />
-    <Compile Include="Util\Atmosphere.cs" />
     <Compile Include="Util\AudioFrame.cs" />
     <Compile Include="Util\Brightness.cs" />
     <Compile Include="Util\ColorPalette.cs" />
@@ -263,7 +263,6 @@
     <Compile Include="Util\MotionLayer.cs" />
     <Compile Include="Util\MotionCard.cs" />
     <Compile Include="Util\GifCard.cs" />
-    <Compile Include="Util\Gifxelation.cs" />
     <Compile Include="Util\GradientColor.cs" />
     <Compile Include="Util\GradientColorCard.cs" />
     <Compile Include="Util\HotKeyManager.cs" />
@@ -294,18 +293,15 @@
     <Compile Include="Util\IVisualizerProgressBar.cs" />
     <Compile Include="Util\LeftMenuItemGroup.cs" />
     <Compile Include="Util\LightingMode.cs" />
-    <Compile Include="Util\Music.cs" />
     <Compile Include="Util\NetworkStream.cs" />
     <Compile Include="Util\OpenRGBClientDevice.cs" />
     <Compile Include="Util\AmbinityClient.cs" />
     <Compile Include="Util\PaletteCardContextMenu.cs" />
-    <Compile Include="Util\Rainbow.cs" />
     <Compile Include="Util\RainbowTicker.cs" />
     <Compile Include="Util\SerialDeviceDetection.cs" />
     <Compile Include="Util\OpenRGBStream.cs" />
     <Compile Include="Util\SerialStream.cs" />
     <Compile Include="Util\StartupManager.cs" />
-    <Compile Include="Util\StaticColor.cs" />
     <Compile Include="Util\UpdateVisitor.cs" />
     <Compile Include="Util\VisualizerProgressBar.cs" />
     <Compile Include="Util\WinApi.cs" />
@@ -319,8 +315,6 @@
     <Compile Include="Converter\ThicknessToDoubleConverter.cs" />
     <Compile Include="DesktopDuplication\ByteFrame.cs" />
     <Compile Include="DesktopDuplication\DesktopDuplicationException.cs" />
-    <Compile Include="DesktopDuplication\DesktopDuplicator.cs" />
-    <Compile Include="DesktopDuplication\DesktopDuplicatorReader.cs" />
     <Compile Include="DesktopDuplication\DesktopFrame.cs" />
     <Compile Include="DesktopDuplication\IDesktopDuplicatorReader.cs" />
     <Compile Include="DesktopDuplication\IDesktopFrame.cs" />
@@ -342,6 +336,7 @@
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\VisualProperties.cs" />
+    <Compile Include="View\DeviceControlView.xaml.cs" />
     <Compile Include="View\OnlineItemExporterView.xaml.cs" />
     <Compile Include="View\OnlineItemsCollectionView.xaml.cs" />
     <Compile Include="View\ChasingPatternPreviewZone.xaml.cs" />
@@ -436,6 +431,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Properties\DesignTimeResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\DeviceControlView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

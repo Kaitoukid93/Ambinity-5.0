@@ -153,17 +153,17 @@ namespace adrilight
                         {
                             switch (zone.Type)
                             {
-                                case OpenRGB.NET.Enums.ZoneType.Single:
-                                    convertedDevice.AvailableOutputs[zoneCount] = DefaulOutputCollection.GenericLEDStrip(zoneCount, 1, zone.Name, 1, true, "ledstrip");
-                                    break;
+                                //case OpenRGB.NET.Enums.ZoneType.Single:
+                                //    convertedDevice.AvailableOutputs[zoneCount] = DefaulOutputCollection.GenericLEDStrip(zoneCount, 1, zone.Name, 1, true, "ledstrip");
+                                //    break;
 
-                                case OpenRGB.NET.Enums.ZoneType.Linear:
-                                    convertedDevice.AvailableOutputs[zoneCount] = DefaulOutputCollection.GenericLEDStrip(zoneCount, (int)zone.LedCount, zone.Name, 1, true, "ledstrip");
-                                    break;
+                                //case OpenRGB.NET.Enums.ZoneType.Linear:
+                                //    convertedDevice.AvailableOutputs[zoneCount] = DefaulOutputCollection.GenericLEDStrip(zoneCount, (int)zone.LedCount, zone.Name, 1, true, "ledstrip");
+                                //    break;
 
-                                case OpenRGB.NET.Enums.ZoneType.Matrix:
-                                    convertedDevice.AvailableOutputs[zoneCount] = DefaulOutputCollection.GenericLEDMatrix(zoneCount, (int)zone.MatrixMap.Width, (int)zone.MatrixMap.Height, zone.Name, 1, true, "matrix");
-                                    break;
+                                //case OpenRGB.NET.Enums.ZoneType.Matrix:
+                                //    convertedDevice.AvailableOutputs[zoneCount] = DefaulOutputCollection.GenericLEDMatrix(zoneCount, (int)zone.MatrixMap.Width, (int)zone.MatrixMap.Height, zone.Name, 1, true, "matrix");
+                                //    break;
                             }
                             zoneCount++;
                         }

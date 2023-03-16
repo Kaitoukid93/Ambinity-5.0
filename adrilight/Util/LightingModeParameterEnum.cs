@@ -27,5 +27,9 @@
         ///    this is ColorMode, specific use for rainbow mode
         /// </summary>
         ColorMode,
+        /// <summary>
+        ///    this is In Sync param type, specific use for rainbow mode
+        /// </summary>
+        IsSystemSync,
     }
 }

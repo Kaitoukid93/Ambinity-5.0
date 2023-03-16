@@ -87,9 +87,15 @@ namespace adrilight
         //private MotionCard _outputSelectedMotion;
         private int _currentActiveLightingModeIndex;
         private List<ILightingMode> _availableLightingMode;
+        private List<OutputControlableProperty> _outputControlableProperty;
+        
         
 
-
+        public OutputSettings()
+        {
+            AvailableLightingMode = new List<ILightingMode>();
+            ControlableProperties = new List<OutputControlableProperty>();
+        }
 
         //private int _outputGifSpeed = 20;
         //private IGradientColorCard _outputSelectedGradient = new GradientColorCard("default", "application", "unknown", "auto create", Color.FromRgb(255, 127, 0), Color.FromRgb(0, 127, 255));
@@ -218,6 +224,8 @@ namespace adrilight
         public List<ILightingMode> AvailableLightingMode { get => _availableLightingMode; set { Set(() => AvailableLightingMode, ref _availableLightingMode, value); } }
         public ILightingMode CurrentActiveLightingMode => AvailableLightingMode[CurrentActiveLightingModeIndex];
         public int CurrentActiveLightingModeIndex { get => _currentActiveLightingModeIndex; set { Set(() => CurrentActiveLightingModeIndex, ref _currentActiveLightingModeIndex, value); } }
+
+        public List<OutputControlableProperty> ControlableProperties { get => _outputControlableProperty; set { Set(() => ControlableProperties, ref _outputControlableProperty, value); } }
 
         //[Reflectable]
         //public bool OutputIsSystemSync { get => _outputIsSystemSync; set { Set(() => OutputIsSystemSync, ref _outputIsSystemSync, value); } }

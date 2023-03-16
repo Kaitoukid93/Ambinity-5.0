@@ -12,7 +12,9 @@ namespace adrilight.Util
         //bool Autostart { get; set; }
 
 
-
+        public LightingMode() {
+            Parameters = new List<LightingModeParameter>();
+        }
 
         /// <summary>
         /// Name of this mode

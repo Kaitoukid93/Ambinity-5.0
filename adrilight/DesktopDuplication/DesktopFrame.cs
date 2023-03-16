@@ -168,7 +168,7 @@ namespace adrilight
 
         public void Run(CancellationToken token)
         {
-            if (IsRunning) throw new Exception(nameof(DesktopDuplicatorReader) + " is already running!");
+            //if (IsRunning) throw new Exception(nameof(DesktopDuplicatorReader) + " is already running!");
 
             IsRunning = true;
             NeededRefreshing = false;

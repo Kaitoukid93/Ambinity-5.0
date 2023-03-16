@@ -68,7 +68,7 @@ namespace adrilight
         string Geometry { get; set; }
         //int OutputMusicVisualizerFreq { get; set; }
      
-     
+        List<OutputControlableProperty> ControlableProperties { get; set; }
 
 
 

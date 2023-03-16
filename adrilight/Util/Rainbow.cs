@@ -22,6 +22,7 @@ using Newtonsoft.Json;
 using System.Reflection;
 using System.Windows;
 using Frame = adrilight_effect_analyzer.Model.Frame;
+using ColorPalette = adrilight.Util.ColorPalette;
 
 namespace adrilight
 {
@@ -45,13 +46,16 @@ namespace adrilight
             OutputSettings.PropertyChanged += PropertyChanged;
             GeneralSettings.PropertyChanged += PropertyChanged;
             MainViewViewModel.PropertyChanged += PropertyChanged;
-            inSync = OutputSettings.OutputIsSystemSync;
+            CurrentActivePalette = OutputSettings.CurrentActiveLightingMode.Parameters.Where(p => p.Type == LightingModeParameterEnum.Color).FirstOrDefault().Value as ColorPalette;
+            //CurrentActivePalette.PropertyChanged+=
+            //inSync = OutputSettings.CurrentActiveLightingMode;
             RefreshColorState();
             _log.Info($"RainbowColor Created");
 
         }
         //Dependency Injection//
         private IOutputSettings OutputSettings { get; }
+        private IColorPalette CurrentActivePalette { get;set; }
 
         private MainViewViewModel MainViewViewModel { get; }
         private IRainbowTicker RainbowTicker { get; }
@@ -68,14 +72,14 @@ namespace adrilight
             switch (e.PropertyName)
             {
                 case nameof(OutputSettings.OutputIsEnabled):
-                case nameof(OutputSettings.OutputSelectedMode):
+                case nameof(OutputSettings.CurrentActiveLightingMode.BasedOn):
                 case nameof(OutputSettings.OutputParrentIsEnable):
-                case nameof(OutputSettings.IsInSpotEditWizard):
+                
                     RefreshColorState();
                     break;
-                case nameof(OutputSettings.OutputCurrentActivePalette):
+                case nameof(OutputSettings.CurrentActiveLightingMode.Parameters):
 
-                case nameof(OutputSettings.OutputIsSystemSync):
+                //case nameof(OutputSettings.OutputIsSystemSync):
 
 
                     ColorPaletteChanged();
@@ -88,7 +92,7 @@ namespace adrilight
 
         private void RefreshColorState()
         {
-
+            /*
             var isRunning = _cancellationTokenSource != null && IsRunning;
             var shouldBeRunning = OutputSettings.OutputIsEnabled && OutputSettings.OutputParrentIsEnable && OutputSettings.OutputSelectedMode == 1 && OutputSettings.IsInSpotEditWizard == false;
 
@@ -111,21 +115,22 @@ namespace adrilight
                 };
                 thread.Start();
             }
+            */
         }
         private void ColorPaletteChanged()
         {
             var isRunning = _cancellationTokenSource != null && IsRunning;
-            var shouldBeRunning = OutputSettings.OutputIsEnabled && OutputSettings.OutputParrentIsEnable && OutputSettings.OutputSelectedMode == 1 && OutputSettings.IsInSpotEditWizard == false;
+            //var shouldBeRunning = OutputSettings.OutputIsEnabled && OutputSettings.OutputParrentIsEnable && OutputSettings.OutputSelectedMode == 1 && OutputSettings.IsInSpotEditWizard == false;
 
 
-            if (isRunning && shouldBeRunning)
-            {
-                // rainbow is running and we need to change the color bank
-                colorBank = GetColorGradientfromPaletteWithFixedColorPerGap(OutputSettings.OutputCurrentActivePalette.Colors, 18).ToArray();
-                inSync = OutputSettings.OutputIsSystemSync;
-                //if(isInEditWizard)
-                //    colorBank = GetColorGradientfromPalette(DefaultColorCollection.black).ToArray();
-            }
+            //if (isRunning && shouldBeRunning)
+            //{
+            //    // rainbow is running and we need to change the color bank
+            //    colorBank = GetColorGradientfromPaletteWithFixedColorPerGap(OutputSettings.OutputCurrentActivePalette.Colors, 18).ToArray();
+            //    inSync = OutputSettings.OutputIsSystemSync;
+            //    //if(isInEditWizard)
+            //    //    colorBank = GetColorGradientfromPalette(DefaultColorCollection.black).ToArray();
+            //}
 
         }
 
@@ -136,7 +141,7 @@ namespace adrilight
         public void Run(CancellationToken token)
 
         {
-
+            /*
             if (IsRunning) throw new Exception(" Rainbow Color is already running!");
 
             IsRunning = true;
@@ -289,7 +294,7 @@ namespace adrilight
                 IsRunning = false;
 
             }
-
+            */
 
         }
 

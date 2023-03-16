@@ -41,12 +41,12 @@ namespace adrilight.Util
             switch (e.PropertyName)
             {
                 case nameof(OutputSettings.OutputIsEnabled):
-                case nameof(OutputSettings.OutputSelectedMode):
+              
                 case nameof(OutputSettings.OutputParrentIsEnable):
                     RefreshColorState();
                     break;
-                case nameof(OutputSettings.OutputStaticColor):
-                case nameof(OutputSettings.OutputSelectedGradient):
+                //case nameof(OutputSettings.OutputStaticColor):
+                //case nameof(OutputSettings.OutputSelectedGradient):
                     SolidColorChanged();
                     break;
 
@@ -63,6 +63,7 @@ namespace adrilight.Util
         private CancellationTokenSource _cancellationTokenSource;
         private void RefreshColorState()
         {
+            /*
             var isRunning = _cancellationTokenSource != null && IsRunning;
             var shouldBeRunning = OutputSettings.OutputIsEnabled && OutputSettings.OutputParrentIsEnable && OutputSettings.OutputSelectedMode == 3 && OutputSettings.IsInSpotEditWizard == false;
             if (isRunning && !shouldBeRunning)
@@ -86,9 +87,11 @@ namespace adrilight.Util
                 };
                 thread.Start();
             }
+            */
         }
         private void SolidColorChanged()
         {
+            /*
             var isRunning = _cancellationTokenSource != null && IsRunning;
             var shouldBeRunning = OutputSettings.OutputIsEnabled && OutputSettings.OutputParrentIsEnable && OutputSettings.OutputSelectedMode == 3 && OutputSettings.IsInSpotEditWizard == false;
 
@@ -104,14 +107,14 @@ namespace adrilight.Util
                 //if(isInEditWizard)
                 //    colorBank = GetColorGradientfromPalette(DefaultColorCollection.black).ToArray();
             }
-
+            */
         }
 
 
 
         public void Run(CancellationToken token)//static color creator
         {
-            int point = 0;
+           /* int point = 0;
             if (IsRunning) throw new Exception(" Static Color is already running!");
 
             IsRunning = true;
@@ -278,6 +281,7 @@ namespace adrilight.Util
                 _log.Debug("Stopped Static Color Creator.");
                 IsRunning = false;
             }
+           */
 
         }
 
