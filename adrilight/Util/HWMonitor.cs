@@ -35,15 +35,15 @@ namespace adrilight.Util
 
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
-            
+
             RefreshHWState();
             _log.Info($"Hardware Monitor Created");
 
         }
         IComputer thisComputer { get; set; }
-       
-       
-       
+
+
+
         private LibreHardwareMonitor.Hardware.Computer computer { get; set; }
         private void PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -149,13 +149,13 @@ namespace adrilight.Util
                             {
                                 fanControlSensors.Add(sensor);
                             }
-                            if( sensor.SensorType == SensorType.Fan) // fan speed sensors
+                            if (sensor.SensorType == SensorType.Fan) // fan speed sensors
                             {
                                 fanSpeedSensors.Add(sensor);
                             }
                         }
-                     
-                        
+
+
                     }
                     else
                     {
@@ -220,7 +220,7 @@ namespace adrilight.Util
 
                         });
                     }
-                    
+
                 }
 
                 if (fanControlSensors.Count <= 0)
@@ -252,34 +252,37 @@ namespace adrilight.Util
 
                         });
                     }
-                   
+
                     foreach (var device in MainViewViewModel.AvailableDevices.Where(x => x.DeviceType == "ABFANHUB"))
                     {
-
-                        device.DeviceSpeed = 200;
+                        //find speed control and set
+                        foreach (var output in device.AvailableOutputs)
+                        {
+                            (output as OutputSettings).SetSpeed(200);
+                        }
 
                     }
                 }
-                
+
                 while (!token.IsCancellationRequested)
                 {
 
-                    
+
                     //Normally, most of the fan header is empty, some motherboard will fail to read RPM and push max speed control to that header
                     // we need to detech which header is empty and if it has speed control of 100, then we will remove that header from equation
-                    if(fanSpeedSensors.Count>0)
+                    if (fanSpeedSensors.Count > 0)
                     {
-                        for(var i=0;i<fanSpeedSensors.Count;i++)
+                        for (var i = 0; i < fanSpeedSensors.Count; i++)
                         {
                             if (fanSpeedSensors[i].Value == double.NaN)// this is speed target control but header is empty
                             {
                                 fanControlSensors.RemoveAt(i);
                             }
-                            
+
                         }
                     }
-                    
-                   
+
+
                     //get median fan control speed value
                     List<double> speeds = new List<double>();
                     if (fanControlSensors.Count > 0)
@@ -306,27 +309,34 @@ namespace adrilight.Util
                     //it's time to tell the fan to update the speed
                     foreach (var device in MainViewViewModel.AvailableDevices.Where(x => x.DeviceType == "ABFANHUB"))
                     {
-
-                        if (Math.Abs((int)(medianSpeed * 255 / 100) - device.DeviceSpeed) > 15)
+                        foreach (var output in device.AvailableOutputs)
                         {
-
-                            if (device.SpeedMode == 1)
+                            var currentOutput = output as OutputSettings;
+                            if (Math.Abs((int)(medianSpeed * 255 / 100) - currentOutput.GetSpeed()) > 15)
                             {
-                                
-                                device.DeviceSpeed = ((int)medianSpeed * 255) / 100;
+
+                                if (currentOutput.GetCurrentSpeedMode() == SpeedModeEnum.auto)
+                                {
+                                    var value = ((int)medianSpeed * 255) / 100;
+                                    currentOutput.SetSpeed(value);
+                                }
+                                   
                             }
 
                         }
-
-
                     }
 
-                    computer.Accept(updateVisitor);
 
 
 
-                    Thread.Sleep(1000);
-                }
+                
+
+                computer.Accept(updateVisitor);
+
+
+
+                Thread.Sleep(1000);
+            }
                 // update every second
 
 
@@ -357,37 +367,37 @@ namespace adrilight.Util
             finally
             {
 
-                computer.Close();
-                _log.Debug("Stopped HW Monitoring!!!");
-                IsRunning = false;
-            }
+    computer.Close();
+    _log.Debug("Stopped HW Monitoring!!!");
+    IsRunning = false;
+}
 
         }
 
 
         public void Init()
-        {
-            computer = new LibreHardwareMonitor.Hardware.Computer {
-                IsCpuEnabled = true,
-                IsGpuEnabled = true,
-                IsMemoryEnabled = true,
-                IsMotherboardEnabled = true,
-                IsControllerEnabled = true,
-                IsNetworkEnabled = true,
-                IsStorageEnabled = true
+{
+    computer = new LibreHardwareMonitor.Hardware.Computer {
+        IsCpuEnabled = true,
+        IsGpuEnabled = true,
+        IsMemoryEnabled = true,
+        IsMotherboardEnabled = true,
+        IsControllerEnabled = true,
+        IsNetworkEnabled = true,
+        IsStorageEnabled = true
 
-            };
+    };
 
-            computer.Open();
-            computer.Accept(updateVisitor);
-            displayHWInfo = new Computer();
+    computer.Open();
+    computer.Accept(updateVisitor);
+    displayHWInfo = new Computer();
 
-        }
+}
 
-        public void Dispose()
-        {
-            computer.Close();
-        }
+public void Dispose()
+{
+    computer.Close();
+}
 
 
 

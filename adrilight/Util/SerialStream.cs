@@ -155,14 +155,7 @@ namespace adrilight
                 Thread.Sleep(1000);
                 DFU();
             }
-            else if (DeviceSettings.IsTransferActive && DeviceSettings.CurrentState == State.speed) // this is only requested by dfu or fwupgrade button.
-            {
-                DeviceSettings.IsLoadingSpeed = true;
-                Stop();
-                Thread.Sleep(500);
-                DeviceSettings.CurrentState = State.normal;
-                DeviceSettings.RefreshDeviceActualSpeedAsync();
-            }
+         
         }
 
         private readonly byte[] _messagePreamble = { (byte)'a', (byte)'b', (byte)'n' };
@@ -208,49 +201,49 @@ namespace adrilight
         }
 
         public bool IsRunning => _workerThread != null && _workerThread.IsAlive;
-        public void SetSpeed()
-        {
-            if (DeviceSettings.OutputPort != null)
-            {
-                var serialPort = (ISerialPortWrapper)new WrappedSerialPort(new SerialPort(DeviceSettings.OutputPort, 1000000));
-                try
-                {
-                    serialPort.Open();
-                }
-                catch (Exception)
-                {
-                    // I don't know about this shit but we have to catch an empty exception because somehow SerialPort.Open() was called twice
-                }
-                try
-                {
-                    serialPort.Write(new byte[19] { (byte)'s', (byte)'p', (byte)'d',
-                        0,//Hi
-                        0,//Lo
-                        0,//Chk
-                        (byte)DeviceSettings.SpeedMode,//HD1
-                        0,//HD2
-                        0,//HD3
-                       (byte)DeviceSettings.DeviceSpeed,//Fan1 speed
-                       (byte)DeviceSettings.DeviceSpeed,//Fan2 speed
-                       (byte)DeviceSettings.DeviceSpeed,//Fan3 speed
-                       (byte)DeviceSettings.DeviceSpeed,//Fan4 speed
-                       (byte)DeviceSettings.DeviceSpeed,//Fan5 speed
-                       (byte)DeviceSettings.DeviceSpeed,//Fan6 speed
-                       (byte)DeviceSettings.DeviceSpeed,//Fan7 speed
-                       (byte)DeviceSettings.DeviceSpeed,//Fan8 speed
-                       (byte)DeviceSettings.DeviceSpeed,//Fan9 speed
-                       (byte)DeviceSettings.DeviceSpeed//Fan10 speed
+        //public void SetSpeed()
+        //{
+        //    if (DeviceSettings.OutputPort != null)
+        //    {
+        //        var serialPort = (ISerialPortWrapper)new WrappedSerialPort(new SerialPort(DeviceSettings.OutputPort, 1000000));
+        //        try
+        //        {
+        //            serialPort.Open();
+        //        }
+        //        catch (Exception)
+        //        {
+        //            // I don't know about this shit but we have to catch an empty exception because somehow SerialPort.Open() was called twice
+        //        }
+        //        try
+        //        {
+        //            serialPort.Write(new byte[19] { (byte)'s', (byte)'p', (byte)'d',
+        //                0,//Hi
+        //                0,//Lo
+        //                0,//Chk
+        //                (byte)DeviceSettings.SpeedMode,//HD1
+        //                0,//HD2
+        //                0,//HD3
+        //               (byte)DeviceSettings.DeviceSpeed,//Fan1 speed
+        //               (byte)DeviceSettings.DeviceSpeed,//Fan2 speed
+        //               (byte)DeviceSettings.DeviceSpeed,//Fan3 speed
+        //               (byte)DeviceSettings.DeviceSpeed,//Fan4 speed
+        //               (byte)DeviceSettings.DeviceSpeed,//Fan5 speed
+        //               (byte)DeviceSettings.DeviceSpeed,//Fan6 speed
+        //               (byte)DeviceSettings.DeviceSpeed,//Fan7 speed
+        //               (byte)DeviceSettings.DeviceSpeed,//Fan8 speed
+        //               (byte)DeviceSettings.DeviceSpeed,//Fan9 speed
+        //               (byte)DeviceSettings.DeviceSpeed//Fan10 speed
 
-                    }, 0, 19);
-                }
-                catch (Exception)
-                {
-                    // I don't know about this shit but we have to catch an empty exception because somehow SerialPort.Write() was called twice
-                }
-                serialPort.Close();
+        //            }, 0, 19);
+        //        }
+        //        catch (Exception)
+        //        {
+        //            // I don't know about this shit but we have to catch an empty exception because somehow SerialPort.Write() was called twice
+        //        }
+        //        serialPort.Close();
 
-            }
-        }
+        //    }
+        //}
         public void DFU()
 
         {
@@ -325,6 +318,14 @@ namespace adrilight
             var currentOutput = output;
             var ledPerSpot = currentOutput.LEDPerSpot;
             int counter = _messagePreamble.Length;
+            int currentOutputSpeed = 0;
+            bool hasSpeedParam = currentOutput.ControlableProperties.Any(p => p.Type == OutputControlablePropertyEnum.Speed);
+            if(hasSpeedParam)
+            {
+                var speedParam = currentOutput.ControlableProperties.Where(p => p.Type == OutputControlablePropertyEnum.Speed).FirstOrDefault().CurrentActiveControlMode.Parameters.Where(p => p.Type == ModeParameterEnum.Speed).FirstOrDefault();
+                currentOutputSpeed = (int)speedParam.Value;
+            }
+                
             lock (currentOutput.OutputLEDSetup.Lock)
             {
                 const int colorsPerLed = 3;
@@ -349,7 +350,7 @@ namespace adrilight
                 outputStream[counter++] = lo;
                 outputStream[counter++] = chk;
                 outputStream[counter++] = id;
-                outputStream[counter++] = (byte)DeviceSettings.DeviceSpeed;
+                outputStream[counter++] = (byte)currentOutputSpeed;
                 outputStream[counter++] = 0;
                 var isEnabled = currentOutput.OutputIsEnabled;
                 var parrentIsEnabled = DeviceSettings.IsEnabled;

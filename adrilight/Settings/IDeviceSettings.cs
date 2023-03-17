@@ -11,7 +11,7 @@ using adrilight.Settings;
 
 namespace adrilight
 {
-    public enum State { sleep, dfu, speed, normal, surfaceEditor };
+    public enum State { sleep, dfu, normal, surfaceEditor };
     public interface IDeviceSettings :  INotifyPropertyChanged
     {
       
@@ -33,7 +33,7 @@ namespace adrilight
         int ActivatedProfileIndex { get; set; }
         IOutputSettings[] AvailableOutputs { get; set; }
         
-        string GroupName { get; set; }
+    
         int SelectedOutput { get; set; }
         string Geometry { get; set; }
         string DeviceThumbnail { get; set; }
@@ -45,11 +45,8 @@ namespace adrilight
         bool IsSelected { get; set; }
         bool IsSizeNeedUserDefine { get; set; }
         bool IsLoadingProfile { get; set; }
-        int DeviceSpeed { get; set; }
-        string DeviceActualSpeed { get; set; }
         void ActivateProfile(IDeviceProfile profile);
         void SetOutput(IOutputSettings output, int outputID);
-        int SpeedMode { get; set; }
         bool IsLoadingSpeed { get; set; }
         string FwLocation { get; set; }
         string RequiredFwVersion { get; set; }
@@ -57,7 +54,7 @@ namespace adrilight
         //void DeviceLocator(Color color);
         void RefreshDeviceActualSpeedAsync();
         State CurrentState { get; set; }
-       System.Drawing.Rectangle DeviceBoundRectangle { get; set; }
+        System.Drawing.Rectangle DeviceBoundRectangle { get; set; }
         void SetRectangle(System.Drawing.Rectangle rectangle);
         void BrightnessUp(int value);
         void BrightnessDown(int value);

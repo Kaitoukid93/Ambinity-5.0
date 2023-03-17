@@ -5,6 +5,7 @@ using adrilight.ViewModel;
 using adrilight_effect_analyzer.Model;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -239,7 +240,7 @@ namespace adrilight
         [JsonIgnore]
         public IOutputControlableProperty CurrentActiveControlProperty { get; set; }
 
-       
+
 
         //[Reflectable]
         //public bool OutputIsSystemSync { get => _outputIsSystemSync; set { Set(() => OutputIsSystemSync, ref _outputIsSystemSync, value); } }
@@ -253,13 +254,66 @@ namespace adrilight
         //    PreviewRectangle = rectangle;
         //    RaisePropertyChanged(nameof(PreviewRectangle));
         //}
-        public void BrightnessUp(int upValue)
+
+        /// <summary>
+        /// shortcuts for setting value
+        /// </summary>
+        /// <param name="value"></param>
+        public void SetBrightness(int value)
         {
             //brightness up current active mode
             //controlable lighting property
             var lightingControl = ControlableProperties.Where(c => c.Type == OutputControlablePropertyEnum.Lighting).FirstOrDefault();
-            var currentLightingMode = lightingControl.CurrentActiveControlMode as LightingMode;
-            currentLightingMode.BrightnessUp(upValue);
+            if (lightingControl != null)
+            {
+                var currentLightingMode = lightingControl.CurrentActiveControlMode as LightingMode;
+                currentLightingMode.SetBrightness(value);
+            }
+
+        }
+        public int GetBrightness()
+        {
+            var lightingControl = ControlableProperties.Where(c => c.Type == OutputControlablePropertyEnum.Lighting).FirstOrDefault();
+            int brightness = 0;
+            if (lightingControl != null)
+            {
+                var currentLightingMode = lightingControl.CurrentActiveControlMode as LightingMode;
+                brightness = currentLightingMode.GetBrightness();
+            }
+            return brightness;
+        }
+        public void SetSpeed(int speedValue)
+        {
+            var speedControl = ControlableProperties.Where(c => c.Type == OutputControlablePropertyEnum.Speed).FirstOrDefault();
+            if (speedControl != null)
+            {
+                var currentSpeedMode = speedControl.CurrentActiveControlMode as SpeedMode;
+                currentSpeedMode.SetSpeed(speedValue);
+            }
+
+
+        }
+        public int GetSpeed()
+        {
+            var speedControl = ControlableProperties.Where(c => c.Type == OutputControlablePropertyEnum.Speed).FirstOrDefault();
+            int speed = 0;
+            if (speedControl != null)
+            {
+                var currentSpeedMode = speedControl.CurrentActiveControlMode as SpeedMode;
+                speed = currentSpeedMode.GetSpeed();
+            }
+
+            return speed;
+        }
+        public SpeedModeEnum GetCurrentSpeedMode() {
+            SpeedModeEnum speedMode = SpeedModeEnum.manual;
+            var speedControl = ControlableProperties.Where(c => c.Type == OutputControlablePropertyEnum.Speed).FirstOrDefault();  
+            if (speedControl != null)
+            {
+                var currentSpeedMode = speedControl.CurrentActiveControlMode as SpeedMode;
+                speedMode = currentSpeedMode.SpeedType;
+            }
+            return speedMode;
         }
     }
 }

@@ -13,7 +13,7 @@ namespace adrilight.Util
         /// <summary>
         /// this value could be bool(on/off) or nummeric(int) or even listof item
         /// </summary>
-        object Value { get; set; }
+        int Value { get; set; }
         /// <summary>
         /// this is the template of lighting mode, use to get the data template
         /// </summary>

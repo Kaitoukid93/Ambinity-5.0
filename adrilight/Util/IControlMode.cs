@@ -34,7 +34,7 @@ namespace adrilight.Util
         /// <summary>
         /// what is this lighting mode based on (rainbow, capturing screne, music capturing
         /// </summary>
-        LightingModeEnum BasedOn { get; set; }
+        //LightingModeEnum BasedOn { get; set; }
         /// <summary>
         /// List of parameters that this mode have
         /// </summary>

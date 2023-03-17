@@ -111,7 +111,7 @@ namespace adrilight
         //void SetRectangle(System.Drawing.Rectangle rectangle);
         //void SetPreviewRectangle(System.Drawing.Rectangle rectangle);
 
-        void BrightnessUp(int upValue);
+       
         
 
 

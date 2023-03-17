@@ -8,7 +8,7 @@ namespace adrilight.Util
     {
         private string _name;
         private string _description;
-        private object _value;
+        private int _value;
         private ModeParameterTemplateEnum _template;
         private ModeParameterEnum _type;
         private int _minValue;
@@ -24,7 +24,7 @@ namespace adrilight.Util
         /// <summary>
         /// this value could be bool(on/off) or nummeric(int) or index in the list item
         /// </summary>
-        public object Value { get => _value; set { Set(() => Value, ref _value, value); } }
+        public int Value { get => _value; set { Set(() => Value, ref _value, value); } }
         /// <summary>
         /// this value could be bool(on/off) or nummeric(int) or even listof item
         /// </summary>

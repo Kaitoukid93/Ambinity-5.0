@@ -38,9 +38,6 @@ namespace adrilight
         private bool _isDummy = false;
         private bool _isLoading = false;
         private IOutputSettings[] _availableOutput;        
-        private string _groupName = "Ambino Devices";
-        private string _smallIcon = "";
-        private string _bigIcon = "";
         private int _selectedOutput = 0;
         private string _geometry = "generaldevice";
         private string _deviceConnectionGeometry = "connection";
@@ -50,7 +47,6 @@ namespace adrilight
         private string _deviceConnectionType = "";
         private bool _isSelected = false;
         private string _deviceThumbnail;
-        
         private bool _isLoadingProfile = false;
         private string _activatedProfileUID;
         private string _fwLocation;
@@ -60,9 +56,6 @@ namespace adrilight
         private static byte[] requestSpeedCommand = { (byte)'1', (byte)'5', (byte)'4' };
         private static byte[] expectedValidHeader = { 15, 12, 93 };
         private bool _isSizeNeedUserDefine = false;
-        private int _deviceSpeed = 200; //only apply for fan hub devices
-        private int _speedMode = 1;
-        private string _deviceActualSpeed = "n/a";
         private bool _isLoadingSpeed = false;
         private System.Drawing.Rectangle _deviceBoundRectangle;
         public string DeviceThumbnail { get => _deviceThumbnail; set { Set(() => DeviceThumbnail, ref _deviceThumbnail, value); } }
@@ -91,17 +84,14 @@ namespace adrilight
       
         public int Baudrate { get => _baudrate; set { Set(() => Baudrate, ref _baudrate, value); } }
         public int ActivatedProfileIndex { get => _activatedProfileIndex; set { Set(() => ActivatedProfileIndex, ref _activatedProfileIndex, value); } }
-        public string GroupName { get => _groupName; set { Set(() => GroupName, ref _groupName, value); } }
-        public string SmallIcon { get => _smallIcon; set { Set(() => SmallIcon, ref _smallIcon, value); } }
-        public string BigIcon { get => _bigIcon; set { Set(() => BigIcon, ref _bigIcon, value); } }
+  
         public int SelectedOutput { get => _selectedOutput; set { Set(() => SelectedOutput, ref _selectedOutput, value); } }
         public string Geometry { get => _geometry; set { Set(() => Geometry, ref _geometry, value); } }
         public string DeviceDescription { get => _deviceDescription; set { Set(() => DeviceDescription, ref _deviceDescription, value); } }
         public string DeviceUID { get => _deviceUID; set { Set(() => DeviceUID, ref _deviceUID, value); } }
-        public int DeviceSpeed { get => _deviceSpeed; set { Set(() => DeviceSpeed, ref _deviceSpeed, value); } }
-        public int SpeedMode { get => _speedMode; set { Set(() => SpeedMode, ref _speedMode, value); } }
+
         public bool IsLoadingSpeed { get => _isLoadingSpeed; set { Set(() => IsLoadingSpeed, ref _isLoadingSpeed, value); } }
-        public string DeviceActualSpeed { get => _deviceActualSpeed; set { Set(() => DeviceActualSpeed, ref _deviceActualSpeed, value); } }
+  
         public string DeviceConnectionGeometry { get => _deviceConnectionGeometry; set { Set(() => DeviceConnectionGeometry, ref _deviceConnectionGeometry, value); } }
         public string DeviceConnectionType { get => _deviceConnectionType; set { Set(() => DeviceConnectionType, ref _deviceConnectionType, value); } }
         public bool IsLoadingProfile { get => _isLoadingProfile; set { Set(() => IsLoadingProfile, ref _isLoadingProfile, value); } }
@@ -167,50 +157,58 @@ namespace adrilight
         }
 
 
-        public Color GetCurrentAccentColor()
-        {
-
-            return Color.FromRgb(127, 0, 0);
-
-        }
+       
 
         public void BrightnessUp(int value)
         {
-              foreach (var output in AvailableOutputs)//possible replace with method from IOutputSettings
+            
+              foreach (var output  in AvailableOutputs)//possible replace with method from IOutputSettings
                 {
-                    output.BrightnessUp(value);
+                var currentBrightness = (output as OutputSettings).GetBrightness();
+                var nextBrightness = currentBrightness + value;
+                if(nextBrightness<100)
+                    (output as OutputSettings).SetBrightness(nextBrightness);
+                else
+                {
+                    (output as OutputSettings).SetBrightness(100);
                 }
+                }
+              
         }
         public void SpeedUp(int value)
         {
 
-            if (DeviceSpeed < 255)
-                DeviceSpeed += value;
-            if (DeviceSpeed > 255)
-                DeviceSpeed = 255;
+            //if (DeviceSpeed < 255)
+            //    DeviceSpeed += value;
+            //if (DeviceSpeed > 255)
+            //    DeviceSpeed = 255;
 
         }
         public void SpeedDown(int value)
         {
 
-            if (DeviceSpeed >20)
-                DeviceSpeed -= value;
-            if (DeviceSpeed < 20)
-                DeviceSpeed = 20;
+            //if (DeviceSpeed >20)
+            //    DeviceSpeed -= value;
+            //if (DeviceSpeed < 20)
+            //    DeviceSpeed = 20;
 
         }
         public void BrightnessDown(int value)
         {
-         
-           
-                //foreach (var output in AvailableOutputs)//possible replace with method from IOutputSettings
-                //{
-                //    if (output.OutputBrightness > 0)
-                //        output.OutputBrightness -= value;
-                //    if (output.OutputBrightness < 0)
-                //        output.OutputBrightness = 0;
-                //}
-            
+
+
+            foreach (var output in AvailableOutputs)//possible replace with method from IOutputSettings
+            {
+                var currentBrightness = (output as OutputSettings).GetBrightness();
+                var nextBrightness = currentBrightness - value;
+                if (nextBrightness > 0)
+                    (output as OutputSettings).SetBrightness(nextBrightness);
+                else
+                {
+                    (output as OutputSettings).SetBrightness(0);
+                }
+            }
+
         }
 
 
@@ -252,95 +250,95 @@ namespace adrilight
 
         //}
         private readonly byte[] _messagePreamble = { (byte)'a', (byte)'b', (byte)'n' };
-        private (byte[] Buffer, int OutputLength) GetLocatorOutputStream(Color color)
-        {
-            byte[] outputStream;
-            int counter = _messagePreamble.Length;
-            int locatorNumLED = 64;
+        //private (byte[] Buffer, int OutputLength) GetLocatorOutputStream(Color color)
+        //{
+        //    byte[] outputStream;
+        //    int counter = _messagePreamble.Length;
+        //    int locatorNumLED = 64;
 
-            const int colorsPerLed = 3;
-            int bufferLength = _messagePreamble.Length + 3 + 3
-                + (locatorNumLED * colorsPerLed);
-
-
-            outputStream = ArrayPool<byte>.Shared.Rent(bufferLength);
-
-            Buffer.BlockCopy(_messagePreamble, 0, outputStream, 0, _messagePreamble.Length);
+        //    const int colorsPerLed = 3;
+        //    int bufferLength = _messagePreamble.Length + 3 + 3
+        //        + (locatorNumLED * colorsPerLed);
 
 
+        //    outputStream = ArrayPool<byte>.Shared.Rent(bufferLength);
+
+        //    Buffer.BlockCopy(_messagePreamble, 0, outputStream, 0, _messagePreamble.Length);
 
 
 
 
 
-            byte lo = (byte)((locatorNumLED) & 0xff);
-            byte hi = (byte)(((locatorNumLED) >> 8) & 0xff);
-            byte chk = (byte)(hi ^ lo ^ 0x55);
-            outputStream[counter++] = hi;
-            outputStream[counter++] = lo;
-            outputStream[counter++] = chk;
-            outputStream[counter++] = 0;
-            outputStream[counter++] = 0;
-            outputStream[counter++] = 0;
 
 
-            for (int i = 0; i < locatorNumLED; i++)
-            {
-
-                var RGBOrder = "RGB";
-                var reOrderedColor = ReOrderSpotColor(RGBOrder, color.R, color.G, color.B);
-
-                outputStream[counter++] = reOrderedColor[0]; // blue
-                outputStream[counter++] = reOrderedColor[1]; // green
-                outputStream[counter++] = reOrderedColor[2]; // red
-
-
-            }
+        //    byte lo = (byte)((locatorNumLED) & 0xff);
+        //    byte hi = (byte)(((locatorNumLED) >> 8) & 0xff);
+        //    byte chk = (byte)(hi ^ lo ^ 0x55);
+        //    outputStream[counter++] = hi;
+        //    outputStream[counter++] = lo;
+        //    outputStream[counter++] = chk;
+        //    outputStream[counter++] = 0;
+        //    outputStream[counter++] = 0;
+        //    outputStream[counter++] = 0;
 
 
-            return (outputStream, bufferLength);
+        //    for (int i = 0; i < locatorNumLED; i++)
+        //    {
+
+        //        var RGBOrder = "RGB";
+        //        var reOrderedColor = ReOrderSpotColor(RGBOrder, color.R, color.G, color.B);
+
+        //        outputStream[counter++] = reOrderedColor[0]; // blue
+        //        outputStream[counter++] = reOrderedColor[1]; // green
+        //        outputStream[counter++] = reOrderedColor[2]; // red
+
+
+        //    }
+
+
+        //    return (outputStream, bufferLength);
 
 
 
-        }
-        private byte[] ReOrderSpotColor(string order, byte r, byte g, byte b)
-        {
-            byte[] reOrderedColor = new byte[3];
-            switch (order)
-            {
-                case "RGB"://do nothing
-                    reOrderedColor[0] = r;
-                    reOrderedColor[1] = g;
-                    reOrderedColor[2] = b;
-                    break;
-                case "RBG"://do nothing
-                    reOrderedColor[0] = r;
-                    reOrderedColor[1] = b;
-                    reOrderedColor[2] = g;
-                    break;
-                case "BGR"://do nothing
-                    reOrderedColor[0] = b;
-                    reOrderedColor[1] = g;
-                    reOrderedColor[2] = r;
-                    break;
-                case "BRG"://do nothing
-                    reOrderedColor[0] = b;
-                    reOrderedColor[1] = r;
-                    reOrderedColor[2] = g;
-                    break;
-                case "GRB"://do nothing
-                    reOrderedColor[0] = g;
-                    reOrderedColor[1] = r;
-                    reOrderedColor[2] = b;
-                    break;
-                case "GBR"://do nothing
-                    reOrderedColor[0] = g;
-                    reOrderedColor[1] = b;
-                    reOrderedColor[2] = r;
-                    break;
-            }
-            return reOrderedColor;
-        }
+        //}
+        //private byte[] ReOrderSpotColor(string order, byte r, byte g, byte b)
+        //{
+        //    byte[] reOrderedColor = new byte[3];
+        //    switch (order)
+        //    {
+        //        case "RGB"://do nothing
+        //            reOrderedColor[0] = r;
+        //            reOrderedColor[1] = g;
+        //            reOrderedColor[2] = b;
+        //            break;
+        //        case "RBG"://do nothing
+        //            reOrderedColor[0] = r;
+        //            reOrderedColor[1] = b;
+        //            reOrderedColor[2] = g;
+        //            break;
+        //        case "BGR"://do nothing
+        //            reOrderedColor[0] = b;
+        //            reOrderedColor[1] = g;
+        //            reOrderedColor[2] = r;
+        //            break;
+        //        case "BRG"://do nothing
+        //            reOrderedColor[0] = b;
+        //            reOrderedColor[1] = r;
+        //            reOrderedColor[2] = g;
+        //            break;
+        //        case "GRB"://do nothing
+        //            reOrderedColor[0] = g;
+        //            reOrderedColor[1] = r;
+        //            reOrderedColor[2] = b;
+        //            break;
+        //        case "GBR"://do nothing
+        //            reOrderedColor[0] = g;
+        //            reOrderedColor[1] = b;
+        //            reOrderedColor[2] = r;
+        //            break;
+        //    }
+        //    return reOrderedColor;
+        //}
 
         public void RefreshFirmwareVersion()
         {
@@ -467,90 +465,90 @@ namespace adrilight
         private void GetActualSpeed()
         {
 
-            byte[] speed = new byte[256];
+            //byte[] speed = new byte[256];
 
-            bool isValid = false;
-
-
-            IsTransferActive = false; // stop current serial stream attached to this device
-
-            var _serialPort = new SerialPort(OutputPort, 1000000);
-            _serialPort.DtrEnable = true;
-            _serialPort.ReadTimeout = 5000;
-            _serialPort.WriteTimeout = 1000;
-            try
-            {
-                _serialPort.Open();
-            }
-            catch (UnauthorizedAccessException)
-            {
-                DeviceActualSpeed = "unknown";
-                RaisePropertyChanged(nameof(DeviceActualSpeed));
-                return;
-            }
-
-            //write request info command
-            _serialPort.Write(requestSpeedCommand, 0, 3);
-            int retryCount = 0;
-            int offset = 0;
-            int spdInfoLength = 0; // Expected response length of valid deviceID 
+            //bool isValid = false;
 
 
-            while (offset < 3)
-            {
+            //IsTransferActive = false; // stop current serial stream attached to this device
+
+            //var _serialPort = new SerialPort(OutputPort, 1000000);
+            //_serialPort.DtrEnable = true;
+            //_serialPort.ReadTimeout = 5000;
+            //_serialPort.WriteTimeout = 1000;
+            //try
+            //{
+            //    _serialPort.Open();
+            //}
+            //catch (UnauthorizedAccessException)
+            //{
+            //    DeviceActualSpeed = "unknown";
+            //    RaisePropertyChanged(nameof(DeviceActualSpeed));
+            //    return;
+            //}
+
+            ////write request info command
+            //_serialPort.Write(requestSpeedCommand, 0, 3);
+            //int retryCount = 0;
+            //int offset = 0;
+            //int spdInfoLength = 0; // Expected response length of valid deviceID 
 
 
-                try
-                {
-                    byte header = (byte)_serialPort.ReadByte();
-                    if (header == expectedValidHeader[offset])
-                    {
-                        offset++;
-                    }
-                }
-                catch (TimeoutException)// retry until received valid header
-                {
-                    _serialPort.Write(requestSpeedCommand, 0, 3);
-                    retryCount++;
-                    if (retryCount == 3)
-                    {
-                        _serialPort.Close();
-                        _serialPort.Dispose();
-                        IsTransferActive = true;
-                        RaisePropertyChanged(nameof(IsTransferActive));
-                        DeviceActualSpeed = "unknown";
-                        RaisePropertyChanged(nameof(DeviceActualSpeed));
-                        return;
-
-                    }
-                    Debug.WriteLine("no respond, retrying...");
-                }
+            //while (offset < 3)
+            //{
 
 
-            }
-            if (offset == 3) //3 bytes header are valid
-            {
-                spdInfoLength = (byte)_serialPort.ReadByte();
-                int count = spdInfoLength;
-                speed = new byte[count];
-                while (count > 0)
-                {
-                    var readCount = _serialPort.Read(speed, 0, count);
-                    offset += readCount;
-                    count -= readCount;
-                }
+            //    try
+            //    {
+            //        byte header = (byte)_serialPort.ReadByte();
+            //        if (header == expectedValidHeader[offset])
+            //        {
+            //            offset++;
+            //        }
+            //    }
+            //    catch (TimeoutException)// retry until received valid header
+            //    {
+            //        _serialPort.Write(requestSpeedCommand, 0, 3);
+            //        retryCount++;
+            //        if (retryCount == 3)
+            //        {
+            //            _serialPort.Close();
+            //            _serialPort.Dispose();
+            //            IsTransferActive = true;
+            //            RaisePropertyChanged(nameof(IsTransferActive));
+            //            DeviceActualSpeed = "unknown";
+            //            RaisePropertyChanged(nameof(DeviceActualSpeed));
+            //            return;
 
-            }
+            //        }
+            //        Debug.WriteLine("no respond, retrying...");
+            //    }
 
-            _serialPort.Close();
-            _serialPort.Dispose();
-            //if (isValid)
-            //    newDevices.Add(newDevice);
-            //reboot serialStream
-            IsTransferActive = true;
-            RaisePropertyChanged(nameof(IsTransferActive));
-            DeviceActualSpeed = speed[0].ToString();
-            RaisePropertyChanged(nameof(DeviceActualSpeed));
+
+            //}
+            //if (offset == 3) //3 bytes header are valid
+            //{
+            //    spdInfoLength = (byte)_serialPort.ReadByte();
+            //    int count = spdInfoLength;
+            //    speed = new byte[count];
+            //    while (count > 0)
+            //    {
+            //        var readCount = _serialPort.Read(speed, 0, count);
+            //        offset += readCount;
+            //        count -= readCount;
+            //    }
+
+            //}
+
+            //_serialPort.Close();
+            //_serialPort.Dispose();
+            ////if (isValid)
+            ////    newDevices.Add(newDevice);
+            ////reboot serialStream
+            //IsTransferActive = true;
+            //RaisePropertyChanged(nameof(IsTransferActive));
+            //DeviceActualSpeed = speed[0].ToString();
+            //RaisePropertyChanged(nameof(DeviceActualSpeed));
         }
         public void SetRectangle(System.Drawing.Rectangle rectangle)
         {

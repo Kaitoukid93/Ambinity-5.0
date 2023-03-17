@@ -108,14 +108,7 @@ namespace adrilight
                 Stop();
                 Thread.Sleep(1000);
             }
-            else if (DeviceSettings.IsTransferActive && DeviceSettings.CurrentState == State.speed) // this is only requested by dfu or fwupgrade button.
-            {
-                DeviceSettings.IsLoadingSpeed = true;
-                Stop();
-                Thread.Sleep(500);
-                DeviceSettings.CurrentState = State.normal;
-                DeviceSettings.RefreshDeviceActualSpeedAsync();
-            }
+           
         }
 
 

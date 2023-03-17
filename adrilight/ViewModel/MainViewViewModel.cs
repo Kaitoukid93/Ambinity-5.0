@@ -129,10 +129,10 @@ namespace adrilight.ViewModel
             {
                 return new SpeedMode() {
                     Name = "Auto Speed",
-                    //BasedOn = LightingModeEnum.Rainbow,
+                    SpeedType = SpeedModeEnum.auto,
                     Creator = "ambino",
                     Owner = "ambino",
-                    Description = "Tốc độ Fan thay đổi theo nhiệt độ",
+                    Description = "Tốc độ Fan thay đổi theo nhiệt độ"
                     //Parameters = { ChasingPatterns, GenericDirrectionParameter, GenericBrightnessParameter, GenericSpeedParameter }
 
                 };
@@ -143,7 +143,7 @@ namespace adrilight.ViewModel
             {
                 return new SpeedMode() {
                     Name = "Manual Speed",
-                    //BasedOn = LightingModeEnum.Rainbow,
+                    SpeedType = SpeedModeEnum.manual,
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Cố định tốc độ Fan",
@@ -166,7 +166,9 @@ namespace adrilight.ViewModel
                     Description = "Speed of Motion",
                     Type = ModeParameterEnum.Speed,
                     Template = ModeParameterTemplateEnum.ValueSlider,
-                    Value = 50
+                    Value = 50,
+                    MinValue = 0,
+                    MaxValue=100
 
                 };
             }
@@ -3378,17 +3380,17 @@ namespace adrilight.ViewModel
             //{
             //    p.IsBrightnessPopupOpen = true;
             //});
-            SendCurrentDeviceSpeedCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                if (CurrentDevice.IsTransferActive)
-                {
-                    CurrentDevice.CurrentState = State.speed;
-                    IsSpeedSettingUnsetted = false;
-                }
-            });
+            //SendCurrentDeviceSpeedCommand = new RelayCommand<string>((p) =>
+            //{
+            //    return true;
+            //}, (p) =>
+            //{
+            //    if (CurrentDevice.IsTransferActive)
+            //    {
+            //        CurrentDevice.CurrentState = State.speed;
+            //        IsSpeedSettingUnsetted = false;
+            //    }
+            //});
             OpenActionsManagerWindowCommand = new RelayCommand<IAutomationSettings>((p) =>
             {
                 return true;
@@ -6078,7 +6080,23 @@ namespace adrilight.ViewModel
             get { return _currentIDType; }
             set { _currentIDType = value; }
         }
-
+        private ObservableCollection<IDrawable> _currentDeviceLiveViewItems;
+        public ObservableCollection<IDrawable> CurrentDeviceLivewViewItems {
+            get { return _currentDeviceLiveViewItems; }
+            set
+            {
+                _currentDeviceLiveViewItems = value;
+                RaisePropertyChanged();
+            }
+        }
+        private void GetItemsForLiveView(IDeviceSettings device)
+        {
+            CurrentDeviceLivewViewItems = new ObservableCollection<IDrawable>();
+            foreach(var output in device.AvailableOutputs)
+            {
+                CurrentDeviceLivewViewItems.Add(output.OutputLEDSetup as LEDSetup);
+            }
+        }
         private void LaunchVIDEditWindow(string idType)
         {
             CurrentIDType = idType;
@@ -8908,6 +8926,7 @@ namespace adrilight.ViewModel
         {
             CurrentDevice = selectedDevice;
             CurrentView = "details";
+            GetItemsForLiveView(selectedDevice);
             foreach (var output in CurrentDevice.AvailableOutputs)
             {
                 output.OutputUniqueID = CurrentDevice.DeviceUID.ToString() + output.OutputID.ToString();
@@ -8975,11 +8994,6 @@ namespace adrilight.ViewModel
                         }
 
                         break;
-
-                    case nameof(CurrentDevice.DeviceSpeed):
-                        IsSpeedSettingUnsetted = true;
-                        break;
-
                     case nameof(CurrentDevice.IsTransferActive):
                         {
                             CurrentDevice.IsLoadingSpeed = false;

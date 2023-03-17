@@ -1,4 +1,5 @@
 ﻿using GalaSoft.MvvmLight;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,12 +8,13 @@ using System.Threading.Tasks;
 
 namespace adrilight.Util
 {
-    internal class LightingMode: ViewModelBase, IControlMode
+    internal class LightingMode : ViewModelBase, IControlMode
     {
         //bool Autostart { get; set; }
 
 
-        public LightingMode() {
+        public LightingMode()
+        {
             Parameters = new List<IModeParameter>();
         }
 
@@ -40,14 +42,22 @@ namespace adrilight.Util
         /// List of parameters that this mode have
         /// </summary>
         public List<IModeParameter> Parameters { get; set; }
-        public void BrightnessUp(int upValue)
+        internal int GetBrightness()
         {
-            //find the brightness param and add value
-            var brightnessParam = Parameters.Where(p=> p.Type == ModeParameterEnum.Brightness).FirstOrDefault();
-            var currentValue = (int)brightnessParam.Value;
-            var targetValue = currentValue + upValue;
-            brightnessParam.Value = targetValue;
+
+            var brightnessParam = Parameters.Where(p => p.Type == ModeParameterEnum.Brightness).FirstOrDefault();
+            int brightness = 0;
+            if (brightnessParam != null) { }
+            brightness = brightnessParam.Value;
+            return brightness;
 
         }
+
+        internal void SetBrightness(int value)
+        {
+            var brightnessParam = Parameters.Where(p => p.Type == ModeParameterEnum.Brightness).FirstOrDefault();
+            brightnessParam.Value = value;
+        }
+
     }
 }

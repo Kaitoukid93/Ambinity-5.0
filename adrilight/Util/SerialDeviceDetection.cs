@@ -211,8 +211,17 @@ namespace adrilight.Util
                             newDevice.DeviceConnectionType = "wired";
                             newDevice.OutputPort = device;
                             newDevice.IsSizeNeedUserDefine = true;
-                            newDevice.AvailableOutputs = new OutputSettings[1];
-                            newDevice.AvailableOutputs[0] = new OutputSettings() { OutputName = "24inch"};
+                            newDevice.AvailableOutputs = new OutputSettings[10];
+                            newDevice.AvailableOutputs[0] = new OutputSettings() { OutputName = "Fan1123",OutputID=0};
+                            newDevice.AvailableOutputs[1] = new OutputSettings() { OutputName = "Fan2", OutputID=1};
+                            newDevice.AvailableOutputs[2] = new OutputSettings() { OutputName = "Fan3", OutputID = 2 };
+                            newDevice.AvailableOutputs[3] = new OutputSettings() { OutputName = "Fan4", OutputID = 3 };
+                            newDevice.AvailableOutputs[4] = new OutputSettings() { OutputName = "Fan512312312", OutputID = 4 };
+                            newDevice.AvailableOutputs[5] = new OutputSettings() { OutputName = "Fan6", OutputID = 5 };
+                            newDevice.AvailableOutputs[6] = new OutputSettings() { OutputName = "Fan7", OutputID = 6 };
+                            newDevice.AvailableOutputs[7] = new OutputSettings() { OutputName = "Fan8", OutputID = 7 };
+                            newDevice.AvailableOutputs[8] = new OutputSettings() { OutputName = "Fan9", OutputID = 8 };
+                            newDevice.AvailableOutputs[9] = new OutputSettings() { OutputName = "Fan10", OutputID = 9 };
 
                             break;
                         case "Ambino EDGE":// General Ambino Edge USB Device

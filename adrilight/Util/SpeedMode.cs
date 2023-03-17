@@ -1,4 +1,5 @@
 ﻿using GalaSoft.MvvmLight;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,12 +8,13 @@ using System.Threading.Tasks;
 
 namespace adrilight.Util
 {
-    internal class SpeedMode: ViewModelBase, IControlMode
+    internal class SpeedMode : ViewModelBase, IControlMode
     {
         //bool Autostart { get; set; }
 
 
-        public SpeedMode() {
+        public SpeedMode()
+        {
             Parameters = new List<IModeParameter>();
         }
 
@@ -35,19 +37,26 @@ namespace adrilight.Util
         /// <summary>
         /// what is this lighting mode based on (rainbow, capturing screne, music capturing
         /// </summary>
-        public LightingModeEnum BasedOn { get; set; }
+        public SpeedModeEnum SpeedType { get; set; }
         /// <summary>
         /// List of parameters that this mode have
         /// </summary>
         public List<IModeParameter> Parameters { get; set; }
-        public void SpeedUp(int upValue)
-        {
-            //find the brightness param and add value
-            var speedParam = Parameters.Where(p=> p.Type == ModeParameterEnum.Speed).FirstOrDefault();
-            var currentValue = (int)speedParam.Value;
-            var targetValue = currentValue + upValue;
-            speedParam.Value = targetValue;
 
+
+        internal void SetSpeed(int speedValue)
+        {
+            var speedParam = Parameters.Where(p => p.Type == ModeParameterEnum.Speed).FirstOrDefault();
+            if (speedParam != null)
+                speedParam.Value = speedValue;
+        }
+        internal int GetSpeed()
+        {
+            int speed = 0;
+            var speedParam = Parameters.Where(p => p.Type == ModeParameterEnum.Speed).FirstOrDefault();
+            if (speedParam != null)
+                speed = (int)speedParam.Value;
+            return speed;
         }
     }
 }
