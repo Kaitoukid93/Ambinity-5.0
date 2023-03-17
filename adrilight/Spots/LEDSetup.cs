@@ -1,6 +1,7 @@
 ﻿using adrilight.DesktopDuplication;
 using adrilight.Extensions;
 using adrilight.Spots;
+using adrilight.Util;
 using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
@@ -12,13 +13,13 @@ using System.IO;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 
 namespace adrilight
 {
-    internal class LEDSetup : ViewModelBase, ILEDSetup, IDrawable
+    internal class LEDSetup : ViewModelBase, ILEDSetup, IDrawable, IOnlineItemModel
     {
-        private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
-        private string JsonLEDSetupFileNameAndPath => Path.Combine(JsonPath, "adrilight-LEDSetups.json");
+   
         public LEDSetup(string name, string owner, string type, string description, ObservableCollection<IDeviceSpot> spots, int setupID, double pixelWidth, double pixelHeight,double scaleWidth,double scaleHeight)
         {
             Name = name;
@@ -125,8 +126,14 @@ namespace adrilight
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
-    
-     
+
+        public string Type { get; set; } = "LEDSetup";
+        public string Path { get; set; }
+        public BitmapImage Thumb { get; set; }
+        public List<BitmapImage> Screenshots { get; set; }
+        public string MarkDownDescription { get; set; }
+        public string SubType { get; set; }
+
         public void SetScale(double scale)
         {
             //keep left and top the same

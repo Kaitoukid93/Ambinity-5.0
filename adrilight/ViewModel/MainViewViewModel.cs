@@ -547,6 +547,8 @@ namespace adrilight.ViewModel
             }
         }
         public ICommand CompositionNextFrameCommand { get; set; }
+        public ICommand ExportCurrentOnlineItemToFilesCommand { get; set; }
+        public ICommand OpenImageSelectorCommand { get; set; }
         public ICommand DownloadSelectedChasingPattern { get; set; }
         public ICommand DownloadSelectedPaletteCommand { get; set; }
         public ICommand CutSelectedMotionCommand { get; set; }
@@ -670,6 +672,7 @@ namespace adrilight.ViewModel
         public ICommand CreateNewProfileCommand { get; set; }
         public ICommand OpenProfileCreateCommand { get; set; }
         public ICommand ExportPIDCommand { get; set; }
+        public ICommand ExportItemForOnlineStoreCommand { get; set; }
         public ICommand ImportPIDCommand { get; set; }
         public ICommand OpenDeviceConnectionSettingsWindowCommand { get; set; }
         public ICommand OpenDeviceFirmwareSettingsWindowCommand { get; set; }
@@ -2658,6 +2661,32 @@ namespace adrilight.ViewModel
                     CurrentCompositionFrame++;
             }
      );
+            OpenImageSelectorCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+               
+                   
+                        OpenImageSelector(p);
+                      
+                
+                
+            }
+     );
+            ExportCurrentOnlineItemToFilesCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+
+
+                ExportCurrentOnlineItemToFiles();
+
+
+
+            }
+     );
             CutSelectedMotionCommand = new RelayCommand<ITimeLineDataItem>((p) =>
             {
                 return true;
@@ -3171,6 +3200,13 @@ namespace adrilight.ViewModel
             }, (p) =>
             {
                 ExportCurrentOutputPID();
+            });
+            ExportItemForOnlineStoreCommand = new RelayCommand<object>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                ExportItemForOnlineStore(p);
             });
             ImportPIDCommand = new RelayCommand<string>((p) =>
             {
@@ -4003,6 +4039,120 @@ namespace adrilight.ViewModel
             {
                 BackToDashboard();
             });
+        }
+        public OnlineItemExporterView onlineExportWindow;
+        public IOnlineItemModel CurrentItemForExport { get; set; }
+        public object CurrentContentForExport { get; set; }
+        public ObservableCollection<string> OnlineItemScreenShotCollection { get; set; }
+        private string _onlineItemAvatar;
+        public string OnlineItemAvatar {
+            get { return _onlineItemAvatar; }
+            set { _onlineItemAvatar = value; RaisePropertyChanged(); }
+        }
+        private string _onlineItemSelectedSubType;
+        public string OnlineItemSelectedSubType {
+            get { return _onlineItemSelectedSubType; }
+            set { _onlineItemSelectedSubType = value; RaisePropertyChanged(); }
+        }
+        private string _onlineItemMarkdownDescription;
+        public string OnlineItemMarkdownDescription {
+            get { return _onlineItemMarkdownDescription; }
+            set { _onlineItemMarkdownDescription = value; RaisePropertyChanged(); }
+        }
+        public ObservableCollection<string> OnlineItemSelectableSubType { get; set; }
+        private void ExportCurrentOnlineItemToFiles()
+        {
+            //creat all needed path
+            SaveFileDialog Export = new SaveFileDialog();
+            Export.CreatePrompt = true;
+            Export.OverwritePrompt = true;
+
+            Export.Title = "Xuất dữ liệu";
+            Export.FileName = CurrentItemForExport.Name;
+            Export.CheckFileExists = false;
+            Export.CheckPathExists = true;
+            Export.InitialDirectory =
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            Export.RestoreDirectory = true;
+            string contentjson ="";
+            switch(CurrentItemForExport.Type)
+            {
+                case "LEDSetup":
+                    var content = CurrentContentForExport as LEDSetup;
+                     contentjson = JsonConvert.SerializeObject(content, new JsonSerializerSettings() {
+                        TypeNameHandling = TypeNameHandling.Auto
+                    });
+                    break;
+            }
+          
+
+            if (Export.ShowDialog() == DialogResult.OK)
+            {
+                //create directory with same name
+                var newFolder = Directory.CreateDirectory(Export.FileName);
+                var contentFolder = Directory.CreateDirectory(Path.Combine(Export.FileName, "content")).ToString();
+                //create main content 
+                File.WriteAllText(Path.Combine(Export.FileName, "content", CurrentItemForExport.Name + ".json"), contentjson);
+                //create info
+                var info = new OnlineItemModel() {
+                    Name = CurrentItemForExport.Name,
+                    Owner = CurrentItemForExport.Owner,
+                    Description = CurrentItemForExport.Description,
+                    Type = CurrentItemForExport.Type,
+                    SubType = OnlineItemSelectedSubType.ToString()
+                };
+                var infoJson = JsonConvert.SerializeObject(info, new JsonSerializerSettings() {
+                    TypeNameHandling = TypeNameHandling.Auto
+                });
+                File.WriteAllText(Path.Combine(Export.FileName, "info.json"), infoJson);
+                File.WriteAllText(Path.Combine(Export.FileName, "description.md"), OnlineItemMarkdownDescription);
+                //create image, require user input later thumb.png???
+
+
+            }
+        }
+        private void OpenImageSelector(string type)
+        {
+            System.Windows.Forms.OpenFileDialog Import = new System.Windows.Forms.OpenFileDialog();
+            Import.Title = "Chọn Screenshot";
+            Import.CheckFileExists = true;
+            Import.CheckPathExists = true;
+            Import.DefaultExt = "Pro";
+            Import.Filter = "Image files (*.png)|*.Png";
+            Import.FilterIndex = 2;
+            Import.Multiselect = type == "screenshot";
+
+            Import.ShowDialog();
+
+
+            switch(type)
+            {
+                case "screenshot":
+                    for (int i = 0; i < Import.FileNames.Length; i++)
+                    {
+                        //add string path to list
+                        OnlineItemScreenShotCollection.Add(Import.FileNames[i].ToString());
+                    }
+                    break;
+                case "avatar":
+                    OnlineItemAvatar = Import.FileName;
+                    break;
+            }
+            
+        }
+        private void ExportItemForOnlineStore(object p)
+        {
+            CurrentContentForExport = p;
+            CurrentItemForExport = p as IOnlineItemModel;
+            OnlineItemScreenShotCollection = new ObservableCollection<string>();
+            OnlineItemSelectableSubType = new ObservableCollection<string>();
+            OnlineItemSelectableSubType.Add("ambinofanhub");
+            OnlineItemSelectableSubType.Add("ambinobasic");
+            OnlineItemSelectableSubType.Add("ambinoedge");
+            OnlineItemSelectableSubType.Add("generaldevice");
+            OnlineItemSelectedSubType = "ambinobasic";
+            onlineExportWindow = new OnlineItemExporterView();
+            onlineExportWindow.Show();
         }
 
         private void OpenPasswordDialog()

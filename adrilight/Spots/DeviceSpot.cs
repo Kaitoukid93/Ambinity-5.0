@@ -1,5 +1,6 @@
 ﻿using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -60,6 +61,7 @@ namespace adrilight.Spots
             get => _isFirst;
             set { Set(() => IsFirst, ref _isFirst, value); }
         }
+       
         public int MID { get; set; }
         public bool IsIDVissible { get; set; }
         public string Shape { get; set; }
