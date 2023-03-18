@@ -46,6 +46,7 @@ namespace adrilight
         public ObservableCollection<IDeviceSpot> Spots { get => _spots; set { Set(() => Spots, ref _spots, value); RaisePropertyChanged(); } }
         public object Lock { get; } = new object();
         public int SetupID { get; set; }    // to match with device ID
+        public string FormatVersion { get; set; }
 
         public void DimLED(float dimFactor)
         {

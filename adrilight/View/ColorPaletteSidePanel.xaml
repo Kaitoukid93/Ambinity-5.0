@@ -102,7 +102,7 @@
                                 </MenuItem.Icon>
                             </MenuItem>
                             <MenuItem  Header="Share" CommandParameter="{Binding .}" 
-                                          Command="{Binding PlacementTarget.Tag.ExportCurrentSelectedPaletteToFileCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                                          Command="{Binding PlacementTarget.Tag.ExportItemForOnlineStoreCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                                           >
                                 <MenuItem.Icon>
                                     <Path   Data="{StaticResource export}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>

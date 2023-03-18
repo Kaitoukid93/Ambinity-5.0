@@ -14,6 +14,7 @@ namespace adrilight.Util
         System.Windows.Media.Color[] Colors { get; set; }
         string Type { get; set; }
         string Description { get; set; }
+        string FormatVersion { get; set; }
         void SetColor(int index, Color color);
     }
 }

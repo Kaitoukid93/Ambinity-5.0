@@ -27,6 +27,7 @@ namespace adrilight.Util
         public List<BitmapImage> Screenshots { get; set; }
         public string MarkDownDescription { get; set; }
         public string SubType { get; set; }
+        
 
     }
 }

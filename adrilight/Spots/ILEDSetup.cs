@@ -28,6 +28,7 @@ namespace adrilight.Spots
         public double ScaleHeight { get; set; }
         int OutputSelectedDisplay { get; set; }
         bool IsScreenCaptureEnabled { get; set; }
+        string FormatVersion { get; set; }
         void OnResolutionChanged(double scaleX, double scaleY);
         void RefreshSizeAndPosition();
     }
