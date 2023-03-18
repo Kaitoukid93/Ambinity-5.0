@@ -31,8 +31,7 @@ namespace adrilight
         string OutputPort { get; set; }
         bool IsTransferActive { get; set; }
         int ActivatedProfileIndex { get; set; }
-        IOutputSettings[] AvailableOutputs { get; set; }
-        
+        IDeviceController[] AvailableControllers { get; set; }
     
         int SelectedOutput { get; set; }
         string Geometry { get; set; }

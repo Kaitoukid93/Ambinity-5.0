@@ -2,6 +2,7 @@
 using adrilight.Extensions;
 using adrilight.Settings;
 using adrilight.Spots;
+using adrilight.Util;
 using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
@@ -13,12 +14,13 @@ using System.IO;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 
 namespace adrilight
 {
-    internal class LEDSetup : ViewModelBase, ILEDSetup, IDrawable
+    public class LEDSetup : ViewModelBase, IControlZone, IDrawable
     {
-  
+
         public LEDSetup(string name, string owner, string type, string description, ObservableCollection<IDeviceSpot> spots, double pixelWidth, double pixelHeight, double scaleWidth, double scaleHeight)
         {
             Name = name;
@@ -32,18 +34,39 @@ namespace adrilight
             ScaleHeight = scaleHeight;
             VisualProperties = new VisualProperties();
             Scale = new Point(1, 1);
+            AvailableControlMode = new List<IControlMode>();
+        }
 
+        public BitmapImage Thumb { get; set; }
+
+        private int _currentActiveControlModeIndex;
+        public string Name { get; set; }
+        public string Description { get; set; }
+
+        /// <summary>
+        /// this list contains all available control mode ex: auto-manual,music-rainbow-capturing...
+        /// </summary>
+        public List<IControlMode> AvailableControlMode { get; set; }
+        [JsonIgnore]
+        public IControlMode CurrentActiveControlMode { get; set; }
+
+        public int CurrentActiveControlModeIndex { get => _currentActiveControlModeIndex; set { if (value >= 0) Set(() => CurrentActiveControlModeIndex, ref _currentActiveControlModeIndex, value); OnActiveControlModeChanged(); } }
+
+        private void OnActiveControlModeChanged()
+        {
+            if (CurrentActiveControlModeIndex >= 0)
+            {
+                CurrentActiveControlMode = AvailableControlMode[CurrentActiveControlModeIndex];
+                RaisePropertyChanged(nameof(CurrentActiveControlMode));
+            }
         }
 
         private ObservableCollection<IDeviceSpot> _spots;
-        public string Name { get; set; }
         public string Owner { get; set; }
         public string Geometry { get; set; }
         public string TargetType { get; set; } // Tartget Type of the spotset (keyboard, strips, ...
-        public string Description { get; set; }
         public ObservableCollection<IDeviceSpot> Spots { get => _spots; set { Set(() => Spots, ref _spots, value); RaisePropertyChanged(); } }
         public object Lock { get; } = new object();
-     
         public string Thumbnail { get; set; }
         public void DimLED(float dimFactor)
         {
@@ -61,6 +84,7 @@ namespace adrilight
         {
             VisualProperties = new VisualProperties();
             Scale = new Point(1, 1);
+            AvailableControlMode = new List<IControlMode>();
         }
         private bool _isScreenCaptureEnabled = true;
         private int _outputSelectedDisplay;
@@ -125,6 +149,7 @@ namespace adrilight
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
 
+        public string Type { get; set; }
 
         public void SetScale(double scale)
         {

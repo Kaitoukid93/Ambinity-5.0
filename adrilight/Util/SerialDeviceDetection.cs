@@ -213,14 +213,19 @@ namespace adrilight.Util
                             newDevice.DeviceConnectionType = "wired";
                             newDevice.OutputPort = device;
                             newDevice.IsSizeNeedUserDefine = true;
-                            newDevice.AvailableOutputs = new OutputSettings[2];
-                            //set a default output for this device , simply plugin LED strip with led number of 64
-                            newDevice.AvailableOutputs[0] = new OutputSettings() { OutputID = 0,OutputLEDSetup = new LEDSetup[2] };
-                            newDevice.AvailableOutputs[1] = new OutputSettings() { OutputID = 1, OutputLEDSetup = new LEDSetup[2] };
-                            newDevice.AvailableOutputs[0].OutputLEDSetup[0] = ledSetupHlprs.BuildLEDSetup(64, 1, "Simple LED Strip", 640.0, 10.0);
-                            newDevice.AvailableOutputs[0].OutputLEDSetup[1] = ledSetupHlprs.BuildLEDSetup(5, 1, "Simple LED Strip", 100.0, 20.0);
-                            newDevice.AvailableOutputs[1].OutputLEDSetup[0] = ledSetupHlprs.BuildLEDSetup(20, 1, "Simple LED Strip", 640.0, 10.0);
-                            newDevice.AvailableOutputs[1].OutputLEDSetup[1] = ledSetupHlprs.BuildLEDSetup(7, 1, "Simple LED Strip", 140.0, 20.0);
+                            newDevice.AvailableControllers = new DeviceController[1];
+                            newDevice.AvailableControllers[0] = new DeviceController() { Description = "LED Controller", Name = "USB Basic", Executioner = "CH552G", Type = ControllerTypeEnum.LightingController };
+                            newDevice.AvailableControllers[0].Outputs = new LightingOutput[1];
+                            newDevice.AvailableControllers[0].Outputs[0] = new LightingOutput() { OutputID = 0, ControlableZone = new LEDSetup[4] };
+                            //set a default output for this device , simply plugin 4 LED strips with led number of 5-12
+                            //build leds for zone 0
+                            newDevice.AvailableControllers[0].Outputs[0].ControlableZone[0] = ledSetupHlprs.BuildLEDSetup(1, 5, "Cạnh phải", 10.0, 50.0);
+                            newDevice.AvailableControllers[0].Outputs[0].ControlableZone[1] = ledSetupHlprs.BuildLEDSetup(12, 1, "Cạnh trên", 120.0, 10.0);
+                            newDevice.AvailableControllers[0].Outputs[0].ControlableZone[2] = ledSetupHlprs.BuildLEDSetup(1, 5, "Cạnh trái", 10.0, 50.0);
+                            newDevice.AvailableControllers[0].Outputs[0].ControlableZone[3] = ledSetupHlprs.BuildLEDSetup(12, 1, "Cạnh dưới", 120.0, 10.0);
+
+
+                            //this device contains 4 zones
 
                             break;
                         case "Ambino EDGE":// General Ambino Edge USB Device
@@ -238,6 +243,33 @@ namespace adrilight.Util
                             newDevice.DeviceConnectionType = "wired";
                             newDevice.OutputPort = device;
                             newDevice.IsSizeNeedUserDefine = true;
+                            //newDevice.AvailableOutputs = new IOutputSettings[10];
+                            ////set a default output for this device , simply plugin LED strip with led number of 16
+                            //newDevice.AvailableOutputs[0] = new LightingOutput() { OutputID = 0, ControlableZone = new LEDSetup[1] };
+                            //newDevice.AvailableOutputs[1] = new LightingOutput() { OutputID = 1, ControlableZone = new LEDSetup[1] };
+                            //newDevice.AvailableOutputs[2] = new LightingOutput() { OutputID = 2, ControlableZone = new LEDSetup[1] };
+                            //newDevice.AvailableOutputs[3] = new LightingOutput() { OutputID = 3, ControlableZone = new LEDSetup[1] };
+                            //newDevice.AvailableOutputs[4] = new LightingOutput() { OutputID = 4, ControlableZone = new LEDSetup[1] };
+                            //newDevice.AvailableOutputs[5] = new LightingOutput() { OutputID = 5, ControlableZone = new LEDSetup[1] };
+                            //newDevice.AvailableOutputs[6] = new LightingOutput() { OutputID = 6, ControlableZone = new LEDSetup[1] };
+                            //newDevice.AvailableOutputs[7] = new LightingOutput() { OutputID = 7, ControlableZone = new LEDSetup[1] };
+                            //newDevice.AvailableOutputs[8] = new LightingOutput() { OutputID = 8, ControlableZone = new LEDSetup[1] };
+                            //newDevice.AvailableOutputs[9] = new LightingOutput() { OutputID = 9, ControlableZone = new LEDSetup[1] };
+                            ////build leds for zones
+                            //newDevice.AvailableOutputs[0].ControlableZone[0] = ledSetupHlprs.BuildLEDSetup(16, 1, "Fan", 160.0, 10.0);
+                            //newDevice.AvailableOutputs[1].ControlableZone[0] = ledSetupHlprs.BuildLEDSetup(16, 1, "Fan", 160.0, 10.0);
+                            //newDevice.AvailableOutputs[2].ControlableZone[0] = ledSetupHlprs.BuildLEDSetup(16, 1, "Fan", 160.0, 10.0);
+                            //newDevice.AvailableOutputs[3].ControlableZone[0] = ledSetupHlprs.BuildLEDSetup(16, 1, "Fan", 160.0, 10.0);
+                            //newDevice.AvailableOutputs[4].ControlableZone[0] = ledSetupHlprs.BuildLEDSetup(16, 1, "Fan", 160.0, 10.0);
+                            //newDevice.AvailableOutputs[5].ControlableZone[0] = ledSetupHlprs.BuildLEDSetup(16, 1, "Fan", 160.0, 10.0);
+                            //newDevice.AvailableOutputs[6].ControlableZone[0] = ledSetupHlprs.BuildLEDSetup(16, 1, "Fan", 160.0, 10.0);
+                            //newDevice.AvailableOutputs[7].ControlableZone[0] = ledSetupHlprs.BuildLEDSetup(16, 1, "Fan", 160.0, 10.0);
+                            //newDevice.AvailableOutputs[8].ControlableZone[0] = ledSetupHlprs.BuildLEDSetup(16, 1, "Fan", 160.0, 10.0);
+                            //newDevice.AvailableOutputs[9].ControlableZone[0] = ledSetupHlprs.BuildLEDSetup(16, 1, "Fan", 160.0, 10.0);
+
+
+
+
                             break;
                         case "Ambino HubV2":
                             //newDevice = availableDefaultDevice.ambinoHUBV2;

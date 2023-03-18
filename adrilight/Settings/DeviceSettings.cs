@@ -30,6 +30,7 @@ namespace adrilight
         private string _deviceDescription;
         private string _firmwareVersion;
         private string _hardwareVersion = "unknown";
+        private IDeviceController[] _availableControllers;
         private string _productionDate;
         private bool _isVisible;
         private bool _isEnabled;
@@ -96,6 +97,9 @@ namespace adrilight
         public string DeviceConnectionType { get => _deviceConnectionType; set { Set(() => DeviceConnectionType, ref _deviceConnectionType, value); } }
         public bool IsLoadingProfile { get => _isLoadingProfile; set { Set(() => IsLoadingProfile, ref _isLoadingProfile, value); } }
         public bool IsSizeNeedUserDefine { get => _isSizeNeedUserDefine; set { Set(() => IsSizeNeedUserDefine, ref _isSizeNeedUserDefine, value); } }
+
+        public IDeviceController[] AvailableControllers { get => _availableControllers; set { Set(() => AvailableControllers, ref _availableControllers, value); } }
+
         private void DeviceEnableChanged()
         {
 

@@ -200,8 +200,16 @@
     <Compile Include="Settings\ActionSettings.cs" />
     <Compile Include="Settings\ActionType.cs" />
     <Compile Include="Settings\AutomationSettings.cs" />
+    <Compile Include="Settings\ControllerTypeEnum.cs" />
     <Compile Include="Settings\DeviceTypeEnum.cs" />
+    <Compile Include="Settings\FanMotorController.cs" />
+    <Compile Include="Settings\IControlZone.cs" />
+    <Compile Include="Settings\IDeviceController.cs" />
     <Compile Include="Settings\IOutputControlableProperty.cs" />
+    <Compile Include="Settings\DeviceController.cs" />
+    <Compile Include="Settings\PWMMode.cs" />
+    <Compile Include="Settings\PWMOutput.cs" />
+    <Compile Include="Settings\LightingOutput.cs" />
     <Compile Include="Settings\OutputControlableProperty.cs" />
     <Compile Include="Settings\OutputControlablePropertyEnum.cs" />
     <Compile Include="Settings\ScreenBound.cs" />
@@ -243,7 +251,6 @@
     <Compile Include="Spots\LEDSetupHelpers.cs" />
     <Compile Include="Util\IModeParameter.cs" />
     <Compile Include="Util\IOnlineItemModel.cs" />
-    <Compile Include="Util\SpeedMode.cs" />
     <Compile Include="Util\LightingModeEnum.cs" />
     <Compile Include="Util\ModeParameter.cs" />
     <Compile Include="Util\ModeParameterEnum.cs" />
@@ -263,7 +270,7 @@
     <Compile Include="Util\FakeSerialPort.cs" />
     <Compile Include="Util\FpsLogger.cs" />
     <Compile Include="Util\Composition.cs" />
-    <Compile Include="Util\SpeedModeEnum.cs" />
+    <Compile Include="Util\PWMModeEnum.cs" />
     <Compile Include="Util\StoreCategory.cs" />
     <Compile Include="Util\MotionLayer.cs" />
     <Compile Include="Util\MotionCard.cs" />

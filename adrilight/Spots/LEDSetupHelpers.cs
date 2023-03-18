@@ -10,7 +10,7 @@ namespace adrilight.Spots
 {
     public class LEDSetupHelpers
     {
-        public  ILEDSetup BuildLEDSetup(int matrixWidth, int matrixHeight, string name, double width, double height) // general settings is for compare each device setting
+        public  LEDSetup BuildLEDSetup(int matrixWidth, int matrixHeight, string name, double width, double height) // general settings is for compare each device setting
         {
 
             string owner = "Ambino";
@@ -29,7 +29,7 @@ namespace adrilight.Spots
             var screenHeight = Screen.PrimaryScreen.Bounds.Height;
             var scaleWidth = width / screenWidth;
             var scaleHeight = height / screenHeight;
-            ILEDSetup ledSetup = new LEDSetup(name, owner, type, description, reorderedActiveSpots, width, height, scaleWidth, scaleHeight);
+            var ledSetup = new LEDSetup(name, owner, type, description, reorderedActiveSpots, width, height, scaleWidth, scaleHeight);
 
 
             return ledSetup;

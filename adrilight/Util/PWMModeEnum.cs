@@ -1,6 +1,6 @@
 ﻿namespace adrilight.Util
 {
-    public enum SpeedModeEnum
+    public enum PWMModeEnum
     {
         manual,
         auto

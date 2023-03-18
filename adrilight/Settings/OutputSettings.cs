@@ -40,14 +40,14 @@ namespace adrilight
         //private byte _outputSaturationThreshold;
         //private bool _outputUseLinearLighting = true;
         private bool _outputIsSelected = false;
-        private bool _outputIsEnable;
-        private bool _outputParrentIsEnable = true;
+        private bool _isEnabled;
+    
         //private Color _outputAtmosphereStartColor;
         //private Color _outputAtmosphereStopColor;
         //private string _outputAtmosphereMode;
         //private int _outputSelectedMusicMode;
         //private int _outputSelectedMusicPalette;
-        private Color[] _outputSentryModeColorSource;
+    
         //private int _outputSelectedAudioDevice;
 
         //private int _outputSelectedChasingPalette;
@@ -62,9 +62,9 @@ namespace adrilight
         //private int _outputMusicDancingMode = 0;
         //private int _outputColorPaletteMode = 0;
         //private int _outputBreathingSpeed = 20000;
-        private int _sleepMode = 0;
+
         //private IColorPalette _outputCurrentActivePalette;
-        private ILEDSetup[] _outputLEDSetup;
+        private IControlZone[] _controlableZone;
         //private bool _isInSpotEditWizard = false;
         private string _geometry = "generaldevice";
         //private int _outputSmoothness = 2;
@@ -73,25 +73,18 @@ namespace adrilight
         //private int _outputScreenCaptureWBGreen = 100;
         //private int _outputScreenCaptureWBBlue = 100;
         //private int _outputScreenCapturePositionIndex = 0;
-        private bool _outputIsLoadingProfile = false;
-        private bool _outputIsBuildingLEDSetup = false;
+    
         //private int _outputMusicSensitivity = 10;
         //private int _outputMusicVisualizerFreq = 0;
         //private bool _outputIsSystemSync = true;
         //private bool _isBrightnessPopupOpen = false;
-        private int _lEDPerSpot = 1;
-        private int _lEDPerLED = 1;
-        private bool _outputIsPreviewRunning = false;
-        private int _currentActiveControlPropertyIndex;
-
+ 
         //private int _vUOrientation = 0;
         //private int _vUMode = 0;
         //private IGifCard _outputSelectedGif = null;
         //private int _outputSelectedGifIndex = 0;
         //private MotionCard _outputSelectedMotion;
 
-        private List<IOutputControlableProperty> _outputControlableProperty;
-        private IOutputControlableProperty _currentActiveControlableProperty;
 
 
         public OutputSettings()
@@ -111,14 +104,13 @@ namespace adrilight
         public string TargetDevice { get => _targetDevice; set { Set(() => TargetDevice, ref _targetDevice, value); } }
         //[Reflectable]
         //public int VUMode { get => _vUMode; set { Set(() => VUMode, ref _vUMode, value); } }
-        [Reflectable]
-        public int SleepMode { get => _sleepMode; set { Set(() => SleepMode, ref _sleepMode, value); } }
+ 
+      
         public int OutputID { get => _outputID; set { Set(() => OutputID, ref _outputID, value); } }
         public string OutputType { get => _outputType; set { Set(() => OutputType, ref _outputType, value); } }
         public string OutputDescription { get => _outputDescription; set { Set(() => OutputDescription, ref _outputDescription, value); } }
         //public bool IsBrightnessPopupOpen { get => _isBrightnessPopupOpen; set { Set(() => IsBrightnessPopupOpen, ref _isBrightnessPopupOpen, value); } }
-        public int LEDPerSpot { get => _lEDPerSpot; set { Set(() => LEDPerSpot, ref _lEDPerSpot, value); } }
-        public int LEDPerLED { get => _lEDPerLED; set { Set(() => LEDPerLED, ref _lEDPerLED, value); } }
+
         //[Reflectable]
         //public IGradientColorCard OutputSelectedGradient { get => _outputSelectedGradient; set { Set(() => OutputSelectedGradient, ref _outputSelectedGradient, value); } }
         //[Reflectable]
@@ -127,7 +119,7 @@ namespace adrilight
         //public IGifCard OutputSelectedGif { get => _outputSelectedGif; set { Set(() => OutputSelectedGif, ref _outputSelectedGif, value); } }
         public bool IsVissible { get => _isVissible; set { Set(() => IsVissible, ref _isVissible, value); } }
         public bool OutputIsSelected { get => _outputIsSelected; set { Set(() => OutputIsSelected, ref _outputIsSelected, value); } }
-        public bool OutputIsPreviewRunning { get => _outputIsPreviewRunning; set { Set(() => OutputIsPreviewRunning, ref _outputIsPreviewRunning, value); } }
+      
         public string OutputUniqueID { get => _outputUniqueID; set { Set(() => OutputUniqueID, ref _outputUniqueID, value); } }
         //[Reflectable]
         public string OutputRGBLEDOrder { get => _outputRGBLEDOrder; set { Set(() => OutputRGBLEDOrder, ref _outputRGBLEDOrder, value); } }
@@ -141,8 +133,8 @@ namespace adrilight
         //[Reflectable]
         //public bool OutputUseLinearLighting { get => _outputUseLinearLighting; set { Set(() => OutputUseLinearLighting, ref _outputUseLinearLighting, value); } }
         //[Reflectable]
-        public bool OutputIsEnabled { get => _outputIsEnable; set { Set(() => OutputIsEnabled, ref _outputIsEnable, value); } }
-        public bool OutputParrentIsEnable { get => _outputParrentIsEnable; set { Set(() => OutputParrentIsEnable, ref _outputParrentIsEnable, value); } }
+        public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); } }
+     
         //[Reflectable]
         //public Color OutputAtmosphereStartColor { get => _outputAtmosphereStartColor; set { Set(() => OutputAtmosphereStartColor, ref _outputAtmosphereStartColor, value); } }
         //[Reflectable]
@@ -162,7 +154,7 @@ namespace adrilight
         //[Reflectable]
         //public int OutputSelectedMusicPalette { get => _outputSelectedMusicPalette; set { Set(() => OutputSelectedMusicPalette, ref _outputSelectedMusicPalette, value); } }
         //[Reflectable]
-        public Color[] OutputSentryModeColorSource { get => _outputSentryModeColorSource; set { Set(() => OutputSentryModeColorSource, ref _outputSentryModeColorSource, value); } }
+       
         //[Reflectable]
         //public int OutputSelectedAudioDevice { get => _outputSelectedAudioDevice; set { Set(() => OutputSelectedAudioDevice, ref _outputSelectedAudioDevice, value); } } 
         //[Reflectable]
@@ -193,7 +185,7 @@ namespace adrilight
         //[Reflectable]
         //public IColorPalette OutputCurrentActivePalette { get => _outputCurrentActivePalette; set { Set(() => OutputCurrentActivePalette, ref _outputCurrentActivePalette, value); } }
         //[Reflectable]
-        public ILEDSetup[] OutputLEDSetup { get => _outputLEDSetup; set { Set(() => OutputLEDSetup, ref _outputLEDSetup, value); } }
+        public IControlZone[] ControlableZone { get => _controlableZone; set { Set(() => ControlableZone, ref _controlableZone, value); } }
         //public bool IsInSpotEditWizard { get => _isInSpotEditWizard; set { Set(() => IsInSpotEditWizard, ref _isInSpotEditWizard, value); } }
         //[Reflectable]
         public string Geometry { get => _geometry; set { Set(() => Geometry, ref _geometry, value); } }
@@ -220,25 +212,16 @@ namespace adrilight
 
 
 
-        public bool OutputIsLoadingProfile { get => _outputIsLoadingProfile; set { Set(() => OutputIsLoadingProfile, ref _outputIsLoadingProfile, value); } }
-
-        public bool OutputIsBuildingLEDSetup { get => _outputIsBuildingLEDSetup; set { Set(() => OutputIsBuildingLEDSetup, ref _outputIsBuildingLEDSetup, value); } }
-
+        
         //public List<ILightingMode> AvailableLightingMode { get => _availableLightingMode; set { Set(() => AvailableLightingMode, ref _availableLightingMode, value); } }
         //public ILightingMode CurrentActiveLightingMode => AvailableLightingMode[CurrentActiveLightingModeIndex];
         //public int CurrentActiveLightingModeIndex { get => _currentActiveLightingModeIndex; set { Set(() => CurrentActiveLightingModeIndex, ref _currentActiveLightingModeIndex, value); } }
 
-        public List<IOutputControlableProperty> ControlableProperties { get => _outputControlableProperty; set { Set(() => ControlableProperties, ref _outputControlableProperty, value); } }
-
-        public int CurrentActiveControlPropertyIndex { get => _currentActiveControlPropertyIndex; set { Set(() => CurrentActiveControlPropertyIndex, ref _currentActiveControlPropertyIndex, value); OnPropertySelectionChanged(); } }
-
-        private void OnPropertySelectionChanged()
-        {
-            CurrentActiveControlProperty = ControlableProperties[CurrentActiveControlPropertyIndex];
-            RaisePropertyChanged(nameof(CurrentActiveControlProperty));
-        }
-        [JsonIgnore]
-        public IOutputControlableProperty CurrentActiveControlProperty { get; set; }
+     
+       
+     
+        public string OutputInterface { get; set; }
+      
 
 
 
@@ -263,7 +246,7 @@ namespace adrilight
         {
             //brightness up current active mode
             //controlable lighting property
-            var lightingControl = ControlableProperties.Where(c => c.Type == OutputControlablePropertyEnum.Lighting).FirstOrDefault();
+            var lightingControl = ControlableZone.Where(z => z.Type == OutputControlablePropertyEnum.Lighting).FirstOrDefault();
             if (lightingControl != null)
             {
                 var currentLightingMode = lightingControl.CurrentActiveControlMode as LightingMode;

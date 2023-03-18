@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace adrilight.Util
 {
-    internal class SpeedMode : ViewModelBase, IControlMode
+    internal class PWMMode : ViewModelBase, IControlMode
     {
         //bool Autostart { get; set; }
 
 
-        public SpeedMode()
+        public PWMMode()
         {
             Parameters = new List<IModeParameter>();
         }
@@ -37,20 +37,20 @@ namespace adrilight.Util
         /// <summary>
         /// what is this lighting mode based on (rainbow, capturing screne, music capturing
         /// </summary>
-        public SpeedModeEnum SpeedType { get; set; }
+        public PWMModeEnum BasedOn { get; set; }
         /// <summary>
         /// List of parameters that this mode have
         /// </summary>
         public List<IModeParameter> Parameters { get; set; }
 
 
-        internal void SetSpeed(int speedValue)
+        internal void SetPWM(int speedValue)
         {
             var speedParam = Parameters.Where(p => p.Type == ModeParameterEnum.Speed).FirstOrDefault();
             if (speedParam != null)
                 speedParam.Value = speedValue;
         }
-        internal int GetSpeed()
+        internal int GetPWMValue()
         {
             int speed = 0;
             var speedParam = Parameters.Where(p => p.Type == ModeParameterEnum.Speed).FirstOrDefault();
