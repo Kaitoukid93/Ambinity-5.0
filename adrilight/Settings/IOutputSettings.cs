@@ -11,6 +11,7 @@ using System.Windows.Input;
 using adrilight.ViewModel;
 using System.Windows;
 using adrilight_effect_analyzer.Model;
+using adrilight.Settings;
 
 namespace adrilight
 {
@@ -37,7 +38,7 @@ namespace adrilight
         int VUOrientation { get; set; }
         int VUMode { get; set; }
         string OutputType { get; set; }
-        string TargetDevice { get; set; }
+        DeviceTypeEnum TargetDevice { get; set; }
         bool OutputIsLoadingProfile { get; set; }
         bool OutputIsBuildingLEDSetup { get; set; }
         int OutputGifSpeed { get; set; }

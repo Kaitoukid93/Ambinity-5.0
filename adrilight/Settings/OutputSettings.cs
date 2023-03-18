@@ -26,7 +26,7 @@ namespace adrilight
         private int _outputID;
         private bool _isVissible = true;
         private string _outputDescription;
-        private string _targetDevice;
+        private DeviceTypeEnum _targetDevice;
 
 
         private string _outputUniqueID;
@@ -97,7 +97,7 @@ namespace adrilight
         [Reflectable]
         public int OutputGifSpeed { get => _outputGifSpeed; set { Set(() => OutputGifSpeed, ref _outputGifSpeed, value); } }
         [Reflectable]
-        public string TargetDevice { get => _targetDevice; set { Set(() => TargetDevice, ref _targetDevice, value); } }
+        public DeviceTypeEnum TargetDevice { get => _targetDevice; set { Set(() => TargetDevice, ref _targetDevice, value); } }
         [Reflectable]
         public int VUMode { get => _vUMode; set { Set(() => VUMode, ref _vUMode, value); } }
         [Reflectable]

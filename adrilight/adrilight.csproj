@@ -198,6 +198,8 @@
     <Compile Include="Settings\ActionSettings.cs" />
     <Compile Include="Settings\ActionType.cs" />
     <Compile Include="Settings\AutomationSettings.cs" />
+    <Compile Include="Settings\DeviceConnectionTypeEnum.cs" />
+    <Compile Include="Settings\DeviceTypeEnum.cs" />
     <Compile Include="Settings\ScreenBound.cs" />
     <Compile Include="Settings\ImageVisual.cs" />
     <Compile Include="Settings\PathGuide.cs" />

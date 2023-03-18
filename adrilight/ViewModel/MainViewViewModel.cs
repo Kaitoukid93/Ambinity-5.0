@@ -3348,11 +3348,11 @@ namespace adrilight.ViewModel
             DownloadCurrentItemCommand = new RelayCommand<IOnlineItemModel>((p) =>
             {
                 return true;
-            }, async(p) =>
+            }, async (p) =>
             {
-               await Task.Run(() => DownloadCurrentOnlineItem(p));
+                await Task.Run(() => DownloadCurrentOnlineItem(p));
             });
-        
+
             SetCurrentActionTypeForSelectedActionCommand = new RelayCommand<ActionType>((p) =>
             {
                 return true;
@@ -4587,7 +4587,7 @@ namespace adrilight.ViewModel
                              .ToArray();
             var sameNameItem = subdirs.Where(p => p == o.Name).FirstOrDefault();
             if (sameNameItem != null)
-                HandyControl.Controls.MessageBox.Show("ColorPaletteExisted", "File Existed", MessageBoxButton.OK, MessageBoxImage.Error);
+                HandyControl.Controls.MessageBox.Show("File đã tồn tại", "File Existed", MessageBoxButton.OK, MessageBoxImage.Error);
             //create local folder for downloading item
             var localPath = Path.Combine(localFolder, o.Name);
             Directory.CreateDirectory(localPath);
@@ -4598,12 +4598,16 @@ namespace adrilight.ViewModel
             {
                 //get list of files
                 var listofFiles = await FTPHlprs.GetAllFilesInFolder(o.Path + "/content");
+                if(listofFiles==null)
+                {
+                    HandyControl.Controls.MessageBox.Show("Không tìm thấy file, vui lòng chọn nội dung khác!!", "File not found", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
                 foreach (var file in listofFiles)
                 {
                     //save to local folder
                     string localContentPath = Path.Combine(localPath, "content");
                     Directory.CreateDirectory(localContentPath);
-                    FTPHlprs.DownloadFile(o.Path + "/content" + "/" + file.Name, localContentPath+"/"+file.Name);
+                    FTPHlprs.DownloadFile(o.Path + "/content" + "/" + file.Name, localContentPath + "/" + file.Name);
                 }
             }
 
