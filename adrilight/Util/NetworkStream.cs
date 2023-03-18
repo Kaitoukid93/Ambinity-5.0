@@ -236,37 +236,37 @@ namespace adrilight
                         switch (RGBOrder)
                         {
                             case "RGB": //RGB
-                                outputStream[counter++] = (byte)spot.id; //LED index
+                                outputStream[counter++] = (byte)spot.Index; //LED index
                                 outputStream[counter++] = spot.Red; // blue
                                 outputStream[counter++] = spot.Green; // green
                                 outputStream[counter++] = spot.Blue; // red
                                 break;
                             case "GRB": //GRB
-                                outputStream[counter++] = (byte)spot.id; //LED index
+                                outputStream[counter++] = (byte)spot.Index; //LED index
                                 outputStream[counter++] = spot.Green; // blue
                                 outputStream[counter++] = spot.Red; // green
                                 outputStream[counter++] = spot.Blue; // red
                                 break;
                             case "BRG": //BRG
-                                outputStream[counter++] = (byte)spot.id; //LED index
+                                outputStream[counter++] = (byte)spot.Index; //LED index
                                 outputStream[counter++] = spot.Blue; // blue
                                 outputStream[counter++] = spot.Red; // green
                                 outputStream[counter++] = spot.Green; // red
                                 break;
                             case "BGR": //BGR
-                                outputStream[counter++] = (byte)spot.id; //LED index
+                                outputStream[counter++] = (byte)spot.Index; //LED index
                                 outputStream[counter++] = spot.Blue; // blue
                                 outputStream[counter++] = spot.Green; // green
                                 outputStream[counter++] = spot.Red; // red
                                 break;
                             case "GBR"://GBR
-                                outputStream[counter++] = (byte)spot.id; //LED index
+                                outputStream[counter++] = (byte)spot.Index; //LED index
                                 outputStream[counter++] = spot.Green; // blue
                                 outputStream[counter++] = spot.Blue; // green
                                 outputStream[counter++] = spot.Red; // red
                                 break;
                             case "RBG": //GBR
-                                outputStream[counter++] = (byte)spot.id; //LED index
+                                outputStream[counter++] = (byte)spot.Index; //LED index
                                 outputStream[counter++] = spot.Red; // blue
                                 outputStream[counter++] = spot.Blue; // green
                                 outputStream[counter++] = spot.Green; // red
@@ -282,7 +282,7 @@ namespace adrilight
                     }
                     else
                     {
-                        outputStream[counter++] = (byte)spot.id; //LED index
+                        outputStream[counter++] = (byte)spot.Index; //LED index
                         outputStream[counter++] = 0; // blue
                         outputStream[counter++] = 0; // green
                         outputStream[counter++] = 0; // red

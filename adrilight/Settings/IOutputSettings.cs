@@ -107,7 +107,7 @@ namespace adrilight
         bool OutputParrentIsEnable { get; set; }
 
         //IColorPalette OutputCurrentActivePalette { get; set; }
-        ILEDSetup OutputLEDSetup { get; set; }
+        ILEDSetup[] OutputLEDSetup { get; set; }
         //void SetRectangle(System.Drawing.Rectangle rectangle);
         //void SetPreviewRectangle(System.Drawing.Rectangle rectangle);
 

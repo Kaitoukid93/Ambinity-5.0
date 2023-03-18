@@ -14,10 +14,10 @@ using Color = System.Windows.Media.Color;
 namespace adrilight.Spots
 {
     [DebuggerDisplay("Spot: Rectangle={Rectangle}, Color={Red},{Green},{Blue}")]
-    sealed class DeviceSpot : ViewModelBase, IDisposable, IDeviceSpot, IDrawable
+    sealed class DeviceSpot : ViewModelBase, IDeviceSpot, IDrawable
     {
 
-        public DeviceSpot(int x, int y, double top, double left, double width, double height, double scaleTop, double scaleLeft, double scaleWidth, double scaleHeight, int index, int positionIndex, int virtualIndex, int musicIndex, int columnIndex, bool isActivated, bool isIDVissible, string shape)
+        public DeviceSpot(double top, double left, double width, double height, double scaleTop, double scaleLeft, double scaleWidth, double scaleHeight, int index, int positionIndex, int virtualIndex, int musicIndex, int columnIndex, bool isActivated, string shape)
         {
             Top = top;
             Left = left;
@@ -29,19 +29,14 @@ namespace adrilight.Spots
             ScaleHeight = scaleHeight;
             Shape = shape;
 
-            RadiusX = 0;
-            RadiusY = 0;
-            ID = index.ToString();
-            id = index;
+ 
+            Index = index;
             VID = virtualIndex;
             MID = musicIndex;
             CID = columnIndex;
-            XIndex = x;
-            YIndex = y;
+      
             PID = positionIndex;
             IsActivated = isActivated;
-            BorderThickness = 0;
-            IsIDVissible = isIDVissible;
             VisualProperties = new VisualProperties();
             Scale = new System.Windows.Point(1, 1);
 
@@ -53,7 +48,7 @@ namespace adrilight.Spots
             Scale = new System.Windows.Point(1, 1);
         }
 
-        public int id { get; set; }
+        public int Index { get; set; } // Physical index
 
         private bool _isFirst;
         public bool IsFirst {
@@ -61,26 +56,21 @@ namespace adrilight.Spots
             set { Set(() => IsFirst, ref _isFirst, value); }
         }
         public int MID { get; set; }
-        public bool IsIDVissible { get; set; }
         public string Shape { get; set; }
         public Color OnDemandColor => Color.FromRgb(Red, Green, Blue);
         public Color SentryColor => Color.FromRgb(SentryRed, SentryGreen, SentryBlue);
         public Color OnDemandColorTransparent => Color.FromArgb(255, Red, Green, Blue);
-        public int RadiusX { get; set; }
-        public int RadiusY { get; set; }
-        public string ID { get; set; }
+        
+      
+        
         public int VID { get; set; }
         public bool IsEnabled { get; set; } = true;
         public int PID { get; set; }
         public int CID { get; set; }
-        public int XIndex { get; set; }
-        public int YIndex { get; set; }
         public bool IsActivated { get; set; }
-        public double BorderThickness { get; set; }
         public byte SentryRed { get; private set; }
         public byte SentryGreen { get; private set; }
         public byte SentryBlue { get; private set; }
-
         public byte Red { get; private set; }
         public byte Green { get; private set; }
         public byte Blue { get; private set; }
@@ -104,52 +94,23 @@ namespace adrilight.Spots
             SentryGreen = green;
             SentryBlue = blue;
 
-
-
         }
-        public void SetStroke(double strokeThickness)
-        {
-            BorderThickness = strokeThickness;
-            RaisePropertyChanged(nameof(BorderThickness));
-        }
-
         public void SetVID(int vid)
         {
             VID = vid;
-
-
-
             RaisePropertyChanged(nameof(VID));
-
 
         }
         public void SetMID(int mid)
         {
             MID = mid;
-
-
-
             RaisePropertyChanged(nameof(MID));
-
-
         }
-        public void SetIDVissible(bool iDVissible)
+        public void SetID(int index)
         {
-            IsIDVissible = iDVissible;
+            Index = index;
 
-
-
-            RaisePropertyChanged(nameof(IsIDVissible));
-
-
-        }
-        public void SetID(int ID)
-        {
-            id = ID;
-
-            RaisePropertyChanged(nameof(id));
-
-
+            RaisePropertyChanged(nameof(Index));
         }
         public void SetCID(int ID)
         {
@@ -158,14 +119,6 @@ namespace adrilight.Spots
             RaisePropertyChanged(nameof(CID));
 
 
-        }
-        //public void SetNextVID(int currentGroupVIDCounter)
-        //{
-        //    VID = currentGroupVIDCounter + 1;
-        //}
-
-        public void Dispose()
-        {
         }
 
         private DateTime? _lastMissingValueIndication;

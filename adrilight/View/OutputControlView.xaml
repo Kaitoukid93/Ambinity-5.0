@@ -68,8 +68,8 @@
         <hc:ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
             <Grid Margin="10,10,10,10">
 
-                    <StackPanel>
-                        <ListBox ItemsSource="{Binding CurrentOutput.CurrentActiveControlProperty.AvailableControlMode,Mode=TwoWay}" Background="Transparent" BorderThickness="0" SelectedIndex="{Binding CurrentOutput.CurrentActiveControlProperty.CurrentActiveControlModeIndex,Mode=TwoWay}">
+            <StackPanel>
+                <ListBox ItemsSource="{Binding CurrentOutput.CurrentActiveControlProperty.AvailableControlMode,Mode=TwoWay}" Background="Transparent" BorderThickness="0" SelectedIndex="{Binding CurrentOutput.CurrentActiveControlProperty.CurrentActiveControlModeIndex,Mode=TwoWay}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Name}"/>

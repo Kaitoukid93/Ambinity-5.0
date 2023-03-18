@@ -14,7 +14,7 @@
            xmlns:view="clr-namespace:adrilight.View"
            xmlns:spot ="clr-namespace:adrilight.Spots"
            xmlns:settings ="clr-namespace:adrilight.Settings"
-           Background="{StaticResource MainContentBackgroundBrush}"
+         
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}">
 
@@ -45,12 +45,7 @@
 
     </UserControl.Resources>
 
-    <Grid Margin="10,0,10,10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="auto"/>
-        </Grid.RowDefinitions>
+   
 
         <!--<Grid Grid.Row="0">
             <ToolBarTray IsLocked="True" VerticalAlignment="Center">
@@ -83,452 +78,354 @@
 
             </ToolBarTray>
         </Grid>-->
-        <Grid Grid.Row=" 1">
-            <richCanvas:RichItemsControl
+    <Grid>
+        <richCanvas:RichItemsControl
                  GridStyle="{StaticResource GridStyle}"
                 EnableSnapping="False"
-                GridSpacing="1"
-                EnableGrid="true"
+                
+                GridSpacing="24"
+                EnableGrid="False"
                 Scrolling="OnScrolling"
-                CanSelectMultipleItems="True"
-                RealTimeDraggingEnabled="True"
+                CanSelectMultipleItems="False"
+                RealTimeDraggingEnabled="False"
                 RealTimeSelectionEnabled="False"
-                SelectedItems="{Binding selectedSpots}"
                 Scale="0.5"
-                MousePosition="{Binding MousePosition, Mode=OneWayToSource}"
-                ItemsSource="{Binding CurrentDeviceLivewViewItems}">
-              
+                Background="Transparent"
+                SelectedItems="{Binding SelectedLiveViewItems}" 
+                SelectedItem="{Binding SurfaceEditorSelectedItem}"  
+                ItemsSource="{Binding CurrentDeviceLiveViewItems}">
 
-                <richCanvas:RichItemsControl.Resources>
-                    <DataTemplate DataType="{x:Type local:LEDSetup}">
+
+            <richCanvas:RichItemsControl.Resources>
+                <DataTemplate DataType="{x:Type local:LEDSetup}">
+                    <Grid>
                         <Grid>
-                            <Grid>
-                                <ItemsControl Margin="0,-1,0,0"  
+                            <ItemsControl IsHitTestVisible="{Binding IsSelectable}" Margin="0,-1,0,0"  
                                     Name="PreviewGird"  
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Top" 
                                     ItemsSource="{Binding Spots,Mode=TwoWay}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <Canvas 
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="MouseDown" >
+                                        <i:InvokeCommandAction Command="{Binding DataContext.SelectLiveViewItemCommand,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" CommandParameter="{Binding .}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <Canvas 
                                                 HorizontalAlignment="Center" 
                                                 VerticalAlignment="Top" 
                                                 Name="PreviewCanvas"
                                                 Margin="0" 
                                                 Width="{Binding Width,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" 
                                                 Height="{Binding Height, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" >
-                                            </Canvas>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemContainerStyle>
-                                        <Style TargetType="ContentPresenter">
-                                            <Setter Property="Canvas.Left" Value="{Binding Left,Mode=TwoWay}"/>
-                                            <Setter Property="Canvas.Top" Value="{Binding Top,Mode=TwoWay}"/>
-                                            <Setter Property="Width" Value="{Binding Width,Mode=TwoWay}"/>
-                                            <Setter Property="Height" Value="{Binding Height,Mode=TwoWay}"/>
-                                        </Style>
-                                    </ItemsControl.ItemContainerStyle>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid>
-                                                <!--<Grid.ToolTip>
-                                                    <Border CornerRadius="4" BorderThickness="0" Background="Transparent">
-                                                        <StackPanel>
-                                                            <Grid>
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="auto"/>
-                                                                    <ColumnDefinition Width="*"/>
-                                                                </Grid.ColumnDefinitions>
-                                                                <TextBlock Margin="2" Text="Thứ tự LED : "/>
-                                                                <TextBlock  Grid.Column="1" Margin="2">
-                                                                   
-                                                                </TextBlock>
-                                                            </Grid>
-                                                            <Grid>
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="auto"/>
-                                                                    <ColumnDefinition Width="*"/>
-                                                                </Grid.ColumnDefinitions>
-                                                                <TextBlock Margin="2" Text="Kích thước : "/>
-                                                                <TextBlock Grid.Column="1"  Margin="2">
-                                                                    <TextBlock.Text>
-                                                                        <MultiBinding StringFormat="{}{0:F0} x {1:F0}">
-                                                                            <Binding Path="Width" />
-                                                                            <Binding Path="Height" />
-                                                                        </MultiBinding>
-                                                                    </TextBlock.Text>
-                                                                </TextBlock>
-                                                            </Grid>
-
-                                                        </StackPanel>
-                                                    </Border>
-                                                </Grid.ToolTip>-->
-                                                <i:Interaction.Triggers>
-                                                    <i:EventTrigger EventName="MouseEnter" >
-                                                        <i:InvokeCommandAction Command="{Binding DataContext.SetSpotVIDCommand,RelativeSource={RelativeSource AncestorType={x:Type view:VIDEditCanvasWindow}}}" CommandParameter="{Binding .}" />
-                                                    </i:EventTrigger>
-                                                </i:Interaction.Triggers>
-                                                <Path Data="{Binding Shape,Converter={converters:StaticResourceConverter}}"
-                                                Stretch="Fill"
-                                                ToolTip="{Binding id}">
-                                                    <Path.Fill>
-                                                        <SolidColorBrush Color="{Binding OnDemandColor}"  />
-                                                    </Path.Fill>
-                                                    <Path.Style>
-                                                        <Style TargetType="{x:Type Path}">
-                                                            <Style.Triggers>
-                                                                <Trigger Property="IsMouseOver" Value="True">
-                                                                    <Setter Property="Opacity"  Value="0.5"/>
-                                                                </Trigger>
-                                                            </Style.Triggers>
-                                                           
-                                                                <Setter Property="RenderTransform">
-                                                                    <Setter.Value>
-                                                                        <TransformGroup >
-                                                                            <ScaleTransform/>
-                                                                            <TranslateTransform  />
-                                                                            <RotateTransform Angle="{Binding Angle}" />
-                                                                        </TransformGroup>
-                                                                    </Setter.Value>
-                                                                </Setter>
-                                                            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
-                                                        </Style>
-                                                    </Path.Style>
-                                                </Path>
-                                                <Viewbox RenderTransformOrigin="0.5,0.5" Stretch="Uniform">
-                                                    
-                                                        <TextBlock Margin="5"   Foreground="White">
-                                                            <TextBlock.Style>
-                                                                <Style TargetType="TextBlock" BasedOn="{StaticResource TextBlockDefault}">
-                                                                    
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding DataContext.CurrentIDType,RelativeSource={RelativeSource AncestorType={x:Type view:VIDEditCanvasWindow}}}" Value="VID">
-                                                                            <Setter Property="Text" Value="{Binding VID}"/>
-                                                                        </DataTrigger>
-                                                                        <DataTrigger Binding="{Binding DataContext.CurrentIDType,RelativeSource={RelativeSource AncestorType={x:Type view:VIDEditCanvasWindow}}}" Value="FID">
-                                                                            <Setter Property="Text" Value="{Binding MID}"/>
-                                                                        </DataTrigger>
-                                                                        <DataTrigger Binding="{Binding DataContext.CurrentIDType,RelativeSource={RelativeSource AncestorType={x:Type view:VIDEditCanvasWindow}}}" Value="CID">
-                                                                            <Setter Property="Text" Value="{Binding CID}"/>
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </TextBlock.Style>
-                                                        </TextBlock>
-                                                    
-                                                  
-                                                    <Viewbox.Style>
-                                                        <Style TargetType="{x:Type Viewbox}">
-                                                            <Setter Property="RenderTransform">
-                                                                <Setter.Value>
-                                                                    <TransformGroup >
-                                                                        <ScaleTransform/>
-                                                                        <TranslateTransform  />
-                                                                        <RotateTransform Angle="{Binding Angle}" />
-                                                                    </TransformGroup>
-                                                                </Setter.Value>
-                                                            </Setter>
-                                                        </Style>
-                                                    </Viewbox.Style>
-                                                </Viewbox>
-                                                
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </Grid>
-                        </Grid>
-                    </DataTemplate>
-                    <!--<DataTemplate DataType="{x:Type spot:DeviceSpot}">
-                        <Grid>
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseEnter" >
-                                    <i:InvokeCommandAction Command="{Binding DataContext.SetSpotVIDCommand,RelativeSource={RelativeSource AncestorType={x:Type view:VIDEditCanvasWindow}}}" CommandParameter="{Binding .}" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-
-                            <Grid.ToolTip>
-                                <Border CornerRadius="4" BorderThickness="0" Background="Transparent">
-                                    <StackPanel>
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Margin="2" Text="Thứ tự LED : "/>
-                                            <TextBlock  Grid.Column="1" Margin="2" Text="{Binding VID}"/>
-                                        </Grid>
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Margin="2" Text="Kích thước : "/>
-                                            <TextBlock Grid.Column="1"  Margin="2">
-                                                <TextBlock.Text>
-                                                    <MultiBinding StringFormat="{}{0:F0} x {1:F0}">
-                                                        <Binding Path="Width" />
-                                                        <Binding Path="Height" />
-                                                    </MultiBinding>
-                                                </TextBlock.Text>
-                                            </TextBlock>
-                                        </Grid>
-
-                                    </StackPanel>
-                                </Border>
-                            </Grid.ToolTip>
-                           
-                            <Path Data="{Binding Shape,Converter={converters:StaticResourceConverter}}" 
-                              Stretch="Fill"
-                              Width="{Binding Width}"
-                              Height="{Binding Height}">
-                                <Path.Fill>
-                                    <SolidColorBrush Color="{Binding OnDemandColor}"  />
-                                </Path.Fill>
-                                <Path.Style>
-                                    <Style TargetType="{x:Type Path}">
-                                        <Setter Property="RenderTransform">
-                                            <Setter.Value>
-                                                <TransformGroup >
-                                                    <ScaleTransform/>
-                                                    <TranslateTransform  />
-                                                    <RotateTransform Angle="{Binding Angle}" />
-                                                </TransformGroup>
-                                            </Setter.Value>
-                                        </Setter>
+                                        </Canvas>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemContainerStyle>
+                                    <Style TargetType="ContentPresenter">
+                                        <Setter Property="Canvas.Left" Value="{Binding Left}"/>
+                                        <Setter Property="Canvas.Top" Value="{Binding Top}"/>
                                     </Style>
-                                </Path.Style>
-                            </Path>
-                            
-                            <TextBlock Foreground="White" Text="{Binding VID}" Style="{DynamicResource TextBlockTitle}"/>
+                                </ItemsControl.ItemContainerStyle>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Path RenderTransformOrigin="0.5,0.5" Data="{Binding Shape,Converter={converters:StaticResourceConverter}}"
+                                                Stretch="Fill"
+                                                ToolTip="{Binding id}" 
+                                            
+                                                Width="{Binding Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
+                                                Height="{Binding Height,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                                <Path.Fill>
+                                                    <SolidColorBrush Color="{Binding OnDemandColor}"  />
+                                                </Path.Fill>
+                                                <Path.Style>
+                                                    <Style TargetType="{x:Type Path}">
+
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Opacity"  Value="0.5"/>
+
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                        <Setter Property="RenderTransform" >
+                                                            <Setter.Value>
+                                                                <TransformGroup >
+                                                                    <ScaleTransform/>
+                                                                    <TranslateTransform  />
+                                                                    <RotateTransform Angle="{Binding Angle}" />
+                                                                </TransformGroup>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Style>
+                                                </Path.Style>
+                                            </Path>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </Grid>
+                    </Grid>
+                </DataTemplate>
+                <DataTemplate x:Key="SelectedAdornerTemplate">
+                    <Border BorderBrush="{DynamicResource SecondaryBorderBrush}"
+                            BorderThickness="1" CornerRadius="4"
+                            Background="{DynamicResource SecondaryRegionBrush}">
+                        <TextBlock Foreground="White"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   MaxWidth="60">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}{0} : {1}">
+                                    <Binding Path="Left" />
+                                    <Binding Path="Top" />
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </Border>
+                </DataTemplate>
 
-                    </DataTemplate>-->
-                    <DataTemplate DataType="{x:Type settings:ImageVisual}">
-                        <Image Source="{Binding ImagePath}"
-                           Stretch="Uniform" />
-                    </DataTemplate>
-                    <DataTemplate DataType="{x:Type settings:PathGuide}">
-                        <Path Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}" 
-                              Stretch="Fill"
-                              Fill="White"
-                              Opacity="0.2"
-                              Width="{Binding Width}"
-                              Height="{Binding Height}">
-                        </Path>
-                    </DataTemplate>
-                    <DataTemplate DataType="{x:Type settings:Border}">
-                        <Grid>
-                            <StackPanel Orientation="Horizontal">
-                            </StackPanel>
+                <DataTemplate x:Key="HoverAdornerTemplate">
+                    <Border BorderBrush="DodgerBlue"
+                            BorderThickness="3">
+                    </Border>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type settings:Border}">
+                    <Grid>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Margin="20,10,5,5" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Screen" Style="{DynamicResource TextBlockLarge}"/>
+                            <TextBlock Margin="5,10" HorizontalAlignment="Left" VerticalAlignment="Top" Text="at" Style="{DynamicResource TextBlockLarge}"/>
+                            <TextBlock Margin="5,10" HorizontalAlignment="Left" VerticalAlignment="Top"  Style="{DynamicResource TextBlockLarge}">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}{0} x {1}">
+                                        <Binding Path="Width" />
+                                        <Binding Path="Height" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
 
-                            <Rectangle Margin="-5,-5,0,0" Stroke="{DynamicResource SecondaryBorderBrush}"
+                        </StackPanel>
+
+                        <Rectangle Stroke="{DynamicResource SecondaryBorderBrush}"
                                    Width="{Binding Width}"
                                    Height="{Binding Height}"
                                StrokeThickness="5"
                                Fill="Transparent"
                                StrokeDashArray="2"
                                IsHitTestVisible="{Binding IsSelectable}">
-                            </Rectangle>
-                        </Grid>
+                        </Rectangle>
+                    </Grid>
 
-                    </DataTemplate>
-                    <DataTemplate x:Key="SelectedAdornerTemplate">
-                        <Border BorderBrush="DodgerBlue"
-                            BorderThickness="1"
-                            Background="DodgerBlue">
-                            <TextBlock Foreground="White"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   Width="200">
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type settings:ScreenBound}">
+                    <Grid>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Margin="20,10,5,5" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Screen" Style="{DynamicResource TextBlockLarge}"/>
+                            <TextBlock Margin="5,10" HorizontalAlignment="Left" VerticalAlignment="Top" Text="at" Style="{DynamicResource TextBlockLarge}"/>
+                            <TextBlock Margin="5,10" HorizontalAlignment="Left" VerticalAlignment="Top"  Style="{DynamicResource TextBlockLarge}">
                                 <TextBlock.Text>
-                                    <MultiBinding StringFormat="{}{0:F0} x {1:F0}">
+                                    <MultiBinding StringFormat="{}{0} x {1}">
                                         <Binding Path="Width" />
                                         <Binding Path="Height" />
                                     </MultiBinding>
                                 </TextBlock.Text>
                             </TextBlock>
-                        </Border>
-                    </DataTemplate>
-                    <DataTemplate x:Key="HoverAdornerTemplate">
-                        <Border BorderBrush="DodgerBlue"
-                            BorderThickness="3">
-                        </Border>
-                    </DataTemplate>
-                </richCanvas:RichItemsControl.Resources>
-                <richCanvas:RichItemsControl.ItemContainerStyle>
-                    <Style TargetType="richCanvas:RichItemContainer">
-                        <!--<Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="{x:Type richCanvas:RichItemContainer}">
-                                    <Border x:Name="Bd" 
+
+                        </StackPanel>
+
+                        <Rectangle Stroke="{DynamicResource SecondaryBorderBrush}"
+                                   Width="{Binding Width}"
+                                   Height="{Binding Height}"
+                               StrokeThickness="5"
+                               Fill="Transparent"
+                               StrokeDashArray="2"
+                               IsHitTestVisible="{Binding IsSelectable}">
+                        </Rectangle>
+                    </Grid>
+
+                </DataTemplate>
+
+            </richCanvas:RichItemsControl.Resources>
+
+            <richCanvas:RichItemsControl.ItemContainerStyle>
+                <Style TargetType="richCanvas:RichItemContainer">
+
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type richCanvas:RichItemContainer}">
+                                <Border x:Name="Bd" 
                                             Padding="0"
                                             SnapsToDevicePixels="True">
-                                        <ContentPresenter 
+                                    <ContentPresenter 
                                             HorizontalAlignment="Center" 
                                             SnapsToDevicePixels="True" 
                                             VerticalAlignment="Center"/>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="IsMouseOver" Value="True"/>
-                                                <Condition Property="IsSelected" Value="False"/>
-                                            </MultiTrigger.Conditions>
-                                            -->
-                        <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
-                        <!--
-                                            <Setter Property="BorderThickness" TargetName="Bd" Value="3.0"/>
-                                            <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryTextBrush}"/>
-                                        </MultiTrigger>
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="IsMouseOver" Value="False"/>
-                                                <Condition Property="IsSelected" Value="False"/>
-                                            </MultiTrigger.Conditions>
-                                            -->
-                        <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
-                        <!--
-                                            <Setter Property="BorderThickness" TargetName="Bd" Value="3.0"/>
-                                            <Setter Property="BorderBrush" TargetName="Bd" Value="Transparent"/>
-                                        </MultiTrigger>
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="Selector.IsSelectionActive" Value="False"/>
-                                                <Condition Property="IsSelected" Value="True"/>
-                                            </MultiTrigger.Conditions>
-                                            <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>
-                                            <Setter Property="BorderThickness" TargetName="Bd" Value="3.0"/>
-                                        </MultiTrigger>
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="Selector.IsSelectionActive" Value="True"/>
-                                                <Condition Property="IsSelected" Value="True"/>
-                                            </MultiTrigger.Conditions>
-                                            <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>
-                                            <Setter Property="BorderThickness" TargetName="Bd" Value="3.0"/>
-                                        </MultiTrigger>
-                                    
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>-->
-                        <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
-                        <Setter Property="Tag"
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="IsMouseOver" Value="True"/>
+                                            <Condition Property="IsSelected" Value="False"/>
+                                        </MultiTrigger.Conditions>
+                                        <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
+                                        <Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
+                                        <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryTextBrush}"/>
+                                    </MultiTrigger>
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="IsMouseOver" Value="False"/>
+                                            <Condition Property="IsSelected" Value="False"/>
+                                        </MultiTrigger.Conditions>
+                                        <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
+                                        <Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
+                                        <Setter Property="BorderBrush" TargetName="Bd" Value="Transparent"/>
+                                    </MultiTrigger>
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                            <Condition Property="IsSelected" Value="True"/>
+                                        </MultiTrigger.Conditions>
+                                        <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>
+                                        <Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
+                                    </MultiTrigger>
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                            <Condition Property="IsSelected" Value="True"/>
+                                        </MultiTrigger.Conditions>
+                                        <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>
+                                        <Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
+                                    </MultiTrigger>
+
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="IsDraggable"
+                            Value="{Binding IsBorder,Converter={StaticResource booltoVreconv}}" />
+                    <Setter Property="helpers:EventToCommand.Event"
+                            Value="LeftChanged, TopChanged" />
+                    <Setter Property="helpers:EventToCommand.Command">
+                        <Setter.Value>
+                            <MultiBinding Converter="{StaticResource CommandsToListConverter}">
+                                <Binding Path="LeftChangedCommand" />
+                                <Binding Path="TopChangedCommand" />
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="helpers:EventToCommand.CanExecute"
+                            Value="{Binding IsSelected}" />
+                    <Setter Property="Tag"
                             Value="{Binding DataContext, ElementName=window}" />
-                        <Setter Property="helpers:AttachedAdorner.HasHoverAdorner"
-                            Value="False" />
-                        <Setter Property="helpers:AttachedAdorner.ShowResizeAdorner"
-                            Value="false" />
-                        <Setter Property="Top"
-                            Value="{Binding Top,Mode=TwoWay}" />
+                    <Setter Property="helpers:AttachedAdorner.HasHoverAdorner"
+                            Value="{Binding IsSelectable}" />
+                    <!--<Setter Property="helpers:AttachedAdorner.ShowResizeAdorner"
+                            Value="{Binding IsSelected}" />-->
+                    <Setter Property="Top"
+                            Value="{Binding Top, Mode=TwoWay}" />
 
-                        <Setter Property="Left"
-                            Value="{Binding Left,Mode=TwoWay}" />
+                    <Setter Property="Left"
+                            Value="{Binding Left, Mode=TwoWay}" />
 
-                        <Setter Property="IsSelected"
+                    <Setter Property="IsSelected"
                             Value="{Binding IsSelected, Mode=TwoWay}" />
 
-                        <Setter Property="Width"
-                            Value="{Binding Width,Mode=TwoWay}" />
+                    <Setter Property="Width"
+                            Value="{Binding Width, Mode=TwoWay}" />
 
-                        <Setter Property="Height"
-                            Value="{Binding Height,Mode=TwoWay}" />
+                    <Setter Property="Height"
+                            Value="{Binding Height, Mode=TwoWay}" />
 
-                        <Setter Property="IsSelectable"
-                            Value="False" />
+                    <Setter Property="IsSelectable"
+                            Value="{Binding IsSelectable}" />
 
-                        <Setter Property="IsDraggable"
-                            Value="false" />
+                    <Setter Property="IsDraggable"
+                            Value="{Binding IsDraggable}" />
 
-                        <Setter Property="HasCustomBehavior"
+                    <Setter Property="HasCustomBehavior"
                             Value="{Binding HasCustomBehavior}" />
 
-                        <Setter Property="ShouldBringIntoView"
+                    <Setter Property="ShouldBringIntoView"
                             Value="{Binding ShouldBringIntoView, Mode=TwoWay}" />
 
-                        <Setter Property="Scale"
+                    <Setter Property="Scale"
                             Value="{Binding Scale, Mode=TwoWay}" />
-                        <Style.Triggers>
-                            <Trigger Property="IsDraggable" Value="True">
-                                <Setter Property="ContextMenu">
-                                    <Setter.Value>
-                                        <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
-                                            <MenuItem Header="Thu phóng"
-                                          Command="{Binding OpenRectangleScaleCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}">
-                                                <MenuItem.Icon>
-                                                    <Path Data="{StaticResource scale}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                                </MenuItem.Icon>
-                                            </MenuItem>
-                                            <MenuItem Header="Căn lề trái"
-                                          Command="{Binding AglignSelectedItemstoLeftCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}" >
-                                                <MenuItem.Icon>
-                                                    <Path Data="{StaticResource leftAglign}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                                </MenuItem.Icon>
-                                            </MenuItem>
-                                            <MenuItem Header="Căn lề trên"
-                                          Command="{Binding AglignSelectedItemstoTopCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}" >
-                                                <MenuItem.Icon>
-                                                    <Path Data="{StaticResource topAglign}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                                </MenuItem.Icon>
-                                            </MenuItem>
-                                            <MenuItem Header="Xếp ngang"
-                                          Command="{Binding SpreadItemHorizontalCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}" >
-                                                <MenuItem.Icon>
-                                                    <Path Data="{StaticResource ledstrip}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                                </MenuItem.Icon>
-                                            </MenuItem>
-                                            <MenuItem Header="Xếp dọc"
-                                          Command="{Binding SpreadItemVerticalCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}" >
-                                                <MenuItem.Icon>
-                                                    <Path Data="{StaticResource ledStripVertical}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                                </MenuItem.Icon>
-                                            </MenuItem>
-                                            <MenuItem Header="Khóa"
-                                          Command="{Binding LockSelectedItemCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}" >
-                                                <MenuItem.Icon>
-                                                    <Path Data="{StaticResource lock}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                                </MenuItem.Icon>
-                                            </MenuItem>
-                                            <MenuItem Header="Xóa"
-                                          Command="{Binding DeleteSelectedItemsCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}" >
-                                                <MenuItem.Icon>
-                                                    <Path Data="{StaticResource delete}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                                </MenuItem.Icon>
-                                            </MenuItem>
 
-                                        </ContextMenu>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                            <Trigger Property="IsDraggable" Value="False">
-                                <Setter Property="ContextMenu">
-                                    <Setter.Value>
-                                        <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
 
-                                            <MenuItem Header="Mở khóa"
-                                          Command="{Binding UnlockSelectedItemCommand}" CommandParameter="PID" >
-                                                <MenuItem.Icon>
-                                                    <Path Data="{StaticResource unlock}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                                </MenuItem.Icon>
-                                            </MenuItem>
-                                        </ContextMenu>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </richCanvas:RichItemsControl.ItemContainerStyle>
-            </richCanvas:RichItemsControl>
-        </Grid>
-        <!--<Grid Grid.Row="2" >
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="auto"/>
-            </Grid.ColumnDefinitions>
-            <Button  Command="{Binding SaveCurrentLEDSetupLayoutCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Save"/>
-            <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
-        </Grid>-->
+                    <Style.Triggers>
+                        <Trigger Property="IsDraggable" Value="True">
+                            <Setter Property="ContextMenu">
+                                <Setter.Value>
+                                    <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                                        <MenuItem Header="Scale"
+                                          Command="{Binding OpenRectangleScaleCommand}" CommandParameter="{Binding SurfaceEditorItems}" >
+                                            <MenuItem.Icon>
+                                                <Path Data="{StaticResource scale}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+
+                                        <MenuItem Header="Căn lề trái"
+                                          Command="{Binding AglignSelectedItemstoLeftCommand}" CommandParameter="{Binding SurfaceEditorItems}" >
+                                            <MenuItem.Icon>
+                                                <Path Data="{StaticResource leftAglign}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="Căn lề trên"
+                                          Command="{Binding AglignSelectedItemstoTopCommand}" CommandParameter="{Binding SurfaceEditorItems}" >
+                                            <MenuItem.Icon>
+                                                <Path Data="{StaticResource topAglign}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="Xếp ngang"
+                                          Command="{Binding SpreadItemRightHorizontalCommand}" CommandParameter="{Binding SurfaceEditorItems}" >
+                                            <MenuItem.Icon>
+                                                <Path Data="{StaticResource ledstrip}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="Xếp dọc"
+                                          Command="{Binding SpreadItemDownVerticalCommand}" CommandParameter="{Binding SurfaceEditorItems}" >
+                                            <MenuItem.Icon>
+                                                <Path Data="{StaticResource ledStripVertical}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="Khóa"
+                                          Command="{Binding LockSelectedItemCommand}" CommandParameter="{Binding SurfaceEditorItems}" >
+                                            <MenuItem.Icon>
+                                                <Path Data="{StaticResource lock}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="Xem chi tiết"
+                                          Command="{Binding AddSelectedItemToGroupCommand}" >
+                                            <MenuItem.Icon>
+                                                <Path Data="{StaticResource info}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+
+                                    </ContextMenu>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <Trigger Property="IsDraggable" Value="False">
+                            <Setter Property="ContextMenu">
+                                <Setter.Value>
+                                    <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+
+                                        <MenuItem Header="Mở khóa"
+                                          Command="{Binding UnlockSelectedItemCommand}" CommandParameter="SUR" >
+                                            <MenuItem.Icon>
+                                                <Path Data="{StaticResource unlock}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                    </ContextMenu>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </richCanvas:RichItemsControl.ItemContainerStyle>
+        </richCanvas:RichItemsControl>
     </Grid>
+
+
 </UserControl>

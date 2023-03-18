@@ -64,7 +64,7 @@ namespace adrilight
         //private int _outputBreathingSpeed = 20000;
         private int _sleepMode = 0;
         //private IColorPalette _outputCurrentActivePalette;
-        private ILEDSetup _outputLEDSetup;
+        private ILEDSetup[] _outputLEDSetup;
         //private bool _isInSpotEditWizard = false;
         private string _geometry = "generaldevice";
         //private int _outputSmoothness = 2;
@@ -193,7 +193,7 @@ namespace adrilight
         //[Reflectable]
         //public IColorPalette OutputCurrentActivePalette { get => _outputCurrentActivePalette; set { Set(() => OutputCurrentActivePalette, ref _outputCurrentActivePalette, value); } }
         //[Reflectable]
-        public ILEDSetup OutputLEDSetup { get => _outputLEDSetup; set { Set(() => OutputLEDSetup, ref _outputLEDSetup, value); } }
+        public ILEDSetup[] OutputLEDSetup { get => _outputLEDSetup; set { Set(() => OutputLEDSetup, ref _outputLEDSetup, value); } }
         //public bool IsInSpotEditWizard { get => _isInSpotEditWizard; set { Set(() => IsInSpotEditWizard, ref _isInSpotEditWizard, value); } }
         //[Reflectable]
         public string Geometry { get => _geometry; set { Set(() => Geometry, ref _geometry, value); } }

@@ -17,19 +17,16 @@ namespace adrilight.Spots
         Color OnDemandColor { get; }
         Color SentryColor { get; }
        
-        bool IsFirst { get; set; }
-        int RadiusX { get; set; }
-        int RadiusY { get; set; }
-        string ID { get; set; }
-        int id { get; set; }
+
+
+        int Index { get; set; }
         int VID { get; set; }
         int MID { get; set; }
         int CID { get; set; } //ffs this is column ID, soudn stupid but it represent the freuency position but in VU metter mode
-        int YIndex { get; set; }
-        int XIndex { get; set; }
+
         bool IsActivated { get; set; }
-        double BorderThickness { get; set; }
-        bool IsIDVissible { get; set; }
+
+
         string Shape { get; set; }
         void DimLED(float dimFactor);
         void SetColor(byte red, byte green, byte blue, bool raiseEvents);
@@ -38,8 +35,6 @@ namespace adrilight.Spots
         void SetID(int id);
         void SetMID(int mid);
         void SetCID(int cid);
-        void SetStroke(double strokeThickness);
-        void SetIDVissible (bool isIDVissible);
         void RebuildSpot(double newParrentWith, double newParrentHeight);
         double ScaleLeft { get; set; }
         double ScaleTop { get; set; }

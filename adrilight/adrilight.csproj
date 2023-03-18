@@ -200,6 +200,7 @@
     <Compile Include="Settings\ActionSettings.cs" />
     <Compile Include="Settings\ActionType.cs" />
     <Compile Include="Settings\AutomationSettings.cs" />
+    <Compile Include="Settings\DeviceTypeEnum.cs" />
     <Compile Include="Settings\IOutputControlableProperty.cs" />
     <Compile Include="Settings\OutputControlableProperty.cs" />
     <Compile Include="Settings\OutputControlablePropertyEnum.cs" />
@@ -239,6 +240,7 @@
     <Compile Include="Spots\IDeviceSpot.cs" />
     <Compile Include="Spots\ILEDSetup.cs" />
     <Compile Include="Spots\LEDSetup.cs" />
+    <Compile Include="Spots\LEDSetupHelpers.cs" />
     <Compile Include="Util\IModeParameter.cs" />
     <Compile Include="Util\IOnlineItemModel.cs" />
     <Compile Include="Util\SpeedMode.cs" />
@@ -379,7 +381,6 @@
     <Compile Include="View\AppSettingsWindow.xaml.cs" />
     <Compile Include="View\AutomationManagerWindow.xaml.cs" />
     <Compile Include="View\CheckComboBoxHelper.cs" />
-    <Compile Include="View\CIDEditWindow.xaml.cs" />
     <Compile Include="View\CollectionItem.cs" />
     <Compile Include="View\ColorPaletteControl.xaml.cs" />
     <Compile Include="View\ColorPaletteSidePanel.xaml.cs" />
@@ -403,7 +404,6 @@
     <Compile Include="View\IDSetupWindow.xaml.cs" />
     <Compile Include="View\KeySelectionButton.cs" />
     <Compile Include="View\MainView.xaml.cs" />
-    <Compile Include="View\MIDEditWindow.xaml.cs" />
     <Compile Include="View\MotherboardCard.xaml.cs" />
     <Compile Include="View\MusicControl.xaml.cs" />
     <Compile Include="View\MusicSidePanel.xaml.cs" />
@@ -422,14 +422,12 @@
     <Compile Include="View\SizeSelectionWindow.xaml.cs" />
     <Compile Include="View\SplashScreen.xaml.cs" />
     <Compile Include="View\SpotDataSelection.xaml.cs" />
-    <Compile Include="View\SpotMapViewWindow.xaml.cs" />
     <Compile Include="View\SpotSetEditing.xaml.cs" />
     <Compile Include="View\StaticColorControl.xaml.cs" />
     <Compile Include="View\StaticColorSidePanel.xaml.cs" />
     <Compile Include="View\AvailableDevicesToolbar.xaml.cs" />
     <Compile Include="View\UnionOutputControl.xaml.cs" />
     <Compile Include="View\VerticalMenuItem.cs" />
-    <Compile Include="View\VIDEditWindow.xaml.cs" />
     <Compile Include="View\xIDEditWindow.xaml.cs" />
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -595,10 +593,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\CIDEditWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="View\ColorPaletteControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -683,10 +677,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\MIDEditWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="View\MotherboardCard.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -755,10 +745,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\SpotMapViewWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="View\SpotSetEditing.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -776,10 +762,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\UnionOutputControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\VIDEditWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

@@ -21,7 +21,7 @@ namespace adrilight.Spots
         string TargetType { get; set; }
         string Description { get; set; }
         object Lock { get; }
-        int SetupID { get; set; }    // to match with device ID
+  
         void DimLED(float dimFactor);
         public double ScaleTop { get; set; }
         public double ScaleLeft { get; set; }

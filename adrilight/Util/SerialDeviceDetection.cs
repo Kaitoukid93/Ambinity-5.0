@@ -1,4 +1,5 @@
 ﻿using adrilight.Settings;
+using adrilight.Spots;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -43,8 +44,8 @@ namespace adrilight.Util
                     {
                         //if (!ExistedSerialDevice.Any(p => p.OutputPort == s)) // if this comport is not used by any of the existed serial device
                         //{
-                            counter++;
-                            devices.Add(s);
+                        counter++;
+                        devices.Add(s);
                         //}
 
 
@@ -200,7 +201,8 @@ namespace adrilight.Util
                         count -= readCount;
                     }
                     newDevice.DeviceName = Encoding.ASCII.GetString(name, 0, name.Length);
-                    //var availableDefaultDevice = new DefaultDeviceCollection();
+                    //get new instance of ledsetuphelpers
+                    var ledSetupHlprs = new LEDSetupHelpers();
                     switch (newDevice.DeviceName)
                     {
                         case "Ambino Basic":// General Ambino Basic USB Device
@@ -211,17 +213,14 @@ namespace adrilight.Util
                             newDevice.DeviceConnectionType = "wired";
                             newDevice.OutputPort = device;
                             newDevice.IsSizeNeedUserDefine = true;
-                            newDevice.AvailableOutputs = new OutputSettings[10];
-                            newDevice.AvailableOutputs[0] = new OutputSettings() { OutputName = "Fan1123",OutputID=0};
-                            newDevice.AvailableOutputs[1] = new OutputSettings() { OutputName = "Fan2", OutputID=1};
-                            newDevice.AvailableOutputs[2] = new OutputSettings() { OutputName = "Fan3", OutputID = 2 };
-                            newDevice.AvailableOutputs[3] = new OutputSettings() { OutputName = "Fan4", OutputID = 3 };
-                            newDevice.AvailableOutputs[4] = new OutputSettings() { OutputName = "Fan512312312", OutputID = 4 };
-                            newDevice.AvailableOutputs[5] = new OutputSettings() { OutputName = "Fan6", OutputID = 5 };
-                            newDevice.AvailableOutputs[6] = new OutputSettings() { OutputName = "Fan7", OutputID = 6 };
-                            newDevice.AvailableOutputs[7] = new OutputSettings() { OutputName = "Fan8", OutputID = 7 };
-                            newDevice.AvailableOutputs[8] = new OutputSettings() { OutputName = "Fan9", OutputID = 8 };
-                            newDevice.AvailableOutputs[9] = new OutputSettings() { OutputName = "Fan10", OutputID = 9 };
+                            newDevice.AvailableOutputs = new OutputSettings[2];
+                            //set a default output for this device , simply plugin LED strip with led number of 64
+                            newDevice.AvailableOutputs[0] = new OutputSettings() { OutputID = 0,OutputLEDSetup = new LEDSetup[2] };
+                            newDevice.AvailableOutputs[1] = new OutputSettings() { OutputID = 1, OutputLEDSetup = new LEDSetup[2] };
+                            newDevice.AvailableOutputs[0].OutputLEDSetup[0] = ledSetupHlprs.BuildLEDSetup(64, 1, "Simple LED Strip", 640.0, 10.0);
+                            newDevice.AvailableOutputs[0].OutputLEDSetup[1] = ledSetupHlprs.BuildLEDSetup(5, 1, "Simple LED Strip", 100.0, 20.0);
+                            newDevice.AvailableOutputs[1].OutputLEDSetup[0] = ledSetupHlprs.BuildLEDSetup(20, 1, "Simple LED Strip", 640.0, 10.0);
+                            newDevice.AvailableOutputs[1].OutputLEDSetup[1] = ledSetupHlprs.BuildLEDSetup(7, 1, "Simple LED Strip", 140.0, 20.0);
 
                             break;
                         case "Ambino EDGE":// General Ambino Edge USB Device

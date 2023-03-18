@@ -1,5 +1,6 @@
 ﻿using adrilight.DesktopDuplication;
 using adrilight.Extensions;
+using adrilight.Settings;
 using adrilight.Spots;
 using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
@@ -17,16 +18,14 @@ namespace adrilight
 {
     internal class LEDSetup : ViewModelBase, ILEDSetup, IDrawable
     {
-        private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
-        private string JsonLEDSetupFileNameAndPath => Path.Combine(JsonPath, "adrilight-LEDSetups.json");
-        public LEDSetup(string name, string owner, string type, string description, ObservableCollection<IDeviceSpot> spots, int setupID, double pixelWidth, double pixelHeight, double scaleWidth, double scaleHeight)
+  
+        public LEDSetup(string name, string owner, string type, string description, ObservableCollection<IDeviceSpot> spots, double pixelWidth, double pixelHeight, double scaleWidth, double scaleHeight)
         {
             Name = name;
             Owner = owner;
             TargetType = type;
             Description = description;
             Spots = spots;
-            SetupID = setupID;
             Width = pixelWidth;
             Height = pixelHeight;
             ScaleWidth = scaleWidth;
@@ -44,7 +43,7 @@ namespace adrilight
         public string Description { get; set; }
         public ObservableCollection<IDeviceSpot> Spots { get => _spots; set { Set(() => Spots, ref _spots, value); RaisePropertyChanged(); } }
         public object Lock { get; } = new object();
-        public int SetupID { get; set; }    // to match with device ID
+     
         public string Thumbnail { get; set; }
         public void DimLED(float dimFactor)
         {
