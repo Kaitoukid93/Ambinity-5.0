@@ -141,7 +141,7 @@
                             </Grid>
                             <!--downloadbutton-->
                             <Grid Grid.Column="2">
-                                <Button Margin="20" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="2" Width="150" Height="30" Foreground="{DynamicResource ReverseTextBrush}" BorderThickness="0" Content="Download" Command="{Binding Path=DataContext.DownloadSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
+                                <Button Margin="20" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="2" Width="150" Height="30" Foreground="{DynamicResource ReverseTextBrush}" BorderThickness="0" Content="Download" Command="{Binding DownloadCurrentItemCommand}" CommandParameter="{Binding CurrentSelectedOnlineItem}">
                                     <Button.Background>
                                         <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="1"/>
                                     </Button.Background>

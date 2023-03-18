@@ -63,6 +63,7 @@ using Point = System.Windows.Point;
 using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
 using SplashScreen = adrilight.View.SplashScreen;
 using MdXaml;
+using SharpDX.Direct3D9;
 
 namespace adrilight.ViewModel
 {
@@ -82,7 +83,7 @@ namespace adrilight.ViewModel
         private string JsonFWToolsFWListFileNameAndPath => Path.Combine(JsonPath, "adrilight-fwlist.json");
         private string JsonGifsCollectionFileNameAndPath => Path.Combine(JsonPath, "adrilight-gifCollection.json");
         private string JsonGroupFileNameAndPath => Path.Combine(JsonPath, "adrilight-groupInfos.json");
-        private string JsonPaletteFileNameAndPath => Path.Combine(JsonPath, "ColorPalette");
+
         private string JsonGradientFileNameAndPath => Path.Combine(JsonPath, "adrilight-GradientCollection.json");
 
         private const string ADRILIGHT_RELEASES = "https://github.com/Kaitoukid93/Ambinity_Developer_Release";
@@ -100,6 +101,10 @@ namespace adrilight.ViewModel
         public const string groupLighting = "Group Lighting";
 
         #endregion constant string
+
+        private string PalettesCollectionFolder => Path.Combine(JsonPath, "ColorPalette");
+        private string LEDSetupsCollectionFolder => Path.Combine(JsonPath, "LEDSetup");
+
 
         #region property
 
@@ -549,8 +554,7 @@ namespace adrilight.ViewModel
         public ICommand CompositionNextFrameCommand { get; set; }
         public ICommand ExportCurrentOnlineItemToFilesCommand { get; set; }
         public ICommand OpenImageSelectorCommand { get; set; }
-        public ICommand DownloadSelectedChasingPattern { get; set; }
-        public ICommand DownloadSelectedPaletteCommand { get; set; }
+        public ICommand DownloadCurrentItemCommand { get; set; }
         public ICommand CutSelectedMotionCommand { get; set; }
         public ICommand ToggleCompositionPlayingStateCommand { get; set; }
         public ICommand CompositionFrameStartOverCommand { get; set; }
@@ -3341,20 +3345,14 @@ namespace adrilight.ViewModel
             {
                 OpenAmbinoStoreWindow();
             });
-            DownloadSelectedPaletteCommand = new RelayCommand<IOnlineItemModel>((p) =>
+            DownloadCurrentItemCommand = new RelayCommand<IOnlineItemModel>((p) =>
             {
                 return true;
-            }, (p) =>
+            }, async(p) =>
             {
-                //DonwloadSelectedItem(p);
+               await Task.Run(() => DownloadCurrentOnlineItem(p));
             });
-            DownloadSelectedChasingPattern = new RelayCommand<Motion>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                // DownloadSelectedPalette(p);
-            });
+        
             SetCurrentActionTypeForSelectedActionCommand = new RelayCommand<ActionType>((p) =>
             {
                 return true;
@@ -4138,10 +4136,10 @@ namespace adrilight.ViewModel
         private void ExportItemForOnlineStore(object p)
         {
             CurrentContentForExport = p;
-            CurrentItemForExport = new OnlineItemModel() { Name="Change Name", Description= "Change Description", Type = p.GetType().Name.ToString(),Owner = "Change Owner"};
+            CurrentItemForExport = new OnlineItemModel() { Name = "Change Name", Description = "Change Description", Type = p.GetType().Name.ToString(), Owner = "Change Owner" };
             OnlineItemScreenShotCollection = new ObservableCollection<string>();
             OnlineItemSelectableSubType = new ObservableCollection<string>();
-            if(p.GetType() == typeof(LEDSetup))
+            if (p.GetType() == typeof(LEDSetup))
             {
 
                 OnlineItemSelectableSubType.Add("ambinofanhub");
@@ -4149,17 +4147,17 @@ namespace adrilight.ViewModel
                 OnlineItemSelectableSubType.Add("ambinoedge");
                 OnlineItemSelectableSubType.Add("generaldevice");
                 OnlineItemSelectedSubType = "ambinobasic";
-                
+
             }
-            else if(p.GetType() == typeof(ColorPalette))
+            else if (p.GetType() == typeof(ColorPalette))
             {
                 OnlineItemSelectableSubType.Add("colorpalette");
-            
+
                 OnlineItemSelectedSubType = "colorpalette";
             }
 
-            
-           
+
+
             onlineExportWindow = new OnlineItemExporterView();
             onlineExportWindow.Show();
         }
@@ -4565,27 +4563,65 @@ namespace adrilight.ViewModel
             set { _availableOnlineItems = value; RaisePropertyChanged(); }
         }
         public AmbinoOnlineStoreView StoreWindow { get; set; }
-        private void DownloadCurrentOnlineItem(object o)
+
+        private async void DownloadCurrentOnlineItem(IOnlineItemModel o)
         {
+
+            //create needed info 
+            string localFolder = string.Empty; // the resource folder this item will be saved to
+            switch (o.Type)
+            {
+                case "LEDSetup":
+                    localFolder = LEDSetupsCollectionFolder;
+                    break;
+                case "ColorPalette":
+                    localFolder = PalettesCollectionFolder;
+                    break;
+            }
             //get the type of current item need to be downloaded
             //find the palette with the same name
-            var sameNamePalette = AvailablePallete.Where(p => p.Name == selectedPalette.Name).FirstOrDefault();
-            if (CheckEqualityObjects(selectedPalette, sameNamePalette))
+            if (!Directory.Exists(localFolder))
+                Directory.CreateDirectory(localFolder);
+            string[] subdirs = Directory.GetDirectories(localFolder)
+                             .Select(Path.GetFileName)
+                             .ToArray();
+            var sameNameItem = subdirs.Where(p => p == o.Name).FirstOrDefault();
+            if (sameNameItem != null)
                 HandyControl.Controls.MessageBox.Show("ColorPaletteExisted", "File Existed", MessageBoxButton.OK, MessageBoxImage.Error);
-            else
-            {
-                AvailablePallete.Add(selectedPalette);
-                //save to local disk
-                var paletteJson = JsonConvert.SerializeObject(selectedPalette, new JsonSerializerSettings() {
-                    TypeNameHandling = TypeNameHandling.Auto
-                });
-                File.WriteAllText(Path.Combine(JsonPaletteFileNameAndPath, selectedPalette.Name + ".col"), paletteJson);
+            //create local folder for downloading item
+            var localPath = Path.Combine(localFolder, o.Name);
+            Directory.CreateDirectory(localPath);
 
+            //if everything is passed
+            //get content
+            if (FTPHlprs != null)
+            {
+                //get list of files
+                var listofFiles = await FTPHlprs.GetAllFilesInFolder(o.Path + "/content");
+                foreach (var file in listofFiles)
+                {
+                    //save to local folder
+                    string localContentPath = Path.Combine(localPath, "content");
+                    Directory.CreateDirectory(localContentPath);
+                    FTPHlprs.DownloadFile(o.Path + "/content" + "/" + file.Name, localContentPath+"/"+file.Name);
+                }
             }
 
+            //get thumb
 
+            //AvailablePallete.Add(selectedPalette);
+            ////save to local disk
+            //var paletteJson = JsonConvert.SerializeObject(selectedPalette, new JsonSerializerSettings() {
+            //    TypeNameHandling = TypeNameHandling.Auto
+            //});
+            //File.WriteAllText(Path.Combine(PalettesCollectionFolder, selectedPalette.Name + ".col"), paletteJson);
 
         }
+
+
+
+
+
         private async void UpdateStoreView()
         {
 
@@ -6228,8 +6264,8 @@ namespace adrilight.ViewModel
                             {
                                 //load motion from disk
                                 var motion = ReadMotionFromResource(testMotionPath); // load test
-                                //the resize state is implemeting inside render state
-                                //ResizeMotion(motion, CurrentOutput.OutputLEDSetup.Spots.Count());
+                                                                                     //the resize state is implemeting inside render state
+                                                                                     //ResizeMotion(motion, CurrentOutput.OutputLEDSetup.Spots.Count());
                             }
                             break;
                     }
@@ -7145,7 +7181,7 @@ namespace adrilight.ViewModel
             var json = JsonConvert.SerializeObject(newpalette, new JsonSerializerSettings() {
                 TypeNameHandling = TypeNameHandling.Auto
             });
-            File.WriteAllText(Path.Combine(JsonPaletteFileNameAndPath, newpalette.Name + ".col"), json);
+            File.WriteAllText(Path.Combine(PalettesCollectionFolder, newpalette.Name + ".col"), json);
 
         }
 
@@ -7902,27 +7938,27 @@ namespace adrilight.ViewModel
         };
 
             AvailableMatrixOrientation = new ObservableCollection<string>
-    {
+        {
            "Dọc",
            "Ngang",
         };
 
             AvailableMatrixStartPoint = new ObservableCollection<string>
-    {
+        {
            "Top Left",
            "Top Right",
            "Bottom Right",
            "Bottom Left"
         };
             AvailableRotation = new ObservableCollection<string>
-    {
+        {
            "0",
            "90",
            "180",
            "360"
         };
             AvailableEffects = new ObservableCollection<string>
-      {
+        {
             "Sáng theo màn hình",
            "Sáng theo dải màu",
            "Sáng màu tĩnh",
@@ -7932,7 +7968,7 @@ namespace adrilight.ViewModel
            "Group Lighting"
         };
             AvailableMusicPalette = new ObservableCollection<string>
-    {
+        {
            "Rainbow",
            "Cafe",
            "Jazz",
@@ -7940,14 +7976,14 @@ namespace adrilight.ViewModel
            "Custom"
         };
             AvailableFrequency = new ObservableCollection<string>
-    {
+        {
            "1",
            "2",
            "3",
            "4"
         };
             AvailableMusicMode = new ObservableCollection<string>
-    {
+        {
           "Equalizer",
            "VU metter",
            "End to End",
@@ -7958,7 +7994,7 @@ namespace adrilight.ViewModel
           "Naughty boy"
         };
             AvailableMenu = new ObservableCollection<string>
-    {
+        {
           "Dashboard",
            "Settings",
         };
@@ -8039,7 +8075,7 @@ namespace adrilight.ViewModel
 
         public List<IColorPalette> LoadPaletteIfExists()
         {
-            if (!Directory.Exists(JsonPaletteFileNameAndPath))
+            if (!Directory.Exists(PalettesCollectionFolder))
             {
 
                 //create default palette
@@ -8068,13 +8104,17 @@ namespace adrilight.ViewModel
                 palettes.Add(badtrip);
                 palettes.Add(lemon);
                 //create colorPalette directory
-                Directory.CreateDirectory(JsonPaletteFileNameAndPath);
+                Directory.CreateDirectory(PalettesCollectionFolder);
                 foreach (var palette in palettes)
                 {
                     var json = JsonConvert.SerializeObject(palette, new JsonSerializerSettings() {
                         TypeNameHandling = TypeNameHandling.Auto
                     });
-                    File.WriteAllText(Path.Combine(JsonPaletteFileNameAndPath, palette.Name + ".col"), json);
+                    var folder = Directory.CreateDirectory(Path.Combine(PalettesCollectionFolder, palette.Name)).ToString();
+                    var contentFolder = Directory.CreateDirectory(Path.Combine(PalettesCollectionFolder, "content")).ToString();
+                    File.WriteAllText(Path.Combine(contentFolder, palette.Name + ".col"), json);
+                    //write thumb
+
                 }
 
 
@@ -8082,7 +8122,7 @@ namespace adrilight.ViewModel
                 //coppy all internal palettes to local 
 
             }
-            string[] exisetedPalettes = Directory.GetFiles(JsonPaletteFileNameAndPath);
+            string[] exisetedPalettes = Directory.GetFiles(PalettesCollectionFolder);
             var loadedPaletteCard = new List<IColorPalette>();
             foreach (var paletteFile in exisetedPalettes)
             {
@@ -8097,7 +8137,30 @@ namespace adrilight.ViewModel
 
             return loadedPaletteCard;
         }
+        public List<IColorPalette> LoadLEDSetupIfExists()
+        {
+            if (!Directory.Exists(LEDSetupsCollectionFolder))
+            {
 
+
+                //coppy all internal palettes to local 
+
+            }
+            string[] exisetedPalettes = Directory.GetFiles(PalettesCollectionFolder);
+            var loadedPaletteCard = new List<IColorPalette>();
+            foreach (var paletteFile in exisetedPalettes)
+            {
+                var json = File.ReadAllText(paletteFile);
+
+                var existPaletteCard = JsonConvert.DeserializeObject<ColorPalette>(json);
+
+                loadedPaletteCard.Add(existPaletteCard);
+
+            }
+
+
+            return loadedPaletteCard;
+        }
         public List<IDeviceProfile> LoadDeviceProfileIfExist()
         {
             var availableDefaultDevice = new DefaultDeviceCollection();
@@ -8631,7 +8694,7 @@ namespace adrilight.ViewModel
             }
             var json = JsonConvert.SerializeObject(palettes, Formatting.Indented);
             Directory.CreateDirectory(JsonPath);
-            File.WriteAllText(JsonPaletteFileNameAndPath, json);
+            File.WriteAllText(PalettesCollectionFolder, json);
         }
 
         public void WriteAutomationCollectionJson()
@@ -9018,8 +9081,8 @@ namespace adrilight.ViewModel
                     item.Screenshots.Add(screenshot);
                 }
             }
-                
-            
+
+
             var description = await FTPHlprs.GetStringContent(descriptionPath);
             item.MarkDownDescription = description;
             CurrentOnlineStoreView = "Details";
