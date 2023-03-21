@@ -76,6 +76,7 @@
         <Grid Grid.Row=" 1">
             <richCanvas:RichItemsControl
                  GridStyle="{StaticResource GridStyle}"
+                 ItemsSource="{Binding PIDEditWindowsRichCanvasItems}"
                 EnableSnapping="False"
                 GridSpacing="20"
                 EnableGrid="true"
@@ -85,9 +86,9 @@
                 RealTimeSelectionEnabled="False"
                 SelectedItems="{Binding PIDEditWindowSelectedItems}"
                 Scale="1"
-                SelectedItem="{Binding PIDEditWindowsRichCanvasSelectedItem}"
+                SelectedItem="{Binding PIDEditWindowsRichCanvasSelectedItem,Mode=TwoWay}"
                 MousePosition="{Binding MousePosition, Mode=OneWayToSource}"
-                ItemsSource="{Binding PIDEditWindowsRichCanvasItems}">
+               >
                 <richCanvas:RichItemsControl.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Thêm LED" Command="{Binding OpenAddNewDrawableItemCommand}">

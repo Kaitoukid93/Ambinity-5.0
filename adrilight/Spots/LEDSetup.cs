@@ -162,14 +162,18 @@ namespace adrilight
 
         public string Type { get; set; }
         private DrawableHelpers DrawableHlprs;
-        public void UpdateSizeByChild()
+        public void UpdateSizeByChild(bool withPoint)
         {
             //get all child and set size
             var boundRct = GetDeviceRectBound(Spots.ToList());
             Width = boundRct.Width;
             Height = boundRct.Height;
-            Left = boundRct.Left;
-            Top = boundRct.Top;
+            if(withPoint)
+            {
+                Left = boundRct.Left;
+                Top = boundRct.Top;
+            }
+          
 
         }
         public Rectangle GetDeviceRectBound(List<IDeviceSpot> spots)

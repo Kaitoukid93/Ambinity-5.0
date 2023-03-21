@@ -123,7 +123,7 @@ namespace adrilight.Settings
 
         public string Type { get; set; }
         private DrawableHelpers DrawableHlprs;
-        public void UpdateSizeByChild()
+        public void UpdateSizeByChild(bool withPoint)
         {
             //get all child and set size
             //var boundRct = GetDeviceRectBound(Spots.ToList());

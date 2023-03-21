@@ -107,10 +107,10 @@ namespace adrilight
         public IDeviceController CurrentActiveController { get => AvailableControllers[CurrentActiveControlerIndex]; set { Set(() => CurrentActiveController, ref _currentActiveController, value); } }
 
         [JsonIgnore]
-        public Rect CurrentLivewItemsBound => GetDeviceRectBound(CurrentLiveViewZones);
+        public Rect CurrentLivewItemsBound => GetDeviceRectBound(CurrentLiveViewZones.ToArray());
 
-
-        public IControlZone[] CurrentLiveViewZones => GetControlZones(CurrentActiveController);
+        [JsonIgnore]
+        public ObservableCollection<IControlZone> CurrentLiveViewZones => GetControlZones(CurrentActiveController);
         [JsonIgnore]
         public ISlaveDevice[] AvailableLightingDevices => GetSlaveDevices(ControllerTypeEnum.LightingController);
         private ISlaveDevice[] GetSlaveDevices(ControllerTypeEnum type)
@@ -125,9 +125,9 @@ namespace adrilight
             }
             return slaveDevices.ToArray();
         }
-        public IControlZone[] GetControlZones(IDeviceController controller)
+        public ObservableCollection<IControlZone> GetControlZones(IDeviceController controller)
         {
-            List<IControlZone> zones = new List<IControlZone>();
+            ObservableCollection<IControlZone> zones = new ObservableCollection<IControlZone>();
             foreach (var output in controller.Outputs)
             {
                 foreach (var zone in output.SlaveDevice.ControlableZones)
@@ -135,7 +135,7 @@ namespace adrilight
                     zones.Add(zone);
                 }
             }
-            return zones.ToArray();
+            return zones;
         }
         public int CurrentActiveControlerIndex { get => _currentActiveControllerIndex; set { if (value >= 0) Set(() => CurrentActiveControlerIndex, ref _currentActiveControllerIndex, value); OnActiveControllerChanged(); } }
 

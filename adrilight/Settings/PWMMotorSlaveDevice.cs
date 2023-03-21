@@ -29,7 +29,7 @@ namespace adrilight.Settings
         /// Zone properties
         /// </summary>
 
-        public IControlZone[] ControlableZones { get; set; }
+        public List<IControlZone> ControlableZones { get; set; }
         [JsonIgnore]
         public Type DataType => typeof(PWMMotorSlaveDevice);
 
@@ -107,7 +107,7 @@ namespace adrilight.Settings
         {
             //get all child and set size
             
-            var boundRct = GetDeviceRectBound(ControlableZones);
+            var boundRct = GetDeviceRectBound(ControlableZones.ToArray());
             Width = boundRct.Width;
             Height = boundRct.Height;
         }

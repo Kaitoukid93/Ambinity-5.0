@@ -1,5 +1,6 @@
 ﻿using adrilight.Settings;
 using adrilight.Spots;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace adrilight
@@ -15,7 +16,7 @@ namespace adrilight
         double ScaleLeft { get; set; }
         double ScaleWidth { get; set; }
         double ScaleHeight { get; set; }
-        IControlZone[] ControlableZones { get; set; }
+        List<IControlZone> ControlableZones { get; set; }
         void OnResolutionChanged(double scaleX, double scaleY);
         void UpdateSizeByChild();
         void RefreshSizeAndPosition();

@@ -80,6 +80,7 @@
         </Grid>-->
     <Grid>
         <richCanvas:RichItemsControl
+             ItemsSource="{Binding CurrentDevice.CurrentLiveViewZones}"
                  GridStyle="{StaticResource GridStyle}"
                 EnableSnapping="False"
                 MaxScale="10"
@@ -97,7 +98,7 @@
                 Scale="{Binding CurrentLiveViewScale,Mode=TwoWay}"
                 SelectedItems="{Binding SelectedLiveViewItems}" 
               
-                ItemsSource="{Binding CurrentDevice.CurrentLiveViewZones}">
+               >
 
 
             <richCanvas:RichItemsControl.Resources>

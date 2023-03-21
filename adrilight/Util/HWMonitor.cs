@@ -331,14 +331,14 @@ namespace adrilight.Util
 
 
 
-                
-
-                computer.Accept(updateVisitor);
 
 
+                    computer.Accept(updateVisitor);
 
-                Thread.Sleep(1000);
-            }
+
+
+                    Thread.Sleep(1000);
+                }
                 // update every second
 
 
@@ -369,37 +369,37 @@ namespace adrilight.Util
             finally
             {
 
-    computer.Close();
-    _log.Debug("Stopped HW Monitoring!!!");
-    IsRunning = false;
-}
+                computer.Close();
+                _log.Debug("Stopped HW Monitoring!!!");
+                IsRunning = false;
+            }
 
         }
 
 
         public void Init()
-{
-    computer = new LibreHardwareMonitor.Hardware.Computer {
-        IsCpuEnabled = true,
-        IsGpuEnabled = true,
-        IsMemoryEnabled = true,
-        IsMotherboardEnabled = true,
-        IsControllerEnabled = true,
-        IsNetworkEnabled = true,
-        IsStorageEnabled = true
+        {
+            computer = new LibreHardwareMonitor.Hardware.Computer {
+                IsCpuEnabled = true,
+                IsGpuEnabled = true,
+                IsMemoryEnabled = true,
+                IsMotherboardEnabled = true,
+                IsControllerEnabled = true,
+                IsNetworkEnabled = true,
+                IsStorageEnabled = true
 
-    };
+            };
 
-    computer.Open();
-    computer.Accept(updateVisitor);
-    displayHWInfo = new Computer();
+            computer.Open();
+            computer.Accept(updateVisitor);
+            displayHWInfo = new Computer();
 
-}
+        }
 
-public void Dispose()
-{
-    computer.Close();
-}
+        public void Dispose()
+        {
+            computer.Close();
+        }
 
 
 

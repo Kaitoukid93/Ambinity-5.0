@@ -9,6 +9,7 @@ using System.Windows.Media;
 using adrilight.Util;
 using adrilight.Settings;
 using System.Windows;
+using System.Collections.ObjectModel;
 
 namespace adrilight
 {
@@ -34,7 +35,7 @@ namespace adrilight
         int ActivatedProfileIndex { get; set; }
         IDeviceController[] AvailableControllers { get; set; }
         IDeviceController CurrentActiveController { get; }
-        IControlZone[] CurrentLiveViewZones { get; }
+        ObservableCollection<IControlZone> CurrentLiveViewZones { get; }
         int CurrentActiveControlerIndex { get; set; }
         int SelectedOutput { get; set; }
         string Geometry { get; set; }

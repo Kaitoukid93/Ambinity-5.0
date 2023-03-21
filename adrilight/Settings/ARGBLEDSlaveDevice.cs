@@ -33,7 +33,7 @@ namespace adrilight.Settings
         /// Zone properties
         /// </summary>
 
-        public IControlZone[] ControlableZones { get; set; }
+        public List<IControlZone> ControlableZones { get; set; }
         [JsonIgnore]
         public Type DataType =>typeof(ARGBLEDSlaveDevice);
 
@@ -121,9 +121,9 @@ namespace adrilight.Settings
             //tell child to update
             foreach (var zone in ControlableZones)
             {
-                zone.UpdateSizeByChild();
+                zone.UpdateSizeByChild(false);
             }
-            var boundRct = GetDeviceRectBound(ControlableZones);
+            var boundRct = GetDeviceRectBound(ControlableZones.ToArray());
             Width = boundRct.Width;
             Height = boundRct.Height;
         }

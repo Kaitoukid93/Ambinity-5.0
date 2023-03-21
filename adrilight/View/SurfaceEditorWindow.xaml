@@ -69,6 +69,7 @@
         </Grid>
         <Grid Grid.Row=" 1">
             <richCanvas:RichItemsControl
+                ItemsSource="{Binding SurfaceEditorItems}"
                  GridStyle="{StaticResource GridStyle}"
                 EnableSnapping="True"
                 GridSpacing="24"
@@ -80,8 +81,8 @@
                 Scale="0.5"
                 
                 SelectedItems="{Binding SurfaceEditorSelectedItems}" 
-                SelectedItem="{Binding SurfaceEditorSelectedItem}"  
-                ItemsSource="{Binding SurfaceEditorItems}">
+                SelectedItem="{Binding SurfaceEditorSelectedItem,Mode=TwoWay}"  
+                >
 
 
                 <richCanvas:RichItemsControl.Resources>
