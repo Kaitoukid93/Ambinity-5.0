@@ -83,8 +83,9 @@
                 CanSelectMultipleItems="True"
                 RealTimeDraggingEnabled="True"
                 RealTimeSelectionEnabled="False"
-                SelectedItems="{Binding selectedSpots}"
+                SelectedItems="{Binding PIDEditWindowSelectedItems}"
                 Scale="1"
+                SelectedItem="{Binding PIDEditWindowsRichCanvasSelectedItem}"
                 MousePosition="{Binding MousePosition, Mode=OneWayToSource}"
                 ItemsSource="{Binding PIDEditWindowsRichCanvasItems}">
                 <richCanvas:RichItemsControl.ContextMenu>
@@ -99,6 +100,16 @@
                                 <Path Data="{StaticResource addImage}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                             </MenuItem.Icon>
                         </MenuItem>
+                        <MenuItem Header="Import LED Setup" Command="{Binding ImportLEDSetupCommand}">
+                            <MenuItem.Icon>
+                                <Path Data="{StaticResource import}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Tạo Zone mới" Command="{Binding AddNewZoneCommand}">
+                            <MenuItem.Icon>
+                                <Path Data="{StaticResource import}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
                         <MenuItem Header="Clear" Command="{Binding ClearPIDCanvasCommand}">
                             <MenuItem.Icon>
                                 <Path Data="{StaticResource clear}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
@@ -108,8 +119,83 @@
                 </richCanvas:RichItemsControl.ContextMenu>
 
                 <richCanvas:RichItemsControl.Resources>
+
+                    <DataTemplate DataType="{x:Type local:LEDSetup}">
+                        <Grid>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseDown" >
+                                    <i:InvokeCommandAction Command="{Binding DataContext.SelectPIDCanvasItemCommand,RelativeSource={RelativeSource AncestorType={x:Type view:PIDEditCanvasWindow}}}" CommandParameter="{Binding .}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                            <ItemsControl IsHitTestVisible="{Binding IsSelectable}" Margin="0,-1,0,0"  
+                                    Name="PreviewGird"  
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Top" 
+                                    ItemsSource="{Binding Spots,Mode=TwoWay}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <Canvas 
+                                                HorizontalAlignment="Center" 
+                                                VerticalAlignment="Top" 
+                                                Name="PreviewCanvas"
+                                                Margin="0" 
+                                                Width="{Binding Width,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" 
+                                                Height="{Binding Height, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" >
+                                        </Canvas>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemContainerStyle>
+                                    <Style TargetType="ContentPresenter">
+                                        <Setter Property="Canvas.Left" Value="{Binding Left}"/>
+                                        <Setter Property="Canvas.Top" Value="{Binding Top}"/>
+                                    </Style>
+                                </ItemsControl.ItemContainerStyle>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Path RenderTransformOrigin="0.5,0.5" Data="{Binding Shape,Converter={converters:StaticResourceConverter}}"
+                                                Stretch="Fill"
+                                                ToolTip="{Binding id}"                              
+                                                StrokeThickness="{Binding BorderThickness}" 
+                                                Width="{Binding Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
+                                                Height="{Binding Height,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                            <Path.Fill>
+                                                <SolidColorBrush Color="{Binding OnDemandColor}"  />
+                                            </Path.Fill>
+                                            <Path.Style>
+                                                <Style TargetType="{x:Type Path}">
+
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Opacity"  Value="0.5"/>
+
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                    <Setter Property="RenderTransform" >
+                                                        <Setter.Value>
+                                                            <TransformGroup >
+                                                                <ScaleTransform/>
+                                                                <TranslateTransform  />
+                                                                <RotateTransform Angle="{Binding Angle}" />
+                                                            </TransformGroup>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </Path.Style>
+                                        </Path>
+                                    </DataTemplate>
+
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                        </Grid>
+                    </DataTemplate>
                     <DataTemplate DataType="{x:Type spot:DeviceSpot}">
                         <Grid>
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseEnter" >
+                                    <i:InvokeCommandAction Command="{Binding DataContext.SetSpotPIDCommand,RelativeSource={RelativeSource AncestorType={x:Type view:PIDEditCanvasWindow}}}" CommandParameter="{Binding .}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
                             <Grid.ToolTip>
                                 <Border CornerRadius="4" BorderThickness="0" Background="Transparent">
                                     <StackPanel>
@@ -119,7 +205,7 @@
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Margin="2" Text="Thứ tự LED : "/>
-                                            <TextBlock  Grid.Column="1" Margin="2" Text="{Binding id}"/>
+                                            <TextBlock  Grid.Column="1" Margin="2" Text="{Binding Index}"/>
                                         </Grid>
                                         <Grid>
                                             <Grid.ColumnDefinitions>
@@ -175,10 +261,10 @@
                                         </Setter>
                                     </Style>
                                 </Viewbox.Style>
-                             
-                                    <TextBlock Margin="5" Foreground="White" Text="{Binding id}" Style="{DynamicResource TextBlockDefault}"/>
-                             
-                                
+
+                                <TextBlock Margin="5" Foreground="White" Text="{Binding Index}" Style="{DynamicResource TextBlockDefault}"/>
+
+
                             </Viewbox>
                         </Grid>
 
@@ -308,7 +394,7 @@
                                 </ControlTemplate>
                             </Setter.Value>
                         </Setter>-->
-                        
+
                         <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
                         <Setter Property="Tag"
                             Value="{Binding DataContext, ElementName=window}" />
@@ -430,6 +516,21 @@
                                     </Setter.Value>
                                 </Setter>
                             </Trigger>
+                            <DataTrigger Binding="{Binding DataType}" Value="{x:Type local:LEDSetup}">
+                                <Setter Property="ContextMenu">
+                                    <Setter.Value>
+                                        <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+
+                                            <MenuItem Header="Ungroup"
+                                          Command="{Binding UnZoneItemsCommand}" CommandParameter="PID">
+                                                <MenuItem.Icon>
+                                                    <Path Data="{StaticResource unlock}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                        </ContextMenu>
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </richCanvas:RichItemsControl.ItemContainerStyle>

@@ -8,13 +8,14 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using adrilight.Util;
 using adrilight.Settings;
+using System.Windows;
 
 namespace adrilight
 {
     public enum State { sleep, dfu, normal, surfaceEditor };
-    public interface IDeviceSettings :  INotifyPropertyChanged
+    public interface IDeviceSettings : INotifyPropertyChanged
     {
-      
+
         int DeviceID { get; set; }
         string DeviceName { get; set; }
         string DeviceSerial { get; set; }
@@ -32,7 +33,9 @@ namespace adrilight
         bool IsTransferActive { get; set; }
         int ActivatedProfileIndex { get; set; }
         IDeviceController[] AvailableControllers { get; set; }
-    
+        IDeviceController CurrentActiveController { get; }
+        IControlZone[] CurrentLiveViewZones { get; }
+        int CurrentActiveControlerIndex { get; set; }
         int SelectedOutput { get; set; }
         string Geometry { get; set; }
         string DeviceThumbnail { get; set; }
@@ -53,8 +56,9 @@ namespace adrilight
         //void DeviceLocator(Color color);
         void RefreshDeviceActualSpeedAsync();
         State CurrentState { get; set; }
-        System.Drawing.Rectangle DeviceBoundRectangle { get; set; }
-        void SetRectangle(System.Drawing.Rectangle rectangle);
+        Rect CurrentLivewItemsBound { get; }
+        ISlaveDevice[] AvailableLightingDevices { get; }
+        void UpdateChildSize();
         void BrightnessUp(int value);
         void BrightnessDown(int value);
         void SpeedUp(int value);

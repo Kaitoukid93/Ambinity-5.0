@@ -147,7 +147,7 @@ namespace adrilight
                         convertedDevice.DeviceUID = openRGBDevice.Name + openRGBDevice.Version + openRGBDevice.Location;
                         convertedDevice.Geometry = "orgb";
                         convertedDevice.DeviceConnectionGeometry = "orgb";
-                        convertedDevice.AvailableOutputs = new OutputSettings[openRGBDevice.Zones.Length];
+                        //convertedDevice.AvailableOutputs = new OutputSettings[openRGBDevice.Zones.Length];
                         int zoneCount = 0;
                         foreach (var zone in openRGBDevice.Zones)
                         {

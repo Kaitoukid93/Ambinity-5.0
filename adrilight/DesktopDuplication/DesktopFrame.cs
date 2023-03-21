@@ -336,10 +336,10 @@ namespace adrilight
                     double scaleY = (double)latestFrame.Height / (double)reusableBitmap.Height;
                     foreach(var device in MainViewModel.AvailableDevices.Where(d=>!(d.IsDummy)))
                     {
-                        foreach(var output in device.AvailableOutputs)
-                        {
-                            output.OutputLEDSetup.OnResolutionChanged(scaleX,scaleY);
-                        }
+                        //foreach(var output in device.AvailableOutputs)
+                        //{
+                        //    output.OutputLEDSetup.OnResolutionChanged(scaleX,scaleY);
+                        //}
                     }
 
                 }

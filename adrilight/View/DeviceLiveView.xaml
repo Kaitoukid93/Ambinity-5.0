@@ -14,7 +14,7 @@
            xmlns:view="clr-namespace:adrilight.View"
            xmlns:spot ="clr-namespace:adrilight.Spots"
            xmlns:settings ="clr-namespace:adrilight.Settings"
-         
+              xmlns:lottie="clr-namespace:LottieSharp;assembly=LottieSharp"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}">
 
@@ -45,9 +45,9 @@
 
     </UserControl.Resources>
 
-   
 
-        <!--<Grid Grid.Row="0">
+
+    <!--<Grid Grid.Row="0">
             <ToolBarTray IsLocked="True" VerticalAlignment="Center">
                 <ToolBar  Padding="6" Header="View">
                     <Separator Margin="10,0" MaxHeight="25"/>
@@ -82,34 +82,36 @@
         <richCanvas:RichItemsControl
                  GridStyle="{StaticResource GridStyle}"
                 EnableSnapping="False"
-                
+                MaxScale="10"
                 GridSpacing="24"
                 EnableGrid="False"
                 Scrolling="OnScrolling"
                 CanSelectMultipleItems="False"
                 RealTimeDraggingEnabled="False"
                 RealTimeSelectionEnabled="False"
-                Scale="0.5"
-                Background="Transparent"
+                DisableAutoPanning="True"
+                Background="Transparent"               
+                DisableScroll="True"
+                ZoomKey="Z"
+                TranslateOffset="{Binding CurrentLiveViewOffset,Mode=TwoWay}"
+                Scale="{Binding CurrentLiveViewScale,Mode=TwoWay}"
                 SelectedItems="{Binding SelectedLiveViewItems}" 
-                SelectedItem="{Binding SurfaceEditorSelectedItem}"  
-                ItemsSource="{Binding CurrentDeviceLiveViewItems}">
+              
+                ItemsSource="{Binding CurrentDevice.CurrentLiveViewZones}">
 
 
             <richCanvas:RichItemsControl.Resources>
                 <DataTemplate DataType="{x:Type local:LEDSetup}">
                     <Grid>
+                      
                         <Grid>
+                            
                             <ItemsControl IsHitTestVisible="{Binding IsSelectable}" Margin="0,-1,0,0"  
                                     Name="PreviewGird"  
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Top" 
                                     ItemsSource="{Binding Spots,Mode=TwoWay}">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="MouseDown" >
-                                        <i:InvokeCommandAction Command="{Binding DataContext.SelectLiveViewItemCommand,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" CommandParameter="{Binding .}" />
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
+                              
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <Canvas 
@@ -165,6 +167,29 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
+                        </Grid>
+                    </Grid>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type settings:FanMotor}">
+                    <Grid>
+                        <Grid>
+                            <TextBlock Text="{Binding Name}"/>
+                            <lottie:LottieAnimationView
+                                               
+                                               HorizontalAlignment="Stretch"
+                                               VerticalAlignment="Stretch"
+                                               AutoPlay="True"
+                                               FileName="{Binding FanSpiningAnimationPath}"
+                                               RepeatCount="-1">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="MouseDown" >
+                                        <i:InvokeCommandAction Command="{Binding DataContext.SelectLiveViewItemCommand,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" CommandParameter="{Binding .}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </lottie:LottieAnimationView>
+
+
+
                         </Grid>
                     </Grid>
                 </DataTemplate>
@@ -260,7 +285,14 @@
                                     <ContentPresenter 
                                             HorizontalAlignment="Center" 
                                             SnapsToDevicePixels="True" 
-                                            VerticalAlignment="Center"/>
+                                            VerticalAlignment="Center">
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="PreviewMouseDown">
+                                                <i:InvokeCommandAction Command="{Binding DataContext.SelectLiveViewItemCommand,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" CommandParameter="{Binding .}" />
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </ContentPresenter>
+                                    
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <MultiTrigger>
@@ -341,13 +373,13 @@
                             Value="{Binding IsSelectable}" />
 
                     <Setter Property="IsDraggable"
-                            Value="{Binding IsDraggable}" />
+                            Value="False" />
 
                     <Setter Property="HasCustomBehavior"
                             Value="{Binding HasCustomBehavior}" />
 
                     <Setter Property="ShouldBringIntoView"
-                            Value="{Binding ShouldBringIntoView, Mode=TwoWay}" />
+                            Value="False" />
 
                     <Setter Property="Scale"
                             Value="{Binding Scale, Mode=TwoWay}" />
@@ -406,7 +438,7 @@
                                 </Setter.Value>
                             </Setter>
                         </Trigger>
-                        <Trigger Property="IsDraggable" Value="False">
+                        <!--<Trigger Property="IsDraggable" Value="False">
                             <Setter Property="ContextMenu">
                                 <Setter.Value>
                                     <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
@@ -420,7 +452,7 @@
                                     </ContextMenu>
                                 </Setter.Value>
                             </Setter>
-                        </Trigger>
+                        </Trigger>-->
                     </Style.Triggers>
                 </Style>
             </richCanvas:RichItemsControl.ItemContainerStyle>

@@ -25,7 +25,7 @@ namespace adrilight
 
         double Top { get; set; }
         string Name { get; set; }
-
+        Type DataType { get; }
 
         double Left { get; set; }
 

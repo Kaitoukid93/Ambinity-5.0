@@ -24,7 +24,7 @@ namespace adrilight.Settings
         private int _outputPowerMiliamps;
         private bool _outputIsSelected = false;
         private bool _isEnabled;
-        private IControlZone[] _controlableZone;
+        private ISlaveDevice _slaveDevice;
         private string _geometry = "generaldevice";
 
         public LightingOutput()
@@ -45,7 +45,7 @@ namespace adrilight.Settings
         public int OutputPowerVoltage { get => _outputPowerVoltage; set { Set(() => OutputPowerVoltage, ref _outputPowerVoltage, value); } }
         public int OutputPowerMiliamps { get => _outputPowerMiliamps; set { Set(() => OutputPowerMiliamps, ref _outputPowerMiliamps, value); } }
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); } }
-        public IControlZone[] ControlableZone { get => _controlableZone; set { Set(() => ControlableZone, ref _controlableZone, value); } }
+        public ISlaveDevice SlaveDevice { get => _slaveDevice; set { Set(() => SlaveDevice, ref _slaveDevice, value); } }
         public string Geometry { get => _geometry; set { Set(() => Geometry, ref _geometry, value); } }
         public string OutputInterface { get; set; }
 

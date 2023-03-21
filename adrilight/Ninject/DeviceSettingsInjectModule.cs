@@ -53,12 +53,12 @@ namespace adrilight.Ninject
 
 
 
-                        foreach (var output in device.AvailableOutputs)
-                        {
-                            var outputID = iD + output.OutputID.ToString();
-                            Bind<IOutputSettings>().ToConstant(output).Named(outputID);
+                        //foreach (var output in device.AvailableOutputs)
+                        //{
+                        //    var outputID = iD + output.OutputID.ToString();
+                        //    Bind<IOutputSettings>().ToConstant(output).Named(outputID);
 
-                        }
+                        //}
                     }
                 }
             }

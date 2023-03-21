@@ -1,5 +1,6 @@
 ﻿using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -47,7 +48,8 @@ namespace adrilight.Spots
             VisualProperties = new VisualProperties();
             Scale = new System.Windows.Point(1, 1);
         }
-
+        [JsonIgnore]
+        public Type DataType=>typeof(DeviceSpot);
         public int Index { get; set; } // Physical index
 
         private bool _isFirst;

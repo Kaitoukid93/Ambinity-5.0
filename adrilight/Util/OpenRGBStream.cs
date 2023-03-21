@@ -151,7 +151,7 @@ namespace adrilight
 
 
 
-        private OpenRGB.NET.Models.Color[] GetOutputStream(IOutputSettings output)
+      /*  private OpenRGB.NET.Models.Color[] GetOutputStream(IOutputSettings output)
         {
             var currentOutput = output;
             OpenRGB.NET.Models.Color[] outputColor = new OpenRGB.NET.Models.Color[currentOutput.OutputLEDSetup.Spots.Count];
@@ -228,7 +228,7 @@ namespace adrilight
 
 
         }
-
+      */
         private byte[] ReOrderSpotColor(string order, byte r, byte g, byte b)
         {
             byte[] reOrderedColor = new byte[3];
@@ -287,7 +287,7 @@ namespace adrilight
 
             //retry after exceptions...
             while (!cancellationToken.IsCancellationRequested)
-            {
+            {/*
                 try
                 {
 
@@ -328,6 +328,7 @@ namespace adrilight
                     }
 
                 }
+                
                 catch (OperationCanceledException)
                 {
                     _log.Debug("OperationCanceledException catched. returning.");
@@ -352,6 +353,7 @@ namespace adrilight
 
 
                 }
+            */
             }
 
         }

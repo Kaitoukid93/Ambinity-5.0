@@ -309,7 +309,7 @@ namespace adrilight
         }
 
 
-
+        /*
 
 
         private (byte[] Buffer, int OutputLength) GetOutputStream(IOutputSettings output, byte id)
@@ -458,6 +458,7 @@ namespace adrilight
 
 
         }
+        */
 
         private byte[] ReOrderSpotColor(string order, byte r, byte g, byte b)
         {
@@ -515,7 +516,7 @@ namespace adrilight
             //retry after exceptions...
             bool isDisconnectedMessage = false;
             while (!cancellationToken.IsCancellationRequested)
-            {
+            {/*
                 try
                 {
                     const int baudRate = 1000000;
@@ -627,6 +628,7 @@ namespace adrilight
 
 
                 }
+                */
             }
 
         }

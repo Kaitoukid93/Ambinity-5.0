@@ -3,6 +3,7 @@ using adrilight.Spots;
 using adrilight.Util;
 using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -43,7 +44,8 @@ namespace adrilight
         public double CenterY { get => _centerY; set { Set(() => CenterY, ref _centerY, value); } }
         public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
         public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
-
+        [JsonIgnore]
+        public Type DataType => typeof(Drawable);
         public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
 
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
@@ -68,7 +70,7 @@ namespace adrilight
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
         public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
-
+    
         public Drawable()
         {
             VisualProperties = new VisualProperties();

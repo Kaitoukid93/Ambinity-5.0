@@ -213,18 +213,21 @@ namespace adrilight.Util
                             newDevice.DeviceConnectionType = "wired";
                             newDevice.OutputPort = device;
                             newDevice.IsSizeNeedUserDefine = true;
-                            newDevice.AvailableControllers = new DeviceController[1];
-                            newDevice.AvailableControllers[0] = new DeviceController() { Description = "LED Controller", Name = "USB Basic", Executioner = "CH552G", Type = ControllerTypeEnum.LightingController };
+                            newDevice.AvailableControllers = new DeviceController[2];
+                            newDevice.AvailableControllers[0] = new DeviceController() { Description = "LED Controller", Name = "Lighting",Geometry="brightness", Executioner = "CH552G", Type = ControllerTypeEnum.LightingController };
                             newDevice.AvailableControllers[0].Outputs = new LightingOutput[1];
-                            newDevice.AvailableControllers[0].Outputs[0] = new LightingOutput() { OutputID = 0, ControlableZone = new LEDSetup[4] };
+                            newDevice.AvailableControllers[0].Outputs[0] = new LightingOutput() { OutputID = 0, SlaveDevice = new ARGBLEDSlaveDevice() {Name="Ambino Basic Default",ControlableZones = new LEDSetup[4] },OutputName ="Ambino 3P 2.54mm", };
                             //set a default output for this device , simply plugin 4 LED strips with led number of 5-12
                             //build leds for zone 0
-                            newDevice.AvailableControllers[0].Outputs[0].ControlableZone[0] = ledSetupHlprs.BuildLEDSetup(1, 5, "Cạnh phải", 10.0, 50.0);
-                            newDevice.AvailableControllers[0].Outputs[0].ControlableZone[1] = ledSetupHlprs.BuildLEDSetup(12, 1, "Cạnh trên", 120.0, 10.0);
-                            newDevice.AvailableControllers[0].Outputs[0].ControlableZone[2] = ledSetupHlprs.BuildLEDSetup(1, 5, "Cạnh trái", 10.0, 50.0);
-                            newDevice.AvailableControllers[0].Outputs[0].ControlableZone[3] = ledSetupHlprs.BuildLEDSetup(12, 1, "Cạnh dưới", 120.0, 10.0);
-
-
+                            newDevice.AvailableControllers[0].Outputs[0].SlaveDevice.ControlableZones[0] = ledSetupHlprs.BuildLEDSetup(1, 5, "Cạnh phải", 50.0, 250.0);
+                            newDevice.AvailableControllers[0].Outputs[0].SlaveDevice.ControlableZones[1] = ledSetupHlprs.BuildLEDSetup(12, 1, "Cạnh trên", 600.0, 50.0);
+                            newDevice.AvailableControllers[0].Outputs[0].SlaveDevice.ControlableZones[2] = ledSetupHlprs.BuildLEDSetup(1, 5, "Cạnh trái", 50.0,250.0);
+                            newDevice.AvailableControllers[0].Outputs[0].SlaveDevice.ControlableZones[3] = ledSetupHlprs.BuildLEDSetup(12, 1, "Cạnh dưới", 600, 50.0);
+                            newDevice.AvailableControllers[1] = new DeviceController() { Description = "PWM Controller", Name = "Fan Speed", Geometry = "fanspeed", Executioner = "CH552G", Type = ControllerTypeEnum.PWMController };
+                            newDevice.AvailableControllers[1].Outputs = new PWMOutput[1];
+                            newDevice.AvailableControllers[1].Outputs[0] = new PWMOutput() { OutputID = 0, SlaveDevice = new PWMMotorSlaveDevice() { Name = "Ambino A1", ControlableZones = new FanMotor[1] }, OutputName = "Ambino 6p 2.54mm" };
+                            newDevice.AvailableControllers[1].Outputs[0].SlaveDevice.ControlableZones[0] = new FanMotor() { Name = "AmbinoA1", FanSpiningAnimationPath = "I:\\Ambinity\\AmbinityWPF\\adrilight\\adrilight\\Animation\\splashLoading.json", Width=300,Height=300 };
+                            newDevice.UpdateChildSize();
                             //this device contains 4 zones
 
                             break;

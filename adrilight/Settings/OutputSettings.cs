@@ -41,13 +41,14 @@ namespace adrilight
         //private bool _outputUseLinearLighting = true;
         private bool _outputIsSelected = false;
         private bool _isEnabled;
-    
+        private ISlaveDevice _slaveDevice;
+
         //private Color _outputAtmosphereStartColor;
         //private Color _outputAtmosphereStopColor;
         //private string _outputAtmosphereMode;
         //private int _outputSelectedMusicMode;
         //private int _outputSelectedMusicPalette;
-    
+
         //private int _outputSelectedAudioDevice;
 
         //private int _outputSelectedChasingPalette;
@@ -90,7 +91,7 @@ namespace adrilight
         public OutputSettings()
         {
             //AvailableLightingMode = new List<ILightingMode>();
-            ControlableProperties = new List<IOutputControlableProperty>();
+         
         }
 
         //private int _outputGifSpeed = 20;
@@ -185,7 +186,7 @@ namespace adrilight
         //[Reflectable]
         //public IColorPalette OutputCurrentActivePalette { get => _outputCurrentActivePalette; set { Set(() => OutputCurrentActivePalette, ref _outputCurrentActivePalette, value); } }
         //[Reflectable]
-        public IControlZone[] ControlableZone { get => _controlableZone; set { Set(() => ControlableZone, ref _controlableZone, value); } }
+      
         //public bool IsInSpotEditWizard { get => _isInSpotEditWizard; set { Set(() => IsInSpotEditWizard, ref _isInSpotEditWizard, value); } }
         //[Reflectable]
         public string Geometry { get => _geometry; set { Set(() => Geometry, ref _geometry, value); } }
@@ -221,7 +222,8 @@ namespace adrilight
        
      
         public string OutputInterface { get; set; }
-      
+        public ISlaveDevice SlaveDevice { get => _slaveDevice; set { Set(() => SlaveDevice, ref _slaveDevice, value); } }
+
 
 
 
@@ -238,65 +240,68 @@ namespace adrilight
         //    RaisePropertyChanged(nameof(PreviewRectangle));
         //}
 
-        /// <summary>
-        /// shortcuts for setting value
-        /// </summary>
-        /// <param name="value"></param>
+            /// <summary>
+            /// shortcuts for setting value
+            /// </summary>
+            /// <param name="value"></param>
         public void SetBrightness(int value)
         {
             //brightness up current active mode
             //controlable lighting property
-            var lightingControl = ControlableZone.Where(z => z.Type == OutputControlablePropertyEnum.Lighting).FirstOrDefault();
-            if (lightingControl != null)
-            {
-                var currentLightingMode = lightingControl.CurrentActiveControlMode as LightingMode;
-                currentLightingMode.SetBrightness(value);
-            }
+
+            //var lightingControl = SlaveDevice.ControlableZones.Where(z=>z.GetType() == typeof(lighti))
+            //if (lightingControl != null)
+            //{
+            //    var currentLightingMode = lightingControl.CurrentActiveControlMode as LightingMode;
+            //    currentLightingMode.SetBrightness(value);
+            //}
 
         }
         public int GetBrightness()
         {
-            var lightingControl = ControlableProperties.Where(c => c.Type == OutputControlablePropertyEnum.Lighting).FirstOrDefault();
-            int brightness = 0;
-            if (lightingControl != null)
-            {
-                var currentLightingMode = lightingControl.CurrentActiveControlMode as LightingMode;
-                brightness = currentLightingMode.GetBrightness();
-            }
-            return brightness;
+            //var lightingControl = ControlableProperties.Where(c => c.Type == OutputControlablePropertyEnum.Lighting).FirstOrDefault();
+            //int brightness = 0;
+            //if (lightingControl != null)
+            //{
+            //    var currentLightingMode = lightingControl.CurrentActiveControlMode as LightingMode;
+            //    brightness = currentLightingMode.GetBrightness();
+            //}
+            //return brightness;
+            return 0;
         }
         public void SetSpeed(int speedValue)
         {
-            var speedControl = ControlableProperties.Where(c => c.Type == OutputControlablePropertyEnum.Speed).FirstOrDefault();
-            if (speedControl != null)
-            {
-                var currentSpeedMode = speedControl.CurrentActiveControlMode as SpeedMode;
-                currentSpeedMode.SetSpeed(speedValue);
-            }
+            //var speedControl = ControlableProperties.Where(c => c.Type == OutputControlablePropertyEnum.Speed).FirstOrDefault();
+            //if (speedControl != null)
+            //{
+            //    var currentSpeedMode = speedControl.CurrentActiveControlMode as SpeedMode;
+            //    currentSpeedMode.SetSpeed(speedValue);
+            //}
 
 
         }
         public int GetSpeed()
         {
-            var speedControl = ControlableProperties.Where(c => c.Type == OutputControlablePropertyEnum.Speed).FirstOrDefault();
-            int speed = 0;
-            if (speedControl != null)
-            {
-                var currentSpeedMode = speedControl.CurrentActiveControlMode as SpeedMode;
-                speed = currentSpeedMode.GetSpeed();
-            }
+            //var speedControl = ControlableProperties.Where(c => c.Type == OutputControlablePropertyEnum.Speed).FirstOrDefault();
+            //int speed = 0;
+            //if (speedControl != null)
+            //{
+            //    var currentSpeedMode = speedControl.CurrentActiveControlMode as SpeedMode;
+            //    speed = currentSpeedMode.GetSpeed();
+            //}
 
-            return speed;
+            //return speed;
+            return 0;
         }
-        public SpeedModeEnum GetCurrentSpeedMode() {
-            SpeedModeEnum speedMode = SpeedModeEnum.manual;
-            var speedControl = ControlableProperties.Where(c => c.Type == OutputControlablePropertyEnum.Speed).FirstOrDefault();  
-            if (speedControl != null)
-            {
-                var currentSpeedMode = speedControl.CurrentActiveControlMode as SpeedMode;
-                speedMode = currentSpeedMode.SpeedType;
-            }
-            return speedMode;
+        public int GetCurrentSpeedMode() {
+            //SpeedModeEnum speedMode = SpeedModeEnum.manual;
+            //var speedControl = ControlableProperties.Where(c => c.Type == OutputControlablePropertyEnum.Speed).FirstOrDefault();  
+            //if (speedControl != null)
+            //{
+            //    var currentSpeedMode = speedControl.CurrentActiveControlMode as SpeedMode;
+            //    speedMode = currentSpeedMode.SpeedType;
+            //}
+            return 0 ;
         }
     }
 }

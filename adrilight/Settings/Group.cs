@@ -1,5 +1,7 @@
-﻿using adrilight.ViewModel;
+﻿using adrilight.Spots;
+using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,7 +59,8 @@ namespace adrilight.Settings
         public bool HasCustomBehavior { get => _hasCustomBehavior; set { Set(() => HasCustomBehavior, ref _hasCustomBehavior, value); } }
 
         public bool ShouldBringIntoView { get => _shouldBringIntoView; set { Set(() => ShouldBringIntoView, ref _hasCustomBehavior, value); } }
-
+        [JsonIgnore]
+        public Type DataType => typeof(Group);
         public Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
         public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
 

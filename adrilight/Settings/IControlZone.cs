@@ -17,6 +17,6 @@ namespace adrilight
         IControlMode CurrentActiveControlMode { get; set; }
 
         int CurrentActiveControlModeIndex { get; set; }
-
+        void UpdateSizeByChild();
     }
 }

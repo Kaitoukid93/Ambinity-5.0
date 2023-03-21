@@ -206,12 +206,13 @@ namespace adrilight
 
 
 
-        private (byte[] Buffer, int OutputLength) GetOutputStream( int output)
+      /*  private (byte[] Buffer, int OutputLength) GetOutputStream( int output)
         {
             byte[] outputStream;
             var currentOutput = DeviceSettings.AvailableOutputs[output];
 
             int counter = _messageWARLSPreamble.Length;
+
             lock (currentOutput.OutputLEDSetup.Lock)
             {
                 const int colorsPerLed = 4;
@@ -299,16 +300,16 @@ namespace adrilight
                 {
                     blackFrameCounter++;
                 }
-
-                return (outputStream, bufferLength);
+            
+            return (outputStream, bufferLength);
             }
 
 
 
-
+            
 
         }
-    
+    */
 
         private void DoWork(object tokenObject)
         {
@@ -346,7 +347,7 @@ namespace adrilight
                     while (!cancellationToken.IsCancellationRequested)
                     {
                       
-                        
+                        /*
                         //send frame data
                         for(int i = 0; i < DeviceSettings.AvailableOutputs.Length; i++)
                         {
@@ -378,7 +379,7 @@ namespace adrilight
 
 
 
-
+                        */
 
 
                    

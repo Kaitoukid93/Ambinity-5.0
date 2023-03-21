@@ -39,7 +39,9 @@ namespace adrilight
         int OutputPowerMiliamps { get; set; }
         bool IsEnabled { get; set; }
         string Geometry { get; set; } // store drawing data of output interface
-        IControlZone[] ControlableZone { get; set; }
+        //each output can only be attached 1 single device but can contains multiple zones
+        //slave device can be LED or Motor or Sensor
+        ISlaveDevice SlaveDevice { get; set; }
         //void SetRectangle(System.Drawing.Rectangle rectangle);
         //void SetPreviewRectangle(System.Drawing.Rectangle rectangle);
 

@@ -256,10 +256,10 @@ namespace adrilight.Util
                     foreach (var device in MainViewViewModel.AvailableDevices.Where(x => x.DeviceType == "ABFANHUB"))
                     {
                         //find speed control and set
-                        foreach (var output in device.AvailableOutputs)
-                        {
-                            (output as OutputSettings).SetSpeed(200);
-                        }
+                        //foreach (var output in device.AvailableOutputs)
+                        //{
+                        //    (output as OutputSettings).SetSpeed(200);
+                        //}
 
                     }
                 }
@@ -307,6 +307,7 @@ namespace adrilight.Util
                     //formular is if the fan speed changed more than 5% compare to last fan speed, apply the change
 
                     //it's time to tell the fan to update the speed
+                    /*
                     foreach (var device in MainViewViewModel.AvailableDevices.Where(x => x.DeviceType == "ABFANHUB"))
                     {
                         foreach (var output in device.AvailableOutputs)
@@ -325,6 +326,7 @@ namespace adrilight.Util
 
                         }
                     }
+                    */
 
 
 

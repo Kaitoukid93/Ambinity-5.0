@@ -17,6 +17,7 @@ using System.Windows;
 using System.Buffers;
 using HandyControl.Themes;
 using System.Threading;
+using Newtonsoft.Json;
 
 namespace adrilight
 {
@@ -38,7 +39,7 @@ namespace adrilight
         private bool _isTransferActive;
         private bool _isDummy = false;
         private bool _isLoading = false;
-        private IOutputSettings[] _availableOutput;        
+
         private int _selectedOutput = 0;
         private string _geometry = "generaldevice";
         private string _deviceConnectionGeometry = "connection";
@@ -58,10 +59,12 @@ namespace adrilight
         private static byte[] expectedValidHeader = { 15, 12, 93 };
         private bool _isSizeNeedUserDefine = false;
         private bool _isLoadingSpeed = false;
-        private System.Drawing.Rectangle _deviceBoundRectangle;
+
+        private int _currentActiveControllerIndex;
+        private IDeviceController _currentActiveController;
         public string DeviceThumbnail { get => _deviceThumbnail; set { Set(() => DeviceThumbnail, ref _deviceThumbnail, value); } }
 
-        public System.Drawing.Rectangle DeviceBoundRectangle { get => _deviceBoundRectangle; set { Set(() => DeviceBoundRectangle, ref _deviceBoundRectangle, value); } }
+  
         public State CurrentState { get => _currentState; set { Set(() => CurrentState, ref _currentState, value); } }
         public string RequiredFwVersion { get => _requiredFwVersion; set { Set(() => RequiredFwVersion, ref _requiredFwVersion, value); } }
         public int DeviceID { get => _deviceID; set { Set(() => DeviceID, ref _deviceID, value); } }
@@ -81,18 +84,18 @@ namespace adrilight
         public string OutputPort { get => _outputPort; set { Set(() => OutputPort, ref _outputPort, value); } }
         public bool IsTransferActive { get => _isTransferActive; set { Set(() => IsTransferActive, ref _isTransferActive, value); } }
         public bool IsDummy { get => _isDummy; set { Set(() => IsDummy, ref _isDummy, value); } }
-        public IOutputSettings[] AvailableOutputs { get => _availableOutput; set { Set(() => AvailableOutputs, ref _availableOutput, value); } }
-      
+
+
         public int Baudrate { get => _baudrate; set { Set(() => Baudrate, ref _baudrate, value); } }
         public int ActivatedProfileIndex { get => _activatedProfileIndex; set { Set(() => ActivatedProfileIndex, ref _activatedProfileIndex, value); } }
-  
+
         public int SelectedOutput { get => _selectedOutput; set { Set(() => SelectedOutput, ref _selectedOutput, value); } }
         public string Geometry { get => _geometry; set { Set(() => Geometry, ref _geometry, value); } }
         public string DeviceDescription { get => _deviceDescription; set { Set(() => DeviceDescription, ref _deviceDescription, value); } }
         public string DeviceUID { get => _deviceUID; set { Set(() => DeviceUID, ref _deviceUID, value); } }
 
         public bool IsLoadingSpeed { get => _isLoadingSpeed; set { Set(() => IsLoadingSpeed, ref _isLoadingSpeed, value); } }
-  
+
         public string DeviceConnectionGeometry { get => _deviceConnectionGeometry; set { Set(() => DeviceConnectionGeometry, ref _deviceConnectionGeometry, value); } }
         public string DeviceConnectionType { get => _deviceConnectionType; set { Set(() => DeviceConnectionType, ref _deviceConnectionType, value); } }
         public bool IsLoadingProfile { get => _isLoadingProfile; set { Set(() => IsLoadingProfile, ref _isLoadingProfile, value); } }
@@ -100,84 +103,143 @@ namespace adrilight
 
         public IDeviceController[] AvailableControllers { get => _availableControllers; set { Set(() => AvailableControllers, ref _availableControllers, value); } }
 
+        [JsonIgnore]
+        public IDeviceController CurrentActiveController { get => AvailableControllers[CurrentActiveControlerIndex]; set { Set(() => CurrentActiveController, ref _currentActiveController, value); } }
+
+        [JsonIgnore]
+        public Rect CurrentLivewItemsBound => GetDeviceRectBound(CurrentLiveViewZones);
+
+
+        public IControlZone[] CurrentLiveViewZones => GetControlZones(CurrentActiveController);
+        [JsonIgnore]
+        public ISlaveDevice[] AvailableLightingDevices => GetSlaveDevices(ControllerTypeEnum.LightingController);
+        private ISlaveDevice[] GetSlaveDevices(ControllerTypeEnum type)
+        {
+            var slaveDevices = new List<ISlaveDevice>();
+            foreach (var controller in AvailableControllers.Where(x => x.Type == type))
+            {
+                foreach(var output in controller.Outputs)
+                {
+                    slaveDevices.Add(output.SlaveDevice);
+                }
+            }
+            return slaveDevices.ToArray();
+        }
+        public IControlZone[] GetControlZones(IDeviceController controller)
+        {
+            List<IControlZone> zones = new List<IControlZone>();
+            foreach (var output in controller.Outputs)
+            {
+                foreach (var zone in output.SlaveDevice.ControlableZones)
+                {
+                    zones.Add(zone);
+                }
+            }
+            return zones.ToArray();
+        }
+        public int CurrentActiveControlerIndex { get => _currentActiveControllerIndex; set { if (value >= 0) Set(() => CurrentActiveControlerIndex, ref _currentActiveControllerIndex, value); OnActiveControllerChanged(); } }
+
+        private void OnActiveControllerChanged()
+        {
+            if (CurrentActiveControlerIndex >= 0)
+            {
+                CurrentActiveController = AvailableControllers[CurrentActiveControlerIndex];
+                //reset selected liveview zone because the collection changed
+                RaisePropertyChanged(nameof(CurrentLiveViewZones));
+                RaisePropertyChanged(nameof(CurrentActiveController));
+            }
+        }
         private void DeviceEnableChanged()
         {
 
-       
-            if (AvailableOutputs != null)
-            {
 
-                if (AvailableOutputs.Length == 1)
-                {
-                    AvailableOutputs[0].OutputIsEnabled = IsEnabled;
-                }
-                else
-                {
-                    foreach (var output in AvailableOutputs)
-                    {
-                        output.OutputParrentIsEnable = IsEnabled;
+            //if (AvailableOutputs != null)
+            //{
 
-                    }
-                }
-            }
+            //    if (AvailableOutputs.Length == 1)
+            //    {
+            //        AvailableOutputs[0].OutputIsEnabled = IsEnabled;
+            //    }
+            //    else
+            //    {
+            //        foreach (var output in AvailableOutputs)
+            //        {
+            //            output.OutputParrentIsEnable = IsEnabled;
+
+            //        }
+            //    }
+            //}
 
 
         }
         public void SetOutput(IOutputSettings output, int outputID)
         {
-            AvailableOutputs[outputID].OutputIsLoadingProfile = true;
+            //AvailableOutputs[outputID].OutputIsLoadingProfile = true;
 
-            foreach (PropertyInfo property in AvailableOutputs[outputID].GetType().GetProperties())
-            {
+            //foreach (PropertyInfo property in AvailableOutputs[outputID].GetType().GetProperties())
+            //{
 
-                if (Attribute.IsDefined(property, typeof(ReflectableAttribute)))
-                    property.SetValue(AvailableOutputs[outputID], property.GetValue(output, null), null);
-                AvailableOutputs[outputID].LEDPerLED = output.LEDPerLED;
-                AvailableOutputs[outputID].LEDPerSpot = output.LEDPerSpot;
-            }
+            //    if (Attribute.IsDefined(property, typeof(ReflectableAttribute)))
+            //        property.SetValue(AvailableOutputs[outputID], property.GetValue(output, null), null);
+            //    AvailableOutputs[outputID].LEDPerLED = output.LEDPerLED;
+            //    AvailableOutputs[outputID].LEDPerSpot = output.LEDPerSpot;
+            //}
 
-            AvailableOutputs[outputID].OutputIsLoadingProfile = false;
+            //AvailableOutputs[outputID].OutputIsLoadingProfile = false;
 
+        }
+        private DrawableHelpers DrawableHlprs;
+       
+        public Rect GetDeviceRectBound(IControlZone[] zones)
+        {
+            
+            
+            if(DrawableHlprs==null)
+                DrawableHlprs = new DrawableHelpers();
+
+
+            return DrawableHlprs.GetBound(zones);
+           
         }
         public void ActivateProfile(IDeviceProfile profile)
         {
-            ActivatedProfileUID = profile.ProfileUID;
-            for (var i = 0; i < AvailableOutputs.Length; i++)
-            {
-                AvailableOutputs[i].OutputIsLoadingProfile = true;
+            //ActivatedProfileUID = profile.ProfileUID;
+            //for (var i = 0; i < AvailableOutputs.Length; i++)
+            //{
+            //    AvailableOutputs[i].OutputIsLoadingProfile = true;
 
-                foreach (PropertyInfo property in AvailableOutputs[i].GetType().GetProperties())
-                {
+            //    foreach (PropertyInfo property in AvailableOutputs[i].GetType().GetProperties())
+            //    {
 
-                    if (Attribute.IsDefined(property, typeof(ReflectableAttribute)))
-                        property.SetValue(AvailableOutputs[i], property.GetValue(profile.OutputSettings[i], null), null);
-                }
+            //        if (Attribute.IsDefined(property, typeof(ReflectableAttribute)))
+            //            property.SetValue(AvailableOutputs[i], property.GetValue(profile.OutputSettings[i], null), null);
+            //    }
 
-                AvailableOutputs[i].OutputIsLoadingProfile = false;
-            }
-      
+            //    AvailableOutputs[i].OutputIsLoadingProfile = false;
+            //}
+
 
 
         }
 
 
-       
+
 
         public void BrightnessUp(int value)
         {
-            
-              foreach (var output  in AvailableOutputs)//possible replace with method from IOutputSettings
-                {
-                var currentBrightness = (output as OutputSettings).GetBrightness();
-                var nextBrightness = currentBrightness + value;
-                if(nextBrightness<100)
-                    (output as OutputSettings).SetBrightness(nextBrightness);
-                else
-                {
-                    (output as OutputSettings).SetBrightness(100);
-                }
-                }
-              
+
+            //foreach (var output  in AvailableOutputs)//possible replace with method from IOutputSettings
+            //  {
+            //  var currentBrightness = (output as OutputSettings).GetBrightness();
+            //  var nextBrightness = currentBrightness + value;
+            //  if(nextBrightness<100)
+            //      (output as OutputSettings).SetBrightness(nextBrightness);
+            //  else
+            //  {
+            //      (output as OutputSettings).SetBrightness(100);
+            //  }
+            //  }
+
         }
         public void SpeedUp(int value)
         {
@@ -201,17 +263,17 @@ namespace adrilight
         {
 
 
-            foreach (var output in AvailableOutputs)//possible replace with method from IOutputSettings
-            {
-                var currentBrightness = (output as OutputSettings).GetBrightness();
-                var nextBrightness = currentBrightness - value;
-                if (nextBrightness > 0)
-                    (output as OutputSettings).SetBrightness(nextBrightness);
-                else
-                {
-                    (output as OutputSettings).SetBrightness(0);
-                }
-            }
+            //foreach (var output in AvailableOutputs)//possible replace with method from IOutputSettings
+            //{
+            //    var currentBrightness = (output as OutputSettings).GetBrightness();
+            //    var nextBrightness = currentBrightness - value;
+            //    if (nextBrightness > 0)
+            //        (output as OutputSettings).SetBrightness(nextBrightness);
+            //    else
+            //    {
+            //        (output as OutputSettings).SetBrightness(0);
+            //    }
+            //}
 
         }
 
@@ -343,7 +405,16 @@ namespace adrilight
         //    }
         //    return reOrderedColor;
         //}
-
+        public void UpdateChildSize()
+        {
+            foreach (var controller in AvailableControllers)
+            {
+                foreach(var output in controller.Outputs)
+                {
+                    output.SlaveDevice.UpdateSizeByChild();
+                }
+            }
+        }
         public void RefreshFirmwareVersion()
         {
 
@@ -554,10 +625,6 @@ namespace adrilight
             //DeviceActualSpeed = speed[0].ToString();
             //RaisePropertyChanged(nameof(DeviceActualSpeed));
         }
-        public void SetRectangle(System.Drawing.Rectangle rectangle)
-        {
-            DeviceBoundRectangle = rectangle;
-            RaisePropertyChanged(nameof(DeviceBoundRectangle));
-        }
+       
     }
 }

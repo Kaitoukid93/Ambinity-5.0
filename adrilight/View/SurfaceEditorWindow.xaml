@@ -85,14 +85,14 @@
 
 
                 <richCanvas:RichItemsControl.Resources>
-                    <DataTemplate DataType="{x:Type local:LEDSetup}">
+                    <DataTemplate DataType="{x:Type settings:ARGBLEDSlaveDevice}">
                         <Grid>
                             <Grid>
                                 <ItemsControl     IsHitTestVisible="{Binding IsSelectable}" Margin="0,-1,0,0"  
                                     Name="PreviewGird"  
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Top" 
-                                    ItemsSource="{Binding Spots,Mode=TwoWay}">
+                                    ItemsSource="{Binding ControlableZones,Mode=TwoWay}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <Canvas 
@@ -112,39 +112,68 @@
                                         </Style>
                                     </ItemsControl.ItemContainerStyle>
                                     <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
+                                        <DataTemplate DataType="{x:Type local:LEDSetup}">
                                             <Grid>
-                                                <Path RenderTransformOrigin="0.5,0.5" Data="{Binding Shape,Converter={converters:StaticResourceConverter}}"
+                                                <ItemsControl     IsHitTestVisible="{Binding IsSelectable}" Margin="0,-1,0,0"  
+                                    Name="PreviewGird"  
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Top" 
+                                    ItemsSource="{Binding Spots,Mode=TwoWay}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <Canvas 
+                                                HorizontalAlignment="Center" 
+                                                VerticalAlignment="Top" 
+                                                Name="PreviewCanvas"
+                                                Margin="0" 
+                                                Width="{Binding Width,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" 
+                                                Height="{Binding Height, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" >
+                                                            </Canvas>
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemContainerStyle>
+                                                        <Style TargetType="ContentPresenter">
+                                                            <Setter Property="Canvas.Left" Value="{Binding Left}"/>
+                                                            <Setter Property="Canvas.Top" Value="{Binding Top}"/>
+                                                        </Style>
+                                                    </ItemsControl.ItemContainerStyle>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Path RenderTransformOrigin="0.5,0.5" Data="{Binding Shape,Converter={converters:StaticResourceConverter}}"
                                                 Stretch="Fill"
-                                                ToolTip="{Binding id}" 
-                                                Stroke="OrangeRed" 
+                                                ToolTip="{Binding id}"                              
                                                 StrokeThickness="{Binding BorderThickness}" 
                                                 Width="{Binding Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
                                                 Height="{Binding Height,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
-                                                    <Path.Fill>
-                                                        <SolidColorBrush Color="{Binding OnDemandColor}"  />
-                                                    </Path.Fill>
-                                                    <Path.Style>
-                                                        <Style TargetType="{x:Type Path}">
+                                                                <Path.Fill>
+                                                                    <SolidColorBrush Color="{Binding OnDemandColor}"  />
+                                                                </Path.Fill>
+                                                                <Path.Style>
+                                                                    <Style TargetType="{x:Type Path}">
 
-                                                            <Style.Triggers>
-                                                                <Trigger Property="IsMouseOver" Value="True">
-                                                                    <Setter Property="Opacity"  Value="0.5"/>
+                                                                        <Style.Triggers>
+                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                <Setter Property="Opacity"  Value="0.5"/>
 
-                                                                </Trigger>
-                                                            </Style.Triggers>
-                                                            <Setter Property="RenderTransform" >
-                                                                <Setter.Value>
-                                                                    <TransformGroup >
-                                                                        <ScaleTransform/>
-                                                                        <TranslateTransform  />
-                                                                        <RotateTransform Angle="{Binding Angle}" />
-                                                                    </TransformGroup>
-                                                                </Setter.Value>
-                                                            </Setter>
-                                                        </Style>
-                                                    </Path.Style>
-                                                </Path>
+                                                                            </Trigger>
+                                                                        </Style.Triggers>
+                                                                        <Setter Property="RenderTransform" >
+                                                                            <Setter.Value>
+                                                                                <TransformGroup >
+                                                                                    <ScaleTransform/>
+                                                                                    <TranslateTransform  />
+                                                                                    <RotateTransform Angle="{Binding Angle}" />
+                                                                                </TransformGroup>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                    </Style>
+                                                                </Path.Style>
+                                                            </Path>
+                                                        </DataTemplate>
+                                                            
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                               
                                             </Grid>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
@@ -316,10 +345,10 @@
                             Value="{Binding IsSelected, Mode=TwoWay}" />
 
                         <Setter Property="Width"
-                            Value="{Binding Width, Mode=TwoWay}" />
+                            Value="{Binding Width}" />
 
                         <Setter Property="Height"
-                            Value="{Binding Height, Mode=TwoWay}" />
+                            Value="{Binding Height}" />
 
                         <Setter Property="IsSelectable"
                             Value="{Binding IsSelectable}" />
@@ -379,8 +408,8 @@
                                                     <Path Data="{StaticResource lock}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="Xem chi tiết"
-                                          Command="{Binding AddSelectedItemToGroupCommand}" >
+                                            <MenuItem Header="Sửa Cấu hình LED (LED Setup)"
+                                          Command="{Binding LaunchPIDEditWindowCommand}" CommandParameter="{Binding SurfaceEditorSelectedItem}" >
                                                 <MenuItem.Icon>
                                                     <Path Data="{StaticResource info}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>

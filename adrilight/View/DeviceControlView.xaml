@@ -6,6 +6,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:adrilight.View"
              mc:Ignorable="d" 
+             xmlns:hlprs ="clr-namespace:adrilight.Helpers"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:converters="clr-namespace:adrilight.Converter" 
              xmlns:viewmodel="clr-namespace:adrilight.ViewModel" 
@@ -973,10 +974,11 @@
                                 </Grid.OpacityMask>
                                 <Border x:Name="clipMask" Background="{DynamicResource MainContentBackgroundBrush}" CornerRadius="4" />
 
-                                <ListBox ItemsSource="{Binding CurrentOutput.ControlableProperties,Mode=TwoWay}" SelectedIndex="{Binding CurrentOutput.CurrentActiveControlPropertyIndex,Mode=TwoWay}"  Margin="0" VerticalAlignment="Top" ItemContainerStyle="{DynamicResource _listBoxControlPropertyStyle}" Background="Transparent" BorderThickness="0" Style="{DynamicResource WrapPanelVerticalListBox}">
+                                <ListBox ItemsSource="{Binding CurrentDevice.AvailableControllers,Mode=TwoWay}" SelectedIndex="{Binding CurrentDevice.CurrentActiveControlerIndex}"   Margin="0" VerticalAlignment="Top" ItemContainerStyle="{DynamicResource _listBoxControlPropertyStyle}" Background="Transparent" BorderThickness="0" Style="{DynamicResource WrapPanelVerticalListBox}">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
-                                            <Path Fill="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}, Path=Foreground}" Stretch="Uniform" Margin="5" Data="{Binding Icon,Converter={converters:StaticResourceConverter}}"
+                                         
+                                            <Path Fill="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}, Path=Foreground}" Stretch="Uniform" Margin="5" Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
                                       Width="20" 
                                       Height="20" >
                                             </Path>
@@ -1002,11 +1004,14 @@
 
 
                     <!--device  Preview-->
-                    <Grid Grid.Column="2">
-                        <Border Background="Transparent">
-                            
+                    <Grid  Grid.Column="2"  hlprs:perSizeBindingHelper.Active="True"
+                           hlprs:perSizeBindingHelper.BoundActualHeight="{Binding CurrentLiveViewHeight, Mode=OneWayToSource}"
+                           hlprs:perSizeBindingHelper.BoundActualWidth="{Binding CurrentLiveViewWidth, Mode=OneWayToSource}">
                         
-                        <local:DeviceLiveView>
+                        <Border Margin="10" CornerRadius="4"  Background="{DynamicResource MainContentBackgroundBrush}">
+
+
+                            <local:DeviceLiveView>
 
                         </local:DeviceLiveView>
                         </Border>

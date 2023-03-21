@@ -69,14 +69,14 @@
             <Grid Margin="10,10,10,10">
 
             <StackPanel>
-                <ListBox ItemsSource="{Binding CurrentOutput.CurrentActiveControlProperty.AvailableControlMode,Mode=TwoWay}" Background="Transparent" BorderThickness="0" SelectedIndex="{Binding CurrentOutput.CurrentActiveControlProperty.CurrentActiveControlModeIndex,Mode=TwoWay}">
+                <ListBox ItemsSource="{Binding SelectedControlZone.AvailableControlMode,Mode=TwoWay}" Background="Transparent" BorderThickness="0" SelectedIndex="{Binding SelectedControlZone.CurrentActiveControlModeIndex,Mode=TwoWay}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Name}"/>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
-                        <ItemsControl ItemsSource="{Binding CurrentOutput.CurrentActiveControlProperty.CurrentActiveControlMode.Parameters,Mode=TwoWay}">
+                        <ItemsControl ItemsSource="{Binding SelectedControlZone.CurrentActiveControlMode.Parameters,Mode=TwoWay}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <WrapPanel Orientation="Vertical"/>

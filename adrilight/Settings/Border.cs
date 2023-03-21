@@ -1,5 +1,7 @@
-﻿using adrilight.ViewModel;
+﻿using adrilight.Spots;
+using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +42,8 @@ namespace adrilight.Settings
         public double CenterY { get => _centerY; set { Set(() => CenterY, ref _centerY, value); } }
         public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
         public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
-
+        [JsonIgnore]
+        public Type DataType => typeof(Border);
         public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
 
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
