@@ -385,7 +385,8 @@
                     <Setter Property="Scale"
                             Value="{Binding Scale, Mode=TwoWay}" />
 
-
+                       
+    
                     <Style.Triggers>
                         <Trigger Property="IsDraggable" Value="True">
                             <Setter Property="ContextMenu">
@@ -436,6 +437,20 @@
                                         </MenuItem>
 
                                     </ContextMenu>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Opacity">
+                                <Setter.Value>
+                                    1.0
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="False">
+                            <Setter Property="Opacity">
+                                <Setter.Value>
+                                    0.5
                                 </Setter.Value>
                             </Setter>
                         </Trigger>

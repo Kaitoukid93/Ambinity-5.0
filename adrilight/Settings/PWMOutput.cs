@@ -12,7 +12,7 @@ namespace adrilight.Settings
     public class PWMOutput : ViewModelBase, IOutputSettings
     {
         private string _outputName;
-        private string _outputType;
+        private OutputTypeEnum _outputType;
         private int _outputID;
         private bool _isVissible = true;
         private string _outputDescription;
@@ -34,7 +34,7 @@ namespace adrilight.Settings
         public string OutputName { get => _outputName; set { Set(() => OutputName, ref _outputName, value); } }
         public string TargetDevice { get => _targetDevice; set { Set(() => TargetDevice, ref _targetDevice, value); } }
         public int OutputID { get => _outputID; set { Set(() => OutputID, ref _outputID, value); } }
-        public string OutputType { get => _outputType; set { Set(() => OutputType, ref _outputType, value); } }
+        public OutputTypeEnum OutputType { get => _outputType; set { Set(() => OutputType, ref _outputType, value); } }
         public string OutputDescription { get => _outputDescription; set { Set(() => OutputDescription, ref _outputDescription, value); } }
         public bool IsVissible { get => _isVissible; set { Set(() => IsVissible, ref _isVissible, value); } }
         public bool OutputIsSelected { get => _outputIsSelected; set { Set(() => OutputIsSelected, ref _outputIsSelected, value); } }

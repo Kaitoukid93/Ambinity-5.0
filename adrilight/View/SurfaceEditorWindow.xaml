@@ -11,12 +11,13 @@
            xmlns:behaviors="clr-namespace:adrilight.Helpers.Behaviors"
            xmlns:helpers="clr-namespace:adrilight.Helpers"
            xmlns:local ="clr-namespace:adrilight"
+           xmlns:view ="clr-namespace:adrilight.View"
            xmlns:settings ="clr-namespace:adrilight.Settings"
            Background="{StaticResource MainContentBackgroundBrush}"
            x:Name="window"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
-           
+           WindowState="Maximized"
             ResizeMode="CanResize"
            Height="800" 
            Width="1000" 
@@ -67,7 +68,7 @@
           
             </ToolBarTray>-->
         </Grid>
-        <Grid Grid.Row=" 1">
+        <Grid Grid.Row="1">
             <richCanvas:RichItemsControl
                 ItemsSource="{Binding SurfaceEditorItems}"
                  GridStyle="{StaticResource GridStyle}"
@@ -75,11 +76,13 @@
                 GridSpacing="24"
                 EnableGrid="true"
                 Scrolling="OnScrolling"
+                
                 CanSelectMultipleItems="True"
                 RealTimeDraggingEnabled="False"
                 RealTimeSelectionEnabled="False"
                 Scale="0.5"
-                
+                MaxScale="20"
+                MinScale="0.1"
                 SelectedItems="{Binding SurfaceEditorSelectedItems}" 
                 SelectedItem="{Binding SurfaceEditorSelectedItem,Mode=TwoWay}"  
                 >
@@ -89,11 +92,16 @@
                     <DataTemplate DataType="{x:Type settings:ARGBLEDSlaveDevice}">
                         <Grid>
                             <Grid>
-                                <ItemsControl     IsHitTestVisible="{Binding IsSelectable}" Margin="0,-1,0,0"  
+                                <ItemsControl  Margin="0,-1,0,0"  
                                     Name="PreviewGird"  
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Top" 
-                                    ItemsSource="{Binding ControlableZones,Mode=TwoWay}">
+                                    ItemsSource="{Binding ControlableZones}">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="MouseDoubleClick" >
+                                            <i:InvokeCommandAction Command="{Binding DataContext.LaunchPIDEditWindowCommand,RelativeSource={RelativeSource AncestorType={x:Type view:SurfaceEditorWindow}}}" CommandParameter="{Binding .}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <Canvas 
@@ -115,11 +123,11 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate DataType="{x:Type local:LEDSetup}">
                                             <Grid>
-                                                <ItemsControl     IsHitTestVisible="{Binding IsSelectable}" Margin="0,-1,0,0"  
+                                                <ItemsControl IsHitTestVisible="{Binding IsSelectable,Mode=TwoWay}" Margin="0,-1,0,0"  
                                     Name="PreviewGird"  
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Top" 
-                                    ItemsSource="{Binding Spots,Mode=TwoWay}">
+                                    ItemsSource="{Binding Spots}">
                                                     <ItemsControl.ItemsPanel>
                                                         <ItemsPanelTemplate>
                                                             <Canvas 
@@ -256,6 +264,12 @@
                                StrokeDashArray="2"
                                IsHitTestVisible="{Binding IsSelectable}">
                             </Rectangle>
+                            <Image Source="{Binding Source}"
+                                   Width="{Binding Width}"
+                                   Height="{Binding Height}"
+                               IsHitTestVisible="{Binding IsSelectable}">
+                                
+                            </Image>
                         </Grid>
 
                     </DataTemplate>
@@ -316,8 +330,7 @@
                                 </ControlTemplate>
                             </Setter.Value>
                         </Setter>
-                        <Setter Property="IsDraggable"
-                            Value="{Binding IsBorder,Converter={StaticResource booltoVreconv}}" />
+                       
                         <Setter Property="helpers:EventToCommand.Event"
                             Value="LeftChanged, TopChanged" />
                         <Setter Property="helpers:EventToCommand.Command">
@@ -409,12 +422,12 @@
                                                     <Path Data="{StaticResource lock}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="Sửa Cấu hình LED (LED Setup)"
+                                            <!--<MenuItem Header="Sửa Cấu hình LED (LED Setup)"
                                           Command="{Binding LaunchPIDEditWindowCommand}" CommandParameter="{Binding SurfaceEditorSelectedItem}" >
                                                 <MenuItem.Icon>
                                                     <Path Data="{StaticResource info}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
-                                            </MenuItem>
+                                            </MenuItem>-->
 
                                         </ContextMenu>
                                     </Setter.Value>

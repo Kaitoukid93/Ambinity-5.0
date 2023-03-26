@@ -5,6 +5,7 @@ using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -26,16 +27,17 @@ namespace adrilight.Settings
         public string Name { get; set; }
         public string Owner { get; set; }
         public string Thumbnail { get; set; }
+        public SlaveDeviceTypeEnum DeviceType { get; set; }
         public DeviceTypeEnum DesiredParrent { get; set; }
         public string Description { get; set; }
 
         /// <summary>
         /// Zone properties
         /// </summary>
-
-        public List<IControlZone> ControlableZones { get; set; }
+        private ObservableCollection<IControlZone> _controlableZones;
+        public ObservableCollection<IControlZone> ControlableZones { get => _controlableZones; set { Set(() => ControlableZones, ref _controlableZones, value); } }
         [JsonIgnore]
-        public Type DataType =>typeof(ARGBLEDSlaveDevice);
+        public Type DataType => typeof(ARGBLEDSlaveDevice);
 
 
         public ARGBLEDSlaveDevice()
@@ -68,8 +70,7 @@ namespace adrilight.Settings
         private double _angle = 0;
         private bool _hasCustomBehavior;
         private string _name;
-        private double _centerX;
-        private double _centerY;
+
         private bool _isDeleteable;
         private bool _isResizeable;
         private double _scaleTop;
@@ -79,12 +80,9 @@ namespace adrilight.Settings
 
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
-        public double CenterX { get => _centerX; set { Set(() => CenterX, ref _centerX, value); } }
-        public double CenterY { get => _centerY; set { Set(() => CenterY, ref _centerY, value); } }
-        public double ScaleTop { get => _scaleTop; set { Set(() => ScaleTop, ref _scaleTop, value); } }
-        public double ScaleLeft { get => _scaleLeft; set { Set(() => ScaleLeft, ref _scaleLeft, value); } }
-        public double ScaleWidth { get => _scaleWidth; set { Set(() => ScaleWidth, ref _scaleWidth, value); } }
-        public double ScaleHeight { get => _scaleHeight; set { Set(() => ScaleHeight, ref _scaleHeight, value); } }
+        public double CenterX => Width / 2 + Left;
+        public double CenterY => Height / 2 + Top;
+
 
         public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
         public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
@@ -115,17 +113,19 @@ namespace adrilight.Settings
 
         public string Type { get; set; }
         private DrawableHelpers DrawableHlprs;
-        public void UpdateSizeByChild()
+        public void UpdateSizeByChild(bool withPoint)
         {
-            //get all child and set size
-            //tell child to update
-            foreach (var zone in ControlableZones)
-            {
-                zone.UpdateSizeByChild(false);
-            }
+
             var boundRct = GetDeviceRectBound(ControlableZones.ToArray());
             Width = boundRct.Width;
             Height = boundRct.Height;
+
+            if (withPoint)
+            {
+                Left = boundRct.Left;
+                Top = boundRct.Top;
+            }
+
         }
         public Rect GetDeviceRectBound(IControlZone[] zones)
         {
@@ -139,50 +139,44 @@ namespace adrilight.Settings
 
 
         }
-        public void SetScale(double scale)
+        public bool SetScale(double scaleX, double scaleY, bool keepOrigin)
         {
-            //keep left and top the same
-            //scale width and height only
-            Width *= scale;
-            Height *= scale;
-            ScaleHeight *= scale;
-            ScaleHeight *= scale;// these value is for setting new rectangle and it's position when parrents size is not stored( app startup)
-                                 //SetRectangle(new Rectangle(OutputRectangle.Left, OutputRectangle.Top, (int)Width, (int)Height));
-                                 //we need to change ledsetup width and height too
-            foreach (var LEDzone in ControlableZones)
+            foreach (var zone in ControlableZones)
             {
-                (LEDzone as LEDSetup).SetScale(scale);
+                if (!(zone as IDrawable).SetScale(scaleX, scaleY, keepOrigin)) return false;
             }
-            RaisePropertyChanged(nameof(Width));
-            RaisePropertyChanged(nameof(Height));
-            RaisePropertyChanged(nameof(ScaleWidth));
-            RaisePropertyChanged(nameof(ScaleHeight));
+            var width = Width * scaleX;
+            var height = Height * scaleY;
+            if (width < 10 || height < 10)
+            {
+                return false;
+            }
+            else
+            {
+                Width *= scaleX;
+                Height *= scaleY;
+                if (!keepOrigin)
+                {
+                    Left *= scaleX;
+                    Top *= scaleY;
+                }
+            }
+            //change child offset
+            foreach(var zone in ControlableZones)
+            {
+                (zone as LEDSetup).OffsetX = Left;
+                (zone as LEDSetup).OffsetY = Top;
+            }
+            return true;
+
         }
         /// <summary>
         /// tell zones to update size and position after system or local change of resolution
         /// </summary>
         /// <param name="scaleX"></param>
         /// <param name="scaleY"></param>
-        public void OnResolutionChanged(double scaleX, double scaleY)
-        {
-            foreach (var LEDzone in ControlableZones)
-            {
-                (LEDzone as LEDSetup).OnResolutionChanged(scaleX, scaleY);
-            }
-        }
-        public void RefreshSizeAndPosition()
-        {
-            var screenWidth = Screen.PrimaryScreen.Bounds.Width;
-            var screenHeight = Screen.PrimaryScreen.Bounds.Height;
-            Width = screenWidth * ScaleWidth;
-            Height = screenHeight * ScaleHeight;
-            Left = screenWidth * ScaleLeft;
-            Top = screenHeight * ScaleTop;
-            foreach (var LEDzone in ControlableZones)
-            {
-                (LEDzone as LEDSetup).RefreshSizeAndPosition();
-            }
-        }
+       
+
 
         private void MoveChildX(double delta)
         {

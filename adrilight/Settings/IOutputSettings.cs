@@ -12,6 +12,7 @@ using adrilight.ViewModel;
 using System.Windows;
 using adrilight_effect_analyzer.Model;
 using Newtonsoft.Json;
+using adrilight.Settings;
 
 namespace adrilight
 {
@@ -30,7 +31,7 @@ namespace adrilight
         int OutputID { get; set; } // position off current output
         //int VUOrientation { get; set; }
         //int VUMode { get; set; }
-        string OutputType { get; set; } 
+        OutputTypeEnum OutputType { get; set; } 
         string OutputInterface { get; set; }
         string TargetDevice { get; set; }
         string OutputUniqueID { get; set; }

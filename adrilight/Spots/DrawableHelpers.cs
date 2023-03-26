@@ -47,6 +47,42 @@ namespace adrilight.Spots
 
             return GetBound(listRect.ToArray());
         }
+        public Rectangle GetBound(List<IControlZone> items)
+        {
+            var listRect = new List<Rect>();
+            foreach (var item in items)
+            {
+                int top = (int)(item as IDrawable).Top;
+                int left = (int)(item as IDrawable).Left;
+                int width = (int)(item as IDrawable).Width;
+                int height = (int)(item as IDrawable).Height;
+
+                listRect.Add(new Rect(left, top, width, height));
+            }
+
+
+
+
+            return GetBoundRectangle(listRect.ToArray());
+        }
+        public Rectangle GetBound(List<Rectangle> items)
+        {
+            var listRect = new List<Rect>();
+            foreach (var item in items)
+            {
+                int top = item.Top;
+                int left = item.Left;
+                int width = item.Width;
+                int height = item.Height;
+
+                listRect.Add(new Rect(left, top, width, height));
+            }
+
+
+
+
+            return GetBoundRectangle(listRect.ToArray());
+        }
         public Rectangle GetBound(List<IDrawable> items)
         {
             var listRect = new List<Rect>();

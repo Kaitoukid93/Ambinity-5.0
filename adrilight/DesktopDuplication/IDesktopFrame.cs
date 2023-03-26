@@ -11,5 +11,6 @@ namespace adrilight
         ByteFrame Frame { get; set; }
         void Stop();
         void RefreshCapturingState();
+        string ScreenToCapture { get; set; }
     }
 }

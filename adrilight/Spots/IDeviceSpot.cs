@@ -35,11 +35,7 @@ namespace adrilight.Spots
         void SetID(int id);
         void SetMID(int mid);
         void SetCID(int cid);
-        void RebuildSpot(double newParrentWith, double newParrentHeight);
-        double ScaleLeft { get; set; }
-        double ScaleTop { get; set; }
-        double ScaleWidth { get; set; }
-        double ScaleHeight { get; set; }
+
 
 
     }

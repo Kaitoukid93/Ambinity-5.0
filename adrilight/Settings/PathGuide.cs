@@ -33,14 +33,13 @@ namespace adrilight.Settings
         private bool _hasCustomBehavior;
         private string _name;
         private string _geometry;
-        private double _centerX;
-        private double _centerY;
+
         private bool _isResizeable;
         private bool _isDeleteable;
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
-        public double CenterX { get => _centerX; set { Set(() => CenterX, ref _centerX, value); } }
-        public double CenterY { get => _centerY; set { Set(() => CenterY, ref _centerY, value); } }
+        public double CenterX => Width / 2 + Left;
+        public double CenterY => Height / 2 + Top;
         public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
         public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
         public string Geometry { get => _geometry; set { Set(() => Geometry, ref _geometry, value); } }
@@ -100,19 +99,28 @@ namespace adrilight.Settings
         protected virtual void OnIsSelectedChanged(bool value) { }
 
         public virtual void OnDrawingEnded(Action<object> callback = default) { }
-        public void SetScale(double scale)
+        public bool SetScale(double scaleX, double scaleY, bool keepOrigin)
         {
-            //keep left and top the same
-            //scale width and height only
-            var oldWidth = Width;
-            var oldHeight = Height;
-            Width = scale* oldWidth;
-            Height = scale * oldHeight;
-            RaisePropertyChanged(nameof(Width));
-            RaisePropertyChanged(nameof(Height));
+            var width = Width * scaleX;
+            var height = Height * scaleY;
+            if (width < 10 || height < 10)
+            {
+                return false;
+            }
+            else
+            {
+                Width *= scaleX;
+                Height *= scaleY;
+                if (!keepOrigin)
+                {
+                    Left *= scaleX;
+                    Top *= scaleY;
+                }
+            }
+            return true;
         }
-      
 
-      
+
+
     }
 }

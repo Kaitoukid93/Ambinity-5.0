@@ -1,10 +1,14 @@
-﻿using GalaSoft.MvvmLight;
+﻿using adrilight.Settings;
+using GalaSoft.MvvmLight;
+
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using Color = System.Windows.Media.Color;
 
 namespace adrilight
 {
@@ -36,6 +40,12 @@ namespace adrilight
         private bool _audioDeviceAskAgain = true;
         private bool _isMultipleScreenEnable = true;
         private int _startupDelaySecond = 0;
+        private List<DesktopScreen> _screens;
+        public GeneralSettings()
+        {
+         
+        }
+        public List<DesktopScreen> Screens { get => _screens; set { Set(() => Screens, ref _screens, value); } }
         public int StartupDelaySecond { get => _startupDelaySecond; set { Set(() => StartupDelaySecond, ref _startupDelaySecond, value); } }
         public bool IsMultipleScreenEnable { get => _isMultipleScreenEnable; set { Set(() => IsMultipleScreenEnable, ref _isMultipleScreenEnable, value); } }
         public int SelectedAudioDevice { get => _selectedAudioDevice; set { Set(() => SelectedAudioDevice, ref _selectedAudioDevice, value); } }

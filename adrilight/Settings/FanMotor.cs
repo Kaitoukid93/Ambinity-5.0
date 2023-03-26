@@ -24,17 +24,15 @@ namespace adrilight.Settings
   
 
 
-
-        public BitmapImage Thumb { get; set; } //
-
         /// <summary>
-        /// this class should have a preview equal to ledsetup has number of zones
-        /// RichCanvas bind to this class shoud have livecharts template
+        /// Fan Motor Porperties
         /// </summary>
+        public BitmapImage Thumb { get; set; } 
+
         public SeriesCollection PwmChart { get; set; }
         public string  FanSpiningAnimationPath { get; set; }
         
-        public FanMotor() // euqal to ledsetup
+        public FanMotor() 
         {
           
             VisualProperties = new VisualProperties();
@@ -60,7 +58,13 @@ namespace adrilight.Settings
                 RaisePropertyChanged(nameof(CurrentActiveControlMode));
             }
         }
+        public string ZoneUID { get; set; }
+        private bool _isEnabled = true;
+        public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); } }
 
+        /// <summary>
+        /// Drawable Properties
+        /// </summary>
         private double _top = 0;
         private double _left = 0;
         private bool _isSelected;
@@ -76,8 +80,7 @@ namespace adrilight.Settings
         private double _angle = 0;
         private bool _hasCustomBehavior;
         private string _name;
-        private double _centerX;
-        private double _centerY;
+
         private bool _isDeleteable;
         private bool _isResizeable;
         private double _scaleTop;
@@ -87,8 +90,8 @@ namespace adrilight.Settings
       
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
-        public double CenterX { get => _centerX; set { Set(() => CenterX, ref _centerX, value); } }
-        public double CenterY { get => _centerY; set { Set(() => CenterY, ref _centerY, value); } }
+        public double CenterX => Width / 2 + Left;
+        public double CenterY => Height / 2 + Top;
         public double ScaleTop { get => _scaleTop; set { Set(() => ScaleTop, ref _scaleTop, value); } }
         public double ScaleLeft { get => _scaleLeft; set { Set(() => ScaleLeft, ref _scaleLeft, value); } }
         public double ScaleWidth { get => _scaleWidth; set { Set(() => ScaleWidth, ref _scaleWidth, value); } }
@@ -143,41 +146,33 @@ namespace adrilight.Settings
 
             return DrawableHlprs.GetBound(listDrawable);
         }
-          
 
 
-        
-        public void SetScale(double scale)
+
+
+        public bool SetScale(double scaleX, double scaleY, bool keepOrigin)
         {
-            //keep left and top the same
-            //scale width and height only
-            Width *= scale;
-            Height *= scale;
-            ScaleHeight *= scale;
-            ScaleHeight *= scale;
-            RaisePropertyChanged(nameof(Width));
-            RaisePropertyChanged(nameof(Height));
-            RaisePropertyChanged(nameof(ScaleWidth));
-            RaisePropertyChanged(nameof(ScaleHeight));
+            var width = Width * scaleX;
+            var height = Height * scaleY;
+            if(width<10||height<10)
+            {
+                return false;
+            }
+            else
+            {
+                Width *= scaleX;
+                Height *= scaleY;
+                if (!keepOrigin)
+                {
+                    Left *= scaleX;
+                    Top *= scaleY;
+                }
+            }
+            return true;
+           
         }
-        public void OnResolutionChanged(double scaleX, double scaleY)
-        {
-            Width *= scaleX;
-            Height *= scaleY;
-            Left *= scaleX;
-            Top *= scaleY;
-          
-        }
-        public void RefreshSizeAndPosition()
-        {
-            var screenWidth = Screen.PrimaryScreen.Bounds.Width;
-            var screenHeight = Screen.PrimaryScreen.Bounds.Height;
-            Width = screenWidth * ScaleWidth;
-            Height = screenHeight * ScaleHeight;
-            Left = screenWidth * ScaleLeft;
-            Top = screenHeight * ScaleTop;
-            
-        }
+     
+     
         protected virtual void OnLeftChanged(double delta) { }
 
         protected virtual void OnTopChanged(double delta) { }

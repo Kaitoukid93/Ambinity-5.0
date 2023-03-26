@@ -20,33 +20,37 @@ using System.Windows.Media.Imaging;
 using Point = System.Windows.Point;
 using Color = System.Windows.Media.Color;
 using System.Xml.Schema;
+using Emgu.CV.CvEnum;
+using adrilight.Helpers;
+using MathNet.Numerics.Integration;
 
 namespace adrilight
 {
     public class LEDSetup : ViewModelBase, IControlZone, IDrawable
     {
 
-        public LEDSetup(string name, string owner, string type, string description, ObservableCollection<IDeviceSpot> spots, double pixelWidth, double pixelHeight, double scaleWidth, double scaleHeight)
+        public LEDSetup(string name, string owner, string type, string description, ObservableCollection<IDeviceSpot> spots, double pixelWidth, double pixelHeight)
         {
             Name = name;
-            Owner = owner;
             TargetType = type;
             Description = description;
             Spots = spots;
             Width = pixelWidth;
             Height = pixelHeight;
-            ScaleWidth = scaleWidth;
-            ScaleHeight = scaleHeight;
             VisualProperties = new VisualProperties();
             Scale = new Point(1, 1);
             AvailableControlMode = new List<IControlMode>();
         }
 
+        /// <summary>
+        /// control Zone properties
+        /// </summary>
         public BitmapImage Thumb { get; set; }
 
         private int _currentActiveControlModeIndex;
+        private IControlMode _currentActiveControlMode;
         [JsonIgnore]
-        public Type DataType  =>typeof(LEDSetup);
+        public Type DataType => typeof(LEDSetup);
         public string Name { get; set; }
         public string Description { get; set; }
 
@@ -55,24 +59,29 @@ namespace adrilight
         /// </summary>
         public List<IControlMode> AvailableControlMode { get; set; }
         [JsonIgnore]
-        public IControlMode CurrentActiveControlMode { get; set; }
+        public IControlMode CurrentActiveControlMode => AvailableControlMode[CurrentActiveControlModeIndex];
 
-        public int CurrentActiveControlModeIndex { get => _currentActiveControlModeIndex; set { if (value >= 0) Set(() => CurrentActiveControlModeIndex, ref _currentActiveControlModeIndex, value); OnActiveControlModeChanged(); } }
+        public int CurrentActiveControlModeIndex { get => _currentActiveControlModeIndex; set { if (value >= 0) Set(() => CurrentActiveControlModeIndex, ref _currentActiveControlModeIndex, value); RaisePropertyChanged(nameof(CurrentActiveControlMode)); } }
 
-        private void OnActiveControlModeChanged()
-        {
-            if (CurrentActiveControlModeIndex >= 0)
-            {
-                CurrentActiveControlMode = AvailableControlMode[CurrentActiveControlModeIndex];
-                RaisePropertyChanged(nameof(CurrentActiveControlMode));
-            }
-        }
+        //private void OnActiveControlModeChanged()
+        //{
+        //    if (CurrentActiveControlModeIndex >= 0)
+        //    {
+        //       // CurrentActiveControlMode = AvailableControlMode[CurrentActiveControlModeIndex];
+        //        RaisePropertyChanged(nameof(CurrentActiveControlMode));
+        //    }
+        //}
+        private bool _isEnabled = true;
+        private bool _isInsideScreen = true;
+        public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); } }
 
+
+        //LED Setup properties
         private ObservableCollection<IDeviceSpot> _spots;
-        public string Owner { get; set; }
         public string Geometry { get; set; }
+        public bool IsInsideScreen { get => _isInsideScreen; set { Set(() => IsInsideScreen, ref _isInsideScreen, value); } }
         public string TargetType { get; set; } // Tartget Type of the spotset (keyboard, strips, ...
-        public ObservableCollection<IDeviceSpot> Spots { get => _spots; set { Set(() => Spots, ref _spots, value); RaisePropertyChanged(); } }
+        public ObservableCollection<IDeviceSpot> Spots { get => _spots; set { Set(() => Spots, ref _spots, value); } }
         public object Lock { get; } = new object();
         public string Thumbnail { get; set; }
         public void DimLED(float dimFactor)
@@ -82,12 +91,21 @@ namespace adrilight
                 spot.DimLED(dimFactor);
             }
         }
+        //we need to store 1 more infor about position for the sake of screencapturing
 
         /// <summary>
-        /// Idrawable Implementation
+        /// this is the value of Offset, because left and with only show absolute position with SlaveDevice, not the screen
+        /// </summary>
+
+        private double _offsetX;
+        private double _offsetY;
+        public double OffsetX { get => _offsetX; set { Set(() => OffsetX, ref _offsetX, value); } }
+        public double OffsetY { get => _offsetY; set { Set(() => OffsetY, ref _offsetY, value); } }
+
+        /// <summary>
+        /// Idrawable Properties
         /// </summary>
         /// 
-
         public LEDSetup()
         {
             VisualProperties = new VisualProperties();
@@ -97,7 +115,6 @@ namespace adrilight
 
         }
         private bool _isScreenCaptureEnabled = true;
-        private int _outputSelectedDisplay;
         private double _top = 0;
         private double _left = 0;
         private bool _isSelected;
@@ -113,24 +130,19 @@ namespace adrilight
         private double _angle = 0;
         private bool _hasCustomBehavior;
         private string _name;
-        private double _centerX;
-        private double _centerY;
+
         private bool _isDeleteable;
         private bool _isResizeable;
         private double _scaleTop;
         private double _scaleLeft;
         private double _scaleWidth = 1;
         private double _scaleHeight = 1;
-        public int OutputSelectedDisplay { get => _outputSelectedDisplay; set { Set(() => OutputSelectedDisplay, ref _outputSelectedDisplay, value); } }
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
-        public double CenterX { get => _centerX; set { Set(() => CenterX, ref _centerX, value); } }
-        public double CenterY { get => _centerY; set { Set(() => CenterY, ref _centerY, value); } }
+        public double CenterX => Width / 2 + Left;
+        public double CenterY => Height / 2 + Top;
         public bool IsScreenCaptureEnabled { get => _isScreenCaptureEnabled; set { Set(() => IsScreenCaptureEnabled, ref _isScreenCaptureEnabled, value); } }
-        public double ScaleTop { get => _scaleTop; set { Set(() => ScaleTop, ref _scaleTop, value); } }
-        public double ScaleLeft { get => _scaleLeft; set { Set(() => ScaleLeft, ref _scaleLeft, value); } }
-        public double ScaleWidth { get => _scaleWidth; set { Set(() => ScaleWidth, ref _scaleWidth, value); } }
-        public double ScaleHeight { get => _scaleHeight; set { Set(() => ScaleHeight, ref _scaleHeight, value); } }
+        public string ZoneUID { get; set; }
 
         public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
         public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
@@ -159,7 +171,7 @@ namespace adrilight
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
-
+        public Rectangle GetRect => new Rectangle((int)(Left+OffsetX), (int)(Top+OffsetY), (int)Width, (int)Height);
         public string Type { get; set; }
         private DrawableHelpers DrawableHlprs;
         public void UpdateSizeByChild(bool withPoint)
@@ -168,14 +180,15 @@ namespace adrilight
             var boundRct = GetDeviceRectBound(Spots.ToList());
             Width = boundRct.Width;
             Height = boundRct.Height;
-            if(withPoint)
+            if (withPoint)
             {
                 Left = boundRct.Left;
                 Top = boundRct.Top;
             }
-          
+
 
         }
+
         public Rectangle GetDeviceRectBound(List<IDeviceSpot> spots)
         {
 
@@ -192,55 +205,32 @@ namespace adrilight
 
 
         }
-        public void SetScale(double scale)
+        public bool SetScale(double scaleX, double scaleY, bool keepOrigin)
         {
-            //keep left and top the same
-            //scale width and height only
-            Width *= scale;
-            Height *= scale;
-            ScaleHeight *= scale;
-            ScaleHeight *= scale;// these value is for setting new rectangle and it's position when parrents size is not stored( app startup)
-                                 //SetRectangle(new Rectangle(OutputRectangle.Left, OutputRectangle.Top, (int)Width, (int)Height));
-                                 //we need to change ledsetup width and height too
-            foreach (var deviceSpot in Spots)
-            {
-                (deviceSpot as DeviceSpot).Width *= scale;
-                (deviceSpot as DeviceSpot).Height *= scale;
-                (deviceSpot as DeviceSpot).Left *= scale;
-                (deviceSpot as DeviceSpot).Top *= scale;
-
-            }
-            RaisePropertyChanged(nameof(Width));
-            RaisePropertyChanged(nameof(Height));
-        }
-        public void OnResolutionChanged(double scaleX, double scaleY)
-        {
-            Width *= scaleX;
-            Height *= scaleY;
-            Left *= scaleX;
-            Top *= scaleY;
-            foreach (var deviceSpot in Spots)
-            {
-                (deviceSpot as DeviceSpot).Width *= scaleX;
-                (deviceSpot as DeviceSpot).Height *= scaleY;
-                (deviceSpot as DeviceSpot).Left *= scaleX;
-                (deviceSpot as DeviceSpot).Top *= scaleY;
-
-            }
-        }
-        public void RefreshSizeAndPosition()
-        {
-            var screenWidth = Screen.PrimaryScreen.Bounds.Width;
-            var screenHeight = Screen.PrimaryScreen.Bounds.Height;
-            Width = screenWidth * ScaleWidth;
-            Height = screenHeight * ScaleHeight;
-            Left = screenWidth * ScaleLeft;
-            Top = screenHeight * ScaleTop;
             foreach (var spot in Spots)
             {
-                spot.RebuildSpot(Width, Height);
+                if (!(spot as IDrawable).SetScale(scaleX, scaleY, keepOrigin)) return false;
             }
+            var width = Width * scaleX;
+            var height = Height * scaleY;
+            if (width < 10 || height < 10)
+            {
+                return false;
+            }
+            else
+            {
+                Width *= scaleX;
+                Height *= scaleY;
+                if (!keepOrigin)
+                {
+                    Left *= scaleX;
+                    Top *= scaleY;
+                }
+            }
+            return true;
         }
+
+
         public void FillSpotsColor(Color color)
         {
             foreach (var spot in Spots)
@@ -260,6 +250,18 @@ namespace adrilight
 
         protected virtual void OnIsSelectedChanged(bool value)
         {
+            switch (value)
+            {
+                case true:
+                    foreach (var spot in Spots)
+                        spot.SetColor(0, 0, 255, true);
+
+                    break;
+                case false:
+                    foreach (var spot in Spots)
+                        spot.SetColor(0, 0, 0, true);
+                    break;
+            }
         }
 
         public virtual void OnDrawingEnded(Action<object> callback = default) { }

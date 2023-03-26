@@ -10,6 +10,7 @@ using adrilight.Util;
 using adrilight.Settings;
 using System.Windows;
 using System.Collections.ObjectModel;
+using System.Drawing;
 
 namespace adrilight
 {
@@ -21,6 +22,7 @@ namespace adrilight
         string DeviceName { get; set; }
         string DeviceSerial { get; set; }
         string DeviceType { get; set; }
+        DeviceTypeEnum TypeEnum { get; set; }
         string Manufacturer { get; set; }
         string DeviceDescription { get; set; }
         bool IsLoading { get; set; } // just a loading indicator to tell user to fking wait a bit
@@ -33,7 +35,7 @@ namespace adrilight
         string OutputPort { get; set; }
         bool IsTransferActive { get; set; }
         int ActivatedProfileIndex { get; set; }
-        IDeviceController[] AvailableControllers { get; set; }
+        List<IDeviceController> AvailableControllers { get; set; }
         IDeviceController CurrentActiveController { get; }
         ObservableCollection<IControlZone> CurrentLiveViewZones { get; }
         int CurrentActiveControlerIndex { get; set; }
@@ -60,6 +62,7 @@ namespace adrilight
         Rect CurrentLivewItemsBound { get; }
         ISlaveDevice[] AvailableLightingDevices { get; }
         void UpdateChildSize();
+        void HandleResolutionChange(double scaleX,double scaleY);
         void BrightnessUp(int value);
         void BrightnessDown(int value);
         void SpeedUp(int value);

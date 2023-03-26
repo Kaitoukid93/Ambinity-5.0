@@ -1,10 +1,9 @@
-﻿using System;
+﻿using adrilight.Settings;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Drawing;
 using System.Windows.Media;
+using Color = System.Windows.Media.Color;
 
 namespace adrilight
 {
@@ -36,6 +35,7 @@ namespace adrilight
         Color AccentColor { get; set; }
         int SystemMusicSpeed { get; set; }
         int SystemMusicMaxTick { get; set; }
+        List<DesktopScreen> Screens { get; set; }
         int BreathingSpeed { get; set; }
 
 

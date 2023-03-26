@@ -34,14 +34,13 @@ namespace adrilight
         private double _angle = 0;
         private bool _hasCustomBehavior;
         private string _name;
-        private double _centerX;
-        private double _centerY;
+
         private bool _isResizeable;
         private bool _isDeleteable;
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
-        public double CenterX { get => _centerX; set { Set(() => CenterX, ref _centerX, value); } }
-        public double CenterY { get => _centerY; set { Set(() => CenterY, ref _centerY, value); } }
+        public double CenterX => Width / 2 + Left;
+        public double CenterY => Height / 2 + Top;
         public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
         public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
         [JsonIgnore]
@@ -76,16 +75,17 @@ namespace adrilight
             VisualProperties = new VisualProperties();
             Scale = new Point(1, 1);
         }
-        public void SetScale(double scale)
+        public bool SetScale(double scaleX, double scaleY, bool keepOrigin)
         {
-            //keep left and top the same
-            //scale width and height only
-            var oldWidth = Width;
-            var oldHeight = Height;
-            Width = scale * oldWidth;
-            Height = scale * oldHeight;
-            RaisePropertyChanged(nameof(Width));
-            RaisePropertyChanged(nameof(Height));
+
+            Width *= scaleX;
+            Height *= scaleY;
+            if (!keepOrigin)
+            {
+                Left *= scaleX;
+                Top *= scaleY;
+            }
+            return true;
         }
         protected virtual void OnLeftChanged(double delta) { }
 

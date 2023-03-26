@@ -1,4 +1,6 @@
-﻿using System;
+﻿using adrilight.Helpers;
+using adrilight.Util;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -10,8 +12,13 @@ namespace adrilight.Spots
 {
     public class LEDSetupHelpers
     {
+        private static ControlModeHelpers CtrlHlprs { get; set; }
         public  LEDSetup BuildLEDSetup(int matrixWidth, int matrixHeight, string name, double width, double height) // general settings is for compare each device setting
         {
+            if (CtrlHlprs == null)
+            {
+                CtrlHlprs = new ControlModeHelpers();
+            }
 
             string owner = "Ambino";
             string description = "Default LED Setup for any device";
@@ -29,9 +36,9 @@ namespace adrilight.Spots
             var screenHeight = Screen.PrimaryScreen.Bounds.Height;
             var scaleWidth = width / screenWidth;
             var scaleHeight = height / screenHeight;
-            var ledSetup = new LEDSetup(name, owner, type, description, reorderedActiveSpots, width, height, scaleWidth, scaleHeight);
-
-
+            var ledSetup = new LEDSetup(name, owner, type, description, reorderedActiveSpots, width, height);
+            ledSetup.ZoneUID = Guid.NewGuid().ToString();
+            CtrlHlprs.MakeZoneControlable(ledSetup);
             return ledSetup;
         }
 

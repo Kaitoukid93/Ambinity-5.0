@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 
 namespace adrilight.Util
@@ -25,7 +26,7 @@ namespace adrilight.Util
         /// <summary>
         /// this is the list of available value, used for list selection type
         /// </summary>
-        List<object> AvailableValue { get; set; }
+        ObservableCollection<object> AvailableValue { get; set; }
         /// <summary>
         /// this is the min value, used for prevent the value to undershoot
         /// </summary>

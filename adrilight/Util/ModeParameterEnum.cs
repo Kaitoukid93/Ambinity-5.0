@@ -31,5 +31,9 @@
         ///    this is In Sync param type, specific use for rainbow mode
         /// </summary>
         IsSystemSync,
+        /// <summary>
+        ///    this is In SereencIndex param type, specific use for rainbow mode
+        /// </summary>
+        ScreenIndex,
     }
 }

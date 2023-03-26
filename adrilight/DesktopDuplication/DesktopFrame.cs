@@ -16,6 +16,12 @@ using adrilight.Resources;
 using adrilight.Util;
 using GalaSoft.MvvmLight;
 using Microsoft.Win32;
+using SharpDX.DXGI;
+using adrilight.Settings;
+using NAudio.SoundFont;
+using System.Collections.Generic;
+using SharpDX.DirectWrite;
+using adrilight.Spots;
 
 namespace adrilight
 {
@@ -23,12 +29,10 @@ namespace adrilight
     {
         private readonly ILogger _log = LogManager.GetCurrentClassLogger();
 
-        public DesktopFrame(IGeneralSettings userSettings, MainViewViewModel mainViewViewModel, int screen)
+        public DesktopFrame(IGeneralSettings userSettings, MainViewViewModel mainViewViewModel, string screen)
         {
             UserSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
-            
             ScreenToCapture = screen;
-
             MainViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             _retryPolicy = Policy.Handle<Exception>()
                 .WaitAndRetryForever(ProvideDelayDuration);
@@ -42,7 +46,7 @@ namespace adrilight
 
             _log.Info($"DesktopDuplicatorReader created.");
         }
-        
+
         private void PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
@@ -70,41 +74,56 @@ namespace adrilight
 
         private Thread _workerThread;
         public ByteFrame Frame { get; set; }
-        private int ScreenToCapture { get; set; }
+        public string ScreenToCapture { get; set; }
+        private DrawableHelpers DrHlprs { get; set; }
+        private int _currentScreenIdex => Array.IndexOf(Screen.AllScreens, Screen.AllScreens.Where(s => s.DeviceName == ScreenToCapture).FirstOrDefault());
 
-
-        public void RefreshCaptureSource()
-        {
-            var isRunning = IsRunning;
-            var shouldBeRunning = true;
-            //  var shouldBeRefreshing = NeededRefreshing;
-            if (isRunning && shouldBeRunning)
-            {
-                //start it
-                _cancellationTokenSource.Cancel();
-                _cancellationTokenSource = null;
-                _desktopDuplicator?.Dispose();
-                _desktopDuplicator = null;
-                _log.Debug("Stopped Desktop Duplication Reader.");
-                IsRunning = false;
-
-                _log.Debug("starting the capturing");
-                _cancellationTokenSource = new CancellationTokenSource();
-                _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
-                    IsBackground = true,
-                    Priority = ThreadPriority.BelowNormal,
-                    Name = "DesktopDuplicatorReader"
-                };
-                _workerThread.Start();
-
-            }
-        }
         public void RefreshCapturingState()
         {
             var isRunning = _cancellationTokenSource != null && IsRunning;
             var shouldBeRunning = true;
             //  var shouldBeRefreshing = NeededRefreshing;
 
+            //safety check about resolution and screen
+            var currentScreen = Screen.AllScreens.Where(s => s.DeviceName == ScreenToCapture).FirstOrDefault();
+            var currentRect = currentScreen.Bounds;
+            if (UserSettings.Screens == null)
+            {
+                // no screen recorded before
+                UserSettings.Screens = new List<DesktopScreen>();
+                foreach (var screen in Screen.AllScreens)
+                    UserSettings.Screens.Add(new DesktopScreen() { Name = screen.DeviceName, Rectangle = screen.Bounds });
+                MainViewModel.WriteSettingJson(UserSettings);
+
+            }
+            var lastScreen = UserSettings.Screens.Where(s => s.Name == ScreenToCapture).FirstOrDefault();
+            var lastRect = lastScreen.Rectangle;
+
+            if (lastRect != null)
+            {
+                //screen size change when the app is not alive, update components
+                if (lastRect.Width != currentRect.Width || lastRect.Height != currentRect.Height || lastRect.Left != currentRect.Left || lastRect.Top != currentRect.Top)
+                {
+                    lastScreen.Rectangle = currentRect;
+                    MainViewModel.WriteSettingJson(UserSettings);
+                    //get rect scale
+
+                    foreach (var device in MainViewModel.AvailableDevices.Where(d => !d.IsDummy))
+                    {
+                        foreach (var slaveDevice in device.AvailableLightingDevices)
+                        {
+
+                            HandleResolutionChange(lastRect, currentRect, slaveDevice);
+
+                        }
+                    }
+                    //update zone list
+
+
+
+                }
+            }
+           
 
 
             if (isRunning && !shouldBeRunning)
@@ -135,7 +154,58 @@ namespace adrilight
         }
 
 
+        private bool CheckRectangle(Rectangle parrentRect, Rectangle childRect)
+        {
+            if (Rectangle.Intersect(parrentRect, childRect).Equals(childRect))
+                return true;
+            return false;
+        }
+        //this is called when resolution has changed and we need to update out components
+        private void HandleResolutionChange(Rectangle lastRect, Rectangle currentRect, ISlaveDevice Device)
+        {
+            var scaleX = (double)currentRect.Width / (double)lastRect.Width;
+            var scaleY = (double)currentRect.Height / (double)lastRect.Height;
+            var deltaX = (double)currentRect.Left - (double)lastRect.Left;
+            var deltaY = (double)currentRect.Top - (double)lastRect.Top;
+            var ledDevice = Device as ARGBLEDSlaveDevice;
+            foreach (var zone in ledDevice.ControlableZones)
+            {
+                var ledZone = zone as LEDSetup;
+                if (CheckRectangle(lastRect, ledZone.GetRect))
+                {
+                    //only scale the zone that in this screen
+                    //move them out first
+                    var translatedLeft = (double)ledZone.GetRect.Left - (double)lastRect.Left;
+                    var translatedTop = (double)ledZone.GetRect.Top - (double)lastRect.Top;
+                    translatedLeft *= scaleX;
+                    translatedTop *= scaleY;
+                    ledZone.SetScale(scaleX, scaleY, false);
+                    //move it as the screen shift
+                    ledZone.Left = translatedLeft + currentRect.Left;
+                    ledZone.Top = translatedTop + currentRect.Top;
+                }
+                else
+                {
+                    //with normal zone, simple get them out of slavedevice
+                    ledZone.Left = ledZone.GetRect.Left;
+                    ledZone.Top = ledZone.GetRect.Top;
+                }
 
+
+            }
+            //now we combine with unaffected zone and get newbound
+            ledDevice.UpdateSizeByChild(true);
+            //reset zone offset
+            foreach (var zone in ledDevice.ControlableZones)
+            {
+                var ledZone = zone as LEDSetup;
+                ledZone.Left -= ledDevice.Left;
+                ledZone.Top -= ledDevice.Top;
+                ledZone.OffsetX = ledDevice.Left;
+                ledZone.OffsetY = ledDevice.Top;
+            }
+
+        }
 
         private IGeneralSettings UserSettings { get; set; }
         private MainViewViewModel MainViewModel { get; set; }
@@ -218,7 +288,10 @@ namespace adrilight
                     Frame.FrameHeight = image.Height;
                     //if(isPreviewRunning)
                     //    MainViewModel.ShaderImageUpdate(Frame);
-
+                    if (MainViewModel.IsRichCanvasWindowOpen)
+                    {
+                        MainViewModel.DesktopsPreviewUpdate(Frame, _currentScreenIdex);
+                    }
 
 
                     image.UnlockBits(bitmapData);
@@ -230,7 +303,10 @@ namespace adrilight
                     }
                 }
             }
+            catch (Exception ex)
+            {
 
+            }
 
             finally
             {
@@ -284,7 +360,21 @@ namespace adrilight
                     _log.Debug("The frame size changed from {0}x{1} to {2}x{3}"
                         , _lastObservedWidth, _lastObservedHeight
                         , image.Width, image.Height);
+                    //var currentScreen = Screen.AllScreens.Where(s => s.DeviceName == ScreenToCapture).FirstOrDefault();
+                    //var currentRect = currentScreen.Bounds;                   
+                    //var lastScreen = UserSettings.Screens.Where(s => s.Name == ScreenToCapture).FirstOrDefault();
+                    //var lastRect = lastScreen.Rectangle;
+                    //foreach (var device in MainViewModel.AvailableDevices.Where(d => !d.IsDummy))
+                    //{
+                    //    foreach (var slaveDevice in device.AvailableLightingDevices)
+                    //    {
 
+                    //        HandleResolutionChange(lastRect, currentRect, slaveDevice);
+
+                    //    }
+                    //}
+                    //lastScreen.Rectangle = currentRect;
+                    //MainViewModel.WriteSettingJson(UserSettings);
                 }
                 _lastObservedWidth = image.Width;
                 _lastObservedHeight = image.Height;
@@ -306,13 +396,15 @@ namespace adrilight
             {
                 try
                 {
-                    _desktopDuplicator = new DesktopDuplicator(0, ScreenToCapture);
+                    _desktopDuplicator = new DesktopDuplicator(0, _currentScreenIdex);
                 }
                 catch (Exception ex)
                 {
                     if (ex.Message == "Unknown, just retry")
                     {
-                        _log.Error(ex, "could be secure desktop");
+                        _log.Error(ex, "could be secure desktop or monitor unplug");
+                        _cancellationTokenSource?.Cancel();
+                        _cancellationTokenSource = null;
                     }
                     //  UserSettings.ShouldbeRunning = false;
                     //  RaisePropertyChanged(() => UserSettings.ShouldbeRunning);
@@ -329,20 +421,6 @@ namespace adrilight
             try
             {
                 var latestFrame = _desktopDuplicator.GetLatestFrame(reusableBitmap);
-                if (reusableBitmap != null && (reusableBitmap.Width != latestFrame.Width || reusableBitmap.Height != latestFrame.Height))
-                {
-                    //new resolution detected, change current top left width height to match
-                    double scaleX = (double)latestFrame.Width / (double)reusableBitmap.Width;
-                    double scaleY = (double)latestFrame.Height / (double)reusableBitmap.Height;
-                    foreach(var device in MainViewModel.AvailableDevices.Where(d=>!(d.IsDummy)))
-                    {
-                        //foreach(var output in device.AvailableOutputs)
-                        //{
-                        //    output.OutputLEDSetup.OnResolutionChanged(scaleX,scaleY);
-                        //}
-                    }
-
-                }
                 return latestFrame;
             }
             catch (Exception ex)

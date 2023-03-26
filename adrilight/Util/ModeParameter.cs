@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Windows.Documents;
 
 namespace adrilight.Util
@@ -13,7 +14,7 @@ namespace adrilight.Util
         private ModeParameterEnum _type;
         private int _minValue;
         private int _maxValue;
-        private List<object> _availableValue;
+        private ObservableCollection<object> _availableValue;
 
 
         public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
@@ -28,7 +29,7 @@ namespace adrilight.Util
         /// <summary>
         /// this value could be bool(on/off) or nummeric(int) or even listof item
         /// </summary>
-        public List<object> AvailableValue  { get => _availableValue; set { Set(() => AvailableValue, ref _availableValue, value); } }
+        public ObservableCollection<object> AvailableValue  { get => _availableValue; set { Set(() => AvailableValue, ref _availableValue, value); } }
         /// <summary>
         /// this is the type of lighting mode, use to get the data template
         /// </summary>

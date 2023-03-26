@@ -16,6 +16,13 @@ using adrilight.Resources;
 using adrilight.Util;
 using adrilight.Spots;
 using System.Windows;
+using adrilight.Helpers;
+using adrilight.Settings;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Header;
+using NAudio.SoundFont;
+using Color = System.Windows.Media.Color;
 
 namespace adrilight
 {
@@ -23,45 +30,57 @@ namespace adrilight
     {
         private readonly ILogger _log = LogManager.GetCurrentClassLogger();
 
-        public DesktopDuplicatorReader(IGeneralSettings userSettings,
+        public DesktopDuplicatorReader(IGeneralSettings generalSettings,
             IDesktopFrame[] desktopFrame,
              MainViewViewModel mainViewViewModel,
-             IOutputSettings outputSettings
+             IControlZone zone
             )
         {
-            UserSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
-
-
+            GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
             DesktopFrame = desktopFrame ?? throw new ArgumentNullException(nameof(desktopFrame));
-
-            OutputSettings = outputSettings ?? throw new ArgumentNullException(nameof(outputSettings));
-            // GraphicAdapter = graphicAdapter;
-            // Output = output;
+            CurrentZone = zone as LEDSetup ?? throw new ArgumentNullException(nameof(zone));
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
-            // SettingsViewModel = settingsViewModel ?? throw new ArgumentNullException(nameof(settingsViewModel));
             _retryPolicy = Policy.Handle<Exception>().WaitAndRetryForever(ProvideDelayDuration);
 
-            UserSettings.PropertyChanged += PropertyChanged;
-            OutputSettings.PropertyChanged += PropertyChanged;
+
+            GeneralSettings.PropertyChanged += PropertyChanged;
+            CurrentZone.PropertyChanged += PropertyChanged;
             MainViewViewModel.PropertyChanged += PropertyChanged;
-            // SettingsViewModel.PropertyChanged += PropertyChanged;
+
+
             RefreshCapturingState();
 
             _log.Info($"DesktopDuplicatorReader created.");
         }
 
+
+
+
+        /// <summary>
+        /// dependency property
+        /// </summary>
+        private IGeneralSettings GeneralSettings { get; }
+
+        private IDesktopFrame[] DesktopFrame { get; }
+
+        private LEDSetup CurrentZone { get; }
+
+        private MainViewViewModel MainViewViewModel { get; }
+
+
+
+        /// <summary>
+        /// property changed event catching
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+
         private void PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
-
-                
-                case nameof(OutputSettings.OutputSelectedMode):
-                case nameof(OutputSettings.OutputIsLoadingProfile):
-                case nameof(OutputSettings.OutputIsEnabled):
-                case nameof(OutputSettings.OutputParrentIsEnable):
-                case nameof(OutputSettings.IsInSpotEditWizard):
-                case nameof(OutputSettings.OutputLEDSetup.IsScreenCaptureEnabled):
+                //which property that require this engine to refresh
+                case nameof(CurrentZone.CurrentActiveControlMode):
                 case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
                     RefreshCapturingState();
                     break;
@@ -69,52 +88,54 @@ namespace adrilight
             }
         }
 
-        //public bool IsRunning { get; private set; } = false;
-        public bool NeededRefreshing { get; private set; } = false;
-        private MainViewViewModel MainViewViewModel { get; }
+        /// <summary>
+        /// private properties
+        /// </summary>
+
         private CancellationTokenSource _cancellationTokenSource;
-
         private Thread _workerThread;
-        // public int GraphicAdapter;
-        // public int Output;
+        private LightingMode _currentLightingMode;
+        private int? _currentScreenIndex;
 
-        public void RefreshCaptureSource()
-        {
-            var isRunning = _cancellationTokenSource != null;
-            var shouldBeRunning = true;
-            //  var shouldBeRefreshing = NeededRefreshing;
-            if (isRunning && shouldBeRunning)
-            {
-                //start it
 
-                //IsRunning = false;
-                _cancellationTokenSource.Cancel();
-                _cancellationTokenSource = null;
-                _log.Debug("starting the capturing");
-                _cancellationTokenSource = new CancellationTokenSource();
-                _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
-                    IsBackground = true,
-                    Priority = ThreadPriority.BelowNormal,
-                    Name = "DesktopDuplicatorReader"
-                };
-                _workerThread.Start();
-
-            }
-        }
         public void RefreshCapturingState()
         {
+            //find out which screen this zone belongs to
+            var actualLeft = CurrentZone.Left + CurrentZone.OffsetX;
+            var actualTop = CurrentZone.Top + CurrentZone.OffsetY;
+            var width = CurrentZone.Width;
+            var height = CurrentZone.Height;
+            _currentScreenIndex = null;
+            foreach (var screen in Screen.AllScreens)
+            {
+                var screenRect = new Rectangle(
+                    (int)screen.Bounds.Left,
+                    (int)screen.Bounds.Top,
+                    (int)screen.Bounds.Width,
+                    (int)screen.Bounds.Height);
+                var zoneRect = new Rectangle(
+                    (int)actualLeft,
+                    (int)actualTop,
+                    (int)width,
+                    (int)height);
+                if (Rectangle.Intersect(screenRect, zoneRect).Equals(zoneRect))
+                    _currentScreenIndex = Array.IndexOf(Screen.AllScreens, screen);
+
+            }
             var isRunning = _cancellationTokenSource != null;
-            var shouldBeRunning = OutputSettings.OutputIsEnabled &&
-                OutputSettings.OutputParrentIsEnable &&
-                OutputSettings.OutputSelectedMode == 0 &&
-                OutputSettings.IsInSpotEditWizard == false &&
-                OutputSettings.OutputIsLoadingProfile == false &&
-                MainViewViewModel.IsRichCanvasWindowOpen == false&&
-                OutputSettings.OutputLEDSetup.IsScreenCaptureEnabled==true;
-            //  var shouldBeRefreshing = NeededRefreshing;
+            var currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
+            var shouldBeRunning =
+                currentLightingMode.BasedOn == LightingModeEnum.ScreenCapturing &&
+                //this zone has to be enable, this could be done by stop setting the spots, but the this thread still alive, so...
+                CurrentZone.IsEnabled == true &&
+                //stop this engine when any surface or editor open because this could cause capturing fail
+                MainViewViewModel.IsRichCanvasWindowOpen == false &&
+                //stop this engine when this zone is outside or atleast there is 1 pixel outside of the screen region
+                CurrentZone.IsInsideScreen == true &&
+                //this has to be inside of a screen
+                _currentScreenIndex != null;
 
-
-
+            // this is stop sign by one or some of the reason above
             if (isRunning && !shouldBeRunning)
             {
                 //stop it!
@@ -122,14 +143,17 @@ namespace adrilight
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource = null;
 
-
             }
-
-
+            // this is start sign
             else if (!isRunning && shouldBeRunning)
             {
                 //start it
-                _log.Debug("starting the capturing");
+                //get current lighting mode confirm that based on desktop duplicator reader engine
+                _currentLightingMode = currentLightingMode;
+               
+              
+               
+                    _log.Debug("starting the capturing");
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
@@ -137,32 +161,17 @@ namespace adrilight
                     Name = "DesktopDuplicatorReader"
                 };
                 _workerThread.Start();
-
-
             }
-
         }
 
 
-
-
-        private IGeneralSettings UserSettings { get; }
-
-
-        private IDesktopFrame[] DesktopFrame { get; }
-
-        private IOutputSettings OutputSettings { get; }
-
-
-
-
+                
         private readonly Policy _retryPolicy;
 
         private TimeSpan ProvideDelayDuration(int index)
         {
             if (index < 10)
             {
-
                 return TimeSpan.FromMilliseconds(100);
             }
 
@@ -180,55 +189,40 @@ namespace adrilight
 
         public void Run(CancellationToken token)
         {
-            //if (IsRunning) throw new Exception(nameof(DesktopDuplicatorReader) + " is already running!");
 
-            //IsRunning = true;
-            //NeededRefreshing = false;
             _log.Debug("Started Desktop Duplication Reader.");
             Bitmap image = null;
             BitmapData bitmapData = new BitmapData();
 
-
             try
             {
-
-
-
+                //get dependency properties from current lighting mode(based on screencapturing)
+                var brightnessControl = _currentLightingMode.Parameters.Where(p => p.Type == ModeParameterEnum.Brightness).FirstOrDefault();
+                //get current zone size and position respect to screen size scaled 8.0
+                var screenLeft = Screen.AllScreens[(int)_currentScreenIndex].Bounds.Left;
+                var screenTop = Screen.AllScreens[(int)_currentScreenIndex].Bounds.Top;
+                var x = (int)((CurrentZone.Left + CurrentZone.OffsetX- screenLeft) / 8.0);
+                var y = (int)((CurrentZone.Top + CurrentZone.OffsetY- screenTop) / 8.0);
+                var width = (int)(CurrentZone.Width / 8.0);
+                var height = (int)(CurrentZone.Height / 8.0);
                 while (!token.IsCancellationRequested)
                 {
-                    var currentOutput = MainViewViewModel.CurrentOutput;
-                    bool outputIsSelected = false;
-                    if (currentOutput != null && currentOutput.OutputUniqueID == OutputSettings.OutputUniqueID)
-                        outputIsSelected = true;
-                    bool isPreviewRunning = MainViewViewModel.IsSplitLightingWindowOpen && outputIsSelected;
 
+
+                    //this indicator that user is opening this device and we need raise event when color update on each spot
+                    bool isPreviewRunning = MainViewViewModel.IsLiveViewOpen;
                     var frameTime = Stopwatch.StartNew();
                     var newImage = _retryPolicy.Execute(() => GetNextFrame(image, isPreviewRunning));
                     TraceFrameDetails(newImage);
-                    var scaleWidth = OutputSettings.OutputLEDSetup.ScaleWidth;
-                    var scaleHeight = OutputSettings.OutputLEDSetup.ScaleHeight;
-                    var scaleX = OutputSettings.OutputLEDSetup.ScaleLeft;
-                    var scaleY = OutputSettings.OutputLEDSetup.ScaleTop;
-                    var virtualWidth = (OutputSettings.OutputLEDSetup as LEDSetup).Width;
-                    var virtualHeight = (OutputSettings.OutputLEDSetup as LEDSetup).Height;
-                    var brightness = OutputSettings.OutputBrightness / 100d;
-                    var devicePowerVoltage = OutputSettings.OutputPowerVoltage;
-                    var devicePowerMiliamps = OutputSettings.OutputPowerMiliamps;
-
-                    var numLED = OutputSettings.OutputLEDSetup.Spots.Count * OutputSettings.LEDPerSpot * OutputSettings.LEDPerLED;
-
-
+                    var brightness = brightnessControl.Value/100d;
                     if (newImage == null)
                     {
                         //there was a timeout before there was the next frame, simply retry!
                         continue;
                     }
                     image = newImage;
-                    var x = (int)(scaleX * image.Width);
-                    var y = (int)(scaleY * image.Height);
-                    var width = (int)(scaleWidth * image.Width);
-                    var height = (int)(scaleHeight * image.Height);
-                   
+                  
+                  
                     try
                     {
                         image.LockBits(new Rectangle(x, y, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppRgb, bitmapData);
@@ -245,49 +239,49 @@ namespace adrilight
 
 
 
-                    lock (OutputSettings.OutputLEDSetup.Lock)
+                    lock (CurrentZone.Lock)
                     {
-                        var useLinearLighting = OutputSettings.OutputUseLinearLighting;
 
-                        //var imageRectangle = new Rectangle(0, 0, image.Width, image.Height);
+                        //var useLinearLighting = OutputSettings.OutputUseLinearLighting;
 
-                        //if (imageRectangle.Width != DeviceSpotSet.ExpectedScreenWidth || imageRectangle.Height != DeviceSpotSet.ExpectedScreenHeight)
-                        //{
-                        //    //the screen was resized or this is some kind of powersaving state
-                        //    DeviceSpotSet.IndicateMissingValues();
-
-                        //    continue;
-                        //}
-                        //else
-                        //{
-                        Parallel.ForEach(OutputSettings.OutputLEDSetup.Spots
+                        Parallel.ForEach(CurrentZone.Spots
                             , spot =>
                             {
+                                var left = (spot as DeviceSpot).Left / 8.0;
+                                var top = (spot as DeviceSpot).Top / 8.0;
+                                var width = (spot as DeviceSpot).Width / 8.0;
+                                var height = (spot as DeviceSpot).Height / 8.0;
                                 const int numberOfSteps = 15;
-                                int stepx = Math.Max(1, (int)(width * spot.ScaleWidth) / numberOfSteps);
-                                int stepy = Math.Max(1, (int)(height * spot.ScaleHeight) / numberOfSteps);
+                                int stepx = Math.Max(1, (int)(width) / numberOfSteps);
+                                int stepy = Math.Max(1, (int)(height) / numberOfSteps);
                                 Rectangle actualRectangle = new Rectangle(
-                                    (int)(width * spot.ScaleLeft),
-                                    (int)(height * spot.ScaleTop),
-                                    (int)(width * spot.ScaleWidth),
-                                    (int)(height * spot.ScaleHeight));
+                                    (int)(left),
+                                    (int)(top),
+                                    (int)(width),
+                                    (int)(height));
                                 GetAverageColorOfRectangularRegion(actualRectangle, stepy, stepx, bitmapData,
                                     out int sumR, out int sumG, out int sumB, out int count);
 
                                 var countInverse = 1f / count;
 
                                 ApplyColorCorrections(sumR * countInverse, sumG * countInverse, sumB * countInverse
-                                    , out byte finalR, out byte finalG, out byte finalB, useLinearLighting
-                                    , OutputSettings.OutputSaturationThreshold, spot.Red, spot.Green, spot.Blue);
+                                    , out byte finalR, out byte finalG, out byte finalB, true
+                                    , 10, spot.Red, spot.Green, spot.Blue);
 
                                 var spotColor = new OpenRGB.NET.Models.Color(finalR, finalG, finalB);
 
-                                var semifinalSpotColor = Brightness.applyBrightness(spotColor, brightness, numLED, devicePowerMiliamps, devicePowerVoltage);
-                                ApplySmoothing(semifinalSpotColor.R, semifinalSpotColor.G, semifinalSpotColor.B
-                                    , out byte RealfinalR, out byte RealfinalG, out byte RealfinalB,
-                                 spot.Red, spot.Green, spot.Blue);
-                                if (!OutputSettings.IsInSpotEditWizard)
-                                    spot.SetColor(RealfinalR, RealfinalG, RealfinalB, isPreviewRunning);
+                                //var semifinalSpotColor = Brightness.applyBrightness(spotColor, brightness, numLED, devicePowerMiliamps, devicePowerVoltage);
+                                ApplySmoothing(
+                                    spotColor.R,
+                                    spotColor.G,
+                                    spotColor.B,
+                                    out byte RealfinalR,
+                                    out byte RealfinalG,
+                                    out byte RealfinalB,
+                                 spot.Red,
+                                 spot.Green,
+                                 spot.Blue);
+                                spot.SetColor((byte)(RealfinalR*brightness), (byte)(RealfinalG * brightness), (byte)(RealfinalB * brightness), isPreviewRunning);
 
                             });
                         //}
@@ -374,9 +368,9 @@ namespace adrilight
             //"white" on wall was 66,68,77 without white balance
             //white balance
             //todo: introduce settings for white balance adjustments
-            r *= OutputSettings.OutputScreenCaptureWBRed / 100f;
-            g *= OutputSettings.OutputScreenCaptureWBGreen / 100f;
-            b *= OutputSettings.OutputScreenCaptureWBBlue / 100f;
+            r *= 100 / 100f;
+            g *= 100 / 100f;
+            b *= 100 / 100f;
 
             if (!useLinearLighting)
             {
@@ -396,9 +390,7 @@ namespace adrilight
         private void ApplySmoothing(float r, float g, float b, out byte semifinalR, out byte semifinalG, out byte semifinalB,
            byte lastColorR, byte lastColorG, byte lastColorB)
         {
-            int smoothingFactor = OutputSettings.OutputSmoothness;
-
-
+            int smoothingFactor = 2;
             semifinalR = (byte)((r + smoothingFactor * lastColorR) / (smoothingFactor + 1));
             semifinalG = (byte)((g + smoothingFactor * lastColorG) / (smoothingFactor + 1));
             semifinalB = (byte)((b + smoothingFactor * lastColorB) / (smoothingFactor + 1));
@@ -424,31 +416,19 @@ namespace adrilight
         private Bitmap GetNextFrame(Bitmap ReusableBitmap, bool isPreviewRunning)
         {
 
-
-
-
             try
             {
                 ByteFrame CurrentFrame = null;
                 Bitmap DesktopImage;
-                if(OutputSettings.OutputLEDSetup.OutputSelectedDisplay>= DesktopFrame.Length)
+                if (_currentScreenIndex >= DesktopFrame.Length)
                 {
-                    HandyControl.Controls.MessageBox.Show( "màn hình không khả dụng","Sáng theo màn hình", MessageBoxButton.OK, MessageBoxImage.Error);
-                    CurrentFrame = DesktopFrame.FirstOrDefault().Frame;
-                    OutputSettings.OutputLEDSetup.OutputSelectedDisplay = 0;
+                    HandyControl.Controls.MessageBox.Show("màn hình không khả dụng", "Sáng theo màn hình", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _currentScreenIndex = 0;
                 }
-                else
-                {
-                    CurrentFrame = DesktopFrame[OutputSettings.OutputLEDSetup.OutputSelectedDisplay].Frame;
-                }
+
+                CurrentFrame = DesktopFrame[(int)_currentScreenIndex].Frame;
+
                
-                if (isPreviewRunning)
-                {
-                    
-                      MainViewViewModel.ShaderImageUpdate(CurrentFrame);
-                   
-                   
-                }
 
                 if (CurrentFrame.Frame == null)
                 {
@@ -539,12 +519,14 @@ namespace adrilight
         public void Stop()
         {
             _log.Debug("Stop called.");
+            CurrentZone.FillSpotsColor(Color.FromRgb(0,0,0));
             if (_workerThread == null) return;
 
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource = null;
             _workerThread?.Join();
             _workerThread = null;
+            
         }
 
 

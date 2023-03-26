@@ -36,7 +36,7 @@ namespace adrilight
             var json = File.ReadAllText(JsonFileNameAndPath);
             try
             {
-                var generalSettings = JsonConvert.DeserializeObject<GeneralSettings>(json);
+                var generalSettings = JsonConvert.DeserializeObject<GeneralSettings>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
                 generalSettings.PropertyChanged += (_, __) => SaveSettings(generalSettings);
 
                 HandleAutostart(generalSettings);

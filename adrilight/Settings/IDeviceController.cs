@@ -19,7 +19,7 @@ namespace adrilight.Settings
         /// <summary>
         /// data properties
         /// </summary>
-        IOutputSettings[] Outputs { get; set; }
+        List<IOutputSettings> Outputs { get; set; }
 
     }
 }

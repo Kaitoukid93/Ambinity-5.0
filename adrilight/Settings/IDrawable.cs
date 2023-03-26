@@ -13,15 +13,15 @@ using System.Windows;
 
 namespace adrilight
 {
-    public interface IDrawable : INotifyPropertyChanged 
+    public interface IDrawable : INotifyPropertyChanged
     {
         //bool Autostart { get; set; }
 
 
 
         double Angle { get; set; }
-        double CenterX { get; set; }
-        double CenterY { get; set; }
+        double CenterX { get; }
+        double CenterY { get; }
 
         double Top { get; set; }
         string Name { get; set; }
@@ -53,7 +53,7 @@ namespace adrilight
 
         bool ShouldBringIntoView { get; set; }
 
-        void SetScale(double scale);
+        bool SetScale(double scaleX, double scaleY, bool keepOrigin);
         Point Scale { get; set; }
         ICommand LeftChangedCommand { get; }
 
