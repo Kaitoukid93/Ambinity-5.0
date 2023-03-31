@@ -127,7 +127,7 @@
                                                     <RowDefinition Height="auto"/>
                                                 </Grid.RowDefinitions>
                                                 <Grid>
-                                                    <Path Margin="10,10,0,3" HorizontalAlignment="Center" VerticalAlignment="Center" Width="25" Height="25" Data="{Binding CurrentSelectedOnlineItem.SubType,Converter={converters:StaticResourceConverter}}"  Fill="{DynamicResource PrimaryBrush}" Stretch="Uniform"/>
+                                                    <Path Margin="10,10,0,3" HorizontalAlignment="Center" VerticalAlignment="Center" Width="25" Height="25" Data="{Binding currentsel,Converter={converters:StaticResourceConverter}}"  Fill="{DynamicResource PrimaryBrush}" Stretch="Uniform"/>
                                                 </Grid>
                                                 <TextBlock Margin="10,3,0,0" HorizontalAlignment="Center" Grid.Row="1"  Text="Kiểu" Style="{DynamicResource TextBlockDefault}"/>
                                             </Grid>
@@ -141,7 +141,7 @@
                             </Grid>
                             <!--downloadbutton-->
                             <Grid Grid.Column="2">
-                                <Button Margin="20" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="2" Width="150" Height="30" Foreground="{DynamicResource ReverseTextBrush}" BorderThickness="0" Content="Download" Command="{Binding Path=DataContext.DownloadSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
+                                <Button Margin="20" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="2" Width="150" Height="30" Foreground="{DynamicResource ReverseTextBrush}" BorderThickness="0" Content="Download" Command="{Binding DownloadCurrentItemCommand}" CommandParameter="{Binding CurrentSelectedOnlineItem}">
                                     <Button.Background>
                                         <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="1"/>
                                     </Button.Background>

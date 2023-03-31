@@ -33,8 +33,8 @@ namespace adrilight.View
             this.Close();
         }
         IOutputSettings SelectedOutput { get; set; }
-        private void NewModeSelected(object sender, SelectionChangedEventArgs e) => PopupMode.IsOpen = false;
-        private void ButtonMode_OnClick(object sender, RoutedEventArgs e) => PopupMode.IsOpen = true;
+        //private void NewModeSelected(object sender, SelectionChangedEventArgs e) => PopupMode.IsOpen = false;
+        //private void ButtonMode_OnClick(object sender, RoutedEventArgs e) => PopupMode.IsOpen = true;
         private void Done_Button_Click(object sender, RoutedEventArgs e)
         {
             //SelectedOutput = (IOutputSettings)outputList.SelectedItem;

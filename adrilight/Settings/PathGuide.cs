@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace adrilight.Settings
 {
@@ -43,7 +44,7 @@ namespace adrilight.Settings
         public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
         public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
         public string Geometry { get => _geometry; set { Set(() => Geometry, ref _geometry, value); } }
-
+        public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
         public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
 
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }

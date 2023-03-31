@@ -33,6 +33,7 @@ using System.Threading.Tasks;
 using adrilight.Settings;
 using System.Drawing;
 using static Dropbox.Api.Files.ListRevisionsMode;
+using System.Web.UI.WebControls.WebParts;
 
 namespace adrilight
 {
@@ -91,58 +92,6 @@ namespace adrilight
 
             this.Resources["Locator"] = new ViewModelLocator(kernel);
 
-
-
-            MainViewViewModel = kernel.Get<MainViewViewModel>();
-            MainViewViewModel.AvailableDevices.CollectionChanged += (s, e) =>
-            {
-                switch (e.Action)
-                {
-                    case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
-                        var newDevices = e.NewItems;
-                        // create new IDeviceSettings with new Name
-                        //Get ID:
-                        foreach (IDeviceSettings device in newDevices)
-                        {
-                            var iD = device.DeviceUID.ToString();
-                            kernel.Bind<IDeviceSettings>().ToConstant(device).Named(iD);
-                            device.PropertyChanged += (_, __) => MainViewViewModel.WriteSingleDeviceInfoJson(device);
-
-                            foreach (var controller in device.AvailableControllers)
-                            {
-                                foreach (var output in controller.Outputs)
-                                {
-                                    foreach (var zone in output.SlaveDevice.ControlableZones)
-                                    {                                        
-                                        kernel.Bind<IControlZone>().ToConstant(zone).Named(zone.ZoneUID);
-                                    }
-                                }
-                            }
-                            //now inject
-                            InjectingDevice(kernel, device);
-                            //since openRGBStream is single instance, we need to manually add device then refresh                                        
-                        }
-                        //now reboot whatever service rely on available devices
-
-                        break;
-                    case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
-                        //get the ID
-                        //get the specific service bound to that ID
-                        //stop all the service bound to that ID
-                        var removedDevice = e.OldItems;
-                        foreach (IDeviceSettings device in removedDevice)
-                        {
-                            var iD = device.DeviceUID.ToString();
-                            //stop serialstream
-                            var serialStream = kernel.Get<ISerialStream>(iD);
-                            if (serialStream != null)
-                                serialStream.Stop();
-                        }
-
-                        break;
-
-                }
-            };
             _telemetryClient = kernel.Get<TelemetryClient>();
 
             ///set theme and color
@@ -208,8 +157,7 @@ namespace adrilight
             var kernel = new StandardKernel(new DeviceSettingsInjectModule());
             GeneralSettings = kernel.Get<IGeneralSettings>();
             //Load setting từ file Json//
-            //var settingsManager = new UserSettingsManager();
-            var existedDevice = kernel.GetAll<IDeviceSettings>();
+            var settingsManager = new UserSettingsManager();
             kernel.Bind(x => x.FromThisAssembly()
               .SelectAllClasses()
               .BindAllInterfaces());
@@ -227,87 +175,137 @@ namespace adrilight
                 _splashScreen.status.Text = "DONE LOADING KERNEL";
             });
 
-            //// tách riêng từng setting của từng device///
-            if (existedDevice != null)
-            {
-                System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
-                {
-                    _splashScreen.status.Text = "CREATING PROCESSES...";
-                });
-                foreach (var device in existedDevice)
-                {
-                    InjectingDevice(kernel, device);
-
-                }
-
-
-
-
-            }
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
                 _splashScreen.status.Text = "PROCESSES CREATED";
             });
             var deviceDiscovery = kernel.Get<IDeviceDiscovery>();
-            return kernel;
 
+            MainViewViewModel = kernel.Get<MainViewViewModel>();
+            MainViewViewModel.AvailableDevices.CollectionChanged += (s, e) =>
+            {
+                switch (e.Action)
+                {
+                    case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+                        var newDevices = e.NewItems;
+                        // create new IDeviceSettings with new Name
+                        //Get ID:
+                        foreach (IDeviceSettings device in newDevices)
+                        {
+                            var iD = device.DeviceUID.ToString();
+                            kernel.Bind<IDeviceSettings>().ToConstant(device).Named(iD);
+                            //now inject
+                            InjectingDevice(kernel, device);
+                            //since openRGBStream is single instance, we need to manually add device then refresh                                        
+                        }
+
+                        break;
+                    case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+                        var removedDevice = e.OldItems;
+                        foreach (IDeviceSettings device in removedDevice)
+                        {
+                            var iD = device.DeviceUID.ToString();
+                            //stop serialstream
+                            var serialStream = kernel.Get<ISerialStream>(iD);
+                            if (serialStream != null)
+                                serialStream.Stop();
+                        }
+                        break;
+
+                }
+            };
+            if(settingsManager.LoadDeviceIfExists() is not null)
+            {
+                foreach (var device in settingsManager.LoadDeviceIfExists())
+                {
+                    MainViewViewModel.AvailableDevices.Insert(0, device);
+                }
+            }
+
+            return kernel;
 
         }
 
         private static void InjectingZone(IKernel kernel, IControlZone zone)
         {
-            kernel.Bind<IDesktopDuplicatorReader>().To<DesktopDuplicatorReader>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
-            var desktopDuplicatorReader = kernel.Get<IDesktopDuplicatorReader>(zone.ZoneUID);
-            desktopDuplicatorReader.RefreshCapturingState();
+            kernel.Bind<ILightingEngine>().To<DesktopDuplicatorReader>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
+            var desktopDuplicatorReader = kernel.Get<ILightingEngine>(zone.ZoneUID);
+            desktopDuplicatorReader.Refresh();
         }
         private static void InjectingDevice(IKernel kernel, IDeviceSettings device)
         {
-            var iD = device.DeviceUID.ToString();
-            foreach (var controller in device.AvailableControllers.Where(c => c.Type == ControllerTypeEnum.LightingController))
+            foreach (var output in device.AvailableLightingOutputs)
             {
-                var controllerID = device.AvailableControllers.IndexOf(controller).ToString();
-                foreach (var output in controller.Outputs)
+                //catch collection changed to inject
+                output.SlaveDevice.ControlableZones.CollectionChanged += (s, e) =>
                 {
-                    var outputID = Array.IndexOf(controller.Outputs.ToArray(), output).ToString();
-                    output.SlaveDevice.ControlableZones.CollectionChanged += (s, e) =>
+                    switch (e.Action)
                     {
-                        switch (e.Action)
-                        {
-                            case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
-                                var newZone = e.NewItems;
-                                foreach (var zone in newZone)
-                                { //new zone added, inject
-                                    kernel.Bind<IControlZone>().ToConstant(zone as IControlZone).Named((zone as IControlZone).ZoneUID);
-                                    InjectingZone(kernel, zone as IControlZone);
-                                }
-                                break;
-                        }
-                    };
-
-                    int zoneCount = 0;
-                    foreach (var zone in output.SlaveDevice.ControlableZones)
-                    {
-                        var zoneID = iD + controllerID + outputID + zoneCount++.ToString();
-                        InjectingZone(kernel, zone);
+                        case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+                            var newZone = e.NewItems;
+                            foreach (var zone in newZone)
+                            { 
+                                //new zone added, inject
+                                var ledZone = zone as LEDSetup; ;
+                                kernel.Bind<IControlZone>().ToConstant(ledZone).Named((ledZone).ZoneUID);
+                                InjectingZone(kernel, zone as IControlZone);
+                            }
+                            break;
                     }
+                };
+                //slave device got replaced, injecting all new zone that available in this slave device
+                output.PropertyChanged += (_, __) =>
+                {
+                    switch (__.PropertyName)
+                    {
+                        case nameof(output.SlaveDevice):
+                            foreach (var zone in output.SlaveDevice.ControlableZones)
+                            {
+                                var ledZone = zone as LEDSetup;
+                                kernel.Bind<IControlZone>().ToConstant(zone as IControlZone).Named((zone as IControlZone).ZoneUID);
+                                InjectingZone(kernel, zone as IControlZone);
+                            }
+                            output.SlaveDevice.ControlableZones.CollectionChanged += (s, e) =>
+                            {
+                                switch (e.Action)
+                                {
+                                    case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+                                        var newZone = e.NewItems;
+                                        foreach (var zone in newZone)
+                                        {
+                                            //new zone added, inject
+                                            var ledZone = zone as LEDSetup; ;
+                                            kernel.Bind<IControlZone>().ToConstant(ledZone).Named((ledZone).ZoneUID);
+                                            InjectingZone(kernel, zone as IControlZone);
+                                        }
+                                        break;
+                                }
+                            };
+                            break;
+                    }
+                };
+                //this is existed zone
+                foreach (var zone in output.SlaveDevice.ControlableZones)
+                {
+                    var ledZone = zone as LEDSetup;
+                    kernel.Bind<IControlZone>().ToConstant(ledZone).Named((ledZone).ZoneUID);
+                    InjectingZone(kernel, zone as IControlZone);
                 }
-
             }
-
             var connectionType = device.DeviceConnectionType;
 
             switch (connectionType)
             {
                 case "wired":
-                    kernel.Bind<ISerialStream>().To<SerialStream>().InSingletonScope().Named(iD).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(iD));
+                  //  kernel.Bind<ISerialStream>().To<SerialStream>().InSingletonScope().Named(iD).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(iD));
 
                     break;
                 case "wireless":
-                    kernel.Bind<ISerialStream>().To<NetworkStream>().InSingletonScope().Named(iD).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(iD));
+                 //   kernel.Bind<ISerialStream>().To<NetworkStream>().InSingletonScope().Named(iD).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(iD));
 
                     break;
                 case "OpenRGB":
-                    kernel.Bind<ISerialStream>().To<OpenRGBStream>().InSingletonScope().Named(iD).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(iD));
+                 //   kernel.Bind<ISerialStream>().To<OpenRGBStream>().InSingletonScope().Named(iD).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(iD));
                     break;
 
             }
@@ -315,7 +313,7 @@ namespace adrilight
         }
         private void ScreenSetupChanged()
         {
-            foreach (var desktopDuplicatorReader in kernel.GetAll<IDesktopDuplicatorReader>())
+            foreach (var desktopDuplicatorReader in kernel.GetAll<ILightingEngine>())
             {
                 desktopDuplicatorReader.Stop();
             }
@@ -325,7 +323,7 @@ namespace adrilight
             }
 
             //find out what happend
-            if(Screen.AllScreens.Length<kernel.GetAll<IDesktopFrame>().Count())
+            if (Screen.AllScreens.Length < kernel.GetAll<IDesktopFrame>().Count())
             {
                 //screen unpluged
                 foreach (var screen in Screen.AllScreens)
@@ -333,12 +331,12 @@ namespace adrilight
                     var desktopFrame = kernel.Get<IDesktopFrame>(screen.DeviceName);
                     if (desktopFrame != null) // this screen is injected already, simply restart it
                         desktopFrame.RefreshCapturingState();
-                   
-                    
+
+
                 }
 
             }
-            else if(Screen.AllScreens.Length == kernel.GetAll<IDesktopFrame>().Count())
+            else if (Screen.AllScreens.Length == kernel.GetAll<IDesktopFrame>().Count())
             {
                 //res change. handled in desktopframe
                 foreach (var desktopFrame in kernel.GetAll<IDesktopFrame>())
@@ -349,33 +347,33 @@ namespace adrilight
             else
             {
                 //screen attached
-                foreach(var screen in Screen.AllScreens)
+                foreach (var screen in Screen.AllScreens)
                 {
                     var desktopFrames = kernel.GetAll<IDesktopFrame>();
-                    foreach(var desktopFrame in desktopFrames)
+                    foreach (var desktopFrame in desktopFrames)
                     {
-                        if(desktopFrame.ScreenToCapture == screen.DeviceName)
+                        if (desktopFrame.ScreenToCapture == screen.DeviceName)
                             desktopFrame.RefreshCapturingState();
                         else
                         {
                             kernel.Bind<IDesktopFrame>().To<DesktopFrame>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("screen", screen.DeviceName);
                             var newDesktopFrame = kernel.Get<IDesktopFrame>(screen.DeviceName);
-                           // newDesktopFrame.RefreshCapturingState();
+                            // newDesktopFrame.RefreshCapturingState();
                         }
                     }
-                   
-                        
-                   
+
+
+
                 }
             }
-  
-          
+
+
 
             //restart process
 
-            foreach (var desktopDuplicatorReader in kernel.GetAll<IDesktopDuplicatorReader>())
+            foreach (var desktopDuplicatorReader in kernel.GetAll<ILightingEngine>())
             {
-                desktopDuplicatorReader.RefreshCapturingState();
+                desktopDuplicatorReader.Refresh();
             }
         }
         private void SetupLoggingForProcessWideEvents()
@@ -428,7 +426,11 @@ namespace adrilight
                     device.CurrentState = State.normal;
                 }
                 // deviceDiscovery.enable = true;
-
+                var desktopFrames = kernel.GetAll<IDesktopFrame>();
+                foreach (var desktopFrame in desktopFrames)
+                {
+                    desktopFrame.RefreshCapturingState();
+                }
                 //var desktopFrame = kernel.Get<IDesktopFrame>();
                 //var secondDesktopFrame = kernel.Get<ISecondDesktopFrame>();
                 //var thirdDesktopFrame = kernel.Get<IThirdDesktopFrame>();
@@ -453,7 +455,11 @@ namespace adrilight
                 }
 
 
-                //var desktopFrame = kernel.Get<IDesktopFrame>();
+                var desktopFrames = kernel.GetAll<IDesktopFrame>();
+                foreach (var desktopFrame in desktopFrames)
+                {
+                    desktopFrame.Stop();
+                }
                 //var secondDesktopFrame = kernel.Get<ISecondDesktopFrame>();
                 //var thirdDesktopFrame = kernel.Get<IThirdDesktopFrame>();
                 //desktopFrame.Stop();
@@ -513,7 +519,7 @@ namespace adrilight
 
 
         private IKernel kernel;
-        public MainViewViewModel MainViewViewModel { get; set; }
+        public static MainViewViewModel MainViewViewModel { get; set; }
 
         private void OpenSettingsWindow(bool isMinimized)
         {

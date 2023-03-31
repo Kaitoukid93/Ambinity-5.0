@@ -97,10 +97,12 @@ namespace adrilight
 
             }
             var lastScreen = UserSettings.Screens.Where(s => s.Name == ScreenToCapture).FirstOrDefault();
-            var lastRect = lastScreen.Rectangle;
+            
+            
 
-            if (lastRect != null)
+            if (lastScreen != null)
             {
+                var lastRect = lastScreen.Rectangle;
                 //screen size change when the app is not alive, update components
                 if (lastRect.Width != currentRect.Width || lastRect.Height != currentRect.Height || lastRect.Left != currentRect.Left || lastRect.Top != currentRect.Top)
                 {
@@ -123,7 +125,15 @@ namespace adrilight
 
                 }
             }
-           
+            else
+            {
+                
+                    UserSettings.Screens.Add(new DesktopScreen() { Name = currentScreen.DeviceName, Rectangle = currentScreen.Bounds });
+                    MainViewModel.WriteSettingJson(UserSettings);
+                
+            }
+
+
 
 
             if (isRunning && !shouldBeRunning)

@@ -19,17 +19,17 @@ namespace adrilight.View
     /// <summary>
     /// Interaction logic for PaletteEditWindow.xaml
     /// </summary>
-    public partial class OnlineItemExporterView
+    public partial class SlaveDeviceCollectionView
     {
-        public OnlineItemExporterView()
+        public SlaveDeviceCollectionView()
         {
             InitializeComponent();
-
+            
         }
 
-        private void ImageSelector_ImageSelected(object sender, RoutedEventArgs e)
-        {
-
-        }
+     
+      
+        
+     
     }
 }

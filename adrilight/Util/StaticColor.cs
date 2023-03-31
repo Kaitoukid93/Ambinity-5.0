@@ -1,352 +1,366 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
-using System.Windows.Controls;
-using System.Threading;
-using Castle.Core.Logging;
-using NLog;
-using adrilight.ViewModel;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Threading;
+using System.Threading.Tasks;
+using adrilight.DesktopDuplication;
+using NLog;
+using Polly;
+using System.Linq;
+using System.Windows.Media.Imaging;
+using adrilight.ViewModel;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using adrilight.Resources;
+using adrilight.Util;
 using adrilight.Spots;
+using System.Windows;
+using adrilight.Helpers;
+using adrilight.Settings;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Header;
+using NAudio.SoundFont;
+using Color = System.Windows.Media.Color;
 
-namespace adrilight.Util
+namespace adrilight
 {
-    internal class StaticColor : IStaticColor
+    internal class StaticColor : ILightingEngine
     {
+        private readonly ILogger _log = LogManager.GetCurrentClassLogger();
 
-
-        private readonly NLog.ILogger _log = LogManager.GetCurrentClassLogger();
-
-        
-        public StaticColor(IOutputSettings outputSettings,IGeneralSettings generalSettings, MainViewViewModel mainViewViewModel, IRainbowTicker rainbowTicker)
+        public StaticColor(
+            IGeneralSettings generalSettings,
+            IDesktopFrame[] desktopFrame,
+            MainViewViewModel mainViewViewModel,
+            IControlZone zone
+            )
         {
-            OutputSettings = outputSettings ?? throw new ArgumentNullException(nameof(outputSettings));
-            MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
-            RainbowTicker = rainbowTicker ?? throw new ArgumentNullException(nameof(rainbowTicker));
-            //SettingsViewModel = settingsViewModel ?? throw new ArgumentNullException(nameof(settingsViewModel));
-            //Remove SettingsViewmodel from construction because now we pass SpotSet Dirrectly to MainViewViewModel
-            OutputSettings.PropertyChanged += PropertyChanged;
-            RefreshColorState();
-            _log.Info($"Static Color Created");
+            DesktopFrame = desktopFrame ?? throw new ArgumentNullException(nameof(desktopFrame));
+            CurrentZone = zone as LEDSetup ?? throw new ArgumentNullException(nameof(zone));
+            MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
 
+
+            GeneralSettings.PropertyChanged += PropertyChanged;
+            CurrentZone.PropertyChanged += PropertyChanged;
+            MainViewViewModel.PropertyChanged += PropertyChanged;
+
+
+            Refresh();
+
+            _log.Info($"DesktopDuplicatorReader created.");
         }
 
+
+
+
+        /// <summary>
+        /// dependency property
+        /// </summary>
+        private IGeneralSettings GeneralSettings { get; }
+
+        private IDesktopFrame[] DesktopFrame { get; }
+        public bool IsRunning { get; private set; }
+        private LEDSetup CurrentZone { get; }
+        private MainViewViewModel MainViewViewModel { get; }
+
+
+
+        /// <summary>
+        /// property changed event catching
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
 
         private void PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
-                case nameof(OutputSettings.OutputIsEnabled):
-              
-                case nameof(OutputSettings.OutputParrentIsEnable):
-                    RefreshColorState();
-                    break;
-                //case nameof(OutputSettings.OutputStaticColor):
-                //case nameof(OutputSettings.OutputSelectedGradient):
-                    SolidColorChanged();
+                //which property that require this engine to refresh
+                case nameof(CurrentZone.CurrentActiveControlMode):
+                case nameof(CurrentZone.IsInControlGroup):
+                case nameof(CurrentZone.MaskedControlMode):
+                case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
+                case nameof(MainViewViewModel.IsRegisteringGroup):
+                    Refresh();
                     break;
 
             }
         }
 
-        //DependencyInjection//
-        private IOutputSettings OutputSettings { get; }
-        private IGeneralSettings GeneralSettings { get; }
-        private IRainbowTicker RainbowTicker { get; }
-        private MainViewViewModel MainViewViewModel { get; }
-        private Color[] colorBank = new Color[256];
-        public bool IsRunning { get; private set; } = false;
+        /// <summary>
+        /// private properties
+        /// </summary>
+
         private CancellationTokenSource _cancellationTokenSource;
-        private void RefreshColorState()
+        private Thread _workerThread;
+        private LightingMode _currentLightingMode;
+        private int? _currentScreenIndex;
+
+
+        public void Refresh()
         {
-            /*
-            var isRunning = _cancellationTokenSource != null && IsRunning;
-            var shouldBeRunning = OutputSettings.OutputIsEnabled && OutputSettings.OutputParrentIsEnable && OutputSettings.OutputSelectedMode == 3 && OutputSettings.IsInSpotEditWizard == false;
+
+            var isRunning = _cancellationTokenSource != null;
+
+            var currentLightingMode = CurrentZone.IsInControlGroup ? CurrentZone.MaskedControlMode as LightingMode : CurrentZone.CurrentActiveControlMode as LightingMode;
+
+            var shouldBeRunning =
+                currentLightingMode.BasedOn == LightingModeEnum.StaticColor &&
+                //this zone has to be enable, this could be done by stop setting the spots, but the this thread still alive, so...
+                CurrentZone.IsEnabled == true &&
+                //stop this engine when any surface or editor open because this could cause capturing fail
+                MainViewViewModel.IsRichCanvasWindowOpen == false &&
+                //registering group shoud be done
+                MainViewViewModel.IsRegisteringGroup == false;
+
+            // this is stop sign by one or some of the reason above
             if (isRunning && !shouldBeRunning)
             {
                 //stop it!
-                _log.Debug("stopping the StaticColor");
+                _log.Debug("stopping the Static Color Engine");
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource = null;
+
             }
-
-
+            // this is start sign
             else if (!isRunning && shouldBeRunning)
             {
                 //start it
-                _log.Debug("starting the StaticColor");
+                //get current lighting mode confirm that based on desktop duplicator reader engine
+
+                _currentLightingMode = currentLightingMode;
+
+
+                _log.Debug("starting the Static Color Engine");
                 _cancellationTokenSource = new CancellationTokenSource();
-                var thread = new Thread(() => Run(_cancellationTokenSource.Token)) {
+                _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
                     Priority = ThreadPriority.BelowNormal,
-                    Name = "StaticColorCreator"
+                    Name = "StaticColor"
                 };
-                thread.Start();
+                _workerThread.Start();
             }
-            */
         }
-        private void SolidColorChanged()
+        public void Run(CancellationToken token)
         {
-            /*
-            var isRunning = _cancellationTokenSource != null && IsRunning;
-            var shouldBeRunning = OutputSettings.OutputIsEnabled && OutputSettings.OutputParrentIsEnable && OutputSettings.OutputSelectedMode == 3 && OutputSettings.IsInSpotEditWizard == false;
 
-
-            if (isRunning && shouldBeRunning)
-            {
-                // rainbow is running and we need to change the color bank
-                var startColor = OutputSettings.OutputSelectedGradient.StartColor;
-                var stopColor = OutputSettings.OutputSelectedGradient.StopColor;
-                var gradientPalette = new Color[] { startColor, stopColor };
-                colorBank = GetColorGradientfromPalette(gradientPalette, 256).ToArray();
-                
-                //if(isInEditWizard)
-                //    colorBank = GetColorGradientfromPalette(DefaultColorCollection.black).ToArray();
-            }
-            */
-        }
-
-
-
-        public void Run(CancellationToken token)//static color creator
-        {
-           /* int point = 0;
-            if (IsRunning) throw new Exception(" Static Color is already running!");
-
-            IsRunning = true;
-
-            _log.Debug("Started Static Color.");
-
-            Color defaultColor = Color.FromRgb(127, 127, 0);
-
+            _log.Debug("Started Desktop Duplication Reader.");
+            Bitmap image = null;
+            BitmapData bitmapData = new BitmapData();
 
             try
             {
+                //get dependency properties from current lighting mode(based on screencapturing)
+                var brightnessControl = _currentLightingMode.Parameters.Where(p => p.Type == ModeParameterEnum.Brightness).FirstOrDefault();
 
-
-                
-                float gamma = 0.14f; // affects the width of peak (more or less darkness)
-                float beta = 0.5f; // shifts the gaussian to be symmetric
-                float ii = 0f;
-                var startColor = OutputSettings.OutputSelectedGradient.StartColor;
-                var stopColor = OutputSettings.OutputSelectedGradient.StopColor;
-                var gradientPalette = new Color[] { startColor, stopColor };
-                colorBank = GetColorGradientfromPalette(gradientPalette, 256).ToArray();
                 while (!token.IsCancellationRequested)
                 {
-                    var numLED = OutputSettings.OutputLEDSetup.Spots.Count;
-                    Color currentStaticColor = OutputSettings.OutputStaticColor;
-                    var colorOutput = new OpenRGB.NET.Models.Color[numLED];
-                    double peekBrightness = 0.0;
-                    int breathingSpeed = OutputSettings.OutputBreathingSpeed;
-                    var outputPowerVoltage = OutputSettings.OutputPowerVoltage;
-                    var outputPowerMiliamps = OutputSettings.OutputPowerMiliamps;
-                    bool outputIsSelected = false;
-                    var currentOutput = MainViewViewModel.CurrentOutput;
-                  
-                    if (currentOutput != null && currentOutput.OutputUniqueID == OutputSettings.OutputUniqueID)
-                        outputIsSelected = true;
-                    bool isPreviewRunning = MainViewViewModel.IsSplitLightingWindowOpen && outputIsSelected;
 
-                    
-                    lock (OutputSettings.OutputLEDSetup.Lock)
+                    //changing parameter on the fly define here
+                    var brightness = brightnessControl.Value / 100d;
+
+
+                    lock (CurrentZone.Lock)
                     {
-                        switch(OutputSettings.OutputStaticColorMode)
-                        {
-                            case 0:
-                                foreach (var spot in OutputSettings.OutputLEDSetup.Spots)
-                                {
-                                    var brightness = OutputSettings.OutputBrightness / 100d;
-                                    var newColor = new OpenRGB.NET.Models.Color(currentStaticColor.R, currentStaticColor.G, currentStaticColor.B);
-                                    var outputColor = Brightness.applyBrightness(newColor, brightness, numLED, outputPowerMiliamps, outputPowerVoltage);
-                                    if (!OutputSettings.IsInSpotEditWizard)
-                                        spot.SetColor(outputColor.R, outputColor.G, outputColor.B, isPreviewRunning);
-
-                                }
-                                break;
-                            case 1:
-
-                                var breathingbrightness = 1.0d;
-                                if (OutputSettings.OutputIsSystemSync)
-                                {
-                                    breathingbrightness = RainbowTicker.BreathingBrightnessValue;
-
-                                }
-                                else
-                                {
-                                    float smoothness_pts = (float)OutputSettings.OutputBreathingSpeed;
-                                    double pwm_val = 255.0 * (Math.Exp(-(Math.Pow(((ii++ / smoothness_pts) - beta) / gamma, 2.0)) / 2.0));
-                                    if (ii > smoothness_pts)
-                                        ii = 0f;
-
-                                    breathingbrightness = pwm_val / 255d;
-                                }
-                                foreach (var spot in OutputSettings.OutputLEDSetup.Spots)
-                                {
-                                  
-                                   
-                                    var newColor = new OpenRGB.NET.Models.Color(currentStaticColor.R, currentStaticColor.G, currentStaticColor.B);
-                                    var outputColor = Brightness.applyBrightness(newColor, breathingbrightness, numLED, outputPowerMiliamps, outputPowerVoltage);
-                                    ApplySmoothing(outputColor.R, outputColor.G, outputColor.B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
-                                    if ((OutputSettings.OutputLEDSetup as LEDSetup).IsSelected)
-                                    {
-                                        spot.SetColor(21, 0, 255, isPreviewRunning);
-                                    }
-                                    else
-                                    {
-                                        if (!OutputSettings.IsInSpotEditWizard)
-                                        {
-                                            if (spot.IsEnabled)
-                                                spot.SetColor(FinalR, FinalG, FinalB, isPreviewRunning);
-                                            else
-                                            {
-                                                spot.SetColor(0, 0, 0, isPreviewRunning);
-                                            }
-
-                                        }
-                                    }
-                                }
-                                break;
-                            case 2:
-
-                                foreach (var spot in OutputSettings.OutputLEDSetup.Spots)
-                                {
-                                    var position = spot.VID;
-                                    
-                                    int n = 0;
-                                    if (position >= colorBank.Length)
-                                        //position = Math.Abs(colorBank.Length - position);
-                                        n = position / colorBank.Length;
-                                    position -= n * colorBank.Length; // run with VID
-                                    var brightness = OutputSettings.OutputBrightness / 100d;                                   
-                                    var newColor = new OpenRGB.NET.Models.Color(colorBank[position].R, colorBank[position].G, colorBank[position].B);
-                                    var outputColor = Brightness.applyBrightness(newColor, brightness, numLED, outputPowerMiliamps, outputPowerVoltage);
-                                    if ((OutputSettings.OutputLEDSetup as LEDSetup).IsSelected)
-                                    {
-                                        spot.SetColor(21, 0, 255, isPreviewRunning);
-                                    }
-                                    else
-                                    {
-                                        if (!OutputSettings.IsInSpotEditWizard)
-                                        {
-                                            if (spot.IsEnabled)
-                                                spot.SetColor(outputColor.R, outputColor.G, outputColor.B, isPreviewRunning);
-                                            else
-                                            {
-                                                spot.SetColor(0, 0, 0, isPreviewRunning);
-                                            }
-
-                                        }
-                                    }
-                                }
 
 
-                                break;
-                        }
-                      
+                        Parallel.ForEach(CurrentZone.Spots
+                            , spot =>
+                            {
+
+
+                            });
+                        //}
+
                     }
 
-
-                    Thread.Sleep(5);
-
-
-
-
+                    image.UnlockBits(bitmapData);
+                    //threadSleep for static mode is 1s, for breathing is 10ms
+                    Thread.Sleep(10);
                 }
-                //motion speed
-
-            }
-
-
-            catch (OperationCanceledException)
-            {
-                _log.Debug("OperationCanceledException catched. returning.");
-
-                return;
-            }
-            catch (Exception ex)
-            {
-                _log.Debug(ex, "Exception catched.");
-       
-                Thread.Sleep(500);
             }
             finally
             {
+                image?.Dispose();
 
-
-                _log.Debug("Stopped Static Color Creator.");
-                IsRunning = false;
+                _log.Debug("Stopped the Static Color Engine");
+                //IsRunning = false;
+                GC.Collect();
             }
-           */
-
         }
 
 
+
+        private void ApplyColorCorrections(float r, float g, float b, out byte finalR, out byte finalG, out byte finalB, bool useLinearLighting, byte saturationTreshold
+         , byte lastColorR, byte lastColorG, byte lastColorB)
+        {
+            if (lastColorR == 0 && lastColorG == 0 && lastColorB == 0)
+            {
+                //if the color was black the last time, we increase the saturationThreshold to make flickering more unlikely
+                saturationTreshold += 2;
+            }
+            if (r <= saturationTreshold && g <= saturationTreshold && b <= saturationTreshold)
+            {
+                //black
+                finalR = finalG = finalB = 0;
+                return;
+            }
+
+            //"white" on wall was 66,68,77 without white balance
+            //white balance
+            //todo: introduce settings for white balance adjustments
+            r *= 100 / 100f;
+            g *= 100 / 100f;
+            b *= 100 / 100f;
+
+            if (!useLinearLighting)
+            {
+                //apply non linear LED fading ( http://www.mikrocontroller.net/articles/LED-Fading )
+                finalR = FadeNonLinear(r);
+                finalG = FadeNonLinear(g);
+                finalB = FadeNonLinear(b);
+            }
+            else
+            {
+                //output
+                finalR = (byte)r;
+                finalG = (byte)g;
+                finalB = (byte)b;
+            }
+        }
         private void ApplySmoothing(float r, float g, float b, out byte semifinalR, out byte semifinalG, out byte semifinalB,
-  byte lastColorR, byte lastColorG, byte lastColorB)
+           byte lastColorR, byte lastColorG, byte lastColorB)
         {
-            ;
-
-            semifinalR = (byte)((r + 7 * lastColorR) / (7 + 1));
-            semifinalG = (byte)((g + 7 * lastColorG) / (7 + 1));
-            semifinalB = (byte)((b + 7 * lastColorB) / (7 + 1));
+            int smoothingFactor = 2;
+            semifinalR = (byte)((r + smoothingFactor * lastColorR) / (smoothingFactor + 1));
+            semifinalG = (byte)((g + smoothingFactor * lastColorG) / (smoothingFactor + 1));
+            semifinalB = (byte)((b + smoothingFactor * lastColorB) / (smoothingFactor + 1));
         }
 
-        public static IEnumerable<Color> GetColorGradient(Color from, Color to, int totalNumberOfColors)
+        private readonly byte[] _nonLinearFadingCache = Enumerable.Range(0, 2560)
+            .Select(n => FadeNonLinearUncached(n / 10f))
+            .ToArray();
+
+        private byte FadeNonLinear(float color)
         {
-            if (totalNumberOfColors < 2)
+            var cacheIndex = (int)(color * 10);
+            return _nonLinearFadingCache[Math.Min(2560 - 1, Math.Max(0, cacheIndex))];
+        }
+        private static byte FadeNonLinearUncached(float color)
+        {
+            const float factor = 80f;
+            return (byte)(256f * ((float)Math.Pow(factor, color / 256f) - 1f) / (factor - 1));
+        }
+        private Bitmap GetNextFrame(Bitmap ReusableBitmap, bool isPreviewRunning)
+        {
+
+            try
             {
-                throw new ArgumentException("Gradient cannot have less than two colors.", nameof(totalNumberOfColors));
-            }
-            var colorList = new List<Color>();
-            double diffA = to.A - from.A;
-            double diffR = to.R - from.R;
-            double diffG = to.G - from.G;
-            double diffB = to.B - from.B;
-
-            var steps = totalNumberOfColors - 1;
-
-            var stepA = diffA / steps;
-            var stepR = diffR / steps;
-            var stepG = diffG / steps;
-            var stepB = diffB / steps;
-
-
-
-            for (var i = 1; i < steps; ++i)
-            {
-                colorList.Add(Color.FromArgb(
-                     (byte)(c(from.A, stepA)),
-                     (byte)(c(from.R, stepR)),
-                     (byte)(c(from.G, stepG)),
-                     (byte)(c(from.B, stepB))));
-
-                int c(int fromC, double stepC)
+                ByteFrame CurrentFrame = null;
+                Bitmap DesktopImage;
+                if (_currentScreenIndex >= DesktopFrame.Length)
                 {
-                    return (int)Math.Round(fromC + stepC * i);
+                    HandyControl.Controls.MessageBox.Show("màn hình không khả dụng", "Sáng theo màn hình", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _currentScreenIndex = 0;
+                }
+                CurrentFrame = DesktopFrame[(int)_currentScreenIndex].Frame;
+                if (CurrentFrame.Frame == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    if (ReusableBitmap != null && ReusableBitmap.Width == CurrentFrame.FrameWidth && ReusableBitmap.Height == CurrentFrame.FrameHeight)
+                    {
+                        DesktopImage = ReusableBitmap;
+
+                    }
+                    else if (ReusableBitmap != null && (ReusableBitmap.Width != CurrentFrame.FrameWidth || ReusableBitmap.Height != CurrentFrame.FrameHeight))
+                    {
+                        DesktopImage = new Bitmap(CurrentFrame.FrameWidth, CurrentFrame.FrameHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+                    }
+                    else //this is when app start
+                    {
+                        DesktopImage = new Bitmap(CurrentFrame.FrameWidth, CurrentFrame.FrameHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+                    }
+                    var DesktopImageBitmapData = DesktopImage.LockBits(new Rectangle(0, 0, CurrentFrame.FrameWidth, CurrentFrame.FrameHeight), ImageLockMode.WriteOnly, DesktopImage.PixelFormat);
+                    IntPtr pixelAddress = DesktopImageBitmapData.Scan0;
+                    Marshal.Copy(CurrentFrame.Frame, 0, pixelAddress, CurrentFrame.Frame.Length);
+                    DesktopImage.UnlockBits(DesktopImageBitmapData);
+                    return DesktopImage;
                 }
             }
-            return colorList;
+            catch (Exception ex)
+            {
+                if (ex.Message != "_outputDuplication is null" && ex.Message != "Access Lost, resolution might be changed" && ex.Message != "Invalid call, might be retrying" && ex.Message != "Failed to release frame.")
+                {
+                    _log.Error(ex, "GetNextFrame() failed.");
+
+                    // throw;
+                }
+                else if (ex.Message == "Access Lost, resolution might be changed")
+                {
+                    _log.Error(ex, "Access Lost, retrying");
+
+                }
+                else if (ex.Message == "Invalid call, might be retrying")
+                {
+                    _log.Error(ex, "Invalid Call Lost, retrying");
+                }
+                else if (ex.Message == "Failed to release frame.")
+                {
+                    _log.Error(ex, "Failed to release frame.");
+                }
+                else
+                {
+                    throw new DesktopDuplicationException("Unknown Device Error", ex);
+                }
+
+                GC.Collect();
+                return null;
+            }
+        }
+
+        public void Stop()
+        {
+            _log.Debug("Stop called.");
+            CurrentZone.FillSpotsColor(Color.FromRgb(0, 0, 0));
+            if (_workerThread == null) return;
+
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource = null;
+            _workerThread?.Join();
+            _workerThread = null;
 
         }
 
-        public static IEnumerable<Color> GetColorGradientfromPalette(Color[] colorCollection, int colorNum)
-        {
-            var colors = new List<Color>();
-            int colorPerGap = colorNum / (colorCollection.Count() - 1);
 
-            for (int i = 0; i < colorCollection.Length - 1; i++)
+        private unsafe void GetAverageColorOfRectangularRegion(Rectangle spotRectangle, int stepy, int stepx, BitmapData bitmapData, out int sumR, out int sumG,
+            out int sumB, out int count)
+        {
+            sumR = 0;
+            sumG = 0;
+            sumB = 0;
+            count = 0;
+
+            var stepCount = spotRectangle.Width / stepx;
+            var stepxTimes4 = stepx * 4;
+            for (var y = spotRectangle.Top; y < spotRectangle.Bottom; y += stepy)
             {
-                var gradient = GetColorGradient(colorCollection[i], colorCollection[i + 1], colorPerGap);
-                colors = colors.Concat(gradient).ToList();
+                byte* pointer = (byte*)bitmapData.Scan0 + bitmapData.Stride * y + 4 * spotRectangle.Left;
+                for (int i = 0; i < stepCount; i++)
+                {
+                    sumB += pointer[0];
+                    sumG += pointer[1];
+                    sumR += pointer[2];
+
+                    pointer += stepxTimes4;
+                }
+                count += stepCount;
             }
-            int remainTick = colorNum - colors.Count();
-            colors = colors.Concat(colors.Take(remainTick).ToList()).ToList();
-            return colors;
         }
 
     }

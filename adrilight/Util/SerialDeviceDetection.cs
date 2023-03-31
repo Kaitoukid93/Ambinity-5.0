@@ -5,6 +5,7 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
@@ -94,7 +95,7 @@ namespace adrilight.Util
 
         //    // Process response.
         //}
-     
+        public static ResourceHelpers ResourceHlprs { get; private set; }
         public List<IDeviceSettings> DetectedDevices {
             get
             {
@@ -104,6 +105,10 @@ namespace adrilight.Util
         static List<IDeviceSettings> RequestDeviceInformation()
         {
           
+            if(ResourceHlprs==null)
+            {
+                ResourceHlprs = new ResourceHelpers();
+            }
             // Assume serial port timeouts are set.
             byte[] id;
             byte[] name;
@@ -218,7 +223,7 @@ namespace adrilight.Util
                                 false,
                                 true,
                                 1);
-                            //this device contains 4 zones
+                            
 
                             break;
                         case "Ambino EDGE":// General Ambino Edge USB Device
@@ -232,10 +237,13 @@ namespace adrilight.Util
                             break;
                         case "Ambino FanHub":
                             //newDevice = availableDefaultDevice.ambinoFanHub;
-                            newDevice.DeviceType = "ABFANHUB";
-                            newDevice.DeviceConnectionType = "wired";
-                            newDevice.OutputPort = device;
-                            newDevice.IsSizeNeedUserDefine = true;
+                            newDevice = new SlaveDeviceHelpers().DefaultCreatedDevice(
+                               DeviceTypeEnum.AmbinoFanHub,
+                               "Ambino Basic",
+                               device,
+                               true,
+                               true,
+                               10);
                             //newDevice.AvailableOutputs = new IOutputSettings[10];
                             ////set a default output for this device , simply plugin LED strip with led number of 16
                             //newDevice.AvailableOutputs[0] = new LightingOutput() { OutputID = 0, ControlableZone = new LEDSetup[1] };

@@ -4,6 +4,7 @@ using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ namespace adrilight.Settings
         private double _height = 100;
         private VisualProperties _visualProperties;
         private bool _shouldBringIntoView;
-        private Point _directionPoint;
+        private System.Windows.Point _directionPoint;
         private RelayCommand<double> leftChangedCommand;
         private RelayCommand<double> topChangedCommand;
         private double _angle = 0;
@@ -61,17 +62,18 @@ namespace adrilight.Settings
 
         public bool ShouldBringIntoView { get => _shouldBringIntoView; set { Set(() => ShouldBringIntoView, ref _hasCustomBehavior, value); } }
 
-        public Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
+        public System.Windows.Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
+        public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
         public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
 
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
-
+       
         public Border()
         {
             VisualProperties = new VisualProperties();
-            Scale = new Point(1, 1);
+            Scale = new System.Windows.Point(1, 1);
             Width = Screen.PrimaryScreen.Bounds.Width;
             Height = Screen.PrimaryScreen.Bounds.Height;
             IsDraggable = false;

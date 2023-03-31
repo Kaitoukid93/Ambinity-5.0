@@ -4,6 +4,7 @@ using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,7 +26,7 @@ namespace adrilight.Settings
         private double _height = 100;
         private VisualProperties _visualProperties;
         private bool _shouldBringIntoView;
-        private Point _directionPoint;
+        private System.Windows.Point _directionPoint;
         private RelayCommand<double> leftChangedCommand;
         private RelayCommand<double> topChangedCommand;
         private double _angle = 0;
@@ -40,7 +41,7 @@ namespace adrilight.Settings
         public double CenterY => Height / 2 + Top;
         public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
         public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
-
+        public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
         public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
 
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
@@ -60,7 +61,7 @@ namespace adrilight.Settings
         public bool ShouldBringIntoView { get => _shouldBringIntoView; set { Set(() => ShouldBringIntoView, ref _hasCustomBehavior, value); } }
         [JsonIgnore]
         public Type DataType => typeof(Group);
-        public Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
+        public System.Windows.Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
         public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
 
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
@@ -70,7 +71,7 @@ namespace adrilight.Settings
         public Group()
         {
             VisualProperties = new VisualProperties();
-            Scale = new Point(1, 1);
+            Scale = new System.Windows.Point(1, 1);
         }
         public List<IDrawable> Elements { get; private set; }
 

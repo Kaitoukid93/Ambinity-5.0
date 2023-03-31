@@ -124,7 +124,7 @@
     <PackageReference Include="NLog" Version="4.7.12" />
     <PackageReference Include="NonInvasiveKeyboardHookLibrary" Version="2.1.0" />
     <PackageReference Include="RichCanvas">
-      <Version>2.3.0</Version>
+      <Version>2.4.0</Version>
     </PackageReference>
     <PackageReference Include="SerialPortLib" Version="1.0.23" />
     <PackageReference Include="SharpDX" Version="4.2.0" />
@@ -189,6 +189,7 @@
     <Compile Include="App.xaml.cs" />
     <Compile Include="Converter\BoolToBorderThicknessConverter.cs" />
     <Compile Include="Converter\CommandToListConverter.cs" />
+    <Compile Include="Converter\ToUpperValueConverter.cs" />
     <Compile Include="DesktopDuplication\DesktopDuplicator.cs" />
     <Compile Include="DesktopDuplication\DesktopDuplicatorReader.cs" />
     <Compile Include="Helpers\AttachedAdorner.cs" />
@@ -204,8 +205,13 @@
     <Compile Include="Settings\ActionParameter.cs" />
     <Compile Include="Settings\ActionSettings.cs" />
     <Compile Include="Settings\ActionType.cs" />
+    <Compile Include="Settings\ControlZoneGroup.cs" />
     <Compile Include="Settings\DesktopFrameCard.cs" />
     <Compile Include="Settings\DesktopScreen.cs" />
+    <Compile Include="Settings\DeviceAdvanceController.cs" />
+    <Compile Include="Settings\DeviceTypeDataEnum.cs" />
+    <Compile Include="Settings\DeviceConnectionTypeEnum.cs" />
+    <Compile Include="Settings\IOnlineItemSubType.cs" />
     <Compile Include="Settings\OutputTypeEnum.cs" />
     <Compile Include="Settings\SlaveDeviceTypeEnum.cs" />
     <Compile Include="Settings\PWMMotorSlaveDevice.cs" />
@@ -264,6 +270,7 @@
     <Compile Include="Spots\LEDSetupHelpers.cs" />
     <Compile Include="Util\IModeParameter.cs" />
     <Compile Include="Util\IOnlineItemModel.cs" />
+    <Compile Include="Util\ILightingEngine.cs" />
     <Compile Include="Util\LightingModeEnum.cs" />
     <Compile Include="Util\ModeParameter.cs" />
     <Compile Include="Util\ModeParameterEnum.cs" />
@@ -284,6 +291,7 @@
     <Compile Include="Util\FpsLogger.cs" />
     <Compile Include="Util\Composition.cs" />
     <Compile Include="Util\PWMModeEnum.cs" />
+    <Compile Include="Util\StaticColor.cs" />
     <Compile Include="Util\StoreCategory.cs" />
     <Compile Include="Util\MotionLayer.cs" />
     <Compile Include="Util\MotionCard.cs" />
@@ -361,6 +369,10 @@
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\VisualProperties.cs" />
+    <Compile Include="View\DeviceOutputMapingView.xaml.cs" />
+    <Compile Include="View\SlaveDeviceNullValueView.xaml.cs" />
+    <Compile Include="View\SlaveDeviceInfoView.xaml.cs" />
+    <Compile Include="View\SlaveDeviceCollectionView.xaml.cs" />
     <Compile Include="View\OutputControlView.xaml.cs" />
     <Compile Include="View\DeviceControlView.xaml.cs" />
     <Compile Include="View\OnlineItemExporterView.xaml.cs" />
@@ -454,6 +466,22 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Properties\DesignTimeResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\DeviceOutputMapingView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\SlaveDeviceNullValueView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\SlaveDeviceInfoView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\SlaveDeviceCollectionView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -806,7 +834,22 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <EmbeddedResource Include="Resources\Thumbnails\ambino_basic_thumb.png">
+    <EmbeddedResource Include="Resources\Thumbnails\Group_thumb.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Thumbnails\AmbinoFanHub_thumb.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\OutputMaps\AmbinoFanHub_outputmap.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Thumbnails\Undefined_thumb.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\OutputMaps\AmbinoBasic_outputmap.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Thumbnails\AmbinoBasic_thumb.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">

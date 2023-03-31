@@ -7,12 +7,14 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using Point = System.Windows.Point;
 
 namespace adrilight
 {
@@ -28,7 +30,7 @@ namespace adrilight
         private double _height = 100;
         private VisualProperties _visualProperties;
         private bool _shouldBringIntoView;
-        private Point _directionPoint;
+        private System.Windows.Point _directionPoint;
         private RelayCommand<double> leftChangedCommand;
         private RelayCommand<double> topChangedCommand;
         private double _angle = 0;
@@ -46,7 +48,7 @@ namespace adrilight
         [JsonIgnore]
         public Type DataType => typeof(Drawable);
         public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
-
+        public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
 
         public double Width { get => _width; set { Set(() => Width, ref _width, value);OnWidthUpdated(); } }

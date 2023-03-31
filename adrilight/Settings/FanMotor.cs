@@ -40,6 +40,8 @@ namespace adrilight.Settings
             AvailableControlMode = new List<IControlMode>();
         }
         private int _currentActiveControlModeIndex;
+        private bool _isInControlGroup;
+        public bool IsInControlGroup { get => _isInControlGroup; set { Set(() => IsInControlGroup, ref _isInControlGroup, value); } }
         public string Name { get; set; }
         [JsonIgnore]
         public Type DataType => typeof(FanMotor);
@@ -87,7 +89,7 @@ namespace adrilight.Settings
         private double _scaleLeft;
         private double _scaleWidth = 1;
         private double _scaleHeight = 1;
-      
+        public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
         public double CenterX => Width / 2 + Left;

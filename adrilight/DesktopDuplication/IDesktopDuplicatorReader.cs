@@ -10,6 +10,6 @@ namespace adrilight
 
         void Run(CancellationToken token);
         void Stop();
-        void RefreshCapturingState();
+        void Refresh();
     }
 }

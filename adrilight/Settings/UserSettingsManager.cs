@@ -1,4 +1,5 @@
 ﻿
+using adrilight.Settings;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Caching;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
@@ -57,6 +59,38 @@ namespace adrilight
             {
                 var json = File.ReadAllText(Path.Combine(folder,"config.json"));
                 var device = JsonConvert.DeserializeObject<DeviceSettings>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                device.AvailableControllers = new List<Settings.IDeviceController>();
+                //read slave device info
+                //check if this device contains lighting controller
+                var lightingOutputsDir = Path.Combine(Path.Combine(folder, "LightingOutputs"));
+                if(Directory.Exists(lightingOutputsDir))
+                {
+                    //add controller to this device
+                    
+                    var lightingController = new DeviceController();
+                    lightingController.Geometry = "brightness";
+
+                    foreach (var subfolder in Directory.GetDirectories(lightingOutputsDir)) // each subfolder contains 1 slave device
+                    {
+                        //read slave device info
+                        var outputJson = File.ReadAllText(Path.Combine(subfolder, "config.json"));
+                        var output = JsonConvert.DeserializeObject<OutputSettings>(outputJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                        var slaveDeviceJson = File.ReadAllText(Path.Combine(Directory.GetDirectories(subfolder).FirstOrDefault(), "config.json"));
+                        var slaveDevice = JsonConvert.DeserializeObject<ARGBLEDSlaveDevice>(slaveDeviceJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                        if(!File.Exists(slaveDevice.Thumbnail))
+                        {
+                            slaveDevice.Thumbnail = Path.Combine(Directory.GetDirectories(subfolder).FirstOrDefault(), "thumbnail.png");
+                        }
+                        
+                        output.SlaveDevice = slaveDevice;
+                        lightingController.Outputs.Add(output);
+                        //each slave device attach to one output so we need to create output
+                        //lightin
+
+                    }
+                    device.AvailableControllers.Add(lightingController);
+                }
+                
                 devices.Add(device);
             }
             return devices;

@@ -7,6 +7,8 @@
         /// </summary>
         LightingController,
 
-        PWMController
+        PWMController,
+
+        HardwareController,
     }
 }

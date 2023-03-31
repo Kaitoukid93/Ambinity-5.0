@@ -47,6 +47,24 @@ namespace adrilight.Spots
 
             return GetBound(listRect.ToArray());
         }
+        public Rect GetRealBound(IControlZone[] zones)
+        {
+            var listRect = new List<Rect>();
+            foreach (var zone in zones)
+            {
+                double top = (zone as IDrawable).GetRect.Top;
+                double left = (zone as IDrawable).GetRect.Left;
+                double width = (zone as IDrawable).GetRect.Width;
+                double height = (zone as IDrawable).GetRect.Height;
+
+                listRect.Add(new Rect(left, top, width, height));
+            }
+
+
+
+
+            return GetBound(listRect.ToArray());
+        }
         public Rectangle GetBound(List<IControlZone> items)
         {
             var listRect = new List<Rect>();

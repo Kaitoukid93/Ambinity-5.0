@@ -42,6 +42,7 @@ namespace adrilight
         int SelectedOutput { get; set; }
         string Geometry { get; set; }
         string DeviceThumbnail { get; set; }
+        string DeviceOutputMap { get; set; }
         string DeviceConnectionGeometry { get; set; }
         int Baudrate { get; set; }
         string DeviceUID { get; set; }
@@ -54,6 +55,7 @@ namespace adrilight
         void SetOutput(IOutputSettings output, int outputID);
         bool IsLoadingSpeed { get; set; }
         string FwLocation { get; set; }
+        ObservableCollection<ControlZoneGroup> ControlZoneGroups { get; set; }
         string RequiredFwVersion { get; set; }
         void RefreshFirmwareVersion();
         //void DeviceLocator(Color color);
@@ -61,6 +63,7 @@ namespace adrilight
         State CurrentState { get; set; }
         Rect CurrentLivewItemsBound { get; }
         ISlaveDevice[] AvailableLightingDevices { get; }
+        IOutputSettings[] AvailableLightingOutputs { get; }
         void UpdateChildSize();
         void HandleResolutionChange(double scaleX,double scaleY);
         void BrightnessUp(int value);

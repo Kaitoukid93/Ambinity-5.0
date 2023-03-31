@@ -70,7 +70,15 @@
                             <!--thumb-->
                             <Grid Grid.Column="0">
                                 <Border VerticalAlignment="Top" HorizontalAlignment="Left" Margin="20,20,10,10" CornerRadius="7" Width="150" Height="150" Background="Transparent">
-                                    <hc:ImageSelector RenderOptions.BitmapScalingMode="HighQuality" Width="150" Height="150" hc:BorderElement.CornerRadius="10" StrokeThickness="2" BorderThickness="2" BorderBrush="{DynamicResource PrimaryBrush}"/>
+                                    <Grid>
+
+                                        <Image Stretch="Uniform" Source="{Binding OnlineItemAvatar}" Width="150" Height="150"/>
+                                        <Button Opacity="0.5" Width="50" Height="50" Command="{Binding OpenImageSelectorCommand}" CommandParameter="avatar" HorizontalAlignment="Center" hc:IconElement.Geometry="{DynamicResource AddGeometry}"/>
+
+
+                                    </Grid>
+
+
                                 </Border>
                             </Grid>
 
@@ -78,10 +86,10 @@
                             <Grid Grid.Column="1">
                                 <StackPanel>
                                     <Grid>
-                                        <TextBox HorizontalAlignment="Left" Margin="10,20,0,5" FontSize="25" FontWeight="SemiBold" Text="{Binding CurrentSelectedOnlineItem.Name}" Style="{DynamicResource TextBoxExtend}"/>
+                                        <TextBox HorizontalAlignment="Left" Margin="10,20,0,5" FontSize="25" FontWeight="SemiBold" Text="{Binding CurrentItemForExport.Name}" Style="{DynamicResource TextBoxExtend}"/>
                                     </Grid>
                                     <Grid>
-                                        <TextBox HorizontalAlignment="Left" Margin="10,0,0,0" Text="{Binding CurrentSelectedOnlineItem.Owner}" Style="{DynamicResource TextBox.Small}"  Foreground="{DynamicResource PrimaryBrush}"/>
+                                        <TextBox HorizontalAlignment="Left" Margin="10,0,0,0" Text="{Binding CurrentItemForExport.Owner}" Style="{DynamicResource TextBox.Small}"  Foreground="{DynamicResource PrimaryBrush}"/>
                                     </Grid>
                                     <Grid>
                                         <StackPanel Margin="10,0" Orientation="Horizontal">
@@ -102,7 +110,6 @@
                                                         <TextBlock  HorizontalAlignment="Center"  Text="123" Style="{DynamicResource TextBlockTitleBold}"/>
                                                     </Grid>
                                                 </Grid>
-
                                                 <TextBlock Margin="0,3,0,0" HorizontalAlignment="Center" Grid.Row="1"  Text="Download" Style="{DynamicResource TextBlockDefault}"/>
                                             </Grid>-->
                                             <!--<hc:Divider Margin="20,0,10,0" LineStrokeThickness="1" LineStroke="{DynamicResource BorderBrush}" Orientation="Vertical" MaxHeight="60"/>-->
@@ -114,7 +121,7 @@
                                                             <RowDefinition Height="auto"/>
                                                         </Grid.RowDefinitions>
 
-                                                        <TextBlock HorizontalAlignment="Center" Margin="2" Text="{Binding CurrentSelectedOnlineItem.Type}" Style="{DynamicResource TextBlockTitleBold}"/>
+                                                        <TextBlock HorizontalAlignment="Center" Margin="2" Text="{Binding CurrentItemForExport.Type}" Style="{DynamicResource TextBlockTitleBold}"/>
                                                         <TextBlock HorizontalAlignment="Center" Grid.Row="1" Margin="2" Text="Hạng mục" Style="{DynamicResource TextBlockDefault}"/>
                                                     </Grid>
                                                 </Button>
@@ -127,21 +134,38 @@
                                                     <RowDefinition Height="auto"/>
                                                 </Grid.RowDefinitions>
                                                 <Grid>
-                                                    <!--<Path Margin="10,10,0,3" HorizontalAlignment="Center" VerticalAlignment="Center" Width="25" Height="25" Data="{Binding CurrentSelectedOnlineItem.SubType,Converter={converters:StaticResourceConverter}}"  Fill="{DynamicResource PrimaryBrush}" Stretch="Uniform"/>-->
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Path Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center" Width="25" Height="25" Data="{Binding OnlineItemSelectedSubType.Geometry,Converter={converters:StaticResourceConverter}}"  Fill="{DynamicResource PrimaryBrush}" Stretch="Uniform"/>
+                                                        <Grid>
+
+                                                            <ItemsControl ItemsSource="{Binding OnlineItemSelectableSubType}" Height="0"/>
+                                                            <ComboBox ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  SelectedItem="{Binding OnlineItemSelectedSubType}" ItemsSource="{Binding OnlineItemSelectableSubType}">
+                                                            <ComboBox.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <Path Margin="2,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Center" Width="15" Height="15" Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"  Fill="{DynamicResource PrimaryBrush}" Stretch="Uniform"/>
+                                                                        <TextBlock Text="{Binding Name}"/>
+                                                                    </StackPanel>
+                                                                </DataTemplate>
+                                                            </ComboBox.ItemTemplate>
+                                                        </ComboBox>
+                                                        </Grid>
+                                                    </StackPanel>
+
                                                 </Grid>
                                                 <TextBlock Margin="10,3,0,0" HorizontalAlignment="Center" Grid.Row="1"  Text="Kiểu" Style="{DynamicResource TextBlockDefault}"/>
                                             </Grid>
                                         </StackPanel>
                                     </Grid>
                                     <Grid>
-                                        <TextBox HorizontalAlignment="Left" Margin="10" Text="{Binding CurrentSelectedOnlineItem.Description}" Style="{DynamicResource TextBoxExtend}"/>
+                                        <TextBox HorizontalAlignment="Left" Margin="10" Text="{Binding CurrentItemForExport.Description}" Style="{DynamicResource TextBoxExtend}"/>
                                     </Grid>
                                 </StackPanel>
 
                             </Grid>
                             <!--downloadbutton-->
                             <Grid Grid.Column="2">
-                                <Button Margin="20" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="2" Width="150" Height="30" Foreground="{DynamicResource ReverseTextBrush}" BorderThickness="0" Content="Download" Command="{Binding Path=DataContext.DownloadSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
+                                <Button Margin="20" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="2" Width="150" Height="30" Foreground="{DynamicResource ReverseTextBrush}" BorderThickness="0" Content="Export" Command="{Binding ExportCurrentOnlineItemToFilesCommand}" CommandParameter="export">
                                     <Button.Background>
                                         <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="1"/>
                                     </Button.Background>
@@ -160,19 +184,21 @@
                     <Border CornerRadius="7" Background="{DynamicResource DarkOpacityBrush}" Margin="10">
                         <StackPanel>
 
-                            <Grid>
-                                <TextBlock Margin="20,15,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Screenshots" Style="{DynamicResource TextBlockSubTitleBold}"/>
-                            </Grid>
-                            <hc:Divider Margin="0,15"/>
-                            <Grid>
-                                <hc:Carousel Margin="0,0,0,15"  ItemsSource="{Binding CurrentSelectedOnlineItem.Screenshots}"  IsCenter="True" AutoRun="True" MaxWidth="900" Height="330" VerticalAlignment="Center">
-                                    <hc:Carousel.ItemTemplate>
-                                        <DataTemplate>
-                                            <Image Width="600" Source="{Binding}"/>
-                                        </DataTemplate>
-                                    </hc:Carousel.ItemTemplate>
-                                </hc:Carousel>
-                            </Grid>
+                            <Button Command="{Binding OpenImageSelectorCommand}" CommandParameter="screenshot" HorizontalAlignment="Right" hc:IconElement.Geometry="{DynamicResource AddGeometry}" Content="Add image"/>
+                            <ItemsControl ItemsSource="{Binding OnlineItemScreenShotCollection}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Image Margin="20" Width="200" Height="200" Stretch="Uniform" Source="{Binding .}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+
+
+                            </ItemsControl>
                         </StackPanel>
                     </Border>
                 </hc:TransitioningContentControl>
@@ -189,18 +215,23 @@
                                 <TextBlock Margin="20,15,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Description" Style="{DynamicResource TextBlockSubTitleBold}"/>
                             </Grid>
                             <hc:Divider Margin="0,15"/>
-                            <Grid MaxHeight="300">
-                             
-                                    
-                               
-                                <mdxam:MarkdownScrollViewer VerticalScrollBarVisibility="Auto" Margin="15"  Markdown="{Binding CurrentSelectedOnlineItem.MarkDownDescription}">
+
+                            <Grid>
+
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <mdxam:MarkdownScrollViewer VerticalScrollBarVisibility="Auto" Margin="15"  Markdown="{Binding OnlineItemMarkdownDescription,Mode=TwoWay}">
                                     <mdxam:MarkdownScrollViewer.MarkdownStyle>
                                         <Style 
                                                TargetType="FlowDocument"
                                                BasedOn="{x:Static mdxam:MarkdownStyle.Standard}">
                                             <Style.Resources>
                                                 <Style TargetType="Paragraph">
-                                                    
+
                                                     <Style.Triggers>
                                                         <Trigger Property="Tag" Value="Heading2">
                                                             <Setter Property="FontSize"   Value="30" />
@@ -213,8 +244,11 @@
                                             </Style.Resources>
                                         </Style>
                                     </mdxam:MarkdownScrollViewer.MarkdownStyle>
+
                                 </mdxam:MarkdownScrollViewer>
-                             
+                                <Grid Grid.Column="1">
+                                    <TextBox AcceptsReturn="True" Text="{Binding OnlineItemMarkdownDescription,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                </Grid>
                             </Grid>
                         </StackPanel>
                     </Border>
@@ -223,11 +257,8 @@
             <!--comment and rating section-->
             <!--<Grid>
                 <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
-
-
                     <Border CornerRadius="7" Background="{DynamicResource DarkOpacityBrush}" Margin="10">
                         <StackPanel>
-
                             <Grid>
                                 <TextBlock Margin="20,15,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Rating and reviews" Style="{DynamicResource TextBlockSubTitleBold}"/>
                             </Grid>
@@ -237,20 +268,26 @@
                                     <RowDefinition Height="auto"/>
                                     <RowDefinition Height="auto"/>
                                 </Grid.RowDefinitions>
-                                --><!--rating--><!--
+                                -->
+            <!--rating-->
+            <!--
                                 <Grid Grid.Row="0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    --><!--rating nummeric dispay--><!--
+                                    -->
+            <!--rating nummeric dispay-->
+            <!--
                                     <Grid Grid.Column="0">
                                         <StackPanel>
                                             <TextBlock Margin="5" Text="3.9" FontWeight="SemiBold" FontSize="60" Style="{DynamicResource TextBlockDefault}"/>
                                             <TextBlock Margin="0" Text="1000 RATINGS" Style="{DynamicResource TextBlockDefaultSecLight}"/>
                                         </StackPanel>
                                     </Grid>
-                                    --><!--rating chart display--><!--
+                                    -->
+            <!--rating chart display-->
+            <!--
                                     <Grid Grid.Column="1">
                                         <StackPanel>
                                             <Grid>
@@ -265,7 +302,9 @@
                                         </StackPanel>
                                     </Grid>
                                 </Grid>
-                                --><!--review--><!--
+                                -->
+            <!--review-->
+            <!--
                                 <Grid Grid.Row="1">
                                     
                                 </Grid>
@@ -274,7 +313,6 @@
                         </StackPanel>
                     </Border>
                 </hc:TransitioningContentControl>
-
             </Grid>-->
 
         </StackPanel>

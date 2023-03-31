@@ -10,6 +10,8 @@ using adrilight.Util;
 using System.Windows.Input;
 using adrilight.ViewModel;
 using System.Windows;
+using SharpDX;
+using System.Drawing;
 
 namespace adrilight
 {
@@ -36,7 +38,7 @@ namespace adrilight
         bool IsDeleteable { get; set; }
         double Width { get; set; }
 
-
+        System.Drawing.Rectangle GetRect { get;}
         double Height { get; set; }
 
 
@@ -54,7 +56,7 @@ namespace adrilight
         bool ShouldBringIntoView { get; set; }
 
         bool SetScale(double scaleX, double scaleY, bool keepOrigin);
-        Point Scale { get; set; }
+        System.Windows.Point Scale { get; set; }
         ICommand LeftChangedCommand { get; }
 
         ICommand TopChangedCommand { get; }

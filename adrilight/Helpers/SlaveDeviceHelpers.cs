@@ -1,4 +1,5 @@
-﻿using adrilight.Settings;
+﻿using adrilight;
+using adrilight.Settings;
 using adrilight.Spots;
 using adrilight.Util;
 using SharpDX.Direct3D9;
@@ -15,7 +16,7 @@ namespace adrilight.Helpers
     {
 
         private LEDSetupHelpers LEDSetupHlprs { get; set; } = new LEDSetupHelpers();
-        private  ControlModeHelpers CtrlHlprs { get; set; } = new ControlModeHelpers();
+        private ControlModeHelpers CtrlHlprs { get; set; } = new ControlModeHelpers();
         public IDeviceSettings DefaultCreatedDevice(
             DeviceTypeEnum type,
             string deviceName,
@@ -25,7 +26,7 @@ namespace adrilight.Helpers
             int outputCount)
         {
             var newDevice = new DeviceSettings();
-            newDevice.DeviceName = "Ambino Basic";
+            newDevice.DeviceName = deviceName;
             newDevice.DeviceUID = Guid.NewGuid().ToString();
             newDevice.TypeEnum = type;
             newDevice.DeviceConnectionType = "wired";
@@ -35,10 +36,11 @@ namespace adrilight.Helpers
             if (hasLightingControl)
             {
                 var lightingController = DefaultCreatedDeviceController(ControllerTypeEnum.LightingController, "LED Controller", "brightness");
-                
-                for (int i = 0; i < outputCount; i++)
+
+                foreach(var output in GetOutputMap(type))
                 {
-                    lightingController.Outputs.Add(DefaultCreatedOutput(OutputTypeEnum.ARGBLEDOutput, i, "genericConnector", "Generic ARGB LED Output"));
+                    lightingController.Outputs.Add(output);
+
                 }
                 newDevice.AvailableControllers.Add(lightingController);
 
@@ -83,7 +85,7 @@ namespace adrilight.Helpers
                         FanSpiningAnimationPath = "I:\\Ambinity\\AmbinityWPF\\adrilight\\adrilight\\Animation\\splashLoading.json",
                         Width = 300,
                         Height = 300,
-                        AvailableControlMode = new List<IControlMode>() {CtrlHlprs.FanSpeedAuto, CtrlHlprs.FanSpeedManual }
+                        AvailableControlMode = new List<IControlMode>() { CtrlHlprs.FanSpeedAuto, CtrlHlprs.FanSpeedManual }
                     });
                     break;
             }
@@ -93,10 +95,14 @@ namespace adrilight.Helpers
         public IOutputSettings DefaultCreatedOutput(OutputTypeEnum type, int id, string geometry, string name)
         {
             var newOuput = new OutputSettings();
+            //property for outputmaping
             newOuput.OutputName = name;
+            //newOuput.Rectangle = new System.Drawing.Rectangle(25, 36, 78, 22);
             newOuput.OutputType = type;
             newOuput.OutputID = id;
             newOuput.Geometry = geometry;
+            newOuput.Width = 80;
+            newOuput.Height = 80;
             switch (type)
             {
                 case OutputTypeEnum.ARGBLEDOutput:
@@ -118,6 +124,81 @@ namespace adrilight.Helpers
             return newController;
 
         }
+        //this section return output with exact position to use in output maping view
+        public List<IOutputSettings> GetOutputMap(DeviceTypeEnum type)
+        {
+            var outputList = new List<IOutputSettings>();
+            switch (type)
+            {
+                case DeviceTypeEnum.AmbinoBasic:
+                    {
+                        var output = DefaultCreatedOutput(OutputTypeEnum.ARGBLEDOutput, 0, "genericConnector", "Generic ARGB LED Output") as OutputSettings;
+
+                        output.Left = 31.6699;
+                        output.Top = 0;
+                        output.Width = 444.6089;
+                        output.Height = 275.3435;
+                        outputList.Add(output);
+                    }
+                    break;
+                case DeviceTypeEnum.AmbinoFanHub:
+                    {
+                        for(int i=0;i<10;i++)
+                        {
+                            var output = DefaultCreatedOutput(OutputTypeEnum.ARGBLEDOutput, i, "genericConnector", "Generic ARGB LED Output") as OutputSettings;
+                            output.Width = 80;
+                            output.Height = 80;
+                            switch(i)
+                            {
+                                case 0:
+                                    output.Left = 0;
+                                    output.Top = 0;
+                                    break;
+                                case 1:
+                                    output.Left = 0;
+                                    output.Top = 420;
+                                    break;
+                                case 2:
+                                    output.Left = 105;
+                                    output.Top = 0;
+                                    break;
+                                case 3:
+                                    output.Left = 105;
+                                    output.Top = 420;
+                                    break;
+                                case 4:
+                                    output.Left = 210;
+                                    output.Top = 0;
+                                    break;
+                                case 5:
+                                    output.Left = 210;
+                                    output.Top = 420;
+                                    break;
+                                case 6:
+                                    output.Left = 315;
+                                    output.Top = 0;
+                                    break;
+                                case 7:
+                                    output.Left = 315;
+                                    output.Top = 420;
+                                    break;
+                                case 8:
+                                    output.Left = 420;
+                                    output.Top = 0;
+                                    break;
+                                case 9:
+                                    output.Left = 420;
+                                    output.Top = 420;
+                                    break;
+                            }
+                            outputList.Add(output);
+                        }
+                       
+                    }
+                    break;
+            }
+            return outputList;
+        }
     }
-      
+
 }

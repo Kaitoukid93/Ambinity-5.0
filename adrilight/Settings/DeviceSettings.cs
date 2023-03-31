@@ -39,6 +39,7 @@ namespace adrilight
         private bool _isTransferActive;
         private bool _isDummy = false;
         private bool _isLoading = false;
+        private ObservableCollection<ControlZoneGroup> _controlZoneGroups;
 
         private int _selectedOutput = 0;
         private string _geometry = "generaldevice";
@@ -62,9 +63,11 @@ namespace adrilight
         private DeviceTypeEnum _typeEnum;
         private int _currentActiveControllerIndex;
         private IDeviceController _currentActiveController;
+        private string _deviceOutputMap;
         public string DeviceThumbnail { get => _deviceThumbnail; set { Set(() => DeviceThumbnail, ref _deviceThumbnail, value); } }
+        public string DeviceOutputMap { get => _deviceOutputMap; set { Set(() => DeviceOutputMap, ref _deviceOutputMap, value); } }
         public DeviceTypeEnum TypeEnum { get => _typeEnum; set { Set(() => TypeEnum, ref _typeEnum, value); } }
-
+        public ObservableCollection<ControlZoneGroup> ControlZoneGroups { get => _controlZoneGroups; set { Set(() => ControlZoneGroups, ref _controlZoneGroups, value); } }
         public State CurrentState { get => _currentState; set { Set(() => CurrentState, ref _currentState, value); } }
         public string RequiredFwVersion { get => _requiredFwVersion; set { Set(() => RequiredFwVersion, ref _requiredFwVersion, value); } }
         public int DeviceID { get => _deviceID; set { Set(() => DeviceID, ref _deviceID, value); } }
@@ -100,7 +103,7 @@ namespace adrilight
         public string DeviceConnectionType { get => _deviceConnectionType; set { Set(() => DeviceConnectionType, ref _deviceConnectionType, value); } }
         public bool IsLoadingProfile { get => _isLoadingProfile; set { Set(() => IsLoadingProfile, ref _isLoadingProfile, value); } }
         public bool IsSizeNeedUserDefine { get => _isSizeNeedUserDefine; set { Set(() => IsSizeNeedUserDefine, ref _isSizeNeedUserDefine, value); } }
-
+        [JsonIgnore]
         public List<IDeviceController> AvailableControllers { get => _availableControllers; set { Set(() => AvailableControllers, ref _availableControllers, value); } }
 
         [JsonIgnore]
@@ -113,7 +116,8 @@ namespace adrilight
         public ObservableCollection<IControlZone> CurrentLiveViewZones => GetControlZones(CurrentActiveController);
         [JsonIgnore]
         public ISlaveDevice[] AvailableLightingDevices => GetSlaveDevices(ControllerTypeEnum.LightingController);
-        
+        [JsonIgnore]
+        public IOutputSettings[] AvailableLightingOutputs => GetOutput(ControllerTypeEnum.LightingController);
         private ISlaveDevice[] GetSlaveDevices(ControllerTypeEnum type)
         {
             var slaveDevices = new List<ISlaveDevice>();
@@ -125,6 +129,18 @@ namespace adrilight
                 }
             }
             return slaveDevices.ToArray();
+        }
+        private IOutputSettings[] GetOutput(ControllerTypeEnum type)
+        {
+            var outputs = new List<IOutputSettings>();
+            foreach (var controller in AvailableControllers.Where(x => x.Type == type))
+            {
+                foreach (var output in controller.Outputs)
+                {
+                    outputs.Add(output);
+                }
+            }
+            return outputs.ToArray();
         }
         public ObservableCollection<IControlZone> GetControlZones(IDeviceController controller)
         {
@@ -142,13 +158,17 @@ namespace adrilight
 
         private void OnActiveControllerChanged()
         {
-            if (CurrentActiveControlerIndex >= 0)
+            if(AvailableControllers!=null)
             {
-                CurrentActiveController = AvailableControllers[CurrentActiveControlerIndex];
-                //reset selected liveview zone because the collection changed
-                RaisePropertyChanged(nameof(CurrentLiveViewZones));
-                RaisePropertyChanged(nameof(CurrentActiveController));
+                if (CurrentActiveControlerIndex >= 0)
+                {
+                    CurrentActiveController = AvailableControllers[CurrentActiveControlerIndex];
+                    //reset selected liveview zone because the collection changed
+                    RaisePropertyChanged(nameof(CurrentLiveViewZones));
+                    RaisePropertyChanged(nameof(CurrentActiveController));
+                }
             }
+           
         }
         private void DeviceEnableChanged()
         {
@@ -199,7 +219,7 @@ namespace adrilight
                 DrawableHlprs = new DrawableHelpers();
 
 
-            return DrawableHlprs.GetBound(zones);
+            return DrawableHlprs.GetRealBound(zones);
            
         }
         public void ActivateProfile(IDeviceProfile profile)

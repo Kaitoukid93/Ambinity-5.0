@@ -4,12 +4,14 @@ using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
+using Point = System.Windows.Point;
 
 namespace adrilight.Settings
 {
@@ -48,7 +50,7 @@ namespace adrilight.Settings
         public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
 
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
-
+        public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
         public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }
 
         public double Height { get => _height; set { Set(() => Height, ref _height, value); OnHeightUpdated(); } }

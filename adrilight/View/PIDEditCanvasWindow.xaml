@@ -87,8 +87,15 @@
                 RealTimeSelectionEnabled="False"
                 SelectedItems="{Binding PIDEditWindowSelectedItems}"
                 Scale="1"
-                MousePosition="{Binding MousePosition, Mode=OneWayToSource}"
-               >
+                MousePosition="{Binding MousePosition, Mode=OneWayToSource}">
+                <richCanvas:RichItemsControl.SelectionRectangleStyle>
+                    <Style TargetType="Rectangle">
+                        <Setter Property="Opacity" Value="0.1" />
+                        <Setter Property="Fill" Value="White" />
+                        <Setter Property="Stroke" Value="{DynamicResource PrimaryBrush}" />
+                        <Setter Property="StrokeThickness" Value="3" />
+                    </Style>
+                </richCanvas:RichItemsControl.SelectionRectangleStyle>
                 <richCanvas:RichItemsControl.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Thêm LED" Command="{Binding OpenAddNewDrawableItemCommand}">

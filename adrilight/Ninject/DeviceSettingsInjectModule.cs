@@ -20,7 +20,7 @@ namespace adrilight.Ninject
         {
             var settingsManager = new UserSettingsManager();
             var generalSettings = settingsManager.LoadIfExists() ?? settingsManager.MigrateOrDefault();
-            var existedDevices = settingsManager.LoadDeviceIfExists();
+            //var existedDevices = settingsManager.LoadDeviceIfExists();
             Bind<IGeneralSettings>().ToConstant(generalSettings);
             Bind<MainViewViewModel>().ToSelf().InSingletonScope();
             Bind<MainView>().ToSelf().InSingletonScope();
@@ -43,38 +43,7 @@ namespace adrilight.Ninject
             Bind<IRainbowTicker>().To<RainbowTicker>().InSingletonScope();
 
 
-            if (existedDevices != null)
-            {
-                if (existedDevices.Count > 0)
-                {
-                    foreach (var device in existedDevices)
-                    {
-                        var iD = device.DeviceUID.ToString();
-
-                        Bind<IDeviceSettings>().ToConstant(device).Named(iD);
-
-                        foreach (var controller in device.AvailableControllers)
-                        {
-                            var controllerID = device.AvailableControllers.IndexOf(controller).ToString();
-                            foreach (var output in controller.Outputs)
-                            {
-                                var outputID = Array.IndexOf(controller.Outputs.ToArray(), output).ToString();
-                                foreach (var zone in output.SlaveDevice.ControlableZones)
-                                {
-                                    Bind<IControlZone>().ToConstant(zone).Named(zone.ZoneUID);
-                                }
-                            }
-
-
-                        }
-                    }
-                }
-            }
-            else
-            {
-                // require user to add device then restart the app
-            }
-
+          
         }
 
 

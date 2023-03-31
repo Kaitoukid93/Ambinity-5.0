@@ -48,7 +48,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Sáng theo màn hình với vị trí cài sẵn",
-                    Parameters = {GenericBrightnessParameter}
+                    Parameters = {GenericBrightnessParameter,UseLinearLighting}
 
                 };
             }
@@ -116,6 +116,22 @@ namespace adrilight.Helpers
                     Value = 50,
                     MinValue = 0,
                     MaxValue = 100
+
+                };
+            }
+        }
+        public IModeParameter UseLinearLighting {
+            get
+            {
+                return new ModeParameter() {
+
+                    Name = "Linear Lighting",
+                    Description = "The Light Changes with linear brightness",
+                    Type = ModeParameterEnum.LinearLighting,
+                    Template = ModeParameterTemplateEnum.ToggleOnOff,
+                    Value = 0,
+                   
+
 
                 };
             }

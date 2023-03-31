@@ -73,7 +73,7 @@ namespace adrilight.Spots
         public byte Red { get; private set; }
         public byte Green { get; private set; }
         public byte Blue { get; private set; }
-
+        public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
         public void SetColor(byte red, byte green, byte blue, bool raiseEvents)
         {
             Red = red;

@@ -9,6 +9,10 @@
 
         LEDStrip,
 
-     
+        LEDFrame,
+
+        FanLED,
+
+
     }
 }

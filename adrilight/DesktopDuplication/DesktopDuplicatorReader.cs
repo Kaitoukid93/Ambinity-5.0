@@ -26,7 +26,7 @@ using Color = System.Windows.Media.Color;
 
 namespace adrilight
 {
-    internal class DesktopDuplicatorReader : IDesktopDuplicatorReader
+    internal class DesktopDuplicatorReader : ILightingEngine
     {
         private readonly ILogger _log = LogManager.GetCurrentClassLogger();
 
@@ -48,7 +48,7 @@ namespace adrilight
             MainViewViewModel.PropertyChanged += PropertyChanged;
 
 
-            RefreshCapturingState();
+            Refresh();
 
             _log.Info($"DesktopDuplicatorReader created.");
         }
@@ -62,7 +62,7 @@ namespace adrilight
         private IGeneralSettings GeneralSettings { get; }
 
         private IDesktopFrame[] DesktopFrame { get; }
-
+        public bool IsRunning { get; private set; }
         private LEDSetup CurrentZone { get; }
 
         private MainViewViewModel MainViewViewModel { get; }
@@ -81,8 +81,11 @@ namespace adrilight
             {
                 //which property that require this engine to refresh
                 case nameof(CurrentZone.CurrentActiveControlMode):
+                case nameof(CurrentZone.IsInControlGroup):
+                case nameof(CurrentZone.MaskedControlMode):
                 case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
-                    RefreshCapturingState();
+                case nameof(MainViewViewModel.IsRegisteringGroup):
+                    Refresh();
                     break;
 
             }
@@ -98,7 +101,7 @@ namespace adrilight
         private int? _currentScreenIndex;
 
 
-        public void RefreshCapturingState()
+        public void Refresh()
         {
             //find out which screen this zone belongs to
             var actualLeft = CurrentZone.Left + CurrentZone.OffsetX;
@@ -123,7 +126,9 @@ namespace adrilight
 
             }
             var isRunning = _cancellationTokenSource != null;
-            var currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
+
+            var currentLightingMode = CurrentZone.IsInControlGroup ? CurrentZone.MaskedControlMode as LightingMode : CurrentZone.CurrentActiveControlMode as LightingMode;
+
             var shouldBeRunning =
                 currentLightingMode.BasedOn == LightingModeEnum.ScreenCapturing &&
                 //this zone has to be enable, this could be done by stop setting the spots, but the this thread still alive, so...
@@ -133,7 +138,9 @@ namespace adrilight
                 //stop this engine when this zone is outside or atleast there is 1 pixel outside of the screen region
                 CurrentZone.IsInsideScreen == true &&
                 //this has to be inside of a screen
-                _currentScreenIndex != null;
+                _currentScreenIndex != null &&
+                //registering group shoud be done
+                MainViewViewModel.IsRegisteringGroup == false;
 
             // this is stop sign by one or some of the reason above
             if (isRunning && !shouldBeRunning)
@@ -149,11 +156,11 @@ namespace adrilight
             {
                 //start it
                 //get current lighting mode confirm that based on desktop duplicator reader engine
+
                 _currentLightingMode = currentLightingMode;
-               
-              
-               
-                    _log.Debug("starting the capturing");
+
+
+                _log.Debug("starting the capturing");
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
@@ -163,11 +170,7 @@ namespace adrilight
                 _workerThread.Start();
             }
         }
-
-
-                
         private readonly Policy _retryPolicy;
-
         private TimeSpan ProvideDelayDuration(int index)
         {
             if (index < 10)
@@ -184,9 +187,6 @@ namespace adrilight
             return TimeSpan.FromMilliseconds(1000);
         }
 
-
-
-
         public void Run(CancellationToken token)
         {
 
@@ -201,28 +201,25 @@ namespace adrilight
                 //get current zone size and position respect to screen size scaled 8.0
                 var screenLeft = Screen.AllScreens[(int)_currentScreenIndex].Bounds.Left;
                 var screenTop = Screen.AllScreens[(int)_currentScreenIndex].Bounds.Top;
-                var x = (int)((CurrentZone.Left + CurrentZone.OffsetX- screenLeft) / 8.0);
-                var y = (int)((CurrentZone.Top + CurrentZone.OffsetY- screenTop) / 8.0);
+                var x = (int)((CurrentZone.Left + CurrentZone.OffsetX - screenLeft) / 8.0);
+                var y = (int)((CurrentZone.Top + CurrentZone.OffsetY - screenTop) / 8.0);
                 var width = (int)(CurrentZone.Width / 8.0);
                 var height = (int)(CurrentZone.Height / 8.0);
                 while (!token.IsCancellationRequested)
                 {
-
 
                     //this indicator that user is opening this device and we need raise event when color update on each spot
                     bool isPreviewRunning = MainViewViewModel.IsLiveViewOpen;
                     var frameTime = Stopwatch.StartNew();
                     var newImage = _retryPolicy.Execute(() => GetNextFrame(image, isPreviewRunning));
                     TraceFrameDetails(newImage);
-                    var brightness = brightnessControl.Value/100d;
+                    var brightness = brightnessControl.Value / 100d;
                     if (newImage == null)
                     {
                         //there was a timeout before there was the next frame, simply retry!
                         continue;
                     }
                     image = newImage;
-                  
-                  
                     try
                     {
                         image.LockBits(new Rectangle(x, y, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppRgb, bitmapData);
@@ -235,8 +232,6 @@ namespace adrilight
                         image = null;
                         continue;
                     }
-
-
 
 
                     lock (CurrentZone.Lock)
@@ -269,7 +264,6 @@ namespace adrilight
                                     , 10, spot.Red, spot.Green, spot.Blue);
 
                                 var spotColor = new OpenRGB.NET.Models.Color(finalR, finalG, finalB);
-
                                 //var semifinalSpotColor = Brightness.applyBrightness(spotColor, brightness, numLED, devicePowerMiliamps, devicePowerVoltage);
                                 ApplySmoothing(
                                     spotColor.R,
@@ -281,14 +275,12 @@ namespace adrilight
                                  spot.Red,
                                  spot.Green,
                                  spot.Blue);
-                                spot.SetColor((byte)(RealfinalR*brightness), (byte)(RealfinalG * brightness), (byte)(RealfinalB * brightness), isPreviewRunning);
+                                spot.SetColor((byte)(RealfinalR * brightness), (byte)(RealfinalG * brightness), (byte)(RealfinalB * brightness), isPreviewRunning);
 
                             });
                         //}
 
                     }
-
-
 
                     image.UnlockBits(bitmapData);
 
@@ -300,8 +292,6 @@ namespace adrilight
                     }
                 }
             }
-
-
             finally
             {
                 image?.Dispose();
@@ -311,19 +301,6 @@ namespace adrilight
                 GC.Collect();
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
         private int? _lastObservedHeight;
         private int? _lastObservedWidth;
 
@@ -396,7 +373,6 @@ namespace adrilight
             semifinalB = (byte)((b + smoothingFactor * lastColorB) / (smoothingFactor + 1));
         }
 
-
         private readonly byte[] _nonLinearFadingCache = Enumerable.Range(0, 2560)
             .Select(n => FadeNonLinearUncached(n / 10f))
             .ToArray();
@@ -406,13 +382,11 @@ namespace adrilight
             var cacheIndex = (int)(color * 10);
             return _nonLinearFadingCache[Math.Min(2560 - 1, Math.Max(0, cacheIndex))];
         }
-
         private static byte FadeNonLinearUncached(float color)
         {
             const float factor = 80f;
             return (byte)(256f * ((float)Math.Pow(factor, color / 256f) - 1f) / (factor - 1));
         }
-
         private Bitmap GetNextFrame(Bitmap ReusableBitmap, bool isPreviewRunning)
         {
 
@@ -425,11 +399,7 @@ namespace adrilight
                     HandyControl.Controls.MessageBox.Show("màn hình không khả dụng", "Sáng theo màn hình", MessageBoxButton.OK, MessageBoxImage.Error);
                     _currentScreenIndex = 0;
                 }
-
                 CurrentFrame = DesktopFrame[(int)_currentScreenIndex].Frame;
-
-               
-
                 if (CurrentFrame.Frame == null)
                 {
                     return null;
@@ -444,41 +414,15 @@ namespace adrilight
                     else if (ReusableBitmap != null && (ReusableBitmap.Width != CurrentFrame.FrameWidth || ReusableBitmap.Height != CurrentFrame.FrameHeight))
                     {
                         DesktopImage = new Bitmap(CurrentFrame.FrameWidth, CurrentFrame.FrameHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-                        //new resolution detected, change current top left width height to match
-                        //double scaleX = (double)CurrentFrame.FrameWidth / (double)ReusableBitmap.Width;
-                        //double scaleY = (double)CurrentFrame.FrameHeight / (double)ReusableBitmap.Height;
-                        //(OutputSettings as OutputSettings).Width *= scaleX;
-                        //(OutputSettings as OutputSettings).Height *= scaleY;
-                        //(OutputSettings as OutputSettings).Left *= scaleX;
-                        //(OutputSettings as OutputSettings).Top *= scaleY;
-
-                        //OutputSettings.OutputRectangle = new Rectangle((int)x, (int)y, (int)width, (int)height);
-
-
                     }
                     else //this is when app start
                     {
                         DesktopImage = new Bitmap(CurrentFrame.FrameWidth, CurrentFrame.FrameHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-                        //var width = OutputSettings.OutputRectangleScaleWidth * CurrentFrame.FrameWidth;
-                        //var height = OutputSettings.OutputRectangleScaleHeight * CurrentFrame.FrameHeight;
-                        //var x = OutputSettings.OutputRectangleScaleLeft * CurrentFrame.FrameWidth;
-                        //var y = OutputSettings.OutputRectangleScaleTop * CurrentFrame.FrameHeight;
-                        //OutputSettings.OutputRectangle = new Rectangle((int)x, (int)y, (int)width, (int)height);
-
                     }
-
                     var DesktopImageBitmapData = DesktopImage.LockBits(new Rectangle(0, 0, CurrentFrame.FrameWidth, CurrentFrame.FrameHeight), ImageLockMode.WriteOnly, DesktopImage.PixelFormat);
                     IntPtr pixelAddress = DesktopImageBitmapData.Scan0;
-
-
-
-
                     Marshal.Copy(CurrentFrame.Frame, 0, pixelAddress, CurrentFrame.Frame.Length);
-
-
-
                     DesktopImage.UnlockBits(DesktopImageBitmapData);
-
                     return DesktopImage;
                 }
             }
@@ -508,9 +452,6 @@ namespace adrilight
                     throw new DesktopDuplicationException("Unknown Device Error", ex);
                 }
 
-
-                //_desktopDuplicator.Dispose();
-                //_desktopDuplicator = null;
                 GC.Collect();
                 return null;
             }
@@ -519,14 +460,14 @@ namespace adrilight
         public void Stop()
         {
             _log.Debug("Stop called.");
-            CurrentZone.FillSpotsColor(Color.FromRgb(0,0,0));
+            CurrentZone.FillSpotsColor(Color.FromRgb(0, 0, 0));
             if (_workerThread == null) return;
 
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource = null;
             _workerThread?.Join();
             _workerThread = null;
-            
+
         }
 
 

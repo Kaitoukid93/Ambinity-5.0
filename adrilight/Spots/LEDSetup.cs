@@ -73,7 +73,11 @@ namespace adrilight
         //}
         private bool _isEnabled = true;
         private bool _isInsideScreen = true;
+        private bool _isInControlGroup;
+        public bool IsInControlGroup { get => _isInControlGroup; set { Set(() => IsInControlGroup, ref _isInControlGroup, value); } }
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); } }
+        private IControlMode _maskedControlMode;
+        public IControlMode MaskedControlMode { get => _maskedControlMode; set { Set(() => MaskedControlMode, ref _maskedControlMode, value); } }
 
 
         //LED Setup properties
@@ -84,6 +88,7 @@ namespace adrilight
         public ObservableCollection<IDeviceSpot> Spots { get => _spots; set { Set(() => Spots, ref _spots, value); } }
         public object Lock { get; } = new object();
         public string Thumbnail { get; set; }
+        
         public void DimLED(float dimFactor)
         {
             foreach (var spot in Spots)
@@ -171,6 +176,7 @@ namespace adrilight
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
+        [JsonIgnore]
         public Rectangle GetRect => new Rectangle((int)(Left+OffsetX), (int)(Top+OffsetY), (int)Width, (int)Height);
         public string Type { get; set; }
         private DrawableHelpers DrawableHlprs;

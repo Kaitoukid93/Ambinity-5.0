@@ -13,6 +13,7 @@ using System.Windows;
 using adrilight_effect_analyzer.Model;
 using Newtonsoft.Json;
 using adrilight.Settings;
+using System.Drawing;
 
 namespace adrilight
 {
@@ -46,7 +47,7 @@ namespace adrilight
         //void SetRectangle(System.Drawing.Rectangle rectangle);
         //void SetPreviewRectangle(System.Drawing.Rectangle rectangle);
 
-       
+        Rectangle Rectangle { get; set; }
         
 
 

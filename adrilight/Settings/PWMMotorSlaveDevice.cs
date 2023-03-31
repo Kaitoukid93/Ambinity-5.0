@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
-
+using Rectangle = System.Drawing.Rectangle;
 namespace adrilight.Settings
 {
     internal class PWMMotorSlaveDevice : ViewModelBase,ISlaveDevice, IDrawable
@@ -25,6 +25,7 @@ namespace adrilight.Settings
         public string Thumbnail { get; set; }
         public DeviceTypeEnum DesiredParrent { get; set; }
         public SlaveDeviceTypeEnum DeviceType { get; set; }
+        public DeviceTypeDataEnum TargetDeviceType { get; set; }
         public string Description { get; set; }
 
         /// <summary>
@@ -100,7 +101,7 @@ namespace adrilight.Settings
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
-
+        public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
         public string Type { get; set; }
         private DrawableHelpers DrawableHlprs;
         public void UpdateSizeByChild(bool withPoint)

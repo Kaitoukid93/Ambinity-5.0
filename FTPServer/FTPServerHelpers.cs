@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Renci.SshNet;
+using Renci.SshNet.Sftp;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -43,13 +44,38 @@ namespace FTPServer
             }
         }
 
+        public async Task<List<SftpFile>> GetAllFilesInFolder(string folderPath)
+        {
+            var listFiles = new List<SftpFile>();
 
+            try
+            {
+
+
+                var files = sFTP.ListDirectory(folderPath);
+
+                foreach (var file in files.Where(i => i.Name != "." && i.Name != ".."))
+                {
+                    listFiles.Add(file);
+
+                }
+
+                return await Task.FromResult(listFiles);
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("An exception has been caught " + e.ToString());
+                return null;
+            }
+        }
 
         public async Task<BitmapImage> GetThumb(string thumbPath)  // this method get all file from dropbox adrilight App folder to temp folder
         {
             try
             {
                 var thumb = new BitmapImage();
+
                 using (var remoteFileStream = sFTP.OpenRead(thumbPath))
                 {
                     thumb = StreamToImageSource(remoteFileStream);
@@ -63,6 +89,25 @@ namespace FTPServer
                 return null;
             }
         }
+        public void DownloadFile(string remotePath, string localPath)  // this method get all file from dropbox adrilight App folder to temp folder
+        {
+
+            try
+            {
+                using (var s = File.Create(localPath))
+                {
+                    sFTP.DownloadFile(remotePath, s);
+                }
+
+            }
+            catch (Exception exception)
+            {
+                // Log error
+                throw;
+            }
+
+        }
+
         BitmapImage StreamToImageSource(Stream stream)
         {
             var memory = new MemoryStream();
@@ -116,7 +161,7 @@ namespace FTPServer
                 {
                     var textReader = new System.IO.StreamReader(remoteFileStream);
                     content = textReader.ReadToEnd();
-                   
+
                 }
 
                 return await Task.FromResult(content);

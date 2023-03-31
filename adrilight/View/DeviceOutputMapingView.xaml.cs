@@ -1,4 +1,6 @@
-﻿using HandyControl.Data;
+﻿using adrilight.Helpers;
+using adrilight.ViewModel;
+using HandyControl.Data;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,17 +21,19 @@ namespace adrilight.View
     /// <summary>
     /// Interaction logic for PaletteEditWindow.xaml
     /// </summary>
-    public partial class OnlineItemExporterView
+    public partial class DeviceOutputMapingView
     {
-        public OnlineItemExporterView()
+        public DeviceOutputMapingView()
         {
+
             InitializeComponent();
-
+        }    
+     
+        private void OnScrolling(object sender, RoutedEventArgs e)
+        { 
+            AttachedAdorner.OnScrolling();
         }
 
-        private void ImageSelector_ImageSelected(object sender, RoutedEventArgs e)
-        {
-
-        }
+       
     }
 }

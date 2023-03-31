@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -43,7 +44,7 @@ namespace adrilight.Settings
         public ARGBLEDSlaveDevice()
         {
             VisualProperties = new VisualProperties();
-            Scale = new Point(1, 1);
+            Scale = new System.Windows.Point(1, 1);
 
 
         }
@@ -110,8 +111,8 @@ namespace adrilight.Settings
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
-
-        public string Type { get; set; }
+        public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
+        public DeviceTypeDataEnum TargetDeviceType { get; set; }
         private DrawableHelpers DrawableHlprs;
         public void UpdateSizeByChild(bool withPoint)
         {

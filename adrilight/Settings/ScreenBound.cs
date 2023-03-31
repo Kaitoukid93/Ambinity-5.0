@@ -11,6 +11,7 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace adrilight.Settings
 {
@@ -67,7 +68,7 @@ namespace adrilight.Settings
 
         public Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
         public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
-
+        public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
