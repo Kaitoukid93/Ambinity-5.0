@@ -21,20 +21,20 @@ namespace adrilight.Settings
 {
     public class FanMotor : ViewModelBase, IControlZone, IDrawable
     {
-  
+
 
 
         /// <summary>
         /// Fan Motor Porperties
         /// </summary>
-        public BitmapImage Thumb { get; set; } 
+        public BitmapImage Thumb { get; set; }
 
         public SeriesCollection PwmChart { get; set; }
-        public string  FanSpiningAnimationPath { get; set; }
-        
-        public FanMotor() 
+        public string FanSpiningAnimationPath { get; set; }
+
+        public FanMotor()
         {
-          
+
             VisualProperties = new VisualProperties();
             Scale = new System.Windows.Point(1, 1);
             AvailableControlMode = new List<IControlMode>();
@@ -49,7 +49,8 @@ namespace adrilight.Settings
         public List<IControlMode> AvailableControlMode { get; set; }
         [JsonIgnore]
         public IControlMode CurrentActiveControlMode { get; set; }
-
+        [JsonIgnore]
+        public IModeParameter SpeedParameter => CurrentActiveControlMode.Parameters.Where(p => p.Type == ModeParameterEnum.Speed).FirstOrDefault();
         public int CurrentActiveControlModeIndex { get => _currentActiveControlModeIndex; set { if (value >= 0) Set(() => CurrentActiveControlModeIndex, ref _currentActiveControlModeIndex, value); OnActiveControlModeChanged(); } }
 
         private void OnActiveControlModeChanged()
@@ -58,6 +59,7 @@ namespace adrilight.Settings
             {
                 CurrentActiveControlMode = AvailableControlMode[CurrentActiveControlModeIndex];
                 RaisePropertyChanged(nameof(CurrentActiveControlMode));
+                RaisePropertyChanged(nameof(SpeedParameter));
             }
         }
         public string ZoneUID { get; set; }
@@ -156,7 +158,7 @@ namespace adrilight.Settings
         {
             var width = Width * scaleX;
             var height = Height * scaleY;
-            if(width<10||height<10)
+            if (width < 10 || height < 10)
             {
                 return false;
             }
@@ -171,10 +173,10 @@ namespace adrilight.Settings
                 }
             }
             return true;
-           
+
         }
-     
-     
+
+
         protected virtual void OnLeftChanged(double delta) { }
 
         protected virtual void OnTopChanged(double delta) { }

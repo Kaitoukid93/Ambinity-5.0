@@ -9,7 +9,9 @@
            xmlns:ut ="clr-namespace:adrilight.Util"
            xmlns:local ="clr-namespace:adrilight.View"
            xmlns:System="clr-namespace:System;assembly=mscorlib"
+           xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
            mc:Ignorable="d"
+           x:Name="window"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
           >
@@ -23,6 +25,62 @@
                     <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
                     <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
                     <converters:ToUpperValueConverter x:Key="toUpperValueConverter" />
+                    <DataTemplate x:Key="_charVisualizationTemplate"  DataType="{x:Type ut:ModeParameter}">
+                        <Grid>
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition Height="auto"/>
+                                    </Grid.RowDefinitions>
+                                    <GroupBox VerticalAlignment="Stretch"   Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                                        <GroupBox.HeaderTemplate>
+                                            <DataTemplate>
+                                                <TextBlock  FontWeight="SemiBold" Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox},Converter={StaticResource toUpperValueConverter}}"/>
+                                            </DataTemplate>
+                                        </GroupBox.HeaderTemplate>
+
+                                        <Grid>
+                                            <Grid.Resources>
+                                                <Style TargetType="lvc:LineSeries">
+                                                    <Setter Property="StrokeThickness" Value="2"></Setter>
+                                                    <Setter Property="Stroke" Value="{StaticResource PrimaryBrush}"></Setter>
+                                                    <Setter Property="Fill">
+                                                        <Setter.Value>
+                                                            <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Setter Property="PointGeometrySize" Value="0"></Setter>
+                                                    <Setter Property="LineSmoothness" Value="0"></Setter>
+                                                </Style>
+                                                <Style TargetType="lvc:Axis">
+                                                    <Setter Property="ShowLabels" Value="False"></Setter>
+                                                    <Setter Property="IsEnabled" Value="False"></Setter>
+
+                                                </Style>
+                                            </Grid.Resources>
+                                            <lvc:CartesianChart HorizontalAlignment="Right" VerticalAlignment="Center" Width="250" Height="auto" Margin="0"   Hoverable="True" DataTooltip="{x:Null}">
+                                                <lvc:CartesianChart.Series>
+                                                    <lvc:LineSeries Values="{Binding LineValues}">
+
+                                                    </lvc:LineSeries>
+                                                </lvc:CartesianChart.Series>
+                                                <lvc:CartesianChart.AxisX>
+                                                    <!--a small visual improvement, lets hide the first points (x = 0, x=1) to get better animations-->
+                                                    <lvc:Axis MinValue="2"></lvc:Axis>
+                                                </lvc:CartesianChart.AxisX>
+                                            </lvc:CartesianChart>
+
+                                        </Grid>
+                                    </GroupBox>
+                                    <TextBlock TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="{Binding Description}"/>
+                                </Grid>
+                                <hc:Divider   LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10,0,10">
+
+                                </hc:Divider>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
                     <DataTemplate x:Key="_toggleParamTemplate"  DataType="{x:Type ut:ModeParameter}">
                         <Grid>
                             <StackPanel>
@@ -171,11 +229,11 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Horizontal">
                         <Border CornerRadius="4"  BorderThickness="1.5" Grid.Column="0">
-                        <Border.Background>
-                            <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.25"/>
-                        </Border.Background>
-                        <TextBlock Margin="7,7" Text="{Binding SelectedControlZone.Name}" FontWeight="SemiBold" Style="{DynamicResource TextBlockDefaultPrimary}"/>
-                    </Border>
+                            <Border.Background>
+                                <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.25"/>
+                            </Border.Background>
+                            <TextBlock Margin="7,7" Text="{Binding SelectedControlZone.Name}" FontWeight="SemiBold" Style="{DynamicResource TextBlockDefaultPrimary}"/>
+                        </Border>
                         <Grid>
                             <Button Command="{Binding OpenAdvanceSettingWindowCommand}" CommandParameter="advance" Margin="10,0,0,0" ToolTip="Advance Settings" hc:IconElement.Geometry="{DynamicResource ConfigGeometry}"/>
                         </Grid>
@@ -192,6 +250,7 @@
 
                     </Grid>-->
                 </Grid>
+                
                 <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10,0,10">
 
                 </hc:Divider>
@@ -225,7 +284,7 @@
                 <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10,0,10">
 
                 </hc:Divider>
-                <ItemsControl Margin="10,0,0,0" ItemsSource="{Binding SelectedControlZone.CurrentActiveControlMode.Parameters,Mode=TwoWay}">
+                <ItemsControl x:Name="paramList" Margin="10,0,0,0" ItemsSource="{Binding SelectedControlZone.CurrentActiveControlMode.Parameters,Mode=TwoWay}">
 
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -252,6 +311,11 @@
                                                              Value="{x:Static ut:ModeParameterTemplateEnum.ToggleOnOff}">
                                                 <Setter Property="ContentTemplate"
                                                             Value="{DynamicResource _toggleParamTemplate}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Path=Template}"
+                                                             Value="{x:Static ut:ModeParameterTemplateEnum.ChartVisualization }">
+                                                <Setter Property="ContentTemplate"
+                                                            Value="{DynamicResource _charVisualizationTemplate}" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>

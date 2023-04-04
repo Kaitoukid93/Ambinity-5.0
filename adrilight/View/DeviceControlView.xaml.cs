@@ -233,17 +233,9 @@ namespace adrilight.View
             
         }
 
-        private void RenameButtonClick(object sender, RoutedEventArgs e)
-        {
-            RenamePopup.IsOpen = true;
-        }
+      
 
-        private void ChangeCurrentDeviceName(object sender, RoutedEventArgs e)
-        {
-            ViewModel.CurrentDevice.DeviceName = RenameTextBox.Text;
-            RenamePopup.IsOpen = false;
-        }
-
+       
         private void BrightnessButton_OnClick(object sender, RoutedEventArgs e)
         {
            

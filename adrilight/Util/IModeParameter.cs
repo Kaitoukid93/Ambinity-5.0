@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using LiveCharts;
+using LiveCharts.Defaults;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
@@ -35,5 +37,9 @@ namespace adrilight.Util
         /// this is the max value, used for prevent the value to overshoot
         /// </summary>
         int MaxValue { get; set; }
+        /// <summary>
+        /// this store line chart value for data visualization
+        /// </summary>
+        ChartValues<ObservableValue> LineValues { get; set; }
     }
 }

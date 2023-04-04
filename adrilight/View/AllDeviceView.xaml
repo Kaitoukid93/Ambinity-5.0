@@ -6,7 +6,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:local="clr-namespace:adrilight.View"
-             xmlns:deviceSettings="clr-namespace:adrilight"
+             xmlns:settings="clr-namespace:adrilight"
              Background="{StaticResource RegionBrush}"
              xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
              xmlns:converters="clr-namespace:adrilight.Converter"
@@ -32,11 +32,11 @@
             <SolidColorBrush x:Key="Item.SelectedInactive.Border" Color="BlueViolet" Opacity="25"/>
             <SolidColorBrush x:Key="Item.SelectedActive.Background" Color="BlueViolet" Opacity="25"/>
             <SolidColorBrush x:Key="Item.SelectedActive.Border" Color="BlueViolet" Opacity="25"/>
-           
+
             <DropShadowEffect x:Key="Item.SelectedActive.Border.Shadow" BlurRadius="20"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}"/>
             <DropShadowEffect x:Key="Item.MouseOver.Border.Shadow" BlurRadius="20"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource DarkMaskBrush}}"/>
             <Style x:Key="ListViewContainerStyle" TargetType="{x:Type ListViewItem}">
-             
+
                 <Setter Property="SnapsToDevicePixels" Value="True"/>
                 <Setter Property="Padding" Value="0"/>
                 <!--<Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
@@ -71,9 +71,18 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type ListViewItem}">
-                            <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" Margin="8" CornerRadius="15" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
-                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                                
+                            <Border x:Name="Bd" 
+                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                    Margin="2" CornerRadius="9" 
+                                    BorderThickness="{TemplateBinding BorderThickness}" 
+                                    Background="{TemplateBinding Background}" 
+                                    Padding="{TemplateBinding Padding}" 
+                                    SnapsToDevicePixels="true">
+                                <ContentPresenter 
+                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+
                             </Border>
                             <ControlTemplate.Triggers>
                                 <MultiTrigger>
@@ -81,13 +90,13 @@
                                         <Condition Property="IsMouseOver" Value="True"/>
                                         <Condition Property="IsSelected" Value="False"/>
                                     </MultiTrigger.Conditions>
-                                   
+
                                     <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
                                     <!--<Setter Property="BorderThickness" TargetName="Bd" Value="4"/>-->
                                     <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
-                                    <Setter Property="Effect" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>
+                                    <Setter Property="Background" TargetName="Bd" Value="{DynamicResource DarkMaskBrush}"/>
                                 </MultiTrigger>
-                              
+
 
                                 <MultiTrigger>
                                     <MultiTrigger.Conditions>
@@ -103,7 +112,7 @@
                                         <Condition Property="Selector.IsSelectionActive" Value="True"/>
                                         <Condition Property="IsSelected" Value="True"/>
                                     </MultiTrigger.Conditions>
-                                   
+
                                     <!--<Setter Property="BorderThickness" TargetName="Bd" Value="6"/>-->
                                     <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource PrimaryBrush}"/>
                                 </MultiTrigger>
@@ -115,8 +124,105 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-         
 
+            <DataTemplate x:Key="_deviceCardListViewTemplate" DataType="{x:Type settings:DeviceSettings}">
+                <Grid>
+                    <Border Width="{Binding DashboardWidth}" 
+                            Height="{Binding DashboardHeight}"
+                            CornerRadius="7" 
+                            Background="{StaticResource DarkOpacityBrush}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseLeftButtonDown">
+                                <i:InvokeCommandAction 
+                                            Command="{Binding Path=DataContext.SelectCardCommand, RelativeSource={RelativeSource AncestorType={x:Type local:AllDeviceView}}}"
+                                            CommandParameter="{Binding}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <hc:RunningBlock 
+                                                Margin="15,10,0,0"
+                                                BorderThickness="0" 
+                                                Padding="0"  
+                                                Duration="0:0:9" 
+                                                Height="32" 
+                                                HorizontalAlignment="Left" 
+                                                AutoRun="True"  Width="150" 
+                                                Runaway="False" 
+                                                VerticalAlignment="Stretch" >
+                                        <hc:RunningBlock.Content>
+                                            <TextBlock Text="{Binding DeviceName}" 
+                                                   FlowDirection="RightToLeft"
+                                                   FontWeight="SemiBold"
+                                                   Style="{StaticResource TextBlockTitle}"/>
+                                        </hc:RunningBlock.Content>
+                                    </hc:RunningBlock>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Margin="15,0,0,10" HorizontalAlignment="Left" Text="{Binding HardwareVersion}" Style="{DynamicResource TextBlockDefaultPrimary}"/>
+
+                                    </StackPanel>
+                                    
+                                </StackPanel>
+                                <ToggleButton Grid.Column="1"
+                                        IsChecked="{Binding IsEnabled}" 
+                                        BorderThickness="0"                                     
+                                        Margin="15" 
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Top"                                      
+                                        Grid.Row="0"
+                                        Style="{DynamicResource ToggleButtonSwitchSmallerElipse}">
+                                </ToggleButton>
+                            </Grid>
+                            <Grid Grid.Row="1">
+                                <Image Margin="10" HorizontalAlignment="Center" Source="{Binding DeviceThumbnail}" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" />
+                            </Grid>
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right" Margin="10" Grid.Row="1">
+
+                                    <TextBlock Margin="0,0,5,0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding OutputPort}" >
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsTransferActive}" Value="False">
+                                                        <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                    <Path Width="25" Height="25" Margin="5,5" Data="{DynamicResource connection}" Stretch="Uniform" >
+                                        <Path.Style>
+                                            <Style TargetType="Path">
+                                                <Setter Property="Fill" Value="{StaticResource PrimaryBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsTransferActive}" Value="False">
+                                                        <Setter Property="Fill" Value="{DynamicResource SecondaryTextBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Path.Style>
+                                    </Path>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </DataTemplate>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary
                     Source="ControlStyle.xaml">
@@ -130,7 +236,7 @@
     </UserControl.Resources>
     <Grid Margin="10,10,10,10" >
 
-      
+
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
@@ -141,15 +247,15 @@
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
-         
-           
-           
+
+
+
         </Grid>
-        
+
 
 
         <Grid Width="auto" x:Name="parrentGrid" Grid.Row="1" >
-       
+
 
             <hc:RelativePanel Margin="0">
                 <Grid x:Name="Header" hc:RelativePanel.AlignLeftWithPanel="True" hc:RelativePanel.AlignTopWithPanel="True" >
@@ -171,201 +277,53 @@
                 </hc:ButtonGroup>-->
                 </Grid>
 
-                
-               
-                
+
+
+
                 <Grid x:Name="AllDevicesPanel" hc:RelativePanel.AlignLeftWithPanel="True"  hc:RelativePanel.Below="{Binding ElementName=Header}">
-                
-          <!-- all devices-->
-            <ListView  Margin="0" 
+
+                    <!-- all devices-->
+                    <ListView  Margin="0" 
                        
                        Name="itm" 
                        SelectionMode="Multiple"
                        ItemsSource="{Binding AvailableDevices,UpdateSourceTrigger=PropertyChanged}"                        
                        IsTabStop="False"
-                     
+                       ItemTemplate="{DynamicResource _deviceCardListViewTemplate}"
                        BorderThickness="0" 
                        Tag="{Binding}"
                        HorizontalAlignment="Left">
 
-                <ListView.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal"/>
-                    </ItemsPanelTemplate>
-                </ListView.ItemsPanel>
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource ListViewContainerStyle}">
-                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-                    </Style>
-                </ListView.ItemContainerStyle>
-                <ListView.Template>
-                    <ControlTemplate TargetType="{x:Type ItemsControl}">
-                        <Border Margin="0" 
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource ListViewContainerStyle}">
+                                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.Template>
+                            <ControlTemplate TargetType="{x:Type ItemsControl}">
+                                <Border Margin="0" 
                             SnapsToDevicePixels="False">
-                            <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled">
-                                <ItemsPresenter />
-                            </hc:ScrollViewer>
-                        </Border>
-                    </ControlTemplate>
-                </ListView.Template>
+                                    <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                                        <ItemsPresenter />
+                                    </hc:ScrollViewer>
+                                </Border>
+                            </ControlTemplate>
+                        </ListView.Template>
 
 
-                <ListView.ItemTemplate>
-                    <DataTemplate >
-                        <Grid 
-                              x:Name="dev" 
-                                    
-                              Width="230" 
-                              Height="260" >
 
-                            <Button Visibility="{Binding IsDummy,Converter={StaticResource boolToVisibilityConvert}}" Command="{Binding Path=DataContext.ShowAddNewCommand, ElementName=itm}" hc:BorderElement.CornerRadius="15" Width="230" Height="260" Margin="0" hc:IconElement.Geometry="{StaticResource AddGeometry}" hc:IconElement.Height="50" hc:IconElement.Width="50" Style="{StaticResource ButtonDashedPrimary}">
-                                
-                            </Button>
-
-                            <Border  Visibility="{Binding IsDummy,Converter={StaticResource InverseBoolToVisConverter}}"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
-                                CornerRadius="15" 
-                                Background="{StaticResource DarkOpacityBrush}">
-                                <!--<Border.Style>
-                                    <Style TargetType="Border"  >
-                                        <Setter Property="BorderBrush" Value="#FF898989"></Setter>
-                                        <Setter Property="BorderThickness" Value="2"></Setter>
-                                        --><!--<Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="BorderBrush" Value="#7F326CF3"></Setter>
-                                                <Setter Property="BorderThickness" Value="6"></Setter>
-                                            </Trigger>
-                                        </Style.Triggers>--><!--
-                                    </Style>
-                                </Border.Style>-->
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="MouseLeftButtonDown">
-                                        <i:InvokeCommandAction 
-                                            Command="{Binding Path=DataContext.SelectCardCommand, ElementName=itm}" 
-                                            CommandParameter="{Binding}"/>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                                <Grid Margin="20">
-                                    <!--<i:Interaction.Triggers>
-                                        <i:EventTrigger EventName="MouseDown">
-                                            <i:InvokeCommandAction Command="{Binding Path=DataContext.SelectCardCommand, ElementName=itm}" CommandParameter="{Binding}"/>
-                                        </i:EventTrigger>
-                                    </i:Interaction.Triggers>-->
-                                 
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="auto"/>
-                                        <RowDefinition Height="*"/>
-                                        
-                                    </Grid.RowDefinitions>
-                                    <!--on off button and loading-->
-                                    <Grid VerticalAlignment="Top" HorizontalAlignment="Right">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <hc:LoadingCircle Visibility="{Binding IsLoading, Converter={StaticResource boolToVisibilityConvert},Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Width="24" Height="24" Margin="10,0"/>
-                                        <ToggleButton Grid.Column="1"
-                                        IsChecked="{Binding IsEnabled}" 
-                                        BorderThickness="0"                                     
-                                        Margin="0,0,0,0" 
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Top"                                      
-                                        Grid.Row="0"
-                                        Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
-                                        </ToggleButton>
-                                    </Grid>
-                                   
-                                    <!--delete device button-->
-                                    
-                                    <!--Icon-->
-                                    <Border Padding="5" HorizontalAlignment="Left" VerticalAlignment="Center"  Margin="0,0,0,0" Width="100" Height="100" CornerRadius="7" >
-                                                <Image HorizontalAlignment="Left" Source="{Binding DeviceThumbnail}" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" />
-                                            </Border>
-                                    
-
-                                    <!--device information-->
-                                    
-                                        <!--Big icon-->
-                                       
-                                        <StackPanel  
-                                            Margin="0,0,0,20"
-                                            Grid.Row="1" 
-                                            >
-                                            <hc:RunningBlock 
-                                                Margin="5,10,10,0"
-                                                BorderThickness="0" 
-                                                Padding="0"  
-                                                Duration="0:0:9" 
-                                                Height="32" 
-                                                HorizontalAlignment="Left" 
-                                                AutoRun="True"  Width="150" 
-                                                Runaway="False" 
-                                                VerticalAlignment="Stretch" >
-                                                <hc:RunningBlock.Content>
-                                                    <TextBlock  Text="{Binding DeviceName}" 
-                                                                FlowDirection="RightToLeft"
-                                                                FontWeight="SemiBold"
-                                                                Style="{StaticResource TextBlockTitle}"
-                                                                />
-                                                </hc:RunningBlock.Content>
-                                                <!--<hc:RunningBlock.Background>
-                                                    <SolidColorBrush 
-                                                        Color="White" 
-                                                        Opacity="0.25" />
-                                                </hc:RunningBlock.Background>-->
-
-                                            </hc:RunningBlock>
-                                            <TextBlock Margin="5" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}"  Text="{Binding DeviceType}" />
-                                        <TextBlock Margin="5" HorizontalAlignment="Left">
-                                            <TextBlock.Style>
-                                                <Style BasedOn="{StaticResource TextBlockDefault}" TargetType="TextBlock">
-                                                    <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsTransferActive}" Value="False">
-                                                            <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
-                                                            <Setter Property="Text" Value="Disconnected"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding IsTransferActive}" Value="True">
-                                                            <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
-                                                            <Setter Property="Text" Value="Connected"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                          
-                                            
-                                        </StackPanel>
-                                    
-                                    <!--<ListBox Grid.Row="2" Visibility="{Binding IsHUB,Converter={StaticResource boolToVisibilityConvert}}">
-                                        <ListBox.Resources>
-                                            <CollectionViewSource x:Key="allDevice" Source="{Binding ChildCard}" />
-                                        </ListBox.Resources>
-                                        <ListBox.ItemsSource>
-                                            <CompositeCollection>
-                                                <CollectionContainer Collection="{Binding Source={StaticResource allDevice}}" />
-
-                                                <ListBoxItem Foreground="Red" Width="30" Height="30">
-                                                    <materialDesign:PackIcon Kind="AddBox"></materialDesign:PackIcon>
-                                                </ListBoxItem>
-                                            </CompositeCollection>
-                                        </ListBox.ItemsSource>
-
-                                         Here you can customize everything you want 
-                                    </ListBox>-->
-                                </Grid>
-                            </Border>
-                        </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-                <!--<ItemsControl.ItemsPanel>
+                        <!--<ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel Orientation="Horizontal"/>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>-->
-            </ListView>
-            </Grid>
+                    </ListView>
+                </Grid>
             </hc:RelativePanel>
 
         </Grid>

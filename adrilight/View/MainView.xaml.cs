@@ -50,35 +50,34 @@ namespace adrilight.View
             }
             if (view != null)
             {
-                view.FanControlView = new SeriesCollection
-           {
-                new LineSeries
-                {
-                    AreaLimit = -10,
-                    Values = new ChartValues<ObservableValue>
-                    {
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80)
+            //    view.FanControlView =
+            //    new LineSeries
+            //    {
+            //        AreaLimit = -10,
+            //        Values = new ChartValues<ObservableValue>
+            //        {
+            //            new ObservableValue(80),
+            //            new ObservableValue(80),
+            //            new ObservableValue(80),
+            //            new ObservableValue(80),
+            //            new ObservableValue(80),
+            //            new ObservableValue(80),
+            //            new ObservableValue(80),
+            //            new ObservableValue(80),
+            //            new ObservableValue(80),
+            //            new ObservableValue(80),
+            //            new ObservableValue(80),
+            //            new ObservableValue(80),
+            //            new ObservableValue(80),
+            //            new ObservableValue(80),
+            //            new ObservableValue(80),
+            //            new ObservableValue(80),
+            //            new ObservableValue(80),
+            //            new ObservableValue(80)
 
-                }
-                }
-            };
+            //    }
+                
+            //};
                
                 view.IsSplitLightingWindowOpen = true;
                 //view.IsSplitLightingWindowOpen = true;

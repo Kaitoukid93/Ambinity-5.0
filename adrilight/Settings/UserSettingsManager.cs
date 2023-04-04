@@ -62,40 +62,59 @@ namespace adrilight
                 device.AvailableControllers = new List<Settings.IDeviceController>();
                 //read slave device info
                 //check if this device contains lighting controller
-                var lightingOutputsDir = Path.Combine(Path.Combine(folder, "LightingOutputs"));
-                if(Directory.Exists(lightingOutputsDir))
-                {
-                    //add controller to this device
-                    
-                    var lightingController = new DeviceController();
-                    lightingController.Geometry = "brightness";
+                var lightingoutputDir = Path.Combine(Path.Combine(folder, "LightingOutputs"));
+                var pwmoutputDir = Path.Combine(Path.Combine(folder, "PWMOutputs"));
+                DeserializeChild<ARGBLEDSlaveDevice>(lightingoutputDir, device,OutputTypeEnum.ARGBLEDOutput);
+                DeserializeChild<PWMMotorSlaveDevice>(pwmoutputDir, device, OutputTypeEnum.PWMOutput);
 
-                    foreach (var subfolder in Directory.GetDirectories(lightingOutputsDir)) // each subfolder contains 1 slave device
-                    {
-                        //read slave device info
-                        var outputJson = File.ReadAllText(Path.Combine(subfolder, "config.json"));
-                        var output = JsonConvert.DeserializeObject<OutputSettings>(outputJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
-                        var slaveDeviceJson = File.ReadAllText(Path.Combine(Directory.GetDirectories(subfolder).FirstOrDefault(), "config.json"));
-                        var slaveDevice = JsonConvert.DeserializeObject<ARGBLEDSlaveDevice>(slaveDeviceJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
-                        if(!File.Exists(slaveDevice.Thumbnail))
-                        {
-                            slaveDevice.Thumbnail = Path.Combine(Directory.GetDirectories(subfolder).FirstOrDefault(), "thumbnail.png");
-                        }
-                        
-                        output.SlaveDevice = slaveDevice;
-                        lightingController.Outputs.Add(output);
-                        //each slave device attach to one output so we need to create output
-                        //lightin
 
-                    }
-                    device.AvailableControllers.Add(lightingController);
-                }
-                
                 devices.Add(device);
             }
             return devices;
         }
-     
+        private void DeserializeChild<T>(string outputDir, IDeviceSettings device , OutputTypeEnum outputType)
+        {
+            if (Directory.Exists(outputDir))
+            {
+                //add controller to this device
+
+                var controller = new DeviceController();
+                switch(outputType)
+                {
+                    case (OutputTypeEnum.PWMOutput):
+                        controller.Geometry = "fanspeed";
+                        controller.Type = ControllerTypeEnum.PWMController;
+                        break;
+                    case (OutputTypeEnum.ARGBLEDOutput):
+                        controller.Geometry = "brightness";
+                        controller.Type = ControllerTypeEnum.LightingController;
+                        break;
+                }
+               
+
+                foreach (var subfolder in Directory.GetDirectories(outputDir)) // each subfolder contains 1 slave device
+                {
+                    //read slave device info
+                    var outputJson = File.ReadAllText(Path.Combine(subfolder, "config.json"));
+                    var output = JsonConvert.DeserializeObject<OutputSettings>(outputJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    var slaveDeviceJson = File.ReadAllText(Path.Combine(Directory.GetDirectories(subfolder).FirstOrDefault(), "config.json"));
+                    var slaveDevice = JsonConvert.DeserializeObject<T>(slaveDeviceJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+
+
+                    if (!File.Exists((slaveDevice as ISlaveDevice).Thumbnail))
+                    {
+                        (slaveDevice as ISlaveDevice).Thumbnail = Path.Combine(Directory.GetDirectories(subfolder).FirstOrDefault(), "thumbnail.png");
+                    }
+
+                    output.SlaveDevice = slaveDevice as ISlaveDevice;
+                    controller.Outputs.Add(output);
+                    //each slave device attach to one output so we need to create output
+                    //lightin
+
+                }
+                device.AvailableControllers.Add(controller);
+            }
+        }
 
         private static void HandleAutostart(GeneralSettings settings)
         {

@@ -20,6 +20,8 @@ using LiveCharts.Defaults;
 using LiveCharts.Wpf;
 using System.Windows;
 using adrilight.View;
+using NAudio.SoundFont;
+using adrilight.Settings;
 
 namespace adrilight.Util
 {
@@ -299,8 +301,25 @@ namespace adrilight.Util
                     var medianSpeed = speeds.Median();
                     if (MainViewViewModel.IsSplitLightingWindowOpen)
                     {
-                        MainViewViewModel.FanControlView[0].Values.Add(new ObservableValue(medianSpeed));
-                        MainViewViewModel.FanControlView[0].Values.RemoveAt(0);
+                        foreach(var device in MainViewViewModel.AvailableDevices.Where(d=>d.AvailablePWMDevices!=null))
+                        {
+                            var pwmOutputs = device.AvailablePWMOutputs.ToList();
+                            foreach(var pwmOutput in pwmOutputs)
+                            {
+                                var zones = pwmOutput.SlaveDevice.ControlableZones.ToList();
+                                foreach(var zone in zones)
+                                {
+                                    if((zone.CurrentActiveControlMode as PWMMode).BasedOn==PWMModeEnum.auto)
+                                    {
+                                        (zone as FanMotor).SpeedParameter.LineValues.Add(new ObservableValue(medianSpeed));
+                                        (zone as FanMotor).SpeedParameter.LineValues.RemoveAt(0);
+                                        (zone as FanMotor).SpeedParameter.Value = (int)medianSpeed;
+                                    }
+                                }
+                            }
+                        }
+                  
+                   
 
                     }
                     // decide if it's necessary to update to the fan

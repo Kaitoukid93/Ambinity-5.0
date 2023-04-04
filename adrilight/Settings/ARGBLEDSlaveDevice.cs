@@ -45,7 +45,7 @@ namespace adrilight.Settings
         {
             VisualProperties = new VisualProperties();
             Scale = new System.Windows.Point(1, 1);
-
+           
 
         }
 

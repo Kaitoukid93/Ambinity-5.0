@@ -40,6 +40,8 @@ namespace adrilight
         private bool _isDummy = false;
         private bool _isLoading = false;
         private ObservableCollection<ControlZoneGroup> _controlZoneGroups;
+        private int _dashboardWidth;
+        private int _dashboardHeight;
 
         private int _selectedOutput = 0;
         private string _geometry = "generaldevice";
@@ -64,6 +66,8 @@ namespace adrilight
         private int _currentActiveControllerIndex;
         private IDeviceController _currentActiveController;
         private string _deviceOutputMap;
+        public int DashboardWidth { get => _dashboardWidth; set { Set(() => DashboardWidth, ref _dashboardWidth, value); } }
+        public int DashboardHeight { get => _dashboardHeight; set { Set(() => DashboardHeight, ref _dashboardHeight, value); } }
         public string DeviceThumbnail { get => _deviceThumbnail; set { Set(() => DeviceThumbnail, ref _deviceThumbnail, value); } }
         public string DeviceOutputMap { get => _deviceOutputMap; set { Set(() => DeviceOutputMap, ref _deviceOutputMap, value); } }
         public DeviceTypeEnum TypeEnum { get => _typeEnum; set { Set(() => TypeEnum, ref _typeEnum, value); } }
@@ -118,16 +122,28 @@ namespace adrilight
         public ISlaveDevice[] AvailableLightingDevices => GetSlaveDevices(ControllerTypeEnum.LightingController);
         [JsonIgnore]
         public IOutputSettings[] AvailableLightingOutputs => GetOutput(ControllerTypeEnum.LightingController);
+        [JsonIgnore]
+        public IOutputSettings[] AvailablePWMOutputs => GetOutput(ControllerTypeEnum.PWMController);
+        [JsonIgnore]
+        public ISlaveDevice[] AvailablePWMDevices => GetSlaveDevices(ControllerTypeEnum.PWMController);
         private ISlaveDevice[] GetSlaveDevices(ControllerTypeEnum type)
         {
             var slaveDevices = new List<ISlaveDevice>();
-            foreach (var controller in AvailableControllers.Where(x => x.Type == type))
+            try
             {
-                foreach(var output in controller.Outputs)
+                foreach (var controller in AvailableControllers.Where(x => x.Type == type))
                 {
-                    slaveDevices.Add(output.SlaveDevice);
+                    foreach (var output in controller.Outputs)
+                    {
+                        slaveDevices.Add(output.SlaveDevice);
+                    }
                 }
             }
+            catch(Exception ex)
+            {
+                return null;
+            }
+           
             return slaveDevices.ToArray();
         }
         private IOutputSettings[] GetOutput(ControllerTypeEnum type)

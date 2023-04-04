@@ -80,6 +80,8 @@ using Xceed.Wpf.Toolkit.Primitives;
 using SolidColorBrush = System.Windows.Media.SolidColorBrush;
 using MoreLinq.Extensions;
 using System.Windows.Interop;
+using LiveCharts.Wpf;
+using LiveCharts.Defaults;
 
 namespace adrilight.ViewModel
 {
@@ -1124,16 +1126,6 @@ namespace adrilight.ViewModel
             }
         }
 
-        private SeriesCollection _fanControlView;
-
-        public SeriesCollection FanControlView {
-            get => _fanControlView;
-            set
-            {
-                _fanControlView = value;
-                RaisePropertyChanged();
-            }
-        }
 
         public WriteableBitmap _gifxelationBitmap;
 
@@ -1485,7 +1477,6 @@ namespace adrilight.ViewModel
             device.DeviceOutputMap = Path.Combine(directory, "outputmap.png");
             //write output info
             var lightingOutputDirectory = Path.Combine(directory, "LightingOutputs"); //contains lighting controller info
-            Directory.CreateDirectory(directory);
             foreach (var output in device.AvailableLightingOutputs)
             {
                 var outputDirectory = Path.Combine(lightingOutputDirectory, output.OutputName + "_" + output.OutputID.ToString());
@@ -1506,6 +1497,32 @@ namespace adrilight.ViewModel
 
                 WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
             }
+            var pwmController = device.AvailableControllers.Where(c => c.Type == ControllerTypeEnum.PWMController).FirstOrDefault();
+            if (pwmController != null)
+            {
+                var pwmOutputDirectory = Path.Combine(directory, "PWMOutputs"); //contains pwm controller info
+                foreach (var output in device.AvailablePWMOutputs)
+                {
+                    var outputDirectory = Path.Combine(pwmOutputDirectory, output.OutputName + "_" + output.OutputID.ToString());
+                    Directory.CreateDirectory(outputDirectory);
+                    //write output infojson
+                    WriteSingleOutputInfoJson(output, device);
+
+                    //write slave device config
+                    var slaveDeviceDirectory = Path.Combine(outputDirectory, "AttachedDevice");
+                    Directory.CreateDirectory(slaveDeviceDirectory);
+                    //write slave device thumb as undefined device
+                    if (device.IsSizeNeedUserDefine)
+                    {
+                        var undefinedThumbnailResourcePath = "adrilight.Resources.Thumbnails.Undefined_thumb.png";
+                        ResourceHlprs.CopyResource(undefinedThumbnailResourcePath, Path.Combine(slaveDeviceDirectory, "thumbnail.png"));
+                        output.SlaveDevice.Thumbnail = Path.Combine(slaveDeviceDirectory, "thumbnail.png");
+                    }
+
+                    WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
+                }
+            }
+
             // finally write infojson
             WriteSingleDeviceInfoJson(device);
 
@@ -1520,7 +1537,20 @@ namespace adrilight.ViewModel
         /// 
         private void RegisterDevice(IDeviceSettings device)
         {
-            device.PropertyChanged += (_, __) => WriteSingleDeviceInfoJson(device);
+            device.PropertyChanged += (_, __) =>
+            {
+                WriteSingleDeviceInfoJson(device);
+                switch(__.PropertyName)
+                {
+                    case nameof(device.CurrentActiveControlerIndex):
+                        {
+                            //update liveview
+                            UpdateLiveView();
+                        }
+                        break;
+                }
+            };
+               
             foreach (var controller in device.AvailableControllers)
             {
                 foreach (var output in controller.Outputs)
@@ -1529,11 +1559,12 @@ namespace adrilight.ViewModel
                 }
 
             }
-            if(device.ControlZoneGroups!=null)
+            if (device.ControlZoneGroups != null)
             {
-                var childItems = new List<IControlZone>();
-                foreach(var group in device.ControlZoneGroups)
+
+                foreach (var group in device.ControlZoneGroups)
                 {
+                    var childItems = new List<IControlZone>();
                     foreach (var zone in device.CurrentLiveViewZones)
                     {
                         if (group.ZoneUIDCollection.Contains(zone.ZoneUID))
@@ -1543,7 +1574,7 @@ namespace adrilight.ViewModel
                     }
                     RegisterGroupItem(childItems, group);
                 }
-               
+
             }
         }
         private void RegisterOutput(IOutputSettings output, IDeviceSettings device)
@@ -1568,7 +1599,39 @@ namespace adrilight.ViewModel
         }
         private void RegisterSlaveDevice(ISlaveDevice slaveDevice, IOutputSettings output, IDeviceSettings device)
         {
-            slaveDevice.PropertyChanged += (_, __) => WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
+            slaveDevice.PropertyChanged += (_, __) =>
+            {
+                WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
+                //this master change in position reflect other output type of the device
+                if (output.OutputType == OutputTypeEnum.ARGBLEDOutput)
+                {
+                    var ledSlaveDevice = output.SlaveDevice as IDrawable;
+                    if(device.AvailablePWMOutputs.Count()>0)
+                    {
+                        var pwmSlaveDevice = device.AvailablePWMOutputs.Where(o => o.OutputID == output.OutputID).FirstOrDefault().SlaveDevice;
+                        switch (__.PropertyName)
+                        {
+                            case nameof(ledSlaveDevice.Left):
+                            case nameof(ledSlaveDevice.Top):
+                            case nameof(ledSlaveDevice.Width):
+                            case nameof(ledSlaveDevice.Height):
+                                if (pwmSlaveDevice != null)
+                                {
+                                    (pwmSlaveDevice as IDrawable).Left = ledSlaveDevice.Left;
+                                    (pwmSlaveDevice as IDrawable).Top = ledSlaveDevice.Top;
+                                    (pwmSlaveDevice as IDrawable).Width = ledSlaveDevice.Width;
+                                    (pwmSlaveDevice as IDrawable).Height = ledSlaveDevice.Height;
+                                }
+                                break;
+                        }
+                    }
+                   
+                }
+
+
+
+
+            };
             foreach (var zone in output.SlaveDevice.ControlableZones)
             {
                 RegisterZone(zone, slaveDevice, output, device);
@@ -1623,7 +1686,17 @@ namespace adrilight.ViewModel
         public void WriteSingleSlaveDeviceInfoJson(ISlaveDevice slaveDevice, IOutputSettings output, IDeviceSettings parrent)
         {
             var parrentDirectory = Path.Combine(DevicesCollectionFolderPath, parrent.DeviceName + "-" + parrent.DeviceUID);
-            var outputDirectory = Path.Combine(parrentDirectory, "LightingOutputs", output.OutputName + "_" + output.OutputID.ToString());
+            string outputDirectory = " ";
+            switch (output.OutputType)
+            {
+                case (OutputTypeEnum.PWMOutput):
+                    outputDirectory = Path.Combine(parrentDirectory, "PWmOutputs", output.OutputName + "_" + output.OutputID.ToString());
+                    break;
+                case (OutputTypeEnum.ARGBLEDOutput):
+                    outputDirectory = Path.Combine(parrentDirectory, "LightingOutputs", output.OutputName + "_" + output.OutputID.ToString());
+                    break;
+            }
+
             var fileToWrite = Path.Combine(outputDirectory, "AttachedDevice", "config.json");
             var json = JsonConvert.SerializeObject(slaveDevice, new JsonSerializerSettings() {
                 TypeNameHandling = TypeNameHandling.Auto
@@ -1650,7 +1723,16 @@ namespace adrilight.ViewModel
         public void WriteSingleOutputInfoJson(IOutputSettings output, IDeviceSettings parrent)
         {
             var parrentDirectory = Path.Combine(DevicesCollectionFolderPath, parrent.DeviceName + "-" + parrent.DeviceUID);
-            var childDirectory = Path.Combine(parrentDirectory, "LightingOutputs", output.OutputName + "_" + output.OutputID.ToString());
+            string childDirectory = " ";
+            switch (output.OutputType)
+            {
+                case (OutputTypeEnum.PWMOutput):
+                    childDirectory = Path.Combine(parrentDirectory, "PWmOutputs", output.OutputName + "_" + output.OutputID.ToString());
+                    break;
+                case (OutputTypeEnum.ARGBLEDOutput):
+                    childDirectory = Path.Combine(parrentDirectory, "LightingOutputs", output.OutputName + "_" + output.OutputID.ToString());
+                    break;
+            }
             var fileToWrite = Path.Combine(childDirectory, "config.json");
             var json = JsonConvert.SerializeObject(output, new JsonSerializerSettings() {
                 TypeNameHandling = TypeNameHandling.Auto
@@ -3546,7 +3628,15 @@ namespace adrilight.ViewModel
                     p.IsSelected = true;
                     SelectedLiveViewItem = p;
                     SelectedControlZone = p as IControlZone;
-                    SelectedSlaveDevice = CurrentDevice.AvailableLightingDevices.Where(d => d.ControlableZones.Contains(p as IControlZone)).FirstOrDefault();
+                    if(p.DataType == typeof(LEDSetup))
+                    {
+                        SelectedSlaveDevice = CurrentDevice.AvailableLightingDevices.Where(d => d.ControlableZones.Contains(p as IControlZone)).FirstOrDefault();
+                    }
+                    else if(p.DataType == typeof(FanMotor))
+                    {
+                        SelectedSlaveDevice = CurrentDevice.AvailablePWMDevices.Where(d => d.ControlableZones.Contains(p as IControlZone)).FirstOrDefault();
+                    }
+                       
                 }
 
 
@@ -6633,27 +6723,7 @@ namespace adrilight.ViewModel
                 (item as LEDSetup).MaskedControlMode = group.MaskedControlZone.CurrentActiveControlMode;
                 (item as IDrawable).IsSelectable = false;
                 item.IsInControlGroup = true;
-                group.ZoneUIDCollection.Add(item.ZoneUID);
-                //item.CurrentActiveControlModeIndex = group.MaskedControlZone.CurrentActiveControlModeIndex;
-                //(item as IDrawable).IsSelectable = false;
-                //group.ZoneUIDCollection.Add(item.ZoneUID);
-                //foreach (var parameter in group.MaskedControlZone.CurrentActiveControlMode.Parameters)
-                //{
-                //    parameter.PropertyChanged += (_, __) =>
-                //    {
-                //        WriteSingleDeviceInfoJson(CurrentDevice);
-                //        switch (__.PropertyName)
-                //        {
-                //            case nameof(parameter.Value):
-                //                foreach (var item in childItems)
-                //                {
-                //                    var currentParam = item.CurrentActiveControlMode.Parameters.Where(p => p.Name == parameter.Name).FirstOrDefault();
-                //                    currentParam.Value = parameter.Value;
-                //                }
-                //                break;
-                //        }
-                //    };
-                //}
+
             }
             group.MaskedControlZone.PropertyChanged += (_, __) =>
             {
@@ -6712,6 +6782,7 @@ namespace adrilight.ViewModel
                     (zone as LEDSetup).MaskedControlMode = null;
                 }
             }
+            SelectedSlaveDevice = null;
             CurrentDevice.ControlZoneGroups.Remove(currentGroup);
             //
             //remove group
@@ -6768,6 +6839,10 @@ namespace adrilight.ViewModel
                 };
 
                 //sync control mode
+                foreach (var item in selectedItems)
+                {
+                    newGroup.ZoneUIDCollection.Add(item.ZoneUID);
+                }
                 RegisterGroupItem(selectedItems, newGroup);
 
                 SelectedControlZone = newGroup.MaskedControlZone;
@@ -6822,6 +6897,7 @@ namespace adrilight.ViewModel
         private void UpdateLiveView()
         {
             //simple just set the scale
+            GetItemsForLiveView(CurrentDevice);
             CurrentDevice.UpdateChildSize();
             var widthScale = (CurrentLiveViewWidth - 50) / CurrentDevice.CurrentLivewItemsBound.Width;
             var scaleHeight = (CurrentLiveViewHeight - 50) / CurrentDevice.CurrentLivewItemsBound.Height;
@@ -6897,7 +6973,7 @@ namespace adrilight.ViewModel
 
         //}
 
-      
+
         private ObservableCollection<IDrawable> _liveViewItems;
         public ObservableCollection<IDrawable> LiveViewItems {
             get { return _liveViewItems; }
@@ -6909,7 +6985,7 @@ namespace adrilight.ViewModel
         }
         private void GetItemsForLiveView(IDeviceSettings device)
         {
-            UpdateLiveView();
+            
             LiveViewItems = new ObservableCollection<IDrawable>();
             foreach (var item in CurrentDevice.CurrentLiveViewZones)
             {
@@ -8035,7 +8111,7 @@ namespace adrilight.ViewModel
                     screen.ShouldBringIntoView = true;
                     var source = new WriteableBitmap((int)(screen.Width / 8.0), (int)(screen.Height / 8.0), 96, 96, PixelFormats.Bgra32, null);
                     Desktops.Add(source);
-                    screen.Source = Desktops[i];
+                    //screen.Source = Desktops[i];
                     SurfaceEditorItems.Insert(0, screen);
                 }
             }
@@ -9971,15 +10047,15 @@ namespace adrilight.ViewModel
             CurrentDevice = selectedDevice;
             CurrentView = "details";
             IsLiveViewOpen = true;
-            GetItemsForLiveView(selectedDevice);
+            UpdateLiveView();
             AvailableProfilesForCurrentDevice = new ObservableCollection<IDeviceProfile>();
             AvailableProfilesForCurrentDevice = ProfileFilter(CurrentDevice);
-
+            SelectedSlaveDevice = null;
             IsSplitLightingWindowOpen = true;
 
 
 
-          
+
 
 
         }

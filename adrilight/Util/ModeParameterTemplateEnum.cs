@@ -19,5 +19,9 @@
         ///    this is came with a list
         /// </summary>
         ListSelection,
+        /// <summary>
+        /// this display a chart graph with no control
+        /// </summary>
+        ChartVisualization,
     }
 }

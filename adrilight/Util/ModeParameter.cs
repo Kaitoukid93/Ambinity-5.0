@@ -1,4 +1,6 @@
 ﻿using GalaSoft.MvvmLight;
+using LiveCharts;
+using LiveCharts.Defaults;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Documents;
@@ -15,6 +17,7 @@ namespace adrilight.Util
         private int _minValue;
         private int _maxValue;
         private ObservableCollection<object> _availableValue;
+        private ChartValues<ObservableValue> _lineValues;
 
 
         public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
@@ -33,6 +36,8 @@ namespace adrilight.Util
         /// <summary>
         /// this is the type of lighting mode, use to get the data template
         /// </summary>
+        /// 
+
         public ModeParameterTemplateEnum Template { get => _template; set { Set(() => Template, ref _template, value); } }
         public ModeParameterEnum Type { get => _type; set { Set(() => Type, ref _type, value); } }
 
@@ -41,6 +46,7 @@ namespace adrilight.Util
         /// </summary>
         public int MinValue { get => _minValue; set { Set(() => MinValue, ref _minValue, value); } }
         public int MaxValue { get => _maxValue; set { Set(() => MaxValue, ref _maxValue, value); } }
-        
+
+        public ChartValues<ObservableValue> LineValues { get => _lineValues; set { Set(() => LineValues, ref _lineValues, value); } }
     }
 }

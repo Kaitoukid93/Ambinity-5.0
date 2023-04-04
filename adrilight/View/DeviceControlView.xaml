@@ -476,38 +476,46 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid   Margin="10">
+    <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-
         <!--device info and hardware control-->
-
         <Grid>
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-
-
             <Grid Grid.Column="0">
+                <Button  Command="{Binding BackCommand}" 
+                         ToolTip="Trở về Dashboard"
+                            Width="32"
+                            Padding="0"
+                            Height="32" 
+                            Margin="10,0,30,0"  
+                            VerticalAlignment="Center" 
+                            BorderThickness="0" 
+                            HorizontalAlignment="Left" 
+                            hc:IconElement.Width="20"
+                            hc:IconElement.Height="20"
+                            hc:IconElement.Geometry="{DynamicResource back}" 
+                            Style="{DynamicResource ButtonDefault}" 
+                            Foreground="{DynamicResource SecondaryTextBrush}"/>
+            </Grid>
+            <Grid Grid.Column="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Border Background="Transparent" Margin="10" CornerRadius="7">
-                    <!--<Border.Background>
-                        <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
-                    </Border.Background>-->
-                    <Image RenderOptions.BitmapScalingMode="HighQuality" Margin="10" Width="70" Height="70" Stretch="Uniform" Source="{Binding CurrentDevice.DeviceThumbnail}"/>
+                <Border  Margin="0" CornerRadius="7">
+                    <Image RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,0" MaxWidth="300" MaxHeight="70" Stretch="Uniform" Source="{Binding CurrentDevice.DeviceThumbnail}"/>
                 </Border>
-
-                <StackPanel Margin="10,5" Grid.Column="1">
+                <StackPanel Margin="20,5" Grid.Column="1">
                     <hc:RunningBlock 
                                                 Margin="0,0,10,0"
                                                 BorderThickness="0" 
@@ -522,50 +530,18 @@
                             <TextBlock  Text="{Binding CurrentDevice.DeviceName}" 
                                                                 FlowDirection="RightToLeft"
                                                                 FontWeight="SemiBold"
-                                                                Style="{StaticResource TextBlockTitle}"
-                                                                />
+                                                                Style="{StaticResource TextBlockTitle}"/>
                         </hc:RunningBlock.Content>
-
                     </hc:RunningBlock>
-                    <!--<TextBlock FontSize="13" HorizontalAlignment="Left" Margin="2" Style="{StaticResource TextBlockDefault}" Text="{Binding CurrentDevice.DeviceDescription}" />-->
-
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition Width="auto"/>
-                        </Grid.ColumnDefinitions>
-                        <Button Foreground="{DynamicResource PrimaryBrush}" Content="Rename"   x:Name="ButtonRename"  Height="auto" Width="auto" VerticalAlignment="Top" hc:BorderElement.CornerRadius="6" Margin="5" FontSize="15" FontWeight="SemiBold" Click="RenameButtonClick"  Padding="5,3" HorizontalAlignment="Left"    Style="{StaticResource ButtonDefault}" BorderBrush="Transparent">
-
-                            <Button.Background>
-                                <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
-                            </Button.Background>
-                        </Button>
-                        <!--<Button Height="20"  Margin="10,0,10,0" Grid.Column="1" x:Name="ButtonRemove"  HorizontalAlignment="Left" Padding="0" Command="{Binding LaunchDeleteSelectedDeviceWindowCommand}"  Style="{StaticResource ButtonDefault}" Background="Transparent" BorderBrush="Transparent">
-                            <Button.Content>
-                                <TextBlock FontSize="13" Text="Remove" Style="{StaticResource TextBlockDefaultDanger}"/>
-                            </Button.Content>
-                        </Button>-->
+                        <StackPanel>
+                            <TextBlock HorizontalAlignment="Left" Text="{Binding CurrentDevice.HardwareVersion}" Style="{DynamicResource TextBlockDefaultPrimary}"/>
+                        </StackPanel>
                     </Grid>
-
-                    <Popup AllowsTransparency="True"  PlacementTarget="{Binding ElementName=ButtonRename}" HorizontalOffset="30" x:Name="RenamePopup" VerticalOffset="0" StaysOpen="False">
-                        <hc:TransitioningContentControl Effect="{StaticResource EffectShadow3}" TransitionMode="Top2Bottom">
-                            <Border Background="{StaticResource SecondaryRegionBrush}" CornerRadius="7" Margin="0,2,15,15"  Effect="{StaticResource EffectShadow3}">
-                                <StackPanel Orientation="Vertical">
-                                    <TextBox x:Name="RenameTextBox" >
-
-                                    </TextBox>
-
-                                    <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Click="ChangeCurrentDeviceName"   BorderBrush="Transparent"   Margin="5" Content="Rename" Style="{StaticResource ButtonPrimary}"/>
-                                </StackPanel>
-
-                            </Border>
-                        </hc:TransitioningContentControl>
-
-                    </Popup>
 
                 </StackPanel>
             </Grid>
-            <Grid Margin="0,0,50,0" Grid.Column="2">
+            <Grid Margin="0,0,50,0" Grid.Column="3">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="*"/>
@@ -677,7 +653,7 @@
                     </Button>
                 </hc:Badge>
             </Grid>
-            <Grid Margin="0,0,50,0" Grid.Column="3">
+            <Grid Margin="0,0,50,0" Grid.Column="4">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="*"/>
@@ -737,7 +713,7 @@
                     </Grid>
                 </Button>
             </Grid>
-            <Grid Margin="0,0,50,0" Grid.Column="4">
+            <Grid Margin="0,0,5,0" Grid.Column="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="*"/>
@@ -818,78 +794,13 @@
                     </Grid>
                 </Button>
             </Grid>
-            <Grid Grid.Column="5">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel VerticalAlignment="Center">
-                    <Button Command="{Binding BackCommand}" Width="32" Height="32" Margin="10,10,10,10"  VerticalAlignment="Center" BorderThickness="2" HorizontalAlignment="Right" hc:IconElement.Geometry="{StaticResource esc}" Style="{StaticResource ButtonIconCircular}" Foreground="{StaticResource SecondaryTextBrush}"/>
 
-                </StackPanel>
-
-            </Grid>
         </Grid>
-        <!--<Grid Margin="0,10,0,0"  Grid.Row="1">
-            <GroupBox VerticalAlignment="Top" hc:TitleElement.TitleWidth="auto"  Style="{DynamicResource  GroupBoxOriginal}" HorizontalContentAlignment="Left" hc:TitleElement.TitlePlacement="Top">
-                <GroupBox.HeaderTemplate>
-                    <DataTemplate>
-                        <TextBlock FontWeight="SemiBold" Style="{DynamicResource TextBlockDefaultSecLight}" Text="CÁC ĐẦU RA CỦA THIẾT BỊ"/>
-                    </DataTemplate>
-                </GroupBox.HeaderTemplate>
-
-                <Border  HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="True" CornerRadius="4" Width="auto" Height="50" Margin="10,5">
-                    <Grid>
-                        <Grid.OpacityMask>
-                            <VisualBrush Visual="{Binding ElementName=clipMask2}" Stretch="None" />
-                        </Grid.OpacityMask>
-                        <Border x:Name="clipMask2" Background="{DynamicResource RegionBrush}" CornerRadius="4" />
-
-                        <ListBox  HorizontalAlignment="Left" ItemsSource="{Binding CurrentDevice.AvailableOutputs,Mode=TwoWay}" SelectedItem="{Binding CurrentOutput}"  Margin="0" VerticalAlignment="Top" ItemContainerStyle="{DynamicResource _listBoxOutputCollection}" Background="Transparent" BorderThickness="0" Style="{DynamicResource WrapPanelHorizontalListBox}">
-                            <ListBox.Template>
-                                <ControlTemplate>
-                                    <ScrollViewer>
-                                        <ItemsPresenter></ItemsPresenter>
-                                    </ScrollViewer>
-                                </ControlTemplate>
-                            </ListBox.Template>
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <Border>
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="auto"/>
-                                                <RowDefinition Height="*"/>
-                                            </Grid.RowDefinitions>
-                                            <Grid Grid.Row="0">
-                                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}, Path=Foreground}"
-                                                      Stretch="Uniform" 
-                                                      Margin="5" 
-                                                      Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
-                                                      Width="25" 
-                                                      Height="25" >
-                                                </Path>
-                                            </Grid>
-                                            <Grid Grid.Row="1">
-                                                <TextBlock Foreground="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}, Path=Foreground}" Margin="5,0,5,5" Text="{Binding OutputName}" Style="{DynamicResource TextBlockDefault}"/>
-                                            </Grid>
-
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </Grid>
-
-                </Border>
-            </GroupBox>
-        </Grid>-->
         <Grid Margin="0,10,0,0" Grid.Row="1">
-
             <GroupBox VerticalAlignment="Stretch" hc:TitleElement.TitleWidth="auto"  Style="{DynamicResource  GroupBoxOriginal}" HorizontalContentAlignment="Stretch" hc:TitleElement.TitlePlacement="Top">
                 <GroupBox.HeaderTemplate>
                     <DataTemplate>
-                        <TextBlock FontWeight="SemiBold" Style="{DynamicResource TextBlockDefaultSecLight}" Text="ĐIỀU CHỈNH HIỆU ỨNG VÀ CÀI ĐẶT"/>
+                        <TextBlock Margin="60,0,0,0" FontWeight="SemiBold" Style="{DynamicResource TextBlockDefaultSecLight}" Text="ĐIỀU CHỈNH HIỆU ỨNG VÀ CÀI ĐẶT"/>
                     </DataTemplate>
                 </GroupBox.HeaderTemplate>
                 <Grid>
@@ -898,9 +809,6 @@
                         <ColumnDefinition Width="auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <!--device LightingControl-->
-
-                    <!--OutputControlViewSelector-->
                     <Grid Grid.Column="0">
                         <Border ClipToBounds="True" CornerRadius="4" VerticalAlignment="Top" Height="auto" Margin="10,10,10,10" Background="{DynamicResource MainContentBackgroundBrush}"  Width="50">
                             <Grid>
@@ -912,7 +820,7 @@
                                 <ListBox ItemsSource="{Binding CurrentDevice.AvailableControllers,Mode=TwoWay}" SelectedIndex="{Binding CurrentDevice.CurrentActiveControlerIndex}"   Margin="0" VerticalAlignment="Top" ItemContainerStyle="{DynamicResource _listBoxControlPropertyStyle}" Background="Transparent" BorderThickness="0" Style="{DynamicResource WrapPanelVerticalListBox}">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
-                                         
+
                                             <Path Fill="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}, Path=Foreground}" Stretch="Uniform" Margin="5" Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
                                       Width="20" 
                                       Height="20" >
@@ -936,21 +844,13 @@
                             </Grid>
                         </Border>
                     </Grid>
-
-
-
-
-                    <!--device  Preview-->
+                    <!--Zones Preview-->
                     <Grid  Grid.Column="2"  hlprs:perSizeBindingHelper.Active="True"
                            hlprs:perSizeBindingHelper.BoundActualHeight="{Binding CurrentLiveViewHeight, Mode=OneWayToSource}"
                            hlprs:perSizeBindingHelper.BoundActualWidth="{Binding CurrentLiveViewWidth, Mode=OneWayToSource}">
-                        
-                        <Border Margin="10" CornerRadius="4"  Background="{DynamicResource MainContentBackgroundBrush}">
-
-
+                        <Border Margin="0,10,10,10" CornerRadius="4"  Background="Transparent">
                             <local:DeviceLiveView  Height="{Binding CurrentLiveViewHeight}" Width="{Binding CurrentLiveViewWidth}">
-
-                        </local:DeviceLiveView>
+                            </local:DeviceLiveView>
                         </Border>
                     </Grid>
                 </Grid>

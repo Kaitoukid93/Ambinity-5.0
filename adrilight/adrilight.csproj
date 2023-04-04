@@ -388,6 +388,7 @@
     <Compile Include="View\OOTBWindow.xaml.cs" />
     <Compile Include="View\CompositionEditWindow.xaml.cs" />
     <Compile Include="View\DeviceLiveView.xaml.cs" />
+    <Compile Include="View\FanSpeedChartView.xaml.cs" />
     <Compile Include="View\VIDEditCanvasWindow.xaml.cs" />
     <Compile Include="View\RotateSelectionWindow.xaml.cs" />
     <Compile Include="View\NewItemParametersWindow.xaml.cs" />
@@ -542,6 +543,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\DeviceLiveView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\FanSpeedChartView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

@@ -155,6 +155,8 @@ namespace adrilight
             {
                 //get dependency properties from current lighting mode(based on screencapturing)
                 var brightnessControl = _currentLightingMode.Parameters.Where(p => p.Type == ModeParameterEnum.Brightness).FirstOrDefault();
+                var colorControl = _currentLightingMode.Parameters.Where(P=>P.Type == ModeParameterEnum.Color).FirstOrDefault();
+                var currentStaticModeControl = _currentLightingMode.Parameters.Where(p => p.Type == ModeParameterEnum.StaticColorMode).FirstOrDefault();
 
                 while (!token.IsCancellationRequested)
                 {

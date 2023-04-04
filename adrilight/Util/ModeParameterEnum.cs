@@ -35,6 +35,9 @@
         ///    this is In SereencIndex param type, specific use for rainbow mode
         /// </summary>
         ScreenIndex,
+
         LinearLighting,
+
+        StaticColorMode,
     }
 }

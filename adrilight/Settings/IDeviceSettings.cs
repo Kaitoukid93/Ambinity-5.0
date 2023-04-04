@@ -55,6 +55,8 @@ namespace adrilight
         void SetOutput(IOutputSettings output, int outputID);
         bool IsLoadingSpeed { get; set; }
         string FwLocation { get; set; }
+        int DashboardWidth { get; set; }
+        int DashboardHeight { get; set; }
         ObservableCollection<ControlZoneGroup> ControlZoneGroups { get; set; }
         string RequiredFwVersion { get; set; }
         void RefreshFirmwareVersion();
@@ -64,6 +66,8 @@ namespace adrilight
         Rect CurrentLivewItemsBound { get; }
         ISlaveDevice[] AvailableLightingDevices { get; }
         IOutputSettings[] AvailableLightingOutputs { get; }
+        IOutputSettings[] AvailablePWMOutputs { get; }
+        ISlaveDevice[] AvailablePWMDevices { get; }
         void UpdateChildSize();
         void HandleResolutionChange(double scaleX,double scaleY);
         void BrightnessUp(int value);

@@ -223,7 +223,8 @@ namespace adrilight.Util
                                 false,
                                 true,
                                 1);
-                            
+                            newDevice.DashboardWidth = 230;
+                            newDevice.DashboardHeight = 270;
 
                             break;
                         case "Ambino EDGE":// General Ambino Edge USB Device
@@ -244,6 +245,8 @@ namespace adrilight.Util
                                true,
                                true,
                                10);
+                            newDevice.DashboardWidth = 472;
+                            newDevice.DashboardHeight = 270;
                             //newDevice.AvailableOutputs = new IOutputSettings[10];
                             ////set a default output for this device , simply plugin LED strip with led number of 16
                             //newDevice.AvailableOutputs[0] = new LightingOutput() { OutputID = 0, ControlableZone = new LEDSetup[1] };

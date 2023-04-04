@@ -76,15 +76,15 @@ namespace adrilight.Settings
         public double ScaleHeight { get => _scaleHeight; set { Set(() => ScaleHeight, ref _scaleHeight, value); } }
 
         public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
-        public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
+        public double Top { get => _top; set { Set(() => Top, ref _top, value); OnPositionUpdate(); } }
 
-        public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
+        public double Left { get => _left; set { Set(() => Left, ref _left, value); OnPositionUpdate(); } }
 
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
 
-        public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }
+        public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); OnPositionUpdate(); } }
 
-        public double Height { get => _height; set { Set(() => Height, ref _height, value); OnHeightUpdated(); } }
+        public double Height { get => _height; set { Set(() => Height, ref _height, value); OnHeightUpdated(); OnPositionUpdate(); } }
 
         public VisualProperties VisualProperties { get => _visualProperties; set { Set(() => VisualProperties, ref _visualProperties, value); } }
 
@@ -117,6 +117,18 @@ namespace adrilight.Settings
                 Top = boundRct.Top;
             }
 
+        }
+        private void OnPositionUpdate()
+        {
+            //update all child motor
+            foreach(var zone in ControlableZones)
+            {
+                var motor = zone as FanMotor;
+                motor.Left = Left;
+                motor.Top = Top;
+                motor.Width = Width;
+                motor.Height = Height;
+            }
         }
         public Rect GetDeviceRectBound(IControlZone[] zones)
         {

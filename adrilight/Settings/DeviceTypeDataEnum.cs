@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace adrilight.Settings
 {
-    public class DeviceTypeDataEnum:IOnlineItemSubType
+    public class DeviceTypeDataEnum : IOnlineItemSubType
     {
         public DeviceTypeDataEnum(string name, DeviceTypeEnum deviceType)
         {
@@ -25,10 +25,8 @@ namespace adrilight.Settings
                 {
                     case DeviceTypeEnum.AmbinoBasic:
                         return "ambinobasic";
-
                     case DeviceTypeEnum.AmbinoEDGE:
                         return "ambinoedge";
-
                     case DeviceTypeEnum.AmbinoFanHub:
                         return "ambinofanhub";
                     case DeviceTypeEnum.AmbinoRainPowPro:
@@ -37,8 +35,6 @@ namespace adrilight.Settings
                         return "ambinohub";
                     case DeviceTypeEnum.AmbinoHUBV3:
                         return "ambinohubv3";
-
-
                 }
                 return "generaldevice";
             }
@@ -51,13 +47,13 @@ namespace adrilight.Settings
                 {
                     case DeviceConnectionTypeEnum.Wired:
                         return "connection";
-                     
+
                     case DeviceConnectionTypeEnum.Wireless:
                         return "connection";
-                      
+
                     case DeviceConnectionTypeEnum.OpenRGB:
                         return "orgb";
-                      
+
 
                 }
                 return "connection";

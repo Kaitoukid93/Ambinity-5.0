@@ -1,4 +1,6 @@
 ﻿using adrilight.Util;
+using LiveCharts.Defaults;
+using LiveCharts;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -34,7 +36,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Sáng theo dải màu với chuyển động tùy chọn",
-                    Parameters = { ChasingPatterns, GenericDirrectionParameter, GenericBrightnessParameter, GenericSpeedParameter }
+                    Parameters = { ChasingPatterns, GenericDirrectionParameter, GenericBrightnessParameter, GenericSpeedParameter(0,100) }
 
                 };
             }
@@ -65,7 +67,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Màu LED chuyển động theo nhạc",
-                    Parameters = { GenericDirrectionParameter, GenericBrightnessParameter, GenericSpeedParameter }
+                    Parameters = { GenericDirrectionParameter, GenericBrightnessParameter, GenericSpeedParameter(0,100) }
 
                 };
             }
@@ -79,8 +81,8 @@ namespace adrilight.Helpers
                     BasedOn = PWMModeEnum.auto,
                     Creator = "ambino",
                     Owner = "ambino",
-                    Description = "Tốc độ Fan thay đổi theo nhiệt độ"
-                    //Parameters = { ChasingPatterns, GenericDirrectionParameter, GenericBrightnessParameter, GenericSpeedParameter }
+                    Description = "Tốc độ Fan thay đổi theo nhiệt độ",
+                    Parameters = { GenericChartVisualizationParameter }
 
                 };
             }
@@ -94,7 +96,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Cố định tốc độ Fan",
-                    Parameters = { GenericSpeedParameter }
+                    Parameters = { GenericSpeedParameter(0,100) }
 
                 };
             }
@@ -104,20 +106,52 @@ namespace adrilight.Helpers
 
 
         #region default lightingmode parameter defined by ambino
-        public IModeParameter GenericSpeedParameter {
+        public IModeParameter GenericSpeedParameter(int min, int max) {
+
+            return new ModeParameter() {
+
+                Name = "Speed",
+                Description = "Speed of Motion",
+                Type = ModeParameterEnum.Speed,
+                Template = ModeParameterTemplateEnum.ValueSlider,
+                Value = 50,
+                MinValue = min,
+                MaxValue = max
+
+
+            };
+        }
+        public IModeParameter GenericChartVisualizationParameter {
             get
             {
                 return new ModeParameter() {
 
-                    Name = "Speed",
+                    Name = "Auto Speed",
                     Description = "Speed of Motion",
                     Type = ModeParameterEnum.Speed,
-                    Template = ModeParameterTemplateEnum.ValueSlider,
-                    Value = 50,
-                    MinValue = 0,
-                    MaxValue = 100
-
-                };
+                    Template = ModeParameterTemplateEnum.ChartVisualization,
+                    LineValues =  new ChartValues<ObservableValue>
+                    {
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80)
+                },
+            };
             }
         }
         public IModeParameter UseLinearLighting {
