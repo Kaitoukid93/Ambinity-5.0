@@ -40,6 +40,6 @@ namespace adrilight.Util
         /// <summary>
         /// this store line chart value for data visualization
         /// </summary>
-        ChartValues<ObservableValue> LineValues { get; set; }
+       
     }
 }

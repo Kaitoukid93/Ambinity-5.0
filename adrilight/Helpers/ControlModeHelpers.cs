@@ -25,6 +25,7 @@ namespace adrilight.Helpers
             zone.AvailableControlMode.Add(ScreenCapturing);
             zone.AvailableControlMode.Add(ColorPalette);
             zone.AvailableControlMode.Add(MusicReactive);
+            zone.AvailableControlMode.Add(StaticColor);
             return zone;
         }
         public IControlMode ColorPalette {
@@ -72,7 +73,20 @@ namespace adrilight.Helpers
                 };
             }
         }
+        public IControlMode StaticColor {
+            get
+            {
+                return new LightingMode() {
+                    Name = "Static Color",
+                    BasedOn = LightingModeEnum.StaticColor,
+                    Creator = "ambino",
+                    Owner = "ambino",
+                    Description = "Tất cả LED sáng cùng một màu",
+                    Parameters = { GenericBrightnessParameter }
 
+                };
+            }
+        }
         public IControlMode FanSpeedAuto {
             get
             {
@@ -82,7 +96,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Tốc độ Fan thay đổi theo nhiệt độ",
-                    Parameters = { GenericChartVisualizationParameter }
+                    //add more options to auto fanspeed such as quiet mode, extreme mode
 
                 };
             }
@@ -130,27 +144,6 @@ namespace adrilight.Helpers
                     Description = "Speed of Motion",
                     Type = ModeParameterEnum.Speed,
                     Template = ModeParameterTemplateEnum.ChartVisualization,
-                    LineValues =  new ChartValues<ObservableValue>
-                    {
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80),
-                        new ObservableValue(80)
-                },
             };
             }
         }

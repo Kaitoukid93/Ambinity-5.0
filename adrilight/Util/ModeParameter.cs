@@ -17,7 +17,7 @@ namespace adrilight.Util
         private int _minValue;
         private int _maxValue;
         private ObservableCollection<object> _availableValue;
-        private ChartValues<ObservableValue> _lineValues;
+       
 
 
         public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
@@ -46,7 +46,6 @@ namespace adrilight.Util
         /// </summary>
         public int MinValue { get => _minValue; set { Set(() => MinValue, ref _minValue, value); } }
         public int MaxValue { get => _maxValue; set { Set(() => MaxValue, ref _maxValue, value); } }
-
-        public ChartValues<ObservableValue> LineValues { get => _lineValues; set { Set(() => LineValues, ref _lineValues, value); } }
+        
     }
 }

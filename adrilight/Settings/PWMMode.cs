@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace adrilight.Util
 {
-    internal class PWMMode : ViewModelBase, IControlMode
+    public class PWMMode : ViewModelBase, IControlMode
     {
         //bool Autostart { get; set; }
 
@@ -43,7 +43,7 @@ namespace adrilight.Util
         /// </summary>
         public List<IModeParameter> Parameters { get; set; }
 
-
+        public IModeParameter SpeedParameter => Parameters.Where(p => p.Type == ModeParameterEnum.Speed).FirstOrDefault();
         internal void SetPWM(int speedValue)
         {
             var speedParam = Parameters.Where(p => p.Type == ModeParameterEnum.Speed).FirstOrDefault();

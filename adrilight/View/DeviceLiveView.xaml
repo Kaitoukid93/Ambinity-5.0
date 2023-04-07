@@ -10,6 +10,7 @@
            mc:Ignorable="d"
              x:Name="window"
            xmlns:behaviors="clr-namespace:adrilight.Helpers.Behaviors"
+                 xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
            xmlns:helpers="clr-namespace:adrilight.Helpers"
            xmlns:local ="clr-namespace:adrilight"
            xmlns:view="clr-namespace:adrilight.View"
@@ -51,8 +52,8 @@
 
     <Grid>
         <richCanvas:RichItemsControl
-             ItemsSource="{Binding LiveViewItems}"
-                 GridStyle="{StaticResource GridStyle}"
+                ItemsSource="{Binding LiveViewItems}"
+                GridStyle="{StaticResource GridStyle}"
                 EnableSnapping="False"
                 MaxScale="10"
                 GridSpacing="24"
@@ -64,8 +65,7 @@
                 DisableAutoPanning="True"
                 Background="Transparent"               
                 DisableScroll="True"
-                ZoomKey="Z"
-                
+                ZoomKey="Z"     
                 TranslateOffset="{Binding CurrentLiveViewOffset,Mode=TwoWay}"
                 Scale="{Binding CurrentLiveViewScale,Mode=TwoWay}">
             <richCanvas:RichItemsControl.SelectionRectangleStyle>
@@ -83,12 +83,12 @@
             </i:Interaction.Triggers>
             <richCanvas:RichItemsControl.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Group SelectedItems" CommandParameter="group" Command="{Binding GroupSelectedZoneForMaskedControlCommand}"> 
+                    <MenuItem Header="Group SelectedItems" CommandParameter="group" Command="{Binding GroupSelectedZoneForMaskedControlCommand}">
                         <MenuItem.Icon>
                             <Path Data="{StaticResource addnew}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                         </MenuItem.Icon>
                     </MenuItem>
-                  
+
                 </ContextMenu>
             </richCanvas:RichItemsControl.ContextMenu>
 
@@ -96,7 +96,6 @@
                 <DataTemplate DataType="{x:Type local:LEDSetup}">
                     <Grid>
                         <Grid>
-
                             <ItemsControl ToolTip="{Binding Name}" Margin="0,-1,0,0"  
                                     Name="PreviewGird"  
                                     HorizontalAlignment="Left"
@@ -161,21 +160,14 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                           
+
                         </Grid>
                     </Grid>
                 </DataTemplate>
                 <DataTemplate DataType="{x:Type settings:FanMotor}">
                     <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
-                        
-                            
-                        
-                        <Border HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" Height="100" CornerRadius="7" Background="{DynamicResource MainContentBackgroundBrush}">
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
-                                    <i:InvokeCommandAction Command="{Binding DataContext.SelectLiveViewItemCommand,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" CommandParameter="{Binding .}" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
+                        <Viewbox>
+                            <Border Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center" CornerRadius="7" Background="{DynamicResource MainContentBackgroundBrush}">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="auto"/>
@@ -185,15 +177,58 @@
                                     <Path Margin="5"  Data="{DynamicResource Fan}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                 </Border>
                                 <Grid Grid.Row="1">
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding Name}"/>
-                                            <TextBlock Text="{Binding SpeedParameter.Value}"/>
-                                        </StackPanel>
-                                    
+                                    <StackPanel>
+                                        <TextBlock Margin="5,0,0,0" Text="{Binding Name}"/>
+                                            <TextBlock Margin="5,5,0,0" Text="{Binding CurrentPWMValue}"/>
+                                        <Viewbox>
+
+
+                                            <Grid>
+                                                <Grid.Resources>
+                                                    <Style TargetType="lvc:LineSeries">
+                                                        <Setter Property="StrokeThickness" Value="2"></Setter>
+                                                        <Setter Property="Stroke" Value="{StaticResource PrimaryBrush}"></Setter>
+                                                        <Setter Property="Fill">
+                                                            <Setter.Value>
+                                                                <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                        <Setter Property="PointGeometrySize" Value="0"></Setter>
+                                                        <Setter Property="LineSmoothness" Value="0"></Setter>
+                                                    </Style>
+                                                    <Style TargetType="lvc:Axis">
+                                                        <Setter Property="ShowLabels" Value="False"></Setter>
+                                                        <Setter Property="IsEnabled" Value="False"></Setter>
+
+                                                    </Style>
+                                                </Grid.Resources>
+                                                <lvc:CartesianChart HorizontalAlignment="Right" VerticalAlignment="Center" Width="200" Height="auto" Margin="1,0,5,0"   Hoverable="True" DataTooltip="{x:Null}">
+                                                    <lvc:CartesianChart.Series>
+                                                        <lvc:LineSeries Values="{Binding LineValues}">
+
+                                                        </lvc:LineSeries>
+                                                    </lvc:CartesianChart.Series>
+                                                    <lvc:CartesianChart.AxisX>
+                                                        <!--a small visual improvement, lets hide the first points (x = 0, x=1) to get better animations-->
+                                                        <lvc:Axis MinValue="2"></lvc:Axis>
+                                                    </lvc:CartesianChart.AxisX>
+                                                </lvc:CartesianChart>
+
+                                            </Grid>
+                                        </Viewbox>
+                                    </StackPanel>
+
                                 </Grid>
                             </Grid>
                         </Border>
-                      
+                        </Viewbox>
+                        <Rectangle Width="{Binding Width}" Height="{Binding Height}" Fill="Transparent">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                                    <i:InvokeCommandAction Command="{Binding DataContext.SelectLiveViewItemCommand,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" CommandParameter="{Binding .}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Rectangle>
                     </Grid>
                 </DataTemplate>
                 <DataTemplate x:Key="SelectedAdornerTemplate">
@@ -236,8 +271,6 @@
                                 <i:InvokeCommandAction Command="{Binding DataContext.SelectLiveViewGroupCommand,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" CommandParameter="{Binding .}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
-                        <TextBlock Style="{DynamicResource TextBlockDefault}" HorizontalAlignment="Left" VerticalAlignment="Top" Text="{Binding Name}"/>
-
                         <Rectangle Stroke="{DynamicResource SecondaryBorderBrush}"
                                    Width="{Binding Width}"
                                    Height="{Binding Height}"
@@ -246,6 +279,9 @@
                                StrokeDashArray="2"
                                IsHitTestVisible="True">
                         </Rectangle>
+                        <Border HorizontalAlignment="Left" VerticalAlignment="Top" Background="{DynamicResource PrimaryBrush}">
+                            <TextBlock Margin="2" Style="{DynamicResource TextBlockDefault}" HorizontalAlignment="Left" VerticalAlignment="Top" Text="{Binding Name}"/>
+                        </Border>
                     </Grid>
 
                 </DataTemplate>
@@ -396,7 +432,7 @@
                         <Trigger Property="IsSelected" Value="False">
                             <Setter Property="Opacity">
                                 <Setter.Value>
-                                    0.5
+                                    0.7
                                 </Setter.Value>
                             </Setter>
                         </Trigger>

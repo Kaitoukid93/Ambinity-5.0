@@ -52,9 +52,9 @@
                         <ColumnDefinition Width="*"/>
 
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" HorizontalAlignment="Left"  Margin="5,0,5,0"   Style="{StaticResource TextBlockDefaultSecLight}" Text="NumLED :"/>
+                    <TextBlock Grid.Column="0" HorizontalAlignment="Left"  Margin="5,0,5,0"   Style="{StaticResource TextBlockDefaultSecLight}" Text="Output :"/>
                     <Border HorizontalAlignment="Left"  Grid.Column="1"  BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4">
-                        <TextBlock HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Margin="5,0,5,0"   Style="{StaticResource TextBlockDefault}" Text="{Binding SelectedSlaveDevice.Owner}"/>
+                        <TextBlock HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Margin="5,0,5,0"   Style="{StaticResource TextBlockDefault}" Text="{Binding SelectedSlaveDevice.ParrentID}"/>
                     </Border>
 
 

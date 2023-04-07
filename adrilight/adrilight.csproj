@@ -461,7 +461,6 @@
     <Compile Include="View\AvailableDevicesToolbar.xaml.cs" />
     <Compile Include="View\UnionOutputControl.xaml.cs" />
     <Compile Include="View\VerticalMenuItem.cs" />
-    <Compile Include="View\xIDEditWindow.xaml.cs" />
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -815,10 +814,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\UnionOutputControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\xIDEditWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

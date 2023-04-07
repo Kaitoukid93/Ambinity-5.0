@@ -23,6 +23,7 @@ using System.Collections.ObjectModel;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Header;
 using NAudio.SoundFont;
 using Color = System.Windows.Media.Color;
+using System.Net;
 
 namespace adrilight
 {
@@ -32,13 +33,11 @@ namespace adrilight
 
         public StaticColor(
             IGeneralSettings generalSettings,
-            IDesktopFrame[] desktopFrame,
             MainViewViewModel mainViewViewModel,
             IControlZone zone
             )
         {
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
-            DesktopFrame = desktopFrame ?? throw new ArgumentNullException(nameof(desktopFrame));
             CurrentZone = zone as LEDSetup ?? throw new ArgumentNullException(nameof(zone));
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
 
@@ -60,8 +59,6 @@ namespace adrilight
         /// dependency property
         /// </summary>
         private IGeneralSettings GeneralSettings { get; }
-
-        private IDesktopFrame[] DesktopFrame { get; }
         public bool IsRunning { get; private set; }
         private LEDSetup CurrentZone { get; }
         private MainViewViewModel MainViewViewModel { get; }
@@ -147,20 +144,19 @@ namespace adrilight
         public void Run(CancellationToken token)
         {
 
-            _log.Debug("Started Desktop Duplication Reader.");
-            Bitmap image = null;
-            BitmapData bitmapData = new BitmapData();
+            _log.Debug("Started Static Color.");
+
 
             try
             {
                 //get dependency properties from current lighting mode(based on screencapturing)
                 var brightnessControl = _currentLightingMode.Parameters.Where(p => p.Type == ModeParameterEnum.Brightness).FirstOrDefault();
-                var colorControl = _currentLightingMode.Parameters.Where(P=>P.Type == ModeParameterEnum.Color).FirstOrDefault();
+                var colorControl = _currentLightingMode.Parameters.Where(P => P.Type == ModeParameterEnum.Color).FirstOrDefault();
                 var currentStaticModeControl = _currentLightingMode.Parameters.Where(p => p.Type == ModeParameterEnum.StaticColorMode).FirstOrDefault();
 
                 while (!token.IsCancellationRequested)
                 {
-
+                    bool isPreviewRunning = MainViewViewModel.IsLiveViewOpen;
                     //changing parameter on the fly define here
                     var brightness = brightnessControl.Value / 100d;
 
@@ -172,21 +168,19 @@ namespace adrilight
                         Parallel.ForEach(CurrentZone.Spots
                             , spot =>
                             {
-
+                                spot.SetColor((byte)(255*brightness), 0, 0, isPreviewRunning);
 
                             });
                         //}
 
                     }
 
-                    image.UnlockBits(bitmapData);
                     //threadSleep for static mode is 1s, for breathing is 10ms
                     Thread.Sleep(10);
                 }
             }
             finally
             {
-                image?.Dispose();
 
                 _log.Debug("Stopped the Static Color Engine");
                 //IsRunning = false;
@@ -256,75 +250,75 @@ namespace adrilight
             const float factor = 80f;
             return (byte)(256f * ((float)Math.Pow(factor, color / 256f) - 1f) / (factor - 1));
         }
-        private Bitmap GetNextFrame(Bitmap ReusableBitmap, bool isPreviewRunning)
-        {
+        //private Bitmap GetNextFrame(Bitmap ReusableBitmap, bool isPreviewRunning)
+        //{
 
-            try
-            {
-                ByteFrame CurrentFrame = null;
-                Bitmap DesktopImage;
-                if (_currentScreenIndex >= DesktopFrame.Length)
-                {
-                    HandyControl.Controls.MessageBox.Show("màn hình không khả dụng", "Sáng theo màn hình", MessageBoxButton.OK, MessageBoxImage.Error);
-                    _currentScreenIndex = 0;
-                }
-                CurrentFrame = DesktopFrame[(int)_currentScreenIndex].Frame;
-                if (CurrentFrame.Frame == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    if (ReusableBitmap != null && ReusableBitmap.Width == CurrentFrame.FrameWidth && ReusableBitmap.Height == CurrentFrame.FrameHeight)
-                    {
-                        DesktopImage = ReusableBitmap;
+        //    try
+        //    {
+        //        ByteFrame CurrentFrame = null;
+        //        Bitmap DesktopImage;
+        //        if (_currentScreenIndex >= DesktopFrame.Length)
+        //        {
+        //            HandyControl.Controls.MessageBox.Show("màn hình không khả dụng", "Sáng theo màn hình", MessageBoxButton.OK, MessageBoxImage.Error);
+        //            _currentScreenIndex = 0;
+        //        }
+        //        CurrentFrame = DesktopFrame[(int)_currentScreenIndex].Frame;
+        //        if (CurrentFrame.Frame == null)
+        //        {
+        //            return null;
+        //        }
+        //        else
+        //        {
+        //            if (ReusableBitmap != null && ReusableBitmap.Width == CurrentFrame.FrameWidth && ReusableBitmap.Height == CurrentFrame.FrameHeight)
+        //            {
+        //                DesktopImage = ReusableBitmap;
 
-                    }
-                    else if (ReusableBitmap != null && (ReusableBitmap.Width != CurrentFrame.FrameWidth || ReusableBitmap.Height != CurrentFrame.FrameHeight))
-                    {
-                        DesktopImage = new Bitmap(CurrentFrame.FrameWidth, CurrentFrame.FrameHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-                    }
-                    else //this is when app start
-                    {
-                        DesktopImage = new Bitmap(CurrentFrame.FrameWidth, CurrentFrame.FrameHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-                    }
-                    var DesktopImageBitmapData = DesktopImage.LockBits(new Rectangle(0, 0, CurrentFrame.FrameWidth, CurrentFrame.FrameHeight), ImageLockMode.WriteOnly, DesktopImage.PixelFormat);
-                    IntPtr pixelAddress = DesktopImageBitmapData.Scan0;
-                    Marshal.Copy(CurrentFrame.Frame, 0, pixelAddress, CurrentFrame.Frame.Length);
-                    DesktopImage.UnlockBits(DesktopImageBitmapData);
-                    return DesktopImage;
-                }
-            }
-            catch (Exception ex)
-            {
-                if (ex.Message != "_outputDuplication is null" && ex.Message != "Access Lost, resolution might be changed" && ex.Message != "Invalid call, might be retrying" && ex.Message != "Failed to release frame.")
-                {
-                    _log.Error(ex, "GetNextFrame() failed.");
+        //            }
+        //            else if (ReusableBitmap != null && (ReusableBitmap.Width != CurrentFrame.FrameWidth || ReusableBitmap.Height != CurrentFrame.FrameHeight))
+        //            {
+        //                DesktopImage = new Bitmap(CurrentFrame.FrameWidth, CurrentFrame.FrameHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+        //            }
+        //            else //this is when app start
+        //            {
+        //                DesktopImage = new Bitmap(CurrentFrame.FrameWidth, CurrentFrame.FrameHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+        //            }
+        //            var DesktopImageBitmapData = DesktopImage.LockBits(new Rectangle(0, 0, CurrentFrame.FrameWidth, CurrentFrame.FrameHeight), ImageLockMode.WriteOnly, DesktopImage.PixelFormat);
+        //            IntPtr pixelAddress = DesktopImageBitmapData.Scan0;
+        //            Marshal.Copy(CurrentFrame.Frame, 0, pixelAddress, CurrentFrame.Frame.Length);
+        //            DesktopImage.UnlockBits(DesktopImageBitmapData);
+        //            return DesktopImage;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        if (ex.Message != "_outputDuplication is null" && ex.Message != "Access Lost, resolution might be changed" && ex.Message != "Invalid call, might be retrying" && ex.Message != "Failed to release frame.")
+        //        {
+        //            _log.Error(ex, "GetNextFrame() failed.");
 
-                    // throw;
-                }
-                else if (ex.Message == "Access Lost, resolution might be changed")
-                {
-                    _log.Error(ex, "Access Lost, retrying");
+        //            // throw;
+        //        }
+        //        else if (ex.Message == "Access Lost, resolution might be changed")
+        //        {
+        //            _log.Error(ex, "Access Lost, retrying");
 
-                }
-                else if (ex.Message == "Invalid call, might be retrying")
-                {
-                    _log.Error(ex, "Invalid Call Lost, retrying");
-                }
-                else if (ex.Message == "Failed to release frame.")
-                {
-                    _log.Error(ex, "Failed to release frame.");
-                }
-                else
-                {
-                    throw new DesktopDuplicationException("Unknown Device Error", ex);
-                }
+        //        }
+        //        else if (ex.Message == "Invalid call, might be retrying")
+        //        {
+        //            _log.Error(ex, "Invalid Call Lost, retrying");
+        //        }
+        //        else if (ex.Message == "Failed to release frame.")
+        //        {
+        //            _log.Error(ex, "Failed to release frame.");
+        //        }
+        //        else
+        //        {
+        //            throw new DesktopDuplicationException("Unknown Device Error", ex);
+        //        }
 
-                GC.Collect();
-                return null;
-            }
-        }
+        //        GC.Collect();
+        //        return null;
+        //    }
+        //}
 
         public void Stop()
         {

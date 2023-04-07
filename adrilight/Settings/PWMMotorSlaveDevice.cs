@@ -22,6 +22,7 @@ namespace adrilight.Settings
         /// </summary>
         public string Name { get; set; }
         public string Owner { get; set; }
+        public int ParrentID { get; set; }
         public string Thumbnail { get; set; }
         public DeviceTypeEnum DesiredParrent { get; set; }
         public SlaveDeviceTypeEnum DeviceType { get; set; }
@@ -121,14 +122,18 @@ namespace adrilight.Settings
         private void OnPositionUpdate()
         {
             //update all child motor
-            foreach(var zone in ControlableZones)
+            if(ControlableZones!=null)
             {
-                var motor = zone as FanMotor;
-                motor.Left = Left;
-                motor.Top = Top;
-                motor.Width = Width;
-                motor.Height = Height;
+                foreach (var zone in ControlableZones)
+                {
+                    var motor = zone as FanMotor;
+                    motor.Left = Left;
+                    motor.Top = Top;
+                    motor.Width = Width;
+                    motor.Height = Height;
+                }
             }
+         
         }
         public Rect GetDeviceRectBound(IControlZone[] zones)
         {

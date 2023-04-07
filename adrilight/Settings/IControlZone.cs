@@ -15,6 +15,7 @@ namespace adrilight
         BitmapImage Thumb { get; set; } // this level of property using bitmap image
         List<IControlMode> AvailableControlMode { get; set; }
         IControlMode CurrentActiveControlMode { get; }
+        IControlMode MaskedControlMode { get; set; }
         string ZoneUID { get; set; }
         bool IsEnabled { get; set; }
         int CurrentActiveControlModeIndex { get; set; }

@@ -82,7 +82,7 @@ namespace adrilight
                 //which property that require this engine to refresh
                 case nameof(CurrentZone.CurrentActiveControlMode):
                 case nameof(CurrentZone.IsInControlGroup):
-                case nameof(CurrentZone.MaskedControlMode):
+                //case nameof(CurrentZone.MaskedControlMode):
                 case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
                 case nameof(MainViewViewModel.IsRegisteringGroup):
                     Refresh();
@@ -127,7 +127,7 @@ namespace adrilight
             }
             var isRunning = _cancellationTokenSource != null;
 
-            var currentLightingMode = CurrentZone.IsInControlGroup ? CurrentZone.MaskedControlMode as LightingMode : CurrentZone.CurrentActiveControlMode as LightingMode;
+            var currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
 
             var shouldBeRunning =
                 currentLightingMode.BasedOn == LightingModeEnum.ScreenCapturing &&

@@ -39,9 +39,10 @@ namespace adrilight.Util
         /// List of parameters that this mode have
         /// </summary>
         List<IModeParameter> Parameters { get; set; }
-       
+        public IModeParameter SpeedParameter { get; }
 
-       
+
+
 
     }
 }

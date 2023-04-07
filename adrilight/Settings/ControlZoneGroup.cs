@@ -15,6 +15,7 @@ namespace adrilight.Settings
         }
         public string Name { get; set; }
         public Border Border { get; set; }
+        public ControllerTypeEnum Type { get; set; }
         public List<string> ZoneUIDCollection { get; set; }
         public IControlZone MaskedControlZone { get; set; }
         public ISlaveDevice MaskedSlaveDevice { get; set; }

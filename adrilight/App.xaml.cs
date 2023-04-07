@@ -162,7 +162,6 @@ namespace adrilight
               .SelectAllClasses()
               .BindAllInterfaces());
             var serialDeviceDetection = kernel.Get<ISerialDeviceDetection>();
-            var context = kernel.Get<IContext>();
             var desktopFrame = kernel.GetAll<IDesktopFrame>();
             var rainbowTicker = kernel.Get<IRainbowTicker>();
             var hwMonitor = kernel.Get<IHWMonitor>();
@@ -229,8 +228,13 @@ namespace adrilight
         private static void InjectingZone(IKernel kernel, IControlZone zone)
         {
             kernel.Bind<ILightingEngine>().To<DesktopDuplicatorReader>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
-            var desktopDuplicatorReader = kernel.Get<ILightingEngine>(zone.ZoneUID);
-            desktopDuplicatorReader.Refresh();
+            kernel.Bind<ILightingEngine>().To<StaticColor>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
+            var availableLightingModes = kernel.GetAll<ILightingEngine>(zone.ZoneUID);
+            foreach(var lightingMode in availableLightingModes )
+            {
+                lightingMode.Refresh();
+            }
+         
         }
         private static void InjectingDevice(IKernel kernel, IDeviceSettings device)
         {

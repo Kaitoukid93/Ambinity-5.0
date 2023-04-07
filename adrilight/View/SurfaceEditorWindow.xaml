@@ -42,6 +42,8 @@
                     <GeometryDrawing x:Key="GridStyle"
                          Geometry="M0,0 L0,1 0.03,1 0.03,0.03 1,0.03 1,0 Z"
                          Brush="{DynamicResource SecondaryBorderBrush}" />
+                    <SolidColorBrush x:Key="_primaryBackgroundColor" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.25"/>
+
                 </ResourceDictionary>
 
             </ResourceDictionary.MergedDictionaries>
@@ -79,13 +81,10 @@
                 CanSelectMultipleItems="True"
                 RealTimeDraggingEnabled="False"
                 RealTimeSelectionEnabled="False"
+                SelectedItems="{Binding SurfaceEditorSelectedItems}"
                 Scale="0.5"
                 MaxScale="20"
-                MinScale="0.1"
-                
-                SelectedItems="{Binding SurfaceEditorSelectedItems}" 
-                SelectedItem="{Binding SurfaceEditorSelectedItem,Mode=TwoWay}"  
-                >
+                MinScale="0.1">
                 <richCanvas:RichItemsControl.SelectionRectangleStyle>
                     <Style TargetType="Rectangle">
                         <Setter Property="Opacity" Value="0.1" />
@@ -94,7 +93,7 @@
                         <Setter Property="StrokeThickness" Value="3" />
                     </Style>
                 </richCanvas:RichItemsControl.SelectionRectangleStyle>
-
+             
                 <richCanvas:RichItemsControl.Resources>
                     <DataTemplate DataType="{x:Type settings:ARGBLEDSlaveDevice}">
                         <Grid>
@@ -103,11 +102,6 @@
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Top" 
                                     ItemsSource="{Binding ControlableZones}">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="MouseDoubleClick" >
-                                        <i:InvokeCommandAction Command="{Binding DataContext.LaunchPIDEditWindowCommand,RelativeSource={RelativeSource AncestorType={x:Type view:SurfaceEditorWindow}}}" CommandParameter="{Binding .}" />
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <Canvas 
@@ -129,7 +123,8 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="{x:Type local:LEDSetup}">
                                         <Grid>
-                                            <ItemsControl IsHitTestVisible="{Binding IsSelectable,Mode=TwoWay}" Margin="0,-1,0,0"  
+
+                                            <ItemsControl IsHitTestVisible="{Binding IsSelectable,Mode=TwoWay}" Margin="0,0,0,0"  
                                     Name="PreviewGird"  
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Top" 
@@ -193,6 +188,40 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
+                            <Grid>
+                                <Border HorizontalAlignment="Left" VerticalAlignment="Top" Background="{DynamicResource PrimaryBrush}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Output "/>
+                                        <TextBlock Text="{Binding ParrentID}"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                            <ContentControl>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="MouseDoubleClick">
+                                        <i:InvokeCommandAction Command="{Binding DataContext.LaunchPIDEditWindowCommand,RelativeSource={RelativeSource AncestorType={x:Type view:SurfaceEditorWindow}}}" CommandParameter="{Binding .}" />
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                                        <i:InvokeCommandAction Command="{Binding DataContext.SelectSurfaceEditorItemCommand,RelativeSource={RelativeSource AncestorType={x:Type view:SurfaceEditorWindow}}}" CommandParameter="{Binding .}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                                
+                                <Rectangle  Height="{Binding Height}" Width="{Binding Width}">
+                                    <Rectangle.Style>
+                                        <Style TargetType="Rectangle">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="Fill" Value="{DynamicResource _primaryBackgroundColor}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsSelected}" Value="False">
+                                                    <Setter Property="Fill" Value="Transparent"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Rectangle.Style>
+                                </Rectangle>
+                            </ContentControl>
+                         
                         </Grid>
                     </DataTemplate>
                     <DataTemplate x:Key="SelectedAdornerTemplate">
@@ -214,7 +243,7 @@
                     </DataTemplate>
 
                     <DataTemplate x:Key="HoverAdornerTemplate">
-                        <Border BorderBrush="DodgerBlue"
+                        <Border BorderBrush="{DynamicResource PrimaryBrush}"
                             BorderThickness="3">
                         </Border>
                     </DataTemplate>

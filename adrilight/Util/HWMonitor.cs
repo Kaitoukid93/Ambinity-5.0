@@ -309,11 +309,19 @@ namespace adrilight.Util
                                 var zones = pwmOutput.SlaveDevice.ControlableZones.ToList();
                                 foreach(var zone in zones)
                                 {
-                                    if((zone.CurrentActiveControlMode as PWMMode).BasedOn==PWMModeEnum.auto)
+                                    var fan = zone as FanMotor;
+                                    var currentControlMode = fan.CurrentActiveControlMode as PWMMode;
+                                    if (currentControlMode.BasedOn==PWMModeEnum.auto)
                                     {
-                                        (zone as FanMotor).SpeedParameter.LineValues.Add(new ObservableValue(medianSpeed));
-                                        (zone as FanMotor).SpeedParameter.LineValues.RemoveAt(0);
-                                        (zone as FanMotor).SpeedParameter.Value = (int)medianSpeed;
+                                        fan.LineValues.Add(new ObservableValue(medianSpeed));
+                                        fan.LineValues.RemoveAt(0);
+                                        fan.CurrentPWMValue = (int)medianSpeed;
+                                    }
+                                    else if (currentControlMode.BasedOn == PWMModeEnum.manual)
+                                    {
+                                        fan.LineValues.Add(new ObservableValue(currentControlMode.SpeedParameter.Value));
+                                        fan.LineValues.RemoveAt(0);
+                                        fan.CurrentPWMValue = currentControlMode.SpeedParameter.Value;
                                     }
                                 }
                             }
@@ -358,17 +366,10 @@ namespace adrilight.Util
 
                     Thread.Sleep(1000);
                 }
-                // update every second
-
-
-
-
-
-
 
 
             }
-            //motion speed
+
 
 
 

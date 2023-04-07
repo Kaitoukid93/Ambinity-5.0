@@ -59,25 +59,17 @@ namespace adrilight
         /// </summary>
         public List<IControlMode> AvailableControlMode { get; set; }
         [JsonIgnore]
-        public IControlMode CurrentActiveControlMode => AvailableControlMode[CurrentActiveControlModeIndex];
+        public IControlMode CurrentActiveControlMode => IsInControlGroup ? MaskedControlMode : AvailableControlMode[CurrentActiveControlModeIndex >= 0 ? CurrentActiveControlModeIndex : 0];
 
         public int CurrentActiveControlModeIndex { get => _currentActiveControlModeIndex; set { if (value >= 0) Set(() => CurrentActiveControlModeIndex, ref _currentActiveControlModeIndex, value); RaisePropertyChanged(nameof(CurrentActiveControlMode)); } }
 
-        //private void OnActiveControlModeChanged()
-        //{
-        //    if (CurrentActiveControlModeIndex >= 0)
-        //    {
-        //       // CurrentActiveControlMode = AvailableControlMode[CurrentActiveControlModeIndex];
-        //        RaisePropertyChanged(nameof(CurrentActiveControlMode));
-        //    }
-        //}
         private bool _isEnabled = true;
         private bool _isInsideScreen = true;
         private bool _isInControlGroup;
         public bool IsInControlGroup { get => _isInControlGroup; set { Set(() => IsInControlGroup, ref _isInControlGroup, value); } }
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); } }
         private IControlMode _maskedControlMode;
-        public IControlMode MaskedControlMode { get => _maskedControlMode; set { Set(() => MaskedControlMode, ref _maskedControlMode, value); } }
+        public IControlMode MaskedControlMode { get => _maskedControlMode; set { Set(() => MaskedControlMode, ref _maskedControlMode, value); if (IsInControlGroup) RaisePropertyChanged(nameof(CurrentActiveControlMode)); } }
 
 
         //LED Setup properties
@@ -254,21 +246,7 @@ namespace adrilight
 
         protected virtual void OnRotationChanged() { }
 
-        protected virtual void OnIsSelectedChanged(bool value)
-        {
-            switch (value)
-            {
-                case true:
-                    foreach (var spot in Spots)
-                        spot.SetColor(0, 0, 255, true);
-
-                    break;
-                case false:
-                    foreach (var spot in Spots)
-                        spot.SetColor(0, 0, 0, true);
-                    break;
-            }
-        }
+        protected virtual void OnIsSelectedChanged(bool value){ }
 
         public virtual void OnDrawingEnded(Action<object> callback = default) { }
 

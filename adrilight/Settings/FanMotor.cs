@@ -3,6 +3,7 @@ using adrilight.Util;
 using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
 using LiveCharts;
+using LiveCharts.Defaults;
 using NAudio.Gui;
 using Newtonsoft.Json;
 using System;
@@ -29,7 +30,6 @@ namespace adrilight.Settings
         /// </summary>
         public BitmapImage Thumb { get; set; }
 
-        public SeriesCollection PwmChart { get; set; }
         public string FanSpiningAnimationPath { get; set; }
 
         public FanMotor()
@@ -38,6 +38,7 @@ namespace adrilight.Settings
             VisualProperties = new VisualProperties();
             Scale = new System.Windows.Point(1, 1);
             AvailableControlMode = new List<IControlMode>();
+        
         }
         private int _currentActiveControlModeIndex;
         private bool _isInControlGroup;
@@ -48,24 +49,18 @@ namespace adrilight.Settings
         public string Description { get; set; }
         public List<IControlMode> AvailableControlMode { get; set; }
         [JsonIgnore]
-        public IControlMode CurrentActiveControlMode { get; set; }
+        public IControlMode CurrentActiveControlMode => IsInControlGroup ? MaskedControlMode : AvailableControlMode[CurrentActiveControlModeIndex >= 0 ? CurrentActiveControlModeIndex : 0];
         [JsonIgnore]
-        public IModeParameter SpeedParameter => CurrentActiveControlMode.Parameters.Where(p => p.Type == ModeParameterEnum.Speed).FirstOrDefault();
-        public int CurrentActiveControlModeIndex { get => _currentActiveControlModeIndex; set { if (value >= 0) Set(() => CurrentActiveControlModeIndex, ref _currentActiveControlModeIndex, value); OnActiveControlModeChanged(); } }
-
-        private void OnActiveControlModeChanged()
-        {
-            if (CurrentActiveControlModeIndex >= 0)
-            {
-                CurrentActiveControlMode = AvailableControlMode[CurrentActiveControlModeIndex];
-                RaisePropertyChanged(nameof(CurrentActiveControlMode));
-                RaisePropertyChanged(nameof(SpeedParameter));
-            }
-        }
+        public int CurrentActiveControlModeIndex { get => _currentActiveControlModeIndex; set { if (value >= 0) Set(() => CurrentActiveControlModeIndex, ref _currentActiveControlModeIndex, value); RaisePropertyChanged(nameof(CurrentActiveControlMode)); } }
+        private IControlMode _maskedControlMode;
+        public IControlMode MaskedControlMode { get => _maskedControlMode; set { Set(() => MaskedControlMode, ref _maskedControlMode, value); if (IsInControlGroup) RaisePropertyChanged(nameof(CurrentActiveControlMode)); } }
         public string ZoneUID { get; set; }
         private bool _isEnabled = true;
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); } }
-
+        private ChartValues<ObservableValue> _lineValues;
+        public ChartValues<ObservableValue> LineValues { get => _lineValues; set { Set(() => LineValues, ref _lineValues, value); } }
+        private int _currentPWMValue;
+        public int CurrentPWMValue { get => _currentPWMValue; set { Set(() => CurrentPWMValue, ref _currentPWMValue, value); } }
         /// <summary>
         /// Drawable Properties
         /// </summary>

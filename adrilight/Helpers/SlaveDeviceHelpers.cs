@@ -2,6 +2,8 @@
 using adrilight.Settings;
 using adrilight.Spots;
 using adrilight.Util;
+using LiveCharts.Defaults;
+using LiveCharts;
 using SharpDX.Direct3D9;
 using System;
 using System.Collections.Generic;
@@ -37,7 +39,7 @@ namespace adrilight.Helpers
             {
                 var lightingController = DefaultCreatedDeviceController(ControllerTypeEnum.LightingController, "LED Controller", "brightness");
 
-                foreach(var output in GetOutputMap(type))
+                foreach (var output in GetOutputMap(type))
                 {
                     lightingController.Outputs.Add(output);
 
@@ -85,6 +87,27 @@ namespace adrilight.Helpers
                         FanSpiningAnimationPath = "I:\\Ambinity\\AmbinityWPF\\adrilight\\adrilight\\Animation\\splashLoading.json",
                         Width = 300,
                         Height = 300,
+                        ZoneUID = Guid.NewGuid().ToString(),
+                        LineValues = new ChartValues<ObservableValue>
+                        {
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80)},
                         AvailableControlMode = new List<IControlMode>() { CtrlHlprs.FanSpeedAuto, CtrlHlprs.FanSpeedManual }
                     });
                     break;
@@ -143,12 +166,12 @@ namespace adrilight.Helpers
                     break;
                 case DeviceTypeEnum.AmbinoFanHub:
                     {
-                        for(int i=0;i<10;i++)
+                        for (int i = 0; i < 10; i++)
                         {
                             var output = DefaultCreatedOutput(OutputTypeEnum.ARGBLEDOutput, i, "genericConnector", "Generic ARGB LED Output") as OutputSettings;
                             output.Width = 80;
                             output.Height = 80;
-                            switch(i)
+                            switch (i)
                             {
                                 case 0:
                                     output.Left = 0;
@@ -193,7 +216,7 @@ namespace adrilight.Helpers
                             }
                             outputList.Add(output);
                         }
-                       
+
                     }
                     break;
             }

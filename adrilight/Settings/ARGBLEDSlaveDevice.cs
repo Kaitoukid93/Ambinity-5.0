@@ -27,6 +27,7 @@ namespace adrilight.Settings
         /// </summary>
         public string Name { get; set; }
         public string Owner { get; set; }
+        public int ParrentID { get; set; }
         public string Thumbnail { get; set; }
         public SlaveDeviceTypeEnum DeviceType { get; set; }
         public DeviceTypeEnum DesiredParrent { get; set; }
@@ -203,7 +204,33 @@ namespace adrilight.Settings
 
         protected virtual void OnRotationChanged() { }
 
-        protected virtual void OnIsSelectedChanged(bool value) { }
+        protected virtual void OnIsSelectedChanged(bool value) {
+            if(ControlableZones!=null)
+            {
+                switch (value)
+                {
+                    case true:
+                        foreach (var zone in ControlableZones)
+                        {
+                            foreach (var spot in (zone as LEDSetup).Spots)
+                            {
+                                spot.SetColor(0, 0, 255, true);
+                            }
+                        }
+                        break;
+                    case false:
+                        foreach (var zone in ControlableZones)
+                        {
+                            foreach (var spot in (zone as LEDSetup).Spots)
+                            {
+                                spot.SetColor(0, 0, 0, true);
+                            }
+                        }
+                        break;
+                }
+            }
+            
+        }
 
         public virtual void OnDrawingEnded(Action<object> callback = default) { }
     }
