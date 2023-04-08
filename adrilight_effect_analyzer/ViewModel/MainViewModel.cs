@@ -15,7 +15,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
-
+using Color = System.Windows.Media.Color;
+using ColorConverter = System.Windows.Media.ColorConverter;
 
 namespace adrilight_effect_analyzer.ViewModel
 {
@@ -27,7 +28,7 @@ namespace adrilight_effect_analyzer.ViewModel
         }
 
         public ICommand SelectFrameDataFolderCommand { get; set; }
-
+        public ICommand SelectColorDataFolderCommand { get; set; }
         public void SetupCommand()
         {
             SelectFrameDataFolderCommand = new RelayCommand<string>((p) =>
@@ -38,6 +39,14 @@ namespace adrilight_effect_analyzer.ViewModel
                 SelectFrameDataFolder();
             }
         );
+            SelectColorDataFolderCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                SelectColorDataFolder();
+            }
+      );
         }
         private Frame _currentFrame;
         public Frame CurrentFrame
@@ -62,7 +71,38 @@ namespace adrilight_effect_analyzer.ViewModel
                 RaisePropertyChanged(nameof(Layer));
             }
         }
+        private void SelectColorDataFolder()
+        {
 
+            System.Windows.Forms.OpenFileDialog Import = new System.Windows.Forms.OpenFileDialog();
+            Import.Title = "Chọn ColorCollection files";
+            Import.CheckFileExists = true;
+            Import.CheckPathExists = true;
+            Import.DefaultExt = "Pro";
+            Import.Filter = "Text files (*.txt)|*.TXT";
+            Import.FilterIndex = 2;
+            Import.Multiselect = false;
+
+            Import.ShowDialog();
+
+            var colors = new List<System.Windows.Media.Color>();
+            var ColorsText = System.IO.File.ReadAllLines(Import.FileName);
+            foreach(var colorText in ColorsText)
+            {
+                colors.Add((Color)ColorConverter.ConvertFromString(colorText));
+            }
+            var ColorCardCollection = new List<ColorCard>();
+            var colorsArray = colors.ToArray();
+            for(int i=0;i<colors.Count();i+=2)
+            {
+                ColorCardCollection.Add(new ColorCard(colorsArray[i], colorsArray[i+1]));
+            }
+            var json = JsonConvert.SerializeObject(ColorCardCollection, new JsonSerializerSettings()
+            {
+                TypeNameHandling = TypeNameHandling.Auto
+            });
+            ExportColorCollection(json);
+        }
         private void SelectFrameDataFolder()
         {
             System.Windows.Forms.OpenFileDialog Import = new System.Windows.Forms.OpenFileDialog();
@@ -194,7 +234,31 @@ namespace adrilight_effect_analyzer.ViewModel
             return rectangleSet;
 
         }
+        private void ExportColorCollection(string colorsJson)
+        {
+            Microsoft.Win32.SaveFileDialog Export = new Microsoft.Win32.SaveFileDialog();
+            Export.CreatePrompt = true;
+            Export.OverwritePrompt = true;
 
+            Export.Title = "Xuất dữ liệu";
+            Export.FileName = "Layer";
+            Export.CheckFileExists = false;
+            Export.CheckPathExists = true;
+            Export.DefaultExt = "json";
+            Export.Filter = "All files (*.*)|*.*";
+            Export.InitialDirectory =
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            Export.RestoreDirectory = true;
+
+            
+
+            if (Export.ShowDialog() == true)
+            {
+
+                File.WriteAllText(Export.FileName, colorsJson);
+
+            }
+        }
         private void ExportCurrentLayer()
         {
             Microsoft.Win32.SaveFileDialog Export = new Microsoft.Win32.SaveFileDialog();

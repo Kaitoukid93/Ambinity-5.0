@@ -4,12 +4,10 @@
            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:hc="https://handyorg.github.io/handycontrol"
-           xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            xmlns:ut ="clr-namespace:adrilight.Util"
            xmlns:local ="clr-namespace:adrilight.View"
            xmlns:System="clr-namespace:System;assembly=mscorlib"
-           xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
            mc:Ignorable="d"
            x:Name="window"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
@@ -87,7 +85,7 @@
                                         <RowDefinition Height="auto"/>
                                         <RowDefinition Height="auto"/>
                                     </Grid.RowDefinitions>
-                                    <GroupBox VerticalAlignment="Stretch"  Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                                    <GroupBox  hc:TitleElement.TitleWidth="100" HorizontalContentAlignment="Left"  Style="{StaticResource GroupBoxOriginal}"  hc:TitleElement.TitlePlacement="Left">
                                         <GroupBox.HeaderTemplate>
                                             <DataTemplate>
                                                 <TextBlock  FontWeight="SemiBold" Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox},Converter={StaticResource toUpperValueConverter}}"/>
@@ -110,15 +108,8 @@
                             </StackPanel>
                         </Grid>
                     </DataTemplate>
-                    <DataTemplate  x:Key="_stringTypeItemTemplate" DataType="{x:Type System:String}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="{Binding .}" Style="{StaticResource TextBlockDefault}"/>
-                        </Grid>
-                    </DataTemplate>
+                 
+
                     <DataTemplate x:Key="_listSelectionParamTemplate"  DataType="{x:Type ut:ModeParameter}">
                         <Grid>
                             <StackPanel>
@@ -127,28 +118,60 @@
                                         <RowDefinition Height="auto"/>
                                         <RowDefinition Height="auto"/>
                                     </Grid.RowDefinitions>
-                                    <GroupBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120" Margin="5,5" Style="{StaticResource GroupBoxOriginal}">
+                                    <GroupBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120"  Style="{StaticResource GroupBoxOriginal}">
                                         <GroupBox.HeaderTemplate>
                                             <DataTemplate>
                                                 <TextBlock  FontWeight="SemiBold" Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox},Converter={StaticResource toUpperValueConverter}}"/>
                                             </DataTemplate>
                                         </GroupBox.HeaderTemplate>
                                         <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <Border Grid.Column="1" HorizontalAlignment="Right" Background="{DynamicResource DarkOpacityBrush}" BorderBrush="{StaticResource BorderBrush}" CornerRadius="7" BorderThickness="0">
+                                         
+                                            <Border HorizontalAlignment="Right" Background="{DynamicResource DarkOpacityBrush}" BorderBrush="{StaticResource BorderBrush}" CornerRadius="7" BorderThickness="0">
                                                 <ListBox ItemsSource="{Binding AvailableValue}"
-                                                         ItemTemplate="{DynamicResource _stringTypeItemTemplate}"
                                                          SelectedIndex="{Binding Value}"   
                                                          ItemContainerStyle="{StaticResource _listBoxModeSelectionStyle}"
                                                          Background="Transparent"
                                                          BorderThickness="0"
+                                                         MaxWidth="250"
+                                                         MaxHeight="200"
+                                                         Margin="5"
                                                          Style="{StaticResource WrapPanelHorizontalListBox}">
+                                                    <ListBox.Resources>
+                                                        <DataTemplate  DataType="{x:Type System:String}">
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="auto"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="{Binding .}" Style="{StaticResource TextBlockDefault}"/>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                        <DataTemplate DataType="{x:Type ut:ColorCard}">
+                                                            <Grid>
+                                                                <Border CornerRadius="4" Width="40" Height="40">
+                                                                    <Border.Background>
+                                                                        <LinearGradientBrush StartPoint="0,1" EndPoint = "1,0">
+                                                                            <GradientStop Color="{Binding StartColor}" Offset="0.0" />
+                                                                            <GradientStop Color="{Binding StopColor}" Offset="1.0" />
+                                                                        </LinearGradientBrush>
+                                                                    </Border.Background>
+                                                                    <Border.ToolTip>
+                                                                        <TextBlock>
+                                                                            <TextBlock.Text>
+                                                                                <MultiBinding StringFormat=" {0} - {1}">
+                                                                                    <Binding Path="StartColor"/>
+                                                                                    <Binding Path="StopColor"/>
+                                                                                </MultiBinding>
+                                                                            </TextBlock.Text>
+                                                                        </TextBlock>
+                                                                    </Border.ToolTip>
+                                                                </Border>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ListBox.Resources>
                                                     <ListBox.ItemsPanel>
                                                         <ItemsPanelTemplate>
-                                                            <WrapPanel>
+                                                            <WrapPanel Orientation="Horizontal">
 
                                                             </WrapPanel>
                                                         </ItemsPanelTemplate>
@@ -158,11 +181,11 @@
                                         </Grid>
 
                                     </GroupBox>
-                                    <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Thay đổi chủ đề của ứng dụng"/>
+                                    <TextBlock Margin="0,10,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="{Binding Description}"/>
 
 
                                 </Grid>
-                                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
+                                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10,0,10">
 
                                 </hc:Divider>
                             </StackPanel>

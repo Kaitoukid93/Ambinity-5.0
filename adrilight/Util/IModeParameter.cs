@@ -28,10 +28,12 @@ namespace adrilight.Util
         /// <summary>
         /// this is the list of available value, used for list selection type
         /// </summary>
-        ObservableCollection<object> AvailableValue { get; set; }
+        ObservableCollection<object> AvailableValue { get;}
         /// <summary>
         /// this is the min value, used for prevent the value to undershoot
         /// </summary>
+        string AvailableValueLocalPath { get; set; }
+        object SelectedValue { get; set; }
         int MinValue { get; set; }
         /// <summary>
         /// this is the max value, used for prevent the value to overshoot

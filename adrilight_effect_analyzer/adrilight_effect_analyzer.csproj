@@ -106,6 +106,7 @@
     <Compile Include="Model\Frame.cs" />
     <Compile Include="Model\Motion.cs" />
     <Compile Include="ViewModel\BaseViewModel.cs" />
+    <Compile Include="ViewModel\ColorCard.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

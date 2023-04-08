@@ -115,8 +115,7 @@ namespace adrilight.ViewModel
         private string AutomationsCollectionFolderPath => Path.Combine(JsonPath, "Automations");
         private string DevicesCollectionFolderPath => Path.Combine(JsonPath, "Devices");
         private string SupportedDeviceCollectionFolderPath => Path.Combine(JsonPath, "SupportedDevices");
-        private string GradientsCollectionFolderPath => Path.Combine(JsonPath, "Gradients");
-        private string SolidColorsCollectionFolderPath => Path.Combine(JsonPath, "SolidColors");
+        private string ColorsCollectionFolderPath => Path.Combine(JsonPath, "Colors");
         private string ResourceFolderPath => Path.Combine(JsonPath, "Resource");
 
         #endregion
@@ -1004,17 +1003,7 @@ namespace adrilight.ViewModel
             }
         }
 
-        private ObservableCollection<IGradientColorCard> _availableGradient;
-
-        public ObservableCollection<IGradientColorCard> AvailableGradient {
-            get { return _availableGradient; }
-            set
-            {
-                if (_availableGradient == value) return;
-                _availableGradient = value;
-                RaisePropertyChanged();
-            }
-        }
+       
 
         private ObservableCollection<Color> _availableSolidColors;
 
@@ -2234,20 +2223,7 @@ namespace adrilight.ViewModel
             }
         }
 
-        private IGradientColorCard _currentSelectedGradient;
-
-        public IGradientColorCard CurrentSelectedGradient {
-            get { return _currentSelectedGradient; }
-            set
-            {
-                if (value != null)
-                {
-                    _currentSelectedGradient = value;
-                    //CurrentOutput.OutputSelectedGradient = value;
-                    RaisePropertyChanged();
-                }
-            }
-        }
+      
 
         private Color _currentStartColor;
 
@@ -2530,20 +2506,8 @@ namespace adrilight.ViewModel
             {
                 OpenPasswordDialog();
             });
-            AddNewGradientCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                OpenAddNewGradientWindow();
-            });
-            SaveNewGradientCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                SaveNewGradient();
-            });
+        
+
             OpenAddNewAutomationCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -3160,13 +3124,7 @@ namespace adrilight.ViewModel
            {
                UploadSelectedPalette(p);
            });
-            DeleteSelectedGradientCommand = new RelayCommand<IGradientColorCard>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                DeleteSelectedGradient(p);
-            });
+
             DeleteSelectedGifCommand = new RelayCommand<IGifCard>((p) =>
             {
                 return true;
@@ -3368,21 +3326,18 @@ namespace adrilight.ViewModel
 
 
             });
-            UnselectAllSurfaceEditorItemCommand = new RelayCommand<string>((p) =>
+            UnselectAllSurfaceEditorItemCommand = new RelayCommand<IDrawable>((p) =>
             {
                 return true;
             }, (p) =>
-            {
-                
+            {              
                 if (!Keyboard.IsKeyDown(Key.LeftCtrl)) // user is draging or holding ctrl
                 {
-                    foreach (var item in SurfaceEditorItems)
+                    foreach (var item in SurfaceEditorItems.Where(i=>i!=p))
                     {
                         item.IsSelected = false;
                     }
                 }
-
-
 
             });
             UnGroupZoneCommand = new RelayCommand<IDrawable>((p) =>
@@ -3428,27 +3383,9 @@ namespace adrilight.ViewModel
             {
                 return true;
             }, (p) =>
-            {
-                if (Keyboard.IsKeyDown(Key.LeftCtrl)) // user is draging or holding ctrl
-                {
+            {              
                     if (p.IsSelectable)
                         p.IsSelected = true;
-                }
-                else
-                {
-                    if (p.IsSelectable)
-                    {
-                        foreach (var item in SurfaceEditorItems.Where(d => d != p as ARGBLEDSlaveDevice))
-                        {
-                            if ((item as IDrawable).IsSelected)
-                            {
-                                (item as IDrawable).IsSelected = false;
-                            }
-                        }
-                        p.IsSelected = true;
-                    }
-                }
-
 
             });
             GroupSelectedZoneForMaskedControlCommand = new RelayCommand<string>((p) =>
@@ -5086,16 +5023,7 @@ namespace adrilight.ViewModel
             }
         }
 
-        private void OpenAddNewGradientWindow()
-        {
-            if (AssemblyHelper.CreateInternalInstance($"View.{"GradientEditWindow"}") is System.Windows.Window window)
-            {
-                CurrentStartColor = CurrentSelectedGradient.StartColor;
-                CurrentStopColor = CurrentSelectedGradient.StopColor;
-                window.Owner = System.Windows.Application.Current.MainWindow;
-                window.ShowDialog();
-            }
-        }
+    
 
         private void OpenAddNewAutomationWindowCommand()
         {
@@ -5168,12 +5096,6 @@ namespace adrilight.ViewModel
             }
         }
 
-        private void SaveNewGradient()
-        {
-            var gradient = new GradientColorCard("new gradient", "user", "unknown", "User created", CurrentStartColor, CurrentStopColor);
-            AvailableGradient.Add(gradient);
-            WriteGradientCollectionJson();
-        }
 
         public void SaveCurrentProfile(string profileUID)
         {
@@ -8236,33 +8158,7 @@ namespace adrilight.ViewModel
             //CurrentActivePalette = AvailablePallete.First();
         }
 
-        private void DeleteSelectedGradient(IGradientColorCard gradient)
-        {
-            if (AvailableGradient.Count == 1)
-            {
-                var result = HandyControl.Controls.MessageBox.Show(new MessageBoxInfo {
-                    Message = " You have nothing left if you delete this lat bit of goodness!!!",
-                    Caption = "Xóa Gradient",
-                    Button = MessageBoxButton.OK,
-                    IconBrushKey = ResourceToken.AccentBrush,
-                    IconKey = ResourceToken.WarningGeometry,
-                    StyleKey = "MessageBoxCustom"
-                });
-
-                return;
-            }
-            AvailableGradient.Remove(gradient);
-            CurrentSelectedGradient = AvailableGradient.Last();
-            WriteGradientCollectionJson();
-
-            //AvailableGifs.Clear();
-            //foreach (var palette in LoadPaletteIfExists())
-            //{
-            //    AvailablePallete.Add(palette);
-            //}
-            //CurrentOutput.OutputSelectedChasingPalette = 0;
-            //CurrentActivePalette = AvailablePallete.First();
-        }
+       
 
         private void SaveCurrentEditedPalette(string param)
         {
@@ -8528,7 +8424,18 @@ namespace adrilight.ViewModel
             }
             CreateRequiredFwVersionJson();
         }
+        private void CreateColorCollectionFolder()
+        {
+            if (!Directory.Exists(ColorsCollectionFolderPath))
+            {
+                Directory.CreateDirectory(ColorsCollectionFolderPath);
+                //get data from resource file and copy to local folder
+                var colorCollectionResourcePath = "adrilight.Resources.Colors.ColorCollection.json";
+                ResourceHlprs.CopyResource(colorCollectionResourcePath, Path.Combine(ColorsCollectionFolderPath, "ColorCollection.json"));
+            }
+           //deserialize and store colorcollection
 
+        }
         private void CreateRequiredFwVersionJson()
         {
             IDeviceFirmware ABR1p = new DeviceFirmware() {
@@ -8876,14 +8783,7 @@ namespace adrilight.ViewModel
             }
             WriteGifCollectionJson();
         }
-        private void LoadAvailableGradients()
-        {
-            AvailableGradient = new ObservableCollection<IGradientColorCard>();
-            foreach (var gradient in LoadGradientIfExists())
-            {
-                AvailableGradient.Add(gradient);
-            }
-        }
+
         private void LoadAvailableSolidColors()
         {
             AvailableSolidColors = new ObservableCollection<Color>();
@@ -8912,7 +8812,6 @@ namespace adrilight.ViewModel
             LoadAvailableAnimations();
             LoadAvailableBaudRate();
             LoadAvailableChasingPatterns();
-            LoadAvailableGradients();
             LoadAvailableProfiles();
             LoadAvailableSolidColors();
 
@@ -9223,50 +9122,7 @@ namespace adrilight.ViewModel
             }
         }
 
-        public List<IGradientColorCard> LoadGradientIfExists()
-        {
-            var gradientCards = new List<IGradientColorCard>();
-            if (!File.Exists(JsonGradientFileNameAndPath))
-            {
-                //create default palette
 
-                IGradientColorCard a = new GradientColorCard("Pastel 1", "Zooey", "RGBGradient", "Default Gradient Color by Ambino", System.Windows.Media.Color.FromRgb(254, 141, 198), System.Windows.Media.Color.FromRgb(254, 209, 199));
-                IGradientColorCard b = new GradientColorCard("Pastel 2", "Zooey", "RGBGradient", "Default Gradient Color by Ambino", System.Windows.Media.Color.FromRgb(127, 0, 255), System.Windows.Media.Color.FromRgb(255, 0, 255));
-                IGradientColorCard c = new GradientColorCard("Pastel 3", "Zooey", "RGBGradient", "Default Gradient Color by Ambino", System.Windows.Media.Color.FromRgb(251, 176, 64), System.Windows.Media.Color.FromRgb(249, 237, 50));
-                IGradientColorCard d = new GradientColorCard("Pastel 4", "Zooey", "RGBGradient", "Default Gradient Color by Ambino", System.Windows.Media.Color.FromRgb(0, 161, 255), System.Windows.Media.Color.FromRgb(0, 255, 143));
-                IGradientColorCard e = new GradientColorCard("Pastel 5", "Zooey", "RGBGradient", "Default Gradient Color by Ambino", System.Windows.Media.Color.FromRgb(238, 42, 123), System.Windows.Media.Color.FromRgb(255, 125, 184));
-                IGradientColorCard f = new GradientColorCard("Pastel 6", "Zooey", "RGBGradient", "Default Gradient Color by Ambino", System.Windows.Media.Color.FromRgb(255, 0, 212), System.Windows.Media.Color.FromRgb(0, 221, 255));
-
-                gradientCards.Add(a);
-                gradientCards.Add(b);
-                gradientCards.Add(c);
-                gradientCards.Add(d);
-                gradientCards.Add(e);
-                gradientCards.Add(f);
-            }
-            else
-            {
-                var json = File.ReadAllText(JsonGradientFileNameAndPath);
-
-                var existedGradient = JsonConvert.DeserializeObject<List<GradientColorCard>>(json);
-                foreach (var gradient in existedGradient)
-                {
-                    gradientCards.Add(gradient);
-                }
-            }
-
-            return gradientCards;
-
-            //}
-
-            //var json = File.ReadAllText(JsonPaletteFileNameAndPath);
-            //var loadedPaletteCard = new List<IColorPaletteCard>();
-            //var existPaletteCard = JsonConvert.DeserializeObject<List<ColorPaletteCard>>(json);
-            //foreach (var paletteCard in existPaletteCard)
-            //{
-            //    loadedPaletteCard.Add(paletteCard);
-            //}
-        }
 
         public async void ShowAddNewWindow()
         {/*
@@ -9421,21 +9277,6 @@ namespace adrilight.ViewModel
             });
             Directory.CreateDirectory(JsonPath);
             File.WriteAllText(JsonGifsCollectionFileNameAndPath, json);
-        }
-
-        public void WriteGradientCollectionJson()
-        {
-            var gradients = new List<IGradientColorCard>();
-            foreach (var gradient in AvailableGradient)
-            {
-                gradients.Add(gradient);
-            }
-
-            var json = JsonConvert.SerializeObject(gradients, new JsonSerializerSettings() {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
-            Directory.CreateDirectory(JsonPath);
-            File.WriteAllText(JsonGradientFileNameAndPath, json);
         }
 
         public void WriteGenralSettingsJson()

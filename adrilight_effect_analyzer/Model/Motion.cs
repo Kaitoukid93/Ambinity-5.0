@@ -13,6 +13,10 @@ namespace adrilight_effect_analyzer.Model
         {
             Frames = new Frame[FrameCount];
         }
+        public Motion(string name)
+        { 
+            Name = name;
+        }
         public Frame[] Frames { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }

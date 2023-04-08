@@ -35,10 +35,14 @@
         </Grid.RowDefinitions>
         <!--load efect folder button-->
         <Grid>
-            <Button Command="{Binding SelectFrameDataFolderCommand}" VerticalAlignment="Top" HorizontalAlignment="Right" Width="50" Padding="16,8" Margin="15" Style="{StaticResource ButtonDashedDanger}" hc:IconElement.Geometry="{StaticResource AddGeometry}"/>
+            <StackPanel>
+                <Button Command="{Binding SelectColorDataFolderCommand}" VerticalAlignment="Top" HorizontalAlignment="Right" Width="50" Padding="16,8" Margin="15" Style="{StaticResource ButtonDashedDanger}" hc:IconElement.Geometry="{StaticResource AddGeometry}"/>
+                <Button Command="{Binding SelectFrameDataFolderCommand}" VerticalAlignment="Top" HorizontalAlignment="Right" Width="50" Padding="16,8" Margin="15" Style="{StaticResource ButtonDashedDanger}" hc:IconElement.Geometry="{StaticResource AddGeometry}"/>
+            </StackPanel>
+         
         </Grid>
         <!--list of frame in this layer-->
-        <Grid VerticalAlignment="Top" Grid.Row="1" Margin="5">
+        <!--<Grid VerticalAlignment="Top" Grid.Row="1" Margin="5">
             <ListView ItemsSource="{Binding Layer.Frame}">
                 <ListView.ItemTemplate>
                     <DataTemplate>
@@ -81,14 +85,14 @@
                                                     </Rectangle.Fill>
 
 
-                                                    <!--<i:Interaction.Triggers>
+                                                    --><!--<i:Interaction.Triggers>
                                                     -->
                                                     <!--<i:EventTrigger EventName="MouseDown" >
                                                         <i:InvokeCommandAction Command="{Binding DataContext.SetNextSpotVIDCommand,RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding .}" />
                                                     </i:EventTrigger>-->
                                                     <!--
                                                    
-                                                </i:Interaction.Triggers>-->
+                                                </i:Interaction.Triggers>--><!--
 
                                                 </Rectangle>
                                             </Grid>
@@ -102,7 +106,7 @@
                 </ListView.ItemTemplate>
             </ListView>
            
-        </Grid>
+        </Grid>-->
         
     </Grid>
 </hc:Window>

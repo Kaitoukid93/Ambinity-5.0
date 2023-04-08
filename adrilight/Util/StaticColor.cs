@@ -159,20 +159,16 @@ namespace adrilight
                     bool isPreviewRunning = MainViewViewModel.IsLiveViewOpen;
                     //changing parameter on the fly define here
                     var brightness = brightnessControl.Value / 100d;
-
+                    var color = colorControl.AvailableValue[colorControl.Value] as ColorCard;
 
                     lock (CurrentZone.Lock)
                     {
-
-
                         Parallel.ForEach(CurrentZone.Spots
                             , spot =>
                             {
-                                spot.SetColor((byte)(255*brightness), 0, 0, isPreviewRunning);
+                                spot.SetColor((byte)color.StopColor.R, (byte)color.StopColor.G, (byte)color.StopColor.B, isPreviewRunning);
 
                             });
-                        //}
-
                     }
 
                     //threadSleep for static mode is 1s, for breathing is 10ms

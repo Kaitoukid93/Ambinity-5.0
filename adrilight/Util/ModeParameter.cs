@@ -1,6 +1,7 @@
 ﻿using GalaSoft.MvvmLight;
 using LiveCharts;
 using LiveCharts.Defaults;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Documents;
@@ -17,9 +18,8 @@ namespace adrilight.Util
         private int _minValue;
         private int _maxValue;
         private ObservableCollection<object> _availableValue;
-       
-
-
+        private object _selectedValue;
+        private string _availableValueLocalPath;
         public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
         /// <summary>
         /// provide description of this parameter(turn on/off something,set something)
@@ -32,12 +32,15 @@ namespace adrilight.Util
         /// <summary>
         /// this value could be bool(on/off) or nummeric(int) or even listof item
         /// </summary>
-        public ObservableCollection<object> AvailableValue  { get => _availableValue; set { Set(() => AvailableValue, ref _availableValue, value); } }
+        /// 
+        [JsonIgnore]
+        public ObservableCollection<object> AvailableValue => LoadAvailableValue(AvailableValueLocalPath);
         /// <summary>
         /// this is the type of lighting mode, use to get the data template
         /// </summary>
         /// 
-
+        public string AvailableValueLocalPath { get => _availableValueLocalPath; set { Set(() => AvailableValueLocalPath, ref _availableValueLocalPath, value); } }
+        public object SelectedValue { get => _selectedValue; set { Set(() => SelectedValue, ref _selectedValue, value); } }
         public ModeParameterTemplateEnum Template { get => _template; set { Set(() => Template, ref _template, value); } }
         public ModeParameterEnum Type { get => _type; set { Set(() => Type, ref _type, value); } }
 
@@ -46,6 +49,18 @@ namespace adrilight.Util
         /// </summary>
         public int MinValue { get => _minValue; set { Set(() => MinValue, ref _minValue, value); } }
         public int MaxValue { get => _maxValue; set { Set(() => MaxValue, ref _maxValue, value); } }
-        
+        private ObservableCollection<object> LoadAvailableValue(string availableValueLocalPath)
+        {
+            var availableValue = new ObservableCollection<object>();
+            //read folder cofig to know which type this shouldbe deserialize
+
+
+            //deserialize items
+
+
+            //return items
+            return availableValue;
+        }
+
     }
 }

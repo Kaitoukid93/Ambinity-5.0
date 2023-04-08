@@ -196,6 +196,7 @@
     <Compile Include="Helpers\Behaviors\GroupBehavior.cs" />
     <Compile Include="Helpers\ControlModeHelpers.cs" />
     <Compile Include="Helpers\EventToCommand.cs" />
+    <Compile Include="Settings\ModeDirection.cs" />
     <Compile Include="Helpers\ObjectHelpers.cs" />
     <Compile Include="Helpers\perSizeBindingHelper.cs" />
     <Compile Include="Helpers\ResourceHelpers.cs" />
@@ -297,7 +298,7 @@
     <Compile Include="Util\MotionCard.cs" />
     <Compile Include="Util\GifCard.cs" />
     <Compile Include="Util\GradientColor.cs" />
-    <Compile Include="Util\GradientColorCard.cs" />
+    <Compile Include="Util\ColorCard.cs" />
     <Compile Include="Util\HotKeyManager.cs" />
     <Compile Include="Util\HWMonitor.cs" />
     <Compile Include="Util\IAmbinoColorEffect.cs" />
@@ -309,7 +310,6 @@
     <Compile Include="Util\IComputer.cs" />
     <Compile Include="Util\IGifCard.cs" />
     <Compile Include="Util\IGifxelation.cs" />
-    <Compile Include="Util\IGradientColorCard.cs" />
     <Compile Include="Util\IHotKeyManager.cs" />
     <Compile Include="Util\IHWMonitor.cs" />
     <Compile Include="Util\ILeftMenuItemGroup.cs" />
@@ -957,6 +957,9 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <EmbeddedResource Include="Tools\OpenRGB\OpenRGB.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Colors\ColorCollection.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>

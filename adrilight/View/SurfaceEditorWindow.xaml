@@ -204,6 +204,7 @@
                                     <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
                                         <i:InvokeCommandAction Command="{Binding DataContext.SelectSurfaceEditorItemCommand,RelativeSource={RelativeSource AncestorType={x:Type view:SurfaceEditorWindow}}}" CommandParameter="{Binding .}" />
                                     </i:EventTrigger>
+                                    
                                 </i:Interaction.Triggers>
                                 
                                 <Rectangle  Height="{Binding Height}" Width="{Binding Width}">

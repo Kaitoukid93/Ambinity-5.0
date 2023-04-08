@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.UI.WebControls.WebParts;
+using System.Windows.Media;
 
 namespace adrilight.Helpers
 {
@@ -37,7 +38,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Sáng theo dải màu với chuyển động tùy chọn",
-                    Parameters = { ChasingPatterns, GenericDirrectionParameter, GenericBrightnessParameter, GenericSpeedParameter(0,100) }
+                    Parameters = { ChasingPatterns, GenericDirrectionParameter, GenericBrightnessParameter, GenericSpeedParameter(0, 100) }
 
                 };
             }
@@ -51,7 +52,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Sáng theo màn hình với vị trí cài sẵn",
-                    Parameters = {GenericBrightnessParameter,UseLinearLighting}
+                    Parameters = { GenericBrightnessParameter, UseLinearLighting }
 
                 };
             }
@@ -68,7 +69,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Màu LED chuyển động theo nhạc",
-                    Parameters = { GenericDirrectionParameter, GenericBrightnessParameter, GenericSpeedParameter(0,100) }
+                    Parameters = { GenericDirrectionParameter, GenericBrightnessParameter, GenericSpeedParameter(0, 100) }
 
                 };
             }
@@ -82,11 +83,11 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Tất cả LED sáng cùng một màu",
-                    Parameters = { GenericBrightnessParameter }
-
+                    Parameters = { GenericBrightnessParameter, GenericColorSelectionParameter }
                 };
             }
         }
+
         public IControlMode FanSpeedAuto {
             get
             {
@@ -110,17 +111,18 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Cố định tốc độ Fan",
-                    Parameters = { GenericSpeedParameter(0,100) }
+                    Parameters = { GenericSpeedParameter(0, 100) }
 
                 };
             }
         }
-     
+
         #endregion
 
 
         #region default lightingmode parameter defined by ambino
-        public IModeParameter GenericSpeedParameter(int min, int max) {
+        public IModeParameter GenericSpeedParameter(int min, int max)
+        {
 
             return new ModeParameter() {
 
@@ -144,7 +146,7 @@ namespace adrilight.Helpers
                     Description = "Speed of Motion",
                     Type = ModeParameterEnum.Speed,
                     Template = ModeParameterTemplateEnum.ChartVisualization,
-            };
+                };
             }
         }
         public IModeParameter UseLinearLighting {
@@ -157,7 +159,7 @@ namespace adrilight.Helpers
                     Type = ModeParameterEnum.LinearLighting,
                     Template = ModeParameterTemplateEnum.ToggleOnOff,
                     Value = 0,
-                   
+
 
 
                 };
@@ -173,7 +175,22 @@ namespace adrilight.Helpers
                     Type = ModeParameterEnum.Direction,
                     Template = ModeParameterTemplateEnum.ListSelection,
                     Value = 1,
-                    AvailableValue = new ObservableCollection<object>() { "Foward", "Reverse" }
+                    AvailableValueLocalPath = ""
+
+                };
+            }
+        }
+        public IModeParameter GenericColorSelectionParameter {
+            get
+            {
+                return new ModeParameter() {
+
+                    Name = "Colors",
+                    Description = "Available Color",
+                    Type = ModeParameterEnum.Color,
+                    Template = ModeParameterTemplateEnum.ListSelection,
+                    Value = 1,
+                    AvailableValueLocalPath = ""
 
                 };
             }
@@ -207,7 +224,7 @@ namespace adrilight.Helpers
                     Type = ModeParameterEnum.ChasingPattern,
                     Template = ModeParameterTemplateEnum.ListSelection,
                     Value = 50,
-                    AvailableValue = new ObservableCollection<object>() { "bouncing", "fucking", "humping" }
+                    AvailableValueLocalPath = ""
 
                 };
             }
@@ -225,7 +242,7 @@ namespace adrilight.Helpers
                     Type = ModeParameterEnum.ColorMode,
                     Template = ModeParameterTemplateEnum.ListSelection,
                     Value = 0,
-                    AvailableValue = new ObservableCollection<object>() { "Solid", "Random", "Cyclic", "Full" }
+                    AvailableValueLocalPath = ""
 
 
                 };
