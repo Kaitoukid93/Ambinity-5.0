@@ -23,9 +23,78 @@
                     <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
                     <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
                     <converters:ToUpperValueConverter x:Key="toUpperValueConverter" />
+                    <DataTemplate x:Key="_buttonSubParamTemplate"  DataType="{x:Type ut:SubParameter}">
+                        <Grid>
+                            <StackPanel>
+                                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10,0,10">
+
+                                </hc:Divider>
+                                <Grid>
+                                    <GroupBox VerticalAlignment="Stretch"   Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                                        <GroupBox.HeaderTemplate>
+                                            <DataTemplate>
+                                                <TextBlock  Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox}}"/>
+                                            </DataTemplate>
+                                        </GroupBox.HeaderTemplate>
+                                        <Button Command="{Binding DataContext.AddNewItemToCollectionCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}" CommandParameter="{Binding CommandParameter}" HorizontalAlignment="Right" Content="{Binding CommandParameter}"/>
+                                    </GroupBox>
+                                </Grid>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                    <DataTemplate x:Key="_sliderSubParamTemplate"  DataType="{x:Type ut:SubParameter}">
+                        <Grid ToolTip="{Binding Description}" Visibility="{Binding IsEnabled,Converter={StaticResource Boolean2VisibilityConverter},Mode=TwoWay}">
+                            <StackPanel>
+                                <hc:Divider   LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10,0,10">
+
+                                </hc:Divider>
+                                <Grid>
+                                    <GroupBox  hc:TitleElement.TitleWidth="100" HorizontalContentAlignment="Left"  Style="{StaticResource GroupBoxOriginal}"  hc:TitleElement.TitlePlacement="Left">
+                                        <GroupBox.HeaderTemplate>
+                                            <DataTemplate>
+                                                <TextBlock  Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox}}"/>
+                                            </DataTemplate>
+                                        </GroupBox.HeaderTemplate>
+
+                                        <hc:PreviewSlider HorizontalAlignment="Right" Width="200" Minimum="{Binding MinValue}" Maximum="{Binding MaxValue}" Value="{Binding Value}">
+                                            <hc:PreviewSlider.PreviewContent>
+                                                <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0"/>
+                                            </hc:PreviewSlider.PreviewContent>
+                                        </hc:PreviewSlider>
+
+
+                                    </GroupBox>
+                                </Grid>
+
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                    <DataTemplate x:Key="_toggleSubParamTemplate" DataType="{x:Type ut:SubParameter}">
+                        <Grid ToolTip="{Binding Description}">
+                            <StackPanel>
+                                <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10,0,10">
+
+                                </hc:Divider>
+                                <Grid>
+                                    <GroupBox VerticalAlignment="Stretch" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                                        <GroupBox.HeaderTemplate>
+                                            <DataTemplate>
+                                                <TextBlock  FontWeight="SemiBold" Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox}}"/>
+                                            </DataTemplate>
+                                        </GroupBox.HeaderTemplate>
+                                        <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding Value}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
+                                        </ToggleButton>
+                                    </GroupBox>
+                                </Grid>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
                     <DataTemplate x:Key="_charVisualizationTemplate"  DataType="{x:Type ut:ModeParameter}">
                         <Grid>
                             <StackPanel>
+                                <hc:Divider   LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10,0,10">
+
+                                </hc:Divider>
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="auto"/>
@@ -38,48 +107,82 @@
                                             </DataTemplate>
                                         </GroupBox.HeaderTemplate>
 
-                                       
+
                                     </GroupBox>
                                     <TextBlock TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="{Binding Description}"/>
                                 </Grid>
-                                <hc:Divider   LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10,0,10">
 
-                                </hc:Divider>
                             </StackPanel>
                         </Grid>
                     </DataTemplate>
                     <DataTemplate x:Key="_toggleParamTemplate"  DataType="{x:Type ut:ModeParameter}">
                         <Grid>
                             <StackPanel>
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="auto"/>
-                                        <RowDefinition Height="auto"/>
-                                    </Grid.RowDefinitions>
-                                    <GroupBox VerticalAlignment="Stretch"   Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
-                                        <GroupBox.HeaderTemplate>
-                                            <DataTemplate>
-                                                <TextBlock  FontWeight="SemiBold" Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox},Converter={StaticResource toUpperValueConverter}}"/>
-                                            </DataTemplate>
-                                        </GroupBox.HeaderTemplate>
-
-                                        <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding Value}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
-
-                                        </ToggleButton>
-
-
-                                    </GroupBox>
-                                    <TextBlock TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="{Binding Description}"/>
-                                </Grid>
                                 <hc:Divider   LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10,0,10">
 
                                 </hc:Divider>
+                                <Grid>
+                                    <GroupBox VerticalAlignment="Stretch" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                                        <GroupBox.HeaderTemplate>
+                                            <DataTemplate>
+                                                <StackPanel>
+                                                    <TextBlock  FontWeight="SemiBold" Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox},Converter={StaticResource toUpperValueConverter}}"/>
+                                                    <TextBlock Margin="0,5,0,0" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="{Binding DataContext.Description, RelativeSource={RelativeSource AncestorType=GroupBox}}"/>
+                                                </StackPanel>
+
+                                            </DataTemplate>
+                                        </GroupBox.HeaderTemplate>
+                                        <ToggleButton x:Name="toggle" HorizontalAlignment="Right" IsChecked="{Binding Value}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
+                                        </ToggleButton>
+                                    </GroupBox>
+                                </Grid>
+                                <Grid>
+                                    <ItemsControl Visibility="{Binding ElementName=toggle,Path=IsChecked,Converter={StaticResource Boolean2VisibilityConverter}}" x:Name="subParamList" Margin="40,0,0,0" ItemsSource="{Binding SubParams}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <ContentControl Content="{Binding}">
+                                                    <ContentControl.Style>
+                                                        <Style TargetType="{x:Type ContentControl}">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Path=Template}"
+                                                                                     Value="{x:Static ut:ModeParameterTemplateEnum.PushButtonAction}">
+                                                                    <Setter Property="ContentTemplate"
+                                                                                    Value="{DynamicResource _buttonSubParamTemplate}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Path=Template}"
+                                                                                     Value="{x:Static ut:ModeParameterTemplateEnum.ValueSlider}">
+                                                                    <Setter Property="ContentTemplate"
+                                                                                    Value="{DynamicResource _sliderSubParamTemplate}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Path=Template}"
+                                                                                     Value="{x:Static ut:ModeParameterTemplateEnum.ToggleOnOff}">
+                                                                    <Setter Property="ContentTemplate"
+                                                                                    Value="{DynamicResource _toggleSubParamTemplate}" />
+                                                                </DataTrigger>
+
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </ContentControl.Style>
+                                                </ContentControl>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+
+                                    </ItemsControl>
+                                </Grid>
                             </StackPanel>
                         </Grid>
                     </DataTemplate>
                     <DataTemplate x:Key="_sliderParamTemplate"  DataType="{x:Type ut:ModeParameter}">
-                        <Grid>
+                        <Grid ToolTip="{Binding Description}" IsEnabled="{Binding IsEnabled,Mode=TwoWay}">
                             <StackPanel>
+                                <hc:Divider   LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10,0,10">
+
+                                </hc:Divider>
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="auto"/>
@@ -102,92 +205,122 @@
                                     </GroupBox>
                                     <TextBlock TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="{Binding Description}"/>
                                 </Grid>
-                                <hc:Divider   LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10,0,10">
 
-                                </hc:Divider>
                             </StackPanel>
                         </Grid>
                     </DataTemplate>
-                 
+
 
                     <DataTemplate x:Key="_listSelectionParamTemplate"  DataType="{x:Type ut:ModeParameter}">
                         <Grid>
                             <StackPanel>
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="auto"/>
-                                        <RowDefinition Height="auto"/>
-                                    </Grid.RowDefinitions>
-                                    <GroupBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="120"  Style="{StaticResource GroupBoxOriginal}">
-                                        <GroupBox.HeaderTemplate>
-                                            <DataTemplate>
-                                                <TextBlock  FontWeight="SemiBold" Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox},Converter={StaticResource toUpperValueConverter}}"/>
-                                            </DataTemplate>
-                                        </GroupBox.HeaderTemplate>
-                                        <Grid>
-                                         
-                                            <Border HorizontalAlignment="Right" Background="{DynamicResource DarkOpacityBrush}" BorderBrush="{StaticResource BorderBrush}" CornerRadius="7" BorderThickness="0">
-                                                <ListBox ItemsSource="{Binding AvailableValue}"
+                                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10,0,10">
+
+                                </hc:Divider>
+                                <GroupBox HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" hc:TitleElement.TitlePlacement="Top" hc:TitleElement.TitleWidth="100"  Style="{StaticResource GroupBoxOriginal}">
+                                    <GroupBox.HeaderTemplate>
+                                        <DataTemplate>
+                                            <StackPanel>
+                                                <TextBlock Margin="-7,0,0,0"  FontWeight="SemiBold" Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox},Converter={StaticResource toUpperValueConverter}}"/>
+                                                <TextBlock Margin="-7,5,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="{Binding DataContext.Description, RelativeSource={RelativeSource AncestorType=GroupBox}}"/>
+                                            </StackPanel>
+
+                                        </DataTemplate>
+                                    </GroupBox.HeaderTemplate>
+                                    <Grid>
+                                        <Border  HorizontalAlignment="Left" Background="{DynamicResource DarkOpacityBrush}" BorderBrush="{StaticResource BorderBrush}" CornerRadius="7" BorderThickness="0">
+                                            <ListBox ItemsSource="{Binding AvailableValue}"
                                                          SelectedIndex="{Binding Value}"   
                                                          ItemContainerStyle="{StaticResource _listBoxModeSelectionStyle}"
                                                          Background="Transparent"
                                                          BorderThickness="0"
-                                                         MaxWidth="250"
+                                                         MaxWidth="400"
                                                          MaxHeight="200"
                                                          Margin="5"
                                                          Style="{StaticResource WrapPanelHorizontalListBox}">
-                                                    <ListBox.Resources>
-                                                        <DataTemplate  DataType="{x:Type System:String}">
-                                                            <Grid>
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="auto"/>
-                                                                    <ColumnDefinition Width="*"/>
-                                                                </Grid.ColumnDefinitions>
-                                                                <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="{Binding .}" Style="{StaticResource TextBlockDefault}"/>
-                                                            </Grid>
-                                                        </DataTemplate>
-                                                        <DataTemplate DataType="{x:Type ut:ColorCard}">
-                                                            <Grid>
-                                                                <Border CornerRadius="4" Width="40" Height="40">
-                                                                    <Border.Background>
-                                                                        <LinearGradientBrush StartPoint="0,1" EndPoint = "1,0">
-                                                                            <GradientStop Color="{Binding StartColor}" Offset="0.0" />
-                                                                            <GradientStop Color="{Binding StopColor}" Offset="1.0" />
-                                                                        </LinearGradientBrush>
-                                                                    </Border.Background>
-                                                                    <Border.ToolTip>
-                                                                        <TextBlock>
-                                                                            <TextBlock.Text>
-                                                                                <MultiBinding StringFormat=" {0} - {1}">
-                                                                                    <Binding Path="StartColor"/>
-                                                                                    <Binding Path="StopColor"/>
-                                                                                </MultiBinding>
-                                                                            </TextBlock.Text>
-                                                                        </TextBlock>
-                                                                    </Border.ToolTip>
-                                                                </Border>
-                                                            </Grid>
-                                                        </DataTemplate>
-                                                    </ListBox.Resources>
-                                                    <ListBox.ItemsPanel>
-                                                        <ItemsPanelTemplate>
-                                                            <WrapPanel Orientation="Horizontal">
+                                                <ListBox.Resources>
+                                                    <DataTemplate  DataType="{x:Type System:String}">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="auto"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="{Binding .}" Style="{StaticResource TextBlockDefault}"/>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                    <DataTemplate DataType="{x:Type ut:ColorCard}">
+                                                        <Grid>
+                                                            <Border CornerRadius="4" Width="40" Height="40">
+                                                                <Border.Background>
+                                                                    <LinearGradientBrush StartPoint="0,1" EndPoint = "1,0">
+                                                                        <GradientStop Color="{Binding StartColor}" Offset="0.0" />
+                                                                        <GradientStop Color="{Binding StopColor}" Offset="1.0" />
+                                                                    </LinearGradientBrush>
+                                                                </Border.Background>
+                                                                <Border.ToolTip>
+                                                                    <TextBlock>
+                                                                        <TextBlock.Text>
+                                                                            <MultiBinding StringFormat=" {0} - {1}">
+                                                                                <Binding Path="StartColor"/>
+                                                                                <Binding Path="StopColor"/>
+                                                                            </MultiBinding>
+                                                                        </TextBlock.Text>
+                                                                    </TextBlock>
+                                                                </Border.ToolTip>
+                                                            </Border>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ListBox.Resources>
+                                                <ListBox.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel Orientation="Horizontal">
 
-                                                            </WrapPanel>
-                                                        </ItemsPanelTemplate>
-                                                    </ListBox.ItemsPanel>
-                                                </ListBox>
-                                            </Border>
-                                        </Grid>
+                                                        </WrapPanel>
+                                                    </ItemsPanelTemplate>
+                                                </ListBox.ItemsPanel>
+                                            </ListBox>
+                                        </Border>
+                                    </Grid>
 
-                                    </GroupBox>
-                                    <TextBlock Margin="0,10,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="{Binding Description}"/>
+                                </GroupBox>
+                                <!--subParam-->
+                                <Grid>
+                                    <ItemsControl x:Name="subParamList" Margin="40,0,0,0" ItemsSource="{Binding SubParams}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <ContentControl Content="{Binding}">
+                                                    <ContentControl.Style>
+                                                        <Style TargetType="{x:Type ContentControl}">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Path=Template}"
+                                                                                     Value="{x:Static ut:ModeParameterTemplateEnum.PushButtonAction}">
+                                                                    <Setter Property="ContentTemplate"
+                                                                                    Value="{DynamicResource _buttonSubParamTemplate}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Path=Template}"
+                                                                                     Value="{x:Static ut:ModeParameterTemplateEnum.ValueSlider}">
+                                                                    <Setter Property="ContentTemplate"
+                                                                                    Value="{DynamicResource _sliderSubParamTemplate}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Path=Template}"
+                                                                                     Value="{x:Static ut:ModeParameterTemplateEnum.ToggleOnOff}">
+                                                                    <Setter Property="ContentTemplate"
+                                                                                    Value="{DynamicResource _toggleSubParamTemplate}" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </ContentControl.Style>
+                                                </ContentControl>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
 
-
+                                    </ItemsControl>
                                 </Grid>
-                                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10,0,10">
-
-                                </hc:Divider>
                             </StackPanel>
                         </Grid>
 
@@ -242,8 +375,8 @@
 
                     </Grid>-->
                 </Grid>
-                
-                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10,0,10">
+
+                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10">
 
                 </hc:Divider>
                 <Grid Name="AvailableControlMode">
@@ -251,7 +384,7 @@
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
-                    <GroupBox VerticalAlignment="Center" hc:TitleElement.TitleWidth="200"  Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                    <GroupBox Margin="10,0" VerticalAlignment="Center" hc:TitleElement.TitleWidth="200"  Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                         <GroupBox.HeaderTemplate>
                             <DataTemplate>
                                 <TextBlock FontWeight="SemiBold" Text="CHỌN CHẾ ĐỘ"/>
@@ -271,12 +404,10 @@
 
 
                     </GroupBox>
-                    <TextBlock HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Các chế độ có thể chọn"/>
+                    <TextBlock Margin="10,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Các chế độ có thể chọn"/>
                 </Grid>
-                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10,0,10">
 
-                </hc:Divider>
-                <ItemsControl x:Name="paramList" Margin="10,0,0,0" ItemsSource="{Binding SelectedControlZone.CurrentActiveControlMode.Parameters,Mode=TwoWay}">
+                <ItemsControl x:Name="paramList" Margin="20,0,0,0" ItemsSource="{Binding SelectedControlZone.CurrentActiveControlMode.Parameters,Mode=TwoWay}">
 
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>

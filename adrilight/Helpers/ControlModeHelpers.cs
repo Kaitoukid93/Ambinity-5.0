@@ -7,19 +7,16 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web.UI.WebControls.WebParts;
 using System.Windows.Media;
+using System.IO;
 
 namespace adrilight.Helpers
 {
     public class ControlModeHelpers
     {
+        private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
+        private string ColorsCollectionFolderPath => Path.Combine(JsonPath, "Colors");
         #region default lighting mode by ambino
-        /// <summary>
-        /// Legacy ColorPalette mode
-        /// </summary>
-        /// 
-
         public IControlZone MakeZoneControlable(IControlZone zone)
         {
             zone.AvailableControlMode = new List<IControlMode>();
@@ -83,7 +80,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Tất cả LED sáng cùng một màu",
-                    Parameters = { GenericBrightnessParameter, GenericColorSelectionParameter }
+                    Parameters = { GenericBrightnessParameter, GenericColorSelectionParameter, Breathing }
                 };
             }
         }
@@ -128,7 +125,7 @@ namespace adrilight.Helpers
 
                 Name = "Speed",
                 Description = "Speed of Motion",
-                Type = ModeParameterEnum.Speed,
+                ParamType = ModeParameterEnum.Speed,
                 Template = ModeParameterTemplateEnum.ValueSlider,
                 Value = 50,
                 MinValue = min,
@@ -144,7 +141,7 @@ namespace adrilight.Helpers
 
                     Name = "Auto Speed",
                     Description = "Speed of Motion",
-                    Type = ModeParameterEnum.Speed,
+                    ParamType = ModeParameterEnum.Speed,
                     Template = ModeParameterTemplateEnum.ChartVisualization,
                 };
             }
@@ -156,9 +153,36 @@ namespace adrilight.Helpers
 
                     Name = "Linear Lighting",
                     Description = "The Light Changes with linear brightness",
-                    Type = ModeParameterEnum.LinearLighting,
+                    ParamType = ModeParameterEnum.LinearLighting,
                     Template = ModeParameterTemplateEnum.ToggleOnOff,
                     Value = 0,
+
+
+
+                };
+            }
+        }
+        public IModeParameter Breathing {
+            get
+            {
+                return new ModeParameter() {
+
+                    Name = "Breathing",
+                    Description = "LED sáng dần và tắt dần theo tốc độ",
+                    ParamType = ModeParameterEnum.Breathing,
+                    Template = ModeParameterTemplateEnum.ToggleOnOff,
+                    Value = 0,
+                    SubParams = new ObservableCollection<SubParameter>() {
+                        new SubParameter("Speed", ModeParameterTemplateEnum.ValueSlider, "Speed", "Speed", 100, 1950, 0) {
+                            Description = "Tốc độ này độc lập đối với vùng được chọn"
+                        },
+                        new SubParameter("System Sync", ModeParameterTemplateEnum.ToggleOnOff, "sync", "sync", 0, 0, 0) {
+                            Description = "Đồng bộ với tốc độ hệ thống"
+                        },
+                        new SubParameter("System Speed",ModeParameterTemplateEnum.ValueSlider,"Speed","Speed",100,1950,0){
+                            Description = "Tốc độ này sẽ kéo theo toàn bộ các vùng đã bật System Sync"
+                        }
+                    }
 
 
 
@@ -172,7 +196,7 @@ namespace adrilight.Helpers
 
                     Name = "Dirrection",
                     Description = "Speed of Motion",
-                    Type = ModeParameterEnum.Direction,
+                    ParamType = ModeParameterEnum.Direction,
                     Template = ModeParameterTemplateEnum.ListSelection,
                     Value = 1,
                     AvailableValueLocalPath = ""
@@ -187,10 +211,14 @@ namespace adrilight.Helpers
 
                     Name = "Colors",
                     Description = "Available Color",
-                    Type = ModeParameterEnum.Color,
+                    ParamType = ModeParameterEnum.Color,
                     Template = ModeParameterTemplateEnum.ListSelection,
-                    Value = 1,
-                    AvailableValueLocalPath = ""
+                    Value = 0,
+                    AvailableValueLocalPath = ColorsCollectionFolderPath,
+                    SubParams = new ObservableCollection<SubParameter>() {
+                        new SubParameter("Custom Color",ModeParameterTemplateEnum.PushButtonAction,"Add Color","Add",0,0,0),
+                        new SubParameter("Import Color",ModeParameterTemplateEnum.PushButtonAction,"Import Color","Import",0,0,0)
+                    }
 
                 };
             }
@@ -202,7 +230,7 @@ namespace adrilight.Helpers
 
                     Name = "Brightness",
                     Description = "Brightness of LEDs",
-                    Type = ModeParameterEnum.Brightness,
+                    ParamType = ModeParameterEnum.Brightness,
                     Template = ModeParameterTemplateEnum.ValueSlider,
                     Value = 50,
                     MinValue = 20,
@@ -221,7 +249,7 @@ namespace adrilight.Helpers
 
                     Name = "Pattern",
                     Description = "The motion to be colored",
-                    Type = ModeParameterEnum.ChasingPattern,
+                    ParamType = ModeParameterEnum.ChasingPattern,
                     Template = ModeParameterTemplateEnum.ListSelection,
                     Value = 50,
                     AvailableValueLocalPath = ""
@@ -239,7 +267,7 @@ namespace adrilight.Helpers
 
                     Name = "ColorMode",
                     Description = "How the color being used",
-                    Type = ModeParameterEnum.ColorMode,
+                    ParamType = ModeParameterEnum.ColorMode,
                     Template = ModeParameterTemplateEnum.ListSelection,
                     Value = 0,
                     AvailableValueLocalPath = ""
@@ -258,7 +286,7 @@ namespace adrilight.Helpers
 
                     Name = "Chọn màn hình",
                     Description = "Chọn màn hình để capture",
-                    Type = ModeParameterEnum.ScreenIndex,
+                    ParamType = ModeParameterEnum.ScreenIndex,
                     Template = ModeParameterTemplateEnum.ListSelection,
                     Value = 0,
                 };

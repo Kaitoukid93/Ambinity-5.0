@@ -39,5 +39,6 @@
         LinearLighting,
 
         StaticColorMode,
+        Breathing,
     }
 }

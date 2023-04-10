@@ -24,6 +24,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.Header;
 using NAudio.SoundFont;
 using Color = System.Windows.Media.Color;
 using System.Net;
+using MathNet.Numerics.Distributions;
 
 namespace adrilight
 {
@@ -34,26 +35,20 @@ namespace adrilight
         public StaticColor(
             IGeneralSettings generalSettings,
             MainViewViewModel mainViewViewModel,
-            IControlZone zone
+            IControlZone zone,
+            IRainbowTicker rainbowTicker
             )
         {
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
             CurrentZone = zone as LEDSetup ?? throw new ArgumentNullException(nameof(zone));
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
-
-
+            RainbowTicker = rainbowTicker ?? throw new ArgumentNullException(nameof(rainbowTicker));
             GeneralSettings.PropertyChanged += PropertyChanged;
             CurrentZone.PropertyChanged += PropertyChanged;
             MainViewViewModel.PropertyChanged += PropertyChanged;
-
-
             Refresh();
-
             _log.Info($"DesktopDuplicatorReader created.");
         }
-
-
-
 
         /// <summary>
         /// dependency property
@@ -62,8 +57,13 @@ namespace adrilight
         public bool IsRunning { get; private set; }
         private LEDSetup CurrentZone { get; }
         private MainViewViewModel MainViewViewModel { get; }
-
-
+        private IRainbowTicker RainbowTicker { get; }
+        /// <summary>
+        /// breathing constant value
+        /// </summary>
+        float gamma = 0.14f; // affects the width of peak (more or less darkness)
+        float beta = 0.5f; // shifts the gaussian to be symmetric
+        float ii = 0f;
 
         /// <summary>
         /// property changed event catching
@@ -81,9 +81,12 @@ namespace adrilight
                 case nameof(CurrentZone.MaskedControlMode):
                 case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
                 case nameof(MainViewViewModel.IsRegisteringGroup):
+                case nameof(_colorControl):
                     Refresh();
                     break;
-
+                case nameof(GeneralSettings.BreathingSpeed):
+                    OnSystemBreathingSpeedChanged(GeneralSettings.BreathingSpeed);
+                    break;
             }
         }
 
@@ -94,8 +97,73 @@ namespace adrilight
         private CancellationTokenSource _cancellationTokenSource;
         private Thread _workerThread;
         private LightingMode _currentLightingMode;
-        private int? _currentScreenIndex;
+        private IModeParameter _colorControl;
+        private IModeParameter _breathingControl;
+        private IModeParameter _brightnessControl;
+        private ColorCard _color;
+        private bool _isSystemSync;
+        private bool _isBreathing;
+        private double _brightness;
+        private int _breathingSpeed;
+        private List<Color> _colorList;
+        #region Properties changed event handler 
+        private void OnSystemBreathingSpeedChanged(int value)
+        {
+            if(_breathingControl!=null)
+            {
+                _breathingControl.SubParams[2].Value = value;
+            }
+        }
 
+        private void OnSystemSyncValueChanged(bool value)
+        {
+            _isSystemSync = value;
+            if (value)
+            {
+                _breathingControl.SubParams[0].IsEnabled = false;
+                _breathingControl.SubParams[2].IsEnabled = true;
+                _breathingControl.SubParams[2].Value = GeneralSettings.BreathingSpeed;
+
+            }
+            else
+            {
+                _breathingControl.SubParams[0].IsEnabled = true;
+                _breathingControl.SubParams[2].IsEnabled = false;
+
+            }
+        }
+        private void OnSelectedColorValueChanged(IPrameterValue value)
+        {
+            _color = value as ColorCard;
+            _colorList = GetColorGradient(_color.StartColor, _color.StopColor, CurrentZone.Spots.Count());
+        }
+        private void OnIsBreathingValueChanged(bool value)
+        {
+            _isBreathing = value;
+            if (!value)
+            {
+                _brightness = _brightnessControl.Value / 100d;
+                _brightnessControl.IsEnabled = true;
+            }
+            else
+            {
+                _brightnessControl.IsEnabled = false;
+            }
+        }
+        private void OnBrightnessValueChanged(int value)
+        {
+            _brightness = value / 100d;
+        }
+        private void OnBreathingSpeedValueChanged(int value)
+        {
+            _breathingSpeed = 2000 - value;
+        }
+        private void OnSystemSyncBreathingSpeedValueChange(int value)
+        {
+            GeneralSettings.BreathingSpeed = value;
+        }
+
+        #endregion
 
         public void Refresh()
         {
@@ -126,11 +194,18 @@ namespace adrilight
             else if (!isRunning && shouldBeRunning)
             {
                 //start it
-                //get current lighting mode confirm that based on desktop duplicator reader engine
-
+                #region registering params
                 _currentLightingMode = currentLightingMode;
-
-
+                _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Color).FirstOrDefault();
+                _breathingControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Breathing).FirstOrDefault();
+                _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault();
+                _brightnessControl.PropertyChanged += (_, __) => OnBrightnessValueChanged(_brightnessControl.Value);
+                _breathingControl.PropertyChanged += (_, __) => OnIsBreathingValueChanged(_breathingControl.Value == 1 ? true : false);
+                _breathingControl.SubParams[0].PropertyChanged += (_, __) => OnBreathingSpeedValueChanged(_breathingControl.SubParams[0].Value);
+                _breathingControl.SubParams[1].PropertyChanged += (_, __) => OnSystemSyncValueChanged(_breathingControl.SubParams[1].Value == 1 ? true : false);
+                _breathingControl.SubParams[2].PropertyChanged += (_, __) => OnSystemSyncBreathingSpeedValueChange(_breathingControl.SubParams[2].Value);
+                _colorControl.PropertyChanged += (_, __) => OnSelectedColorValueChanged(_colorControl.SelectedValue);
+                #endregion
                 _log.Debug("starting the Static Color Engine");
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
@@ -140,6 +215,8 @@ namespace adrilight
                 };
                 _workerThread.Start();
             }
+
+
         }
         public void Run(CancellationToken token)
         {
@@ -149,24 +226,45 @@ namespace adrilight
 
             try
             {
-                //get dependency properties from current lighting mode(based on screencapturing)
-                var brightnessControl = _currentLightingMode.Parameters.Where(p => p.Type == ModeParameterEnum.Brightness).FirstOrDefault();
-                var colorControl = _currentLightingMode.Parameters.Where(P => P.Type == ModeParameterEnum.Color).FirstOrDefault();
-                var currentStaticModeControl = _currentLightingMode.Parameters.Where(p => p.Type == ModeParameterEnum.StaticColorMode).FirstOrDefault();
+                //get properties value for first time running
+                _isBreathing = _breathingControl.Value == 1 ? true : false;
+                OnIsBreathingValueChanged(_isBreathing);
+                _isSystemSync = _breathingControl.SubParams[1].Value == 1 ? true : false;
+                OnSystemSyncValueChanged(_isSystemSync);
+                _color = _colorControl.SelectedValue as ColorCard;
+                _colorList = GetColorGradient(_color.StartColor, _color.StopColor, CurrentZone.Spots.Count());
+                _breathingSpeed = 2000 - _breathingControl.SubParams[0].Value;
+                _brightness = _brightnessControl.Value / 100d;
 
                 while (!token.IsCancellationRequested)
                 {
                     bool isPreviewRunning = MainViewViewModel.IsLiveViewOpen;
-                    //changing parameter on the fly define here
-                    var brightness = brightnessControl.Value / 100d;
-                    var color = colorControl.AvailableValue[colorControl.Value] as ColorCard;
+
+                    if (_isBreathing)
+                    {
+                        if (_isSystemSync)
+                        {
+                            _brightness = RainbowTicker.BreathingBrightnessValue;
+
+                        }
+                        else
+                        {
+                            float smoothness_pts = (float)_breathingSpeed;
+                            double pwm_val = 255.0 * (Math.Exp(-(Math.Pow(((ii++ / smoothness_pts) - beta) / gamma, 2.0)) / 2.0));
+                            if (ii > smoothness_pts)
+                                ii = 0f;
+
+                            _brightness = pwm_val / 255d;
+                        }
+
+                    }
 
                     lock (CurrentZone.Lock)
                     {
                         Parallel.ForEach(CurrentZone.Spots
                             , spot =>
                             {
-                                spot.SetColor((byte)color.StopColor.R, (byte)color.StopColor.G, (byte)color.StopColor.B, isPreviewRunning);
+                                spot.SetColor((byte)(_brightness*_colorList[spot.Index].R), (byte)(_brightness * _colorList[spot.Index].G), (byte)(_brightness * _colorList[spot.Index].B), isPreviewRunning);
 
                             });
                     }
@@ -184,7 +282,46 @@ namespace adrilight
             }
         }
 
+   
+        public static List<Color> GetColorGradient(Color from, Color to, int totalNumberOfColors)
+        {
+            if (totalNumberOfColors < 2)
+            {
+                throw new ArgumentException("Gradient cannot have less than two colors.", nameof(totalNumberOfColors));
+            }
+            var colorList = new List<Color>();
+            double diffA = to.A - from.A;
+            double diffR = to.R - from.R;
+            double diffG = to.G - from.G;
+            double diffB = to.B - from.B;
 
+            var steps = totalNumberOfColors - 1;
+
+            var stepA = diffA / steps;
+            var stepR = diffR / steps;
+            var stepG = diffG / steps;
+            var stepB = diffB / steps;
+
+
+
+            for (var i = 1; i < steps; ++i)
+            {
+                colorList.Add(Color.FromArgb(
+                     (byte)(c(from.A, stepA)),
+                     (byte)(c(from.R, stepR)),
+                     (byte)(c(from.G, stepG)),
+                     (byte)(c(from.B, stepB))));
+
+                int c(int fromC, double stepC)
+                {
+                    return (int)Math.Round(fromC + stepC * i);
+                }
+            }
+            colorList.Add(to);
+            colorList.Insert(0,from);
+            return colorList;
+
+        }
 
         private void ApplyColorCorrections(float r, float g, float b, out byte finalR, out byte finalG, out byte finalB, bool useLinearLighting, byte saturationTreshold
          , byte lastColorR, byte lastColorG, byte lastColorB)
@@ -246,82 +383,12 @@ namespace adrilight
             const float factor = 80f;
             return (byte)(256f * ((float)Math.Pow(factor, color / 256f) - 1f) / (factor - 1));
         }
-        //private Bitmap GetNextFrame(Bitmap ReusableBitmap, bool isPreviewRunning)
-        //{
-
-        //    try
-        //    {
-        //        ByteFrame CurrentFrame = null;
-        //        Bitmap DesktopImage;
-        //        if (_currentScreenIndex >= DesktopFrame.Length)
-        //        {
-        //            HandyControl.Controls.MessageBox.Show("màn hình không khả dụng", "Sáng theo màn hình", MessageBoxButton.OK, MessageBoxImage.Error);
-        //            _currentScreenIndex = 0;
-        //        }
-        //        CurrentFrame = DesktopFrame[(int)_currentScreenIndex].Frame;
-        //        if (CurrentFrame.Frame == null)
-        //        {
-        //            return null;
-        //        }
-        //        else
-        //        {
-        //            if (ReusableBitmap != null && ReusableBitmap.Width == CurrentFrame.FrameWidth && ReusableBitmap.Height == CurrentFrame.FrameHeight)
-        //            {
-        //                DesktopImage = ReusableBitmap;
-
-        //            }
-        //            else if (ReusableBitmap != null && (ReusableBitmap.Width != CurrentFrame.FrameWidth || ReusableBitmap.Height != CurrentFrame.FrameHeight))
-        //            {
-        //                DesktopImage = new Bitmap(CurrentFrame.FrameWidth, CurrentFrame.FrameHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-        //            }
-        //            else //this is when app start
-        //            {
-        //                DesktopImage = new Bitmap(CurrentFrame.FrameWidth, CurrentFrame.FrameHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-        //            }
-        //            var DesktopImageBitmapData = DesktopImage.LockBits(new Rectangle(0, 0, CurrentFrame.FrameWidth, CurrentFrame.FrameHeight), ImageLockMode.WriteOnly, DesktopImage.PixelFormat);
-        //            IntPtr pixelAddress = DesktopImageBitmapData.Scan0;
-        //            Marshal.Copy(CurrentFrame.Frame, 0, pixelAddress, CurrentFrame.Frame.Length);
-        //            DesktopImage.UnlockBits(DesktopImageBitmapData);
-        //            return DesktopImage;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        if (ex.Message != "_outputDuplication is null" && ex.Message != "Access Lost, resolution might be changed" && ex.Message != "Invalid call, might be retrying" && ex.Message != "Failed to release frame.")
-        //        {
-        //            _log.Error(ex, "GetNextFrame() failed.");
-
-        //            // throw;
-        //        }
-        //        else if (ex.Message == "Access Lost, resolution might be changed")
-        //        {
-        //            _log.Error(ex, "Access Lost, retrying");
-
-        //        }
-        //        else if (ex.Message == "Invalid call, might be retrying")
-        //        {
-        //            _log.Error(ex, "Invalid Call Lost, retrying");
-        //        }
-        //        else if (ex.Message == "Failed to release frame.")
-        //        {
-        //            _log.Error(ex, "Failed to release frame.");
-        //        }
-        //        else
-        //        {
-        //            throw new DesktopDuplicationException("Unknown Device Error", ex);
-        //        }
-
-        //        GC.Collect();
-        //        return null;
-        //    }
-        //}
-
+       
         public void Stop()
         {
             _log.Debug("Stop called.");
             CurrentZone.FillSpotsColor(Color.FromRgb(0, 0, 0));
             if (_workerThread == null) return;
-
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource = null;
             _workerThread?.Join();
@@ -329,31 +396,6 @@ namespace adrilight
 
         }
 
-
-        private unsafe void GetAverageColorOfRectangularRegion(Rectangle spotRectangle, int stepy, int stepx, BitmapData bitmapData, out int sumR, out int sumG,
-            out int sumB, out int count)
-        {
-            sumR = 0;
-            sumG = 0;
-            sumB = 0;
-            count = 0;
-
-            var stepCount = spotRectangle.Width / stepx;
-            var stepxTimes4 = stepx * 4;
-            for (var y = spotRectangle.Top; y < spotRectangle.Bottom; y += stepy)
-            {
-                byte* pointer = (byte*)bitmapData.Scan0 + bitmapData.Stride * y + 4 * spotRectangle.Left;
-                for (int i = 0; i < stepCount; i++)
-                {
-                    sumB += pointer[0];
-                    sumG += pointer[1];
-                    sumR += pointer[2];
-
-                    pointer += stepxTimes4;
-                }
-                count += stepCount;
-            }
-        }
 
     }
 }

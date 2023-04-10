@@ -166,13 +166,13 @@ namespace adrilight
                     }
 
                     //static breathing ticker
-                    float smoothness_pts = (float)GeneralSettings.BreathingSpeed;
+                    float smoothness_pts = 2000-(float)GeneralSettings.BreathingSpeed;
                     double pwm_val = 255.0 * (Math.Exp(-(Math.Pow(((ii++ / smoothness_pts) - beta) / gamma, 2.0)) / 2.0));
                     if (ii > smoothness_pts)
                         ii = 0f;
 
                      BreathingBrightnessValue = pwm_val / 255d;
-                    Thread.Sleep(5);
+                    Thread.Sleep(10);
 
                 }
             }

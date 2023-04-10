@@ -694,7 +694,7 @@ namespace adrilight.ViewModel
         public ICommand LaunchMIDEditWindowCommand { get; set; }
         public ICommand LaunchCIDEditWindowCommand { get; set; }
         public ICommand EditSelectedPaletteCommand { get; set; }
-        public ICommand AddNewSolidColorCommand { get; set; }
+        public ICommand AddNewItemToCollectionCommand { get; set; }
         public ICommand AddPickedSolidColorCommand { get; set; }
         public ICommand ImportPaletteCardFromFileCommand { get; set; }
         public ICommand ImportedGifFromFileCommand { get; set; }
@@ -1003,7 +1003,7 @@ namespace adrilight.ViewModel
             }
         }
 
-       
+
 
         private ObservableCollection<Color> _availableSolidColors;
 
@@ -1322,7 +1322,7 @@ namespace adrilight.ViewModel
 
 
         }
-        
+
         public void SetGifxelationPreviewImage(ByteFrame frame)
         {
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
@@ -1518,7 +1518,7 @@ namespace adrilight.ViewModel
                 foreach (var group in device.ControlZoneGroups)
                 {
 
-                   var childItems = GetGroupChildItems(group,device);
+                    var childItems = GetGroupChildItems(group, device);
                     switch (group.Type)
                     {
                         case ControllerTypeEnum.LightingController:
@@ -1602,6 +1602,14 @@ namespace adrilight.ViewModel
                 foreach (var param in mode.Parameters)
                 {
                     param.PropertyChanged += (_, __) => WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
+                    if (param.SubParams != null)
+                    {
+                        foreach (var subParam in param.SubParams)
+                        {
+                            subParam.PropertyChanged += (_, __) => WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
+                        }
+                    }
+
                 }
             }
         }
@@ -1828,17 +1836,7 @@ namespace adrilight.ViewModel
         }
 
 
-        private System.Windows.Media.Color _currentPickedColor;
 
-        public System.Windows.Media.Color CurrentPickedColor {
-            get => _currentPickedColor;
-            set
-            {
-                // _log.Info("PreviewImageSource created.");
-                Set(ref _currentPickedColor, value);
-                RaisePropertyChanged();
-            }
-        }
 
         private int _currentLEDEditWizardState = 0;
 
@@ -1959,7 +1957,7 @@ namespace adrilight.ViewModel
             }
         }
 
-    
+
 
         private ObservableCollection<Color> _currentEditingColors;
 
@@ -2223,7 +2221,7 @@ namespace adrilight.ViewModel
             }
         }
 
-      
+
 
         private Color _currentStartColor;
 
@@ -2506,7 +2504,7 @@ namespace adrilight.ViewModel
             {
                 OpenPasswordDialog();
             });
-        
+
 
             OpenAddNewAutomationCommand = new RelayCommand<string>((p) =>
             {
@@ -2536,13 +2534,19 @@ namespace adrilight.ViewModel
             {
                 SaveCurrentSelectedAutomationShortkey();
             });
-            AddNewSolidColorCommand = new RelayCommand<string>((p) =>
+            AddNewItemToCollectionCommand = new RelayCommand<string>((p) =>
                  {
                      return true;
                  }, (p) =>
                  {
-                     PickColorMode = p;
-                     OpenColorPickerWindow();
+                     switch (p)
+                     {
+                         case "Add Color":
+                             OpenColorPickerWindow();
+                             break;
+                         case "Import Color":
+                             break;
+                     }
                  });
             AddPickedSolidColorCommand = new RelayCommand<string>((p) =>
             {
@@ -3247,7 +3251,7 @@ namespace adrilight.ViewModel
             {
                 if (!Keyboard.IsKeyDown(Key.LeftCtrl) && !Keyboard.IsKeyDown(Key.RightCtrl))
                 {
-                    if((p as ARGBLEDSlaveDevice).ControlableZones.Any(z=>z.IsInControlGroup))
+                    if ((p as ARGBLEDSlaveDevice).ControlableZones.Any(z => z.IsInControlGroup))
                     {
                         HandyControl.Controls.MessageBox.Show("Không thể chỉnh sửa cấu hình LED khi thiết bị nằm trong Group. Ungroup trước khi chỉnh sửa", "Device is in group", MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
@@ -3330,10 +3334,10 @@ namespace adrilight.ViewModel
             {
                 return true;
             }, (p) =>
-            {              
+            {
                 if (!Keyboard.IsKeyDown(Key.LeftCtrl)) // user is draging or holding ctrl
                 {
-                    foreach (var item in SurfaceEditorItems.Where(i=>i!=p))
+                    foreach (var item in SurfaceEditorItems.Where(i => i != p))
                     {
                         item.IsSelected = false;
                     }
@@ -3383,9 +3387,9 @@ namespace adrilight.ViewModel
             {
                 return true;
             }, (p) =>
-            {              
-                    if (p.IsSelectable)
-                        p.IsSelected = true;
+            {
+                if (p.IsSelectable)
+                    p.IsSelected = true;
 
             });
             GroupSelectedZoneForMaskedControlCommand = new RelayCommand<string>((p) =>
@@ -5023,7 +5027,7 @@ namespace adrilight.ViewModel
             }
         }
 
-    
+
 
         private void OpenAddNewAutomationWindowCommand()
         {
@@ -6574,7 +6578,7 @@ namespace adrilight.ViewModel
                 var newGroup = new ControlZoneGroup();
                 newGroup.Name = "Group" + " " + (CurrentDevice.ControlZoneGroups.Count + 1).ToString();
                 //add group border
-                GetGroupBorder(selectedItems,newGroup);
+                GetGroupBorder(selectedItems, newGroup);
                 LiveViewItems.Add(newGroup.Border);
                 //init masked control for multi zone
                 if (selectedItems.First() is FanMotor)
@@ -6623,7 +6627,7 @@ namespace adrilight.ViewModel
 
             }
         }
-    
+
 
         private IControlZone _selectedControlZone;
         public IControlZone SelectedControlZone {
@@ -6659,18 +6663,18 @@ namespace adrilight.ViewModel
         {
             //simple just set the scale
             CurrentDevice.UpdateChildSize();
-            if(CurrentDevice.ControlZoneGroups!=null&& CurrentDevice.ControlZoneGroups.Count>0)
+            if (CurrentDevice.ControlZoneGroups != null && CurrentDevice.ControlZoneGroups.Count > 0)
             {
                 foreach (var group in CurrentDevice.ControlZoneGroups)
                 {
                     var childItems = GetGroupChildItems(group, CurrentDevice);
-                    if(childItems.Count>0)
+                    if (childItems.Count > 0)
                     {
                         GetGroupBorder(childItems, group);
                     }
                 }
             }
-           
+
             GetItemsForLiveView(CurrentDevice);
             var widthScale = (CurrentLiveViewWidth - 50) / CurrentDevice.CurrentLivewItemsBound.Width;
             var scaleHeight = (CurrentLiveViewHeight - 50) / CurrentDevice.CurrentLivewItemsBound.Height;
@@ -7046,7 +7050,7 @@ namespace adrilight.ViewModel
 
         private void LaunchPIDEditWindow(IDrawable p)
         {
-            
+
             CurrentEditingDevice = p as ARGBLEDSlaveDevice;
             CurrentIDType = "PID";
             //Clone this slave device
@@ -7151,7 +7155,44 @@ namespace adrilight.ViewModel
         //        window.ShowDialog();
         //    }
         //}
-
+        #region color and palette edit properties
+        /// <summary>
+        /// contains list of color that user can edit
+        /// </summary>
+        private ObservableCollection<Color> _colorList;
+        public ObservableCollection<Color> ColorList {
+            get { return _colorList; }
+            set
+            {
+                _colorList = value;
+                RaisePropertyChanged();
+            }
+        }
+        /// <summary>
+        /// this property store current color picked by hc:colorpicker
+        /// </summary>
+        private Color _currentPickedColor;
+        public Color CurrentPickedColor {
+            get => _currentPickedColor;
+            set
+            {
+                Set(ref _currentPickedColor, value);
+                RaisePropertyChanged();
+            }
+        }
+        /// <summary>
+        /// this property store current selected color on the color list
+        /// </summary>
+        private Color _currentSelectedColor;
+        public Color CurrentSelectedColor {
+            get { return _currentSelectedColor; }
+            set
+            {
+                _currentSelectedColor = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
         private void OpenColorPickerWindow()
         {
             if (AssemblyHelper.CreateInternalInstance($"View.{"ColorPickerWindow"}") is System.Windows.Window window)
@@ -7179,7 +7220,7 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-               
+
         public ObservableCollection<IDrawable> SurfaceEditorSelectedItems { get; set; }
 
 
@@ -7816,8 +7857,8 @@ namespace adrilight.ViewModel
             }
 
         }
-      
-      
+
+
         private void OpenSurfaceEditorWindow()
         {
             SurfaceEditorItems = new ObservableCollection<IDrawable>();
@@ -8158,7 +8199,7 @@ namespace adrilight.ViewModel
             //CurrentActivePalette = AvailablePallete.First();
         }
 
-       
+
 
         private void SaveCurrentEditedPalette(string param)
         {
@@ -8431,9 +8472,15 @@ namespace adrilight.ViewModel
                 Directory.CreateDirectory(ColorsCollectionFolderPath);
                 //get data from resource file and copy to local folder
                 var colorCollectionResourcePath = "adrilight.Resources.Colors.ColorCollection.json";
-                ResourceHlprs.CopyResource(colorCollectionResourcePath, Path.Combine(ColorsCollectionFolderPath, "ColorCollection.json"));
+                ResourceHlprs.CopyResource(colorCollectionResourcePath, Path.Combine(ColorsCollectionFolderPath, "collection.json"));
+                //Create deserialize config
+                var config = new ResourceLoaderConfig(nameof(ColorCard), DeserializeMethodEnum.SingleJson);
+                var configJson = JsonConvert.SerializeObject(config, new JsonSerializerSettings() {
+                    TypeNameHandling = TypeNameHandling.Auto
+                });
+                File.WriteAllText(Path.Combine(ColorsCollectionFolderPath, "config.json"), configJson);
             }
-           //deserialize and store colorcollection
+            //deserialize and store colorcollection
 
         }
         private void CreateRequiredFwVersionJson()
@@ -8806,6 +8853,9 @@ namespace adrilight.ViewModel
         {
             if (ResourceHlprs == null)
                 ResourceHlprs = new ResourceHelpers();
+            #region checking and creating resource folder path if not exist
+            CreateColorCollectionFolder();
+            #endregion
 
             LoadAvailableLightingMode();
             LoadAvailablePalettes();

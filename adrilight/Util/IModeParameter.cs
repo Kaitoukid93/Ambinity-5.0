@@ -24,16 +24,18 @@ namespace adrilight.Util
         /// <summary>
         /// this is the type of lighting mode, used for the background process to find this param
         /// </summary>
-        ModeParameterEnum Type { get; set; }
+        ModeParameterEnum ParamType { get; set; }
         /// <summary>
         /// this is the list of available value, used for list selection type
         /// </summary>
-        ObservableCollection<object> AvailableValue { get;}
+        ObservableCollection<IPrameterValue> AvailableValue { get;}
         /// <summary>
         /// this is the min value, used for prevent the value to undershoot
         /// </summary>
         string AvailableValueLocalPath { get; set; }
-        object SelectedValue { get; set; }
+        bool IsEnabled { get; set; }
+        IPrameterValue SelectedValue { get; }
+        ObservableCollection<SubParameter> SubParams { get; set; }
         int MinValue { get; set; }
         /// <summary>
         /// this is the max value, used for prevent the value to overshoot

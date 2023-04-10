@@ -42,11 +42,11 @@ namespace adrilight.Util
         /// List of parameters that this mode have
         /// </summary>
         public List<IModeParameter> Parameters { get; set; }
-        public IModeParameter SpeedParameter => Parameters.Where(p => p.Type == ModeParameterEnum.Speed).FirstOrDefault();
+        public IModeParameter SpeedParameter => Parameters.Where(p => p.ParamType == ModeParameterEnum.Speed).FirstOrDefault();
         internal int GetBrightness()
         {
 
-            var brightnessParam = Parameters.Where(p => p.Type == ModeParameterEnum.Brightness).FirstOrDefault();
+            var brightnessParam = Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault();
             int brightness = 0;
             if (brightnessParam != null) { }
             brightness = brightnessParam.Value;
@@ -56,7 +56,7 @@ namespace adrilight.Util
 
         internal void SetBrightness(int value)
         {
-            var brightnessParam = Parameters.Where(p => p.Type == ModeParameterEnum.Brightness).FirstOrDefault();
+            var brightnessParam = Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault();
             brightnessParam.Value = value;
         }
 

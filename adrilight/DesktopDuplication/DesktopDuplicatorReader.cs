@@ -197,7 +197,7 @@ namespace adrilight
             try
             {
                 //get dependency properties from current lighting mode(based on screencapturing)
-                var brightnessControl = _currentLightingMode.Parameters.Where(p => p.Type == ModeParameterEnum.Brightness).FirstOrDefault();
+                var brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault();
                 //get current zone size and position respect to screen size scaled 8.0
                 var screenLeft = Screen.AllScreens[(int)_currentScreenIndex].Bounds.Left;
                 var screenTop = Screen.AllScreens[(int)_currentScreenIndex].Bounds.Top;

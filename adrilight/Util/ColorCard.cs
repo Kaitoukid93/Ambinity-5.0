@@ -11,8 +11,11 @@ using HandyControl.Tools.Extension;
 
 namespace adrilight.Util
 {
-    internal class ColorCard
+    internal class ColorCard : IPrameterValue
     {
+        public ColorCard() { }
+        public string Name { get; set; }
+        public string Description { get; set; }
         public ColorCard(Color startColor, Color stopColor )
         {
            

@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -91,12 +92,20 @@ namespace adrilight_effect_analyzer.ViewModel
             {
                 colors.Add((Color)ColorConverter.ConvertFromString(colorText));
             }
+            //add solid
+            var solidColors = colors.Distinct().ToList();
             var ColorCardCollection = new List<ColorCard>();
+            foreach (var color in solidColors)
+            {
+                ColorCardCollection.Add(new ColorCard(color, color));
+            }
             var colorsArray = colors.ToArray();
+            //add gradients
             for(int i=0;i<colors.Count();i+=2)
             {
                 ColorCardCollection.Add(new ColorCard(colorsArray[i], colorsArray[i+1]));
             }
+            
             var json = JsonConvert.SerializeObject(ColorCardCollection, new JsonSerializerSettings()
             {
                 TypeNameHandling = TypeNameHandling.Auto

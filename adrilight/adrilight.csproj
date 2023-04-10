@@ -196,6 +196,7 @@
     <Compile Include="Helpers\Behaviors\GroupBehavior.cs" />
     <Compile Include="Helpers\ControlModeHelpers.cs" />
     <Compile Include="Helpers\EventToCommand.cs" />
+    <Compile Include="Settings\DeserializeMethodEnum.cs" />
     <Compile Include="Settings\ModeDirection.cs" />
     <Compile Include="Helpers\ObjectHelpers.cs" />
     <Compile Include="Helpers\perSizeBindingHelper.cs" />
@@ -214,6 +215,7 @@
     <Compile Include="Settings\DeviceConnectionTypeEnum.cs" />
     <Compile Include="Settings\IOnlineItemSubType.cs" />
     <Compile Include="Settings\OutputTypeEnum.cs" />
+    <Compile Include="Settings\ResourceLoaderConfig.cs" />
     <Compile Include="Settings\SlaveDeviceTypeEnum.cs" />
     <Compile Include="Settings\PWMMotorSlaveDevice.cs" />
     <Compile Include="Settings\ARGBLEDSlaveDevice.cs" />
@@ -272,6 +274,7 @@
     <Compile Include="Util\IModeParameter.cs" />
     <Compile Include="Util\IOnlineItemModel.cs" />
     <Compile Include="Util\ILightingEngine.cs" />
+    <Compile Include="Util\IPrameterValue.cs" />
     <Compile Include="Util\LightingModeEnum.cs" />
     <Compile Include="Util\ModeParameter.cs" />
     <Compile Include="Util\ModeParameterEnum.cs" />
@@ -335,6 +338,7 @@
     <Compile Include="Util\OpenRGBStream.cs" />
     <Compile Include="Util\SerialStream.cs" />
     <Compile Include="Util\StartupManager.cs" />
+    <Compile Include="Util\SubParameter.cs" />
     <Compile Include="Util\UpdateVisitor.cs" />
     <Compile Include="Util\VisualizerProgressBar.cs" />
     <Compile Include="Util\WinApi.cs" />

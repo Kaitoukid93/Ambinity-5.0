@@ -23,5 +23,10 @@
         /// this display a chart graph with no control
         /// </summary>
         ChartVisualization,
+        /// <summary>
+        /// this display a chart graph with no control
+        /// </summary>
+        PushButtonAction,
+
     }
 }

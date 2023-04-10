@@ -11,9 +11,8 @@
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            ResizeMode="NoResize"
-           Title="Chose Solid Color" 
-           Height="415" 
-           Width="260" 
+           Title="Chose Colors" 
+           SizeToContent="WidthAndHeight"
            WindowStartupLocation="CenterOwner" 
            >
 
@@ -31,8 +30,42 @@
 
 
         <hc:TransitioningContentControl Margin="10" TransitionMode="Left2RightWithFade">
-
-            <hc:ColorPicker   BorderThickness="0" Confirmed="ColorPicker_Confirmed" Canceled="mColorPicker_Canceled" SelectedBrush="{Binding CurrentPickedColor,Converter={StaticResource ColorToBrushConverter},UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" x:Name="mColorPicker" Margin="0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid>
+                    <Border>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid>
+                                <Border Margin="10" CornerRadius="7" Width="150" Height="150" Background="Red"/>
+                            </Grid>
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Column="0">
+                                    <Border Margin="5" CornerRadius="4"  Height="30" Background="Green"/>
+                                </Grid>
+                                <GridSplitter HorizontalAlignment="Right" 
+                  VerticalAlignment="Stretch" 
+                  Grid.Column="1" ResizeBehavior="PreviousAndNext"
+                  Width="5" Background="#FFBCBCBC"/>
+                                <Grid Grid.Column="2">
+                                    <Border Margin="5" CornerRadius="4"  Height="30" Background="Blue"/>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </Grid>
+            <hc:ColorPicker  Grid.Column="1"  BorderThickness="0" Confirmed="ColorPicker_Confirmed" Canceled="mColorPicker_Canceled" SelectedBrush="{Binding CurrentPickedColor,Converter={StaticResource ColorToBrushConverter},UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" x:Name="mColorPicker" Margin="10">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Confirmed" >
                         <i:InvokeCommandAction Command="{Binding AddPickedSolidColorCommand }" />
@@ -40,7 +73,7 @@
                 </i:Interaction.Triggers>
 
             </hc:ColorPicker>
-
+            </Grid>
            
 
         </hc:TransitioningContentControl>

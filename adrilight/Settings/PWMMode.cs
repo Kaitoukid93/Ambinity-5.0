@@ -43,17 +43,17 @@ namespace adrilight.Util
         /// </summary>
         public List<IModeParameter> Parameters { get; set; }
 
-        public IModeParameter SpeedParameter => Parameters.Where(p => p.Type == ModeParameterEnum.Speed).FirstOrDefault();
+        public IModeParameter SpeedParameter => Parameters.Where(p => p.ParamType == ModeParameterEnum.Speed).FirstOrDefault();
         internal void SetPWM(int speedValue)
         {
-            var speedParam = Parameters.Where(p => p.Type == ModeParameterEnum.Speed).FirstOrDefault();
+            var speedParam = Parameters.Where(p => p.ParamType == ModeParameterEnum.Speed).FirstOrDefault();
             if (speedParam != null)
                 speedParam.Value = speedValue;
         }
         internal int GetPWMValue()
         {
             int speed = 0;
-            var speedParam = Parameters.Where(p => p.Type == ModeParameterEnum.Speed).FirstOrDefault();
+            var speedParam = Parameters.Where(p => p.ParamType == ModeParameterEnum.Speed).FirstOrDefault();
             if (speedParam != null)
                 speed = (int)speedParam.Value;
             return speed;
