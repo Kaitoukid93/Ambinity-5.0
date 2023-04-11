@@ -35,7 +35,7 @@ namespace adrilight.Util
         /// <summary>
         /// this value could be bool(on/off) or nummeric(int) or index in the list item
         /// </summary>
-        public int Value { get => _value; set { Set(() => Value, ref _value, value);RaisePropertyChanged(nameof(SelectedValue)); } }
+        public int Value { get => _value; set { Set(() => Value, ref _value, value); RaisePropertyChanged(nameof(SelectedValue)); } }
         /// <summary>
         /// this value could be bool(on/off) or nummeric(int) or even listof item
         /// </summary>
@@ -48,7 +48,7 @@ namespace adrilight.Util
         /// 
         public string AvailableValueLocalPath { get => _availableValueLocalPath; set { Set(() => AvailableValueLocalPath, ref _availableValueLocalPath, value); } }
         [JsonIgnore]
-        public IPrameterValue SelectedValue => AvailableValue[Value];
+        public IPrameterValue SelectedValue => Value > AvailableValue.Count - 1 || Value < 0 ? AvailableValue[0] : AvailableValue[Value];
         public ModeParameterTemplateEnum Template { get => _template; set { Set(() => Template, ref _template, value); } }
         public ModeParameterEnum ParamType { get => _paramType; set { Set(() => ParamType, ref _paramType, value); } }
         public ObservableCollection<SubParameter> SubParams { get => _subParams; set { Set(() => SubParams, ref _subParams, value); } }
@@ -58,6 +58,10 @@ namespace adrilight.Util
         /// </summary>
         public int MinValue { get => _minValue; set { Set(() => MinValue, ref _minValue, value); } }
         public int MaxValue { get => _maxValue; set { Set(() => MaxValue, ref _maxValue, value); } }
+        public void RefreshCollection()
+        {
+            RaisePropertyChanged(nameof(AvailableValue));
+        }
         private ObservableCollection<IPrameterValue> LoadAvailableValue(string availableValueLocalPath)
         {
             var availableValue = new ObservableCollection<IPrameterValue>();
@@ -87,13 +91,6 @@ namespace adrilight.Util
                 //something wronf return null
                 return null;
             }
-
-
-            //read folder cofig to know which type this shouldbe deserialize
-            var color = new ColorCard(Color.FromRgb(123, 123, 255), Color.FromRgb(255, 6, 6));
-            availableValue.Add(color);
-            //deserialize items
-            //return items
             return availableValue;
         }
 

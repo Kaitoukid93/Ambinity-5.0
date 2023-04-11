@@ -94,7 +94,7 @@
                                 Background="Transparent"
                            
                                 BorderBrush="{StaticResource DarkMaskBrush}"
-                                BorderThickness="0"
+                                BorderThickness="2"
                                 SnapsToDevicePixels="true">
                                 <ContentPresenter />
                             </Border>
@@ -106,8 +106,8 @@
                                     </MultiTrigger.Conditions>
 
 
-                                    <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}"/>-->
-                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource SecondaryRegionBrush}"/>
+                                    <Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}"/>
+                                   
 
 
 
@@ -151,7 +151,7 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="ListBoxItem">
-                            <Border CornerRadius="4" Name="_Border"
+                            <Border CornerRadius="5" Name="_Border"
                                 Padding="0"
                                 Margin="5"
                                 Background="Transparent"   

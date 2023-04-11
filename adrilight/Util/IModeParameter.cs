@@ -36,6 +36,7 @@ namespace adrilight.Util
         bool IsEnabled { get; set; }
         IPrameterValue SelectedValue { get; }
         ObservableCollection<SubParameter> SubParams { get; set; }
+        void RefreshCollection();
         int MinValue { get; set; }
         /// <summary>
         /// this is the max value, used for prevent the value to overshoot

@@ -23,6 +23,61 @@
                     <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
                     <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
                     <converters:ToUpperValueConverter x:Key="toUpperValueConverter" />
+                    <Style x:Key="_listBoxColorSelectionStyle" TargetType="ListBoxItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border CornerRadius="6" Name="_Border"
+                                Padding="0"
+                                Margin="5"
+                                Background="Transparent"
+                                Opacity="1"
+                                BorderBrush="{StaticResource DarkMaskBrush}"
+                                BorderThickness="3"
+                                SnapsToDevicePixels="true">
+                                        <ContentPresenter />
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}"/>
+                                            <Setter Property="Opacity" TargetName="_Border" Value="1.0"/>
+                                        </MultiTrigger>
+
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+
+                                            <Setter Property="Opacity" TargetName="_Border" Value="1.0"/>
+                                            <Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}"/>
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsMouseOver" Value="True"/>
+                                                <Condition Property="IsSelected" Value="False"/>
+                                            </MultiTrigger.Conditions>
+                                            <Setter Property="Opacity" TargetName="_Border" Value="1.0"/>
+                                            <Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}"/>
+
+                                        </MultiTrigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+
+                        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
+
+                    </Style>
                     <DataTemplate x:Key="_buttonSubParamTemplate"  DataType="{x:Type ut:SubParameter}">
                         <Grid>
                             <StackPanel>
@@ -230,8 +285,8 @@
                                     <Grid>
                                         <Border  HorizontalAlignment="Left" Background="{DynamicResource DarkOpacityBrush}" BorderBrush="{StaticResource BorderBrush}" CornerRadius="7" BorderThickness="0">
                                             <ListBox ItemsSource="{Binding AvailableValue}"
-                                                         SelectedIndex="{Binding Value}"   
-                                                         ItemContainerStyle="{StaticResource _listBoxModeSelectionStyle}"
+                                                         SelectedIndex="{Binding Value,Mode=TwoWay}"   
+                                                         ItemContainerStyle="{StaticResource _listBoxColorSelectionStyle}"
                                                          Background="Transparent"
                                                          BorderThickness="0"
                                                          MaxWidth="400"

@@ -271,6 +271,7 @@
     <Compile Include="Spots\ILEDSetup.cs" />
     <Compile Include="Spots\LEDSetup.cs" />
     <Compile Include="Spots\LEDSetupHelpers.cs" />
+    <Compile Include="Util\ColorEditingObject.cs" />
     <Compile Include="Util\IModeParameter.cs" />
     <Compile Include="Util\IOnlineItemModel.cs" />
     <Compile Include="Util\ILightingEngine.cs" />

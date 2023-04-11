@@ -82,6 +82,10 @@ using MoreLinq.Extensions;
 using System.Windows.Interop;
 using LiveCharts.Wpf;
 using LiveCharts.Defaults;
+using System.Windows.Controls;
+using SelectionMode = System.Windows.Controls.SelectionMode;
+using Border = adrilight.Settings.Border;
+using CSCore.XAudio2;
 
 namespace adrilight.ViewModel
 {
@@ -2542,7 +2546,7 @@ namespace adrilight.ViewModel
                      switch (p)
                      {
                          case "Add Color":
-                             OpenColorPickerWindow();
+                             OpenColorPickerWindow(2);
                              break;
                          case "Import Color":
                              break;
@@ -2553,33 +2557,7 @@ namespace adrilight.ViewModel
                 return true;
             }, (p) =>
             {
-                switch (PickColorMode)
-                {
-                    case "solid":
-                        AvailableSolidColors.Insert(0, CurrentPickedColor);
-                        WriteSolidColorJson();
-                        break;
-
-                    case "gradientStart":
-                        CurrentStartColor = CurrentPickedColor;
-
-                        break;
-
-                    case "gradientStop":
-                        CurrentStopColor = CurrentPickedColor;
-                        break;
-
-                    case "accent":
-
-                        ThemeManager.Current.AccentColor = new SolidColorBrush(CurrentPickedColor);
-                        GeneralSettings.AccentColor = CurrentPickedColor;
-                        break;
-                    case "motion":
-                        CurrentSelectedMotion.Color = CurrentPickedColor;
-                        RaisePropertyChanged(nameof(CurrentSelectedMotion.Color));
-                        //notify UI
-                        break;
-                }
+                AddNewColorToCollection();
             }
             );
             EditSelectedPaletteSaveConfirmCommand = new RelayCommand<string>((p) =>
@@ -3330,6 +3308,7 @@ namespace adrilight.ViewModel
 
 
             });
+
             UnselectAllSurfaceEditorItemCommand = new RelayCommand<IDrawable>((p) =>
             {
                 return true;
@@ -7159,8 +7138,8 @@ namespace adrilight.ViewModel
         /// <summary>
         /// contains list of color that user can edit
         /// </summary>
-        private ObservableCollection<Color> _colorList;
-        public ObservableCollection<Color> ColorList {
+        private ObservableCollection<ColorEditingObject> _colorList;
+        public ObservableCollection<ColorEditingObject> ColorList {
             get { return _colorList; }
             set
             {
@@ -7177,32 +7156,114 @@ namespace adrilight.ViewModel
             set
             {
                 Set(ref _currentPickedColor, value);
+                foreach (var item in ColorList)
+                {
+                    if (item.IsSelected)
+                    {
+                        item.Color = value;
+                    }
+                }
                 RaisePropertyChanged();
             }
         }
         /// <summary>
         /// this property store current selected color on the color list
         /// </summary>
-        private Color _currentSelectedColor;
-        public Color CurrentSelectedColor {
+        private ColorEditingObject _currentSelectedColor;
+        public ColorEditingObject CurrentSelectedColor {
             get { return _currentSelectedColor; }
             set
             {
                 _currentSelectedColor = value;
+                if (CurrentPickedColor != null)
+                    CurrentPickedColor = value != null ? value.Color : Color.FromRgb(255, 255, 255);
                 RaisePropertyChanged();
             }
         }
+        private SelectionMode _colorListBoxSelectionMode = SelectionMode.Single;
+        public SelectionMode ColorListBoxSelectionMode {
+            get { return _colorListBoxSelectionMode; }
+            set
+            {
+                _colorListBoxSelectionMode = value;
+                RaisePropertyChanged();
+            }
+        }
+        private bool _isSolidMode;
+        public bool IsSolidMode {
+            get { return _isSolidMode; }
+            set
+            {
+                _isSolidMode = value;
+                RaisePropertyChanged();
+                if (value)
+                {
+                    ColorListBoxSelectionMode = SelectionMode.Multiple;
+                    foreach (var color in ColorList)
+                    {
+                        color.IsSelected = true;
+                        color.Color = Color.FromRgb(255, 0, 0);
+                    }
+                }
+                else
+                {
+                    ColorListBoxSelectionMode = SelectionMode.Single;
+                    foreach (var color in ColorList)
+                    {
+                        color.IsSelected = false;
+                    }
+                    ColorList[0].IsSelected = true;
+                }
+            }
+        }
         #endregion
-        private void OpenColorPickerWindow()
+        private void OpenColorPickerWindow(int numColor)
         {
+            ColorList = new ObservableCollection<ColorEditingObject>();
+            var currentSelectedColorCard = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Color).FirstOrDefault().SelectedValue as ColorCard;
+            ColorList.Add(new ColorEditingObject() { Color = currentSelectedColorCard.StartColor });
+            ColorList.Add(new ColorEditingObject() { Color = currentSelectedColorCard.StopColor });
+            foreach (var color in ColorList)
+            {
+                color.IsSelected = true;
+                color.Color = ColorList[0].Color;
+            }
             if (AssemblyHelper.CreateInternalInstance($"View.{"ColorPickerWindow"}") is System.Windows.Window window)
             {
                 window.Owner = System.Windows.Application.Current.MainWindow;
                 window.ShowDialog();
             }
         }
+        private void AddNewColorToCollection()
+        {
+            var newColor = new ColorCard();
+            newColor.StartColor = ColorList[0].Color;
+            newColor.StopColor = ColorList[1].Color;
+            //read current collection '
+            var currentParam = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Color).FirstOrDefault();
+            var currentCollectionPath = currentParam.AvailableValueLocalPath;
+            var currentCollection = currentParam.AvailableValue;
+            currentCollection.Insert(0, newColor);
+            WriteSimpleJson(currentCollection, Path.Combine(currentCollectionPath, "collection.json"));
+            currentParam.RefreshCollection();
+            SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Color).FirstOrDefault().Value = 0;
+        }
 
+        private void WriteSimpleJson(object obj, string path)
+        {
+            try
+            {
+                var json = JsonConvert.SerializeObject(obj, new JsonSerializerSettings() {
+                    TypeNameHandling = TypeNameHandling.Auto
+                });
+                File.WriteAllText(path, json);
+            }
+            catch (Exception ex)
+            {
+                //log
+            }
 
+        }
         private void OpenAboutWindow()
         {
             if (AssemblyHelper.CreateInternalInstance($"View.{"AboutAppWindow"}") is System.Windows.Window window)
@@ -8483,6 +8544,7 @@ namespace adrilight.ViewModel
             //deserialize and store colorcollection
 
         }
+
         private void CreateRequiredFwVersionJson()
         {
             IDeviceFirmware ABR1p = new DeviceFirmware() {
