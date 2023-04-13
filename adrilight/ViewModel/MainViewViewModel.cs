@@ -120,6 +120,7 @@ namespace adrilight.ViewModel
         private string DevicesCollectionFolderPath => Path.Combine(JsonPath, "Devices");
         private string SupportedDeviceCollectionFolderPath => Path.Combine(JsonPath, "SupportedDevices");
         private string ColorsCollectionFolderPath => Path.Combine(JsonPath, "Colors");
+        private string VIDCollectionFolderPath => Path.Combine(JsonPath, "VID");
         private string ResourceFolderPath => Path.Combine(JsonPath, "Resource");
 
         #endregion
@@ -630,6 +631,8 @@ namespace adrilight.ViewModel
         public ICommand ScanOpenRGBDeviceCommand { get; set; }
         public ICommand SaveAllAutomationCommand { get; set; }
         public ICommand SaveCurrentSelectedAutomationShortkeyCommand { get; set; }
+        public ICommand CloseIDSetupCommand { get; set; }
+        public ICommand ResetAllItemsIDCommand { get; set; }
         public ICommand AddSelectedActionTypeToListCommand { get; set; }
         public ICommand DeleteSelectedActionFromListCommand { get; set; }
         public ICommand OpenAddNewAutomationCommand { get; set; }
@@ -983,17 +986,7 @@ namespace adrilight.ViewModel
 
 
 
-        private ObservableCollection<IColorPalette> _availablePallete;
 
-        public ObservableCollection<IColorPalette> AvailablePallete {
-            get { return _availablePallete; }
-            set
-            {
-                if (_availablePallete == value) return;
-                _availablePallete = value;
-                RaisePropertyChanged();
-            }
-        }
 
         private ObservableCollection<IGifCard> _availableGifs;
 
@@ -1502,6 +1495,7 @@ namespace adrilight.ViewModel
                     case nameof(device.CurrentActiveControlerIndex):
                         {
                             //update liveview
+                            GetItemsForLiveView(CurrentDevice);
                             UpdateLiveView();
                         }
                         break;
@@ -2323,77 +2317,12 @@ namespace adrilight.ViewModel
             LoadData();
             #region Command setup
 
-            SetActivePaletteAllOutputsCommand = new RelayCommand<IColorPalette>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                SetActivePaletteAllOutputs(p);
-            });
-            SetAllOutputSelectedModeCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                //foreach (var output in CurrentDevice.AvailableOutputs)
-                //{
-                //    //output.OutputSelectedMode = CurrentOutput.OutputSelectedMode;
-                //}
-            });
-            SetAllOutputSelectedGifCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                //foreach (var output in CurrentDevice.AvailableOutputs)
-                //{
-                //    //output.OutputSelectedGif = CurrentOutput.OutputSelectedGif;
-                //    //output.OutputSelectedGifIndex = CurrentOutput.OutputSelectedGifIndex;
-                //}
-            });
 
-            SetAllDeviceSelectedModeCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                //foreach (var device in AvailableDevices.Where(p => !p.IsDummy))
-                //{
-                //    foreach (var output in device.AvailableOutputs)
-                //    {
-                //        //output.OutputSelectedMode = CurrentOutput.OutputSelectedMode;
-                //    }
 
-                //}
-            });
-            SetAllDeviceSelectedSolidColorCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                //foreach (var device in AvailableDevices.Where(p => !p.IsDummy))
-                //{
-                //    foreach (var output in device.AvailableOutputs)
-                //    {
-                //        //output.OutputStaticColor = CurrentOutput.OutputStaticColor;
-                //    }
 
-                //}
-            });
-            SetAllDeviceSelectedGradientColorCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                //foreach (var device in AvailableDevices.Where(p => !p.IsDummy))
-                //{
-                //    foreach (var output in device.AvailableOutputs)
-                //    {
-                //        //output.OutputSelectedGradient = CurrentOutput.OutputSelectedGradient;
-                //    }
 
-                //}
-            });
+
+
             SelecFirmwareForCurrentDeviceCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -2465,13 +2394,6 @@ namespace adrilight.ViewModel
 
                 }
             });
-            SetActivePaletteAllDevicesCommand = new RelayCommand<IColorPalette>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                SetActivePaletteAllDevices(p);
-            });
 
             EditSelectedPaletteCommand = new RelayCommand<string>((p) =>
             {
@@ -2538,6 +2460,29 @@ namespace adrilight.ViewModel
             {
                 SaveCurrentSelectedAutomationShortkey();
             });
+            CloseIDSetupCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                LiveViewItems.Remove(IDEditBrush);
+                foreach (var item in LiveViewItems)
+                {
+                    item.IsSelectable = true;
+                }
+                IsInIDEditStage = false;
+            });
+            ResetAllItemsIDCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                VIDCount = 0;
+                foreach (var item in LiveViewItems.Where(i => i is LEDSetup))
+                {
+                    (item as LEDSetup).ResetVIDStage();
+                }
+            });
             AddNewItemToCollectionCommand = new RelayCommand<string>((p) =>
                  {
                      return true;
@@ -2547,6 +2492,9 @@ namespace adrilight.ViewModel
                      {
                          case "Add Color":
                              OpenColorPickerWindow(2);
+                             break;
+                         case "Add VID":
+                             IsInIDEditStage = true;
                              break;
                          case "Import Color":
                              break;
@@ -3092,19 +3040,19 @@ namespace adrilight.ViewModel
             }
       );
 
-            DeleteSelectedPaletteCommand = new RelayCommand<IColorPalette>((p) =>
+            DeleteSelectedPaletteCommand = new RelayCommand<ColorPalette>((p) =>
             {
                 return true;
             }, (p) =>
             {
-                DeleteSelectedPalette(p);
+                //DeleteSelectedPalette(p);
             });
-            UploadSelectedPaletteCommand = new RelayCommand<IColorPalette>((p) =>
+            UploadSelectedPaletteCommand = new RelayCommand<ColorPalette>((p) =>
            {
                return true;
            }, (p) =>
            {
-               UploadSelectedPalette(p);
+               //UploadSelectedPalette(p);
            });
 
             DeleteSelectedGifCommand = new RelayCommand<IGifCard>((p) =>
@@ -3140,14 +3088,6 @@ namespace adrilight.ViewModel
 
 
 
-            ImportEffectCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                ImportEffect();
-            });
-
 
 
             DeleteSelectedDeviceCommand = new RelayCommand<string>((p) =>
@@ -3165,13 +3105,6 @@ namespace adrilight.ViewModel
                 DeleteSelectedDevices();
             });
 
-            ImportPaletteCardFromFileCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                ImportPaletteCardFromFile();
-            });
             ImportedGifFromFileCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -3179,7 +3112,7 @@ namespace adrilight.ViewModel
             {
                 ImportGif();
             });
-            ExportCurrentSelectedPaletteToFileCommand = new RelayCommand<IColorPalette>((p) =>
+            ExportCurrentSelectedPaletteToFileCommand = new RelayCommand<ColorPalette>((p) =>
             {
                 return true;
             }, (p) =>
@@ -3389,6 +3322,9 @@ namespace adrilight.ViewModel
                 foreach (var zone in p.ControlableZones)
                 {
                     zone.ZoneUID = Guid.NewGuid().ToString();
+                    if (CtrlHlprs == null)
+                        CtrlHlprs = new ControlModeHelpers();
+                    CtrlHlprs.MakeZoneControlable(zone);
                 }
                 p.ParrentID = CurrentSelectedOutputMap.OutputID;
                 CurrentSelectedOutputMap.SlaveDevice = p;
@@ -4791,19 +4727,19 @@ namespace adrilight.ViewModel
         private void DownloadSelectedPalette(ColorPalette selectedPalette)
         {
             //find the palette with the same name
-            var sameNamePalette = AvailablePallete.Where(p => p.Name == selectedPalette.Name).FirstOrDefault();
-            if (CheckEqualityObjects(selectedPalette, sameNamePalette))
-                HandyControl.Controls.MessageBox.Show("ColorPaletteExisted", "File Existed", MessageBoxButton.OK, MessageBoxImage.Error);
-            else
-            {
-                AvailablePallete.Add(selectedPalette);
-                //save to local disk
-                var paletteJson = JsonConvert.SerializeObject(selectedPalette, new JsonSerializerSettings() {
-                    TypeNameHandling = TypeNameHandling.Auto
-                });
-                File.WriteAllText(Path.Combine(PalettesCollectionFolderPath, selectedPalette.Name + ".col"), paletteJson);
+            //var sameNamePalette = AvailablePallete.Where(p => p.Name == selectedPalette.Name).FirstOrDefault();
+            //if (CheckEqualityObjects(selectedPalette, sameNamePalette))
+            //    HandyControl.Controls.MessageBox.Show("ColorPaletteExisted", "File Existed", MessageBoxButton.OK, MessageBoxImage.Error);
+            //else
+            //{
+            //    AvailablePallete.Add(selectedPalette);
+            //    //save to local disk
+            //    var paletteJson = JsonConvert.SerializeObject(selectedPalette, new JsonSerializerSettings() {
+            //        TypeNameHandling = TypeNameHandling.Auto
+            //    });
+            //    File.WriteAllText(Path.Combine(PalettesCollectionFolderPath, selectedPalette.Name + ".col"), paletteJson);
 
-            }
+            //}
 
 
 
@@ -6653,8 +6589,6 @@ namespace adrilight.ViewModel
                     }
                 }
             }
-
-            GetItemsForLiveView(CurrentDevice);
             var widthScale = (CurrentLiveViewWidth - 50) / CurrentDevice.CurrentLivewItemsBound.Width;
             var scaleHeight = (CurrentLiveViewHeight - 50) / CurrentDevice.CurrentLivewItemsBound.Height;
             CurrentLiveViewScale = Math.Min(widthScale, scaleHeight);
@@ -6739,6 +6673,23 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        private int _vidCount;
+        public int VIDCount {
+            get { return _vidCount; }
+            set
+            {
+                _vidCount = value;
+                RaisePropertyChanged();
+            }
+        }
+        private double _lastBrushX;
+        private double _lastBrushY;
+        private Double CalculateDelta(double lastX, double lastY, double currentX, double currentY)
+        {
+            var deltaX = currentX - lastX;
+            var deltaY = currentY - lastY;
+            return Math.Sqrt((deltaX * deltaX) + (deltaY * deltaY));
+        }
         private void GetItemsForLiveView(IDeviceSettings device)
         {
 
@@ -6758,7 +6709,28 @@ namespace adrilight.ViewModel
                     LiveViewItems.Add(group.Border);
                 }
             }
+            if (IsInIDEditStage)
+            {
+                //add brush
+                foreach (var item in LiveViewItems)
+                {
+                    item.IsSelectable = false;
+                    if (item is LEDSetup)
+                    {
+                        (item as LEDSetup).ResetVIDStage();
+                    }
 
+                }
+                GetBrushForIDEdit();
+                //disable drag and select of all liveview items other than brush
+            }
+            else
+            {
+                foreach (var item in LiveViewItems)
+                {
+                    item.IsSelectable = true;
+                }
+            }
             //clear any previous selected item
             SelectedControlZone = null;
             SelectedSlaveDevice = null;
@@ -7999,7 +7971,7 @@ namespace adrilight.ViewModel
         {
             //
         }
-        private void ExportCurrentSelectedPaletteToFile(IColorPalette palette)
+        private void ExportCurrentSelectedPaletteToFile(ColorPalette palette)
         {
             SaveFileDialog Export = new SaveFileDialog();
             Export.CreatePrompt = true;
@@ -8145,28 +8117,6 @@ namespace adrilight.ViewModel
             OpenEditPaletteDialog(param);
         }
 
-        private void SetActivePaletteAllOutputs(IColorPalette palette)
-        {
-            //foreach (var output in CurrentDevice.AvailableOutputs)
-            //{
-            //    //output.OutputCurrentActivePalette = palette;
-            //    //output.OutputSelectedChasingPalette = CurrentOutput.OutputSelectedChasingPalette;
-            //}
-        }
-
-        private void SetActivePaletteAllDevices(IColorPalette palette)
-        {
-            foreach (var device in AvailableDevices.Where(p => !p.IsDummy))
-            {
-                //foreach (var output in device.AvailableOutputs)
-                //{
-                //    //output.OutputCurrentActivePalette = palette;
-                //    //output.OutputSelectedChasingPalette = CurrentOutput.OutputSelectedChasingPalette;
-                //}
-
-            }
-        }
-
         private void Reset()
         {
             //disable all device
@@ -8194,43 +8144,8 @@ namespace adrilight.ViewModel
             WriteAutomationCollectionJson();
         }
         private FTPServerHelpers FTPHlprs { get; set; }
-        private void UploadSelectedPalette(IColorPalette selectedpalette)
-        {
-            if (selectedpalette != null)
-            {
-                //serialize current selected palette
-                var palette = JsonConvert.SerializeObject(selectedpalette, new JsonSerializerSettings() {
-                    TypeNameHandling = TypeNameHandling.Auto
-                });
 
 
-            }
-        }
-        private void DeleteSelectedPalette(IColorPalette selectedpalette)
-        {
-            if (AvailablePallete.Count == 1)
-            {
-                var result = HandyControl.Controls.MessageBox.Show(new MessageBoxInfo {
-                    Message = " Please don't delete all Color Palette in this section, atleast keep one left!!!",
-                    Caption = "Xóa dải màu",
-                    Button = MessageBoxButton.OK,
-                    IconBrushKey = ResourceToken.AccentBrush,
-                    IconKey = ResourceToken.WarningGeometry,
-                    StyleKey = "MessageBoxCustom"
-                });
-
-                return;
-            }
-            AvailablePallete.Remove(selectedpalette);
-            //WritePaletteCollectionJson();
-            AvailablePallete.Clear();
-            foreach (var palette in LoadPaletteIfExists())
-            {
-                AvailablePallete.Add(palette);
-            }
-            //CurrentOutput.OutputSelectedChasingPalette = 0;
-            //CurrentActivePalette = AvailablePallete.First();
-        }
 
         private void DeleteSelectedGif(IGifCard gif)
         {
@@ -8544,7 +8459,55 @@ namespace adrilight.ViewModel
             //deserialize and store colorcollection
 
         }
+        private void CreateVIDCollectionFolder()
+        {
+            if (!Directory.Exists(VIDCollectionFolderPath))
+            {
+                Directory.CreateDirectory(VIDCollectionFolderPath);
+                var collectionFolder = Path.Combine(VIDCollectionFolderPath, "collection");
+                Directory.CreateDirectory(collectionFolder);
+                var vidCollection = new List<VIDDataModel>();
+                var lef2Right = new VIDDataModel() {
+                    Name = "Trái sang phải",
+                    Description = "Màu chạy từ trái sang phải",
+                    ExecutionType = VIDType.PositonGeneratedID
+                };
+                var right2Left = new VIDDataModel() {
+                    Name = "Phải sang trái",
+                    Description = "Màu chạy từ phải sang trái",
+                    ExecutionType = VIDType.PositonGeneratedID
+                };
+                var up2Down = new VIDDataModel() {
+                    Name = "Trên xuống dưới",
+                    Description = "Màu chạy từ trên xuống dưới",
+                    ExecutionType = VIDType.PositonGeneratedID
+                };
+                var down2Up = new VIDDataModel() {
+                    Name = "Dưới lên trên",
+                    Description = "Màu chạy từ dưới lên trên",
+                    ExecutionType = VIDType.PositonGeneratedID
+                };
+                vidCollection.Add(lef2Right);
+                vidCollection.Add(right2Left);
+                vidCollection.Add(up2Down);
+                vidCollection.Add(down2Up);
+                foreach (var vid in vidCollection)
+                {
+                    var json = JsonConvert.SerializeObject(vid, new JsonSerializerSettings() {
+                        TypeNameHandling = TypeNameHandling.Auto
+                    });
+                    File.WriteAllText(Path.Combine(collectionFolder, vid.Name + ".json"), json);
+                }
+                //coppy all internal palettes to local 
+                var config = new ResourceLoaderConfig(nameof(VIDDataModel), DeserializeMethodEnum.MultiJson);
+                var configJson = JsonConvert.SerializeObject(config, new JsonSerializerSettings() {
+                    TypeNameHandling = TypeNameHandling.Auto
+                });
+                File.WriteAllText(Path.Combine(VIDCollectionFolderPath, "config.json"), configJson);
+            }
+            //deserialize and store colorcollection
 
+        }
         private void CreateRequiredFwVersionJson()
         {
             IDeviceFirmware ABR1p = new DeviceFirmware() {
@@ -8875,14 +8838,7 @@ namespace adrilight.ViewModel
             AvailableMotions.Add(bouncing);
             AvailableMotions.Add(bouncing2);
         }
-        private void LoadAvailablePalettes()
-        {
-            AvailablePallete = new ObservableCollection<IColorPalette>();
-            foreach (var loadedPalette in LoadPaletteIfExists())
-            {
-                AvailablePallete.Add(loadedPalette);
-            }
-        }
+
         private void LoadAvailableAnimations()
         {
             AvailableGifs = new ObservableCollection<IGifCard>();
@@ -8917,10 +8873,11 @@ namespace adrilight.ViewModel
                 ResourceHlprs = new ResourceHelpers();
             #region checking and creating resource folder path if not exist
             CreateColorCollectionFolder();
+            CreatePaletteCollectionFolder();
+            CreateVIDCollectionFolder();
             #endregion
 
             LoadAvailableLightingMode();
-            LoadAvailablePalettes();
             LoadAvailableAnimations();
             LoadAvailableBaudRate();
             LoadAvailableChasingPatterns();
@@ -8930,24 +8887,24 @@ namespace adrilight.ViewModel
 
         }
 
-        public List<IColorPalette> LoadPaletteIfExists()
+        public void CreatePaletteCollectionFolder()
         {
             if (!Directory.Exists(PalettesCollectionFolderPath))
             {
 
                 //create default palette
-                var palettes = new List<IColorPalette>();
-                IColorPalette rainbow = new ColorPalette("Full Rainbow", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.rainbow);
-                IColorPalette police = new ColorPalette("Police", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.police);
-                IColorPalette forest = new ColorPalette("Forest", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.forest);
-                IColorPalette aurora = new ColorPalette("Aurora", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.aurora);
-                IColorPalette iceandfire = new ColorPalette("Ice and Fire", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.iceandfire);
-                IColorPalette scarlet = new ColorPalette("Scarlet", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.scarlet);
-                IColorPalette party = new ColorPalette("Party", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.party);
-                IColorPalette cloud = new ColorPalette("Cloud", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.cloud);
-                IColorPalette france = new ColorPalette("France", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.france);
-                IColorPalette badtrip = new ColorPalette("Bad Trip", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.badtrip);
-                IColorPalette lemon = new ColorPalette("Lemon", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.lemon);
+                var palettes = new List<ColorPalette>();
+                var rainbow = new ColorPalette("Full Rainbow", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.rainbow);
+                var police = new ColorPalette("Police", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.police);
+                var forest = new ColorPalette("Forest", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.forest);
+                var aurora = new ColorPalette("Aurora", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.aurora);
+                var iceandfire = new ColorPalette("Ice and Fire", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.iceandfire);
+                var scarlet = new ColorPalette("Scarlet", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.scarlet);
+                var party = new ColorPalette("Party", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.party);
+                var cloud = new ColorPalette("Cloud", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.cloud);
+                var france = new ColorPalette("France", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.france);
+                var badtrip = new ColorPalette("Bad Trip", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.badtrip);
+                var lemon = new ColorPalette("Lemon", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.lemon);
 
                 palettes.Add(rainbow);
                 palettes.Add(police);
@@ -8960,35 +8917,26 @@ namespace adrilight.ViewModel
                 palettes.Add(france);
                 palettes.Add(badtrip);
                 palettes.Add(lemon);
-                //create colorPalette directory
                 Directory.CreateDirectory(PalettesCollectionFolderPath);
+                var collectionFolder = Path.Combine(PalettesCollectionFolderPath, "collection");
+                Directory.CreateDirectory(collectionFolder);
                 foreach (var palette in palettes)
                 {
                     var json = JsonConvert.SerializeObject(palette, new JsonSerializerSettings() {
                         TypeNameHandling = TypeNameHandling.Auto
                     });
-                    File.WriteAllText(Path.Combine(PalettesCollectionFolderPath, palette.Name + ".col"), json);
+                    File.WriteAllText(Path.Combine(collectionFolder, palette.Name + ".col"), json);
                 }
 
-
-                return palettes;
                 //coppy all internal palettes to local 
-
-            }
-            string[] exisetedPalettes = Directory.GetFiles(PalettesCollectionFolderPath);
-            var loadedPaletteCard = new List<IColorPalette>();
-            foreach (var paletteFile in exisetedPalettes)
-            {
-                var json = File.ReadAllText(paletteFile);
-
-                var existPaletteCard = JsonConvert.DeserializeObject<ColorPalette>(json);
-
-                loadedPaletteCard.Add(existPaletteCard);
+                var config = new ResourceLoaderConfig(nameof(ColorPalette), DeserializeMethodEnum.MultiJson);
+                var configJson = JsonConvert.SerializeObject(config, new JsonSerializerSettings() {
+                    TypeNameHandling = TypeNameHandling.Auto
+                });
+                File.WriteAllText(Path.Combine(PalettesCollectionFolderPath, "config.json"), configJson);
 
             }
 
-
-            return loadedPaletteCard;
         }
 
         public List<IDeviceProfile> LoadDeviceProfileIfExist()
@@ -9400,17 +9348,7 @@ namespace adrilight.ViewModel
             File.WriteAllText(JsonGeneralFileNameAndPath, json);
         }
 
-        public void WritePaletteCollectionJson()
-        {
-            var palettes = new List<IColorPalette>();
-            foreach (var palette in AvailablePallete)
-            {
-                palettes.Add(palette);
-            }
-            var json = JsonConvert.SerializeObject(palettes, Formatting.Indented);
-            Directory.CreateDirectory(JsonPath);
-            File.WriteAllText(PalettesCollectionFolderPath, json);
-        }
+
 
         public void WriteAutomationCollectionJson()
         {
@@ -9453,44 +9391,9 @@ namespace adrilight.ViewModel
             File.WriteAllText(JsonDeviceProfileFileNameAndPath, json);
         }
 
-        private IAmbinoColorEffect currentImportedEffect { get; set; }
 
-        public void ImportEffect()
-        {
-            OpenFileDialog Import = new OpenFileDialog();
-            Import.Title = "Chọn ACE file";
-            Import.CheckFileExists = true;
-            Import.CheckPathExists = true;
-            Import.DefaultExt = "ACE";
-            Import.Filter = "Text files (*.ACE)|*.ACE";
-            Import.FilterIndex = 2;
 
-            Import.ShowDialog();
 
-            if (!string.IsNullOrEmpty(Import.FileName) && File.Exists(Import.FileName))
-            {
-                try
-                {
-                    var json = File.ReadAllText(Import.FileName);
-
-                    currentImportedEffect = JsonConvert.DeserializeObject<AmbinoColorEffect>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
-
-                    //open outputdataimportselection window
-                    if (currentImportedEffect.TargetType == CurrentDevice.DeviceType)
-                    {
-                        OpenOutputDataImportSelection();
-                    }
-                    else
-                    {
-                        HandyControl.Controls.MessageBox.Show("Hiệu ứng vừa chọn không dành cho thiết bị này", "LEDSetup Import", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-                catch (Exception)
-                {
-                    HandyControl.Controls.MessageBox.Show("Corrupted effect data File!!!");
-                }
-            }
-        }
 
         //public void ApplyOutputImportData()
         //{
@@ -9526,40 +9429,7 @@ namespace adrilight.ViewModel
         //    }
         //}
 
-        public void ImportPaletteCardFromFile()
-        {
-            OpenFileDialog Import = new OpenFileDialog();
-            Import.Title = "Chọn col file";
-            Import.CheckFileExists = true;
-            Import.CheckPathExists = true;
-            Import.DefaultExt = "col";
-            Import.Filter = "Text files (*.col)|*.col|All files (*.*)|*.*";
-            Import.FilterIndex = 2;
 
-            Import.ShowDialog();
-
-            if (!string.IsNullOrEmpty(Import.FileName) && File.Exists(Import.FileName))
-            {
-                var json = File.ReadAllText(Import.FileName);
-
-                try
-                {
-                    var importedPaletteCard = JsonConvert.DeserializeObject<ColorPalette>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
-                    var lines = File.ReadAllLines(Import.FileName);
-
-
-                    AvailablePallete.Add(importedPaletteCard);
-                    RaisePropertyChanged(nameof(AvailablePallete));
-                    //WritePaletteCollectionJson();
-                }
-
-
-                catch (Exception ex)
-                {
-                    HandyControl.Controls.MessageBox.Show("Corrupted Color Palette data File!!!");
-                }
-            }
-        }
         private bool _isRenderingVideo;
         public bool IsRenderingVideo {
             get { return _isRenderingVideo; }
@@ -9810,22 +9680,89 @@ namespace adrilight.ViewModel
             get { return _isLiveViewOpen; }
             set { _isLiveViewOpen = value; RaisePropertyChanged(); }
         }
+        private bool _isInIDEditStage;
+        public bool IsInIDEditStage {
+            get { return _isInIDEditStage; }
+            set
+            {
+                _isInIDEditStage = value;
+                GetItemsForLiveView(CurrentDevice);
+                RaisePropertyChanged();
+            }
+        }
+        private PathGuide _iDEditBrush;
+        public PathGuide IDEditBrush {
+            get { return _iDEditBrush; }
+            set
+            {
+                _iDEditBrush = value;
+                RaisePropertyChanged();
+            }
+        }
+        private void GetBrushForIDEdit()
+        {
+            IDEditBrush = new PathGuide() {
+                Width = 50,
+                Height = 50,
+                IsSelectable = true,
+                Geometry = "genericSquare"
 
+            };
+            VIDCount = 0;
+            _lastBrushX = 0;
+            _lastBrushY = 0;
+            IDEditBrush.PropertyChanged += (_, __) =>
+            {
+                switch (__.PropertyName)
+                {
+                    case nameof(IDEditBrush.Left):
+                    case nameof(IDEditBrush.Top):
+                        //check if brush has moved more than 5 unit, consider as update interval
+                        if (CalculateDelta(_lastBrushX, _lastBrushY, IDEditBrush.Left, IDEditBrush.Top) > 10)
+                        {
+
+                            _lastBrushX = IDEditBrush.Left;
+                            _lastBrushY = IDEditBrush.Top;
+                            //check if this position intersect any zone
+                            int settedVIDCount = 0;
+                            foreach (var zone in LiveViewItems.Where(z => z is LEDSetup))
+                            {
+                                if (!Rectangle.Intersect(zone.GetRect, IDEditBrush.GetRect).IsEmpty)
+                                {
+                                    //this zone is being touch by the brush
+                                    //check if this brush touch any spot inside this zone
+                                    var ledSetup = zone as LEDSetup;
+                                    var intersectRect = Rectangle.Intersect(ledSetup.GetRect, IDEditBrush.GetRect);
+                                    intersectRect.Offset(new System.Drawing.Point(0 - (int)ledSetup.GetRect.Left, 0 - (int)ledSetup.GetRect.Top));
+
+                                    foreach (var spot in ledSetup.Spots)
+                                    {
+                                        if (spot.GetVIDIfNeeded(VIDCount, intersectRect))
+                                            settedVIDCount++;
+                                    }
+
+                                }
+                            }
+                            if (settedVIDCount > 0)
+                                VIDCount += 5;
+                        }
+
+                        break;
+                }
+            };
+            LiveViewItems.Add(IDEditBrush);
+        }
         public void GotoChild(IDeviceSettings selectedDevice)
         {
             CurrentDevice = selectedDevice;
             CurrentView = "details";
             IsLiveViewOpen = true;
+            GetItemsForLiveView(CurrentDevice);
             UpdateLiveView();
             AvailableProfilesForCurrentDevice = new ObservableCollection<IDeviceProfile>();
             AvailableProfilesForCurrentDevice = ProfileFilter(CurrentDevice);
             SelectedSlaveDevice = null;
             IsSplitLightingWindowOpen = true;
-
-
-
-
-
 
         }
 

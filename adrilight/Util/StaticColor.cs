@@ -132,7 +132,7 @@ namespace adrilight
 
             }
         }
-        private void OnSelectedColorValueChanged(IPrameterValue value)
+        private void OnSelectedColorValueChanged(IParameterValue value)
         {
             _color = value as ColorCard;
             _colorList = GetColorGradient(_color.StartColor, _color.StopColor, CurrentZone.Spots.Count());
@@ -264,7 +264,7 @@ namespace adrilight
                         Parallel.ForEach(CurrentZone.Spots
                             , spot =>
                             {
-                                spot.SetColor((byte)(_brightness*_colorList[spot.Index].R), (byte)(_brightness * _colorList[spot.Index].G), (byte)(_brightness * _colorList[spot.Index].B), isPreviewRunning);
+                                spot.SetColor((byte)(_brightness*_colorList[CurrentZone.Spots.IndexOf(spot)].R), (byte)(_brightness * _colorList[CurrentZone.Spots.IndexOf(spot)].G), (byte)(_brightness * _colorList[CurrentZone.Spots.IndexOf(spot)].B), isPreviewRunning);
 
                             });
                     }

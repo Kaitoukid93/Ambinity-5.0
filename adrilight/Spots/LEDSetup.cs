@@ -80,7 +80,7 @@ namespace adrilight
         public ObservableCollection<IDeviceSpot> Spots { get => _spots; set { Set(() => Spots, ref _spots, value); } }
         public object Lock { get; } = new object();
         public string Thumbnail { get; set; }
-        
+
         public void DimLED(float dimFactor)
         {
             foreach (var spot in Spots)
@@ -169,9 +169,17 @@ namespace adrilight
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
         [JsonIgnore]
-        public Rectangle GetRect => new Rectangle((int)(Left+OffsetX), (int)(Top+OffsetY), (int)Width, (int)Height);
+        public Rectangle GetRect => new Rectangle((int)(Left + OffsetX), (int)(Top + OffsetY), (int)Width, (int)Height);
         public string Type { get; set; }
         private DrawableHelpers DrawableHlprs;
+        public void ResetVIDStage()
+        {
+            foreach(var spot in Spots)
+            {
+                spot.HasVID = false;
+                spot.SetVID(0);
+            }
+        }
         public void UpdateSizeByChild(bool withPoint)
         {
             //get all child and set size
@@ -246,7 +254,7 @@ namespace adrilight
 
         protected virtual void OnRotationChanged() { }
 
-        protected virtual void OnIsSelectedChanged(bool value){ }
+        protected virtual void OnIsSelectedChanged(bool value) { }
 
         public virtual void OnDrawingEnded(Action<object> callback = default) { }
 

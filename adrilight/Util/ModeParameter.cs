@@ -41,14 +41,14 @@ namespace adrilight.Util
         /// </summary>
         /// 
         [JsonIgnore]
-        public ObservableCollection<IPrameterValue> AvailableValue => LoadAvailableValue(AvailableValueLocalPath);
+        public ObservableCollection<IParameterValue> AvailableValue => LoadAvailableValue(AvailableValueLocalPath);
         /// <summary>
         /// this is the type of lighting mode, use to get the data template
         /// </summary>
         /// 
         public string AvailableValueLocalPath { get => _availableValueLocalPath; set { Set(() => AvailableValueLocalPath, ref _availableValueLocalPath, value); } }
         [JsonIgnore]
-        public IPrameterValue SelectedValue => Value > AvailableValue.Count - 1 || Value < 0 ? AvailableValue[0] : AvailableValue[Value];
+        public IParameterValue SelectedValue => Value > AvailableValue.Count - 1 || Value < 0 ? AvailableValue[0] : AvailableValue[Value];
         public ModeParameterTemplateEnum Template { get => _template; set { Set(() => Template, ref _template, value); } }
         public ModeParameterEnum ParamType { get => _paramType; set { Set(() => ParamType, ref _paramType, value); } }
         public ObservableCollection<SubParameter> SubParams { get => _subParams; set { Set(() => SubParams, ref _subParams, value); } }
@@ -62,9 +62,9 @@ namespace adrilight.Util
         {
             RaisePropertyChanged(nameof(AvailableValue));
         }
-        private ObservableCollection<IPrameterValue> LoadAvailableValue(string availableValueLocalPath)
+        private ObservableCollection<IParameterValue> LoadAvailableValue(string availableValueLocalPath)
         {
-            var availableValue = new ObservableCollection<IPrameterValue>();
+            var availableValue = new ObservableCollection<IParameterValue>();
             try
             {
                 var configJson = File.ReadAllText(Path.Combine(availableValueLocalPath, "config.json"));
@@ -82,6 +82,32 @@ namespace adrilight.Util
                                 break;
                         }
                         break;
+                    case DeserializeMethodEnum.MultiJson:
+                        string[] files = Directory.GetFiles(Path.Combine(availableValueLocalPath,"collection"));
+                        switch (t)
+                        {
+                            case nameof(ColorPalette):
+                                foreach (var file in files)
+                                {
+                                    var json = File.ReadAllText(file);
+
+                                    var data = JsonConvert.DeserializeObject<ColorPalette>(json);
+
+                                    availableValue.Add(data);
+                                }
+                                break;
+                            case nameof(VIDDataModel):
+                                foreach (var file in files)
+                                {
+                                    var json = File.ReadAllText(file);
+
+                                    var data = JsonConvert.DeserializeObject<VIDDataModel>(json);
+
+                                    availableValue.Add(data);
+                                }
+                                break;
+                        }
+                        break;
 
 
                 }
@@ -96,3 +122,4 @@ namespace adrilight.Util
 
     }
 }
+

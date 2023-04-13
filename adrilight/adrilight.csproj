@@ -275,7 +275,7 @@
     <Compile Include="Util\IModeParameter.cs" />
     <Compile Include="Util\IOnlineItemModel.cs" />
     <Compile Include="Util\ILightingEngine.cs" />
-    <Compile Include="Util\IPrameterValue.cs" />
+    <Compile Include="Util\IParameterValue.cs" />
     <Compile Include="Util\LightingModeEnum.cs" />
     <Compile Include="Util\ModeParameter.cs" />
     <Compile Include="Util\ModeParameterEnum.cs" />
@@ -283,7 +283,6 @@
     <Compile Include="Util\OnlineItemModel.cs" />
     <Compile Include="Util\DeviceDiscovery.cs" />
     <Compile Include="Util\AdrilightUpdater.cs" />
-    <Compile Include="Util\AmbinoColorEffect .cs" />
     <Compile Include="Util\AssemblyHelper.cs" />
     <Compile Include="Util\AudioFrame.cs" />
     <Compile Include="Util\Brightness.cs" />
@@ -296,6 +295,7 @@
     <Compile Include="Util\FpsLogger.cs" />
     <Compile Include="Util\Composition.cs" />
     <Compile Include="Util\PWMModeEnum.cs" />
+    <Compile Include="Util\Rainbow.cs" />
     <Compile Include="Util\StaticColor.cs" />
     <Compile Include="Util\StoreCategory.cs" />
     <Compile Include="Util\MotionLayer.cs" />
@@ -305,11 +305,9 @@
     <Compile Include="Util\ColorCard.cs" />
     <Compile Include="Util\HotKeyManager.cs" />
     <Compile Include="Util\HWMonitor.cs" />
-    <Compile Include="Util\IAmbinoColorEffect.cs" />
     <Compile Include="Util\IDeviceDiscovery.cs" />
     <Compile Include="Util\IAtmosphere.cs" />
     <Compile Include="Util\IAudioFrame.cs" />
-    <Compile Include="Util\IColorPalette.cs" />
     <Compile Include="Util\IColorWithIndex.cs" />
     <Compile Include="Util\IComputer.cs" />
     <Compile Include="Util\IGifCard.cs" />
@@ -326,7 +324,6 @@
     <Compile Include="Util\ISerialDeviceDetection.cs" />
     <Compile Include="Util\ISerialPortWrapper.cs" />
     <Compile Include="Util\ISerialStream.cs" />
-    <Compile Include="Util\IStaticColor.cs" />
     <Compile Include="Util\IVisualizerProgressBar.cs" />
     <Compile Include="Util\LeftMenuItemGroup.cs" />
     <Compile Include="Util\LightingMode.cs" />
@@ -341,6 +338,8 @@
     <Compile Include="Util\StartupManager.cs" />
     <Compile Include="Util\SubParameter.cs" />
     <Compile Include="Util\UpdateVisitor.cs" />
+    <Compile Include="Util\VIDDataModel.cs" />
+    <Compile Include="Util\VIDType.cs" />
     <Compile Include="Util\VisualizerProgressBar.cs" />
     <Compile Include="Util\WinApi.cs" />
     <Compile Include="Util\WrappedSerialPort.cs" />
@@ -375,6 +374,7 @@
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\VisualProperties.cs" />
     <Compile Include="View\DeviceOutputMapingView.xaml.cs" />
+    <Compile Include="View\IDEditToolBarView.xaml.cs" />
     <Compile Include="View\SlaveDeviceNullValueView.xaml.cs" />
     <Compile Include="View\SlaveDeviceInfoView.xaml.cs" />
     <Compile Include="View\SlaveDeviceCollectionView.xaml.cs" />
@@ -475,6 +475,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\DeviceOutputMapingView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\IDEditToolBarView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

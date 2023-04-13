@@ -14,6 +14,7 @@ namespace adrilight.Spots
         byte SentryGreen { get; }
         byte SentryBlue { get; }
         bool IsEnabled { get; set; }
+        bool HasVID { get; set; }
         Color OnDemandColor { get; }
         Color SentryColor { get; }
        
@@ -36,7 +37,7 @@ namespace adrilight.Spots
         void SetMID(int mid);
         void SetCID(int cid);
 
-
+        bool GetVIDIfNeeded(int vid, Rectangle rect);
 
     }
 }

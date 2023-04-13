@@ -9,7 +9,7 @@ using System.Windows.Media.Imaging;
 
 namespace adrilight.Util
 {
-    internal class ColorPalette : ViewModelBase, IColorPalette
+    internal class ColorPalette : ViewModelBase, IParameterValue
     {
         public ColorPalette(string name, string owner, string type, string description, System.Windows.Media.Color[] colors )
         {
@@ -34,11 +34,7 @@ namespace adrilight.Util
     public void SetColor(int index,Color color)
         {
             Colors[index] = color;
-
-            
-           RaisePropertyChanged(nameof(Colors));
-         
-            
+           RaisePropertyChanged(nameof(Colors));     
         }
     }
 }

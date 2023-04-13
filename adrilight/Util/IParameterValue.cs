@@ -1,6 +1,6 @@
 ﻿namespace adrilight.Util
 {
-    public interface IPrameterValue
+    public interface IParameterValue
     {
         string Name { get; }
         string Description { get; }

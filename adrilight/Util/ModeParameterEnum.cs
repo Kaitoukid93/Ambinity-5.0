@@ -2,7 +2,7 @@
 {
     public enum ModeParameterEnum
     {
-          /// <summary>
+        /// <summary>
         ///    this is Brightness Type, contains brightness value of current Mode
         /// </summary>
         Brightness,
@@ -39,6 +39,10 @@
         LinearLighting,
 
         StaticColorMode,
+
         Breathing,
+
+        Palette,
+        VID,
     }
 }

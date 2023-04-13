@@ -229,6 +229,7 @@ namespace adrilight
         {
             kernel.Bind<ILightingEngine>().To<DesktopDuplicatorReader>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
             kernel.Bind<ILightingEngine>().To<StaticColor>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
+            kernel.Bind<ILightingEngine>().To<Rainbow>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
             var availableLightingModes = kernel.GetAll<ILightingEngine>(zone.ZoneUID);
             foreach(var lightingMode in availableLightingModes )
             {
@@ -433,7 +434,8 @@ namespace adrilight
                 var desktopFrames = kernel.GetAll<IDesktopFrame>();
                 foreach (var desktopFrame in desktopFrames)
                 {
-                    desktopFrame.RefreshCapturingState();
+                    desktopFrame.RefreshCapturingState(); 
+
                 }
                 //var desktopFrame = kernel.Get<IDesktopFrame>();
                 //var secondDesktopFrame = kernel.Get<ISecondDesktopFrame>();

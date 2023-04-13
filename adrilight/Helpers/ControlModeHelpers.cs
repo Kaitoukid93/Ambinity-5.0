@@ -16,6 +16,8 @@ namespace adrilight.Helpers
     {
         private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
         private string ColorsCollectionFolderPath => Path.Combine(JsonPath, "Colors");
+        private string PalettesCollectionFolderPath => Path.Combine(JsonPath, "ColorPalettes");
+        private string VIDCollectionFolderPath => Path.Combine(JsonPath, "VID");
         #region default lighting mode by ambino
         public IControlZone MakeZoneControlable(IControlZone zone)
         {
@@ -35,7 +37,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Sáng theo dải màu với chuyển động tùy chọn",
-                    Parameters = { ChasingPatterns, GenericDirrectionParameter, GenericBrightnessParameter, GenericSpeedParameter(0, 100) }
+                    Parameters = { GenericBrightnessParameter, GenericColorPaletteSelectionParameter, GenericSpeedParameter(0, 20), GenericVIDSelectParameter, IsSystemSync }
 
                 };
             }
@@ -62,11 +64,11 @@ namespace adrilight.Helpers
             {
                 return new LightingMode() {
                     Name = "Music Reactive",
-                    BasedOn = LightingModeEnum.Rainbow,
+                    BasedOn = LightingModeEnum.MusicCapturing,
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Màu LED chuyển động theo nhạc",
-                    Parameters = { GenericDirrectionParameter, GenericBrightnessParameter, GenericSpeedParameter(0, 100) }
+                    Parameters = { GenericBrightnessParameter, GenericSpeedParameter(0, 100), IsSystemSync }
 
                 };
             }
@@ -162,6 +164,20 @@ namespace adrilight.Helpers
                 };
             }
         }
+        public IModeParameter IsSystemSync {
+            get
+            {
+                return new ModeParameter() {
+
+                    Name = "System Sync",
+                    Description = "TĐồng bộ với tốc độ hệ thống",
+                    ParamType = ModeParameterEnum.IsSystemSync,
+                    Template = ModeParameterTemplateEnum.ToggleOnOff,
+                    Value = 0,
+
+                };
+            }
+        }
         public IModeParameter Breathing {
             get
             {
@@ -189,17 +205,20 @@ namespace adrilight.Helpers
                 };
             }
         }
-        public IModeParameter GenericDirrectionParameter {
+        public IModeParameter GenericVIDSelectParameter {
             get
             {
                 return new ModeParameter() {
 
-                    Name = "Dirrection",
-                    Description = "Speed of Motion",
-                    ParamType = ModeParameterEnum.Direction,
+                    Name = "Chiều chạy",
+                    Description = "Chọn chiều chạy của hiệu ứng",
+                    ParamType = ModeParameterEnum.VID,
                     Template = ModeParameterTemplateEnum.ListSelection,
                     Value = 1,
-                    AvailableValueLocalPath = ""
+                    AvailableValueLocalPath = VIDCollectionFolderPath,
+                    SubParams = new ObservableCollection<SubParameter>() {
+                        new SubParameter("Vẽ chiều chạy mới",ModeParameterTemplateEnum.PushButtonAction,"Add VID","Add",0,0,0),
+                    }
 
                 };
             }
@@ -210,7 +229,7 @@ namespace adrilight.Helpers
                 return new ModeParameter() {
 
                     Name = "Colors",
-                    Description = "Available Color",
+                    Description = "Available Colors",
                     ParamType = ModeParameterEnum.Color,
                     Template = ModeParameterTemplateEnum.ListSelection,
                     Value = 0,
@@ -218,6 +237,25 @@ namespace adrilight.Helpers
                     SubParams = new ObservableCollection<SubParameter>() {
                         new SubParameter("Custom Color",ModeParameterTemplateEnum.PushButtonAction,"Add Color","Add",0,0,0),
                         new SubParameter("Import Color",ModeParameterTemplateEnum.PushButtonAction,"Import Color","Import",0,0,0)
+                    }
+
+                };
+            }
+        }
+        public IModeParameter GenericColorPaletteSelectionParameter {
+            get
+            {
+                return new ModeParameter() {
+
+                    Name = "Palettes",
+                    Description = "Available Palettes",
+                    ParamType = ModeParameterEnum.Palette,
+                    Template = ModeParameterTemplateEnum.ListSelection,
+                    Value = 0,
+                    AvailableValueLocalPath = PalettesCollectionFolderPath,
+                    SubParams = new ObservableCollection<SubParameter>() {
+                        new SubParameter("Custom Palette",ModeParameterTemplateEnum.PushButtonAction,"Add Palette","Add",0,0,0),
+                        new SubParameter("Import Palette",ModeParameterTemplateEnum.PushButtonAction,"Import Palette","Import",0,0,0)
                     }
 
                 };

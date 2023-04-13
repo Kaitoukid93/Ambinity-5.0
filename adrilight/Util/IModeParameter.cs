@@ -28,13 +28,13 @@ namespace adrilight.Util
         /// <summary>
         /// this is the list of available value, used for list selection type
         /// </summary>
-        ObservableCollection<IPrameterValue> AvailableValue { get;}
+        ObservableCollection<IParameterValue> AvailableValue { get;}
         /// <summary>
         /// this is the min value, used for prevent the value to undershoot
         /// </summary>
         string AvailableValueLocalPath { get; set; }
         bool IsEnabled { get; set; }
-        IPrameterValue SelectedValue { get; }
+        IParameterValue SelectedValue { get; }
         ObservableCollection<SubParameter> SubParams { get; set; }
         void RefreshCollection();
         int MinValue { get; set; }

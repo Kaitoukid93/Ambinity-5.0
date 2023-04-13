@@ -24,7 +24,7 @@ namespace adrilight.Spots
             Left = left;
             Width = width;
             Height = height;
-    
+
             Shape = shape;
 
 
@@ -63,6 +63,7 @@ namespace adrilight.Spots
 
 
         public int VID { get; set; }
+        public bool HasVID { get; set; }
         public bool IsEnabled { get; set; } = true;
         public int PID { get; set; }
         public int CID { get; set; }
@@ -74,6 +75,22 @@ namespace adrilight.Spots
         public byte Green { get; private set; }
         public byte Blue { get; private set; }
         public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
+        public bool GetVIDIfNeeded(int vid, Rectangle rect)
+        {
+            if (!HasVID)
+            {
+                var intersectRect = Rectangle.Intersect(GetRect, rect);
+                if (intersectRect.Width * intersectRect.Height / (GetRect.Width * GetRect.Height) > 0.1)
+                {
+                    SetVID(vid);
+                    HasVID = true;
+                    return true;
+                }
+
+            }
+            return false;
+
+        }
         public void SetColor(byte red, byte green, byte blue, bool raiseEvents)
         {
             Red = red;
