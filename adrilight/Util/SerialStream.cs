@@ -134,7 +134,7 @@ namespace adrilight
         private PWMMotorSlaveDevice[] _pwmDevices { get; set; }
 
         public bool IsValid() => SerialPort.GetPortNames().Contains(DeviceSettings.OutputPort) || DeviceSettings.OutputPort == "Không có";
-        public void RefreshTransferState()
+        private void RefreshTransferState()
         {
             if (DeviceSettings.IsTransferActive && DeviceSettings.DeviceState == DeviceStateEnum.Normal) // normal scenario
             {
@@ -203,7 +203,7 @@ namespace adrilight
         }
 
         public bool IsRunning => _workerThread != null && _workerThread.IsAlive;
-       
+
         public void DFU()
 
         {
@@ -320,9 +320,9 @@ namespace adrilight
                                     var rgbOrder = ledZone.RGBLEDOrder;
                                     var reOrderedColor = ReOrderSpotColor(rgbOrder, spot.Red, spot.Green, spot.Blue);
                                     //get data
-                                    outputStream[counter++] = reOrderedColor[0]; // blue
-                                    outputStream[counter++] = reOrderedColor[1]; // green
-                                    outputStream[counter++] = reOrderedColor[2]; // red
+                                    outputStream[counter + spot.Index * 3 + 0] = reOrderedColor[0]; // blue
+                                    outputStream[counter + spot.Index * 3 + 1] = reOrderedColor[1]; // green
+                                    outputStream[counter + spot.Index * 3 + 2] = reOrderedColor[2]; // red
 
 
                                     allBlack = allBlack && spot.Red == 0 && spot.Green == 0 && spot.Blue == 0;
@@ -432,11 +432,15 @@ namespace adrilight
             {
                 _lightingDevices[i] = DeviceSettings.AvailableLightingDevices[i] as ARGBLEDSlaveDevice;
             }
-            _pwmDevices = new PWMMotorSlaveDevice[DeviceSettings.AvailablePWMDevices.Length];
-            for (int i = 0; i < DeviceSettings.AvailablePWMDevices.Length; i++)
+            if(DeviceSettings.AvailablePWMDevices!=null)
             {
-                _pwmDevices[i] = DeviceSettings.AvailablePWMDevices[i] as PWMMotorSlaveDevice;
+                _pwmDevices = new PWMMotorSlaveDevice[DeviceSettings.AvailablePWMDevices.Length];
+                for (int i = 0; i < DeviceSettings.AvailablePWMDevices.Length; i++)
+                {
+                    _pwmDevices[i] = DeviceSettings.AvailablePWMDevices[i] as PWMMotorSlaveDevice;
+                }
             }
+           
             #endregion
 
             if (String.IsNullOrEmpty(DeviceSettings.OutputPort))

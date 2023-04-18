@@ -19,9 +19,9 @@ namespace adrilight.View
     /// <summary>
     /// Interaction logic for PaletteEditWindow.xaml
     /// </summary>
-    public partial class PIDQuicEditWindow
+    public partial class PIDQuickEditWindow
     {
-        public PIDQuicEditWindow()
+        public PIDQuickEditWindow()
         {
             InitializeComponent();
             

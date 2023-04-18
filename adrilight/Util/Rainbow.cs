@@ -129,7 +129,7 @@ namespace adrilight
         private void OnSelectedPaletteChanged(IParameterValue value)
         {
             _palette = value as ColorPalette;
-            _colorBank = GetColorGradientfromPaletteWithFixedColorPerGap(_palette.Colors, 50).ToArray();
+            _colorBank = GetColorGradientfromPaletteWithFixedColorPerGap(_palette.Colors, 18).ToArray();
         }
 
         private void OnBrightnessValueChanged(int value)
@@ -206,9 +206,9 @@ namespace adrilight
 
 
                 _palette = _colorControl.SelectedValue as ColorPalette;
-                _colorBank = GetColorGradientfromPaletteWithFixedColorPerGap(_palette.Colors, 50).ToArray();
+                _colorBank = GetColorGradientfromPaletteWithFixedColorPerGap(_palette.Colors, 18).ToArray();
                 _brightness = _brightnessControl.Value / 100d;
-                _speed = _speedControl.Value / 5d;
+                _speed = _speedControl.Value;
                 double StartIndex = 0d;
                 int OutputStartIndex = 0;
                 while (!token.IsCancellationRequested)
@@ -216,7 +216,7 @@ namespace adrilight
                     bool isPreviewRunning = MainViewViewModel.IsLiveViewOpen;
 
                     StartIndex += _speed;
-                    if (StartIndex > GeneralSettings.SystemRainbowMaxTick)
+                    if (StartIndex > _colorBank.Length)
                     {
                         StartIndex = 0;
                     }
@@ -242,8 +242,12 @@ namespace adrilight
                                 //position = Math.Abs(colorBank.Length - position);
                                 n = position / _colorBank.Length;
                             position -= n * _colorBank.Length; // run with VID
-                            if(spot.HasVID)
-                            spot.SetColor((byte)(_brightness * _colorBank[position].R), (byte)(_brightness * _colorBank[position].G), (byte)(_brightness * _colorBank[position].B), isPreviewRunning);
+                            if (spot.HasVID)
+                            {
+                                ApplySmoothing(_colorBank[position].R, _colorBank[position].G, _colorBank[position].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
+                                spot.SetColor((byte)(_brightness * FinalR), (byte)(_brightness * FinalG), (byte)(_brightness * FinalB), isPreviewRunning);
+                            }
+
                             else
                             {
                                 spot.SetColor(0, 0, 0, isPreviewRunning);

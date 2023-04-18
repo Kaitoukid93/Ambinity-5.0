@@ -196,7 +196,12 @@ namespace adrilight
 
 
         }
-
+        public void ReorderSpots()
+        {
+            var reorderedSpots = Spots.OrderBy(o => o.Index).ToList();
+            Spots.Clear();
+            reorderedSpots.ForEach(s=>Spots.Add(s));
+        }
         public Rectangle GetDeviceRectBound(List<IDeviceSpot> spots)
         {
 

@@ -3908,7 +3908,6 @@ namespace adrilight.ViewModel
                 return p != null;
             }, (p) =>
             {
-
                 SetSpotID(p);
 
             }); 
@@ -7099,7 +7098,7 @@ namespace adrilight.ViewModel
             }
         }
         public ISlaveDevice CurrentEditingPIDItem { get; set; }
-        private PIDQuicEditWindow pidQuickEditWindow { get; set; }
+        private PIDQuickEditWindow pidQuickEditWindow { get; set; }
         private void OpenSpotPIDQuickEDitWindow(ObservableCollection<IDrawable> p)
         {
             CurrentIDType = "PID";
@@ -7109,7 +7108,7 @@ namespace adrilight.ViewModel
                 (zone as LEDSetup).BackupSpots();
                 (zone as LEDSetup).FillSpotsColor(Color.FromRgb(0, 0, 0));
             }
-            pidQuickEditWindow = new PIDQuicEditWindow();
+            pidQuickEditWindow = new PIDQuickEditWindow();
             pidQuickEditWindow.Owner = surfaceeditorWindow;
             pidQuickEditWindow.ShowDialog();
 
@@ -7920,17 +7919,16 @@ namespace adrilight.ViewModel
                 var ledZone = zone as LEDSetup;
                 foreach(var spot in ledZone.Spots)
                 {
-                    spot.SetID(0);
                     spot.IsEnabled = false;
                     spot.SetColor(0, 0, 0, true);
                 }
+               // ledZone.ReorderSpots();
             }
         }
           
         private void SetSpotID(IDeviceSpot spot)
         {
-            if (Keyboard.IsKeyDown(Key.B) || Keyboard.IsKeyDown(Key.RightCtrl) || Mouse.LeftButton == MouseButtonState.Pressed)
-            {
+           
                 switch (CurrentIDType)
                 {
                     case "VID":
@@ -7954,7 +7952,6 @@ namespace adrilight.ViewModel
                     case "PID":
                         if (spot.IsEnabled)
                         {
-                            spot.SetID(0);
                             spot.IsEnabled = false;
                             spot.SetColor(0, 0, 0, true);
                             if (CountPID >= 1)
@@ -7971,62 +7968,13 @@ namespace adrilight.ViewModel
                             spot.SetColor(0, 0, 255, true);
 
                         }
-                      
+                        //foreach(var zone in CurrentEditingPIDItem.ControlableZones)
+                        //{
+                        //    (zone as LEDSetup).ReorderSpots();
+                        //}
                         break;
 
                 }
-
-            }
-            else if (Keyboard.IsKeyDown(Key.LeftShift))
-            {
-                switch (CurrentIDType)
-                {
-                    case "VID":
-                        spot.SetVID(0);
-                        spot.IsEnabled = false;
-                        if (CountVID >= GapVID)
-                        {
-                            CountVID -= GapVID;
-                        }
-                        else
-                            CountVID = 0;
-                        break;
-                    case "FID":
-                        spot.SetMID(0);
-                        spot.IsEnabled = false;
-                        if (CountVID >= GapVID)
-                        {
-                            CountVID -= GapVID;
-                        }
-                        else
-                            CountVID = 0;
-                        break;
-                    case "CID":
-                        spot.SetCID(0);
-                        spot.IsEnabled = false;
-                        if (CountVID >= GapVID)
-                        {
-                            CountVID -= GapVID;
-                        }
-                        else
-                            CountVID = 0;
-                        break;
-                    case "PID":
-                        spot.SetID(0);
-                        spot.IsEnabled = false;
-                        spot.SetColor(0, 0, 0, true);
-                        if (CountPID >= 1)
-                        {
-                            CountPID -= 1;
-                        }
-                        else
-                            CountPID = 0;
-                        break;
-
-                }
-
-            }
-
         }
 
 
@@ -10016,13 +9964,13 @@ namespace adrilight.ViewModel
                                 {
                                     if(SelectedToolIndex==1)
                                     {
-                                        VIDCount += 10;
+                                        VIDCount += 5;
                                         if (VIDCount > 1023)
                                             VIDCount = 0;
                                     }
                                     else if(SelectedToolIndex == 2)
                                     {
-                                        VIDCount -= 10;
+                                        VIDCount -= 5;
                                         if (VIDCount <0 )
                                             VIDCount = 1023;
                                     }
