@@ -67,6 +67,7 @@ namespace adrilight.Spots
         public bool IsEnabled { get; set; } = true;
         public int PID { get; set; }
         public int CID { get; set; }
+        public int BackupID { get; set; }
         public bool IsActivated { get; set; }
         public byte SentryRed { get; private set; }
         public byte SentryGreen { get; private set; }
@@ -75,19 +76,37 @@ namespace adrilight.Spots
         public byte Green { get; private set; }
         public byte Blue { get; private set; }
         public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
-        public bool GetVIDIfNeeded(int vid, Rectangle rect)
+        public bool GetVIDIfNeeded(int vid, Rectangle rect, int mode)
         {
-            if (!HasVID)
+            if(mode ==0)
             {
-                var intersectRect = Rectangle.Intersect(GetRect, rect);
-                if (intersectRect.Width * intersectRect.Height / (GetRect.Width * GetRect.Height) > 0.1)
+                if (!HasVID)
                 {
-                    SetVID(vid);
-                    HasVID = true;
-                    return true;
-                }
+                    var intersectRect = Rectangle.Intersect(GetRect, rect);
+                    if (intersectRect.Width * intersectRect.Height / (GetRect.Width * GetRect.Height) > 0.1)
+                    {
+                        SetVID(vid);
+                        HasVID = true;
+                        return true;
+                    }
 
+                }
             }
+            else if(mode ==1)
+            {
+                if (HasVID)
+                {
+                    var intersectRect = Rectangle.Intersect(GetRect, rect);
+                    if (intersectRect.Width * intersectRect.Height / (GetRect.Width * GetRect.Height) > 0.1)
+                    {
+                        SetVID(0);
+                        HasVID = false;
+                        return true;
+                    }
+
+                }
+            }
+          
             return false;
 
         }

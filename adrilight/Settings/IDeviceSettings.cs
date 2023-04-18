@@ -14,7 +14,6 @@ using System.Drawing;
 
 namespace adrilight
 {
-    public enum State { sleep, dfu, normal, surfaceEditor };
     public interface IDeviceSettings : INotifyPropertyChanged
     {
 
@@ -63,7 +62,7 @@ namespace adrilight
         void RefreshFirmwareVersion();
         //void DeviceLocator(Color color);
         void RefreshDeviceActualSpeedAsync();
-        State CurrentState { get; set; }
+        DeviceStateEnum DeviceState { get; set; }
         Rect CurrentLivewItemsBound { get; }
         ISlaveDevice[] AvailableLightingDevices { get; }
         IOutputSettings[] AvailableLightingOutputs { get; }

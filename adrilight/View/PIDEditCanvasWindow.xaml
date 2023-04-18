@@ -266,7 +266,7 @@
                                     </Style>
                                 </Viewbox.Style>
 
-                                <TextBlock Margin="5" Foreground="White" Text="{Binding Index}" Style="{DynamicResource TextBlockDefault}"/>
+                                <TextBlock Margin="5" Foreground="White" Text="{Binding Index}" Style="{DynamicResource TextBlockSubTitleBold}"/>
 
 
                             </Viewbox>

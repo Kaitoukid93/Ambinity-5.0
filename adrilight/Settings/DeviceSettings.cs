@@ -34,7 +34,7 @@ namespace adrilight
         private List<IDeviceController> _availableControllers;
         private string _productionDate;
         private bool _isVisible;
-        private bool _isEnabled;
+        private bool _isEnabled=true;
         private string _outputPort;
         private bool _isTransferActive;
         private bool _isDummy = false;
@@ -55,7 +55,7 @@ namespace adrilight
         private bool _isLoadingProfile = false;
         private string _activatedProfileUID;
         private string _fwLocation;
-        private State _currentState = State.normal;
+        private DeviceStateEnum _deviceState = DeviceStateEnum.Normal;
         private string _requiredFwVersion;
         private static byte[] requestCommand = { (byte)'d', (byte)'i', (byte)'r' };
         private static byte[] requestSpeedCommand = { (byte)'1', (byte)'5', (byte)'4' };
@@ -72,7 +72,7 @@ namespace adrilight
         public string DeviceOutputMap { get => _deviceOutputMap; set { Set(() => DeviceOutputMap, ref _deviceOutputMap, value); } }
         public DeviceTypeEnum TypeEnum { get => _typeEnum; set { Set(() => TypeEnum, ref _typeEnum, value); } }
         public ObservableCollection<ControlZoneGroup> ControlZoneGroups { get => _controlZoneGroups; set { Set(() => ControlZoneGroups, ref _controlZoneGroups, value); } }
-        public State CurrentState { get => _currentState; set { Set(() => CurrentState, ref _currentState, value); } }
+        public DeviceStateEnum DeviceState { get => _deviceState; set { Set(() => DeviceState, ref _deviceState, value); } }
         public string RequiredFwVersion { get => _requiredFwVersion; set { Set(() => RequiredFwVersion, ref _requiredFwVersion, value); } }
         public int DeviceID { get => _deviceID; set { Set(() => DeviceID, ref _deviceID, value); } }
         public string DeviceName { get => _deviceName; set { Set(() => DeviceName, ref _deviceName, value); } }

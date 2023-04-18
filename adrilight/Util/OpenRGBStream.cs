@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System.Windows;
 using adrilight.Spots;
 using System.Collections.Generic;
+using adrilight.Settings;
 
 namespace adrilight
 {
@@ -28,7 +29,7 @@ namespace adrilight
 
             // DeviceSpotSets = deviceSpotSets ?? throw new ArgumentNullException(nameof(deviceSpotSets));
             DeviceSettings.PropertyChanged += UserSettings_PropertyChanged;
-            deviceSettings.CurrentState = State.normal;
+            DeviceSettings.DeviceState = DeviceStateEnum.Normal;
             RefreshTransferState();
 
             _log.Info($"OpenRGBStream created.");
@@ -46,7 +47,7 @@ namespace adrilight
             {
                 case nameof(DeviceSettings.IsTransferActive):
                 case nameof(DeviceSettings.OutputPort):
-                case nameof(DeviceSettings.CurrentState):
+                case nameof(DeviceSettings.DeviceState):
                     RefreshTransferState();
                     break;
             }
@@ -57,7 +58,7 @@ namespace adrilight
         private void RefreshTransferState()
         {
 
-            if (DeviceSettings.IsTransferActive && DeviceSettings.CurrentState == State.normal) // normal scenario
+            if (DeviceSettings.IsTransferActive && DeviceSettings.DeviceState == DeviceStateEnum.Normal) // normal scenario
             {
                 if (IsRunning)
                 {
@@ -97,13 +98,13 @@ namespace adrilight
                 _log.Debug("stopping the serial stream");
                 Stop();
             }
-            else if (DeviceSettings.IsTransferActive && DeviceSettings.CurrentState == State.sleep) // computer susped or app exit, this could be an event from sleep button ( not available at the moment)
+            else if (DeviceSettings.IsTransferActive && DeviceSettings.DeviceState == DeviceStateEnum.Sleep) // computer susped or app exit, this could be an event from sleep button ( not available at the moment)
             {
                 // this is handled by GetOutputStream at the moment.
                 // change output stream to black or sentry.
                 // stop the serial stream.
             }
-            else if (DeviceSettings.IsTransferActive && DeviceSettings.CurrentState == State.dfu) // this is only requested by dfu or fwupgrade button.
+            else if (DeviceSettings.IsTransferActive && DeviceSettings.DeviceState == DeviceStateEnum.DFU) // this is only requested by dfu or fwupgrade button.
             {
                 Stop();
                 Thread.Sleep(1000);

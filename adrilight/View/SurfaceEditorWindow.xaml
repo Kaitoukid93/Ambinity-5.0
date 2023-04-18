@@ -97,7 +97,7 @@
                 <richCanvas:RichItemsControl.Resources>
                     <DataTemplate DataType="{x:Type settings:ARGBLEDSlaveDevice}">
                         <Grid>
-                            <ItemsControl  Margin="0,-1,0,0"  
+                            <ItemsControl  Margin="0,-1,0,0"
                                     Name="PreviewGird"  
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Top" 
@@ -207,7 +207,7 @@
                                     
                                 </i:Interaction.Triggers>
                                 
-                                <Rectangle  Height="{Binding Height}" Width="{Binding Width}">
+                                <Rectangle Height="{Binding Height}" Width="{Binding Width}">
                                     <Rectangle.Style>
                                         <Style TargetType="Rectangle">
                                             <Style.Triggers>
@@ -218,6 +218,7 @@
                                                     <Setter Property="Fill" Value="Transparent"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
+                                            
                                         </Style>
                                     </Rectangle.Style>
                                 </Rectangle>
@@ -420,6 +421,14 @@
                                 <Setter Property="ContextMenu">
                                     <Setter.Value>
                                         <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+
+                                            
+                                            <MenuItem Header="Scale"
+                                          Command="{Binding OpenSpotPIDQuickEDitWindowCommand}" CommandParameter="{Binding SurfaceEditorItems}" >
+                                                <MenuItem.Icon>
+                                                    <Path Data="{StaticResource adjustposition}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
                                             <MenuItem Header="Scale"
                                           Command="{Binding OpenRectangleScaleCommand}" CommandParameter="{Binding SurfaceEditorItems}" >
                                                 <MenuItem.Icon>

@@ -23,6 +23,7 @@ namespace adrilight.Spots
         int Index { get; set; }
         int VID { get; set; }
         int MID { get; set; }
+        int BackupID { get; set; }
         int CID { get; set; } //ffs this is column ID, soudn stupid but it represent the freuency position but in VU metter mode
 
         bool IsActivated { get; set; }
@@ -37,7 +38,7 @@ namespace adrilight.Spots
         void SetMID(int mid);
         void SetCID(int cid);
 
-        bool GetVIDIfNeeded(int vid, Rectangle rect);
+        bool GetVIDIfNeeded(int vid, Rectangle rect,int mode);
 
     }
 }

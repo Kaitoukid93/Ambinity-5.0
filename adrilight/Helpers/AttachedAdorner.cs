@@ -13,7 +13,7 @@ namespace adrilight.Helpers
     {
         private static Adorner _currentAdorner;
         private static Adorner _currentLineAdorner;
-        private static readonly List<ResizeAdorner> _resizeAdorner = new List<ResizeAdorner>();
+        private static Adorner _selectedAdoner;
 
         public static readonly DependencyProperty HasLineHoverAdornerProperty = DependencyProperty.RegisterAttached("HasLineHoverAdorner", typeof(bool), typeof(AttachedAdorner),
             new FrameworkPropertyMetadata(false, OnHasLineHoverChanged));
@@ -42,37 +42,32 @@ namespace adrilight.Helpers
         {
             _currentAdorner?.InvalidateArrange();
             _currentLineAdorner?.InvalidateArrange();
-            foreach (ResizeAdorner adorner in _resizeAdorner)
-            {
-                adorner.InvalidateArrange();
-            }
+            _selectedAdoner?.InvalidateArrange();
         }
 
         private static void OnShowResizeAdornerChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var element = (RichItemContainer)d;
-            var value = (bool)e.NewValue;
-            if (value)
+            var layer = AdornerLayer.GetAdornerLayer(element);
+            Adorner[] toRemoveArray = layer.GetAdorners(element);
+            if (toRemoveArray != null)
             {
-                var layer = AdornerLayer.GetAdornerLayer(element);
-                ResizeAdorner adorner =  new ResizeAdorner(element);
-                adorner.Container.Content = element;
-                adorner.Container.ContentTemplate = (DataTemplate)element.FindResource("SelectedAdornerTemplate");
-                layer.Add(adorner);
-                _resizeAdorner.Add(adorner);
-            }
-            else
-            {
-                var layer = AdornerLayer.GetAdornerLayer(element);
-                if (layer != null)
+                for (int x = 0; x < toRemoveArray.Length; x++)
                 {
-                    foreach (ResizeAdorner adorner in _resizeAdorner)
-                    {
-                        layer.Remove(adorner);
-                    }
-                    _resizeAdorner.Clear();
+                    layer.Remove(toRemoveArray[x]);
                 }
             }
+            var value = (bool)e.NewValue;
+            if (value && element.IsSelectable)
+            {
+                HoverAdorner adorner = new HoverAdorner(element);
+                adorner.Container.Content = element;
+                adorner.Container.ContentTemplate = (DataTemplate)element.FindResource("HoverAdornerTemplate");
+                layer.Add(adorner);
+                _selectedAdoner = adorner;
+            }
+
+
         }
 
         private static void OnHasLineHoverChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -109,8 +104,7 @@ namespace adrilight.Helpers
             AdornerLayer layer = AdornerLayer.GetAdornerLayer(line);
 
             var adorner = new LineHoverAdorner(line);
-            var highlightLine = new Line
-            {
+            var highlightLine = new Line {
                 Stroke = Brushes.DodgerBlue,
                 StrokeThickness = 3,
                 X1 = line.X1,
@@ -148,12 +142,12 @@ namespace adrilight.Helpers
 
             //if (!(element.DataContext is ViewModels.Line))
             //{
-                AdornerLayer layer = AdornerLayer.GetAdornerLayer(element);
+            AdornerLayer layer = AdornerLayer.GetAdornerLayer(element);
 
-                HoverAdorner adorner = new HoverAdorner(element);
-                adorner.Container.ContentTemplate = template;
-                layer.Add(adorner);
-                _currentAdorner = adorner;
+            HoverAdorner adorner = new HoverAdorner(element);
+            adorner.Container.ContentTemplate = template;
+            layer.Add(adorner);
+            _currentAdorner = adorner;
             //}
         }
 
@@ -162,11 +156,11 @@ namespace adrilight.Helpers
             var element = (RichItemContainer)sender;
             //if (!(element.DataContext is ViewModels.Line))
             //{
-                AdornerLayer layer = AdornerLayer.GetAdornerLayer(element);
-                if (layer != null)
-                {
-                    layer.Remove(_currentAdorner);
-                }
+            AdornerLayer layer = AdornerLayer.GetAdornerLayer(element);
+            if (layer != null)
+            {
+                layer.Remove(_currentAdorner);
+            }
             //}
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using adrilight.Settings;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -21,7 +22,7 @@ namespace adrilight.Spots
         string TargetType { get; set; }
         string Description { get; set; }
         object Lock { get; }
-  
+        RGBLEDOrderEnum RGBLEDOrder { get; set; }
         void DimLED(float dimFactor);
         public double ScaleTop { get; set; }
         public double ScaleLeft { get; set; }

@@ -38,14 +38,14 @@
         <Grid Grid.Column="0">
             <Border Margin="0,0,20,0" Background="{DynamicResource SecondaryRegionBrush}" HorizontalAlignment="Left" VerticalAlignment="Center" CornerRadius="6" >
 
-                <Image Margin="10" RenderOptions.BitmapScalingMode="HighQuality" Source="{Binding SelectedSlaveDevice.Thumbnail}" Stretch="Uniform" Width="80" Height="80"/>
+                <Image Margin="10" RenderOptions.BitmapScalingMode="HighQuality" Source="{Binding SelectedSlaveDevice.Thumbnail,Mode=TwoWay}" Stretch="Uniform" Width="80" Height="80"/>
             </Border>
         </Grid>
         <Grid Grid.Column="1">
             <StackPanel>
                 <TextBlock HorizontalAlignment="Left"  Margin="5,0,5,0"   Style="{DynamicResource TextBlockSubTitle}"  Text="{Binding SelectedSlaveDevice.Name}"/>
 
-                <TextBlock Grid.Column="0" HorizontalAlignment="Left"  Margin="5,5,5,5"   Style="{StaticResource TextBlockDefaultPrimary}" Text="{Binding SelectedSlaveDevice.Owner}"/>
+                <TextBlock Grid.Column="0" HorizontalAlignment="Left"  Margin="5,5,5,5"   Style="{StaticResource TextBlockDefaultPrimary}" Text="{Binding SelectedSlaveDevice.Owner,Mode=TwoWay}"/>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="auto"/>
@@ -54,7 +54,7 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" HorizontalAlignment="Left"  Margin="5,0,5,0"   Style="{StaticResource TextBlockDefaultSecLight}" Text="Output :"/>
                     <Border HorizontalAlignment="Left"  Grid.Column="1"  BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4">
-                        <TextBlock HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Margin="5,0,5,0"   Style="{StaticResource TextBlockDefault}" Text="{Binding SelectedSlaveDevice.ParrentID}"/>
+                        <TextBlock HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Margin="5,0,5,0"   Style="{StaticResource TextBlockDefault}" Text="{Binding SelectedSlaveDevice.ParrentID,Mode=TwoWay}"/>
                     </Border>
 
 
@@ -85,7 +85,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" HorizontalAlignment="Left"  Margin="5,0,5,0"   Style="{StaticResource TextBlockDefaultSecLight}" Text="Type : "/>
                         <Border HorizontalAlignment="Left"  Grid.Column="1"  BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4">
-                            <TextBlock HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Margin="5,0,5,0"   Style="{StaticResource TextBlockDefault}" Text="{Binding SelectedSlaveDevice.DeviceType}"/>
+                            <TextBlock HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Margin="5,0,5,0"   Style="{StaticResource TextBlockDefault}" Text="{Binding SelectedSlaveDevice.DeviceType,Mode=TwoWay}"/>
                         </Border>
                     </Grid>
                 </Grid>

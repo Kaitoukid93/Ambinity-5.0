@@ -2,6 +2,8 @@
 using adrilight.Util;
 using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
+using HandyControl.Tools.Extension;
+using MoreLinq;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -72,7 +74,7 @@ namespace adrilight.Settings
         private double _angle = 0;
         private bool _hasCustomBehavior;
         private string _name;
-
+   
         private bool _isDeleteable;
         private bool _isResizeable;
         private double _scaleTop;
@@ -84,11 +86,9 @@ namespace adrilight.Settings
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
         public double CenterX => Width / 2 + Left;
         public double CenterY => Height / 2 + Top;
-
-
         public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
         public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
-
+        public int LEDCount => GetLEDsCount();
         public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
 
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
@@ -115,6 +115,19 @@ namespace adrilight.Settings
         public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
         public DeviceTypeDataEnum TargetDeviceType { get; set; }
         private DrawableHelpers DrawableHlprs;
+        private int GetLEDsCount()
+        {
+            int ledCount=0;
+            if(ControlableZones!=null)
+            {
+                foreach (var zone in ControlableZones)
+                {
+                    ledCount += (zone as LEDSetup).Spots.Count();
+                }
+            }
+            
+            return ledCount;
+        }
         public void UpdateSizeByChild(bool withPoint)
         {
 
@@ -214,6 +227,7 @@ namespace adrilight.Settings
                         {
                             foreach (var spot in (zone as LEDSetup).Spots)
                             {
+                                if(spot.Index==0)
                                 spot.SetColor(0, 0, 255, true);
                             }
                         }

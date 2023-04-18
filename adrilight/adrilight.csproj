@@ -197,6 +197,7 @@
     <Compile Include="Helpers\ControlModeHelpers.cs" />
     <Compile Include="Helpers\EventToCommand.cs" />
     <Compile Include="Settings\DeserializeMethodEnum.cs" />
+    <Compile Include="Settings\DeviceStateEnum.cs" />
     <Compile Include="Settings\ModeDirection.cs" />
     <Compile Include="Helpers\ObjectHelpers.cs" />
     <Compile Include="Helpers\perSizeBindingHelper.cs" />
@@ -216,6 +217,7 @@
     <Compile Include="Settings\IOnlineItemSubType.cs" />
     <Compile Include="Settings\OutputTypeEnum.cs" />
     <Compile Include="Settings\ResourceLoaderConfig.cs" />
+    <Compile Include="Settings\RGBLEDOrderEnum.cs" />
     <Compile Include="Settings\SlaveDeviceTypeEnum.cs" />
     <Compile Include="Settings\PWMMotorSlaveDevice.cs" />
     <Compile Include="Settings\ARGBLEDSlaveDevice.cs" />
@@ -338,6 +340,7 @@
     <Compile Include="Util\StartupManager.cs" />
     <Compile Include="Util\SubParameter.cs" />
     <Compile Include="Util\UpdateVisitor.cs" />
+    <Compile Include="Util\VIDToolBarDataModel.cs" />
     <Compile Include="Util\VIDDataModel.cs" />
     <Compile Include="Util\VIDType.cs" />
     <Compile Include="Util\VisualizerProgressBar.cs" />
@@ -373,6 +376,7 @@
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\VisualProperties.cs" />
+    <Compile Include="View\PIDQuickEditWindow.xaml.cs" />
     <Compile Include="View\DeviceOutputMapingView.xaml.cs" />
     <Compile Include="View\IDEditToolBarView.xaml.cs" />
     <Compile Include="View\SlaveDeviceNullValueView.xaml.cs" />
@@ -471,6 +475,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Properties\DesignTimeResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\PIDQuickEditWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

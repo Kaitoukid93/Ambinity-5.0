@@ -129,7 +129,7 @@ namespace adrilight
         private void OnSelectedPaletteChanged(IParameterValue value)
         {
             _palette = value as ColorPalette;
-            _colorBank = GetColorGradientfromPaletteWithFixedColorPerGap(_palette.Colors, 18).ToArray();
+            _colorBank = GetColorGradientfromPaletteWithFixedColorPerGap(_palette.Colors, 50).ToArray();
         }
 
         private void OnBrightnessValueChanged(int value)
@@ -206,7 +206,7 @@ namespace adrilight
 
 
                 _palette = _colorControl.SelectedValue as ColorPalette;
-                _colorBank = GetColorGradientfromPaletteWithFixedColorPerGap(_palette.Colors, 18).ToArray();
+                _colorBank = GetColorGradientfromPaletteWithFixedColorPerGap(_palette.Colors, 50).ToArray();
                 _brightness = _brightnessControl.Value / 100d;
                 _speed = _speedControl.Value / 5d;
                 double StartIndex = 0d;

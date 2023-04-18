@@ -39,67 +39,45 @@
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0">
             <Border  Background="{DynamicResource MainContentBackgroundBrush}" CornerRadius="7" BorderThickness="1">
-            <ListBox
-                              ItemContainerStyle="{StaticResource _listBoxModeSelectionStyle}"  
-                              
+                <ListBox
+                              ItemContainerStyle="{StaticResource _listBoxGeneralModeSelectionStyle}"  
+                              ItemsSource="{Binding AvailableTools}"
+                              SelectedIndex="{Binding SelectedToolIndex,Mode=TwoWay}"
                               Background="Transparent"
                               BorderThickness="0"
                               Style="{DynamicResource WrapPanelVerticalListBox}">
 
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Vertical">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Vertical">
 
-                        </WrapPanel>
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-                <ListBoxItem>
-                        <Grid ToolTip="Vẽ đường đi">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Path Stretch="Uniform" Margin="5" Data="{StaticResource equalizermode}" 
+                            </WrapPanel>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ToolTip="{Binding Name}">
+                                <Path Stretch="Uniform" Margin="5" Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}" 
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                    </Grid>
-                </ListBoxItem>
-                <ListBoxItem>
-                        <Grid ToolTip="Xóa đường đi">
-
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Path Stretch="Uniform" Margin="5" Data="{StaticResource fft}" 
-                                      Width="20" 
-                                      Height="20" 
-                                      Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                    </Grid>
-                </ListBoxItem>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
 
 
 
-                <!--<RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource fullscreen }" IsChecked="{Binding CurrentOutput.OutputScreenCapturePosition,Mode=TwoWay}"  Style="{StaticResource RadioButtonIcon}" Content="Full Screen"/>
-                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource left }" IsChecked="{Binding IsLeftScreenRegionChecked,Mode=TwoWay}" Style="{StaticResource RadioButtonIcon}" Content="Left"/>
-                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource right}" IsChecked="{Binding IsRightScreenRegionChecked,Mode=TwoWay}" Content="Right" />
-                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource up}" IsChecked="{Binding IsTopScreenRegionChecked,Mode=TwoWay}" Content="Top"/>
-                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" hc:IconElement.Geometry="{StaticResource down}" IsChecked="{Binding IsBottomScreenRegionChecked,Mode=TwoWay}" Content="Bottom"/>
-                    <RadioButton BorderBrush="{StaticResource DarkMaskBrush}" IsChecked="{Binding IsCustomScreenRegionChecked,Mode=TwoWay}" hc:IconElement.Geometry="{StaticResource custom}" Content="Custom"/>-->
-            </ListBox>
-        </Border>
+
+                </ListBox>
+            </Border>
             <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,5,5,5">
 
             </hc:Divider>
 
-            <Button Command="{Binding ResetAllItemsIDCommand}" ToolTip="Reset tất cả ID" Width="32" Height="32" Margin="5" hc:IconElement.Width="20" hc:IconElement.Height="20" Padding="4" hc:IconElement.Geometry="{DynamicResource DeleteFillCircleGeometry}"/>
-            
+            <Button BorderThickness="0" Command="{Binding ResetAllItemsIDCommand}" ToolTip="Reset Brush ID" Width="32" Height="32" Margin="5" hc:IconElement.Width="20" hc:IconElement.Height="20" Padding="4" hc:IconElement.Geometry="{DynamicResource DeleteFillCircleGeometry}"/>
+
         </StackPanel>
-        <Grid Grid.Row="1">
-            <Button Command="{Binding CloseIDSetupCommand}" VerticalAlignment="Bottom" ToolTip="Lưu" Width="32" Height="32" Margin="5" hc:IconElement.Width="20" hc:IconElement.Height="20" Padding="4" hc:IconElement.Geometry="{DynamicResource apply}"/>
-            
-        </Grid>
+
     </Grid>
 
 </UserControl>

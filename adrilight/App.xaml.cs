@@ -302,7 +302,7 @@ namespace adrilight
             switch (connectionType)
             {
                 case "wired":
-                  //  kernel.Bind<ISerialStream>().To<SerialStream>().InSingletonScope().Named(iD).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(iD));
+                    kernel.Bind<ISerialStream>().To<SerialStream>().InSingletonScope().Named(device.DeviceUID.ToString()).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(device.DeviceUID.ToString()));
 
                     break;
                 case "wireless":
@@ -314,7 +314,8 @@ namespace adrilight
                     break;
 
             }
-
+            var serialStream = kernel.Get<ISerialStream>(device.DeviceUID.ToString());
+            //serialStream.RefreshTransferState();
         }
         private void ScreenSetupChanged()
         {
@@ -398,7 +399,7 @@ namespace adrilight
                 deviceDiscovery.Stop();
                 foreach (var device in devices)
                 {
-                    device.CurrentState = State.sleep;
+                    device.DeviceState = DeviceStateEnum.Sleep;
                     Thread.Sleep(10);
                     device.IsTransferActive = false;
                     MainViewViewModel.WriteSingleDeviceInfoJson(device);
@@ -428,7 +429,7 @@ namespace adrilight
                 // var deviceDiscovery = kernel.GetAll<IDeviceDiscovery>().FirstOrDefault();
                 foreach (var device in devices)
                 {
-                    device.CurrentState = State.normal;
+                    device.DeviceState = DeviceStateEnum.Normal;
                 }
                 // deviceDiscovery.enable = true;
                 var desktopFrames = kernel.GetAll<IDesktopFrame>();
@@ -455,7 +456,7 @@ namespace adrilight
                 // deviceDiscovery.enable = false;
                 foreach (var device in devices)
                 {
-                    device.CurrentState = State.sleep;
+                    device.DeviceState = DeviceStateEnum.Sleep;
                     //Thread.Sleep(1000);
                     //serialStream.Stop();
                 }
@@ -482,7 +483,7 @@ namespace adrilight
                 // deviceDiscovery.enable = false;
                 foreach (var device in devices)
                 {
-                    device.CurrentState = State.sleep;
+                    device.DeviceState = DeviceStateEnum.Sleep;
                     Thread.Sleep(1000);
                     //serialStream.Stop();
                 }
@@ -583,7 +584,7 @@ namespace adrilight
                 ex = ex.InnerException;
             } while (ex != null);
 
-            HandyControl.Controls.MessageBox.Show(sb.ToString(), "unhandled exception :-(");
+           HandyControl.Controls.MessageBox.Show(sb.ToString(), "unhandled exception :-(");
             try
             {
                 Shutdown(-1);

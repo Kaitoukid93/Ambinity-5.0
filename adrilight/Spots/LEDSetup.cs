@@ -134,6 +134,8 @@ namespace adrilight
         private double _scaleLeft;
         private double _scaleWidth = 1;
         private double _scaleHeight = 1;
+        private RGBLEDOrderEnum _rgbLEDOrder = RGBLEDOrderEnum.RGB;
+        public RGBLEDOrderEnum RGBLEDOrder { get => _rgbLEDOrder; set { Set(() => RGBLEDOrder, ref _rgbLEDOrder, value); } }
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
         public double CenterX => Width / 2 + Left;
@@ -146,7 +148,7 @@ namespace adrilight
 
         public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
 
-        public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
+        public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); } }
 
         public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }
 
@@ -174,7 +176,7 @@ namespace adrilight
         private DrawableHelpers DrawableHlprs;
         public void ResetVIDStage()
         {
-            foreach(var spot in Spots)
+            foreach (var spot in Spots)
             {
                 spot.HasVID = false;
                 spot.SetVID(0);
@@ -242,6 +244,22 @@ namespace adrilight
             foreach (var spot in Spots)
             {
                 spot.SetColor(color.R, color.G, color.B, true);
+            }
+        }
+        public void BackupSpots()
+        {
+            foreach(var spot in Spots)
+            {
+                spot.BackupID = spot.Index;
+                spot.IsEnabled = false;
+            }
+        }
+        public void RestoreSpots()
+        {
+            foreach (var spot in Spots)
+            {
+                spot.IsEnabled = true;
+                spot.Index = spot.BackupID;
             }
         }
         protected virtual void OnLeftChanged(double delta) { }

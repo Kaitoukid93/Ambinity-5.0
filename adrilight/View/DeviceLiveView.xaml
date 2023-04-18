@@ -55,7 +55,7 @@
                 ItemsSource="{Binding LiveViewItems}"
                 GridStyle="{StaticResource GridStyle}"
                 EnableSnapping="False"
-                MaxScale="10"
+                MaxScale="20"
                 GridSpacing="24"
                 EnableGrid="False"
                 Scrolling="OnScrolling"
@@ -65,9 +65,12 @@
                 DisableAutoPanning="True"
                 Background="Transparent"               
                 DisableScroll="True"
-                ZoomKey="Z"     
+                ZoomKey="LeftCtrl"
+               
+                PreviewKeyDown="Canvas_PreviewKeyDown"
                 TranslateOffset="{Binding CurrentLiveViewOffset,Mode=TwoWay}"
-                Scale="{Binding CurrentLiveViewScale,Mode=TwoWay}">
+                Scale="{Binding CurrentLiveViewScale,Mode=TwoWay}"
+               MousePosition="{Binding MousePosition, Mode=OneWayToSource}">
             <richCanvas:RichItemsControl.SelectionRectangleStyle>
                 <Style TargetType="Rectangle">
                     <Setter Property="Opacity" Value="0.1" />
@@ -80,32 +83,25 @@
                 <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
                     <i:InvokeCommandAction Command="{Binding DataContext.UnselectAllLiveiewItemCommand,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" CommandParameter="unselect" />
                 </i:EventTrigger>
+                <i:EventTrigger EventName="MouseLeftButtonUp">
+                    <i:InvokeCommandAction Command="{Binding DataContext.LiveViewMouseButtonUpCommand,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" CommandParameter="mouseup" />
+                </i:EventTrigger>
+            
             </i:Interaction.Triggers>
-            <richCanvas:RichItemsControl.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="Group SelectedItems" CommandParameter="group" Command="{Binding GroupSelectedZoneForMaskedControlCommand}">
-                        <MenuItem.Icon>
-                            <Path Data="{StaticResource addnew}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                        </MenuItem.Icon>
-                    </MenuItem>
-
-                </ContextMenu>
-            </richCanvas:RichItemsControl.ContextMenu>
-
             <richCanvas:RichItemsControl.Resources>
                 <DataTemplate DataType="{x:Type local:LEDSetup}">
                     <Grid>
                         <Grid>
-                            <ItemsControl ToolTip="{Binding Name}" Margin="0,-1,0,0"  
+                            <ItemsControl ToolTip="{Binding Name}" Margin="0,0,0,0"  
                                     Name="PreviewGird"  
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Top" 
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center" 
                                     ItemsSource="{Binding Spots,Mode=TwoWay}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <Canvas 
                                                 HorizontalAlignment="Center" 
-                                                VerticalAlignment="Top" 
+                                                VerticalAlignment="Center" 
                                                 Name="PreviewCanvas"
                                                 Margin="0" 
                                                 Width="{Binding Width,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" 
@@ -115,6 +111,7 @@
                                                     <i:InvokeCommandAction Command="{Binding DataContext.SelectLiveViewItemCommand,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" CommandParameter="{Binding .}" />
                                                 </i:EventTrigger>
                                             </i:Interaction.Triggers>
+
                                         </Canvas>
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
@@ -127,7 +124,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Grid Height="{Binding Height}" Width="{Binding Width}">
-                                            
+
                                             <Path RenderTransformOrigin="0.5,0.5" Data="{Binding Shape,Converter={converters:StaticResourceConverter}}"
                                                 Stretch="Fill"
                                                 Width="{Binding Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
@@ -167,7 +164,7 @@
                                                             </Setter.Value>
                                                         </Setter>
                                                         <Setter Property="Visibility" Value="Collapsed">
-                                                            
+
                                                         </Setter>
                                                         <Style.Triggers>
                                                             <DataTrigger Binding ="{Binding DataContext.IsInIDEditStage,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" Value="True">
@@ -175,7 +172,7 @@
                                                             </DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
-                                                   
+
                                                 </Viewbox.Style>
                                                 <TextBlock Margin="5" Padding="0" Foreground="White" Text="{Binding VID}" Style="{DynamicResource TextBlockDefault}">
                                                 </TextBlock>
@@ -192,73 +189,72 @@
                     <Grid>
                         <Path Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}" 
                               Stretch="Fill"
-                              Fill="White"
-                              Opacity="0.1"
+                              Fill="{Binding VisualProperties.FillColor,Converter={StaticResource ColorToBrushConverter}}"
+                              Opacity="0.25"
                               Width="{Binding Width}"
                               Height="{Binding Height}">
                         </Path>
-                        <TextBlock Text="{Binding DataContext.VIDCount,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}"/>
                     </Grid>
-                   
-                    
+
+
                 </DataTemplate>
                 <DataTemplate DataType="{x:Type settings:FanMotor}">
                     <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Viewbox>
                             <Border Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center" CornerRadius="7" Background="{DynamicResource MainContentBackgroundBrush}">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                <Border Width="40" Height="40" HorizontalAlignment="Left" Margin="5" CornerRadius="4" Background="{DynamicResource SecondaryRegionBrush}">
-                                    <Path Margin="5"  Data="{DynamicResource Fan}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                </Border>
-                                <Grid Grid.Row="1">
-                                    <StackPanel>
-                                        <TextBlock Margin="5,0,0,0" Text="{Binding Name}"/>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <Border Width="40" Height="40" HorizontalAlignment="Left" Margin="5" CornerRadius="4" Background="{DynamicResource SecondaryRegionBrush}">
+                                        <Path Margin="5"  Data="{DynamicResource Fan}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                    </Border>
+                                    <Grid Grid.Row="1">
+                                        <StackPanel>
+                                            <TextBlock Margin="5,0,0,0" Text="{Binding Name}"/>
                                             <TextBlock Margin="5,5,0,0" Text="{Binding CurrentPWMValue}"/>
-                                        <Viewbox>
+                                            <Viewbox>
 
 
-                                            <Grid>
-                                                <Grid.Resources>
-                                                    <Style TargetType="lvc:LineSeries">
-                                                        <Setter Property="StrokeThickness" Value="2"></Setter>
-                                                        <Setter Property="Stroke" Value="{StaticResource PrimaryBrush}"></Setter>
-                                                        <Setter Property="Fill">
-                                                            <Setter.Value>
-                                                                <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
-                                                            </Setter.Value>
-                                                        </Setter>
-                                                        <Setter Property="PointGeometrySize" Value="0"></Setter>
-                                                        <Setter Property="LineSmoothness" Value="0"></Setter>
-                                                    </Style>
-                                                    <Style TargetType="lvc:Axis">
-                                                        <Setter Property="ShowLabels" Value="False"></Setter>
-                                                        <Setter Property="IsEnabled" Value="False"></Setter>
+                                                <Grid>
+                                                    <Grid.Resources>
+                                                        <Style TargetType="lvc:LineSeries">
+                                                            <Setter Property="StrokeThickness" Value="2"></Setter>
+                                                            <Setter Property="Stroke" Value="{StaticResource PrimaryBrush}"></Setter>
+                                                            <Setter Property="Fill">
+                                                                <Setter.Value>
+                                                                    <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                            <Setter Property="PointGeometrySize" Value="0"></Setter>
+                                                            <Setter Property="LineSmoothness" Value="0"></Setter>
+                                                        </Style>
+                                                        <Style TargetType="lvc:Axis">
+                                                            <Setter Property="ShowLabels" Value="False"></Setter>
+                                                            <Setter Property="IsEnabled" Value="False"></Setter>
 
-                                                    </Style>
-                                                </Grid.Resources>
-                                                <lvc:CartesianChart HorizontalAlignment="Right" VerticalAlignment="Center" Width="200" Height="auto" Margin="1,0,5,0"   Hoverable="True" DataTooltip="{x:Null}">
-                                                    <lvc:CartesianChart.Series>
-                                                        <lvc:LineSeries Values="{Binding LineValues}">
+                                                        </Style>
+                                                    </Grid.Resources>
+                                                    <lvc:CartesianChart HorizontalAlignment="Right" VerticalAlignment="Center" Width="200" Height="auto" Margin="1,0,5,0"   Hoverable="True" DataTooltip="{x:Null}">
+                                                        <lvc:CartesianChart.Series>
+                                                            <lvc:LineSeries Values="{Binding LineValues}">
 
-                                                        </lvc:LineSeries>
-                                                    </lvc:CartesianChart.Series>
-                                                    <lvc:CartesianChart.AxisX>
-                                                        <!--a small visual improvement, lets hide the first points (x = 0, x=1) to get better animations-->
-                                                        <lvc:Axis MinValue="2"></lvc:Axis>
-                                                    </lvc:CartesianChart.AxisX>
-                                                </lvc:CartesianChart>
+                                                            </lvc:LineSeries>
+                                                        </lvc:CartesianChart.Series>
+                                                        <lvc:CartesianChart.AxisX>
+                                                            <!--a small visual improvement, lets hide the first points (x = 0, x=1) to get better animations-->
+                                                            <lvc:Axis MinValue="2"></lvc:Axis>
+                                                        </lvc:CartesianChart.AxisX>
+                                                    </lvc:CartesianChart>
 
-                                            </Grid>
-                                        </Viewbox>
-                                    </StackPanel>
+                                                </Grid>
+                                            </Viewbox>
+                                        </StackPanel>
 
+                                    </Grid>
                                 </Grid>
-                            </Grid>
-                        </Border>
+                            </Border>
                         </Viewbox>
                         <Rectangle Width="{Binding Width}" Height="{Binding Height}" Fill="Transparent">
                             <i:Interaction.Triggers>
@@ -270,9 +266,9 @@
                     </Grid>
                 </DataTemplate>
                 <DataTemplate x:Key="SelectedAdornerTemplate">
-                    <Border BorderBrush="{DynamicResource SecondaryBorderBrush}"
-                            BorderThickness="1" CornerRadius="4"
-                            Background="{DynamicResource SecondaryRegionBrush}">
+                    <Border BorderBrush="{DynamicResource PrimaryBrush}"
+                            BorderThickness="1" CornerRadius="0"
+                            Background="{DynamicResource PrimaryBrush}">
                         <TextBlock Foreground="White"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
@@ -288,31 +284,24 @@
                 </DataTemplate>
 
                 <DataTemplate x:Key="HoverAdornerTemplate">
-                    <Border BorderBrush="{DynamicResource PrimaryBrush}"
+                    <Grid>
+                        <Border BorderBrush="{DynamicResource PrimaryBrush}"
                             BorderThickness="3">
-                    </Border>
+                        </Border>
+                    </Grid>
+
                 </DataTemplate>
                 <DataTemplate DataType="{x:Type settings:Border}">
                     <Grid Tag="{Binding DataContext, ElementName=window}">
-                        <Grid.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Header="Ungroup" Command="{Binding PlacementTarget.Tag.UnGroupZoneCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding}">
-                                    <MenuItem.Icon>
-                                        <Path Data="{StaticResource addnew}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                    </MenuItem.Icon>
-                                </MenuItem>
-
-                            </ContextMenu>
-                        </Grid.ContextMenu>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
-                                <i:InvokeCommandAction Command="{Binding DataContext.SelectLiveViewGroupCommand,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" CommandParameter="{Binding .}" />
+                                <i:InvokeCommandAction Command="{Binding DataContext.SelectLiveViewItemCommand,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" CommandParameter="{Binding .}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                         <Rectangle Stroke="{DynamicResource SecondaryBorderBrush}"
                                    Width="{Binding Width}"
                                    Height="{Binding Height}"
-                               StrokeThickness="2"
+                               StrokeThickness="4"
                                Fill="Transparent"
                                StrokeDashArray="2"
                                IsHitTestVisible="True">
@@ -320,6 +309,7 @@
                         <Border HorizontalAlignment="Left" VerticalAlignment="Top" Background="{DynamicResource PrimaryBrush}">
                             <TextBlock Margin="2" Style="{DynamicResource TextBlockDefault}" HorizontalAlignment="Left" VerticalAlignment="Top" Text="{Binding Name}"/>
                         </Border>
+
                     </Grid>
 
                 </DataTemplate>
@@ -356,11 +346,13 @@
             <richCanvas:RichItemsControl.ItemContainerStyle>
                 <Style TargetType="richCanvas:RichItemContainer">
 
-                    <Setter Property="Template">
+                    <!--<Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="{x:Type richCanvas:RichItemContainer}">
                                 <Border x:Name="Bd" 
                                             Padding="0"
+                                            BorderThickness="1.0"
+                                            BorderBrush="Transparent"
                                             SnapsToDevicePixels="True">
                                     <ContentPresenter 
                                             HorizontalAlignment="Center" 
@@ -372,43 +364,22 @@
                                 <ControlTemplate.Triggers>
                                     <MultiTrigger>
                                         <MultiTrigger.Conditions>
-                                            <Condition Property="IsMouseOver" Value="True"/>
-                                            <Condition Property="IsSelected" Value="False"/>
+                                            <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                            <Condition Property="IsSelected" Value="True"/>
                                         </MultiTrigger.Conditions>
-                                        <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
-                                        <Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
-                                        <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryTextBrush}"/>
-                                    </MultiTrigger>
-                                    <MultiTrigger>
-                                        <MultiTrigger.Conditions>
-                                            <Condition Property="IsMouseOver" Value="False"/>
-                                            <Condition Property="IsSelected" Value="False"/>
-                                        </MultiTrigger.Conditions>
-                                        <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
-                                        <Setter Property="BorderThickness" TargetName="Bd" Value="0"/>
-                                        <Setter Property="BorderBrush" TargetName="Bd" Value="Transparent"/>
+                                        <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>
                                     </MultiTrigger>
                                     <MultiTrigger>
                                         <MultiTrigger.Conditions>
                                             <Condition Property="Selector.IsSelectionActive" Value="False"/>
                                             <Condition Property="IsSelected" Value="True"/>
                                         </MultiTrigger.Conditions>
-                                        <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource PrimaryTextBrush}"/>
-                                        <Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
-                                    </MultiTrigger>
-                                    <MultiTrigger>
-                                        <MultiTrigger.Conditions>
-                                            <Condition Property="Selector.IsSelectionActive" Value="True"/>
-                                            <Condition Property="IsSelected" Value="True"/>
-                                        </MultiTrigger.Conditions>
                                         <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>
-                                        <Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
                                     </MultiTrigger>
-
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Setter.Value>
-                    </Setter>
+                    </Setter>-->
                     <Setter Property="helpers:EventToCommand.Event"
                             Value="LeftChanged, TopChanged" />
                     <Setter Property="helpers:EventToCommand.Command">
@@ -427,7 +398,7 @@
                     <Setter Property="helpers:AttachedAdorner.HasHoverAdorner"
                             Value="{Binding IsSelectable}" />
                     <Setter Property="helpers:AttachedAdorner.ShowResizeAdorner"
-                            Value="{Binding IsResizeable}" />
+                            Value="{Binding IsSelected}" />
                     <Setter Property="Top"
                             Value="{Binding GetRect.Top}" />
 
@@ -458,7 +429,7 @@
                     <Setter Property="Scale"
                             Value="{Binding Scale, Mode=TwoWay}" />
 
-              
+
 
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding DataType}" Value="{x:Type settings:PathGuide}">
@@ -466,8 +437,16 @@
                             Value="{Binding Top,Mode=TwoWay}" />
                             <Setter Property="Left"
                             Value="{Binding Left,Mode=TwoWay}" />
+                            <Setter Property="IsSelectable"
+                            Value="False" />
+                            <Setter Property="Cursor"
+                            Value="None" />
                             <Setter Property="IsDraggable"
                             Value="True" />
+                            <Setter Property="helpers:AttachedAdorner.HasHoverAdorner"
+                            Value="False" />
+                            <Setter Property="helpers:AttachedAdorner.ShowResizeAdorner"
+                            Value="False" />
                         </DataTrigger>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Opacity">
@@ -487,6 +466,188 @@
                 </Style>
             </richCanvas:RichItemsControl.ItemContainerStyle>
         </richCanvas:RichItemsControl>
+
+
+        <Grid>
+            <hc:TransitioningContentControl>
+                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Horizontal">
+                    <Grid>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ShowSelectedItemToolbar,Mode=TwoWay}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+
+                        <Border Effect="{DynamicResource EffectShadow2}" VerticalAlignment="Top" CornerRadius="4" Margin="20,10" HorizontalAlignment="Right" Background="{DynamicResource MainContentBackgroundBrush}">
+                            <StackPanel Orientation="Horizontal">
+                                <Grid>
+                                    <Grid.Style>
+                                        <Style TargetType="Grid">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsInIsolateMode,Mode=TwoWay}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
+                                    <hc:TransitioningContentControl>
+
+
+                                        <Button BorderThickness="0" Margin="5" ToolTip="Hiển thị độc lập đối tượng được chọn" Command="{Binding IsolateSelectedItemsCommand}" CommandParameter="isolate" Content="Isolate" />
+                                    </hc:TransitioningContentControl>
+                                </Grid>
+                                <Grid>
+                                    <Grid.Style>
+                                        <Style TargetType="Grid">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding CanGroup,Mode=TwoWay}" Value="True" />
+                                                        <Condition Binding="{Binding IsInIDEditStage,Mode=TwoWay}" Value="False" />
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </MultiDataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
+                                    <hc:TransitioningContentControl>
+
+
+                                        <Button BorderThickness="0" Margin="5" ToolTip="Nhóm các đối tượng được chọn" Command="{Binding GroupSelectedZoneForMaskedControlCommand}" CommandParameter="group" Content="Group" >
+
+                                        </Button>
+                                    </hc:TransitioningContentControl>
+                                </Grid>
+                                <Grid>
+                                    <Grid.Style>
+                                        <Style TargetType="Grid">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding CanUnGroup,Mode=TwoWay}" Value="True" />
+                                                        <Condition Binding="{Binding IsInIDEditStage,Mode=TwoWay}" Value="False" />
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </MultiDataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
+                                    <hc:TransitioningContentControl>
+                                        <Button BorderThickness="0" Margin="5" ToolTip="Bỏ nhóm các đối tượng được chọn"  Command="{Binding UnGroupZoneCommand}" CommandParameter="group" Content="Ungroup" >
+                                        </Button>
+                                    </hc:TransitioningContentControl>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                    <Grid  Visibility="{Binding IsInIsolateMode,Mode=TwoWay,Converter={StaticResource Boolean2VisibilityConverter}}">
+                        <hc:TransitioningContentControl>
+                            <Border  Margin="10,10,20,10" HorizontalAlignment="Left" VerticalAlignment="Top" Background="{DynamicResource MainContentBackgroundBrush}" CornerRadius="4">
+                                <Button ToolTip="Quay trở lại"  
+                            Command="{Binding ExitIsolateModeCommand}" 
+                            Width="32"
+                            Padding="0"
+                            Height="32" 
+                            Margin="5"
+                            VerticalAlignment="Top" 
+                            BorderThickness="0" 
+                            HorizontalAlignment="Left" 
+                            hc:IconElement.Width="20"
+                            hc:IconElement.Height="20"
+                            hc:IconElement.Geometry="{DynamicResource back}" 
+                            Style="{DynamicResource ButtonDefault}" 
+                            Foreground="{DynamicResource SecondaryTextBrush}"/>
+                            </Border>
+                        </hc:TransitioningContentControl>
+                    </Grid>
+                </StackPanel>
+            </hc:TransitioningContentControl>
+        </Grid>
+        <StackPanel Orientation="Horizontal">
+            <Grid>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding IsInIDEditStage,Mode=TwoWay}" Value="True" />
+                                    <Condition Binding="{Binding SelectedToolIndex,Mode=TwoWay}" Value="1" />
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </MultiDataTrigger>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding IsInIDEditStage,Mode=TwoWay}" Value="True" />
+                                    <Condition Binding="{Binding SelectedToolIndex,Mode=TwoWay}" Value="2" />
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <hc:TransitioningContentControl TransitionMode="Left2Right">
+                    <Border  Margin="0,10,10,10"  HorizontalAlignment="Left" VerticalAlignment="Top" Background="{DynamicResource MainContentBackgroundBrush}" CornerRadius="4">
+                    <StackPanel>
+                        <Grid ToolTip="Brush size">
+                            <StackPanel>
+                                <Grid>
+                                    <GroupBox Margin="10"  hc:TitleElement.TitleWidth="100" HorizontalContentAlignment="Left"  Style="{StaticResource GroupBoxOriginal}"  hc:TitleElement.TitlePlacement="Left">
+                                        <GroupBox.HeaderTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="BRUSH SIZE"/>
+                                            </DataTemplate>
+                                        </GroupBox.HeaderTemplate>
+
+                                        <hc:PreviewSlider Value="{Binding BrushSize,Mode=TwoWay}" HorizontalAlignment="Right" Width="200" Minimum="20" Maximum="1000">
+                                            <hc:PreviewSlider.PreviewContent>
+                                                <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0"/>
+                                            </hc:PreviewSlider.PreviewContent>
+                                        </hc:PreviewSlider>
+
+                                    </GroupBox>
+                                </Grid>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+                </hc:TransitioningContentControl>
+            </Grid>
+
+        </StackPanel>
+        <Grid>
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsInIsolateMode,Mode=TwoWay}" Value="False" />
+                                <Condition Binding="{Binding IsInIDEditStage,Mode=TwoWay}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <hc:TransitioningContentControl>
+
+
+                <Border Margin="20,30" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="Transparent" CornerRadius="4">
+
+
+                    <Button Style="{DynamicResource ButtonPrimary}" Content="Lưu cấu hình" BorderThickness="0" Command="{Binding CloseIDSetupCommand}" ToolTip="Lưu" Height="32" Margin="5" hc:IconElement.Width="15" hc:IconElement.Height="15" Padding="4" hc:IconElement.Geometry="{DynamicResource apply}"/>
+                </Border>
+            </hc:TransitioningContentControl>
+        </Grid>
     </Grid>
 
 

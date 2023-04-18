@@ -86,6 +86,9 @@ using System.Windows.Controls;
 using SelectionMode = System.Windows.Controls.SelectionMode;
 using Border = adrilight.Settings.Border;
 using CSCore.XAudio2;
+using System.Web;
+using Cursors = System.Windows.Input.Cursors;
+using Cursor = System.Windows.Input.Cursor;
 
 namespace adrilight.ViewModel
 {
@@ -529,7 +532,13 @@ namespace adrilight.ViewModel
         public ICommand ExportItemForOnlineStoreCommand { get; set; }
         public ICommand GroupSelectedZoneForMaskedControlCommand { get; set; }
         public ICommand UnselectAllLiveiewItemCommand { get; set; }
+        public ICommand LiveViewMouseButtonUpCommand { get; set; }
         public ICommand UnselectAllSurfaceEditorItemCommand { get; set; }
+        public ICommand IsolateSelectedItemsCommand { get; set; }
+        public ICommand OpenSpotPIDQuickEDitWindowCommand { get; set; }
+        public ICommand SaveCurrentPIDCommand { get; set; }
+        public ICommand CancelCurrentPIDCommand { get; set; }
+        public ICommand ExitIsolateModeCommand { get; set; }
         public ICommand UnGroupZoneCommand { get; set; }
         public ICommand ExportCurrentOnlineItemToFilesCommand { get; set; }
         public ICommand OpenImageSelectorCommand { get; set; }
@@ -540,7 +549,6 @@ namespace adrilight.ViewModel
         public ICommand SelectPIDCanvasItemCommand { get; set; }
         public ICommand SelectLiveViewItemCommand { get; set; }
         public ICommand SelectSurfaceEditorItemCommand { get; set; }
-        public ICommand SelectLiveViewGroupCommand { get; set; }
         public ICommand LaunchAdrilightStoreItemCeatorWindowCommand { get; set; }
         public ICommand DownloadSelectedChasingPattern { get; set; }
         public ICommand DownloadSelectedPaletteCommand { get; set; }
@@ -592,12 +600,6 @@ namespace adrilight.ViewModel
         public ICommand ResetDefaultAspectRatioCommand { get; set; }
         public ICommand NextOutputCommand { get; set; }
         public ICommand PreviousOutputCommand { get; set; }
-        public ICommand SetSelectedSpotIDLeftToRightCommand { get; set; }
-        public ICommand SetSelectedSpotIDRightToLeftCommand { get; set; }
-        public ICommand SetSelectedSpotIDBotToTopCommand { get; set; }
-        public ICommand SetSelectedSpotIDTopToBotCommand { get; set; }
-        public ICommand SetSelectedSpotIDNeutralCommand { get; set; }
-        public ICommand SetSelectedSpotIDNeutralReverseCommand { get; set; }
         public ICommand ApplySpotImportDataCommand { get; set; }
         public ICommand ApplyOutputImportDataCommand { get; set; }
         public ICommand OpenSpotMapWindowCommand { get; set; }
@@ -683,6 +685,7 @@ namespace adrilight.ViewModel
         public ICommand ResetCountCommand { get; set; }
         public ICommand SetSpotPIDCommand { get; set; }
         public ICommand SetSpotVIDCommand { get; set; }
+        public ICommand ResetSpotIDCommand { get; set; }
         public ICommand SetSelectedSpotCIDCommand { get; set; }
         public ICommand ResetMaxCountCommand { get; set; }
         public ICommand SetPIDNeutral { get; set; }
@@ -1264,11 +1267,10 @@ namespace adrilight.ViewModel
         private static ReaderWriterLockSlim _readWriteLock = new ReaderWriterLockSlim();
 
         public MainViewViewModel(IGeneralSettings generalSettings, IAmbinityClient ambinityClient,
-            IAudioFrame audioFrame, ISerialStream[] serialStreams)
+            IAudioFrame audioFrame)
         {
             #region load Params
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
-            SerialStreams = serialStreams ?? throw new ArgumentNullException(nameof(serialStreams));
             AudioFrame = audioFrame ?? throw new ArgumentNullException(nameof(audioFrame));
             DisplayCards = new ObservableCollection<IDeviceSettings>();
             AmbinityClient = ambinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
@@ -1495,7 +1497,7 @@ namespace adrilight.ViewModel
                     case nameof(device.CurrentActiveControlerIndex):
                         {
                             //update liveview
-                            GetItemsForLiveView(CurrentDevice);
+                            GetItemsForLiveView();
                             UpdateLiveView();
                         }
                         break;
@@ -2465,7 +2467,10 @@ namespace adrilight.ViewModel
                 return true;
             }, (p) =>
             {
-                LiveViewItems.Remove(IDEditBrush);
+                if (LiveViewItems.Contains(EraserBrush))
+                    LiveViewItems.Remove(EraserBrush);
+                if (LiveViewItems.Contains(IDEditBrush))
+                    LiveViewItems.Remove(IDEditBrush);
                 foreach (var item in LiveViewItems)
                 {
                     item.IsSelectable = true;
@@ -2478,10 +2483,14 @@ namespace adrilight.ViewModel
             }, (p) =>
             {
                 VIDCount = 0;
-                foreach (var item in LiveViewItems.Where(i => i is LEDSetup))
+                if(Keyboard.IsKeyDown(Key.LeftCtrl))
                 {
-                    (item as LEDSetup).ResetVIDStage();
+                    foreach (var item in LiveViewItems.Where(i => i is LEDSetup))
+                    {
+                        (item as LEDSetup).ResetVIDStage();
+                    }
                 }
+                
             });
             AddNewItemToCollectionCommand = new RelayCommand<string>((p) =>
                  {
@@ -3174,6 +3183,27 @@ namespace adrilight.ViewModel
                     ExportItemForOnlineStore(p as ARGBLEDSlaveDevice);
                 }
             });
+            OpenSpotPIDQuickEDitWindowCommand = new RelayCommand<ObservableCollection<IDrawable>>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                OpenSpotPIDQuickEDitWindow(p);
+            });
+            SaveCurrentPIDCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                SaveCurrentPID();
+            });
+            CancelCurrentPIDCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                CancelCurrentPID();
+            });
             LaunchCompositionEditWindowCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -3204,41 +3234,48 @@ namespace adrilight.ViewModel
                 CurrentOnlineItemToExport = p;
                 LaunchAdrilightStoreItemCreatorWindow();
             });
-            SelectLiveViewGroupCommand = new RelayCommand<IDrawable>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                foreach (var group in CurrentDevice.ControlZoneGroups)
-                {
-                    if (group.Name == p.Name)
-                    {
-                        p.IsSelected = true;
-                        SelectedControlZone = group.MaskedControlZone;
-                        //set display slave device
-                        SelectedSlaveDevice = group.MaskedSlaveDevice;
 
-                    }
-                    else
-                    {
-                        group.Border.IsSelected = false;
-                    }
-                }
-
-
-
-            });
             UnselectAllLiveiewItemCommand = new RelayCommand<string>((p) =>
             {
                 return true;
             }, (p) =>
             {
-                foreach (var item in LiveViewItems)
+                if (!Keyboard.IsKeyDown(Key.LeftCtrl)) // user is draging or holding ctrl
                 {
-                    item.IsSelected = false;
+                    foreach (var item in LiveViewItems)
+                    {
+                        item.IsSelected = false;
+                    }
+                    ShowSelectedItemToolbar = false;
+                    SelectedSlaveDevice = null;
                 }
-                SelectedSlaveDevice = null;
 
+            });
+        
+            LiveViewMouseButtonUpCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                if (LiveViewItems.Where(p => p.IsSelected).Count() > 0)
+                    ShowSelectedItemToolbar = true;
+                CanUnGroup = false;
+                CanGroup = false;
+                if (LiveViewItems.Where(p => p.IsSelected).Count() == 1)
+                {
+
+                    if (LiveViewItems.Where(p => p.IsSelected).FirstOrDefault() is Border)
+                    {
+                        CanUnGroup = true;
+                    }
+
+                }
+
+                else
+                {
+                    CanGroup = true;
+                    CanUnGroup = false;
+                }
 
             });
 
@@ -3256,43 +3293,40 @@ namespace adrilight.ViewModel
                 }
 
             });
-            UnGroupZoneCommand = new RelayCommand<IDrawable>((p) =>
+            IsolateSelectedItemsCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                IsolateSelectedItems();
+                UpdateLiveView();
+
+            });
+            ExitIsolateModeCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                GetItemsForLiveView();
+                UpdateLiveView();
+
+            });
+            UnGroupZoneCommand = new RelayCommand<string>((p) =>
             {
                 return true;
             }, (p) =>
             {
 
-                UngroupZone(p);
-
-
+                UngroupZone();
 
             });
+
             SelectLiveViewItemCommand = new RelayCommand<IDrawable>((p) =>
             {
                 return true;
             }, (p) =>
             {
-                if (p.IsSelectable)
-                {
-                    foreach (var item in CurrentDevice.CurrentLiveViewZones.Where(d => d != p as IControlZone))
-                    {
-                        if ((item as IDrawable).IsSelected)
-                        {
-                            (item as IDrawable).IsSelected = false;
-                        }
-                    }
-                    p.IsSelected = true;
-                    SelectedControlZone = p as IControlZone;
-                    if (p.DataType == typeof(LEDSetup))
-                    {
-                        SelectedSlaveDevice = CurrentDevice.AvailableLightingDevices.Where(d => d.ControlableZones.Contains(p as IControlZone)).FirstOrDefault();
-                    }
-                    else if (p.DataType == typeof(FanMotor))
-                    {
-                        SelectedSlaveDevice = CurrentDevice.AvailablePWMDevices.Where(d => d.ControlableZones.Contains(p as IControlZone)).FirstOrDefault();
-                    }
-
-                }
+                LiveViewSelectedItemChanged(p);
 
             });
             SelectSurfaceEditorItemCommand = new RelayCommand<IDrawable>((p) =>
@@ -3668,12 +3702,12 @@ namespace adrilight.ViewModel
             });
 
             OpenTutorialCommand = new RelayCommand<string>((p) =>
-           {
-               return p != null;
-           }, (p) =>
-{
-    System.Diagnostics.Process.Start("https://github.com/Kaitoukid93/Ambinity-5.0/wiki/VID-l%C3%A0-g%C3%AC%3F-C%C3%A1ch-s%E1%BB%AD-d%E1%BB%A5ng");
-});
+            {
+                return p != null;
+            }, (p) =>
+            {
+                System.Diagnostics.Process.Start("https://github.com/Kaitoukid93/Ambinity-5.0/wiki/VID-l%C3%A0-g%C3%AC%3F-C%C3%A1ch-s%E1%BB%AD-d%E1%BB%A5ng");
+            });
             FinishOOTBCommand = new RelayCommand<string>((p) =>
                         {
                             return p != null;
@@ -3714,12 +3748,12 @@ namespace adrilight.ViewModel
                        CurrentAddDeviceWizardState++;
                    });
             AddCurrentSelectedDeviceToDashboard = new RelayCommand<string>((p) =>
-           {
-               return p != null;
-           }, (p) =>
-           {
-               AddDevice();
-           }
+            {
+                return p != null;
+            }, (p) =>
+            {
+                AddDevice();
+            }
             );
             ApplySpotImportDataCommand = new RelayCommand<string>((p) =>
             {
@@ -3877,6 +3911,15 @@ namespace adrilight.ViewModel
 
                 SetSpotID(p);
 
+            }); 
+            ResetSpotIDCommand = new RelayCommand<string>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+
+                ResetPID();
+
             });
             //NextOutputCommand = new RelayCommand<string>((p) =>
             //{
@@ -4006,14 +4049,14 @@ namespace adrilight.ViewModel
             //    if (p != "")
             //        ProcessSelectedSpots(p);
             //});
-            SetSelectedSpotIDLeftToRightCommand = new RelayCommand<string>((p) =>
-            {
-                return p != null;
-            }, (p) =>
-            {
-                // if (p != "")
-                // ProcessSelectedSpotsID(p);
-            });
+            //SetSelectedSpotIDLeftToRightCommand = new RelayCommand<string>((p) =>
+            //{
+            //    return p != null;
+            //}, (p) =>
+            //{
+            //    // if (p != "")
+            //    // ProcessSelectedSpotsID(p);
+            //});
 
             //SetCurrentSelectedVIDRange = new RelayCommand<string>((p) =>
             //{
@@ -5622,10 +5665,10 @@ namespace adrilight.ViewModel
                 MessageBoxResult result = HandyControl.Controls.MessageBox.Show("HUBV2 cần sử dụng FlyMCU để nạp firmware, nhấn [OK] để vào chế độ DFU", "External Software Required", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result == MessageBoxResult.Yes)
                 {
-                    device.CurrentState = State.dfu;
+                    device.DeviceState = DeviceStateEnum.DFU;
 
                     Thread.Sleep(5000);
-                    device.CurrentState = State.normal;
+                    device.DeviceState = DeviceStateEnum.Normal;
                     HandyControl.Controls.MessageBox.Show("Đã gửi thông tin đến Device, mở FlyMCU để tiếp tục nạp firmware sau đó bật lại kết nối", "DFU", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
@@ -5707,7 +5750,7 @@ namespace adrilight.ViewModel
                             else
                             {
                                 //put device in dfu state
-                                device.CurrentState = State.dfu;
+                                device.DeviceState = DeviceStateEnum.DFU;
                                 // wait for device to enter dfu
                                 Thread.Sleep(1000);
                                 FwUploadPercentVissible = true;
@@ -5756,7 +5799,7 @@ namespace adrilight.ViewModel
             ReloadDeviceLoadingVissible = true;
 
             Thread.Sleep(5000);
-            CurrentDevice.CurrentState = State.normal;
+            CurrentDevice.DeviceState = DeviceStateEnum.Normal;
 
             if (FwUploadOutputLog.Split('\n').Last() == "Found no CH55x USB")
             {
@@ -6124,6 +6167,7 @@ namespace adrilight.ViewModel
             {
                 window.Owner = System.Windows.Application.Current.MainWindow;
                 window.ShowDialog();
+                window.ShowDialog();
             }
         }
 
@@ -6348,15 +6392,7 @@ namespace adrilight.ViewModel
         //}
 
 
-        private ObservableCollection<IDrawable> _selectedLiveViewItems;
-        public ObservableCollection<IDrawable> SelectedLiveViewItems {
-            get { return _selectedLiveViewItems; }
-            set
-            {
-                _selectedLiveViewItems = value;
-                RaisePropertyChanged();
-            }
-        }
+
         private bool _isRegisteringGroup;
         public bool IsRegisteringGroup {
             get { return _isRegisteringGroup; }
@@ -6416,13 +6452,16 @@ namespace adrilight.ViewModel
             IsRegisteringGroup = false;
 
         }
-        private void UngroupZone(IDrawable border)
+        private void UngroupZone()
         {
             //turn on Isregistering group
             IsRegisteringGroup = true;
             //remove border from canvas
-            LiveViewItems.Remove(border);
-            var currentGroup = CurrentDevice.ControlZoneGroups.Where(g => g.Border == border).FirstOrDefault();
+            var borderToRemove = LiveViewItems.Where(p => p.IsSelected && p is Border).FirstOrDefault();
+            if (borderToRemove == null)
+                return;
+            LiveViewItems.Remove(borderToRemove);
+            var currentGroup = CurrentDevice.ControlZoneGroups.Where(g => g.Border.Name == borderToRemove.Name).FirstOrDefault();
             //set each zone selectable
             foreach (var zone in CurrentDevice.CurrentLiveViewZones)
             {
@@ -6472,7 +6511,19 @@ namespace adrilight.ViewModel
                 Height = height,
                 IsSelectable = true,
             };
-            group.Border = border;
+            if (group.Border != null)
+            {
+                group.Border.Name = border.Name;
+                group.Border.Left = border.Left;
+                group.Border.Top = border.Top;
+                group.Border.Width = border.Width;
+                group.Border.Height = border.Height;
+            }
+            else
+            {
+                group.Border = border;
+            }
+
             return border;
         }
         private void AddZoneToGroup()
@@ -6494,6 +6545,7 @@ namespace adrilight.ViewModel
                 newGroup.Name = "Group" + " " + (CurrentDevice.ControlZoneGroups.Count + 1).ToString();
                 //add group border
                 GetGroupBorder(selectedItems, newGroup);
+                newGroup.Border.IsSelected = true;
                 LiveViewItems.Add(newGroup.Border);
                 //init masked control for multi zone
                 if (selectedItems.First() is FanMotor)
@@ -6536,8 +6588,13 @@ namespace adrilight.ViewModel
                         RegisterGroupItem(selectedItems.Cast<FanMotor>().ToList(), newGroup);
                         break;
                 }
+
+
                 SelectedControlZone = newGroup.MaskedControlZone;
+                //set display slave device
                 SelectedSlaveDevice = newGroup.MaskedSlaveDevice;
+                CanUnGroup = true;
+                CanGroup = false;
                 CurrentDevice.ControlZoneGroups.Add(newGroup);
 
             }
@@ -6589,80 +6646,86 @@ namespace adrilight.ViewModel
                     }
                 }
             }
-            var widthScale = (CurrentLiveViewWidth - 50) / CurrentDevice.CurrentLivewItemsBound.Width;
-            var scaleHeight = (CurrentLiveViewHeight - 50) / CurrentDevice.CurrentLivewItemsBound.Height;
+            if (DrawableHlprs == null)
+                DrawableHlprs = new DrawableHelpers();
+            var liveViewItemsBound = DrawableHlprs.GetRealBound(LiveViewItems.Where(i => i is not PathGuide).ToArray());
+            var widthScale = (CurrentLiveViewWidth - 50) / liveViewItemsBound.Width;
+            var scaleHeight = (CurrentLiveViewHeight - 50) / liveViewItemsBound.Height;
             CurrentLiveViewScale = Math.Min(widthScale, scaleHeight);
-            var currentWidth = CurrentDevice.CurrentLivewItemsBound.Width * CurrentLiveViewScale;
-            var currentHeight = CurrentDevice.CurrentLivewItemsBound.Height * CurrentLiveViewScale;
+            var currentWidth = liveViewItemsBound.Width * CurrentLiveViewScale;
+            var currentHeight = liveViewItemsBound.Height * CurrentLiveViewScale;
 
             //set current device offset
-            CurrentLiveViewOffset = new Point(0 - CurrentDevice.CurrentLivewItemsBound.Left * CurrentLiveViewScale + (CurrentLiveViewWidth - currentWidth) / 2, 0 - CurrentDevice.CurrentLivewItemsBound.Top * CurrentLiveViewScale + (CurrentLiveViewHeight - currentHeight) / 2);
-            //foreach(var zone in CurrentDevice.CurrentLiveViewZones)
-            //{
-            //    (zone as IDrawable).ShouldBringIntoView=false;
-            //    (zone as IDrawable).ShouldBringIntoView = true;
-
-            //} 
-
+            CurrentLiveViewOffset = new Point(0 - liveViewItemsBound.Left * CurrentLiveViewScale + (CurrentLiveViewWidth - currentWidth) / 2, 0 - liveViewItemsBound.Top * CurrentLiveViewScale + (CurrentLiveViewHeight - currentHeight) / 2);
         }
+        private bool _showSelectedItemToolbar;
+        public bool ShowSelectedItemToolbar {
+            get { return _showSelectedItemToolbar; }
+            set { _showSelectedItemToolbar = value; RaisePropertyChanged(); }
+        }
+        private bool _canGroup = false;
+        public bool CanGroup {
+            get { return _canGroup; }
+            set { _canGroup = value; RaisePropertyChanged(); }
+        }
+        private bool _canUnGroup = false;
+        public bool CanUnGroup {
+            get { return _canUnGroup; }
+            set { _canUnGroup = value; RaisePropertyChanged(); }
+        }
+        private ObservableCollection<IDrawable> _liveViewSelectedItems;
+        public ObservableCollection<IDrawable> LiveViewSelectedItems {
+            get { return _liveViewSelectedItems; }
+            set
+            {
+                _liveViewSelectedItems = value;
+                RaisePropertyChanged();
+            }
+        }
+        private void LiveViewSelectedItemChanged(IDrawable item)
+        {
+            if (item.IsSelectable)
+            {
+                item.IsSelected = true;
+                ShowSelectedItemToolbar = true;
+                if (item is Border && LiveViewItems.Where(p => p.IsSelected).Count() == 1)
+                {
+                    CanUnGroup = true;
+                }
+                else
+                {
+                    CanUnGroup = false;
+                }
+                if (item is LEDSetup)
+                {
+                    SelectedControlZone = item as IControlZone;
+                    SelectedSlaveDevice = CurrentDevice.AvailableLightingDevices.Where(d => d.ControlableZones.Contains(item as IControlZone)).FirstOrDefault();
+                }
+                else if (item is FanMotor)
+                {
+                    SelectedControlZone = item as IControlZone;
+                    SelectedSlaveDevice = CurrentDevice.AvailablePWMDevices.Where(d => d.ControlableZones.Contains(item as IControlZone)).FirstOrDefault();
+                }
+                else if (item is Border)
+                {
+                    foreach (var group in CurrentDevice.ControlZoneGroups)
+                    {
+                        if (group.Name == item.Name)
+                        {
+                            //item.IsSelected = true;
+                            //group.Border.IsSelected = true;
+                            SelectedControlZone = group.MaskedControlZone;
+                            //set display slave device
+                            SelectedSlaveDevice = group.MaskedSlaveDevice;
 
-        //private void UpdateLiveView()
-        //{
-        //    //update live view when size changed
+                        }
+                    }
 
-        //    //bring items into view
-
-        //    //get device bound
-        //    var boundWidth = (double)CurrentDevice.DeviceBoundRectangle.Width;
-        //    var boundHeight = (double)CurrentDevice.DeviceBoundRectangle.Height;
-        //    //move to center
-        //    //keep smaller side
-        //    var liveViewSmallerSide = Math.Min(CurrentLiveViewWidth, CurrentLiveViewHeight);
-        //    if (liveViewSmallerSide == CurrentLiveViewWidth) //verticalview
-        //    {
-        //        var scale = liveViewSmallerSide / boundWidth;
-        //        boundWidth = liveViewSmallerSide;
-        //        boundHeight *= scale;
-        //        //move to center
-        //        var newLeft = (CurrentLiveViewWidth - boundWidth) / 2;
-        //        var moveLeft = newLeft - (double)CurrentDevice.DeviceBoundRectangle.Left;
-        //        var newTop = (CurrentLiveViewHeight - boundHeight) / 2;
-        //        var moveTop = newTop - (double)CurrentDevice.DeviceBoundRectangle.Top;
-        //        foreach (var zone in CurrentDevice.CurrentLiveViewZones)
-        //        {
-        //            (zone as IDrawable).Left *= scale;
-        //            (zone as IDrawable).Top *= scale;
-        //            (zone as IDrawable).SetScale(scale);
-        //            (zone as IDrawable).Left += moveLeft;
-        //            (zone as IDrawable).Top += moveTop;
-        //        }
-
-        //    }
-        //    else if (liveViewSmallerSide == CurrentLiveViewHeight)
-        //    {
-        //        var scale = liveViewSmallerSide / boundHeight;
-        //        boundHeight = liveViewSmallerSide;
-        //        boundWidth *= scale;
-        //        var newLeft = (CurrentLiveViewWidth - boundWidth) / 2;
-        //        var moveLeft = newLeft - (double)CurrentDevice.DeviceBoundRectangle.Left;
-        //        var newTop = (CurrentLiveViewHeight - boundHeight) / 2;
-        //        var moveTop = newTop - (double)CurrentDevice.DeviceBoundRectangle.Top;
-        //        foreach (var zone in CurrentDevice.CurrentLiveViewZones)
-        //        {
-        //            (zone as IDrawable).Left *= scale;
-        //            (zone as IDrawable).Top *= scale;
-        //            (zone as IDrawable).SetScale(scale);
-        //            (zone as IDrawable).Left += moveLeft;
-        //            (zone as IDrawable).Top += moveTop;
-        //        }
-
-        //    }
-        //    //get max liveView size
+                }
 
 
-
-        //}
-
+            }
+        }
 
         private ObservableCollection<IDrawable> _liveViewItems;
         public ObservableCollection<IDrawable> LiveViewItems {
@@ -6690,50 +6753,87 @@ namespace adrilight.ViewModel
             var deltaY = currentY - lastY;
             return Math.Sqrt((deltaX * deltaX) + (deltaY * deltaY));
         }
-        private void GetItemsForLiveView(IDeviceSettings device)
+        private void LiveViewSelectedItemsChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
 
-            LiveViewItems = new ObservableCollection<IDrawable>();
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
 
+                //PIDEditWindowsRichCanvasSelectedItem = PIDEditWindowSelectedItems.Count == 1 ? PIDEditWindowSelectedItems[0] : null;
+                ShowSelectedItemToolbar = true;
+                //if (LiveViewItems.Where(p => p.IsSelected).Any(p => p is Border))
+                //{
+                //    CanGroup = false;
+                //}
+                //else
+                //{
+                //    CanGroup = true;
+                //}
+            }
+
+
+        }
+
+        private void GetItemsForLiveView()
+        {
+            IsInIsolateMode = false;
+            if (LiveViewItems != null)
+            {
+                LiveViewItems.Clear();
+                LiveViewItems = null;
+            }
+            LiveViewSelectedItems = new ObservableCollection<IDrawable>();
+            LiveViewSelectedItems.CollectionChanged += LiveViewSelectedItemsChanged;
+            LiveViewItems = new ObservableCollection<IDrawable>();
+            IDrawable lastSelectedItem = null;
             foreach (var item in CurrentDevice.CurrentLiveViewZones)
             {
-                (item as IDrawable).IsSelected = false;
+                (item as IDrawable).IsSelectable = true;
                 LiveViewItems.Add(item as IDrawable);
+                if ((item as IDrawable).IsSelected)
+                    lastSelectedItem = item as IDrawable;
+
             }
             if (CurrentDevice.ControlZoneGroups != null)
             {
                 foreach (var group in CurrentDevice.CurrentLiveViewGroup)
                 {
                     //register group child to masked control 
-                    (group.Border as IDrawable).IsSelected = false;
                     LiveViewItems.Add(group.Border);
+                    if ((group.Border.IsSelected))
+                        lastSelectedItem = group.Border;
+                    //disable selection items in group
+                    var groupItems = GetGroupChildItems(group, CurrentDevice);
+                    foreach (var item in groupItems)
+                    {
+                        (item as IDrawable).IsSelectable = false;
+                    }
+
                 }
             }
             if (IsInIDEditStage)
             {
-                //add brush
-                foreach (var item in LiveViewItems)
+                if (AvailableTools == null)
                 {
-                    item.IsSelectable = false;
-                    if (item is LEDSetup)
-                    {
-                        (item as LEDSetup).ResetVIDStage();
-                    }
-
+                    AvailableTools = new ObservableCollection<VIDToolBarDataModel>() {
+                                     new VIDToolBarDataModel(){Name = "Selection Tool",Geometry= "selectionTool"},
+                                     new VIDToolBarDataModel(){Name = "Brush Tool",Geometry= "brushTool"},
+                                     new VIDToolBarDataModel(){Name = "Eraser Tool",Geometry= "eraserTool"},
+                     };
                 }
+
+                //add brush
+                SelectedToolIndex = 0;
                 GetBrushForIDEdit();
-                //disable drag and select of all liveview items other than brush
+
+            }
+            if (lastSelectedItem != null)
+            {
+                SelectLiveViewItemCommand.Execute(lastSelectedItem);
             }
             else
-            {
-                foreach (var item in LiveViewItems)
-                {
-                    item.IsSelectable = true;
-                }
-            }
-            //clear any previous selected item
-            SelectedControlZone = null;
-            SelectedSlaveDevice = null;
+                SelectLiveViewItemCommand.Execute(LiveViewItems.Where(i => i.IsSelectable).First());
+            ShowSelectedItemToolbar = true;
 
         }
         private ObservableCollection<IDrawable> _vIDEditWindowSelectedItems;
@@ -6898,8 +6998,8 @@ namespace adrilight.ViewModel
                             {
                                 //load motion from disk
                                 var motion = ReadMotionFromResource(testMotionPath); // load test
-                                //the resize state is implemeting inside render state
-                                //ResizeMotion(motion, CurrentOutput.OutputLEDSetup.Spots.Count());
+                                                                                     //the resize state is implemeting inside render state
+                                                                                     //ResizeMotion(motion, CurrentOutput.OutputLEDSetup.Spots.Count());
                             }
                             break;
                     }
@@ -6998,7 +7098,35 @@ namespace adrilight.ViewModel
                 }
             }
         }
+        public ISlaveDevice CurrentEditingPIDItem { get; set; }
+        private PIDQuicEditWindow pidQuickEditWindow { get; set; }
+        private void OpenSpotPIDQuickEDitWindow(ObservableCollection<IDrawable> p)
+        {
+            CurrentIDType = "PID";
+            CurrentEditingPIDItem = p.Where(p => p.IsSelected).FirstOrDefault() as ARGBLEDSlaveDevice;
+            foreach(var zone in CurrentEditingPIDItem.ControlableZones)
+            {
+                (zone as LEDSetup).BackupSpots();
+                (zone as LEDSetup).FillSpotsColor(Color.FromRgb(0, 0, 0));
+            }
+            pidQuickEditWindow = new PIDQuicEditWindow();
+            pidQuickEditWindow.Owner = surfaceeditorWindow;
+            pidQuickEditWindow.ShowDialog();
 
+        }
+        private void SaveCurrentPID()
+        {
+            pidQuickEditWindow.Close();
+        }
+        private void CancelCurrentPID()
+        {
+            foreach (var zone in CurrentEditingPIDItem.ControlableZones)
+            {
+                (zone as LEDSetup).RestoreSpots();
+                (zone as LEDSetup).FillSpotsColor(Color.FromRgb(0, 0, 0));
+                pidQuickEditWindow.Close();
+            }
+        }
         private void LaunchPIDEditWindow(IDrawable p)
         {
 
@@ -7504,7 +7632,24 @@ namespace adrilight.ViewModel
         private Point _mousePosition;
         public Point MousePosition {
             get { return _mousePosition; }
-            set { _mousePosition = value; RaisePropertyChanged(nameof(MousePosition)); }
+            set
+            {
+                _mousePosition = value; RaisePropertyChanged();
+                if (IsInIDEditStage)
+                {
+                    if (SelectedToolIndex == 1)
+                    {
+                        IDEditBrush.Left = MousePosition.X - IDEditBrush.Width / 2;
+                        IDEditBrush.Top = MousePosition.Y - IDEditBrush.Height / 2;
+                    }
+                    else if (SelectedToolIndex == 2)
+                    {
+                        EraserBrush.Left = MousePosition.X - EraserBrush.Width / 2;
+                        EraserBrush.Top = MousePosition.Y - EraserBrush.Height / 2;
+                    }
+
+                }
+            }
         }
         private void AddImage()
         {
@@ -7607,7 +7752,7 @@ namespace adrilight.ViewModel
         {
             foreach (var device in AvailableDevices.Where(x => !x.IsDummy))
             {
-                device.CurrentState = State.surfaceEditor;
+                device.DeviceState = DeviceStateEnum.Normal;
             }
         }
         private void UnlockSelectedItem(ObservableCollection<IDrawable> items)
@@ -7741,71 +7886,47 @@ namespace adrilight.ViewModel
         }
         private void SaveCurrentSurfaceLayout()
         {
-            //get width and height of current border
             var screens = SurfaceEditorItems.OfType<IDrawable>().Where(d => d is ScreenBound);
-            //var maxX = SurfaceEditorItems.MaxBy(d => (d.Width + d.Left)).FirstOrDefault();
-            //var maxY = SurfaceEditorItems.MaxBy(d => (d.Height + d.Top)).FirstOrDefault();
-            //var minX = SurfaceEditorItems.MinBy(d => (d.Left)).FirstOrDefault();
-            //var minY = SurfaceEditorItems.MinBy(d => (d.Top)).FirstOrDefault();
-            //if ((maxX.Width + maxX.Left) > (border.Width + border.Left) ||
-            //    (maxY.Height + maxX.Top) > (border.Height + border.Top) ||
-            //    minX.Left < border.Left ||
-            //    minY.Top < border.Top
-            //    )
             foreach (var item in SurfaceEditorItems.Where(i => i is ARGBLEDSlaveDevice))
             {
                 var ledDevice = item as ARGBLEDSlaveDevice;
-                //var itemRect = new Rectangle(
-                //        (int)ledDevice.Left,
-                //        (int)ledDevice.Top,
-                //        (int)ledDevice.Width,
-                //        (int)ledDevice.Height);
-                //int screenCount = 0;
-                //foreach (var screen in screens)
-                //{
-                //    var screenRect = new Rectangle(
-                //        (int)screen.Left,
-                //        (int)screen.Top,
-                //        (int)screen.Width,
-                //        (int)screen.Height);
-                //    if (Rectangle.Intersect(screenRect, itemRect).Equals(itemRect))
-                //    {
-                //apply new position for each control zone inside this slave device
+
                 foreach (var zone in ledDevice.ControlableZones)
                 {
 
                     var ledZone = zone as LEDSetup;
                     ledZone.OffsetX = ledDevice.Left;
                     ledZone.OffsetY = ledDevice.Top;
-                    //var scaleX = (ledZone.Left + ledDevice.Left) / GeneralSettings.CurrentResoliton.Width;
-                    //var scaleY = (ledZone.Top + ledDevice.Top) / GeneralSettings.CurrentResoliton.Height;
-                    //var scaleWidth = (ledZone.Width) / GeneralSettings.CurrentResoliton.Width;
-                    //var scaleHeight= (ledZone.Height) / GeneralSettings.CurrentResoliton.Height;
-                    // ledZone.CropScale = new CropScale(scaleX, scaleY, scaleWidth, scaleHeight);
-                    //set zone selected screen here
 
                 }
                 item.IsSelected = false;
 
-                //screenCount++;
-
             }
-            //if (screenCount == 0)
-            //{
-            //    HandyControl.Controls.MessageBox.Show("Những thiết bị nằm ngoài ranh giới sẽ không sử dụng được tính năng sáng theo màn hình", "Out of range", MessageBoxButton.OK, MessageBoxImage.Warning);
-
-            //}
-
-
-
-
-
 
             if (IsLiveViewOpen)
+            {
+                GetItemsForLiveView();
                 UpdateLiveView();
+            }
+
             surfaceeditorWindow.Close();
             IsRichCanvasWindowOpen = false;
         }
+        private void ResetPID()
+        {
+            CountPID = 0;
+            foreach(var zone in CurrentEditingPIDItem.ControlableZones)
+            {
+                var ledZone = zone as LEDSetup;
+                foreach(var spot in ledZone.Spots)
+                {
+                    spot.SetID(0);
+                    spot.IsEnabled = false;
+                    spot.SetColor(0, 0, 0, true);
+                }
+            }
+        }
+          
         private void SetSpotID(IDeviceSpot spot)
         {
             if (Keyboard.IsKeyDown(Key.B) || Keyboard.IsKeyDown(Key.RightCtrl) || Mouse.LeftButton == MouseButtonState.Pressed)
@@ -7831,9 +7952,26 @@ namespace adrilight.ViewModel
                             CountVID = 0;
                         break;
                     case "PID":
-                        spot.SetID(CountPID++);
-                        spot.IsEnabled = true;
-                        spot.SetColor(0, 0, 255, true);
+                        if (spot.IsEnabled)
+                        {
+                            spot.SetID(0);
+                            spot.IsEnabled = false;
+                            spot.SetColor(0, 0, 0, true);
+                            if (CountPID >= 1)
+                            {
+                                CountPID -= 1;
+                            }
+                            else
+                                CountPID = 0;
+                        }
+                        else
+                        {
+                            spot.SetID(CountPID++);
+                            spot.IsEnabled = true;
+                            spot.SetColor(0, 0, 255, true);
+
+                        }
+                      
                         break;
 
                 }
@@ -8395,36 +8533,6 @@ namespace adrilight.ViewModel
             // RaisePropertyChanged(() => CurrentDevice.DeviceScale);
         }
 
-        public void DFU()
-        {
-            foreach (var serialStream in SerialStreams)
-            {
-                //if (CurrentDevice.ParrentLocation != 151293) // device is in hub object
-                //{
-                //    if (serialStream.ID == CurrentDevice.ParrentLocation)
-                //        serialStream.DFU();
-                //}
-                //else
-                //{
-                //    if (serialStream.ID == CurrentDevice.DeviceID)
-                //        serialStream.DFU();
-                //}
-            }
-        }
-
-        private int _dFUProgress;
-
-        public int DFUProgress {
-            get { return _dFUProgress; }
-            set
-            {
-                _dFUProgress = value;
-                if (value == 75)
-                {
-                    DFU();
-                }
-            }
-        }
 
         private void CreateFWToolsFolderAndFiles()
         {
@@ -9686,8 +9794,53 @@ namespace adrilight.ViewModel
             set
             {
                 _isInIDEditStage = value;
-                GetItemsForLiveView(CurrentDevice);
+                GetItemsForLiveView();
+                UpdateLiveView();
                 RaisePropertyChanged();
+            }
+        }
+        public ObservableCollection<VIDToolBarDataModel> AvailableTools { get; set; }
+        private int _selectedToolIndex = 0;
+        public int SelectedToolIndex {
+            get { return _selectedToolIndex; }
+            set
+            {
+                _selectedToolIndex = value;
+                RaisePropertyChanged();
+                if (SelectedToolIndex == 0)
+                {
+                    //selection mode
+                    if (IDEditBrush != null)
+                    {
+                        if (LiveViewItems.Contains(IDEditBrush))
+                            LiveViewItems.Remove(IDEditBrush);
+                        if (LiveViewItems.Contains(EraserBrush))
+                            LiveViewItems.Remove(EraserBrush);
+                    }
+
+                }
+                else if (SelectedToolIndex == 1)
+                {
+                    if (IDEditBrush != null)
+                    {
+                        if (LiveViewItems.Contains(EraserBrush))
+                            LiveViewItems.Remove(EraserBrush);
+                        if (!LiveViewItems.Contains(IDEditBrush))
+                            LiveViewItems.Add(IDEditBrush);
+                    }
+
+                }
+                else if (SelectedToolIndex == 2)
+                {
+                    if (IDEditBrush != null)
+                    {
+                        if (LiveViewItems.Contains(IDEditBrush))
+                            LiveViewItems.Remove(IDEditBrush);
+                        if (!LiveViewItems.Contains(EraserBrush))
+                            LiveViewItems.Add(EraserBrush);
+                    }
+
+                }
             }
         }
         private PathGuide _iDEditBrush;
@@ -9699,76 +9852,272 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        private PathGuide _eraserBrush;
+        public PathGuide EraserBrush {
+            get { return _eraserBrush; }
+            set
+            {
+                _eraserBrush = value;
+                RaisePropertyChanged();
+            }
+        }
+        private int _brushSize;
+        public int BrushSize {
+            get { return _brushSize; }
+            set
+            {
+                _brushSize = value;
+                if (SelectedToolIndex == 1)
+                {
+                    IDEditBrush.Width = value;
+                    IDEditBrush.Height = value;
+                    IDEditBrush.Left = MousePosition.X - value / 2;
+                    IDEditBrush.Top = MousePosition.Y - value / 2;
+                }
+                else if (SelectedToolIndex == 2)
+                {
+                    EraserBrush.Width = value;
+                    EraserBrush.Height = value;
+                    EraserBrush.Left = MousePosition.X - value / 2;
+                    EraserBrush.Top = MousePosition.Y - value / 2;
+
+                }
+
+                RaisePropertyChanged();
+            }
+        }
+        public void IncreaseBrushSize()
+        {
+
+            if (SelectedToolIndex == 1)
+            {
+                if (IDEditBrush.Width < 1000)
+                {
+
+                    IDEditBrush.Width += 5;
+                    IDEditBrush.Height += 5;
+                    IDEditBrush.Left = MousePosition.X - IDEditBrush.Width / 2;
+                    IDEditBrush.Top = MousePosition.Y - IDEditBrush.Height / 2;
+                }
+            }
+            else if (SelectedToolIndex == 2)
+            {
+                if (EraserBrush.Width < 1000)
+                {
+
+                    EraserBrush.Width += 5;
+                    EraserBrush.Height += 5;
+                    EraserBrush.Left = MousePosition.X - EraserBrush.Width / 2;
+                    EraserBrush.Top = MousePosition.Y - EraserBrush.Height / 2;
+                }
+
+            }
+        }
+        public void DecreaseBrushSize()
+        {
+            if (SelectedToolIndex == 1)
+            {
+                if (IDEditBrush.Width > 10)
+                {
+
+                    IDEditBrush.Width -= 5;
+                    IDEditBrush.Height -= 5;
+                    IDEditBrush.Left = MousePosition.X - IDEditBrush.Width / 2;
+                    IDEditBrush.Top = MousePosition.Y - IDEditBrush.Height / 2;
+                }
+            }
+            else if (SelectedToolIndex == 2)
+            {
+                if (EraserBrush.Width < 1000)
+                {
+
+                    EraserBrush.Width -= 5;
+                    EraserBrush.Height -= 5;
+                    EraserBrush.Left = MousePosition.X - EraserBrush.Width / 2;
+                    EraserBrush.Top = MousePosition.Y - EraserBrush.Height / 2;
+                }
+
+            }
+
+        }
         private void GetBrushForIDEdit()
         {
+
             IDEditBrush = new PathGuide() {
-                Width = 50,
-                Height = 50,
-                IsSelectable = true,
-                Geometry = "genericSquare"
+                Width = 200,
+                Height = 200,
+                IsSelectable = false,
+                VisualProperties = new VisualProperties() { FillColor = Color.FromRgb(255, 255, 255) },
+                Geometry = "genericCircle"
 
             };
+            EraserBrush = new PathGuide() {
+                Width = 200,
+                Height = 200,
+                IsSelectable = false,
+                VisualProperties = new VisualProperties() { FillColor = Color.FromRgb(255, 0, 0) },
+                Geometry = "genericCircle"
+
+            };
+            BrushSize = 200;
             VIDCount = 0;
             _lastBrushX = 0;
             _lastBrushY = 0;
-            IDEditBrush.PropertyChanged += (_, __) =>
+            RegisterBrush(IDEditBrush);
+            RegisterBrush(EraserBrush);
+        }
+        private void RegisterBrush(IDrawable brush)
+        {
+            brush.PropertyChanged += (_, __) =>
             {
                 switch (__.PropertyName)
                 {
-                    case nameof(IDEditBrush.Left):
-                    case nameof(IDEditBrush.Top):
+                    case nameof(brush.Left):
+                    case nameof(brush.Top):
                         //check if brush has moved more than 5 unit, consider as update interval
-                        if (CalculateDelta(_lastBrushX, _lastBrushY, IDEditBrush.Left, IDEditBrush.Top) > 10)
+                        if (CalculateDelta(_lastBrushX, _lastBrushY, brush.Left, brush.Top) > 10)
                         {
 
-                            _lastBrushX = IDEditBrush.Left;
-                            _lastBrushY = IDEditBrush.Top;
+                            _lastBrushX = brush.Left;
+                            _lastBrushY = brush.Top;
                             //check if this position intersect any zone
                             int settedVIDCount = 0;
-                            foreach (var zone in LiveViewItems.Where(z => z is LEDSetup))
+                            if (Mouse.LeftButton == MouseButtonState.Pressed)
                             {
-                                if (!Rectangle.Intersect(zone.GetRect, IDEditBrush.GetRect).IsEmpty)
+                                foreach (var zone in LiveViewItems.Where(z => z is LEDSetup))
                                 {
-                                    //this zone is being touch by the brush
-                                    //check if this brush touch any spot inside this zone
-                                    var ledSetup = zone as LEDSetup;
-                                    var intersectRect = Rectangle.Intersect(ledSetup.GetRect, IDEditBrush.GetRect);
-                                    intersectRect.Offset(new System.Drawing.Point(0 - (int)ledSetup.GetRect.Left, 0 - (int)ledSetup.GetRect.Top));
-
-                                    foreach (var spot in ledSetup.Spots)
+                                    if (!Rectangle.Intersect(zone.GetRect, brush.GetRect).IsEmpty)
                                     {
-                                        if (spot.GetVIDIfNeeded(VIDCount, intersectRect))
-                                            settedVIDCount++;
-                                    }
+                                        //this zone is being touch by the brush
+                                        //check if this brush touch any spot inside this zone
+                                        var ledSetup = zone as LEDSetup;
+                                        var intersectRect = Rectangle.Intersect(ledSetup.GetRect, brush.GetRect);
+                                        intersectRect.Offset(new System.Drawing.Point(0 - (int)ledSetup.GetRect.Left, 0 - (int)ledSetup.GetRect.Top));
 
+                                        foreach (var spot in ledSetup.Spots)
+                                        {
+                                            switch (SelectedToolIndex)
+                                            {
+                                                case 1:
+                                                    if (spot.GetVIDIfNeeded(VIDCount, intersectRect, 0))
+                                                        settedVIDCount++;
+                                                    break;
+                                                case 2:
+                                                    if (spot.GetVIDIfNeeded(VIDCount, intersectRect, 1))
+                                                        settedVIDCount++;
+                                                    break;
+                                            }
+
+                                        }
+
+                                    }
                                 }
+                                if (settedVIDCount > 0)
+                                {
+                                    if(SelectedToolIndex==1)
+                                    {
+                                        VIDCount += 10;
+                                        if (VIDCount > 1023)
+                                            VIDCount = 0;
+                                    }
+                                    else if(SelectedToolIndex == 2)
+                                    {
+                                        VIDCount -= 10;
+                                        if (VIDCount <0 )
+                                            VIDCount = 1023;
+                                    }
+                                }
+
+
                             }
-                            if (settedVIDCount > 0)
-                                VIDCount += 5;
+
+
                         }
 
                         break;
                 }
             };
-            LiveViewItems.Add(IDEditBrush);
         }
+        private bool _isInIsolateMode;
+        public bool IsInIsolateMode {
+            get { return _isInIsolateMode; }
+            set
+            {
+                _isInIsolateMode = value;
+                RaisePropertyChanged();
+            }
+        }
+        private void IsolateSelectedItems()
+        {
+
+            var selectedItems = LiveViewItems.Where(i => i.IsSelected).ToList();
+            if (selectedItems.Count == 0)
+            {
+                HandyControl.Controls.MessageBox.Show("Bạn phải chọn một vùng LED hoặc Group trước", "No item selected", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+            IsInIsolateMode = true;
+            LiveViewItems.Clear();
+            foreach (var item in selectedItems)
+            {
+                if (item is LEDSetup)
+                {
+                    LiveViewItems.Add(item);
+
+
+                }
+                else if (item is Border)
+                {
+                    var group = CurrentDevice.ControlZoneGroups.Where(g => g.Border.Name == item.Name).FirstOrDefault();
+                    var childZone = GetGroupChildItems(group, CurrentDevice);
+                    foreach (var zone in childZone)
+                    {
+                        if (zone is LEDSetup)
+                            LiveViewItems.Add(zone as LEDSetup);
+                        else if (zone is FanMotor)
+                            LiveViewItems.Add(zone as FanMotor);
+                    }
+                    LiveViewItems.Add(item);
+
+
+
+                }
+                else if (item is FanMotor)
+                {
+                    LiveViewItems.Add(item);
+
+
+                }
+
+            }
+            if (IsInIDEditStage)
+            {
+                GetBrushForIDEdit();
+            }
+            SelectLiveViewItemCommand.Execute(selectedItems.First());
+
+        }
+
         public void GotoChild(IDeviceSettings selectedDevice)
         {
             CurrentDevice = selectedDevice;
             CurrentView = "details";
             IsLiveViewOpen = true;
-            GetItemsForLiveView(CurrentDevice);
+            GetItemsForLiveView();
             UpdateLiveView();
             AvailableProfilesForCurrentDevice = new ObservableCollection<IDeviceProfile>();
             AvailableProfilesForCurrentDevice = ProfileFilter(CurrentDevice);
-            SelectedSlaveDevice = null;
             IsSplitLightingWindowOpen = true;
-
         }
 
         public void BackToDashboard()
         {
             SaveCurrentProfile(CurrentDevice.ActivatedProfileUID);
+            //foreach (var item in LiveViewItems)
+            //{
+            //    item.IsSelected = false;
+            //}
+
             IsLiveViewOpen = false;
             CurrentView = "dashboard";
         }

@@ -36,7 +36,7 @@ namespace adrilight
         //Dependency Injection//
         private IDeviceSettings DeviceSettings { get; set; }
         private IGeneralSettings GeneralSettings { get; set; }
-        public State CurrentState { get; set; }// to be implemented
+        public DeviceStateEnum CurrentState { get; set; }// to be implemented
         // private IDeviceSpotSet[] DeviceSpotSets { get; set; }
         private async Task<bool> Refresh() //fetches updated values from WLED device
         {
