@@ -36,7 +36,7 @@
             
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0">
-            <Border Margin="0,0,20,0" Background="{DynamicResource SecondaryRegionBrush}" HorizontalAlignment="Left" VerticalAlignment="Center" CornerRadius="6" >
+            <Border Effect="{DynamicResource EffectShadow1}" Margin="0,0,20,0" Background="{DynamicResource SecondaryRegionBrush}" HorizontalAlignment="Left" VerticalAlignment="Center" CornerRadius="6" >
 
                 <Image Margin="10" RenderOptions.BitmapScalingMode="HighQuality" Source="{Binding SelectedSlaveDevice.Thumbnail,Mode=TwoWay}" Stretch="Uniform" Width="80" Height="80"/>
             </Border>

@@ -58,13 +58,13 @@ namespace adrilight.Spots
         public string Shape { get; set; }
         public Color OnDemandColor => Color.FromRgb(Red, Green, Blue);
         public Color SentryColor => Color.FromRgb(SentryRed, SentryGreen, SentryBlue);
-        public Color OnDemandColorTransparent => Color.FromArgb(255, Red, Green, Blue);
 
 
 
         public int VID { get; set; }
         public bool HasVID { get; set; }
-        public bool IsEnabled { get; set; } = true;
+        private bool _isEnabled = true;
+        public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); } }
         public int PID { get; set; }
         public int CID { get; set; }
         public int BackupID { get; set; }
@@ -78,12 +78,14 @@ namespace adrilight.Spots
         public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
         public bool GetVIDIfNeeded(int vid, Rectangle rect, int mode)
         {
-            if(mode ==0)
+            if (mode == 0)
             {
                 if (!HasVID)
                 {
                     var intersectRect = Rectangle.Intersect(GetRect, rect);
-                    if (intersectRect.Width * intersectRect.Height / (GetRect.Width * GetRect.Height) > 0.1)
+                    double intersectArea = intersectRect.Width * intersectRect.Height;
+                    double spotArea = GetRect.Width* GetRect.Height;
+                    if ((intersectArea / spotArea) > 0.1)
                     {
                         SetVID(vid);
                         HasVID = true;
@@ -92,7 +94,7 @@ namespace adrilight.Spots
 
                 }
             }
-            else if(mode ==1)
+            else if (mode == 1)
             {
                 if (HasVID)
                 {
@@ -106,7 +108,7 @@ namespace adrilight.Spots
 
                 }
             }
-          
+
             return false;
 
         }
@@ -120,7 +122,7 @@ namespace adrilight.Spots
             if (raiseEvents)
             {
                 RaisePropertyChanged(nameof(OnDemandColor));
-                RaisePropertyChanged(nameof(OnDemandColorTransparent));
+               
             }
         }
         public void SetSentryColor(byte red, byte green, byte blue)

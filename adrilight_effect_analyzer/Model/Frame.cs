@@ -17,5 +17,6 @@ namespace adrilight_effect_analyzer.Model
             BrightnessData = new byte[256];
         }
         public byte[] BrightnessData { get; set; }
+
     }
 }

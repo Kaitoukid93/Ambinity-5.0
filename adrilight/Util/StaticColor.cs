@@ -25,6 +25,8 @@ using NAudio.SoundFont;
 using Color = System.Windows.Media.Color;
 using System.Net;
 using MathNet.Numerics.Distributions;
+using MoreLinq;
+using SharpDX.Direct2D1.Effects;
 
 namespace adrilight
 {
@@ -105,13 +107,13 @@ namespace adrilight
         private bool _isBreathing;
         private double _brightness;
         private int _breathingSpeed;
-        private List<Color> _colorList;
+        private Color[] _colors;
         #region Properties changed event handler 
         private void OnSystemBreathingSpeedChanged(int value)
         {
-            if(_breathingControl!=null)
+            if (_breathingControl != null)
             {
-                _breathingControl.SubParams[2].Value = value;
+                _breathingControl.SubParams[1].Value = value;
             }
         }
 
@@ -121,21 +123,21 @@ namespace adrilight
             if (value)
             {
                 _breathingControl.SubParams[0].IsEnabled = false;
-                _breathingControl.SubParams[2].IsEnabled = true;
-                _breathingControl.SubParams[2].Value = GeneralSettings.BreathingSpeed;
+                _breathingControl.SubParams[1].IsEnabled = true;
+                _breathingControl.SubParams[1].Value = GeneralSettings.BreathingSpeed;
 
             }
             else
             {
                 _breathingControl.SubParams[0].IsEnabled = true;
-                _breathingControl.SubParams[2].IsEnabled = false;
+                _breathingControl.SubParams[1].IsEnabled = false;
 
             }
         }
         private void OnSelectedColorValueChanged(IParameterValue value)
         {
             _color = value as ColorCard;
-            _colorList = GetColorGradient(_color.StartColor, _color.StopColor, CurrentZone.Spots.Count());
+            _colors = GetColorGradient(_color.StartColor, _color.StopColor, CurrentZone.Spots.Count()).ToArray();
         }
         private void OnIsBreathingValueChanged(bool value)
         {
@@ -202,8 +204,8 @@ namespace adrilight
                 _brightnessControl.PropertyChanged += (_, __) => OnBrightnessValueChanged(_brightnessControl.Value);
                 _breathingControl.PropertyChanged += (_, __) => OnIsBreathingValueChanged(_breathingControl.Value == 1 ? true : false);
                 _breathingControl.SubParams[0].PropertyChanged += (_, __) => OnBreathingSpeedValueChanged(_breathingControl.SubParams[0].Value);
-                _breathingControl.SubParams[1].PropertyChanged += (_, __) => OnSystemSyncValueChanged(_breathingControl.SubParams[1].Value == 1 ? true : false);
-                _breathingControl.SubParams[2].PropertyChanged += (_, __) => OnSystemSyncBreathingSpeedValueChange(_breathingControl.SubParams[2].Value);
+                _breathingControl.SubParams[2].PropertyChanged += (_, __) => OnSystemSyncValueChanged(_breathingControl.SubParams[2].Value == 1 ? true : false);
+                _breathingControl.SubParams[1].PropertyChanged += (_, __) => OnSystemSyncBreathingSpeedValueChange(_breathingControl.SubParams[1].Value);
                 _colorControl.PropertyChanged += (_, __) => OnSelectedColorValueChanged(_colorControl.SelectedValue);
                 #endregion
                 _log.Debug("starting the Static Color Engine");
@@ -229,16 +231,18 @@ namespace adrilight
                 //get properties value for first time running
                 _isBreathing = _breathingControl.Value == 1 ? true : false;
                 OnIsBreathingValueChanged(_isBreathing);
-                _isSystemSync = _breathingControl.SubParams[1].Value == 1 ? true : false;
+                _isSystemSync = _breathingControl.SubParams[2].Value == 1 ? true : false;
                 OnSystemSyncValueChanged(_isSystemSync);
                 _color = _colorControl.SelectedValue as ColorCard;
-                _colorList = GetColorGradient(_color.StartColor, _color.StopColor, CurrentZone.Spots.Count());
+                _colors = GetColorGradient(_color.StartColor, _color.StopColor, CurrentZone.Spots.Count()).ToArray();
                 _breathingSpeed = 2000 - _breathingControl.SubParams[0].Value;
                 _brightness = _brightnessControl.Value / 100d;
+                var startIndex = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
+
 
                 while (!token.IsCancellationRequested)
                 {
-                    bool isPreviewRunning = MainViewViewModel.IsLiveViewOpen;
+                    bool isPreviewRunning = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated;
 
                     if (_isBreathing)
                     {
@@ -261,12 +265,15 @@ namespace adrilight
 
                     lock (CurrentZone.Lock)
                     {
-                        Parallel.ForEach(CurrentZone.Spots
-                            , spot =>
-                            {
-                                spot.SetColor((byte)(_brightness*_colorList[CurrentZone.Spots.IndexOf(spot)].R), (byte)(_brightness * _colorList[CurrentZone.Spots.IndexOf(spot)].G), (byte)(_brightness * _colorList[CurrentZone.Spots.IndexOf(spot)].B), isPreviewRunning);
+                        foreach(var spot in CurrentZone.Spots)
+                        {
+                            ApplySmoothing(_colors[spot.Index - startIndex].R, _colors[spot.Index - startIndex].G, _colors[spot.Index - startIndex].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
+                            spot.SetColor((byte)(_brightness * FinalR), (byte)(_brightness * FinalG), (byte)(_brightness * FinalB), isPreviewRunning);
+                        }
+                               
+                               
 
-                            });
+                            
                     }
 
                     //threadSleep for static mode is 1s, for breathing is 10ms
@@ -282,7 +289,7 @@ namespace adrilight
             }
         }
 
-   
+
         public static List<Color> GetColorGradient(Color from, Color to, int totalNumberOfColors)
         {
             if (totalNumberOfColors < 2)
@@ -318,7 +325,7 @@ namespace adrilight
                 }
             }
             colorList.Add(to);
-            colorList.Insert(0,from);
+            colorList.Insert(0, from);
             return colorList;
 
         }
@@ -383,7 +390,7 @@ namespace adrilight
             const float factor = 80f;
             return (byte)(256f * ((float)Math.Pow(factor, color / 256f) - 1f) / (factor - 1));
         }
-       
+
         public void Stop()
         {
             _log.Debug("Stop called.");

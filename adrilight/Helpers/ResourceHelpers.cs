@@ -29,5 +29,12 @@ namespace adrilight.Helpers
                 }
             }
         }
+        public string[] GetResourceFileName()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            return assembly.GetManifestResourceNames();
+            
+            
+        }
     }
 }

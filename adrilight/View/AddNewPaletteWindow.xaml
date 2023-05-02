@@ -40,7 +40,7 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Click="Button_Click" Command="{Binding CreateNewPaletteCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
+                <Button Command="{Binding CreateNewPaletteCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
                 <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
             </Grid>
             

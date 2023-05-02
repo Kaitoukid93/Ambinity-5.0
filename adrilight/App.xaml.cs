@@ -32,8 +32,6 @@ using HandyControl.Themes;
 using System.Threading.Tasks;
 using adrilight.Settings;
 using System.Drawing;
-using static Dropbox.Api.Files.ListRevisionsMode;
-using System.Web.UI.WebControls.WebParts;
 
 namespace adrilight
 {
@@ -181,6 +179,8 @@ namespace adrilight
             var deviceDiscovery = kernel.Get<IDeviceDiscovery>();
 
             MainViewViewModel = kernel.Get<MainViewViewModel>();
+            if (!GeneralSettings.StartMinimized)
+                MainViewViewModel.IsAppActivated = true;
             MainViewViewModel.AvailableDevices.CollectionChanged += (s, e) =>
             {
                 switch (e.Action)
@@ -224,12 +224,26 @@ namespace adrilight
             return kernel;
 
         }
+        void App_Activated(object sender, EventArgs e)
+        {
+            // Application activated
+            //tell mainview that this app is being focused
+            if(MainViewViewModel!=null)
+            MainViewViewModel.IsAppActivated = true;
+        }
 
+        void App_Deactivated(object sender, EventArgs e)
+        {
+            // Application deactivated
+            if (MainViewViewModel != null)
+                MainViewViewModel.IsAppActivated = false;
+        }
         private static void InjectingZone(IKernel kernel, IControlZone zone)
         {
             kernel.Bind<ILightingEngine>().To<DesktopDuplicatorReader>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
             kernel.Bind<ILightingEngine>().To<StaticColor>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
             kernel.Bind<ILightingEngine>().To<Rainbow>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
+            kernel.Bind<ILightingEngine>().To<Animation>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
             var availableLightingModes = kernel.GetAll<ILightingEngine>(zone.ZoneUID);
             foreach(var lightingMode in availableLightingModes )
             {

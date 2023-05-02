@@ -209,7 +209,7 @@ namespace adrilight
                 {
 
                     //this indicator that user is opening this device and we need raise event when color update on each spot
-                    bool isPreviewRunning = MainViewViewModel.IsLiveViewOpen;
+                    bool isPreviewRunning = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated;
                     var frameTime = Stopwatch.StartNew();
                     var newImage = _retryPolicy.Execute(() => GetNextFrame(image, isPreviewRunning));
                     TraceFrameDetails(newImage);

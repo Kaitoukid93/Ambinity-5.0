@@ -32,11 +32,11 @@ namespace adrilight.Util
         /// <summary>
         /// this is the min value, used for prevent the value to undershoot
         /// </summary>
-        string AvailableValueLocalPath { get; set; }
         bool IsEnabled { get; set; }
         IParameterValue SelectedValue { get; }
         ObservableCollection<SubParameter> SubParams { get; set; }
         void RefreshCollection();
+        bool ShowMore{ get; set; }
         int MinValue { get; set; }
         /// <summary>
         /// this is the max value, used for prevent the value to overshoot
@@ -45,6 +45,8 @@ namespace adrilight.Util
         /// <summary>
         /// this store line chart value for data visualization
         /// </summary>
-       
+         List<SelectableLocalPath> AvailableValueLocalPaths { get; set; }
+         SelectableLocalPath SelectedValueLocalPath { get; }
+        int SelectedValueLocalPathIndex { get; set; }
     }
 }

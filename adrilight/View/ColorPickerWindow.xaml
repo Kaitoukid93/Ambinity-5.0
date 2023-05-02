@@ -26,11 +26,41 @@
                     <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
                     <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
                     <converters:ToUpperValueConverter x:Key="toUpperValueConverter" />
+                    <DataTemplate x:Key="gradientTemplate">
+                        <Border Margin="10" CornerRadius="7" Width="150" Height="150">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,1" EndPoint = "1,0">
+                                    <GradientStop Color="{Binding ColorList[0].Color}" Offset="0.0" />
+                                    <GradientStop Color="{Binding ColorList[1].Color}" Offset="1.0" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+                    </DataTemplate>
+                    <DataTemplate x:Key="paletteTemplate">
+                        <Grid>
+                            <Border Effect="{DynamicResource EffectShadow1}" Width="648" Padding="5" Height="100"  CornerRadius="2" Background="{DynamicResource SecondaryRegionBrush}">
+                                <ItemsControl  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding ColorList}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <UniformGrid Rows="1" Columns="16">
+
+                                            </UniformGrid>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border  Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"   Margin="0,0,0,0" HorizontalAlignment="Stretch" Height="92"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
                     <Style x:Key="_listboxColorSelectionStyle" TargetType="ListBoxItem">
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="ListBoxItem">
-                                    <Border  Name="_Border"
+                                    <Border CornerRadius="5"  Name="_Border"
                                 Padding="0"
                                 Margin="0"
                                 Background="Transparent"
@@ -103,15 +133,22 @@
                         <Grid>
                             <StackPanel>
                                 <Grid>
-                                <Border Margin="10" CornerRadius="7" Width="150" Height="150">
-                                    <Border.Background>
-                                        <LinearGradientBrush StartPoint="0,1" EndPoint = "1,0">
-                                            <GradientStop Color="{Binding ColorList[0].Color}" Offset="0.0" />
-                                            <GradientStop Color="{Binding ColorList[1].Color}" Offset="1.0" />
-                                        </LinearGradientBrush>
-                                    </Border.Background>
-                                </Border>
-                            </Grid>
+                                    <ContentControl Content="{Binding}">
+                                        <ContentControl.Style>
+                                            <Style TargetType="{x:Type ContentControl}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ColorList.Count}" Value="2">
+                                                        <Setter Property="ContentTemplate" Value="{DynamicResource gradientTemplate}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding ColorList.Count}" Value="16">
+                                                        <Setter Property="ContentTemplate" Value="{DynamicResource paletteTemplate}" />
+                                                    </DataTrigger>
+
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ContentControl.Style>
+                                    </ContentControl>
+                                </Grid>
                                 <Grid Grid.Row="1">
 
                                     <ListBox Margin="10" HorizontalAlignment="Stretch" 
@@ -130,14 +167,14 @@
                                         </ListBox.ItemContainerStyle>
                                         <ListBox.ItemsPanel>
                                             <ItemsPanelTemplate>
-                                                <UniformGrid Rows="1" Columns="2">
+                                                <UniformGrid Rows="1" Columns="{Binding ColorList.Count}">
 
                                                 </UniformGrid>
                                             </ItemsPanelTemplate>
                                         </ListBox.ItemsPanel>
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
-                                                <Border HorizontalAlignment="Stretch" Margin="0" Background="{Binding Color,Converter={StaticResource ColorToBrushConverter},Mode=TwoWay}" Height="40">
+                                                <Border CornerRadius="4" HorizontalAlignment="Stretch" Margin="0" Background="{Binding Color,Converter={StaticResource ColorToBrushConverter},Mode=TwoWay}"  Height="40">
 
                                                 </Border>
                                             </DataTemplate>
@@ -145,6 +182,16 @@
                                     </ListBox>
                                 </Grid>
                                 <Grid>
+                                    <Grid.Style>
+                                        <Style TargetType="Grid">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ColorList.Count}" Value="2">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
                                     <StackPanel>
                                         <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10,0,10">
 
@@ -161,6 +208,25 @@
                                             </GroupBox>
                                         </Grid>
                                         <TextBlock Margin="10,5" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Chuyển giữa màu đơn và màu kép"/>
+                                    </StackPanel>
+                                </Grid>
+                                <Grid>
+                                    <Grid.Style>
+                                        <Style TargetType="Grid">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ColorList.Count}" Value="16">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
+                                    <StackPanel>
+                                        <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10,0,10">
+
+                                        </hc:Divider>
+
+                                        <TextBlock Margin="10,5" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultWarning}" Grid.Row="1" Text="Click vào từng ô màu rồi chọn màu ở bảng màu phía bên tay phải, nhấn Ctrl + Click để chọn nhiều ô màu và chỉnh màu cùng lúc"/>
                                     </StackPanel>
                                 </Grid>
                             </StackPanel>

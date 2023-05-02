@@ -42,6 +42,7 @@ namespace adrilight.Util
         /// List of parameters that this mode have
         /// </summary>
         public List<IModeParameter> Parameters { get; set; }
+        public string Geometry { get; set;}
         public IModeParameter SpeedParameter => Parameters.Where(p => p.ParamType == ModeParameterEnum.Speed).FirstOrDefault();
         internal int GetBrightness()
         {

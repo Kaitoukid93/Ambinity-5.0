@@ -20,6 +20,7 @@ namespace adrilight
         private bool _openRGBConfigRequested = true;
         private bool _autostart = true;
         private int _systemRainbowSpeed = 10;
+        private int _systemFramePlaybackSpeed = 1;
         private int _systemRainbowMaxTick = 1023;
         private int _systemMusicMaxTick = 1023;
         private int _breathingSpeed = 20000;
@@ -52,7 +53,8 @@ namespace adrilight
         public int DeviceDiscoveryMode { get => _deviceDiscoveryMode; set { Set(() => DeviceDiscoveryMode, ref _deviceDiscoveryMode, value); } }
         public int ThemeIndex { get => _themeIndex; set { Set(() => ThemeIndex, ref _themeIndex, value); } }
         public int SystemRainbowMaxTick { get => _systemRainbowMaxTick; set { Set(() => SystemRainbowMaxTick, ref _systemRainbowMaxTick, value); } }
-        public int BreathingSpeed { get => _breathingSpeed; set { Set(() => BreathingSpeed, ref _breathingSpeed, value); } }
+        public int BreathingSpeed { get => _breathingSpeed; set { Set(() => SystemPlaybackSpeed, ref _breathingSpeed, value); } }
+        public int SystemPlaybackSpeed { get => _systemFramePlaybackSpeed; set { Set(() => BreathingSpeed, ref _systemFramePlaybackSpeed, value); } }
         public int SystemMusicMaxTick { get => _systemMusicMaxTick; set { Set(() => SystemMusicMaxTick, ref _systemMusicMaxTick, value); } }
         private int _limitFps = 100;
         public bool StartMinimized { get => _startMinimized; set { Set(() => StartMinimized, ref _startMinimized, value); } }

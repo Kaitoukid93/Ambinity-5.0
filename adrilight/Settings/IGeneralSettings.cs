@@ -30,6 +30,7 @@ namespace adrilight
         bool HotkeyEnable { get; set; }
         bool DriverRequested { get; set; }
         int SystemRainbowSpeed { get; set; }
+        int SystemPlaybackSpeed { get; set; }
         int SystemRainbowMaxTick { get; set; }
         int ThemeIndex { get; set; }
         Color AccentColor { get; set; }

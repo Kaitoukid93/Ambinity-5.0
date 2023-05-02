@@ -16,6 +16,7 @@ using NLog;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using adrilight.Spots;
+using System.Collections.ObjectModel;
 
 namespace adrilight
 {
@@ -37,7 +38,7 @@ namespace adrilight
 
             GeneralSettings.PropertyChanged += PropertyChanged;
 
-
+            Ticks = new ObservableCollection<Tick>();
             RefreshColorState();
 
             _log.Info($"RainbowColor Created");
@@ -48,17 +49,22 @@ namespace adrilight
         // private IDeviceSettings ParrentDevice { get; }
         private MainViewViewModel MainViewViewModel { get; }
         private IDeviceSettings[] AllDeviceSettings { get; }
-   
+
         private IGeneralSettings GeneralSettings { get; }
-     
+
         private double _rainbowStartIndex;
         private double _musicStartIndex;
         private double _breathingBrightnessValue;
-
+        private int _frameIndex;
         public double RainbowStartIndex {
             get { return _rainbowStartIndex; }
             set { _rainbowStartIndex = value; }
         }
+        public int FrameIndex {
+            get { return _frameIndex; }
+            set { _frameIndex = value; }
+        }
+
         public double MusicStartIndex {
             get { return _musicStartIndex; }
             set { _musicStartIndex = value; }
@@ -123,9 +129,14 @@ namespace adrilight
             }
         }
 
-
-
-
+        public object Lock { get; } = new object();
+        public ObservableCollection<Tick> Ticks { get; private set; }
+        public Tick MakeNewTick(int maxTick, double tickSpeed, string tickUID, TickEnum tickType)
+        {
+            var newTick = new Tick() { MaxTick = maxTick, TickSpeed = tickSpeed, TickUID = tickUID, TickType = tickType };
+            Ticks.Add(newTick);
+            return newTick;
+        }
 
         public void Run(CancellationToken token)
 
@@ -151,27 +162,56 @@ namespace adrilight
                 while (!token.IsCancellationRequested)
                 {
 
-                    //rainbow and music ticker//
-                    double rainbowSpeed = GeneralSettings.SystemRainbowSpeed / 5d;
-                    RainbowStartIndex -= rainbowSpeed;
-                    if (RainbowStartIndex < 0)
+
+                    lock (Lock)
                     {
-                        RainbowStartIndex = rainbowMaxTick;
-                    }
-                    double musicSpeed = GeneralSettings.SystemMusicSpeed / 5d;
-                    MusicStartIndex += musicSpeed;
-                    if (MusicStartIndex > musicMaxTick)
-                    {
-                        MusicStartIndex = 0;
+                        foreach (var tick in Ticks)
+                        {
+                            if(tick.IsRunning)
+                            {
+                                if (tick.CurrentTick < tick.MaxTick - tick.TickSpeed)
+                                    tick.CurrentTick += tick.TickSpeed;
+                                else
+                                    tick.CurrentTick = 0;
+                            }
+                            else
+                            {
+                                tick.CurrentTick = 0;
+                            }
+                         
+                        }
+
+
+
+
+                        //rainbow and music ticker//
+                        double rainbowSpeed = GeneralSettings.SystemRainbowSpeed / 5d;
+                        RainbowStartIndex -= rainbowSpeed;
+                        if (RainbowStartIndex < 0)
+                        {
+                            RainbowStartIndex = rainbowMaxTick;
+                        }
+                        FrameIndex += 1;
+                        if (FrameIndex >= rainbowMaxTick)
+                        {
+                            FrameIndex = 0;
+                        }
+                        double musicSpeed = GeneralSettings.SystemMusicSpeed / 5d;
+                        MusicStartIndex += musicSpeed;
+                        if (MusicStartIndex > musicMaxTick)
+                        {
+                            MusicStartIndex = 0;
+                        }
+
+                        //static breathing ticker
+                        float smoothness_pts = 2000 - (float)GeneralSettings.BreathingSpeed;
+                        double pwm_val = 255.0 * (Math.Exp(-(Math.Pow(((ii++ / smoothness_pts) - beta) / gamma, 2.0)) / 2.0));
+                        if (ii > smoothness_pts)
+                            ii = 0f;
+
+                        BreathingBrightnessValue = pwm_val / 255d;
                     }
 
-                    //static breathing ticker
-                    float smoothness_pts = 2000-(float)GeneralSettings.BreathingSpeed;
-                    double pwm_val = 255.0 * (Math.Exp(-(Math.Pow(((ii++ / smoothness_pts) - beta) / gamma, 2.0)) / 2.0));
-                    if (ii > smoothness_pts)
-                        ii = 0f;
-
-                     BreathingBrightnessValue = pwm_val / 255d;
                     Thread.Sleep(10);
 
                 }

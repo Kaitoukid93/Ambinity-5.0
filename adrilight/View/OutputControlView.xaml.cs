@@ -1,4 +1,5 @@
-﻿using adrilight.ViewModel;
+﻿using adrilight.Util;
+using adrilight.ViewModel;
 using HandyControl.Data;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using static Un4seen.Bass.Misc.EncoderOPUS;
 
 namespace adrilight.View
 {
@@ -32,23 +34,60 @@ namespace adrilight.View
             //this.Close();
         }
 
+        private void GroupBox_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var grBx = (Border)sender;
+            var dataCntx = grBx.DataContext;
+            var dataSource = (ModeParameter)dataCntx;
+            if (dataSource != null)
+            {
+                if (dataSource.ShowMore)
+                    dataSource.ShowMore = false;
+                else
+                    dataSource.ShowMore = true;
+            }
+        }
+
+
+        private void ButtonMode_OnClick(object sender, RoutedEventArgs e)
+        {
+                PopupMode.IsOpen = true;
+        }
+
+
+        private void NewModeSelected(object sender, SelectionChangedEventArgs e) => PopupMode.IsOpen = false;
+
+        private void Expand_ParamList(object sender, RoutedEventArgs e)
+        {
+
+            var grBx = (Button)sender;
+            var dataCntx = grBx.DataContext;
+            var dataSource = (ModeParameter)dataCntx;
+            if (dataSource != null)
+            {
+                if (dataSource.ShowMore)
+                    dataSource.ShowMore = false;
+                else
+                    dataSource.ShowMore = true;
+            }
+        }
         //private void ToggleButton_MouseDown(object sender, MouseButtonEventArgs e)
         //{
-          
-            
+
+
         //}
 
         //private void betatoggle_Checked(object sender, RoutedEventArgs e)
         //{
         //    var vm = this.DataContext as MainViewViewModel;
-           
+
         //        //open password dialog
         //        if (vm.OpenPasswordDialogCommand.CanExecute("pw"))
         //        {
         //            vm.OpenPasswordDialogCommand.Execute("pw");
         //        }
 
-            
+
         //}
 
         //private void betatoggle_Unchecked(object sender, RoutedEventArgs e)

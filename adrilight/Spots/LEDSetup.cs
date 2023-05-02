@@ -127,7 +127,7 @@ namespace adrilight
         private double _angle = 0;
         private bool _hasCustomBehavior;
         private string _name;
-
+        private Rect _vIDSpace;
         private bool _isDeleteable;
         private bool _isResizeable;
         private double _scaleTop;
@@ -142,7 +142,8 @@ namespace adrilight
         public double CenterY => Height / 2 + Top;
         public bool IsScreenCaptureEnabled { get => _isScreenCaptureEnabled; set { Set(() => IsScreenCaptureEnabled, ref _isScreenCaptureEnabled, value); } }
         public string ZoneUID { get; set; }
-
+        public string GroupID { get; set; }
+        public Rect VIDSpace { get => _vIDSpace; set { Set(() => VIDSpace, ref _vIDSpace, value); } }
         public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
         public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
 
@@ -195,6 +196,73 @@ namespace adrilight
             }
 
 
+        }
+        /// <summary>
+        /// Rotates one point around another
+        /// </summary>
+        /// <param name="pointToRotate">The point to rotate.</param>
+        /// <param name="centerPoint">The center point of rotation.</param>
+        /// <param name="angleInDegrees">The rotation angle in degrees.</param>
+        /// <returns>Rotated point</returns>
+        private static Point RotatePoint(Point pointToRotate, Point centerPoint, double angleInDegrees)
+        {
+            double angleInRadians = angleInDegrees * (Math.PI / 180);
+            double cosTheta = Math.Cos(angleInRadians);
+            double sinTheta = Math.Sin(angleInRadians);
+            return new Point {
+                X =
+                    (int)
+                    (cosTheta * (pointToRotate.X - centerPoint.X) -
+                    sinTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.X),
+                Y =
+                    (int)
+                    (sinTheta * (pointToRotate.X - centerPoint.X) +
+                    cosTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.Y)
+            };
+        }
+        private static Point ReflectPointVertical(Point pointToReflect, double center) 
+        {
+           double distance = pointToReflect.X-center;
+            return new Point(center- distance,pointToReflect.Y);
+        }
+        public void ReflectLEDSetupVertical(double center)
+        {
+            foreach (var spot in Spots)
+            {
+                var translatedCenterPoint = center - Left;
+                var pos = new Point((spot as IDrawable).Left + (spot as IDrawable).Width, (spot as IDrawable).Top ); //topRight  will become new topleft
+                (spot as IDrawable).Left = ReflectPointVertical(pos, translatedCenterPoint).X;
+                (spot as IDrawable).Top = ReflectPointVertical(pos, translatedCenterPoint).Y;
+            }
+            var newBound = GetDeviceRectBound(Spots.ToList());
+            foreach (var spot in Spots)
+            {
+                (spot as IDrawable).Left -= newBound.Left;
+                (spot as IDrawable).Top -= newBound.Top;
+            }
+        }
+        public void RotateLEDSetup(double angleInDegrees,Point centerPoint)
+        {
+            
+            foreach(var spot in Spots)
+            {
+                var translatedCenterPoint = new Point(centerPoint.X-Left, centerPoint.Y-Top);
+                var pos = new Point((spot as IDrawable).Left, (spot as IDrawable).Top+ (spot as IDrawable).Height); //bottom left will become new topleft
+                var width = (spot as IDrawable).Width;
+                var height = (spot as IDrawable).Height;
+                (spot as IDrawable).Left = RotatePoint(pos, centerPoint, 90.0).X;
+                (spot as IDrawable).Top = RotatePoint(pos, centerPoint, 90.0).Y;
+                (spot as IDrawable).Width = height;
+                (spot as IDrawable).Height = width;
+            }
+            var newBound = GetDeviceRectBound(Spots.ToList());
+            foreach(var spot in Spots)
+            {
+                (spot as IDrawable).Left -=newBound.Left;
+                (spot as IDrawable).Top -=newBound.Top;
+            }
+
+            //UpdateSizeByChild(false);
         }
         public void ReorderSpots()
         {

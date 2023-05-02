@@ -1,4 +1,5 @@
 ﻿using adrilight.Settings;
+using adrilight_effect_analyzer.Model;
 using GalaSoft.MvvmLight;
 using LiveCharts;
 using LiveCharts.Defaults;
@@ -22,9 +23,11 @@ namespace adrilight.Util
         private ModeParameterEnum _paramType;
         private int _minValue;
         private int _maxValue;
+        private bool _showMore;
         private ObservableCollection<object> _availableValue;
         private ObservableCollection<SubParameter> _subParams;
-        private string _availableValueLocalPath;
+        private List<SelectableLocalPath> _availableValueLocalPaths;
+        private int _selectedValueLocalPathIndex;
         private bool _isEnabled = true;
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); } }
         public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
@@ -41,12 +44,15 @@ namespace adrilight.Util
         /// </summary>
         /// 
         [JsonIgnore]
-        public ObservableCollection<IParameterValue> AvailableValue => LoadAvailableValue(AvailableValueLocalPath);
+        public ObservableCollection<IParameterValue> AvailableValue => LoadAvailableValue(SelectedValueLocalPath.Path);
         /// <summary>
         /// this is the type of lighting mode, use to get the data template
         /// </summary>
         /// 
-        public string AvailableValueLocalPath { get => _availableValueLocalPath; set { Set(() => AvailableValueLocalPath, ref _availableValueLocalPath, value); } }
+        public List<SelectableLocalPath> AvailableValueLocalPaths { get => _availableValueLocalPaths; set { Set(() => AvailableValueLocalPaths, ref _availableValueLocalPaths, value); } }
+        [JsonIgnore]
+        public SelectableLocalPath SelectedValueLocalPath => SelectedValueLocalPathIndex > AvailableValueLocalPaths.Count - 1 || SelectedValueLocalPathIndex < 0 ? AvailableValueLocalPaths[0] : AvailableValueLocalPaths[SelectedValueLocalPathIndex];
+        public int SelectedValueLocalPathIndex { get => _selectedValueLocalPathIndex; set { Set(() => SelectedValueLocalPathIndex, ref _selectedValueLocalPathIndex, value); RaisePropertyChanged(nameof(SelectedValueLocalPath)); RaisePropertyChanged(nameof(AvailableValue)); RaisePropertyChanged(nameof(SelectedValue)); } }
         [JsonIgnore]
         public IParameterValue SelectedValue => Value > AvailableValue.Count - 1 || Value < 0 ? AvailableValue[0] : AvailableValue[Value];
         public ModeParameterTemplateEnum Template { get => _template; set { Set(() => Template, ref _template, value); } }
@@ -58,6 +64,7 @@ namespace adrilight.Util
         /// </summary>
         public int MinValue { get => _minValue; set { Set(() => MinValue, ref _minValue, value); } }
         public int MaxValue { get => _maxValue; set { Set(() => MaxValue, ref _maxValue, value); } }
+        public bool ShowMore { get => _showMore; set { Set(() => ShowMore, ref _showMore, value); } }
         public void RefreshCollection()
         {
             RaisePropertyChanged(nameof(AvailableValue));
@@ -83,7 +90,7 @@ namespace adrilight.Util
                         }
                         break;
                     case DeserializeMethodEnum.MultiJson:
-                        string[] files = Directory.GetFiles(Path.Combine(availableValueLocalPath,"collection"));
+                        string[] files = Directory.GetFiles(Path.Combine(availableValueLocalPath, "collection"));
                         switch (t)
                         {
                             case nameof(ColorPalette):
@@ -103,6 +110,19 @@ namespace adrilight.Util
 
                                     var data = JsonConvert.DeserializeObject<VIDDataModel>(json);
 
+                                    availableValue.Add(data);
+                                }
+                                break;
+                            case nameof(ChasingPattern):
+                                foreach (var file in files)
+                                {
+                                    var data = new ChasingPattern() {
+                                        Name = Path.GetFileName(file),
+                                        Description = "xxx",
+                                        Type = ChasingPatternTypeEnum.BlacknWhite,
+                                        Path = file
+
+                                    };
                                     availableValue.Add(data);
                                 }
                                 break;

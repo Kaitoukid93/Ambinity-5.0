@@ -36,14 +36,15 @@ using Microsoft.Win32.TaskScheduler;
 using System.Windows.Automation.Peers;
 using Rectangle = System.Drawing.Rectangle;
 using MoreLinq;
+using SharpDX.WIC;
 
 namespace adrilight
 {
-    internal class Rainbow : ILightingEngine
+    internal class Animation : ILightingEngine
     {
         private readonly ILogger _log = LogManager.GetCurrentClassLogger();
 
-        public Rainbow(
+        public Animation(
             IGeneralSettings generalSettings,
             MainViewViewModel mainViewViewModel,
             IControlZone zone,
@@ -89,9 +90,13 @@ namespace adrilight
                 case nameof(_colorControl):
                     Refresh();
                     break;
-                case nameof(GeneralSettings.SystemRainbowSpeed):
-                    OnSystemSpeedChanged(GeneralSettings.SystemRainbowSpeed);
-                    break;
+                    //case nameof(GeneralSettings.SystemRainbowSpeed):
+                    //    OnSystemRainbowSpeedChanged(GeneralSettings.SystemRainbowSpeed);
+                    //    break;
+                    //case nameof(GeneralSettings.SystemPlaybackSpeed):
+                    //    OnSystemPlaybackSpeedValueChange(GeneralSettings.BreathingSpeed);
+                    //    break;
+                    //    break;
             }
         }
 
@@ -103,71 +108,223 @@ namespace adrilight
         private Thread _workerThread;
         private LightingMode _currentLightingMode;
         private IModeParameter _colorControl;
+        private IModeParameter _chasingPatternControl;
         private IModeParameter _brightnessControl;
         private IModeParameter _speedControl;
         private IModeParameter _systemSyncControl;
         private IModeParameter _vidDataControl;
-        private ColorPalette _palette;
+        private IParameterValue _selectedColorSource;
         private Color[] _colorBank;
         private bool _isSystemSync;
+        private bool _isBreathing;
         private double _brightness;
-        private double _speed;
-        private VIDDataModel _vidPath;
-        private int _vidIntensity;
-
+        private int _speed;
+        private double _paletteSpeed;
+        private Motion _motion;
+        private Frame[] _resizedFrames;
+        private ChasingPattern _pattern;
+        private colorUseEnum _colorUse = colorUseEnum.MovingPalette;
+        private int _paletteIntensity = 10;
+        private int _frameIndex = 0;
+        private Tick[] _ticks;
+        private object _lock = new object();
+        private bool _shouldBeMoving;
+        private enum colorUseEnum { StaticPalette, MovingPalette, CyclicPalette };
 
         #region Properties changed event handler 
+        //private void OnSystemRainbowSpeedChanged(int value)
+        //{
+        //    _speedControl.Value = value;
+        //}
+        //private void OnSystemPlaybackSpeedValueChange(int value)
+        //{
+        //    GeneralSettings.SystemPlaybackSpeed = value;
+        //    if(_systemSyncControl != null)
+        //    {
+        //        _systemSyncControl.SubParams[0].Value = value;
+        //    }
+        //}
+        //private void OnSystemSyncValueChanged(bool value)
+        //{
+        //    _isSystemSync = value;
+        //    if (value)
+        //    {
+        //        //hide native speed control
+        //        _speedControl.IsEnabled = false;
+        //        _systemSyncControl.SubParams[0].IsEnabled = true;
 
-        private void OnSystemSpeedChanged(int value)
-        {
-            if (_systemSyncControl != null)
-                _systemSyncControl.SubParams[0].Value = value;
-
-        }
-
-        private void OnSystemSyncValueChanged(bool value)
-        {
-            _isSystemSync = value;
-            if (value)
-            {
-                //hide native speed control
-                _speedControl.IsEnabled = false;
-                _systemSyncControl.SubParams[0].IsEnabled = true;
-
-            }
-            else
-            {
-                _speedControl.IsEnabled = true;
-                _systemSyncControl.SubParams[0].IsEnabled = false;
-            }
-        }
+        //    }
+        //    else
+        //    {
+        //        _speedControl.IsEnabled = true;
+        //        _systemSyncControl.SubParams[0].IsEnabled = false;
+        //    }
+        //}
         private void OnSelectedPaletteChanged(IParameterValue value)
         {
-            _palette = value as ColorPalette;
-            _colorBank = GetColorGradientfromPaletteWithFixedColorPerGap(_palette.Colors, 64).ToArray();
-        }
-        private void OnSelectedVIDDataChanged(IParameterValue value)
-        {
-            _vidPath = value as VIDDataModel;
-            if (_vidPath.ExecutionType == VIDType.PositonGeneratedID)
+            _selectedColorSource = value;
+            if (value is ColorPalette)
             {
-                _vidDataControl.SubParams[0].IsEnabled = true;
-                _vidDataControl.SubParams[1].IsEnabled = false;
-                //generate VID for this zone here
-                GenerateVID(_vidPath.Dirrection);
+                //show sub params
+                _colorControl.SubParams[0].IsEnabled = true;
+                _colorControl.SubParams[1].IsEnabled = true;
+                _colorControl.SubParams[2].IsEnabled = true;
+                _shouldBeMoving = _colorControl.SubParams[0].Value == 1;
+
+            }
+            else if (value is ColorCard)
+            {
+                _colorControl.SubParams[0].IsEnabled = false;
+                _colorControl.SubParams[1].IsEnabled = false;
+                _colorControl.SubParams[2].IsEnabled = false;
+                _shouldBeMoving = false;
+
+            }
+            GetColorBank(value);
+        }
+        private void OnPaletteIntensityPropertyChanged(int value)
+        {
+            _paletteIntensity = value;
+            GetColorBank(_selectedColorSource);
+        }
+        private void OnPaletteSpeedPropertyChanged(int value)
+        {
+            _paletteSpeed = value;
+        }
+        private void OnColorUsePropertyChanged(int value)
+        {
+            _colorUse = (colorUseEnum)value;
+            _shouldBeMoving = _colorControl.SubParams[0].Value == 1;
+            switch (value)
+            {
+                case 1:
+                    _colorControl.SubParams[2].IsEnabled = true;
+                    _colorControl.SubParams[1].IsEnabled = true;
+                    GetColorBank(_selectedColorSource);
+                    break;
+                case 0:
+                    _colorControl.SubParams[2].IsEnabled = false;
+                    _colorControl.SubParams[1].IsEnabled = false;
+                    GetColorBank(_selectedColorSource);
+                    break;
+
+            }
+
+        }
+        private void GetColorBank(IParameterValue value)
+        {
+            if (value is ColorCard)
+            {
+                var colors = value as ColorCard;
+                _colorBank = GetColorGradient(colors.StartColor, colors.StopColor, CurrentZone.Spots.Count()).ToArray();
+            }
+            else if (value is ColorPalette)
+            {
+                var palette = value as ColorPalette;
+                switch (_colorUse)
+                {
+                    case colorUseEnum.StaticPalette:
+                        _colorBank = GetColorGradientfromPaletteWithFixedColorPerGap(palette.Colors, 2).ToArray();
+                        break;
+                    case colorUseEnum.MovingPalette:
+                        _colorBank = GetColorGradientfromPaletteWithFixedColorPerGap(palette.Colors, _paletteIntensity).ToArray();
+                        break;
+                }
+            }
+
+        }
+        private void GetTick(bool isInControlGroup)
+        {
+            if (isInControlGroup)
+            {
+                //check if tick exist in rainbowticker
+                lock (RainbowTicker.Lock)
+                {
+                    var frameTick = RainbowTicker.Ticks.Where(t => t.TickUID == CurrentZone.GroupID && t.TickType == TickEnum.FrameTick).FirstOrDefault();
+                    var colorTick = RainbowTicker.Ticks.Where(t => t.TickUID == CurrentZone.GroupID && t.TickType == TickEnum.ColorTick).FirstOrDefault();
+                    if (frameTick == null)
+                    {
+                        //create new tick
+                        var maxTick = _resizedFrames != null ? _resizedFrames.Length : 1024;
+                        frameTick = RainbowTicker.MakeNewTick(maxTick, _speed, CurrentZone.GroupID, TickEnum.FrameTick);
+                    }
+                    if (colorTick == null)
+                    {
+                        //create new tick
+                        var maxTick = _colorBank != null ? _colorBank.Length : 1024;
+                        frameTick = RainbowTicker.MakeNewTick(maxTick, _paletteSpeed / 5d, CurrentZone.GroupID, TickEnum.ColorTick);
+                    }
+                    _ticks = new Tick[2];
+                    _ticks[0] = frameTick;
+                    _ticks[1] = colorTick;
+                }
+
             }
             else
             {
-                _vidDataControl.SubParams[0].IsEnabled = false;
-                _vidDataControl.SubParams[1].IsEnabled = true;
+                var frameTick = new Tick() {
+                    MaxTick = _resizedFrames != null ? _resizedFrames.Length : 1024,
+                    TickSpeed = _speed
+                };
+                var colorTick = new Tick() {
+                    MaxTick = _colorBank != null ? _colorBank.Length : 1024,
+                    TickSpeed = _paletteSpeed / 5d
+                };
+                _ticks = new Tick[2];
+                _ticks[0] = frameTick;
+                _ticks[1] = colorTick;
+            }
+        }
+        private void UpdateTick(bool isInControlGroup)
+        {
+            if (isInControlGroup)
+            {
+                lock (RainbowTicker.Lock)
+                {
+                    _ticks[0].MaxTick = _resizedFrames != null ? _resizedFrames.Length : 1024;
+                    _ticks[0].TickSpeed = _speed;
+                    _ticks[0].CurrentTick = 0;
+                    _ticks[1].MaxTick = _colorBank != null ? _colorBank.Length : 1024;
+                    _ticks[1].TickSpeed = _paletteSpeed / 5d;
+                    _ticks[1].CurrentTick = 0;
+
+                }
+            }
+            else
+            {
+                _ticks[0].MaxTick = _resizedFrames != null ? _resizedFrames.Length : 1024;
+                _ticks[0].TickSpeed = _speed;
+                _ticks[0].CurrentTick = 0;
+                _ticks[1].MaxTick = _colorBank != null ? _colorBank.Length : 1024;
+                _ticks[1].TickSpeed = _paletteSpeed / 5d;
+                _ticks[1].CurrentTick = 0;
             }
 
-
         }
-        private void OnVIDIntensityValueChanged(int value)
+        private void OnSelectedChasingPatternChanged(IParameterValue value)
         {
-            _vidIntensity = value;
-            GenerateVID(_vidPath.Dirrection);
+            //resize motion here
+            _frameIndex = 0;
+            _pattern = value as ChasingPattern;
+            _motion = ReadMotionFromDisk(_pattern.Path);
+            var numLED = CurrentZone.Spots.Count();
+            int frameCount = 0;
+            lock (_lock)
+            {
+                _resizedFrames = new Frame[_motion.Frames.Length];
+                UpdateTick(CurrentZone.IsInControlGroup);
+                foreach (var frame in _motion.Frames)
+                {
+                    //scale each frame
+                    var resizedFrame = new Frame();
+                    resizedFrame.BrightnessData = ResizeFrame(frame.BrightnessData, frame.BrightnessData.Length, numLED);
+                    _resizedFrames[frameCount++] = resizedFrame;
+
+                }
+            }
+            //update tick
+
+
         }
         private void OnBrightnessValueChanged(int value)
         {
@@ -175,11 +332,8 @@ namespace adrilight
         }
         private void OnSpeedChanged(int value)
         {
-            _speed = value / 5d;
-        }
-        private void OnSystemSyncSpeedValueChanged(int value)
-        {
-            GeneralSettings.SystemRainbowSpeed = value;
+            _speed = value;
+            UpdateTick(CurrentZone.IsInControlGroup);
         }
         #endregion
 
@@ -189,9 +343,9 @@ namespace adrilight
             var isRunning = _cancellationTokenSource != null;
 
             var currentLightingMode = CurrentZone.IsInControlGroup ? CurrentZone.MaskedControlMode as LightingMode : CurrentZone.CurrentActiveControlMode as LightingMode;
-
+            GetTick(CurrentZone.IsInControlGroup);
             var shouldBeRunning =
-                currentLightingMode.BasedOn == LightingModeEnum.Rainbow &&
+                currentLightingMode.BasedOn == LightingModeEnum.Animation &&
                 //this zone has to be enable, this could be done by stop setting the spots, but the this thread still alive, so...
                 CurrentZone.IsEnabled == true &&
                 //stop this engine when any surface or editor open because this could cause capturing fail
@@ -203,7 +357,7 @@ namespace adrilight
             if (isRunning && !shouldBeRunning)
             {
                 //stop it!
-                _log.Debug("stopping the Rainbow Engine");
+                _log.Debug("stopping the Animation Engine");
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource = null;
 
@@ -215,17 +369,28 @@ namespace adrilight
                 #region registering params
                 _currentLightingMode = currentLightingMode;
                 _speedControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Speed).FirstOrDefault();
-                _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Palette).FirstOrDefault();
-                _colorControl.PropertyChanged += (_, __) => OnSelectedPaletteChanged(_colorControl.SelectedValue);
+                _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.MixedColor).FirstOrDefault();
+                _colorControl.PropertyChanged += (_, __) =>
+                {
+                    switch (__.PropertyName)
+                    {
+                        case nameof(_colorControl.SelectedValue):
+                            OnSelectedPaletteChanged(_colorControl.SelectedValue);
+                            break;
+                    }
+                };
+
+                _colorControl.SubParams[0].PropertyChanged += (_, __) => OnColorUsePropertyChanged(_colorControl.SubParams[0].Value);
+                _colorControl.SubParams[2].PropertyChanged += (_, __) => OnPaletteIntensityPropertyChanged(_colorControl.SubParams[2].Value);
+                _colorControl.SubParams[1].PropertyChanged += (_, __) => OnPaletteSpeedPropertyChanged(_colorControl.SubParams[1].Value);
                 _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault();
                 _speedControl.PropertyChanged += (_, __) => OnSpeedChanged(_speedControl.Value);
                 _brightnessControl.PropertyChanged += (_, __) => OnBrightnessValueChanged(_brightnessControl.Value);
                 _systemSyncControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.IsSystemSync).FirstOrDefault();
-                _systemSyncControl.PropertyChanged += (_, __) => OnSystemSyncValueChanged(_systemSyncControl.Value == 1 ? true : false);
-                _systemSyncControl.SubParams[0].PropertyChanged += (_, __) => OnSystemSyncSpeedValueChanged(_systemSyncControl.SubParams[0].Value);
-                _vidDataControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.VID).FirstOrDefault();
-                _vidDataControl.PropertyChanged += (_, __) => OnSelectedVIDDataChanged(_vidDataControl.SelectedValue);
-                _vidDataControl.SubParams[0].PropertyChanged += (_, __) => OnVIDIntensityValueChanged(_vidDataControl.SubParams[0].Value);
+                //_systemSyncControl.SubParams[0].PropertyChanged += (_, __) => OnSystemPlaybackSpeedValueChange(_systemSyncControl.SubParams[0].Value);
+                //_systemSyncControl.PropertyChanged += (_, __) => OnSystemSyncValueChanged(_systemSyncControl.Value == 1 ? true : false);
+                _chasingPatternControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.ChasingPattern).FirstOrDefault();
+                _chasingPatternControl.PropertyChanged += (_, __) => OnSelectedChasingPatternChanged(_chasingPatternControl.SelectedValue);
 
                 #endregion
                 _log.Debug("starting the Static Color Engine");
@@ -233,7 +398,7 @@ namespace adrilight
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
                     Priority = ThreadPriority.BelowNormal,
-                    Name = "Rainbow"
+                    Name = "Animation"
                 };
                 _workerThread.Start();
             }
@@ -243,7 +408,7 @@ namespace adrilight
         public void Run(CancellationToken token)
         {
 
-            _log.Debug("Started Rainbow engine.");
+            _log.Debug("Started Animation engine.");
 
 
             try
@@ -251,69 +416,83 @@ namespace adrilight
                 //get properties value for first time running
 
                 //color param
-                OnSelectedPaletteChanged(_colorControl.SelectedValue);
-                OnSelectedVIDDataChanged(_vidDataControl.SelectedValue);
-                OnVIDIntensityValueChanged(_vidDataControl.SubParams[0].Value);
-                OnBrightnessValueChanged(_brightnessControl.Value);
+                _selectedColorSource = _colorControl.SelectedValue;
+                OnSelectedPaletteChanged(_selectedColorSource);
+                OnColorUsePropertyChanged(_colorControl.SubParams[0].Value);
+                OnPaletteIntensityPropertyChanged(_colorControl.SubParams[2].Value);
+                OnPaletteSpeedPropertyChanged(_colorControl.SubParams[1].Value);
                 OnSpeedChanged(_speedControl.Value);
-                OnSystemSyncValueChanged(_systemSyncControl.Value == 1 ? true : false);
-                double StartIndex = 0d;
+                OnSelectedChasingPatternChanged(_chasingPatternControl.SelectedValue);
+                OnBrightnessValueChanged(_brightnessControl.Value);
                 var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
                 while (!token.IsCancellationRequested)
                 {
                     bool isPreviewRunning = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated;
-
-                    StartIndex -= _speed;
-                    if (StartIndex < 0)
-                    {
-                        StartIndex = _colorBank.Length - 1;
-                    }
-                    if (_isSystemSync)
-                    {
-                        lock(RainbowTicker.Lock)
-                        {
-                            StartIndex = RainbowTicker.RainbowStartIndex;
-                        }
-                        
-                    }
-                   
+                    NextTick();
                     lock (CurrentZone.Lock)
                     {
-
-                        
                         foreach (var spot in CurrentZone.Spots)
                         {
                             int position = 0;
-                            position = Convert.ToInt32(Math.Floor(StartIndex + spot.VID));
+                            position = Convert.ToInt32(Math.Floor(_ticks[1].CurrentTick + spot.Index));
                             position %= _colorBank.Length;
-                            if (spot.HasVID)
+                            lock (_lock)
                             {
-                                ApplySmoothing((float)_brightness * _colorBank[position].R, (float)_brightness * _colorBank[position].G, (float)_brightness * _colorBank[position].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
+                                float brightness = ((_resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData[spot.Index - startPID]) * (float)_brightness) / 255;
+                                ApplySmoothing(brightness * _colorBank[position].R, brightness * _colorBank[position].G, brightness * _colorBank[position].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
                                 spot.SetColor(FinalR, FinalG, FinalB, isPreviewRunning);
                             }
-
-                            else
-                            {
-                                spot.SetColor(0, 0, 0, isPreviewRunning);
-                            }
                         }
-
-
-
                     }
-
                     Thread.Sleep(10);
                 }
             }
             finally
             {
-
-                _log.Debug("Stopped the Rainbow Engine");
+                _log.Debug("Stopped the Animation Engine");
                 //IsRunning = false;
                 GC.Collect();
             }
         }
+        private void NextTick()
+        {
+            //stop ticking color if zone color source is solid or color use is static
+            if (!CurrentZone.IsInControlGroup)
+            {
+                if (_ticks[0].CurrentTick < _ticks[0].MaxTick - _ticks[0].TickSpeed)
+                    _ticks[0].CurrentTick += _ticks[0].TickSpeed;
+                else
+                {
+                    _ticks[0].CurrentTick = 0;
+                }
+                if (!_shouldBeMoving)
+                {
+                    _ticks[1].CurrentTick = 0;
+                }
+                else
+                {
+                    if (_ticks[1].CurrentTick < _ticks[1].MaxTick - _ticks[1].TickSpeed)
+                        _ticks[1].CurrentTick += _ticks[1].TickSpeed;
+                    else
+                    {
+                        _ticks[1].CurrentTick = 0;
+                    }
+                }
 
+            }
+            else
+            {
+                if (!_shouldBeMoving)
+                {
+                    _ticks[1].IsRunning = false;
+                }
+                else
+                {
+                    _ticks[1].IsRunning = true;
+                }
+            }
+
+        }
 
         public static List<Color> GetColorGradient(Color from, Color to, int totalNumberOfColors)
         {
@@ -388,134 +567,6 @@ namespace adrilight
 
             // new update, create free amount of color????
         }
-        private void GenerateVID(VIDDirrection dirrection)
-        {
-            Rect vidSpace = new Rect();
-            if (CurrentZone.IsInControlGroup)
-            {
-                vidSpace = CurrentZone.VIDSpace;
-            }
-            else
-            {
-                vidSpace = new Rect(CurrentZone.GetRect.Left, CurrentZone.GetRect.Top, CurrentZone.Width, CurrentZone.Height);
-            }
-            //get brush size
-            //brush rect will move as the dirrection, so intersect size increase
-            //this is moving left to right
-
-            int vidSpaceWidth;
-            int vidSpaceHeight;
-            int zoneOffSetLeft;
-            int zoneOffSetTop;
-            int VIDCount;
-            CurrentZone.ResetVIDStage();
-            switch (dirrection)
-            {
-                case VIDDirrection.left2right:
-                    vidSpaceWidth = (int)vidSpace.Width;
-                    vidSpaceHeight = (int)vidSpace.Height;
-                    zoneOffSetLeft = (int)(CurrentZone.GetRect.Left - vidSpace.Left);
-                    zoneOffSetTop = (int)(CurrentZone.GetRect.Top - vidSpace.Top);
-                    VIDCount = zoneOffSetLeft;
-                    for (int x = 0; x < vidSpaceWidth; x += 5)
-                    {
-                        int settedVIDCount = 0;
-                        var brush = new Rectangle(0 - zoneOffSetLeft, 0 - zoneOffSetTop, x, vidSpaceHeight);
-                        foreach (var spot in CurrentZone.Spots)
-                        {
-                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
-                                settedVIDCount++;
-                        }
-                        if (settedVIDCount > 0)
-                        {
-                            VIDCount += _vidIntensity;
-                        }
-                        if (VIDCount > 1023)
-                            VIDCount = 0;
-                    }
-                    break;
-                case VIDDirrection.right2left:
-                    vidSpaceWidth = (int)vidSpace.Width;
-                    vidSpaceHeight = (int)vidSpace.Height;
-                    zoneOffSetLeft = (int)(CurrentZone.GetRect.Left - vidSpace.Left);
-                    zoneOffSetTop = (int)(CurrentZone.GetRect.Top - vidSpace.Top);
-                    VIDCount = vidSpaceWidth - zoneOffSetLeft;
-                    for (int x = vidSpaceWidth; x > 0; x -= 5)
-                    {
-                        int settedVIDCount = 0;
-                        var brush = new Rectangle(x - zoneOffSetLeft, 0 - zoneOffSetTop, vidSpaceWidth - x, vidSpaceHeight);
-                        foreach (var spot in CurrentZone.Spots)
-                        {
-                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
-                                settedVIDCount++;
-                        }
-                        if (settedVIDCount > 0)
-                        {
-                            VIDCount += _vidIntensity;
-                        }
-                        if (VIDCount > 1023)
-                            VIDCount = 0;
-                    }
-                    break;
-                case VIDDirrection.bot2top:
-                    vidSpaceWidth = (int)vidSpace.Width;
-                    vidSpaceHeight = (int)vidSpace.Height;
-                    zoneOffSetLeft = (int)(CurrentZone.GetRect.Left - vidSpace.Left);
-                    zoneOffSetTop = (int)(CurrentZone.GetRect.Top - vidSpace.Top);
-                    VIDCount = vidSpaceHeight - zoneOffSetTop;
-                    for (int y = vidSpaceHeight; y > 0; y -= 5)
-                    {
-                        int settedVIDCount = 0;
-                        var brush = new Rectangle(0 - zoneOffSetLeft, y - zoneOffSetTop, vidSpaceWidth, vidSpaceHeight - y);
-                        foreach (var spot in CurrentZone.Spots)
-                        {
-                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
-                                settedVIDCount++;
-                        }
-                        if (settedVIDCount > 0)
-                        {
-                            VIDCount += _vidIntensity;
-                        }
-                        if (VIDCount > 1023)
-                            VIDCount = 0;
-                    }
-                    break;
-                case VIDDirrection.top2bot:
-                    vidSpaceWidth = (int)vidSpace.Width;
-                    vidSpaceHeight = (int)vidSpace.Height;
-                    zoneOffSetLeft = (int)(CurrentZone.GetRect.Left - vidSpace.Left);
-                    zoneOffSetTop = (int)(CurrentZone.GetRect.Top - vidSpace.Top);
-                    VIDCount = zoneOffSetTop;
-                    for (int y = 0; y < vidSpaceHeight; y += 5)
-                    {
-                        int settedVIDCount = 0;
-                        var brush = new Rectangle(0 - zoneOffSetLeft, 0 - zoneOffSetTop, vidSpaceWidth, y);
-                        foreach (var spot in CurrentZone.Spots)
-                        {
-                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
-                                settedVIDCount++;
-                        }
-                        if (settedVIDCount > 0)
-                        {
-                            VIDCount += _vidIntensity;
-                        }
-                        if (VIDCount > 1023)
-                            VIDCount = 0;
-                    }
-                    break;
-                case VIDDirrection.linear:
-                    foreach (var spot in CurrentZone.Spots)
-                    {
-                        spot.SetVID(spot.Index * _vidIntensity);
-                        spot.HasVID = true;
-                    }
-                    break;
-
-
-            }
-
-        }
-
         public static IEnumerable<Color> GetColorGradientfromPaletteWithFixedColorPerGap(Color[] colorCollection, int colorPerGap)
         {
             var colors = new List<Color>();
@@ -591,7 +642,22 @@ namespace adrilight
             const float factor = 80f;
             return (byte)(256f * ((float)Math.Pow(factor, color / 256f) - 1f) / (factor - 1));
         }
+        private static Motion ReadMotionFromDisk(string path)
+        {
+            Motion motion = new Motion(256);
+            try
+            {
+                var json = File.ReadAllText(path);
 
+                motion = JsonConvert.DeserializeObject<Motion>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+            }
+            catch (Exception ex)
+            {
+                HandyControl.Controls.MessageBox.Show("Corrupted or incompatible data File!!!", "LEDSetup Import", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            return motion;
+        }
         public void Stop()
         {
             _log.Debug("Stop called.");

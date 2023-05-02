@@ -217,7 +217,8 @@
                                     <hc:TransitioningContentControl  TransitionMode="Top2Bottom">
                                         <Border  BorderThickness="1" BorderBrush="{DynamicResource DarkMaskBrush}" Effect="{DynamicResource EffectShadow3}"  Margin="15,0,15,15" Background="{StaticResource RegionBrush}" CornerRadius="7">
                                             <ListBox SelectedItem="{Binding CurrentSelectedLightingMode}" SelectedIndex="{Binding CurrentOutput.OutputSelectedMode}" SelectionChanged="NewModeSelected"  x:Name="lightingmode_selection"  
-                                                 ItemContainerStyle="{StaticResource _listBoxGeneralModeSelectionStyle}"  
+                                                 ItemContainerStyle="{StaticResource 
+}"  
                                                  Background="Transparent"
                                                  BorderThickness="0"
                                                  ItemsSource="{Binding AvailableLightingMode}"

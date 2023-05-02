@@ -12,5 +12,6 @@ namespace adrilight.Util
         public string Description { get; set; }
         public VIDType ExecutionType { get; set; }
         public string Geometry { get; set; }
+        public VIDDirrection Dirrection { get; set; }
     }
 }

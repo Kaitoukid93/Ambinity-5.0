@@ -69,8 +69,8 @@
                 </ToolBar>
                 <ToolBar Padding="6" Header="ID Settings">
                     <Separator Margin="10,0" MaxHeight="25"/>
-                    <hc:NumericUpDown Margin="5,0" Value="{Binding CountVID}" x:Name="vidBox" DecimalPlaces="0" ShowClearButton="True"  hc:InfoElement.TitleWidth="30"  hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="{Binding CurrentIDType}" Style="{StaticResource NumericUpDownPlus}" hc:InfoElement.Necessary="False"/>
-                    <hc:NumericUpDown Margin="5,0" Value="{Binding GapVID}" x:Name="gapBox" DecimalPlaces="0" ShowClearButton="True"  hc:InfoElement.TitleWidth="auto"  hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="Space"  hc:InfoElement.Necessary="False">
+                    <hc:NumericUpDown Margin="5,0" Value="{Binding CountVID}" x:Name="vidBox" DecimalPlaces="0"   hc:InfoElement.TitleWidth="30"  hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="{Binding CurrentIDType}" Style="{StaticResource NumericUpDownPlus}" hc:InfoElement.Necessary="False"/>
+                    <hc:NumericUpDown Margin="5,0" Value="{Binding GapVID}" x:Name="gapBox" DecimalPlaces="0"   hc:InfoElement.TitleWidth="auto"  hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="Space"  hc:InfoElement.Necessary="False">
                         <hc:NumericUpDown.Style>
                             <Style TargetType="hc:NumericUpDown" BasedOn="{StaticResource NumericUpDownPlus}">
                                 <Setter Property="Visibility" Value="Visible"/>

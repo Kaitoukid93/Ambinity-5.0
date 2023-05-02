@@ -30,7 +30,7 @@
             <TextBlock Text="Scale" Style="{StaticResource TextBlockLarge}">
 
             </TextBlock>
-            <hc:NumericUpDown Value="{Binding ItemScaleValue}" x:Name="scaleBox" DecimalPlaces="2" ShowClearButton="True"  hc:InfoElement.TitleWidth="90" hc:InfoElement.Placeholder="Scale is always greater than 0 and smaller than 10" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="Scaling factor" Style="{StaticResource NumericUpDownPlus}" hc:InfoElement.Necessary="True" Margin="0,15,0,0"/>
+            <hc:NumericUpDown Value="{Binding ItemScaleValue}" x:Name="scaleBox" DecimalPlaces="2"   hc:InfoElement.TitleWidth="90" hc:InfoElement.Placeholder="Scale is always greater than 0 and smaller than 10" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="Scaling factor" Style="{StaticResource NumericUpDownPlus}" hc:InfoElement.Necessary="True" Margin="0,15,0,0"/>
 
             <Grid >
                 <Grid.ColumnDefinitions>

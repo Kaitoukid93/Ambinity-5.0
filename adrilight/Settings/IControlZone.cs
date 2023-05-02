@@ -20,6 +20,7 @@ namespace adrilight
         bool IsEnabled { get; set; }
         int CurrentActiveControlModeIndex { get; set; }
         bool IsInControlGroup { get; set; }
+        string GroupID { get; set; }
         void UpdateSizeByChild(bool withPoint);
     }
 }

@@ -36,6 +36,7 @@ namespace adrilight
             // DeviceSpotSets = deviceSpotSets ?? throw new ArgumentNullException(nameof(deviceSpotSets));
             DeviceSettings.PropertyChanged += UserSettings_PropertyChanged;
             DeviceSettings.DeviceState = DeviceStateEnum.Normal;
+            _hasPWMCOntroller = DeviceSettings.AvailablePWMOutputs != null && DeviceSettings.AvailablePWMOutputs.Count() > 0;
             RefreshTransferState();
 
             _log.Info($"SerialStream created.");
@@ -126,6 +127,7 @@ namespace adrilight
 
         private CancellationTokenSource _cancellationTokenSource;
         private Thread _workerThread;
+        private bool _hasPWMCOntroller;
         private readonly byte[] _messagePreamble = { (byte)'a', (byte)'b', (byte)'n' };
         private int frameCounter;
         private int blackFrameCounter;
@@ -261,13 +263,10 @@ namespace adrilight
             }
         }
 
-
-
-
-        private (byte[] Buffer, int OutputLength) GetOutputStream(int id)
+        private (byte[] Buffer, int OutputLength) GetOutputStreamWithPWM(int id)
         {
             byte[] outputStream;
-            var currentLightingDevice = _lightingDevices[id];
+            var currentLightingDevice = _lightingDevices[id]; // need to implement device number mismatch
             var currentPWMDevice = _pwmDevices[id];
             int counter = _messagePreamble.Length;
             var fan = currentPWMDevice.ControlableZones[0] as FanMotor;
@@ -288,6 +287,7 @@ namespace adrilight
             outputStream[counter++] = (byte)fan.CurrentPWMValue;
             outputStream[counter++] = 0;
             var allBlack = true;
+            int aliveSpotCounter = 0;
             foreach (var zone in currentLightingDevice.ControlableZones)
             {
                 var ledZone = zone as LEDSetup;
@@ -314,20 +314,27 @@ namespace adrilight
                                 }
 
 
+                                
                                 foreach (DeviceSpot spot in ledZone.Spots)
                                 {
+                                    if (spot.IsEnabled)
+                                    {
+                                        var rgbOrder = ledZone.RGBLEDOrder;
+                                        var reOrderedColor = ReOrderSpotColor(rgbOrder, spot.Red, spot.Green, spot.Blue);
+                                        //get data
+                                        outputStream[counter + spot.Index * 3 + 0] = reOrderedColor[0]; // blue
+                                        outputStream[counter + spot.Index * 3 + 1] = reOrderedColor[1]; // green
+                                        outputStream[counter + spot.Index * 3 + 2] = reOrderedColor[2]; // red
+                                        aliveSpotCounter++;
+                                    }
 
-                                    var rgbOrder = ledZone.RGBLEDOrder;
-                                    var reOrderedColor = ReOrderSpotColor(rgbOrder, spot.Red, spot.Green, spot.Blue);
-                                    //get data
-                                    outputStream[counter + spot.Index * 3 + 0] = reOrderedColor[0]; // blue
-                                    outputStream[counter + spot.Index * 3 + 1] = reOrderedColor[1]; // green
-                                    outputStream[counter + spot.Index * 3 + 2] = reOrderedColor[2]; // red
 
 
                                     allBlack = allBlack && spot.Red == 0 && spot.Green == 0 && spot.Blue == 0;
 
                                 }
+                                //fill the rest of outputStream zero
+                                
                                 break;
                             case DeviceStateEnum.Sleep: // send black frame data
                                 foreach (DeviceSpot spot in ledZone.Spots)
@@ -374,6 +381,137 @@ namespace adrilight
             if (allBlack)
             {
                 blackFrameCounter++;
+            }
+            for (int i = counter + aliveSpotCounter * 3; i < bufferLength; i++)
+            {
+                outputStream[i] = 0;
+            }
+            return (outputStream, bufferLength);
+        }
+
+        private (byte[] Buffer, int OutputLength) GetOutputStream(int id)
+        {
+            byte[] outputStream;
+            var currentLightingDevice = _lightingDevices[id];
+            int counter = _messagePreamble.Length;
+            const int colorsPerLed = 3;
+            const int hilocheckLenght = 3;
+            const int extraHeader = 3;
+            int ledCount = currentLightingDevice.LEDCount;
+            int bufferLength = _messagePreamble.Length + hilocheckLenght + extraHeader + (ledCount * colorsPerLed);
+            outputStream = ArrayPool<byte>.Shared.Rent(bufferLength);
+            Buffer.BlockCopy(_messagePreamble, 0, outputStream, 0, _messagePreamble.Length);
+            byte lo = (byte)((ledCount == 0 ? 1 : ledCount) & 0xff);
+            byte hi = (byte)(((ledCount == 0 ? 1 : ledCount) >> 8) & 0xff);
+            byte chk = (byte)(hi ^ lo ^ 0x55);
+            outputStream[counter++] = hi;
+            outputStream[counter++] = lo;
+            outputStream[counter++] = chk;
+            outputStream[counter++] = (byte)id;
+            outputStream[counter++] = 0;
+            outputStream[counter++] = 0;
+            var allBlack = true;
+            int aliveSpotCounter = 0;
+            foreach (var zone in currentLightingDevice.ControlableZones)
+            {
+                var ledZone = zone as LEDSetup;
+                lock (ledZone.Lock)
+                {
+                    var isEnabled = ledZone.IsEnabled;
+                    var parrentIsEnabled = DeviceSettings.IsEnabled;
+                    if (ledZone.Spots.Count == 0)//this could be PID has removed all items add 1 dummy
+                    {
+                        outputStream[counter++] = 0; // blue
+                        outputStream[counter++] = 0; // green
+                        outputStream[counter++] = 0; // red
+                    }
+                    else
+                    {
+                        switch (DeviceSettings.DeviceState)
+                        {
+                            case DeviceStateEnum.Normal: // get data from ledsetup
+                                if (!DeviceSettings.IsEnabled || !ledZone.IsEnabled)
+                                {
+
+                                    ledZone.DimLED(0.9f);
+
+                                }
+
+                                
+                                foreach (DeviceSpot spot in ledZone.Spots)
+                                {
+                                    if (spot.IsEnabled)
+                                    {
+                                        var rgbOrder = ledZone.RGBLEDOrder;
+                                        var reOrderedColor = ReOrderSpotColor(rgbOrder, spot.Red, spot.Green, spot.Blue);
+                                        //get data
+                                        outputStream[counter + spot.Index * 3 + 0] = reOrderedColor[0]; // blue
+                                        outputStream[counter + spot.Index * 3 + 1] = reOrderedColor[1]; // green
+                                        outputStream[counter + spot.Index * 3 + 2] = reOrderedColor[2]; // red
+                                        aliveSpotCounter++;
+                                    }
+
+
+
+                                    allBlack = allBlack && spot.Red == 0 && spot.Green == 0 && spot.Blue == 0;
+
+                                }
+                                //fill the rest of outputStream zero
+                                for (int i = counter + aliveSpotCounter * 3; i < bufferLength; i++)
+                                {
+                                    outputStream[i] = 0;
+                                }
+
+                                break;
+                            case DeviceStateEnum.Sleep: // send black frame data
+                                foreach (DeviceSpot spot in ledZone.Spots)
+                                {
+
+                                    //switch (currentOutput.SleepMode)
+                                    //{
+                                    //    case 0:
+                                    //        if (isEnabled && parrentIsEnabled)
+                                    //        {
+
+                                    //            for (int i = 0; i < ledPerSpot; i++)
+                                    //            {
+                                    //                outputStream[counter++] = 0; // blue
+                                    //                outputStream[counter++] = 0; // green
+                                    //                outputStream[counter++] = 0; // red
+                                    //            }
+                                    //        }
+                                    //        break;
+                                    //    case 1:
+                                    //        if (isEnabled && parrentIsEnabled)
+                                    //        {
+                                    //            var RGBOrder = currentOutput.OutputRGBLEDOrder;
+                                    //            var reOrderedColor = ReOrderSpotColor(RGBOrder, spot.SentryRed, spot.SentryGreen, spot.SentryBlue);
+                                    //            for (int i = 0; i < ledPerSpot; i++)
+                                    //            {
+
+                                    //                outputStream[counter++] = reOrderedColor[0]; // blue
+                                    //                outputStream[counter++] = reOrderedColor[1]; // green
+                                    //                outputStream[counter++] = reOrderedColor[2]; // red
+                                    //            }
+                                    //        }
+                                    //        break;
+                                    //}
+
+                                }
+
+                                break;
+
+                        }
+                    }
+                }
+            }
+            if (allBlack)
+            {
+                blackFrameCounter++;
+            }
+            for (int i = counter + aliveSpotCounter * 3; i < bufferLength; i++)
+            {
+                outputStream[i] = 0;
             }
             return (outputStream, bufferLength);
         }
@@ -432,7 +570,7 @@ namespace adrilight
             {
                 _lightingDevices[i] = DeviceSettings.AvailableLightingDevices[i] as ARGBLEDSlaveDevice;
             }
-            if(DeviceSettings.AvailablePWMDevices!=null)
+            if (DeviceSettings.AvailablePWMDevices != null)
             {
                 _pwmDevices = new PWMMotorSlaveDevice[DeviceSettings.AvailablePWMDevices.Length];
                 for (int i = 0; i < DeviceSettings.AvailablePWMDevices.Length; i++)
@@ -440,7 +578,7 @@ namespace adrilight
                     _pwmDevices[i] = DeviceSettings.AvailablePWMDevices[i] as PWMMotorSlaveDevice;
                 }
             }
-           
+
             #endregion
 
             if (String.IsNullOrEmpty(DeviceSettings.OutputPort))
@@ -477,7 +615,7 @@ namespace adrilight
                         //send frame data
                         for (int i = 0; i < _lightingDevices.Length; i++)
                         {
-                            var (outputBuffer, streamLength) = GetOutputStream(i);
+                            var (outputBuffer, streamLength) = _hasPWMCOntroller ? GetOutputStreamWithPWM(i) : GetOutputStream(i);
                             serialPort.Write(outputBuffer, 0, streamLength);
                             if (++frameCounter == 1024 && blackFrameCounter > 1000)
                             {

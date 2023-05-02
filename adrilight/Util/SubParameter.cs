@@ -1,4 +1,6 @@
 ﻿using GalaSoft.MvvmLight;
+using System.Collections.Generic;
+using System.Windows.Documents;
 using System.Windows.Input;
 
 namespace adrilight.Util
@@ -22,6 +24,7 @@ namespace adrilight.Util
         private int _minValue;
         private int _maxValue;
         private bool _isEnabled = true;
+        private List<string> _availableValue;
         public string Name { get; set; }
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); } }
         public ModeParameterTemplateEnum Template { get; set; }
@@ -30,6 +33,7 @@ namespace adrilight.Util
         public string Command { get; set; }
         public int Value { get => _value; set { Set(() => Value, ref _value, value); } }
         public int MinValue { get => _minValue; set { Set(() => MinValue, ref _minValue, value); } }
-        public int MaxValue { get => _maxValue; set { Set(() => MaxValue, ref _maxValue, value); } }
+        public int MaxValue { get => _maxValue; set { Set(() => MaxValue, ref _maxValue, value); } } 
+        public List<string> AvailableValue { get => _availableValue; set { Set(() => AvailableValue, ref _availableValue, value); } }
     }
 }

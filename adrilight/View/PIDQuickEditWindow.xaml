@@ -136,10 +136,7 @@
                                                             </Setter>
                                                         </Style>
                                                     </Viewbox.Style>
-
-                                                    <TextBlock Visibility="{Binding IsEnabled,Mode=TwoWay,Converter={StaticResource Boolean2VisibilityConverter}}"   Margin="5" Foreground="White" Text="{Binding Index}" Style="{DynamicResource TextBlockSubTitleBold}"/>
-
-                              
+                                                    <TextBlock Visibility="{Binding IsEnabled,Mode=TwoWay,Converter={StaticResource boolToVisibilityConvert}}" Margin="5" Foreground="White" Text="{Binding Index}" Style="{DynamicResource TextBlockSubTitleBold}"/>
                                                 </Viewbox>
                                               
                                             </Grid>

@@ -50,17 +50,17 @@ namespace adrilight.View
 
         private void ColorPicker_Confirmed(object sender, HandyControl.Data.FunctionEventArgs<Color> e)
         {
-            switch (_mode)
-            {
-                case "overwrite":
-                    this.Close();
-                    break;
-                case "createnew":
-                    ViewModel.OpenCreateNewDialog();
-                    this.Close();
-                    break;
+            //switch (_mode)
+            //{
+            //    case "overwrite":
+            //        this.Close();
+            //        break;
+            //    case "createnew":
+            //        ViewModel.OpenCreateNewDialog();
+            //        this.Close();
+            //        break;
                     
-            }
+            //}
 
             
         }

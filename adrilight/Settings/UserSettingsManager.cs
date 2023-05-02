@@ -100,11 +100,16 @@ namespace adrilight
                     var slaveDeviceJson = File.ReadAllText(Path.Combine(Directory.GetDirectories(subfolder).FirstOrDefault(), "config.json"));
                     var slaveDevice = JsonConvert.DeserializeObject<T>(slaveDeviceJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
 
-
-                    if (!File.Exists((slaveDevice as ISlaveDevice).Thumbnail))
+                    if (slaveDevice == null)//somehow data corrupted
+                        continue;
+                    else
                     {
-                        (slaveDevice as ISlaveDevice).Thumbnail = Path.Combine(Directory.GetDirectories(subfolder).FirstOrDefault(), "thumbnail.png");
+                        if (!File.Exists((slaveDevice as ISlaveDevice).Thumbnail))
+                        {
+                            (slaveDevice as ISlaveDevice).Thumbnail = Path.Combine(Directory.GetDirectories(subfolder).FirstOrDefault(), "thumbnail.png");
+                        }
                     }
+                    
 
                     output.SlaveDevice = slaveDevice as ISlaveDevice;
                     controller.Outputs.Add(output);

@@ -43,6 +43,7 @@
         Breathing,
 
         Palette,
+        MixedColor,
         VID,
     }
 }

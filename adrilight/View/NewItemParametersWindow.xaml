@@ -94,13 +94,13 @@
             </Grid>
             <Grid>
                 <StackPanel>
-                    <hc:NumericUpDown Value="{Binding NewItemWidth}" x:Name="width" DecimalPlaces="1" ShowClearButton="True"  hc:InfoElement.TitleWidth="90"  hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="WIDTH" Style="{StaticResource NumericUpDownPlus}" hc:InfoElement.Necessary="True" Margin="0,15,10,0"/>
-                    <hc:NumericUpDown Value="{Binding NewItemHeight}" x:Name="height" DecimalPlaces="1" ShowClearButton="True"  hc:InfoElement.TitleWidth="90"  hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="HEIGHT" Style="{StaticResource NumericUpDownPlus}" hc:InfoElement.Necessary="True" Margin="0,15,10,0"/>
+                    <hc:NumericUpDown Value="{Binding NewItemWidth}" x:Name="width" DecimalPlaces="1"   hc:InfoElement.TitleWidth="90"  hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="WIDTH" Style="{StaticResource NumericUpDownPlus}" hc:InfoElement.Necessary="True" Margin="0,15,10,0"/>
+                    <hc:NumericUpDown Value="{Binding NewItemHeight}" x:Name="height" DecimalPlaces="1"   hc:InfoElement.TitleWidth="90"  hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="HEIGHT" Style="{StaticResource NumericUpDownPlus}" hc:InfoElement.Necessary="True" Margin="0,15,10,0"/>
                 </StackPanel>
               
             </Grid>
             <Grid>
-                <hc:NumericUpDown Value="{Binding ItemNumber}" x:Name="numberbox" DecimalPlaces="0" ShowClearButton="True"  hc:InfoElement.TitleWidth="90"   hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="QUANTITY" Style="{StaticResource NumericUpDownPlus}" hc:InfoElement.Necessary="True" Margin="0,15,10,0"/>
+                <hc:NumericUpDown Value="{Binding ItemNumber}" x:Name="numberbox" DecimalPlaces="0"   hc:InfoElement.TitleWidth="90"   hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="QUANTITY" Style="{StaticResource NumericUpDownPlus}" hc:InfoElement.Necessary="True" Margin="0,15,10,0"/>
             </Grid>
             <Grid >
                 <Grid.ColumnDefinitions>

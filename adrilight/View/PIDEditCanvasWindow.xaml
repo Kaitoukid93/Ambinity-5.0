@@ -90,10 +90,10 @@
                 MousePosition="{Binding MousePosition, Mode=OneWayToSource}">
                 <richCanvas:RichItemsControl.SelectionRectangleStyle>
                     <Style TargetType="Rectangle">
-                        <Setter Property="Opacity" Value="0.1" />
-                        <Setter Property="Fill" Value="White" />
+                        <Setter Property="Fill" Value="Transparent" />
                         <Setter Property="Stroke" Value="{DynamicResource PrimaryBrush}" />
                         <Setter Property="StrokeThickness" Value="3" />
+                        <Setter Property="StrokeDashArray" Value="3" />
                     </Style>
                 </richCanvas:RichItemsControl.SelectionRectangleStyle>
                 <richCanvas:RichItemsControl.ContextMenu>
@@ -195,11 +195,6 @@
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type spot:DeviceSpot}">
                         <Grid>
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseEnter" >
-                                    <i:InvokeCommandAction Command="{Binding DataContext.SetSpotPIDCommand,RelativeSource={RelativeSource AncestorType={x:Type view:PIDEditCanvasWindow}}}" CommandParameter="{Binding .}" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
                             <Grid.ToolTip>
                                 <Border CornerRadius="4" BorderThickness="0" Background="Transparent">
                                     <StackPanel>
@@ -251,25 +246,6 @@
                                     </Style>
                                 </Path.Style>
                             </Path>
-                            <Viewbox RenderTransformOrigin="0.5,0.5" Stretch="Uniform">
-                                <Viewbox.Style>
-                                    <Style TargetType="{x:Type Viewbox}">
-                                        <Setter Property="RenderTransform">
-                                            <Setter.Value>
-                                                <TransformGroup >
-                                                    <ScaleTransform/>
-                                                    <TranslateTransform  />
-                                                    <RotateTransform Angle="{Binding Angle}" />
-                                                </TransformGroup>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </Viewbox.Style>
-
-                                <TextBlock Margin="5" Foreground="White" Text="{Binding Index}" Style="{DynamicResource TextBlockSubTitleBold}"/>
-
-
-                            </Viewbox>
                         </Grid>
 
                     </DataTemplate>
@@ -384,18 +360,21 @@
                                 <Setter Property="ContextMenu">
                                     <Setter.Value>
                                         <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+                                            <MenuItem Header="Tạo Zone mới" Command="{Binding AddNewZoneCommand}">
+                                                <MenuItem.Icon>
+                                                    <Path Data="{StaticResource addnew}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <Separator Margin="10,5">
+                                            </Separator>
                                             <MenuItem Header="Thu phóng"
                                           Command="{Binding OpenRectangleScaleCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}">
                                                 <MenuItem.Icon>
                                                     <Path Data="{StaticResource scale}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="Xoay"
-                                          Command="{Binding OpenRectangleRotateCommand}" CommandParameter="rotate">
-                                                <MenuItem.Icon>
-                                                    <Path Data="{StaticResource scale}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                                </MenuItem.Icon>
-                                            </MenuItem>
+                                            <Separator Margin="10,5">
+                                            </Separator>
                                             <MenuItem Header="Căn lề trái"
                                           Command="{Binding AglignSelectedItemstoLeftCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}" >
                                                 <MenuItem.Icon>
@@ -408,6 +387,8 @@
                                                     <Path Data="{StaticResource topAglign}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
+                                            <Separator Margin="10,5">
+                                            </Separator>
                                             <MenuItem Header="Xếp ngang phải"
                                           Command="{Binding SpreadItemRightHorizontalCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}" >
                                                 <MenuItem.Icon>
@@ -432,17 +413,15 @@
                                                     <Path Data="{StaticResource ledStripVertical}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
+                                            <Separator Margin="10,5">
+                                            </Separator>
                                             <MenuItem Header="Khóa"
                                           Command="{Binding LockSelectedItemCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}" >
                                                 <MenuItem.Icon>
                                                     <Path Data="{StaticResource lock}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <MenuItem Header="Tạo Zone mới" Command="{Binding AddNewZoneCommand}">
-                                                <MenuItem.Icon>
-                                                    <Path Data="{StaticResource import}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                                </MenuItem.Icon>
-                                            </MenuItem>
+                                          
                                             <MenuItem Header="Xóa"
                                           Command="{Binding DeleteSelectedItemsCommand}" CommandParameter="{Binding PIDEditWindowsRichCanvasItems}" >
                                                 <MenuItem.Icon>
@@ -495,8 +474,8 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-            <Button  Command="{Binding SaveCurrentLEDSetupLayoutCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Save"/>
-            <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
+            <Button  Command="{Binding SaveCurrentLEDSetupLayoutCommand}" CommandParameter="save" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Save"/>
+            <Button Command="{Binding SaveCurrentLEDSetupLayoutCommand}" CommandParameter="cancel" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
         </Grid>
     </Grid>
 </hc:Window>

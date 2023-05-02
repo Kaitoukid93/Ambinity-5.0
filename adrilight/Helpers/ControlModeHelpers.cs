@@ -18,6 +18,7 @@ namespace adrilight.Helpers
         private string ColorsCollectionFolderPath => Path.Combine(JsonPath, "Colors");
         private string PalettesCollectionFolderPath => Path.Combine(JsonPath, "ColorPalettes");
         private string VIDCollectionFolderPath => Path.Combine(JsonPath, "VID");
+        private string ChasingPatternsCollectionFolderPath => Path.Combine(JsonPath, "ChasingPatterns");
         #region default lighting mode by ambino
         public IControlZone MakeZoneControlable(IControlZone zone)
         {
@@ -26,6 +27,7 @@ namespace adrilight.Helpers
             zone.AvailableControlMode.Add(ColorPalette);
             zone.AvailableControlMode.Add(MusicReactive);
             zone.AvailableControlMode.Add(StaticColor);
+            zone.AvailableControlMode.Add(Animation);
             return zone;
         }
         public IControlMode ColorPalette {
@@ -33,11 +35,27 @@ namespace adrilight.Helpers
             {
                 return new LightingMode() {
                     Name = "Color Palette",
+                    Geometry = "colorpalette",
                     BasedOn = LightingModeEnum.Rainbow,
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Sáng theo dải màu với chuyển động tùy chọn",
-                    Parameters = { GenericBrightnessParameter, GenericColorPaletteSelectionParameter, GenericSpeedParameter(0, 20), GenericVIDSelectParameter, IsSystemSync }
+                    Parameters = { GenericBrightnessParameter, GenericColorPaletteSelectionParameter, GenericVIDSelectParameter, GenericSpeedParameter(0, 20, 5), IsSystemSync }
+
+                };
+            }
+        }
+        public IControlMode Animation {
+            get
+            {
+                return new LightingMode() {
+                    Name = "Animation",
+                    Geometry = "animation",
+                    BasedOn = LightingModeEnum.Animation,
+                    Creator = "ambino",
+                    Owner = "ambino",
+                    Description = "LED chuyển động với màu tùy chọn",
+                    Parameters = { GenericBrightnessParameter, ChasingPatterns, GenericColorPaletteAndSolidColorSelectionParameter, GenericSpeedParameter(0, 4, 1) }
 
                 };
             }
@@ -47,6 +65,7 @@ namespace adrilight.Helpers
             {
                 return new LightingMode() {
                     Name = "Screen Capturing",
+                    Geometry = "screencapture",
                     BasedOn = LightingModeEnum.ScreenCapturing,
                     Creator = "ambino",
                     Owner = "ambino",
@@ -64,11 +83,12 @@ namespace adrilight.Helpers
             {
                 return new LightingMode() {
                     Name = "Music Reactive",
+                    Geometry = "music",
                     BasedOn = LightingModeEnum.MusicCapturing,
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Màu LED chuyển động theo nhạc",
-                    Parameters = { GenericBrightnessParameter, GenericSpeedParameter(0, 100), IsSystemSync }
+                    Parameters = { GenericBrightnessParameter, GenericSpeedParameter(0, 100, 20), IsSystemSync }
 
                 };
             }
@@ -78,6 +98,7 @@ namespace adrilight.Helpers
             {
                 return new LightingMode() {
                     Name = "Static Color",
+                    Geometry = "genericCircle",
                     BasedOn = LightingModeEnum.StaticColor,
                     Creator = "ambino",
                     Owner = "ambino",
@@ -92,6 +113,7 @@ namespace adrilight.Helpers
             {
                 return new PWMMode() {
                     Name = "Auto Speed",
+                    Geometry = "autoSpeed",
                     BasedOn = PWMModeEnum.auto,
                     Creator = "ambino",
                     Owner = "ambino",
@@ -106,11 +128,12 @@ namespace adrilight.Helpers
             {
                 return new PWMMode() {
                     Name = "Manual Speed",
+                    Geometry = "manualSpeed",
                     BasedOn = PWMModeEnum.manual,
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Cố định tốc độ Fan",
-                    Parameters = { GenericSpeedParameter(0, 100) }
+                    Parameters = { GenericSpeedParameter(20, 100, 80) }
 
                 };
             }
@@ -120,7 +143,7 @@ namespace adrilight.Helpers
 
 
         #region default lightingmode parameter defined by ambino
-        public IModeParameter GenericSpeedParameter(int min, int max)
+        public IModeParameter GenericSpeedParameter(int min, int max, int defaultValue)
         {
 
             return new ModeParameter() {
@@ -129,7 +152,7 @@ namespace adrilight.Helpers
                 Description = "Speed of Motion",
                 ParamType = ModeParameterEnum.Speed,
                 Template = ModeParameterTemplateEnum.ValueSlider,
-                Value = 50,
+                Value = defaultValue,
                 MinValue = min,
                 MaxValue = max
 
@@ -170,11 +193,16 @@ namespace adrilight.Helpers
                 return new ModeParameter() {
 
                     Name = "System Sync",
-                    Description = "TĐồng bộ với tốc độ hệ thống",
+                    Description = "Đồng bộ với tốc độ hệ thống",
                     ParamType = ModeParameterEnum.IsSystemSync,
                     Template = ModeParameterTemplateEnum.ToggleOnOff,
-                    Value = 0,
-
+                    Value = 1,
+                    SubParams = new ObservableCollection<SubParameter>() {
+                        new SubParameter("System Speed",ModeParameterTemplateEnum.ValueSlider,"Speed","Speed",5,20,0){
+                            Description = "Tốc độ này sẽ kéo theo toàn bộ các vùng đã bật System Sync"
+                        }
+                        
+                    }
                 };
             }
         }
@@ -192,11 +220,11 @@ namespace adrilight.Helpers
                         new SubParameter("Speed", ModeParameterTemplateEnum.ValueSlider, "Speed", "Speed", 100, 1950, 0) {
                             Description = "Tốc độ này độc lập đối với vùng được chọn"
                         },
-                        new SubParameter("System Sync", ModeParameterTemplateEnum.ToggleOnOff, "sync", "sync", 0, 0, 0) {
-                            Description = "Đồng bộ với tốc độ hệ thống"
-                        },
                         new SubParameter("System Speed",ModeParameterTemplateEnum.ValueSlider,"Speed","Speed",100,1950,0){
                             Description = "Tốc độ này sẽ kéo theo toàn bộ các vùng đã bật System Sync"
+                        },
+                        new SubParameter("System Sync", ModeParameterTemplateEnum.ToggleOnOff, "sync", "sync", 0, 0, 0) {
+                            Description = "Đồng bộ với tốc độ hệ thống"
                         }
                     }
 
@@ -215,9 +243,10 @@ namespace adrilight.Helpers
                     ParamType = ModeParameterEnum.VID,
                     Template = ModeParameterTemplateEnum.ListSelection,
                     Value = 1,
-                    AvailableValueLocalPath = VIDCollectionFolderPath,
+                    AvailableValueLocalPaths = new List<SelectableLocalPath>() { new SelectableLocalPath() { Path = VIDCollectionFolderPath } },
                     SubParams = new ObservableCollection<SubParameter>() {
-                        new SubParameter("Vẽ chiều chạy mới",ModeParameterTemplateEnum.PushButtonAction,"Add VID","Add",0,0,0),
+                        new SubParameter("Intensity",ModeParameterTemplateEnum.ValueSlider,"intensity","intensity",5,100,0), // only show in system generated mode, act as virtual brush intensity
+                        new SubParameter("Vẽ chiều chạy mới",ModeParameterTemplateEnum.PushButtonAction,"Add VID","Add",0,0,0), //only show in custom mode
                     }
 
                 };
@@ -233,7 +262,7 @@ namespace adrilight.Helpers
                     ParamType = ModeParameterEnum.Color,
                     Template = ModeParameterTemplateEnum.ListSelection,
                     Value = 0,
-                    AvailableValueLocalPath = ColorsCollectionFolderPath,
+                    AvailableValueLocalPaths = new List<SelectableLocalPath>() { new SelectableLocalPath() { Path = ColorsCollectionFolderPath } },
                     SubParams = new ObservableCollection<SubParameter>() {
                         new SubParameter("Custom Color",ModeParameterTemplateEnum.PushButtonAction,"Add Color","Add",0,0,0),
                         new SubParameter("Import Color",ModeParameterTemplateEnum.PushButtonAction,"Import Color","Import",0,0,0)
@@ -252,10 +281,31 @@ namespace adrilight.Helpers
                     ParamType = ModeParameterEnum.Palette,
                     Template = ModeParameterTemplateEnum.ListSelection,
                     Value = 0,
-                    AvailableValueLocalPath = PalettesCollectionFolderPath,
+                    AvailableValueLocalPaths = new List<SelectableLocalPath>() { new SelectableLocalPath() { Path = PalettesCollectionFolderPath } },
                     SubParams = new ObservableCollection<SubParameter>() {
                         new SubParameter("Custom Palette",ModeParameterTemplateEnum.PushButtonAction,"Add Palette","Add",0,0,0),
                         new SubParameter("Import Palette",ModeParameterTemplateEnum.PushButtonAction,"Import Palette","Import",0,0,0)
+                    }
+
+                };
+            }
+        }
+        public IModeParameter GenericColorPaletteAndSolidColorSelectionParameter {
+            get
+            {
+                return new ModeParameter() {
+
+                    Name = "Colors",
+                    Description = "Available Colors",
+                    ParamType = ModeParameterEnum.MixedColor,
+                    Template = ModeParameterTemplateEnum.ListSelection,
+                    Value = 0,
+                    AvailableValueLocalPaths = new List<SelectableLocalPath>() { new SelectableLocalPath() { Name = "Color Palette", Path = PalettesCollectionFolderPath }, new SelectableLocalPath() { Name = "Solid Color", Path = ColorsCollectionFolderPath } },
+                    SubParams = new ObservableCollection<SubParameter>() {
+                        new SubParameter("Palette Color Use",ModeParameterTemplateEnum.ListSelection,"Color Mode","",0,0,0){ AvailableValue = new List<string>(){"Static","Moving"}}, // include static palette, moving palette, cyclic palette color
+                        new SubParameter("Speed Of Change",ModeParameterTemplateEnum.ValueSlider,"Speed of change","",1,5,1),
+                        new SubParameter("Color Intensity",ModeParameterTemplateEnum.ValueSlider,"Color Intensity","",5,16,2),
+
                     }
 
                 };
@@ -290,30 +340,12 @@ namespace adrilight.Helpers
                     ParamType = ModeParameterEnum.ChasingPattern,
                     Template = ModeParameterTemplateEnum.ListSelection,
                     Value = 50,
-                    AvailableValueLocalPath = ""
+                    AvailableValueLocalPaths = new List<SelectableLocalPath>() { new SelectableLocalPath() { Path = ChasingPatternsCollectionFolderPath } },
 
                 };
             }
         }
-        /// <summary>
-        /// Use this for rainbow engine to select chasing pattern from database
-        /// </summary>
-        public IModeParameter ColorMode {
-            get
-            {
-                return new ModeParameter() {
 
-                    Name = "ColorMode",
-                    Description = "How the color being used",
-                    ParamType = ModeParameterEnum.ColorMode,
-                    Template = ModeParameterTemplateEnum.ListSelection,
-                    Value = 0,
-                    AvailableValueLocalPath = ""
-
-
-                };
-            }
-        }
         /// <summary>
         /// Select screen for capturing
         /// </summary>

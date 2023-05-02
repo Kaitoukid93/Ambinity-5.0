@@ -19,5 +19,7 @@ namespace adrilight
         ObservableCollection<IControlZone> ControlableZones { get; set; }
         
         void UpdateSizeByChild(bool withPoint);
+        void RotateLEDSetup(double angleInDegrees);
+        void ReflectLEDSetupVertical();
     }
 }

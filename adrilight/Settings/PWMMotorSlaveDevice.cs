@@ -105,6 +105,14 @@ namespace adrilight.Settings
         public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
         public string Type { get; set; }
         private DrawableHelpers DrawableHlprs;
+        public void RotateLEDSetup(double angleInDegrees)
+        {
+
+        }
+        public void ReflectLEDSetupVertical()
+        {
+
+        }
         public void UpdateSizeByChild(bool withPoint)
         {
 

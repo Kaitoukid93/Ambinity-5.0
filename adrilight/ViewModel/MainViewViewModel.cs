@@ -1,59 +1,39 @@
 ﻿using adrilight.DesktopDuplication;
-using adrilight.Resources;
 using adrilight.Settings;
 using adrilight.Spots;
 using adrilight.Util;
 using adrilight.View;
 using adrilight_effect_analyzer.Model;
-using Dropbox.Api;
-using Dropbox.Api.Files;
-using DropBoxServer;
 using Emgu.CV;
 using FTPServer;
-using GalaSoft.MvvmLight;
 using HandyControl.Controls;
 using HandyControl.Data;
 using HandyControl.Themes;
-using LiveCharts;
 using MoreLinq;
 using Newtonsoft.Json;
-using NonInvasiveKeyboardHookLibrary;
-using OpenRGB.NET.Models;
 using Renci.SshNet;
-using SharpDX.WIC;
 using Squirrel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.ComponentModel;
-using System.ComponentModel.Composition.Primitives;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.IdentityModel.Claims;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using TimeLineTool;
-using Un4seen.BassWasapi;
-using static Dropbox.Api.TeamLog.AdminAlertSeverityEnum;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 using Bitmap = System.Drawing.Bitmap;
-using BitmapSource = System.Windows.Media.Imaging.BitmapSource;
 using Color = System.Windows.Media.Color;
 using ColorConverter = System.Windows.Media.ColorConverter;
 using ColorPalette = adrilight.Util.ColorPalette;
@@ -62,33 +42,12 @@ using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
 using Point = System.Windows.Point;
 using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
 using SplashScreen = adrilight.View.SplashScreen;
-using MdXaml;
-using HandyControl.Tools;
 using adrilight.Helpers;
-using SharpDX.DXGI;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Header;
-using NAudio.Gui;
-using System.Windows.Media.Media3D;
-using LibreHardwareMonitor.Hardware;
 using IComputer = adrilight.Util.IComputer;
-using System.Web.UI.WebControls.WebParts;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
-using HandyControl.Tools.Extension;
 using Group = adrilight.Settings.Group;
-using SharpDX.Direct2D1;
-using Xceed.Wpf.Toolkit.Primitives;
-using SolidColorBrush = System.Windows.Media.SolidColorBrush;
 using MoreLinq.Extensions;
-using System.Windows.Interop;
-using LiveCharts.Wpf;
-using LiveCharts.Defaults;
-using System.Windows.Controls;
 using SelectionMode = System.Windows.Controls.SelectionMode;
 using Border = adrilight.Settings.Border;
-using CSCore.XAudio2;
-using System.Web;
-using Cursors = System.Windows.Input.Cursors;
-using Cursor = System.Windows.Input.Cursor;
 
 namespace adrilight.ViewModel
 {
@@ -536,6 +495,8 @@ namespace adrilight.ViewModel
         public ICommand UnselectAllSurfaceEditorItemCommand { get; set; }
         public ICommand IsolateSelectedItemsCommand { get; set; }
         public ICommand OpenSpotPIDQuickEDitWindowCommand { get; set; }
+        public ICommand RotateSelectedSurfaceEditorItemCommand { get; set; }
+        public ICommand ReflectSelectedSurfaceEditorItemCommand { get; set; }
         public ICommand SaveCurrentPIDCommand { get; set; }
         public ICommand CancelCurrentPIDCommand { get; set; }
         public ICommand ExitIsolateModeCommand { get; set; }
@@ -1259,6 +1220,7 @@ namespace adrilight.ViewModel
 
 
         public ResourceHelpers ResourceHlprs { get; private set; }
+        public LocalFileHelpers LocalFileHlprs { get; private set; }
         public IGeneralSettings GeneralSettings { get; }
 
         public ISerialStream[] SerialStreams { get; }
@@ -2105,7 +2067,7 @@ namespace adrilight.ViewModel
         /// <summary>
         /// new Palette
         /// </summary>
-        private string _newPaletteName;
+        private string _newPaletteName = "New Palette" + DateTime.Now.ToString("yyyyMMdd");
 
         public string NewPaletteName {
             get { return _newPaletteName; }
@@ -2483,14 +2445,14 @@ namespace adrilight.ViewModel
             }, (p) =>
             {
                 VIDCount = 0;
-                if(Keyboard.IsKeyDown(Key.LeftCtrl))
+                if (Keyboard.IsKeyDown(Key.LeftCtrl))
                 {
                     foreach (var item in LiveViewItems.Where(i => i is LEDSetup))
                     {
                         (item as LEDSetup).ResetVIDStage();
                     }
                 }
-                
+
             });
             AddNewItemToCollectionCommand = new RelayCommand<string>((p) =>
                  {
@@ -2505,7 +2467,11 @@ namespace adrilight.ViewModel
                          case "Add VID":
                              IsInIDEditStage = true;
                              break;
-                         case "Import Color":
+                         case "Add Palette":
+                             OpenPaletteEditorWindow(16);
+                             break;
+                         case "Import Palette":
+                             ImportPaletteFromFile();
                              break;
                      }
                  });
@@ -2514,7 +2480,16 @@ namespace adrilight.ViewModel
                 return true;
             }, (p) =>
             {
-                AddNewColorToCollection();
+                switch (ColorList.Count)
+                {
+                    case 2:
+                        AddNewColorToCollection();
+                        break;
+                    case 16:
+                        OpenCreateNewPaletteDialog();
+                        break;
+                }
+
             }
             );
             EditSelectedPaletteSaveConfirmCommand = new RelayCommand<string>((p) =>
@@ -2537,7 +2512,15 @@ namespace adrilight.ViewModel
                        return true;
                    }, (p) =>
                    {
-                       //CreateNewPalette();
+                       var newPalette = new ColorPalette(16);
+                       newPalette.Name = NewPaletteName;
+                       newPalette.Description = NewPaletteDescription;
+                       newPalette.Owner = NewPaletteOwner;
+                       for (int i = 0; i < 16; i++)
+                       {
+                           newPalette.Colors[i] = ColorList[i].Color;
+                       }
+                       AddNewPaletteToCollection(newPalette);
                    });
             RequestingBetaChanelCommand = new RelayCommand<string>((p) =>
             {
@@ -2857,7 +2840,7 @@ namespace adrilight.ViewModel
                 return true;
             }, (p) =>
             {
-                SaveCurrentLEDSetupLayout();
+                SaveCurrentLEDSetupLayout(p);
             }
             );
 
@@ -3190,6 +3173,20 @@ namespace adrilight.ViewModel
             {
                 OpenSpotPIDQuickEDitWindow(p);
             });
+            RotateSelectedSurfaceEditorItemCommand = new RelayCommand<ObservableCollection<IDrawable>>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                RotateSelectedSurfaceEditorItem(p);
+            });
+            ReflectSelectedSurfaceEditorItemCommand = new RelayCommand<ObservableCollection<IDrawable>>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                ReflectSelectedSurfaceEditorItem(p);
+            });
             SaveCurrentPIDCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -3251,7 +3248,7 @@ namespace adrilight.ViewModel
                 }
 
             });
-        
+
             LiveViewMouseButtonUpCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -3910,7 +3907,7 @@ namespace adrilight.ViewModel
             {
                 SetSpotID(p);
 
-            }); 
+            });
             ResetSpotIDCommand = new RelayCommand<string>((p) =>
             {
                 return p != null;
@@ -6406,6 +6403,7 @@ namespace adrilight.ViewModel
                 item.MaskedControlMode = group.MaskedControlZone.CurrentActiveControlMode;
                 item.IsSelectable = false;
                 item.IsInControlGroup = true;
+                item.GroupID = group.GroupUID;
 
             }
             group.MaskedControlZone.PropertyChanged += (_, __) =>
@@ -6433,6 +6431,7 @@ namespace adrilight.ViewModel
                 item.MaskedControlMode = group.MaskedControlZone.CurrentActiveControlMode;
                 item.IsSelectable = false;
                 item.IsInControlGroup = true;
+                item.GroupID = group.GroupUID;
 
             }
             group.MaskedControlZone.PropertyChanged += (_, __) =>
@@ -6450,6 +6449,33 @@ namespace adrilight.ViewModel
             };
             IsRegisteringGroup = false;
 
+        }
+        private void RemoveGroup(ControlZoneGroup group)
+        {
+            //turn on Isregistering group
+            IsRegisteringGroup = true;
+            //remove border from canvas
+            if (group == null)
+                return;
+            LiveViewItems.Remove(LiveViewItems.Where(b => b.Name == group.Border.Name).FirstOrDefault());
+            //set each zone selectable
+            foreach (var zone in CurrentDevice.CurrentLiveViewZones)
+            {
+                if (group.ZoneUIDCollection.Contains(zone.ZoneUID))
+                {
+                    //set each zone IsIngroup to false
+                    //set maskedControl to null
+                    zone.IsInControlGroup = false;
+                    (zone as IDrawable).IsSelectable = true;
+                    (zone as IControlZone).MaskedControlMode = null;
+                }
+            }
+            //SelectedSlaveDevice = null;
+            CurrentDevice.ControlZoneGroups.Remove(group);
+            //
+            //remove group
+            //turn off IsRegisteringGroup
+            IsRegisteringGroup = false;
         }
         private void UngroupZone()
         {
@@ -6487,6 +6513,7 @@ namespace adrilight.ViewModel
             {
                 if (group.ZoneUIDCollection.Contains(zone.ZoneUID))
                 {
+                    zone.GroupID = group.GroupUID;
                     childItems.Add(zone);
                 }
             }
@@ -6498,6 +6525,15 @@ namespace adrilight.ViewModel
             {
                 DrawableHlprs = new DrawableHelpers();
             }
+            if (groupItems.Count == 0)
+            {
+                //this could happen due to ledsetup changing
+                //remove this group
+                RemoveGroup(group);
+                return null;
+
+            }
+
             var left = DrawableHlprs.GetRealBound(groupItems.ToArray()).Left;
             var top = DrawableHlprs.GetRealBound(groupItems.ToArray()).Top;
             var width = DrawableHlprs.GetRealBound(groupItems.ToArray()).Width;
@@ -6522,7 +6558,19 @@ namespace adrilight.ViewModel
             {
                 group.Border = border;
             }
+            foreach (var item in groupItems)
+            {
+                if (item is LEDSetup)
+                {
+                    var zone = item as LEDSetup;
+                    zone.VIDSpace = new Rect(group.Border.Left, group.Border.Top, group.Border.Width, group.Border.Height);
+                }
 
+            }
+            (group.MaskedControlZone as IDrawable).Left = group.Border.Left;
+            (group.MaskedControlZone as IDrawable).Top = group.Border.Top;
+            (group.MaskedControlZone as IDrawable).Width = group.Border.Width;
+            (group.MaskedControlZone as IDrawable).Height = group.Border.Height;
             return border;
         }
         private void AddZoneToGroup()
@@ -6542,10 +6590,7 @@ namespace adrilight.ViewModel
                 //more than 1 items get selected
                 var newGroup = new ControlZoneGroup();
                 newGroup.Name = "Group" + " " + (CurrentDevice.ControlZoneGroups.Count + 1).ToString();
-                //add group border
-                GetGroupBorder(selectedItems, newGroup);
-                newGroup.Border.IsSelected = true;
-                LiveViewItems.Add(newGroup.Border);
+                newGroup.GroupUID = Guid.NewGuid().ToString();
                 //init masked control for multi zone
                 if (selectedItems.First() is FanMotor)
                 {
@@ -6573,6 +6618,10 @@ namespace adrilight.ViewModel
                         Thumbnail = Path.Combine(ResourceFolderPath, "Group_thumb.png")
                     };
                 }
+                //add group border
+                GetGroupBorder(selectedItems, newGroup);
+                newGroup.Border.IsSelected = true;
+                LiveViewItems.Add(newGroup.Border);
                 //sync control mode
                 foreach (var item in selectedItems)
                 {
@@ -6634,17 +6683,6 @@ namespace adrilight.ViewModel
         {
             //simple just set the scale
             CurrentDevice.UpdateChildSize();
-            if (CurrentDevice.ControlZoneGroups != null && CurrentDevice.ControlZoneGroups.Count > 0)
-            {
-                foreach (var group in CurrentDevice.ControlZoneGroups)
-                {
-                    var childItems = GetGroupChildItems(group, CurrentDevice);
-                    if (childItems.Count > 0)
-                    {
-                        GetGroupBorder(childItems, group);
-                    }
-                }
-            }
             if (DrawableHlprs == null)
                 DrawableHlprs = new DrawableHelpers();
             var liveViewItemsBound = DrawableHlprs.GetRealBound(LiveViewItems.Where(i => i is not PathGuide).ToArray());
@@ -6798,15 +6836,21 @@ namespace adrilight.ViewModel
                 foreach (var group in CurrentDevice.CurrentLiveViewGroup)
                 {
                     //register group child to masked control 
-                    LiveViewItems.Add(group.Border);
-                    if ((group.Border.IsSelected))
-                        lastSelectedItem = group.Border;
-                    //disable selection items in group
                     var groupItems = GetGroupChildItems(group, CurrentDevice);
-                    foreach (var item in groupItems)
+                    if (GetGroupBorder(groupItems, group) != null)
                     {
-                        (item as IDrawable).IsSelectable = false;
+                        LiveViewItems.Add(group.Border);
+                        if ((group.Border.IsSelected))
+                            lastSelectedItem = group.Border;
+                        //disable selection items in group
+                        foreach (var item in groupItems)
+                        {
+                            (item as IDrawable).IsSelectable = false;
+                        }
+
                     }
+
+
 
                 }
             }
@@ -7014,6 +7058,7 @@ namespace adrilight.ViewModel
         private static Motion ReadMotionFromResource(string resourceName)
         {
             Motion motion = new Motion(256);
+            motion.GUID = Guid.NewGuid().ToString();
             var assembly = Assembly.GetExecutingAssembly();
             using (Stream resource = assembly.GetManifestResourceStream(resourceName))
             {
@@ -7102,8 +7147,9 @@ namespace adrilight.ViewModel
         private void OpenSpotPIDQuickEDitWindow(ObservableCollection<IDrawable> p)
         {
             CurrentIDType = "PID";
+            CountPID = 0;
             CurrentEditingPIDItem = p.Where(p => p.IsSelected).FirstOrDefault() as ARGBLEDSlaveDevice;
-            foreach(var zone in CurrentEditingPIDItem.ControlableZones)
+            foreach (var zone in CurrentEditingPIDItem.ControlableZones)
             {
                 (zone as LEDSetup).BackupSpots();
                 (zone as LEDSetup).FillSpotsColor(Color.FromRgb(0, 0, 0));
@@ -7113,9 +7159,41 @@ namespace adrilight.ViewModel
             pidQuickEditWindow.ShowDialog();
 
         }
+        private void RotateSelectedSurfaceEditorItem(ObservableCollection<IDrawable> p)
+        {
+            CurrentEditingPIDItem = p.Where(p => p.IsSelected).FirstOrDefault() as ARGBLEDSlaveDevice;
+            CurrentEditingPIDItem.RotateLEDSetup(90.0);
+
+        }
+        private void ReflectSelectedSurfaceEditorItem(ObservableCollection<IDrawable> p)
+        {
+            CurrentEditingPIDItem = p.Where(p => p.IsSelected).FirstOrDefault() as ARGBLEDSlaveDevice;
+            CurrentEditingPIDItem.ReflectLEDSetupVertical();
+
+        }
         private void SaveCurrentPID()
         {
-            pidQuickEditWindow.Close();
+            //check if any error
+            var unfinishedZoneCount = 0;
+            foreach (var zone in CurrentEditingPIDItem.ControlableZones)
+            {
+
+                if ((zone as LEDSetup).Spots.Any(s => !s.IsEnabled))
+                {
+                    unfinishedZoneCount++;
+                }
+
+            }
+            if (unfinishedZoneCount > 0)
+            {
+                HandyControl.Controls.MessageBox.Show("Chưa set hết ID, vui lòng kiểm tra lại", "Spot ID error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            else
+            {
+                pidQuickEditWindow.Close();
+            }
+
         }
         private void CancelCurrentPID()
         {
@@ -7197,7 +7275,6 @@ namespace adrilight.ViewModel
             surfaceeditorWindow.Close();
             IsRichCanvasWindowOpen = true;
             pidEditCanvasWindow = new PIDEditCanvasWindow();
-            // pidEditCanvasWindow.Owner = System.Windows.Application.Current.MainWindow;
             pidEditCanvasWindow.ShowDialog();
 
         }
@@ -7322,11 +7399,36 @@ namespace adrilight.ViewModel
             var currentSelectedColorCard = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Color).FirstOrDefault().SelectedValue as ColorCard;
             ColorList.Add(new ColorEditingObject() { Color = currentSelectedColorCard.StartColor });
             ColorList.Add(new ColorEditingObject() { Color = currentSelectedColorCard.StopColor });
+            ColorListBoxSelectionMode = SelectionMode.Single;
             foreach (var color in ColorList)
             {
                 color.IsSelected = true;
                 color.Color = ColorList[0].Color;
             }
+            if (AssemblyHelper.CreateInternalInstance($"View.{"ColorPickerWindow"}") is System.Windows.Window window)
+            {
+                window.Owner = System.Windows.Application.Current.MainWindow;
+                window.ShowDialog();
+            }
+        }
+        private void ImportPaletteFromFile()
+        {
+            var palette = LocalFileHlprs.OpenImportFileDialog<ColorPalette>("col", "col files (*.col)|*.Col|Text files (*.txt)|*.Txt");
+            if (palette != null)
+            {
+                AddNewPaletteToCollection(palette);
+            }
+        }
+        private void OpenPaletteEditorWindow(int numColor)
+        {
+            ColorList = new ObservableCollection<ColorEditingObject>();
+            ColorListBoxSelectionMode = SelectionMode.Extended;
+            var currentSelectedPalette = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Palette).FirstOrDefault().SelectedValue as ColorPalette;
+            foreach (var color in currentSelectedPalette.Colors)
+            {
+                ColorList.Add(new ColorEditingObject() { Color = color });
+            }
+
             if (AssemblyHelper.CreateInternalInstance($"View.{"ColorPickerWindow"}") is System.Windows.Window window)
             {
                 window.Owner = System.Windows.Application.Current.MainWindow;
@@ -7340,14 +7442,31 @@ namespace adrilight.ViewModel
             newColor.StopColor = ColorList[1].Color;
             //read current collection '
             var currentParam = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Color).FirstOrDefault();
-            var currentCollectionPath = currentParam.AvailableValueLocalPath;
+            var currentCollectionPath = currentParam.SelectedValueLocalPath.Path;
             var currentCollection = currentParam.AvailableValue;
             currentCollection.Insert(0, newColor);
             WriteSimpleJson(currentCollection, Path.Combine(currentCollectionPath, "collection.json"));
             currentParam.RefreshCollection();
             SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Color).FirstOrDefault().Value = 0;
         }
-
+        private void AddNewPaletteToCollection(ColorPalette source)
+        {
+            //read current collection
+            var currentParam = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Palette).FirstOrDefault();
+            var currentCollectionPath = currentParam.SelectedValueLocalPath.Path;
+            var currentCollection = currentParam.AvailableValue;
+            if (currentCollection.Any(p => p.Name == source.Name))
+            {
+                HandyControl.Controls.MessageBox.Show("File đã tồn tại, " + source.Name + "vui lòng chọn tên khác!", "file already exists", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            currentCollection.Insert(0, source);
+            var collectionFolderPath = Path.Combine(currentCollectionPath, "collection");
+            WriteSimpleJson(source, Path.Combine(collectionFolderPath, source.Name + ".col"));
+            currentParam.RefreshCollection();
+            SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Palette).FirstOrDefault().Value = 0;
+            AddNewPaletteDialog?.Close();
+        }
         private void WriteSimpleJson(object obj, string path)
         {
             try
@@ -7622,7 +7741,7 @@ namespace adrilight.ViewModel
             if (AssemblyHelper.CreateInternalInstance($"View.{"NewItemParametersWindow"}") is System.Windows.Window window)
             {
 
-                window.Owner = System.Windows.Application.Current.MainWindow;
+                window.Owner = pidEditCanvasWindow;
                 window.ShowDialog();
             }
 
@@ -7766,117 +7885,67 @@ namespace adrilight.ViewModel
         }
         private DrawableHelpers DrawableHlprs { get; set; }
         private ControlModeHelpers CtrlHlprs { get; set; }
-        private void SaveCurrentLEDSetupLayout()
+        private void SaveCurrentLEDSetupLayout(string mode)
         {
 
-
-            if (DrawableHlprs == null)
-                DrawableHlprs = new DrawableHelpers();
-            if (CtrlHlprs == null)
-                CtrlHlprs = new ControlModeHelpers();
-
-
-            var usableItems = PIDEditWindowsRichCanvasItems.OfType<IDrawable>().Where(d => d is DeviceSpot || d is LEDSetup);
-            if (usableItems.Count() == 0)
+            if (mode == "save")
             {
-                HandyControl.Controls.MessageBox.Show("Bạn phải thêm ít nhất 1 LED", "Invalid LED number", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                if (DrawableHlprs == null)
+                    DrawableHlprs = new DrawableHelpers();
+                if (CtrlHlprs == null)
+                    CtrlHlprs = new ControlModeHelpers();
+
+                var usableItems = PIDEditWindowsRichCanvasItems.OfType<IDrawable>().Where(d => d is DeviceSpot || d is LEDSetup);
+                if (usableItems.Count() == 0)
+                {
+                    HandyControl.Controls.MessageBox.Show("Bạn phải thêm ít nhất 1 LED", "Invalid LED number", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                //check if there is any zone exist
+                if (PIDEditWindowsRichCanvasItems.Where(d => d is LEDSetup).Count() == 0)//no zone at all so we add all device spot in to single zone
+                {
+                    //select all spot
+                    var availableSpot = PIDEditWindowsRichCanvasItems.Where(s => s is DeviceSpot).ToList();
+                    availableSpot.ForEach(s => s.IsSelected = true);
+
+                    //add single zone grab all available spot to canvas
+                    AddNewZone(PIDEditWindowsRichCanvasItems, PIDEditWindowSelectedItems);
+
+                }
+                var usableZone = PIDEditWindowsRichCanvasItems.Where(z => z is LEDSetup).ToList();
+                //now update zone size by its own child
+                foreach (var zone in usableZone)
+                {
+                    //get left and top also, set true
+                    var ledSetup = zone as LEDSetup;
+                }
+                //get new boundRect of all usable zone
+                var newBoundRect = DrawableHlprs.GetBound(usableZone);
+
+                //get current screen size
+                var screen = PIDEditWindowsRichCanvasItems.OfType<IDrawable>().Where(d => d is ScreenBound && !d.IsResizeable).FirstOrDefault();
+                var screenRect = new Rectangle((int)screen.Left, (int)screen.Top, (int)screen.Width, (int)screen.Height);
+
+
+                foreach (var zone in usableZone)
+                {
+                    //reset origin for each zone
+                    var ledSetup = zone as LEDSetup;
+                    ledSetup.Left -= newBoundRect.Left;
+                    ledSetup.Top -= newBoundRect.Top;
+                    ledSetup.ZoneUID = Guid.NewGuid().ToString();
+                    //make this zone controlable
+                    CtrlHlprs.MakeZoneControlable(ledSetup);
+
+                }
+
+                CurrentEditingDevice.ControlableZones.Clear();
+                usableZone.ForEach(zone => CurrentEditingDevice.ControlableZones.Add(zone as LEDSetup));
+                CurrentEditingDevice.UpdateSizeByChild(true);
+                CurrentEditingDevice.Left = newBoundRect.Left;
+                CurrentEditingDevice.Top = newBoundRect.Top;
             }
 
-
-            //check if there is any zone exist
-            if (PIDEditWindowsRichCanvasItems.Where(d => d is LEDSetup).Count() == 0)//no zone at all so we add all device spot in to single zone
-            {
-                //select all spot
-                var availableSpot = PIDEditWindowsRichCanvasItems.Where(s => s is DeviceSpot).ToList();
-                availableSpot.ForEach(s => s.IsSelected = true);
-
-                //add single zone grab all available spot to canvas
-                AddNewZone(PIDEditWindowsRichCanvasItems, PIDEditWindowSelectedItems);
-
-            }
-            var usableZone = PIDEditWindowsRichCanvasItems.Where(z => z is LEDSetup).ToList();
-            //now update zone size by its own child
-            foreach (var zone in usableZone)
-            {
-                //get left and top also, set true
-                var ledSetup = zone as LEDSetup;
-                // ledSetup.UpdateSizeByChild(true);
-            }
-            //get new boundRect of all usable zone
-            var newBoundRect = DrawableHlprs.GetBound(usableZone);
-
-            //get current screen size
-            var screen = PIDEditWindowsRichCanvasItems.OfType<IDrawable>().Where(d => d is ScreenBound && !d.IsResizeable).FirstOrDefault();
-            var screenRect = new Rectangle((int)screen.Left, (int)screen.Top, (int)screen.Width, (int)screen.Height);
-
-            //check if any zone is out of screen
-            //if (Rectangle.Intersect(screenRect, newBoundRect).Equals(newBoundRect))
-            //{
-            foreach (var zone in usableZone)
-            {
-                //reset origin for each zone
-                var ledSetup = zone as LEDSetup;
-                ledSetup.Left -= newBoundRect.Left;
-                ledSetup.Top -= newBoundRect.Top;
-                ledSetup.ZoneUID = Guid.NewGuid().ToString();
-                //make this zone controlable
-                CtrlHlprs.MakeZoneControlable(ledSetup);
-
-            }
-            // CurrentEditingDevice.UpdateSizeByChild();
-            //foreach (var controlZone in CurrentEditingDevice.ControlableZones)
-            //{
-
-            //    //save scale for resolution change handler
-
-            //}
-            //CurrentEditingDevice.ScaleLeft = (newBoundRect.Left - screen.Left) / screen.Width;
-            //CurrentEditingDevice.ScaleTop = (newBoundRect.Top - screen.Top) / screen.Height;
-            //CurrentEditingDevice.ScaleWidth = newBoundRect.Width / screen.Width;
-            //CurrentEditingDevice.ScaleHeight = newBoundRect.Height / screen.Height;
-            CurrentEditingDevice.ControlableZones.Clear();
-            usableZone.ForEach(zone => CurrentEditingDevice.ControlableZones.Add(zone as LEDSetup));
-            CurrentEditingDevice.UpdateSizeByChild(true);
-            CurrentEditingDevice.Left = newBoundRect.Left;
-            CurrentEditingDevice.Top = newBoundRect.Top;
-
-
-            //(SurfaceEditorSelectedItem as IDrawable).Width = newBoundRect.Width;
-            //(SurfaceEditorSelectedItem as IDrawable).Height = newBoundRect.Height ;
-            //check if liveviewopen and update it
-            // UpdateLiveView();
-            //}
-            //else
-            //{
-            //    HandyControl.Controls.MessageBox.Show("Vị trí hoặc kích thước của thiết bị vượt ra ngoài giới hạn màn hình", "Out of range", MessageBoxButton.OK, MessageBoxImage.Error);
-            //    return;
-            //}
-
-            //if ((maxX.Width + maxX.Left) > (border.Width + border.Left) ||
-            //    (maxY.Height + maxX.Top) > (border.Height + border.Top) ||
-            //    minX.Left < border.Left ||
-            //    minY.Top < border.Top
-            //    )
-            //{
-            //    //this indicate there is atleast one of the item jumping out of the border
-            //    HandyControl.Controls.MessageBox.Show("Kiểm tra lại vị trí, có LED vượt ra ngoài ranh giới", "Out of range", MessageBoxButton.OK, MessageBoxImage.Error);
-            //    return;
-            //}
-            //check if the border is out of the screen
-
-
-            // PIDEditWindowSelectedItems = null;
-            // PIDEditWindowsRichCanvasItems = null;
-            // PIDEditWindowsRichCanvasSelectedItem = null;
-
-            //change the scale too
-
-            //CurrentOutput.IsInSpotEditWizard = false;
-            // SurfaceEditorItems.Add(CurrentEditingDevice);
-            // SurfaceEditorItems.Insert(0,currentSlaveDevice);
-            //currentSlaveDevice.IsDraggable = true;
-            //currentSlaveDevice.IsSelectable = true;
             if (IsLiveViewOpen)
                 UpdateLiveView();
             pidEditCanvasWindow.Close();
@@ -7914,67 +7983,70 @@ namespace adrilight.ViewModel
         private void ResetPID()
         {
             CountPID = 0;
-            foreach(var zone in CurrentEditingPIDItem.ControlableZones)
+            foreach (var zone in CurrentEditingPIDItem.ControlableZones)
             {
                 var ledZone = zone as LEDSetup;
-                foreach(var spot in ledZone.Spots)
+                foreach (var spot in ledZone.Spots)
                 {
-                    spot.IsEnabled = false;
                     spot.SetColor(0, 0, 0, true);
+                    spot.IsEnabled = false;
+                    spot.SetID(0);
+
                 }
-               // ledZone.ReorderSpots();
+                // ledZone.ReorderSpots();
             }
         }
-          
+
         private void SetSpotID(IDeviceSpot spot)
         {
-           
-                switch (CurrentIDType)
-                {
-                    case "VID":
-                        spot.SetVID(CountVID += GapVID);
-                        spot.IsEnabled = true;
-                        if (CountVID > 1023)
-                            CountVID = 0;
-                        break;
-                    case "FID":
-                        spot.SetMID(CountVID += GapVID);
-                        spot.IsEnabled = true;
-                        if (CountVID > 1023)
-                            CountVID = 0;
-                        break;
-                    case "CID":
-                        spot.SetCID(CountVID += GapVID);
-                        spot.IsEnabled = true;
-                        if (CountVID > 32)
-                            CountVID = 0;
-                        break;
-                    case "PID":
-                        if (spot.IsEnabled)
+
+            switch (CurrentIDType)
+            {
+                case "VID":
+                    spot.SetVID(CountVID += GapVID);
+                    spot.IsEnabled = true;
+                    if (CountVID > 1023)
+                        CountVID = 0;
+                    break;
+                case "FID":
+                    spot.SetMID(CountVID += GapVID);
+                    spot.IsEnabled = true;
+                    if (CountVID > 1023)
+                        CountVID = 0;
+                    break;
+                case "CID":
+                    spot.SetCID(CountVID += GapVID);
+                    spot.IsEnabled = true;
+                    if (CountVID > 32)
+                        CountVID = 0;
+                    break;
+                case "PID":
+                    if (spot.IsEnabled)
+                    {
+
+                        spot.SetColor(0, 0, 0, true);
+                        spot.IsEnabled = false;
+                        if (CountPID >= 1)
                         {
-                            spot.IsEnabled = false;
-                            spot.SetColor(0, 0, 0, true);
-                            if (CountPID >= 1)
-                            {
-                                CountPID -= 1;
-                            }
-                            else
-                                CountPID = 0;
+                            CountPID -= 1;
                         }
                         else
-                        {
-                            spot.SetID(CountPID++);
-                            spot.IsEnabled = true;
-                            spot.SetColor(0, 0, 255, true);
+                            CountPID = 0;
+                    }
+                    else
+                    {
+                        spot.SetID(CountPID++);
+                        spot.IsEnabled = true;
+                        spot.SetColor(0, 0, 255, true);
 
-                        }
-                        //foreach(var zone in CurrentEditingPIDItem.ControlableZones)
-                        //{
-                        //    (zone as LEDSetup).ReorderSpots();
-                        //}
-                        break;
+                    }
+                    //foreach(var zone in CurrentEditingPIDItem.ControlableZones)
+                    //{
+                    //    (zone as LEDSetup).ReorderSpots();
+                    //}
+                    break;
 
-                }
+            }
         }
 
 
@@ -8330,14 +8402,13 @@ namespace adrilight.ViewModel
             RaisePropertyChanged(nameof(CurrentEditingColors));
             window.ShowDialog();
         }
-
-        public void OpenCreateNewDialog()
+        private AddNewPaletteWindow AddNewPaletteDialog;
+        public void OpenCreateNewPaletteDialog()
         {
-            if (AssemblyHelper.CreateInternalInstance($"View.{"AddNewPaletteWindow"}") is System.Windows.Window window)
-            {
-                window.Owner = System.Windows.Application.Current.MainWindow;
-                window.ShowDialog();
-            }
+            AddNewPaletteDialog = new AddNewPaletteWindow();
+            AddNewPaletteDialog.Owner = System.Windows.Application.Current.MainWindow;
+            AddNewPaletteDialog.ShowDialog();
+
         }
 
         public void OpenExportNewEffectWindow()
@@ -8526,27 +8597,44 @@ namespace adrilight.ViewModel
                 var lef2Right = new VIDDataModel() {
                     Name = "Trái sang phải",
                     Description = "Màu chạy từ trái sang phải",
-                    ExecutionType = VIDType.PositonGeneratedID
+                    ExecutionType = VIDType.PositonGeneratedID,
+                    Dirrection = VIDDirrection.left2right
                 };
                 var right2Left = new VIDDataModel() {
                     Name = "Phải sang trái",
                     Description = "Màu chạy từ phải sang trái",
-                    ExecutionType = VIDType.PositonGeneratedID
+                    ExecutionType = VIDType.PositonGeneratedID,
+                    Dirrection = VIDDirrection.right2left
                 };
                 var up2Down = new VIDDataModel() {
                     Name = "Trên xuống dưới",
                     Description = "Màu chạy từ trên xuống dưới",
-                    ExecutionType = VIDType.PositonGeneratedID
+                    ExecutionType = VIDType.PositonGeneratedID,
+                    Dirrection = VIDDirrection.top2bot
                 };
                 var down2Up = new VIDDataModel() {
                     Name = "Dưới lên trên",
                     Description = "Màu chạy từ dưới lên trên",
-                    ExecutionType = VIDType.PositonGeneratedID
+                    ExecutionType = VIDType.PositonGeneratedID,
+                    Dirrection = VIDDirrection.bot2top
+                };
+                var linear = new VIDDataModel() {
+                    Name = "Tuyến tính",
+                    Description = "Màu chạy theo thứ tự LED",
+                    ExecutionType = VIDType.PositonGeneratedID,
+                    Dirrection = VIDDirrection.linear
+                };
+                var custom = new VIDDataModel() {
+                    Name = "Custom",
+                    Description = "Drawing Custom Path",
+                    ExecutionType = VIDType.PredefinedID
                 };
                 vidCollection.Add(lef2Right);
                 vidCollection.Add(right2Left);
                 vidCollection.Add(up2Down);
                 vidCollection.Add(down2Up);
+                vidCollection.Add(custom);
+                vidCollection.Add(linear);
                 foreach (var vid in vidCollection)
                 {
                     var json = JsonConvert.SerializeObject(vid, new JsonSerializerSettings() {
@@ -8927,9 +9015,12 @@ namespace adrilight.ViewModel
         {
             if (ResourceHlprs == null)
                 ResourceHlprs = new ResourceHelpers();
+            if (LocalFileHlprs == null)
+                LocalFileHlprs = new LocalFileHelpers();
             #region checking and creating resource folder path if not exist
             CreateColorCollectionFolder();
             CreatePaletteCollectionFolder();
+            CreateChasingPatternCollectionFolder();
             CreateVIDCollectionFolder();
             #endregion
 
@@ -8942,7 +9033,28 @@ namespace adrilight.ViewModel
 
 
         }
+        public void CreateChasingPatternCollectionFolder()
+        {
+            if (!Directory.Exists(ChasingPatternsCollectionFolderPath))
+            {
+                Directory.CreateDirectory(ChasingPatternsCollectionFolderPath);
+                var collectionFolder = Path.Combine(ChasingPatternsCollectionFolderPath, "collection");
+                Directory.CreateDirectory(collectionFolder);
+                //var allResourceNames = "adrilight.Resources.Colors.ChasingPatterns.json";
+                var allResourceNames = ResourceHlprs.GetResourceFileName();
+                foreach (var resourceName in allResourceNames.Where(r => r.EndsWith(".AML")))
+                {
+                    ResourceHlprs.CopyResource(resourceName, Path.Combine(collectionFolder, resourceName));
+                }
+                var config = new ResourceLoaderConfig(nameof(ChasingPattern), DeserializeMethodEnum.MultiJson);
+                var configJson = JsonConvert.SerializeObject(config, new JsonSerializerSettings() {
+                    TypeNameHandling = TypeNameHandling.Auto
+                });
+                File.WriteAllText(Path.Combine(ChasingPatternsCollectionFolderPath, "config.json"), configJson);
+                //copy default chasing pattern from resource
 
+            }
+        }
         public void CreatePaletteCollectionFolder()
         {
             if (!Directory.Exists(PalettesCollectionFolderPath))
@@ -9736,6 +9848,11 @@ namespace adrilight.ViewModel
             get { return _isLiveViewOpen; }
             set { _isLiveViewOpen = value; RaisePropertyChanged(); }
         }
+        private bool _isAppActivated;
+        public bool IsAppActivated {
+            get { return _isAppActivated; }
+            set { _isAppActivated = value; RaisePropertyChanged(); }
+        }
         private bool _isInIDEditStage;
         public bool IsInIDEditStage {
             get { return _isInIDEditStage; }
@@ -9791,6 +9908,16 @@ namespace adrilight.ViewModel
                 }
             }
         }
+        private int _brushIntensity = 5;
+        public int BrushIntensity {
+            get { return _brushIntensity; }
+            set
+            {
+                _brushIntensity = value;
+                RaisePropertyChanged();
+            }
+        }
+
         private PathGuide _iDEditBrush;
         public PathGuide IDEditBrush {
             get { return _iDEditBrush; }
@@ -9962,16 +10089,16 @@ namespace adrilight.ViewModel
                                 }
                                 if (settedVIDCount > 0)
                                 {
-                                    if(SelectedToolIndex==1)
+                                    if (SelectedToolIndex == 1)
                                     {
-                                        VIDCount += 5;
+                                        VIDCount += BrushIntensity;
                                         if (VIDCount > 1023)
                                             VIDCount = 0;
                                     }
-                                    else if(SelectedToolIndex == 2)
+                                    else if (SelectedToolIndex == 2)
                                     {
-                                        VIDCount -= 5;
-                                        if (VIDCount <0 )
+                                        VIDCount -= BrushIntensity;
+                                        if (VIDCount < 0)
                                             VIDCount = 1023;
                                     }
                                 }

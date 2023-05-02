@@ -49,7 +49,7 @@ namespace adrilight.Helpers
             }
             if (hasFancontrol)
             {
-                var pwmController = DefaultCreatedDeviceController(ControllerTypeEnum.PWMController, "PWM Controller", "Fan");
+                var pwmController = DefaultCreatedDeviceController(ControllerTypeEnum.PWMController, "PWM Controller", "fanSpeedController");
 
                 for (int i = 0; i < outputCount; i++)
                 {

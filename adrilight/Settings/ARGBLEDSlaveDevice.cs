@@ -4,6 +4,7 @@ using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
 using HandyControl.Tools.Extension;
 using MoreLinq;
+using NAudio.Gui;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
+using Point = System.Windows.Point;
 
 namespace adrilight.Settings
 {
@@ -48,7 +50,7 @@ namespace adrilight.Settings
         {
             VisualProperties = new VisualProperties();
             Scale = new System.Windows.Point(1, 1);
-           
+
 
         }
 
@@ -74,7 +76,7 @@ namespace adrilight.Settings
         private double _angle = 0;
         private bool _hasCustomBehavior;
         private string _name;
-   
+
         private bool _isDeleteable;
         private bool _isResizeable;
         private double _scaleTop;
@@ -117,15 +119,15 @@ namespace adrilight.Settings
         private DrawableHelpers DrawableHlprs;
         private int GetLEDsCount()
         {
-            int ledCount=0;
-            if(ControlableZones!=null)
+            int ledCount = 0;
+            if (ControlableZones != null)
             {
                 foreach (var zone in ControlableZones)
                 {
                     ledCount += (zone as LEDSetup).Spots.Count();
                 }
             }
-            
+
             return ledCount;
         }
         public void UpdateSizeByChild(bool withPoint)
@@ -141,6 +143,85 @@ namespace adrilight.Settings
                 Top = boundRct.Top;
             }
 
+        }
+        private static Point ReflectPointVertical(Point pointToReflect, double center)
+        {
+            double distance = pointToReflect.X - center;
+            return new Point(center - distance, pointToReflect.Y);
+        }
+        public void ReflectLEDSetupVertical()
+        {
+            var center = Width; // reflect using right edge
+            foreach (var zone in ControlableZones)
+            {
+                (zone as LEDSetup).ReflectLEDSetupVertical(center);
+                var pos = new Point((zone as IDrawable).Left + (zone as IDrawable).Width, (zone as IDrawable).Top);
+                (zone as IDrawable).Left = ReflectPointVertical(pos, center).X;
+                (zone as IDrawable).Top = ReflectPointVertical(pos, center).Y;
+
+            }
+            var newBound = GetDeviceRectBound(ControlableZones.ToArray());
+            foreach (var zone in ControlableZones)
+            {
+                (zone as IDrawable).Left -= newBound.Left;
+                (zone as IDrawable).Top -= newBound.Top;
+            }
+            UpdateSizeByChild(false);
+            Left += Width;
+        }
+        public void RotateLEDSetup(double angleInDegrees)
+        {
+            var center = new Point(Width / 2, Height / 2);
+            var devicePos = new Point(Left, (Top + Height));
+            var newCenter = new Point(CenterX, CenterY);
+            foreach (var zone in ControlableZones)
+            {
+                (zone as LEDSetup).RotateLEDSetup(90.0, center);
+                var pos = new Point((zone as IDrawable).Left, (zone as IDrawable).Top + (zone as IDrawable).Height);
+                var width = (zone as IDrawable).Width;
+                var height = (zone as IDrawable).Height;
+                (zone as IDrawable).Left = RotatePoint(pos, center, 90.0).X;
+                (zone as IDrawable).Top = RotatePoint(pos, center, 90.0).Y;
+                (zone as IDrawable).Width = height;
+                (zone as IDrawable).Height = width;
+
+            }
+            var newBound = GetDeviceRectBound(ControlableZones.ToArray());
+            foreach (var zone in ControlableZones)
+            {
+                (zone as IDrawable).Left -= newBound.Left;
+                (zone as IDrawable).Top -= newBound.Top;
+            }
+            UpdateSizeByChild(false);
+            
+            
+            Left = RotatePoint(devicePos, newCenter, 90.0).X;
+            Top = RotatePoint(devicePos, newCenter, 90.0).Y;
+
+
+        }
+        /// <summary>
+        /// Rotates one point around another
+        /// </summary>
+        /// <param name="pointToRotate">The point to rotate.</param>
+        /// <param name="centerPoint">The center point of rotation.</param>
+        /// <param name="angleInDegrees">The rotation angle in degrees.</param>
+        /// <returns>Rotated point</returns>
+        private static Point RotatePoint(Point pointToRotate, Point centerPoint, double angleInDegrees)
+        {
+            double angleInRadians = angleInDegrees * (Math.PI / 180);
+            double cosTheta = Math.Cos(angleInRadians);
+            double sinTheta = Math.Sin(angleInRadians);
+            return new Point {
+                X =
+                    (int)
+                    (cosTheta * (pointToRotate.X - centerPoint.X) -
+                    sinTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.X),
+                Y =
+                    (int)
+                    (sinTheta * (pointToRotate.X - centerPoint.X) +
+                    cosTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.Y)
+            };
         }
         public Rect GetDeviceRectBound(IControlZone[] zones)
         {
@@ -177,7 +258,7 @@ namespace adrilight.Settings
                 }
             }
             //change child offset
-            foreach(var zone in ControlableZones)
+            foreach (var zone in ControlableZones)
             {
                 (zone as LEDSetup).OffsetX = Left;
                 (zone as LEDSetup).OffsetY = Top;
@@ -190,7 +271,7 @@ namespace adrilight.Settings
         /// </summary>
         /// <param name="scaleX"></param>
         /// <param name="scaleY"></param>
-       
+
 
 
         private void MoveChildX(double delta)
@@ -217,8 +298,9 @@ namespace adrilight.Settings
 
         protected virtual void OnRotationChanged() { }
 
-        protected virtual void OnIsSelectedChanged(bool value) {
-            if(ControlableZones!=null)
+        protected virtual void OnIsSelectedChanged(bool value)
+        {
+            if (ControlableZones != null)
             {
                 switch (value)
                 {
@@ -227,8 +309,8 @@ namespace adrilight.Settings
                         {
                             foreach (var spot in (zone as LEDSetup).Spots)
                             {
-                                if(spot.Index==0)
-                                spot.SetColor(0, 0, 255, true);
+                                if (spot.Index == 0)
+                                    spot.SetColor(0, 0, 255, true);
                             }
                         }
                         break;
@@ -243,7 +325,7 @@ namespace adrilight.Settings
                         break;
                 }
             }
-            
+
         }
 
         public virtual void OnDrawingEnded(Action<object> callback = default) { }

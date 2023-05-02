@@ -38,9 +38,9 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0">
-            <Border  Background="{DynamicResource MainContentBackgroundBrush}" CornerRadius="7" BorderThickness="1">
+            <Border Background="{DynamicResource MainContentBackgroundBrush}" CornerRadius="7" BorderThickness="1">
                 <ListBox
-                              ItemContainerStyle="{StaticResource _listBoxGeneralModeSelectionStyle}"  
+                              ItemContainerStyle="{DynamicResource _listBoxVerticalToolBarStyle}"  
                               ItemsSource="{Binding AvailableTools}"
                               SelectedIndex="{Binding SelectedToolIndex,Mode=TwoWay}"
                               Background="Transparent"
@@ -56,8 +56,8 @@
                     </ListBox.ItemsPanel>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Grid ToolTip="{Binding Name}">
-                                <Path Stretch="Uniform" Margin="5" Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}" 
+                            <Grid>
+                                <Path ToolTip="{Binding Name}" Stretch="Uniform" Margin="0" Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}" 
                                       Width="20" 
                                       Height="20" 
                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
@@ -74,7 +74,7 @@
 
             </hc:Divider>
 
-            <Button BorderThickness="0" Command="{Binding ResetAllItemsIDCommand}" ToolTip="Reset Brush ID" Width="32" Height="32" Margin="5" hc:IconElement.Width="20" hc:IconElement.Height="20" Padding="4" hc:IconElement.Geometry="{DynamicResource DeleteFillCircleGeometry}"/>
+            <Button hc:BorderElement.CornerRadius="2" Style="{DynamicResource _defaultIconButton}" Command="{Binding ResetAllItemsIDCommand}" ToolTip="Reset Brush ID" Width="40" Height="40" Margin="5" hc:IconElement.Width="20" hc:IconElement.Height="20" Padding="4" hc:IconElement.Geometry="{DynamicResource DeleteFillCircleGeometry}"/>
 
         </StackPanel>
 

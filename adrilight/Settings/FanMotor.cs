@@ -55,6 +55,7 @@ namespace adrilight.Settings
         private IControlMode _maskedControlMode;
         public IControlMode MaskedControlMode { get => _maskedControlMode; set { Set(() => MaskedControlMode, ref _maskedControlMode, value); if (IsInControlGroup) RaisePropertyChanged(nameof(CurrentActiveControlMode)); } }
         public string ZoneUID { get; set; }
+        public string GroupID { get; set; }
         private bool _isEnabled = true;
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); } }
         private ChartValues<ObservableValue> _lineValues;
