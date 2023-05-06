@@ -83,7 +83,6 @@ namespace adrilight
                 //which property that require this engine to refresh
                 case nameof(CurrentZone.CurrentActiveControlMode):
                 case nameof(CurrentZone.IsInControlGroup):
-                case nameof(CurrentZone.MaskedControlMode):
                 case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
                 case nameof(MainViewViewModel.IsRegisteringGroup):
                 case nameof(_colorControl):
@@ -188,7 +187,7 @@ namespace adrilight
 
             var isRunning = _cancellationTokenSource != null;
 
-            var currentLightingMode = CurrentZone.IsInControlGroup ? CurrentZone.MaskedControlMode as LightingMode : CurrentZone.CurrentActiveControlMode as LightingMode;
+            var currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
 
             var shouldBeRunning =
                 currentLightingMode.BasedOn == LightingModeEnum.Rainbow &&
@@ -216,7 +215,15 @@ namespace adrilight
                 _currentLightingMode = currentLightingMode;
                 _speedControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Speed).FirstOrDefault();
                 _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Palette).FirstOrDefault();
-                _colorControl.PropertyChanged += (_, __) => OnSelectedPaletteChanged(_colorControl.SelectedValue);
+                _colorControl.PropertyChanged += (_, __) =>
+                {
+                    switch (__.PropertyName)
+                    {
+                        case nameof(_colorControl.SelectedValue):
+                            OnSelectedPaletteChanged(_colorControl.SelectedValue);
+                            break;
+                    }
+                };
                 _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault();
                 _speedControl.PropertyChanged += (_, __) => OnSpeedChanged(_speedControl.Value);
                 _brightnessControl.PropertyChanged += (_, __) => OnBrightnessValueChanged(_brightnessControl.Value);

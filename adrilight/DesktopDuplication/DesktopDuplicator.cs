@@ -299,8 +299,6 @@ namespace adrilight.DesktopDuplication
 
         public bool IsDisposed { get; private set; }
 
-        public static int ScalingFactor => scalingFactor;
-
         public void Dispose()
         {
             IsDisposed = true;

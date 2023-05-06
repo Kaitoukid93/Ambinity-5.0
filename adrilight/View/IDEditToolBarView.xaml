@@ -23,8 +23,192 @@
                     <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
                     <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
                     <converters:ToUpperValueConverter x:Key="toUpperValueConverter" />
+                    <SolidColorBrush x:Key="primaryBackgroundBrush" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.5"/>
+                    <Style x:Key="_listBoxVisualizerItemContainerStyle" TargetType="ListBoxItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border Name="_Border"
+                                Padding="0"
+                                Margin="0"
+                                Effect="{DynamicResource EffectShadow1}"
+                                Background="Transparent"   
+                                BorderBrush="{StaticResource DarkMaskBrush}"
+                                BorderThickness="0"
+                                SnapsToDevicePixels="true">
+                                        <ContentPresenter />
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
 
 
+                                            <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}"/>-->
+                                            <Setter Property="Background" TargetName="_Border" Value="{DynamicResource PrimaryBrush }"/>
+
+
+
+                                        </MultiTrigger>
+
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+
+
+                                            <Setter Property="Background" TargetName="_Border" Value="{DynamicResource PrimaryBrush }"/>
+                                            <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsMouseOver" Value="True"/>
+                                                <Condition Property="IsSelected" Value="False"/>
+                                            </MultiTrigger.Conditions>
+
+                                            <Setter Property="Background" TargetName="_Border" Value="{DynamicResource PrimaryBrush}"/>
+
+                                            <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+
+                                        </MultiTrigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+
+                        <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
+
+                    </Style>
+                    <DataTemplate x:Key="_vidToolBar">
+                        <Grid>
+                            <StackPanel>
+                                <Border Background="{DynamicResource MainContentBackgroundBrush}" CornerRadius="7" BorderThickness="1">
+                                    <ListBox
+                              ItemContainerStyle="{DynamicResource _listBoxVerticalToolBarStyle}"  
+                              ItemsSource="{Binding AvailableTools}"
+                              SelectedIndex="{Binding SelectedToolIndex,Mode=TwoWay}"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              Style="{DynamicResource WrapPanelVerticalListBox}">
+
+                                        <ListBox.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel Orientation="Vertical">
+
+                                                </WrapPanel>
+                                            </ItemsPanelTemplate>
+                                        </ListBox.ItemsPanel>
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <Path ToolTip="{Binding Name}" Stretch="Uniform" Margin="0" Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}" 
+                                                          Width="20" 
+                                                          Height="20" 
+                                                          Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </Border>
+                                <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,5,5,5">
+
+                                </hc:Divider>
+
+                                <Button hc:BorderElement.CornerRadius="2" Style="{DynamicResource _defaultIconButton}" Command="{Binding ResetAllItemsIDCommand}" ToolTip="Reset Brush ID" Width="40" Height="40" Margin="5" hc:IconElement.Width="20" hc:IconElement.Height="20" Padding="4" hc:IconElement.Geometry="{DynamicResource DeleteFillCircleGeometry}"/>
+
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                    <DataTemplate x:Key="_midToolBar">
+                        <Grid ToolTip="Brush size">
+                            <StackPanel>
+                                <Grid>
+                                    <GroupBox Margin="10"   HorizontalContentAlignment="Left"  Style="{StaticResource GroupBoxOriginal}"  hc:TitleElement.TitlePlacement="Left">
+                                        <GroupBox.HeaderTemplate>
+                                            <DataTemplate>
+                                                <StackPanel>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+
+                                                        <TextBlock HorizontalAlignment="Left"  FontWeight="SemiBold" Text="HƯỚNG DẪN SỬ DỤNG"/>
+                                                        <Button ToolTip="Tìm hiểu thêm" Grid.Column="1" HorizontalAlignment="Left"  Background="Transparent" Margin="10,0,0,0" hc:IconElement.Geometry="{DynamicResource infoCircle}" Style="{DynamicResource _defaultIconButtonSmall}"/>
+                                                    </Grid>
+                                                    <TextBlock MaxWidth="400" Margin="0,5,0,0" TextWrapping="Wrap"  HorizontalAlignment="Stretch" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="- Chọn một đối tượng (Zone) ở bên phải (click chuột trái) sau đó chọn vào cột tần số mà bạn muốn đặt cho đối tượng đó"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </GroupBox.HeaderTemplate>
+                                    </GroupBox>
+                                </Grid>
+
+
+                                <!--FrequencyPicker-->
+                                <hc:Divider Margin="0"  LineStroke="{DynamicResource RegionBrush}">
+
+                                </hc:Divider>
+                                <Grid>
+                                    <ListBox Margin="10" SelectedIndex="{Binding CountMID,Mode=TwoWay}" Background="Transparent" BorderThickness="0" ItemContainerStyle="{DynamicResource _listBoxVisualizerItemContainerStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding AudioVisualizers.Columns}">
+                                        <ListBox.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <UniformGrid Columns="32" Rows="1"/>
+                                            </ItemsPanelTemplate>
+                                        </ListBox.ItemsPanel>
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <ProgressBar Width="9" Minimum="0" Maximum="255" Margin="2" Style="{DynamicResource ProgressBarFlat}" Foreground="{DynamicResource primaryBackgroundBrush}" Background="{DynamicResource SecondaryRegionBrush}" Height="100" Orientation="Vertical" Value="{Binding Value,Mode=TwoWay}">
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                                                            <i:InvokeCommandAction Command="{Binding DataContext.SetZoneMIDCommand,RelativeSource={RelativeSource AncestorType={x:Type local:IDEditToolBarView}}}" CommandParameter="{Binding Index}" />
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                </ProgressBar>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </Grid>
+                                <Grid>
+                                    <hc:ComboBox BorderThickness="0" Height="32" ItemContainerStyle="{DynamicResource _ComboboxItemStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10,10,10,10" SelectedIndex="{Binding GeneralSettings.SelectedAudioDevice,Mode=TwoWay}" ItemsSource="{Binding AvailableAudioDevices,Mode=TwoWay}">
+                                        <hc:ComboBox.Style>
+                                            <Style TargetType="hc:ComboBox" BasedOn="{StaticResource ComboBoxBaseStyle}">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Path=Items.Count, RelativeSource={RelativeSource Self}}" Value="1">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </hc:ComboBox.Style>
+                                        <hc:ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Name}"/>
+                                            </DataTemplate>
+                                        </hc:ComboBox.ItemTemplate>
+
+                                    </hc:ComboBox>
+                                </Grid>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                    <Style x:Key="_toolBarStyle" TargetType="{x:Type ContentControl}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IdEditMode,Mode=TwoWay}" Value="0">
+                                <Setter Property="ContentTemplate" Value="{StaticResource _vidToolBar}" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IdEditMode,Mode=TwoWay}" Value="1">
+                                <Setter Property="ContentTemplate" Value="{StaticResource _midToolBar}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
                 </ResourceDictionary>
 
             </ResourceDictionary.MergedDictionaries>
@@ -33,51 +217,7 @@
     </UserControl.Resources>
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0">
-            <Border Background="{DynamicResource MainContentBackgroundBrush}" CornerRadius="7" BorderThickness="1">
-                <ListBox
-                              ItemContainerStyle="{DynamicResource _listBoxVerticalToolBarStyle}"  
-                              ItemsSource="{Binding AvailableTools}"
-                              SelectedIndex="{Binding SelectedToolIndex,Mode=TwoWay}"
-                              Background="Transparent"
-                              BorderThickness="0"
-                              Style="{DynamicResource WrapPanelVerticalListBox}">
-
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Vertical">
-
-                            </WrapPanel>
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Grid>
-                                <Path ToolTip="{Binding Name}" Stretch="Uniform" Margin="0" Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}" 
-                                      Width="20" 
-                                      Height="20" 
-                                      Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-
-
-
-
-                </ListBox>
-            </Border>
-            <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,5,5,5">
-
-            </hc:Divider>
-
-            <Button hc:BorderElement.CornerRadius="2" Style="{DynamicResource _defaultIconButton}" Command="{Binding ResetAllItemsIDCommand}" ToolTip="Reset Brush ID" Width="40" Height="40" Margin="5" hc:IconElement.Width="20" hc:IconElement.Height="20" Padding="4" hc:IconElement.Geometry="{DynamicResource DeleteFillCircleGeometry}"/>
-
-        </StackPanel>
-
+        <ContentControl Content="{Binding .,UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource _toolBarStyle}"/>
     </Grid>
 
 </UserControl>

@@ -8,9 +8,9 @@
            xmlns:converters="clr-namespace:adrilight.Converter" 
            xmlns:richCanvas="clr-namespace:RichCanvas;assembly=RichCanvas"
            mc:Ignorable="d"
-             x:Name="window"
+           x:Name="window"
            xmlns:behaviors="clr-namespace:adrilight.Helpers.Behaviors"
-                 xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+           xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
            xmlns:helpers="clr-namespace:adrilight.Helpers"
            xmlns:local ="clr-namespace:adrilight"
            xmlns:view="clr-namespace:adrilight.View"
@@ -183,7 +183,19 @@
                                                     </Style>
 
                                                 </Viewbox.Style>
-                                                <TextBlock Margin="5" Padding="0" Foreground="White" Text="{Binding VID}" Style="{DynamicResource TextBlockDefault}">
+                                                <TextBlock Margin="5" Padding="0" Foreground="White">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock" BasedOn="{StaticResource TextBlockDefault}">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding ="{Binding DataContext.IdEditMode,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" Value="0">
+                                                                    <Setter Property="Text" Value="{Binding VID}"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding ="{Binding DataContext.IdEditMode,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" Value="1">
+                                                                    <Setter Property="Text" Value="{Binding MID}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
                                                 </TextBlock>
                                             </Viewbox>
                                         </Grid>
@@ -302,6 +314,16 @@
                 </DataTemplate>
                 <DataTemplate DataType="{x:Type settings:Border}">
                     <Grid Tag="{Binding DataContext, ElementName=window}">
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="IsHitTestVisible" Value="True"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding ="{Binding Path=DataContext.IsInIDEditStage,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" Value="True" >
+                                        <Setter Property="IsHitTestVisible" Value="False"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
                                 <i:InvokeCommandAction Command="{Binding DataContext.SelectLiveViewItemCommand,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" CommandParameter="{Binding .}" />
@@ -312,8 +334,7 @@
                                    Height="{Binding Height,Mode=TwoWay}"
                                StrokeThickness="4"
                                Fill="Transparent"
-                               StrokeDashArray="2"
-                               IsHitTestVisible="True">
+                               StrokeDashArray="2">
                         </Rectangle>
                         <Border HorizontalAlignment="Left" VerticalAlignment="Top" Background="{DynamicResource PrimaryBrush}">
                             <TextBlock Margin="2" Style="{DynamicResource TextBlockDefault}" HorizontalAlignment="Left" VerticalAlignment="Top" Text="{Binding Name}"/>
@@ -404,9 +425,11 @@
                             Value="{Binding Scale, Mode=TwoWay}" />
                     <Setter Property="Cursor"
                             Value="Arrow" />
-
-
                     <Style.Triggers>
+                        <DataTrigger Binding ="{Binding Path=DataContext.IsInIDEditStage,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" Value="True">
+                            <Setter Property="IsSelectable" Value="True"/>
+                            <Setter Property="helpers:AttachedAdorner.HasHoverAdorner" Value="True" />
+                        </DataTrigger>
                         <DataTrigger Binding="{Binding DataType}" Value="{x:Type settings:PathGuide}">
                             <Setter Property="Top"
                             Value="{Binding Top,Mode=TwoWay}" />
@@ -423,6 +446,8 @@
                             <Setter Property="helpers:AttachedAdorner.ShowResizeAdorner"
                             Value="False" />
                         </DataTrigger>
+
+                       
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Opacity">
                                 <Setter.Value>
@@ -546,6 +571,7 @@
                             <MultiDataTrigger>
                                 <MultiDataTrigger.Conditions>
                                     <Condition Binding="{Binding IsInIDEditStage,Mode=TwoWay}" Value="True" />
+                                    <Condition Binding="{Binding IdEditMode,Mode=TwoWay}" Value="0" />
                                     <Condition Binding="{Binding SelectedToolIndex,Mode=TwoWay}" Value="1" />
                                 </MultiDataTrigger.Conditions>
                                 <Setter Property="Visibility" Value="Visible"/>
@@ -553,6 +579,7 @@
                             <MultiDataTrigger>
                                 <MultiDataTrigger.Conditions>
                                     <Condition Binding="{Binding IsInIDEditStage,Mode=TwoWay}" Value="True" />
+                                    <Condition Binding="{Binding IdEditMode,Mode=TwoWay}" Value="0" />
                                     <Condition Binding="{Binding SelectedToolIndex,Mode=TwoWay}" Value="2" />
                                 </MultiDataTrigger.Conditions>
                                 <Setter Property="Visibility" Value="Visible"/>

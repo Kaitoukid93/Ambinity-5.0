@@ -48,6 +48,7 @@ using Group = adrilight.Settings.Group;
 using MoreLinq.Extensions;
 using SelectionMode = System.Windows.Controls.SelectionMode;
 using Border = adrilight.Settings.Border;
+using Un4seen.BassWasapi;
 
 namespace adrilight.ViewModel
 {
@@ -83,6 +84,7 @@ namespace adrilight.ViewModel
         private string SupportedDeviceCollectionFolderPath => Path.Combine(JsonPath, "SupportedDevices");
         private string ColorsCollectionFolderPath => Path.Combine(JsonPath, "Colors");
         private string VIDCollectionFolderPath => Path.Combine(JsonPath, "VID");
+        private string MIDCollectionFolderPath => Path.Combine(JsonPath, "MID");
         private string ResourceFolderPath => Path.Combine(JsonPath, "Resource");
 
         #endregion
@@ -646,6 +648,7 @@ namespace adrilight.ViewModel
         public ICommand ResetCountCommand { get; set; }
         public ICommand SetSpotPIDCommand { get; set; }
         public ICommand SetSpotVIDCommand { get; set; }
+        public ICommand SetZoneMIDCommand { get; set; }
         public ICommand ResetSpotIDCommand { get; set; }
         public ICommand SetSelectedSpotCIDCommand { get; set; }
         public ICommand ResetMaxCountCommand { get; set; }
@@ -1062,6 +1065,11 @@ namespace adrilight.ViewModel
 
             }
         }
+        private VisualizerDataModel _audioVisualizers;
+        public VisualizerDataModel AudioVisualizers {
+            get { return _audioVisualizers; }
+            set { _audioVisualizers = value; RaisePropertyChanged(); }
+        }
         private ObservableCollection<WriteableBitmap> _desktops;
         public ObservableCollection<WriteableBitmap> Desktops {
             get { return _desktops; }
@@ -1188,16 +1196,16 @@ namespace adrilight.ViewModel
 
 
 
-        public IList<String> AvailableAudioDevice {
-            get
-            {
+        //public IList<String> AvailableAudioDevice {
+        //    get
+        //    {
 
-                var audioDevices = AudioFrame.AvailableAudioDevice;
+        //        var audioDevices = AudioFrame.AvailableAudioDevice;
 
-                return audioDevices;
+        //        return audioDevices;
 
-            }
-        }
+        //    }
+        //}
 
 
         private bool _deviceLightingModeCollection;
@@ -1225,15 +1233,14 @@ namespace adrilight.ViewModel
 
         public ISerialStream[] SerialStreams { get; }
         public IAmbinityClient AmbinityClient { get; set; }
-        public IAudioFrame AudioFrame { get; set; }
         private static ReaderWriterLockSlim _readWriteLock = new ReaderWriterLockSlim();
 
-        public MainViewViewModel(IGeneralSettings generalSettings, IAmbinityClient ambinityClient,
-            IAudioFrame audioFrame)
+        public MainViewViewModel(IGeneralSettings generalSettings, IAmbinityClient ambinityClient
+            )
         {
             #region load Params
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
-            AudioFrame = audioFrame ?? throw new ArgumentNullException(nameof(audioFrame));
+
             DisplayCards = new ObservableCollection<IDeviceSettings>();
             AmbinityClient = ambinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
             #endregion
@@ -1758,6 +1765,54 @@ namespace adrilight.ViewModel
             });
 
         }
+        public object AudioUpdateLock { get; } = new object();
+        public void AudioVisualizerUpdate(ByteFrame frame)
+        {
+            if (AudioVisualizers == null)
+            {
+                AudioVisualizers = new VisualizerDataModel(32);
+
+            }
+
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+               
+                foreach (var column in AudioVisualizers.Columns)
+                {
+                    column.SetValue(frame.Frame[column.Index]);
+                }
+
+            });
+        }
+        private ObservableCollection<AudioDevice> _availableAudioDevices;
+        public ObservableCollection<AudioDevice> AvailableAudioDevices {
+            get { return _availableAudioDevices; }
+            set
+            {
+                _availableAudioDevices = value;
+                RaisePropertyChanged();
+            }
+        }
+        public List<AudioDevice> GetAvailableAudioDevices()
+        {
+            var availableDevices = new List<AudioDevice>();
+            int devicecount = BassWasapi.BASS_WASAPI_GetDeviceCount();
+
+            for (int i = 0; i < devicecount; i++)
+            {
+
+                var device = BassWasapi.BASS_WASAPI_GetDeviceInfo(i);
+
+                if (device.IsEnabled && device.IsLoopback)
+                {
+                    var audioDevice = new AudioDevice() { Name = device.name, Index = i };
+
+                    availableDevices.Add(audioDevice);
+                }
+
+            }
+            return availableDevices;
+        }
         public void DesktopsPreviewUpdate(ByteFrame frame, int index)
         {
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
@@ -1834,7 +1889,16 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged(nameof(IsNextable));
             }
         }
+        private int _countMID = 0;
 
+        public int CountMID {
+            get => _countMID;
+            set
+            {
+                Set(ref _countMID, value);
+
+            }
+        }
         private int _countVID = 0;
 
         public int CountVID {
@@ -1842,7 +1906,7 @@ namespace adrilight.ViewModel
             set
             {
                 Set(ref _countVID, value);
-                RaisePropertyChanged(nameof(IsNextable));
+
             }
         }
         private int _countPID = 0;
@@ -2436,6 +2500,7 @@ namespace adrilight.ViewModel
                 foreach (var item in LiveViewItems)
                 {
                     item.IsSelectable = true;
+                    item.IsSelected = false;
                 }
                 IsInIDEditStage = false;
             });
@@ -2465,6 +2530,11 @@ namespace adrilight.ViewModel
                              OpenColorPickerWindow(2);
                              break;
                          case "Add VID":
+                             IdEditMode = IDMode.VID;
+                             IsInIDEditStage = true;
+                             break;
+                         case "Add FID":
+                             IdEditMode = IDMode.FID;
                              IsInIDEditStage = true;
                              break;
                          case "Add Palette":
@@ -3906,6 +3976,14 @@ namespace adrilight.ViewModel
             }, (p) =>
             {
                 SetSpotID(p);
+
+            });
+            SetZoneMIDCommand = new RelayCommand<int>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                SetZoneMID(p);
 
             });
             ResetSpotIDCommand = new RelayCommand<string>((p) =>
@@ -6461,10 +6539,11 @@ namespace adrilight.ViewModel
             //set each zone selectable
             foreach (var zone in CurrentDevice.CurrentLiveViewZones)
             {
-                if (group.ZoneUIDCollection.Contains(zone.ZoneUID))
+                if (group.GroupUID == zone.GroupID)
                 {
                     //set each zone IsIngroup to false
                     //set maskedControl to null
+                    zone.GroupID = null;
                     zone.IsInControlGroup = false;
                     (zone as IDrawable).IsSelectable = true;
                     (zone as IControlZone).MaskedControlMode = null;
@@ -6486,14 +6565,15 @@ namespace adrilight.ViewModel
             if (borderToRemove == null)
                 return;
             LiveViewItems.Remove(borderToRemove);
-            var currentGroup = CurrentDevice.ControlZoneGroups.Where(g => g.Border.Name == borderToRemove.Name).FirstOrDefault();
+            var currentGroup = CurrentDevice.ControlZoneGroups.Where(g => g.Border.Name == borderToRemove.Name && g.Type == CurrentDevice.CurrentActiveController.Type).FirstOrDefault();
             //set each zone selectable
             foreach (var zone in CurrentDevice.CurrentLiveViewZones)
             {
-                if (currentGroup.ZoneUIDCollection.Contains(zone.ZoneUID))
+                if (currentGroup.GroupUID == zone.GroupID)
                 {
                     //set each zone IsIngroup to false
                     //set maskedControl to null
+                    zone.GroupID = null;
                     zone.IsInControlGroup = false;
                     (zone as IDrawable).IsSelectable = true;
                     (zone as IControlZone).MaskedControlMode = null;
@@ -6509,11 +6589,10 @@ namespace adrilight.ViewModel
         private List<IControlZone> GetGroupChildItems(ControlZoneGroup group, IDeviceSettings device)
         {
             List<IControlZone> childItems = new List<IControlZone>();
-            foreach (var zone in device.CurrentLiveViewZones)
+            foreach (var zone in device.AvailableControlZones)
             {
-                if (group.ZoneUIDCollection.Contains(zone.ZoneUID))
+                if (zone.GroupID == group.GroupUID)
                 {
-                    zone.GroupID = group.GroupUID;
                     childItems.Add(zone);
                 }
             }
@@ -6622,11 +6701,6 @@ namespace adrilight.ViewModel
                 GetGroupBorder(selectedItems, newGroup);
                 newGroup.Border.IsSelected = true;
                 LiveViewItems.Add(newGroup.Border);
-                //sync control mode
-                foreach (var item in selectedItems)
-                {
-                    newGroup.ZoneUIDCollection.Add(item.ZoneUID);
-                }
                 switch (newGroup.Type)
                 {
                     case ControllerTypeEnum.LightingController:
@@ -6721,7 +6795,8 @@ namespace adrilight.ViewModel
         }
         private void LiveViewSelectedItemChanged(IDrawable item)
         {
-            if (item.IsSelectable)
+            var shouldBeSelected = IsInIDEditStage ? true : item.IsSelectable;
+            if (shouldBeSelected)
             {
                 item.IsSelected = true;
                 ShowSelectedItemToolbar = true;
@@ -6747,7 +6822,7 @@ namespace adrilight.ViewModel
                 {
                     foreach (var group in CurrentDevice.ControlZoneGroups)
                     {
-                        if (group.Name == item.Name)
+                        if (group.Name == item.Name && group.Type == CurrentDevice.CurrentActiveController.Type)
                         {
                             //item.IsSelected = true;
                             //group.Border.IsSelected = true;
@@ -6849,26 +6924,25 @@ namespace adrilight.ViewModel
                         }
 
                     }
+                    //switch (group.Type)
+                    //{
+                    //    case ControllerTypeEnum.LightingController:
+                    //        RegisterGroupItem(groupItems.Cast<LEDSetup>().ToList(), group);
+                    //        break;
+                    //    case ControllerTypeEnum.PWMController:
+                    //        RegisterGroupItem(groupItems.Cast<FanMotor>().ToList(), group);
+                    //        break;
+                    //}
 
 
 
                 }
             }
+            //reset toolbard width
+            ToolBarWidth = 450;
             if (IsInIDEditStage)
             {
-                if (AvailableTools == null)
-                {
-                    AvailableTools = new ObservableCollection<VIDToolBarDataModel>() {
-                                     new VIDToolBarDataModel(){Name = "Selection Tool",Geometry= "selectionTool"},
-                                     new VIDToolBarDataModel(){Name = "Brush Tool",Geometry= "brushTool"},
-                                     new VIDToolBarDataModel(){Name = "Eraser Tool",Geometry= "eraserTool"},
-                     };
-                }
-
-                //add brush
-                SelectedToolIndex = 0;
-                GetBrushForIDEdit();
-
+                GetThingsReadyFroIDEdit();
             }
             if (lastSelectedItem != null)
             {
@@ -6876,7 +6950,25 @@ namespace adrilight.ViewModel
             }
             else
                 SelectLiveViewItemCommand.Execute(LiveViewItems.Where(i => i.IsSelectable).First());
+
+
             ShowSelectedItemToolbar = true;
+
+        }
+
+        private void GetThingsReadyFroIDEdit()
+        {
+            switch (IdEditMode)
+            {
+                case IDMode.VID:
+                    GetToolsForIDEdit();
+                    GetBrushForIDEdit();
+                    ToolBarWidth = 52;
+                    break;
+                case IDMode.FID:
+                    ToolBarWidth = 450;
+                    break;
+            }
 
         }
         private ObservableCollection<IDrawable> _vIDEditWindowSelectedItems;
@@ -7997,6 +8089,14 @@ namespace adrilight.ViewModel
             }
         }
 
+        private void SetZoneMID(int id)
+        {
+            var selectedZone = SelectedControlZone as LEDSetup;
+            foreach (var spot in selectedZone.Spots)
+            {
+                spot.SetMID(id);
+            }
+        }
         private void SetSpotID(IDeviceSpot spot)
         {
 
@@ -8652,6 +8752,60 @@ namespace adrilight.ViewModel
             //deserialize and store colorcollection
 
         }
+
+        private void CreateMIDCollectionFolder()
+        {
+            if (!Directory.Exists(MIDCollectionFolderPath))
+            {
+                Directory.CreateDirectory(MIDCollectionFolderPath);
+                var collectionFolder = Path.Combine(MIDCollectionFolderPath, "collection");
+                Directory.CreateDirectory(collectionFolder);
+                var midCollection = new List<MIDDataModel>();
+                var low = new MIDDataModel() {
+                    Name = "Low",
+                    Description = "Trung bình của các tần số thấp (Bass)",
+                    ExecutionType = VIDType.PositonGeneratedID,
+                    Frequency = MIDFrequency.Low
+                };
+                var middle = new MIDDataModel() {
+                    Name = "Mid",
+                    Description = "Trung bình của các tần số trung (Mid)",
+                    ExecutionType = VIDType.PositonGeneratedID,
+                    Frequency = MIDFrequency.Middle
+                };
+                var high = new MIDDataModel() {
+                    Name = "High",
+                    Description = "Trung bình của các tần số cao (Treble)",
+                    ExecutionType = VIDType.PositonGeneratedID,
+                    Frequency = MIDFrequency.High
+                };
+
+                var custom = new MIDDataModel() {
+                    Name = "Custom",
+                    Description = "Chọn Tần số bằng tay",
+                    ExecutionType = VIDType.PredefinedID
+                };
+                midCollection.Add(low);
+                midCollection.Add(middle);
+                midCollection.Add(high);
+                midCollection.Add(custom);
+                foreach (var mid in midCollection)
+                {
+                    var json = JsonConvert.SerializeObject(mid, new JsonSerializerSettings() {
+                        TypeNameHandling = TypeNameHandling.Auto
+                    });
+                    File.WriteAllText(Path.Combine(collectionFolder, mid.Name + ".json"), json);
+                }
+                //coppy all internal palettes to local 
+                var config = new ResourceLoaderConfig(nameof(VIDDataModel), DeserializeMethodEnum.MultiJson);
+                var configJson = JsonConvert.SerializeObject(config, new JsonSerializerSettings() {
+                    TypeNameHandling = TypeNameHandling.Auto
+                });
+                File.WriteAllText(Path.Combine(MIDCollectionFolderPath, "config.json"), configJson);
+            }
+            //deserialize and store colorcollection
+
+        }
         private void CreateRequiredFwVersionJson()
         {
             IDeviceFirmware ABR1p = new DeviceFirmware() {
@@ -9022,6 +9176,8 @@ namespace adrilight.ViewModel
             CreatePaletteCollectionFolder();
             CreateChasingPatternCollectionFolder();
             CreateVIDCollectionFolder();
+            CreateMIDCollectionFolder();
+            CreateAudioDevicesCollection();
             #endregion
 
             LoadAvailableLightingMode();
@@ -9032,6 +9188,14 @@ namespace adrilight.ViewModel
             LoadAvailableSolidColors();
 
 
+        }
+        private void CreateAudioDevicesCollection()
+        {
+            AvailableAudioDevices = new ObservableCollection<AudioDevice>();
+            foreach (var device in GetAvailableAudioDevices())
+            {
+                AvailableAudioDevices.Add(device);
+            }
         }
         public void CreateChasingPatternCollectionFolder()
         {
@@ -9853,6 +10017,12 @@ namespace adrilight.ViewModel
             get { return _isAppActivated; }
             set { _isAppActivated = value; RaisePropertyChanged(); }
         }
+        private int _toolBarWidth = 450;
+        public int ToolBarWidth {
+            get { return _toolBarWidth; }
+            set { _toolBarWidth = value; RaisePropertyChanged(); }
+        }
+
         private bool _isInIDEditStage;
         public bool IsInIDEditStage {
             get { return _isInIDEditStage; }
@@ -9862,6 +10032,21 @@ namespace adrilight.ViewModel
                 GetItemsForLiveView();
                 UpdateLiveView();
                 RaisePropertyChanged();
+            }
+        }
+        public enum IDMode
+        {
+            VID = 0,
+            FID = 1
+        }
+        private IDMode _idEditMode;
+        public IDMode IdEditMode {
+            get { return _idEditMode; }
+            set
+            {
+                _idEditMode = value;
+                RaisePropertyChanged();
+
             }
         }
         public ObservableCollection<VIDToolBarDataModel> AvailableTools { get; set; }
@@ -10014,6 +10199,19 @@ namespace adrilight.ViewModel
 
             }
 
+        }
+        private void GetToolsForIDEdit()
+        {
+            if (AvailableTools == null)
+            {
+                AvailableTools = new ObservableCollection<VIDToolBarDataModel>() {
+                                 new VIDToolBarDataModel(){Name = "Selection Tool",Geometry= "selectionTool"},
+                                 new VIDToolBarDataModel(){Name = "Brush Tool",Geometry= "brushTool"},
+                                 new VIDToolBarDataModel(){Name = "Eraser Tool",Geometry= "eraserTool"},
+                     };
+            }
+            //add brush
+            SelectedToolIndex = 0;
         }
         private void GetBrushForIDEdit()
         {

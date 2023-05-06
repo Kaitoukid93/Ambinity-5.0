@@ -84,7 +84,6 @@ namespace adrilight
                 //which property that require this engine to refresh
                 case nameof(CurrentZone.CurrentActiveControlMode):
                 case nameof(CurrentZone.IsInControlGroup):
-                case nameof(CurrentZone.MaskedControlMode):
                 case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
                 case nameof(MainViewViewModel.IsRegisteringGroup):
                 case nameof(_colorControl):
@@ -247,12 +246,13 @@ namespace adrilight
                         //create new tick
                         var maxTick = _resizedFrames != null ? _resizedFrames.Length : 1024;
                         frameTick = RainbowTicker.MakeNewTick(maxTick, _speed, CurrentZone.GroupID, TickEnum.FrameTick);
+                        frameTick.IsRunning = true;
                     }
                     if (colorTick == null)
                     {
                         //create new tick
                         var maxTick = _colorBank != null ? _colorBank.Length : 1024;
-                        frameTick = RainbowTicker.MakeNewTick(maxTick, _paletteSpeed / 5d, CurrentZone.GroupID, TickEnum.ColorTick);
+                        colorTick = RainbowTicker.MakeNewTick(maxTick, _paletteSpeed / 5d, CurrentZone.GroupID, TickEnum.ColorTick);
                     }
                     _ticks = new Tick[2];
                     _ticks[0] = frameTick;
@@ -264,7 +264,8 @@ namespace adrilight
             {
                 var frameTick = new Tick() {
                     MaxTick = _resizedFrames != null ? _resizedFrames.Length : 1024,
-                    TickSpeed = _speed
+                    TickSpeed = _speed,
+                    IsRunning = true
                 };
                 var colorTick = new Tick() {
                     MaxTick = _colorBank != null ? _colorBank.Length : 1024,
@@ -299,7 +300,7 @@ namespace adrilight
                 _ticks[1].TickSpeed = _paletteSpeed / 5d;
                 _ticks[1].CurrentTick = 0;
             }
-
+            _pattern.Tick = _ticks[0];
         }
         private void OnSelectedChasingPatternChanged(IParameterValue value)
         {
@@ -342,7 +343,7 @@ namespace adrilight
 
             var isRunning = _cancellationTokenSource != null;
 
-            var currentLightingMode = CurrentZone.IsInControlGroup ? CurrentZone.MaskedControlMode as LightingMode : CurrentZone.CurrentActiveControlMode as LightingMode;
+            var currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
             GetTick(CurrentZone.IsInControlGroup);
             var shouldBeRunning =
                 currentLightingMode.BasedOn == LightingModeEnum.Animation &&
@@ -417,12 +418,12 @@ namespace adrilight
 
                 //color param
                 _selectedColorSource = _colorControl.SelectedValue;
+                OnSelectedChasingPatternChanged(_chasingPatternControl.SelectedValue);
                 OnSelectedPaletteChanged(_selectedColorSource);
                 OnColorUsePropertyChanged(_colorControl.SubParams[0].Value);
                 OnPaletteIntensityPropertyChanged(_colorControl.SubParams[2].Value);
                 OnPaletteSpeedPropertyChanged(_colorControl.SubParams[1].Value);
                 OnSpeedChanged(_speedControl.Value);
-                OnSelectedChasingPatternChanged(_chasingPatternControl.SelectedValue);
                 OnBrightnessValueChanged(_brightnessControl.Value);
                 var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
                 while (!token.IsCancellationRequested)
@@ -443,6 +444,7 @@ namespace adrilight
                                 spot.SetColor(FinalR, FinalG, FinalB, isPreviewRunning);
                             }
                         }
+
                     }
                     Thread.Sleep(10);
                 }

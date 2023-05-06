@@ -8,7 +8,7 @@ namespace adrilight.Util
 {
     public class Tick
     {
-        public Tick() { IsRunning = true; }
+        public Tick() { }
         public double CurrentTick { get; set; }
         public TickEnum TickType { get; set; }
         public int MaxTick { get; set; }

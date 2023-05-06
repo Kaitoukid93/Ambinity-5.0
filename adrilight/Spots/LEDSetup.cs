@@ -60,7 +60,6 @@ namespace adrilight
         public List<IControlMode> AvailableControlMode { get; set; }
         [JsonIgnore]
         public IControlMode CurrentActiveControlMode => IsInControlGroup ? MaskedControlMode : AvailableControlMode[CurrentActiveControlModeIndex >= 0 ? CurrentActiveControlModeIndex : 0];
-
         public int CurrentActiveControlModeIndex { get => _currentActiveControlModeIndex; set { if (value >= 0) Set(() => CurrentActiveControlModeIndex, ref _currentActiveControlModeIndex, value); RaisePropertyChanged(nameof(CurrentActiveControlMode)); } }
 
         private bool _isEnabled = true;
@@ -88,8 +87,8 @@ namespace adrilight
                 spot.DimLED(dimFactor);
             }
         }
-        //we need to store 1 more infor about position for the sake of screencapturing
-
+        private DancingModeEnum _dancingMode = DancingModeEnum.Brightness;
+        DancingModeEnum DancingMode { get => _dancingMode; set { Set(() => DancingMode, ref _dancingMode, value); } }
         /// <summary>
         /// this is the value of Offset, because left and with only show absolute position with SlaveDevice, not the screen
         /// </summary>

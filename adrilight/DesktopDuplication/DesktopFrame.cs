@@ -25,14 +25,14 @@ using adrilight.Spots;
 
 namespace adrilight
 {
-    internal class DesktopFrame : ViewModelBase, IDesktopFrame
+    internal class DesktopFrame : ViewModelBase, ICaptureEngine
     {
         private readonly ILogger _log = LogManager.GetCurrentClassLogger();
 
-        public DesktopFrame(IGeneralSettings userSettings, MainViewViewModel mainViewViewModel, string screen)
+        public DesktopFrame(IGeneralSettings userSettings, MainViewViewModel mainViewViewModel, string deviceName)
         {
             UserSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
-            ScreenToCapture = screen;
+            DeviceName = deviceName;
             MainViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             _retryPolicy = Policy.Handle<Exception>()
                 .WaitAndRetryForever(ProvideDelayDuration);
@@ -62,21 +62,20 @@ namespace adrilight
             }
         }
 
-        //private void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e)
-        //{
-        //    RefreshCaptureSource();
-        //}
+        #region private field
+        private Thread _workerThread;
+        private CancellationTokenSource _cancellationTokenSource;
+        private int _currentScreenIdex => Array.IndexOf(Screen.AllScreens, Screen.AllScreens.Where(s => s.DeviceName == DeviceName).FirstOrDefault());
+        #endregion
 
+        #region public properties
         public bool IsRunning { get; private set; } = false;
         public bool NeededRefreshing { get; private set; } = false;
-
-        private CancellationTokenSource _cancellationTokenSource;
-
-        private Thread _workerThread;
         public ByteFrame Frame { get; set; }
-        public string ScreenToCapture { get; set; }
+        public string DeviceName { get; set; }
         private DrawableHelpers DrHlprs { get; set; }
-        private int _currentScreenIdex => Array.IndexOf(Screen.AllScreens, Screen.AllScreens.Where(s => s.DeviceName == ScreenToCapture).FirstOrDefault());
+        public object Lock { get; } = new object();
+        #endregion
 
         public void RefreshCapturingState()
         {
@@ -85,7 +84,7 @@ namespace adrilight
             //  var shouldBeRefreshing = NeededRefreshing;
 
             //safety check about resolution and screen
-            var currentScreen = Screen.AllScreens.Where(s => s.DeviceName == ScreenToCapture).FirstOrDefault();
+            var currentScreen = Screen.AllScreens.Where(s => s.DeviceName == DeviceName).FirstOrDefault();
             var currentRect = currentScreen.Bounds;
             if (UserSettings.Screens == null)
             {
@@ -96,7 +95,7 @@ namespace adrilight
                 MainViewModel.WriteSettingJson(UserSettings);
 
             }
-            var lastScreen = UserSettings.Screens.Where(s => s.Name == ScreenToCapture).FirstOrDefault();
+            var lastScreen = UserSettings.Screens.Where(s => s.Name == DeviceName).FirstOrDefault();
             
             
 
@@ -370,21 +369,7 @@ namespace adrilight
                     _log.Debug("The frame size changed from {0}x{1} to {2}x{3}"
                         , _lastObservedWidth, _lastObservedHeight
                         , image.Width, image.Height);
-                    //var currentScreen = Screen.AllScreens.Where(s => s.DeviceName == ScreenToCapture).FirstOrDefault();
-                    //var currentRect = currentScreen.Bounds;                   
-                    //var lastScreen = UserSettings.Screens.Where(s => s.Name == ScreenToCapture).FirstOrDefault();
-                    //var lastRect = lastScreen.Rectangle;
-                    //foreach (var device in MainViewModel.AvailableDevices.Where(d => !d.IsDummy))
-                    //{
-                    //    foreach (var slaveDevice in device.AvailableLightingDevices)
-                    //    {
-
-                    //        HandleResolutionChange(lastRect, currentRect, slaveDevice);
-
-                    //    }
-                    //}
-                    //lastScreen.Rectangle = currentRect;
-                    //MainViewModel.WriteSettingJson(UserSettings);
+                  
                 }
                 _lastObservedWidth = image.Width;
                 _lastObservedHeight = image.Height;

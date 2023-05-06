@@ -15,14 +15,13 @@ namespace adrilight.Util
         {
 
         }
-
+        private Tick _tick;
         public string Name { get; set; }
         public string Owner { get; set; }
         public ChasingPatternTypeEnum Type { get; set; }
         public string Description { get; set; }
         public string Path { get; set; }
-
-       
+        public Tick Tick { get => _tick; set { Set(() => Tick, ref _tick, value); } }
     } 
 }
 

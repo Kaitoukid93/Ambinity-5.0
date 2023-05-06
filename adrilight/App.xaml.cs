@@ -160,10 +160,10 @@ namespace adrilight
               .SelectAllClasses()
               .BindAllInterfaces());
             var serialDeviceDetection = kernel.Get<ISerialDeviceDetection>();
-            var desktopFrame = kernel.GetAll<IDesktopFrame>();
+            var captureEngines = kernel.GetAll<ICaptureEngine>();
             var rainbowTicker = kernel.Get<IRainbowTicker>();
             var hwMonitor = kernel.Get<IHWMonitor>();
-            var audioFrame = kernel.Get<IAudioFrame>();
+            
 
 
 
@@ -244,6 +244,7 @@ namespace adrilight
             kernel.Bind<ILightingEngine>().To<StaticColor>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
             kernel.Bind<ILightingEngine>().To<Rainbow>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
             kernel.Bind<ILightingEngine>().To<Animation>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
+            kernel.Bind<ILightingEngine>().To<Music>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
             var availableLightingModes = kernel.GetAll<ILightingEngine>(zone.ZoneUID);
             foreach(var lightingMode in availableLightingModes )
             {
@@ -337,18 +338,18 @@ namespace adrilight
             {
                 desktopDuplicatorReader.Stop();
             }
-            foreach (var desktopFrame in kernel.GetAll<IDesktopFrame>())
+            foreach (var desktopFrame in kernel.GetAll<ICaptureEngine>())
             {
                 desktopFrame.Stop();
             }
 
             //find out what happend
-            if (Screen.AllScreens.Length < kernel.GetAll<IDesktopFrame>().Count())
+            if (Screen.AllScreens.Length < kernel.GetAll<ICaptureEngine>().Count())
             {
                 //screen unpluged
                 foreach (var screen in Screen.AllScreens)
                 {
-                    var desktopFrame = kernel.Get<IDesktopFrame>(screen.DeviceName);
+                    var desktopFrame = kernel.Get<ICaptureEngine>(screen.DeviceName);
                     if (desktopFrame != null) // this screen is injected already, simply restart it
                         desktopFrame.RefreshCapturingState();
 
@@ -356,10 +357,10 @@ namespace adrilight
                 }
 
             }
-            else if (Screen.AllScreens.Length == kernel.GetAll<IDesktopFrame>().Count())
+            else if (Screen.AllScreens.Length == kernel.GetAll<ICaptureEngine>().Count())
             {
                 //res change. handled in desktopframe
-                foreach (var desktopFrame in kernel.GetAll<IDesktopFrame>())
+                foreach (var desktopFrame in kernel.GetAll<ICaptureEngine>())
                 {
                     desktopFrame.RefreshCapturingState();
                 }
@@ -369,15 +370,15 @@ namespace adrilight
                 //screen attached
                 foreach (var screen in Screen.AllScreens)
                 {
-                    var desktopFrames = kernel.GetAll<IDesktopFrame>();
+                    var desktopFrames = kernel.GetAll<ICaptureEngine>();
                     foreach (var desktopFrame in desktopFrames)
                     {
-                        if (desktopFrame.ScreenToCapture == screen.DeviceName)
+                        if (desktopFrame.DeviceName == screen.DeviceName)
                             desktopFrame.RefreshCapturingState();
                         else
                         {
-                            kernel.Bind<IDesktopFrame>().To<DesktopFrame>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("screen", screen.DeviceName);
-                            var newDesktopFrame = kernel.Get<IDesktopFrame>(screen.DeviceName);
+                            kernel.Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("screen", screen.DeviceName);
+                            var newDesktopFrame = kernel.Get<ICaptureEngine>(screen.DeviceName);
                             // newDesktopFrame.RefreshCapturingState();
                         }
                     }
@@ -446,7 +447,7 @@ namespace adrilight
                     device.DeviceState = DeviceStateEnum.Normal;
                 }
                 // deviceDiscovery.enable = true;
-                var desktopFrames = kernel.GetAll<IDesktopFrame>();
+                var desktopFrames = kernel.GetAll<ICaptureEngine>();
                 foreach (var desktopFrame in desktopFrames)
                 {
                     desktopFrame.RefreshCapturingState(); 
@@ -476,7 +477,7 @@ namespace adrilight
                 }
 
 
-                var desktopFrames = kernel.GetAll<IDesktopFrame>();
+                var desktopFrames = kernel.GetAll<ICaptureEngine>();
                 foreach (var desktopFrame in desktopFrames)
                 {
                     desktopFrame.Stop();

@@ -407,6 +407,39 @@
                             </StackPanel>
                         </Grid>
                     </DataTemplate>
+                    <DataTemplate x:Key="_comboboxSelectionTemplate" DataType="{x:Type ut:ModeParameter}">
+                        <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
+
+
+                            <Border Effect="{DynamicResource EffectShadow1}" Margin="0,0,0,5" Padding="10" CornerRadius="4" Background="{DynamicResource MainContentBackgroundBrush}">
+                                <Grid ToolTip="{Binding Description}" IsEnabled="{Binding IsEnabled,Mode=TwoWay}">
+                                    <StackPanel>
+                                        <Grid>
+                                            <GroupBox VerticalAlignment="Stretch" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                                                <GroupBox.HeaderTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel>
+                                                            <TextBlock  FontWeight="SemiBold" Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox},Converter={StaticResource toUpperValueConverter}}"/>
+                                                            <TextBlock Margin="0,5,0,0" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="{Binding DataContext.Description, RelativeSource={RelativeSource AncestorType=GroupBox}}"/>
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </GroupBox.HeaderTemplate>
+                                                <hc:ComboBox BorderThickness="0" Height="32" ItemContainerStyle="{DynamicResource _ComboboxItemStyle}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0">
+                                                    <hc:ComboBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding Name}"/>
+                                                        </DataTemplate>
+                                                    </hc:ComboBox.ItemTemplate>
+
+                                                </hc:ComboBox>
+                                            </GroupBox>
+                                        </Grid>
+
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </hc:TransitioningContentControl>
+                    </DataTemplate>
                     <DataTemplate  x:Key="_toggleParamTemplate"  DataType="{x:Type ut:ModeParameter}">
                         <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
                             <Border Effect="{DynamicResource EffectShadow1}" Margin="0,0,0,5" Padding="10" CornerRadius="4" Background="{DynamicResource MainContentBackgroundBrush}">
@@ -600,20 +633,25 @@
                                                                 </Border>
                                                             </Grid>
                                                         </DataTemplate>
+                                                        <DataTemplate DataType="{x:Type ut:MIDDataModel}">
+                                                            <Grid>
+                                                                <Border HorizontalAlignment="Center"  VerticalAlignment="Center" Padding="4" Background="{DynamicResource SecondaryRegionBrush}" Effect="{DynamicResource EffectShadow1}" ToolTip="{Binding Description}" CornerRadius="2">
+                                                                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5" Style="{DynamicResource TextBlockDefault}" Text="{Binding Name}"/>
+                                                                </Border>
+                                                            </Grid>
+                                                        </DataTemplate>
                                                         <DataTemplate DataType="{x:Type ut:ChasingPattern}">
                                                             <Grid>
                                                                 <Border HorizontalAlignment="Center"  VerticalAlignment="Center" Padding="4" Background="{DynamicResource SecondaryRegionBrush}" Effect="{DynamicResource EffectShadow1}" ToolTip="{Binding Description}" CornerRadius="2">
-                                                                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5" Style="{DynamicResource TextBlockDefault}" Text="{Binding Type}"/>
+                                                                    <StackPanel>
+                                                                        <TextBlock Margin="5" Text="{Binding Name}"/>
+                                                                    </StackPanel>
                                                                 </Border>
                                                             </Grid>
                                                         </DataTemplate>
                                                     </ContentControl.Resources>
                                                 </ContentControl>
-
                                             </Grid>
-
-
-
                                         </GroupBox>
                                     </Border>
                                     <!--main param-->
@@ -684,6 +722,13 @@
                                                                             </Grid>
                                                                         </DataTemplate>
                                                                         <DataTemplate DataType="{x:Type ut:VIDDataModel}">
+                                                                            <Grid>
+                                                                                <Border Effect="{DynamicResource EffectShadow1}" Background="{DynamicResource SecondaryRegionBrush}" ToolTip="{Binding Description}" CornerRadius="2">
+                                                                                    <TextBlock Margin="5" Style="{DynamicResource TextBlockDefault}" Text="{Binding Name}"/>
+                                                                                </Border>
+                                                                            </Grid>
+                                                                        </DataTemplate>
+                                                                        <DataTemplate DataType="{x:Type ut:MIDDataModel}">
                                                                             <Grid>
                                                                                 <Border Effect="{DynamicResource EffectShadow1}" Background="{DynamicResource SecondaryRegionBrush}" ToolTip="{Binding Description}" CornerRadius="2">
                                                                                     <TextBlock Margin="5" Style="{DynamicResource TextBlockDefault}" Text="{Binding Name}"/>
@@ -970,6 +1015,11 @@
                                                              Value="{x:Static ut:ModeParameterTemplateEnum.ChartVisualization }">
                                                     <Setter Property="ContentTemplate"
                                                             Value="{DynamicResource _charVisualizationTemplate}" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Path=Template}"
+                                                             Value="{x:Static ut:ModeParameterTemplateEnum.ComboboxSelection }">
+                                                    <Setter Property="ContentTemplate"
+                                                            Value="{DynamicResource _comboboxSelectionTemplate}" />
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>

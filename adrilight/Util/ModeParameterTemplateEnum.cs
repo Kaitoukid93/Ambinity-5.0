@@ -1,6 +1,6 @@
 ﻿namespace adrilight.Util
 {
-    public  enum ModeParameterTemplateEnum
+    public enum ModeParameterTemplateEnum
     {
         /// <summary>
         ///    this is common value slider type
@@ -31,6 +31,9 @@
         /// this display button with fixed command
         /// </summary>
         PushButtonAction,
+
+        ComboboxSelection,
+        PredefinedListSelection,
 
 
     }

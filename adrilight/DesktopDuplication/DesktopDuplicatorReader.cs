@@ -31,7 +31,7 @@ namespace adrilight
         private readonly ILogger _log = LogManager.GetCurrentClassLogger();
 
         public DesktopDuplicatorReader(IGeneralSettings generalSettings,
-            IDesktopFrame[] desktopFrame,
+            ICaptureEngine[] desktopFrame,
              MainViewViewModel mainViewViewModel,
              IControlZone zone
             )
@@ -61,7 +61,7 @@ namespace adrilight
         /// </summary>
         private IGeneralSettings GeneralSettings { get; }
 
-        private IDesktopFrame[] DesktopFrame { get; }
+        private ICaptureEngine[] DesktopFrame { get; }
         public bool IsRunning { get; private set; }
         private LEDSetup CurrentZone { get; }
 

@@ -26,26 +26,22 @@ namespace adrilight.Ninject
             Bind<MainView>().ToSelf().InSingletonScope();
             Bind<IAmbinityClient>().To<AmbinityClient>().InSingletonScope();
             Bind<ISerialDeviceDetection>().To<SerialDeviceDetection>().InSingletonScope();
-            Bind<IAudioFrame>().To<AudioFrame>().InSingletonScope();
             Bind<IHWMonitor>().To<HWMonitor>().InSingletonScope();
             Bind<IContext>().To<WpfContext>().InSingletonScope();
             Bind<IDeviceDiscovery>().To<DeviceDiscovery>().InSingletonScope();
 
-         
+
             if (generalSettings.IsMultipleScreenEnable)
                 foreach (var screen in Screen.AllScreens)
                 {
-                    Bind<IDesktopFrame>().To<DesktopFrame>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("screen", screen.DeviceName);
+                    Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("deviceName", screen.DeviceName);
                 }
             else
-                Bind<IDesktopFrame>().To<DesktopFrame>().InSingletonScope().Named(Screen.AllScreens[0].DeviceName).WithConstructorArgument("screen", Screen.AllScreens[0].DeviceName);
-
+                Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(Screen.AllScreens[0].DeviceName).WithConstructorArgument("deviceName", Screen.AllScreens[0].DeviceName);
+            Bind<ICaptureEngine>().To<AudioFrame>().InSingletonScope();
             Bind<IRainbowTicker>().To<RainbowTicker>().InSingletonScope();
 
-
-          
         }
-
 
     }
 }

@@ -1,4 +1,5 @@
-﻿using adrilight.Settings;
+﻿using adrilight.Helpers;
+using adrilight.Settings;
 using adrilight_effect_analyzer.Model;
 using GalaSoft.MvvmLight;
 using LiveCharts;
@@ -109,6 +110,26 @@ namespace adrilight.Util
                                     var json = File.ReadAllText(file);
 
                                     var data = JsonConvert.DeserializeObject<VIDDataModel>(json);
+
+                                    availableValue.Add(data);
+                                }
+                                break;
+                            case nameof(MIDDataModel):
+                                foreach (var file in files)
+                                {
+                                    var json = File.ReadAllText(file);
+
+                                    var data = JsonConvert.DeserializeObject<MIDDataModel>(json);
+
+                                    availableValue.Add(data);
+                                }
+                                break;
+                            case nameof(DancingModeParameterValue):
+                                foreach (var file in files)
+                                {
+                                    var json = File.ReadAllText(file);
+
+                                    var data = JsonConvert.DeserializeObject<DancingModeParameterValue>(json);
 
                                     availableValue.Add(data);
                                 }

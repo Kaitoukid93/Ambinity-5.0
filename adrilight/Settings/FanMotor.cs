@@ -1,4 +1,5 @@
-﻿using adrilight.Spots;
+﻿using adrilight.Helpers;
+using adrilight.Spots;
 using adrilight.Util;
 using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
@@ -50,7 +51,6 @@ namespace adrilight.Settings
         public List<IControlMode> AvailableControlMode { get; set; }
         [JsonIgnore]
         public IControlMode CurrentActiveControlMode => IsInControlGroup ? MaskedControlMode : AvailableControlMode[CurrentActiveControlModeIndex >= 0 ? CurrentActiveControlModeIndex : 0];
-        [JsonIgnore]
         public int CurrentActiveControlModeIndex { get => _currentActiveControlModeIndex; set { if (value >= 0) Set(() => CurrentActiveControlModeIndex, ref _currentActiveControlModeIndex, value); RaisePropertyChanged(nameof(CurrentActiveControlMode)); } }
         private IControlMode _maskedControlMode;
         public IControlMode MaskedControlMode { get => _maskedControlMode; set { Set(() => MaskedControlMode, ref _maskedControlMode, value); if (IsInControlGroup) RaisePropertyChanged(nameof(CurrentActiveControlMode)); } }
@@ -125,6 +125,7 @@ namespace adrilight.Settings
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
 
         public string Type { get; set; }
+        
         private DrawableHelpers DrawableHlprs;
         public void UpdateSizeByChild(bool withPoint)
         {

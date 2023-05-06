@@ -18,6 +18,7 @@ namespace adrilight.Helpers
         private string ColorsCollectionFolderPath => Path.Combine(JsonPath, "Colors");
         private string PalettesCollectionFolderPath => Path.Combine(JsonPath, "ColorPalettes");
         private string VIDCollectionFolderPath => Path.Combine(JsonPath, "VID");
+        private string MIDCollectionFolderPath => Path.Combine(JsonPath, "MID");
         private string ChasingPatternsCollectionFolderPath => Path.Combine(JsonPath, "ChasingPatterns");
         #region default lighting mode by ambino
         public IControlZone MakeZoneControlable(IControlZone zone)
@@ -88,7 +89,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Màu LED chuyển động theo nhạc",
-                    Parameters = { GenericBrightnessParameter, GenericSpeedParameter(0, 100, 20), IsSystemSync }
+                    Parameters = { GenericBrightnessParameter, GenericColorPaletteAndSolidColorSelectionParameter, GenericAudioDeviceParameter, GenericMIDSelectParameter }
 
                 };
             }
@@ -201,7 +202,7 @@ namespace adrilight.Helpers
                         new SubParameter("System Speed",ModeParameterTemplateEnum.ValueSlider,"Speed","Speed",5,20,0){
                             Description = "Tốc độ này sẽ kéo theo toàn bộ các vùng đã bật System Sync"
                         }
-                        
+
                     }
                 };
             }
@@ -252,6 +253,27 @@ namespace adrilight.Helpers
                 };
             }
         }
+        public IModeParameter GenericMIDSelectParameter {
+            get
+            {
+                return new ModeParameter() {
+
+                    Name = "Tần số",
+                    Description = "Chọn tần số cho từng vùng LED",
+                    ParamType = ModeParameterEnum.MID,
+                    Template = ModeParameterTemplateEnum.ListSelection,
+                    Value = 1,
+                    AvailableValueLocalPaths = new List<SelectableLocalPath>() { new SelectableLocalPath() { Path = MIDCollectionFolderPath } },
+                    SubParams = new ObservableCollection<SubParameter>() {
+                        new SubParameter("Chọn tần số chi tiết hơn",ModeParameterTemplateEnum.PushButtonAction,"Add FID","Add",0,0,0),
+                        new SubParameter("Visualizer",ModeParameterTemplateEnum.ListSelection,"Dancing Mode","",0,0,0){ AvailableValue = new List<string>(){ "Brightness", "VU Metter"}},
+                        new SubParameter("VU mode",ModeParameterTemplateEnum.ListSelection,"Vu Mode","",0,0,0){ AvailableValue = new List<string>(){ "Normal", "Inverse", "Floating"}},
+                    }
+
+                };
+            }
+        }
+
         public IModeParameter GenericColorSelectionParameter {
             get
             {
@@ -311,6 +333,7 @@ namespace adrilight.Helpers
                 };
             }
         }
+
         public IModeParameter GenericBrightnessParameter {
             get
             {
@@ -324,6 +347,19 @@ namespace adrilight.Helpers
                     MinValue = 20,
                     MaxValue = 100
 
+                };
+            }
+        }
+        public IModeParameter GenericAudioDeviceParameter {
+            get
+            {
+                return new ModeParameter() {
+
+                    Name = "Audio Device",
+                    Description = "Chose Audio Device",
+                    ParamType = ModeParameterEnum.AudioDevice,
+                    Template = ModeParameterTemplateEnum.ComboboxSelection,
+                    Value = 0,
                 };
             }
         }

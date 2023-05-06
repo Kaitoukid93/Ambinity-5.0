@@ -187,11 +187,14 @@
     <Compile Include="Converter\ToUpperValueConverter.cs" />
     <Compile Include="DesktopDuplication\DesktopDuplicator.cs" />
     <Compile Include="DesktopDuplication\DesktopDuplicatorReader.cs" />
+    <Compile Include="DesktopDuplication\ICaptureEngine.cs" />
     <Compile Include="Helpers\AttachedAdorner.cs" />
     <Compile Include="Helpers\Behaviors\GroupBehavior.cs" />
     <Compile Include="Helpers\ControlModeHelpers.cs" />
+    <Compile Include="Helpers\DancingModeEnum.cs" />
     <Compile Include="Helpers\EventToCommand.cs" />
     <Compile Include="Helpers\LocalFileHelpers.cs" />
+    <Compile Include="Helpers\SimpleStringParameterValue.cs" />
     <Compile Include="Settings\DeserializeMethodEnum.cs" />
     <Compile Include="Settings\DeviceStateEnum.cs" />
     <Compile Include="Settings\ModeDirection.cs" />
@@ -269,13 +272,17 @@
     <Compile Include="Spots\ILEDSetup.cs" />
     <Compile Include="Spots\LEDSetup.cs" />
     <Compile Include="Spots\LEDSetupHelpers.cs" />
+    <Compile Include="Util\Music.cs" />
+    <Compile Include="Util\AudioDevice.cs" />
     <Compile Include="Util\ChasingPatternTypeEnum.cs" />
     <Compile Include="Util\ColorEditingObject.cs" />
+    <Compile Include="Util\ColumnDataModel.cs" />
     <Compile Include="Util\IModeParameter.cs" />
     <Compile Include="Util\IOnlineItemModel.cs" />
     <Compile Include="Util\ILightingEngine.cs" />
     <Compile Include="Util\IParameterValue.cs" />
     <Compile Include="Util\LightingModeEnum.cs" />
+    <Compile Include="Util\MIDFrequency.cs" />
     <Compile Include="Util\ModeParameter.cs" />
     <Compile Include="Util\ModeParameterEnum.cs" />
     <Compile Include="Util\ModeParameterTemplateEnum.cs" />
@@ -318,7 +325,6 @@
     <Compile Include="Util\IHWMonitor.cs" />
     <Compile Include="Util\ILeftMenuItemGroup.cs" />
     <Compile Include="Util\IControlMode.cs" />
-    <Compile Include="Util\IMusic.cs" />
     <Compile Include="Util\IOpenRGBClientDevice.cs" />
     <Compile Include="Util\IAmbinityClient.cs" />
     <Compile Include="Util\IRainbow.cs" />
@@ -342,6 +348,8 @@
     <Compile Include="Util\Tick.cs" />
     <Compile Include="Util\TickEnum.cs" />
     <Compile Include="Util\UpdateVisitor.cs" />
+    <Compile Include="Util\MIDDataModel.cs" />
+    <Compile Include="Util\VisualizerDataModel.cs" />
     <Compile Include="Util\VIDDirrection.cs" />
     <Compile Include="Util\VIDToolBarDataModel.cs" />
     <Compile Include="Util\VIDDataModel.cs" />
@@ -360,7 +368,6 @@
     <Compile Include="DesktopDuplication\DesktopDuplicationException.cs" />
     <Compile Include="DesktopDuplication\DesktopFrame.cs" />
     <Compile Include="DesktopDuplication\IDesktopDuplicatorReader.cs" />
-    <Compile Include="DesktopDuplication\IDesktopFrame.cs" />
     <Compile Include="DesktopDuplication\MovedRegion.cs" />
     <Compile Include="Extension\ArrayExtensions.cs" />
     <Compile Include="Extension\MathExtensions.cs" />

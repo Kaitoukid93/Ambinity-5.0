@@ -45,5 +45,8 @@
         Palette,
         MixedColor,
         VID,
+        MID,
+        DancingMode,
+        AudioDevice
     }
 }

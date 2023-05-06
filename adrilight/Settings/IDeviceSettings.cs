@@ -37,6 +37,7 @@ namespace adrilight
         List<IDeviceController> AvailableControllers { get; set; }
         IDeviceController CurrentActiveController { get; }
         ObservableCollection<IControlZone> CurrentLiveViewZones { get; }
+        ObservableCollection<IControlZone> AvailableControlZones { get; }
         ObservableCollection<ControlZoneGroup> CurrentLiveViewGroup { get; }
         int CurrentActiveControlerIndex { get; set; }
         int SelectedOutput { get; set; }
