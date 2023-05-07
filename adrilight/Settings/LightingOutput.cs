@@ -32,7 +32,7 @@ namespace adrilight.Settings
         {
 
         }
-
+        public bool IsLoadingProfile { get; set; }
         public string OutputName { get => _outputName; set { Set(() => OutputName, ref _outputName, value); } }
         public string TargetDevice { get => _targetDevice; set { Set(() => TargetDevice, ref _targetDevice, value); } }
         public int OutputID { get => _outputID; set { Set(() => OutputID, ref _outputID, value); } }

@@ -255,15 +255,15 @@ namespace adrilight.Util
                         });
                     }
 
-                    foreach (var device in MainViewViewModel.AvailableDevices.Where(x => x.DeviceType == "ABFANHUB"))
-                    {
-                        //find speed control and set
-                        //foreach (var output in device.AvailableOutputs)
-                        //{
-                        //    (output as OutputSettings).SetSpeed(200);
-                        //}
+                    //foreach (var device in MainViewViewModel.AvailableDevices.Where(x => x.DeviceType == ))
+                    //{
+                    //    //find speed control and set
+                    //    //foreach (var output in device.AvailableOutputs)
+                    //    //{
+                    //    //    (output as OutputSettings).SetSpeed(200);
+                    //    //}
 
-                    }
+                    //}
                 }
 
                 while (!token.IsCancellationRequested)

@@ -20,8 +20,7 @@ namespace adrilight
         int DeviceID { get; set; }
         string DeviceName { get; set; }
         string DeviceSerial { get; set; }
-        string DeviceType { get; set; }
-        DeviceTypeEnum TypeEnum { get; set; }
+        DeviceTypeEnum DeviceType { get; set; }
         string Manufacturer { get; set; }
         string DeviceDescription { get; set; }
         bool IsLoading { get; set; } // just a loading indicator to tell user to fking wait a bit
@@ -52,7 +51,7 @@ namespace adrilight
         bool IsSelected { get; set; }
         bool IsSizeNeedUserDefine { get; set; }
         bool IsLoadingProfile { get; set; }
-        void ActivateProfile(IDeviceProfile profile);
+        void ActivateProfile(DeviceProfile profile);
         void SetOutput(IOutputSettings output, int outputID);
         bool IsLoadingSpeed { get; set; }
         string FwLocation { get; set; }

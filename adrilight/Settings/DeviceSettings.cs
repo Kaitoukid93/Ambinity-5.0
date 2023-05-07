@@ -18,6 +18,7 @@ using System.Buffers;
 using HandyControl.Themes;
 using System.Threading;
 using Newtonsoft.Json;
+using adrilight.Helpers;
 
 namespace adrilight
 {
@@ -26,7 +27,6 @@ namespace adrilight
         private int _deviceID;
         private string _deviceName;
         private string _deviceSerial;
-        private string _deviceType;
         private string _manufacturer;
         private string _deviceDescription;
         private string _firmwareVersion;
@@ -34,7 +34,7 @@ namespace adrilight
         private List<IDeviceController> _availableControllers;
         private string _productionDate;
         private bool _isVisible;
-        private bool _isEnabled=true;
+        private bool _isEnabled = true;
         private string _outputPort;
         private bool _isTransferActive;
         private bool _isDummy = false;
@@ -62,7 +62,7 @@ namespace adrilight
         private static byte[] expectedValidHeader = { 15, 12, 93 };
         private bool _isSizeNeedUserDefine = false;
         private bool _isLoadingSpeed = false;
-        private DeviceTypeEnum _typeEnum;
+        private DeviceTypeEnum _deviceType;
         private int _currentActiveControllerIndex;
         private IDeviceController _currentActiveController;
         private string _deviceOutputMap;
@@ -70,7 +70,7 @@ namespace adrilight
         public int DashboardHeight { get => _dashboardHeight; set { Set(() => DashboardHeight, ref _dashboardHeight, value); } }
         public string DeviceThumbnail { get => _deviceThumbnail; set { Set(() => DeviceThumbnail, ref _deviceThumbnail, value); } }
         public string DeviceOutputMap { get => _deviceOutputMap; set { Set(() => DeviceOutputMap, ref _deviceOutputMap, value); } }
-        public DeviceTypeEnum TypeEnum { get => _typeEnum; set { Set(() => TypeEnum, ref _typeEnum, value); } }
+        public DeviceTypeEnum DeviceType { get => _deviceType; set { Set(() => DeviceType, ref _deviceType, value); } }
         public ObservableCollection<ControlZoneGroup> ControlZoneGroups { get => _controlZoneGroups; set { Set(() => ControlZoneGroups, ref _controlZoneGroups, value); } }
         public DeviceStateEnum DeviceState { get => _deviceState; set { Set(() => DeviceState, ref _deviceState, value); } }
         public string RequiredFwVersion { get => _requiredFwVersion; set { Set(() => RequiredFwVersion, ref _requiredFwVersion, value); } }
@@ -78,7 +78,6 @@ namespace adrilight
         public string DeviceName { get => _deviceName; set { Set(() => DeviceName, ref _deviceName, value); } }
         public string FwLocation { get => _fwLocation; set { Set(() => FwLocation, ref _fwLocation, value); } }
         public string DeviceSerial { get => _deviceSerial; set { Set(() => DeviceSerial, ref _deviceSerial, value); } }
-        public string DeviceType { get => _deviceType; set { Set(() => DeviceType, ref _deviceType, value); } }
         public string Manufacturer { get => _manufacturer; set { Set(() => Manufacturer, ref _manufacturer, value); } }
         public string FirmwareVersion { get => _firmwareVersion; set { Set(() => FirmwareVersion, ref _firmwareVersion, value); } }
         public string HardwareVersion { get => _hardwareVersion; set { Set(() => HardwareVersion, ref _hardwareVersion, value); } }
@@ -105,11 +104,9 @@ namespace adrilight
 
         public string DeviceConnectionGeometry { get => _deviceConnectionGeometry; set { Set(() => DeviceConnectionGeometry, ref _deviceConnectionGeometry, value); } }
         public string DeviceConnectionType { get => _deviceConnectionType; set { Set(() => DeviceConnectionType, ref _deviceConnectionType, value); } }
-        public bool IsLoadingProfile { get => _isLoadingProfile; set { Set(() => IsLoadingProfile, ref _isLoadingProfile, value); } }
         public bool IsSizeNeedUserDefine { get => _isSizeNeedUserDefine; set { Set(() => IsSizeNeedUserDefine, ref _isSizeNeedUserDefine, value); } }
-        [JsonIgnore]
         public List<IDeviceController> AvailableControllers { get => _availableControllers; set { Set(() => AvailableControllers, ref _availableControllers, value); } }
-
+        public bool IsLoadingProfile { get => _isLoadingProfile; set { Set(() => IsLoadingProfile, ref _isLoadingProfile, value); IsLoadingProfilePropertyChanged(); } }
         [JsonIgnore]
         public IDeviceController CurrentActiveController { get => AvailableControllers[CurrentActiveControlerIndex]; set { Set(() => CurrentActiveController, ref _currentActiveController, value); } }
 
@@ -143,11 +140,11 @@ namespace adrilight
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return null;
             }
-           
+
             return slaveDevices.ToArray();
         }
         private IOutputSettings[] GetOutput(ControllerTypeEnum type)
@@ -177,7 +174,7 @@ namespace adrilight
         private ObservableCollection<IControlZone> GetControlZones()
         {
             ObservableCollection<IControlZone> zones = new ObservableCollection<IControlZone>();
-            foreach(var controller in AvailableControllers)
+            foreach (var controller in AvailableControllers)
             {
                 foreach (var output in controller.Outputs)
                 {
@@ -187,13 +184,13 @@ namespace adrilight
                     }
                 }
             }
-          
+
             return zones;
         }
         private ObservableCollection<ControlZoneGroup> GetControlZoneGroups(IDeviceController controller)
         {
             ObservableCollection<ControlZoneGroup> groups = new ObservableCollection<ControlZoneGroup>();
-            foreach(var group in ControlZoneGroups.Where(g=>g.Type == controller.Type))
+            foreach (var group in ControlZoneGroups.Where(g => g.Type == controller.Type))
             {
                 groups.Add(group);
             }
@@ -203,7 +200,7 @@ namespace adrilight
 
         private void OnActiveControllerChanged()
         {
-            if(AvailableControllers!=null)
+            if (AvailableControllers != null)
             {
                 if (CurrentActiveControlerIndex >= 0)
                 {
@@ -213,7 +210,24 @@ namespace adrilight
                     RaisePropertyChanged(nameof(CurrentActiveController));
                 }
             }
-           
+
+        }
+        public bool ShouldSerializeAvailableControllers()
+        {
+            return IsLoadingProfile;
+        }
+        private void IsLoadingProfilePropertyChanged()
+        {
+            if (AvailableControllers != null)
+            {
+                foreach (var controller in AvailableControllers)
+                {
+                    foreach (var output in controller.Outputs)
+                    {
+                        output.IsLoadingProfile = IsLoadingProfile;
+                    }
+                }
+            }
         }
         private void DeviceEnableChanged()
         {
@@ -255,35 +269,51 @@ namespace adrilight
 
         }
         private DrawableHelpers DrawableHlprs;
-       
+
         public Rect GetDeviceRectBound(IControlZone[] zones)
         {
-            
-            
-            if(DrawableHlprs==null)
+
+
+            if (DrawableHlprs == null)
                 DrawableHlprs = new DrawableHelpers();
 
 
             return DrawableHlprs.GetRealBound(zones);
-           
+
         }
-        public void ActivateProfile(IDeviceProfile profile)
+        public void ActivateProfile(DeviceProfile profile)
         {
             //ActivatedProfileUID = profile.ProfileUID;
-            //for (var i = 0; i < AvailableOutputs.Length; i++)
-            //{
-            //    AvailableOutputs[i].OutputIsLoadingProfile = true;
 
-            //    foreach (PropertyInfo property in AvailableOutputs[i].GetType().GetProperties())
+
+            //    foreach (PropertyInfo property in this.GetType().GetProperties())
             //    {
 
-            //        if (Attribute.IsDefined(property, typeof(ReflectableAttribute)))
-            //            property.SetValue(AvailableOutputs[i], property.GetValue(profile.OutputSettings[i], null), null);
+            //        if (!Attribute.IsDefined(property, typeof(ProfileLoadingIgnore)))
+            //            property.SetValue(this, property.GetValue(profile.DeviceSettings, null), null);
             //    }
+            //    controll
+            //profile.Controllers.ForEach(c => AvailableControllers.Add(c.Controller));
 
-            //    AvailableOutputs[i].OutputIsLoadingProfile = false;
+            //foreach (var controller in AvailableControllers)
+            //{
+            //    foreach (var output in controller.Outputs)
+            //    {
+            //        var outputData = new OutputData();
+            //        outputData.Output = ObjectHelpers.Clone<OutputSettings>(output as OutputSettings);
+            //        switch (output.OutputType)
+            //        {
+            //            case OutputTypeEnum.PWMOutput:
+            //                outputData.SlaveDevice = ObjectHelpers.Clone<PWMMotorSlaveDevice>(output.SlaveDevice as PWMMotorSlaveDevice);
+            //                break;
+            //            case OutputTypeEnum.ARGBLEDOutput:
+            //                outputData.SlaveDevice = ObjectHelpers.Clone<ARGBLEDSlaveDevice>(output.SlaveDevice as ARGBLEDSlaveDevice);
+            //                break;
+            //        }
+            //        controllerData.Outputs.Add(outputData);
+            //    }
+            //    Controllers.Add(controllerData);
             //}
-
 
 
         }
@@ -475,20 +505,20 @@ namespace adrilight
         {
             foreach (var controller in AvailableControllers)
             {
-                foreach(var output in controller.Outputs)
+                foreach (var output in controller.Outputs)
                 {
                     output.SlaveDevice.UpdateSizeByChild(false);
                 }
             }
             RaisePropertyChanged(nameof(CurrentLiveViewZones));
         }
-        public void HandleResolutionChange(double scaleX,double scaleY)
+        public void HandleResolutionChange(double scaleX, double scaleY)
         {
-            foreach(var controller in AvailableControllers)
+            foreach (var controller in AvailableControllers)
             {
-                foreach(var output in controller.Outputs)
+                foreach (var output in controller.Outputs)
                 {
-                    (output.SlaveDevice as IDrawable).SetScale(scaleX,scaleY,false);
+                    (output.SlaveDevice as IDrawable).SetScale(scaleX, scaleY, false);
                 }
             }
         }
@@ -703,6 +733,6 @@ namespace adrilight
             //DeviceActualSpeed = speed[0].ToString();
             //RaisePropertyChanged(nameof(DeviceActualSpeed));
         }
-       
+
     }
 }

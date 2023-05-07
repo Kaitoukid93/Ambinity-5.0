@@ -263,7 +263,7 @@
                             <Border CornerRadius="2" Name="_Border"
                                 Padding="0"
                                 Margin="2"
-                                Background="Transparent"
+                                
                            
                                 BorderBrush="{StaticResource DarkMaskBrush}"
                                 BorderThickness="0"
@@ -276,13 +276,7 @@
                                         <Condition Property="Selector.IsSelectionActive" Value="True"/>
                                         <Condition Property="IsSelected" Value="True"/>
                                     </MultiTrigger.Conditions>
-
-
                                     <Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}"/>
-
-
-
-
                                 </MultiTrigger>
 
                                 <MultiTrigger>

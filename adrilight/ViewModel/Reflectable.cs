@@ -2,7 +2,8 @@
 
 namespace adrilight.ViewModel
 {
-    public class ReflectableAttribute : Attribute
+    public class ProfileLoadingIgnore : Attribute
     {
+
     }
 }

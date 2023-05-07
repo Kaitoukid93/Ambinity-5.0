@@ -86,6 +86,7 @@ namespace adrilight.ViewModel
         private string VIDCollectionFolderPath => Path.Combine(JsonPath, "VID");
         private string MIDCollectionFolderPath => Path.Combine(JsonPath, "MID");
         private string ResourceFolderPath => Path.Combine(JsonPath, "Resource");
+        private string ProfileCollectionFolderPath => Path.Combine(JsonPath, "Profiles");
 
         #endregion
 
@@ -241,9 +242,9 @@ namespace adrilight.ViewModel
             }
         }
 
-        private IDeviceFirmware _currentSelectedFirmware;
+        private DeviceFirmware _currentSelectedFirmware;
 
-        public IDeviceFirmware CurrentSelectedFirmware {
+        public DeviceFirmware CurrentSelectedFirmware {
             get
             {
                 return _currentSelectedFirmware;
@@ -627,6 +628,7 @@ namespace adrilight.ViewModel
         public ICommand ExportCurrentProfileCommand { get; set; }
         public ICommand ImportProfileCommand { get; set; }
         public ICommand SaveCurrentProfileCommand { get; set; }
+        public ICommand ActivateSelectedProfileCommmand { get; set; }
         public ICommand DeleteAttachedProfileCommand { get; set; }
         public ICommand SaveCurrentSelectedActionCommand { get; set; }
         public ICommand CreateNewProfileCommand { get; set; }
@@ -786,9 +788,9 @@ namespace adrilight.ViewModel
             set { _selectedWLEDDevice = value; }
         }
 
-        private ObservableCollection<IDeviceProfile> _availableProfiles;
+        private ObservableCollection<AppProfile> _availableProfiles;
 
-        public ObservableCollection<IDeviceProfile> AvailableProfiles {
+        public ObservableCollection<AppProfile> AvailableProfiles {
             get { return _availableProfiles; }
             set
             {
@@ -799,9 +801,9 @@ namespace adrilight.ViewModel
             }
         }
 
-        private ObservableCollection<IDeviceFirmware> _availableFirmwareForCurrentDevice;
+        private ObservableCollection<DeviceFirmware> _availableFirmwareForCurrentDevice;
 
-        public ObservableCollection<IDeviceFirmware> AvailableFirmwareForCurrentDevice {
+        public ObservableCollection<DeviceFirmware> AvailableFirmwareForCurrentDevice {
             get { return _availableFirmwareForCurrentDevice; }
             set
             {
@@ -841,9 +843,9 @@ namespace adrilight.ViewModel
             RaisePropertyChanged(nameof(ThisComputer));
         }
 
-        private ObservableCollection<IDeviceProfile> _availableProfilesForCurrentDevice;
+        private ObservableCollection<DeviceProfile> _availableProfilesForCurrentDevice;
 
-        public ObservableCollection<IDeviceProfile> AvailableProfilesForCurrentDevice {
+        public ObservableCollection<DeviceProfile> AvailableProfilesForCurrentDevice {
             get { return _availableProfilesForCurrentDevice; }
             set
             {
@@ -852,21 +854,7 @@ namespace adrilight.ViewModel
             }
         }
 
-        public IDeviceProfile CurrentSelectedProfile {
-            get { return AvailableProfilesForCurrentDevice.Where(p => p.ProfileUID == CurrentDevice.ActivatedProfileUID).FirstOrDefault(); }
-            set
-            {
-                if (value != null)
-                {
-                    //_currentSelectedProfile = value;
-                    if (value.ProfileUID != CurrentDevice.ActivatedProfileUID)// change profile
-                        LoadProfile(value);
-                    RaisePropertyChanged();
-                }
 
-                //RaisePropertyChanged(nameof(CurrentDevice.AvailableOutputs));
-            }
-        }
 
         private ObservableCollection<IDeviceSettings> _displayCards;
 
@@ -1334,8 +1322,8 @@ namespace adrilight.ViewModel
             Directory.CreateDirectory(directory);
             // write thumbnail
             //if this device is ambino legacy, search resource fo the thumbnail
-            var thumbnailResourcePath = "adrilight.Resources.Thumbnails." + device.TypeEnum.ToString() + "_thumb.png";
-            var outputmapResourcePath = "adrilight.Resources.OutputMaps." + device.TypeEnum.ToString() + "_outputmap.png";
+            var thumbnailResourcePath = "adrilight.Resources.Thumbnails." + device.DeviceType.ToString() + "_thumb.png";
+            var outputmapResourcePath = "adrilight.Resources.OutputMaps." + device.DeviceType.ToString() + "_outputmap.png";
             ResourceHlprs.CopyResource(thumbnailResourcePath, Path.Combine(directory, "thumbnail.png"));
             ResourceHlprs.CopyResource(outputmapResourcePath, Path.Combine(directory, "outputmap.png"));
             //set thumbnail
@@ -1776,7 +1764,7 @@ namespace adrilight.ViewModel
 
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
-               
+
                 foreach (var column in AudioVisualizers.Columns)
                 {
                     column.SetValue(frame.Frame[column.Index]);
@@ -2624,7 +2612,15 @@ namespace adrilight.ViewModel
                 SaveCurrentProfile(CurrentDevice.ActivatedProfileUID);
             }
             );
-            DeleteAttachedProfileCommand = new RelayCommand<IDeviceProfile>((p) =>
+            ActivateSelectedProfileCommmand = new RelayCommand<AppProfile>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                ActivateSelectedProfile(p);
+            }
+          );
+            DeleteAttachedProfileCommand = new RelayCommand<AppProfile>((p) =>
             {
                 return true;
             }, (p) =>
@@ -2641,7 +2637,7 @@ namespace adrilight.ViewModel
             //     SaveCurrentSelectedAutomation();
             // }
             //);
-            ExportCurrentProfileCommand = new RelayCommand<IDeviceProfile>((p) =>
+            ExportCurrentProfileCommand = new RelayCommand<AppProfile>((p) =>
             {
                 return true;
             }, (p) =>
@@ -4372,7 +4368,7 @@ namespace adrilight.ViewModel
                 {
                     if (CurrentSelectedAction.ActionParameter.Type == "speed") // only filter hubfan
                     {
-                        if (device.DeviceType == "ABFANHUB")
+                        if (device.DeviceType == DeviceTypeEnum.AmbinoFanHub)
                             AutomationParamList.Add(device);
                     }
                     else
@@ -4471,18 +4467,18 @@ namespace adrilight.ViewModel
 
             switch (CurrentSelectedAction.ActionType.Type)
             {
-                case "Activate":
-                    AutomationParamList = new ObservableCollection<object>();
-                    var targetDevice = AvailableDevices.Where(x => x.DeviceUID == CurrentSelectedAction.TargetDeviceUID).FirstOrDefault();
-                    foreach (var profile in AvailableProfiles)
-                    {
-                        if (profile.DeviceType == targetDevice.DeviceType)
-                        {
-                            AutomationParamList.Add(new ActionParameter { Geometry = profile.Geometry, Name = profile.Name, Type = "profile", Value = profile.ProfileUID });
-                        }
+                //case "Activate":
+                //    AutomationParamList = new ObservableCollection<object>();
+                //    var targetDevice = AvailableDevices.Where(x => x.DeviceUID == CurrentSelectedAction.TargetDeviceUID).FirstOrDefault();
+                //    foreach (var profile in AvailableProfiles)
+                //    {
+                //        if (profile.DeviceType == targetDevice.DeviceType)
+                //        {
+                //            AutomationParamList.Add(new ActionParameter { Geometry = profile.Geometry, Name = profile.Name, Type = "profile", Value = profile.ProfileUID });
+                //        }
 
-                    }
-                    break;
+                //    }
+                //    break;
                 case "Increase":
                     AutomationParamList = new ObservableCollection<object>();
                     AutomationParamList.Add(GetAutoMationParam("brightness", "up"));
@@ -5114,11 +5110,11 @@ namespace adrilight.ViewModel
                     try
                     {
                         existedprofile.ProfileUID = Guid.NewGuid().ToString();
-                        AvailableProfiles.Add(existedprofile);
+                        //AvailableProfiles.Add(existedprofile);
                         RaisePropertyChanged(nameof(AvailableProfiles));
-                        WriteDeviceProfileCollection();
+                        // WriteDeviceProfileCollection();
                         AvailableProfilesForCurrentDevice.Clear();
-                        AvailableProfilesForCurrentDevice = ProfileFilter(CurrentDevice);
+                      
                     }
                     catch (Exception ex)
                     {
@@ -5135,33 +5131,47 @@ namespace adrilight.ViewModel
 
         public void SaveCurrentProfile(string profileUID)
         {
-            var currentProfile = AvailableProfiles.Where(p => p.ProfileUID == profileUID).FirstOrDefault();
-            if (currentProfile != null)
-                // currentProfile.SaveProfile(CurrentDevice.AvailableOutputs);
+            //var currentProfile = AvailableProfiles.Where(p => p.ProfileUID == profileUID).FirstOrDefault();
+            //if (currentProfile != null)
+            //    // currentProfile.SaveProfile(CurrentDevice.AvailableOutputs);
 
-                WriteDeviceProfileCollection();
+            //    // WriteDeviceProfileCollection();
 
-            //Growl.Success("Profile saved successfully!");
-            IsSettingsUnsaved = BadgeStatus.Dot;
+            //    //Growl.Success("Profile saved successfully!");
+            //    IsSettingsUnsaved = BadgeStatus.Dot;
         }
-        public void DeleteAttachedProfile(IDeviceProfile profile)
+        public void DeleteAttachedProfile(AppProfile profile)
         {
             //check if profile is in used
-            if (profile.ProfileUID == CurrentDevice.ActivatedProfileUID)
+            if (profile.IsActivated)
             {
                 HandyControl.Controls.MessageBox.Show(profile.Name + " Không thể xóa, profile này đang được sử dụng!!!", "Profile is in used", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             else
             {
-                AvailableProfilesForCurrentDevice.Remove(profile);
                 AvailableProfiles.Remove(profile);
-
-                WriteDeviceProfileCollection();
+                //delete from disk
             }
 
         }
-
+        public void ActivateSelectedProfile(AppProfile profile)
+        {
+            //construct devices from profile data
+            foreach(var deviceProfile in profile.DeviceProfiles)
+            {
+                var device = ObjectHelpers.Clone<DeviceSettings>(deviceProfile.DeviceSettings as DeviceSettings);
+                device.IsLoadingProfile = false;
+                //check if Dashboard contains any device that match UID
+                var targetDevice = AvailableDevices.Where(d=>d.DeviceUID == device.DeviceUID).FirstOrDefault();
+                if (targetDevice != null)
+                {
+                    AvailableDevices.Remove(targetDevice);
+                    AvailableDevices.Add(device);
+                }
+            }
+        }
+        
         private UpdateInfo _availableUpdates;
         public UpdateInfo AvailableUpdates {
             get { return _availableUpdates; }
@@ -5397,7 +5407,7 @@ namespace adrilight.ViewModel
         //    }
         //}
 
-        private void ExportCurrentProfile(IDeviceProfile profile)
+        private void ExportCurrentProfile(AppProfile profile)
         {
             SaveFileDialog Export = new SaveFileDialog();
             Export.CreatePrompt = true;
@@ -5407,7 +5417,7 @@ namespace adrilight.ViewModel
             Export.FileName = profile.Name;
             Export.CheckFileExists = false;
             Export.CheckPathExists = true;
-            Export.DefaultExt = "Pro";
+            Export.DefaultExt = "aap";
             Export.Filter = "All files (*.*)|*.*";
             Export.InitialDirectory =
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -5425,45 +5435,36 @@ namespace adrilight.ViewModel
             }
         }
 
-        private void LoadProfile(IDeviceProfile profileToLoad) // change to currentDevice.LoadProfile
+        private void LoadProfile(DeviceProfile profileToLoad) // change to currentDevice.LoadProfile
         {
             GeneralSettings.IsProfileLoading = true;
             CurrentDevice.ActivateProfile(profileToLoad);
-
-            //WriteDeviceInfoJson();
-
-            //foreach (var output in CurrentDevice.AvailableOutputs)
-            //{
-            //    output.OutputIsBuildingLEDSetup = true;
-
-            //}
             GeneralSettings.IsProfileLoading = false;
         }
 
         private void CreateNewProfile()
         {
-            var newprofile = new DeviceProfile {
-                Name = NewProfileName,
-                Description = NewProfileDescription,
-                Owner = NewProfileOwner,
-                DeviceType = CurrentDevice.DeviceType,
-                Geometry = "profile",
-                ProfileUID = Guid.NewGuid().ToString(),
-            };
-            // newprofile.SaveProfile(CurrentDevice.AvailableOutputs);
-            AvailableProfiles.Add(newprofile);
-
-            WriteDeviceProfileCollection();
-            AvailableProfiles.Clear();
-            foreach (var profile in LoadDeviceProfileIfExist())
+            var newAppProfile = new AppProfile();
+            newAppProfile.Name = NewProfileName;
+            newAppProfile.Owner = NewProfileOwner;
+            newAppProfile.Description = NewProfileDescription;
+            foreach (var device in AvailableDevices)
             {
-                AvailableProfiles.Add(profile);
+                var newprofile = new DeviceProfile {
+                    Name = device.DeviceName + "Profile",
+                    Description = "UserCreated profile for" + device.DeviceName,
+                    DeviceType = device.DeviceType,
+                    Geometry = "profile",
+                    ProfileUID = device.DeviceUID
+                };
+                newprofile.SaveProfile(device);
+                newAppProfile.DeviceProfiles.Add(newprofile);
             }
 
-            AvailableProfilesForCurrentDevice.Clear();
-            AvailableProfilesForCurrentDevice = ProfileFilter(CurrentDevice);
-            RaisePropertyChanged(nameof(AvailableProfiles));
-            RaisePropertyChanged(nameof(AvailableProfilesForCurrentDevice));
+            //AvailableProfiles.Add(newprofile);
+            AvailableProfiles.Add(newAppProfile);
+            WriteSimpleJson(newAppProfile, Path.Combine(ProfileCollectionFolderPath, newAppProfile.Name + ".aap")); // .aap stands for adrilight application profile ...
+            //WriteDeviceProfileCollection();
         }
 
         private void OpenCreatenewProfileWindow()
@@ -5572,18 +5573,18 @@ namespace adrilight.ViewModel
                 }
                 switch (action.ActionType.Type)
                 {
-                    case "Activate":
-                        var destinationProfile = AvailableProfiles.Where(x => x.ProfileUID == (string)action.ActionParameter.Value).FirstOrDefault();
-                        if (destinationProfile != null)
-                        {
-                            targetDevice.ActivateProfile(destinationProfile);
-                            //at this moment, selected profile for the target device changed but the UI know nothing about this
-                            //because the porperty changed event didnt fire
-                            //so we fire profile UID changed instead
-                            targetDevice.ActivatedProfileUID = destinationProfile.ProfileUID;
-                        }
+                    //case "Activate":
+                    //    var destinationProfile = AvailableProfiles.Where(x => x.ProfileUID == (string)action.ActionParameter.Value).FirstOrDefault();
+                    //    if (destinationProfile != null)
+                    //    {
+                    //        targetDevice.ActivateProfile(destinationProfile);
+                    //        //at this moment, selected profile for the target device changed but the UI know nothing about this
+                    //        //because the porperty changed event didnt fire
+                    //        //so we fire profile UID changed instead
+                    //        targetDevice.ActivatedProfileUID = destinationProfile.ProfileUID;
+                    //    }
 
-                        break;
+                    //    break;
 
                     case "Increase":
                         switch (action.ActionParameter.Type)
@@ -5734,7 +5735,7 @@ namespace adrilight.ViewModel
             // upload with CMD.exe
             //disable DeviceDiscovery first
             GeneralSettings.FrimwareUpgradeIsInProgress = true;
-            if (device.DeviceType == "ABHUBV2")
+            if (device.DeviceType == DeviceTypeEnum.AmbinoHUBV2)
             {
                 MessageBoxResult result = HandyControl.Controls.MessageBox.Show("HUBV2 cần sử dụng FlyMCU để nạp firmware, nhấn [OK] để vào chế độ DFU", "External Software Required", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if (result == MessageBoxResult.Yes)
@@ -5757,7 +5758,7 @@ namespace adrilight.ViewModel
                         //grab available firmware for current device type
                         var json = File.ReadAllText(JsonFWToolsFWListFileNameAndPath);
                         var availableFirmware = JsonConvert.DeserializeObject<List<DeviceFirmware>>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
-                        AvailableFirmwareForCurrentDevice = new ObservableCollection<IDeviceFirmware>();
+                        AvailableFirmwareForCurrentDevice = new ObservableCollection<DeviceFirmware>();
                         foreach (var firmware in availableFirmware)
                         {
                             if (firmware.TargetDeviceType == device.DeviceType)
@@ -5784,7 +5785,7 @@ namespace adrilight.ViewModel
                         {
                             var fwjson = File.ReadAllText(JsonFWToolsFWListFileNameAndPath);
                             var availableFirmware = JsonConvert.DeserializeObject<List<DeviceFirmware>>(fwjson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
-                            AvailableFirmwareForCurrentDevice = new ObservableCollection<IDeviceFirmware>();
+                            AvailableFirmwareForCurrentDevice = new ObservableCollection<DeviceFirmware>();
                             foreach (var firmware in availableFirmware)
                             {
                                 if (firmware.TargetDeviceType == device.DeviceType)
@@ -8808,11 +8809,11 @@ namespace adrilight.ViewModel
         }
         private void CreateRequiredFwVersionJson()
         {
-            IDeviceFirmware ABR1p = new DeviceFirmware() {
+            var ABR1p = new DeviceFirmware() {
                 Name = "ABR1p.hex",
                 Version = "1.0.6",
                 TargetHardware = "ABR1p",
-                TargetDeviceType = "ABBASIC",
+                TargetDeviceType = DeviceTypeEnum.AmbinoBasic,
                 Geometry = "binary",
                 ResourceName = "adrilight.DeviceFirmware.ABR1p.hex"
             };
@@ -8833,27 +8834,27 @@ namespace adrilight.ViewModel
             //    Geometry = "binary",
             //    ResourceName = "adrilight.DeviceFirmware.ABR2p.hex"
             //};
-            IDeviceFirmware ABR2e = new DeviceFirmware() {
+            var ABR2e = new DeviceFirmware() {
                 Name = "ABR2e.hex",
                 Version = "1.0.6",
                 TargetHardware = "ABR2e",
-                TargetDeviceType = "ABBASIC",
+                TargetDeviceType = DeviceTypeEnum.AmbinoBasic,
                 Geometry = "binary",
                 ResourceName = "adrilight.DeviceFirmware.ABR2e.hex"
             };
-            IDeviceFirmware AER1e = new DeviceFirmware() {
+            var AER1e = new DeviceFirmware() {
                 Name = "AER1e.hex",
                 Version = "1.0.4",
                 TargetHardware = "AER1e",
-                TargetDeviceType = "ABEDGE",
+                TargetDeviceType = DeviceTypeEnum.AmbinoEDGE,
                 Geometry = "binary",
                 ResourceName = "adrilight.DeviceFirmware.AER1e.hex"
             };
-            IDeviceFirmware AER2e = new DeviceFirmware() {
+            var AER2e = new DeviceFirmware() {
                 Name = "AER2e.hex",
                 Version = "1.0.4",
                 TargetHardware = "AER2e",
-                TargetDeviceType = "ABEDGE",
+                TargetDeviceType = DeviceTypeEnum.AmbinoEDGE,
                 Geometry = "binary",
                 ResourceName = "adrilight.DeviceFirmware.AER2e.hex"
             };
@@ -8865,47 +8866,47 @@ namespace adrilight.ViewModel
             //    Geometry = "binary",
             //    ResourceName = "adrilight.DeviceFirmware.AER2p.hex"
             //};
-            IDeviceFirmware AFR1g = new DeviceFirmware() {
+            var AFR1g = new DeviceFirmware() {
                 Name = "AFR1g.hex",
                 Version = "1.0.3",
                 TargetHardware = "AFR1g",
-                TargetDeviceType = "ABFANHUB",
+                TargetDeviceType = DeviceTypeEnum.AmbinoFanHub,
                 Geometry = "binary",
                 ResourceName = "adrilight.DeviceFirmware.AFR1g.hex"
             };
-            IDeviceFirmware AFR2g = new DeviceFirmware() {
+            var AFR2g = new DeviceFirmware() {
                 Name = "AFR2g.hex",
                 Version = "1.0.5",
                 TargetHardware = "AFR2g",
-                TargetDeviceType = "ABFANHUB",
+                TargetDeviceType = DeviceTypeEnum.AmbinoFanHub,
                 Geometry = "binary",
                 ResourceName = "adrilight.DeviceFirmware.AFR2g.hex"
             };
-            IDeviceFirmware AFR3g = new DeviceFirmware() {
+            var AFR3g = new DeviceFirmware() {
                 Name = "AFR3g.hex",
                 Version = "1.0.6",
                 TargetHardware = "AFR3g",
-                TargetDeviceType = "ABFANHUB",
+                TargetDeviceType = DeviceTypeEnum.AmbinoFanHub,
                 Geometry = "binary",
                 ResourceName = "adrilight.DeviceFirmware.AFR3g.hex"
             };
-            IDeviceFirmware AHR2g = new DeviceFirmware() {
+            var AHR2g = new DeviceFirmware() {
                 Name = "AHR2g.hex",
                 Version = "1.0.1",
                 TargetHardware = "AHR1g",
-                TargetDeviceType = "ABHUBV3",
+                TargetDeviceType = DeviceTypeEnum.AmbinoHUBV3,
                 Geometry = "binary",
                 ResourceName = "adrilight.DeviceFirmware.AHR2g.hex"
             };
-            IDeviceFirmware ARR1p = new DeviceFirmware() {
+            var ARR1p = new DeviceFirmware() {
                 Name = "ARR1p.hex",
                 Version = "1.0.2",
                 TargetHardware = "ARR1p",
-                TargetDeviceType = "ABRP",
+                TargetDeviceType = DeviceTypeEnum.AmbinoRainPowPro,
                 Geometry = "binary",
                 ResourceName = "adrilight.DeviceFirmware.ARR1p.hex"
             };
-            var firmwareList = new List<IDeviceFirmware>();
+            var firmwareList = new List<DeviceFirmware>();
             firmwareList.Add(ABR1p);
             //firmwareList.Add(ABR2p);
             //firmwareList.Add(ABR1e);
@@ -9157,12 +9158,12 @@ namespace adrilight.ViewModel
         }
         private void LoadAvailableProfiles()
         {
-            AvailableProfiles = new ObservableCollection<IDeviceProfile>();
-            foreach (var profile in LoadDeviceProfileIfExist())
+            AvailableProfiles = new ObservableCollection<AppProfile>();
+            foreach (var profile in LoadAppProfileIfExist())
             {
                 AvailableProfiles.Add(profile);
             }
-            WriteDeviceProfileCollection();
+            // WriteDeviceProfileCollection();
         }
 
         public void LoadData()
@@ -9178,6 +9179,7 @@ namespace adrilight.ViewModel
             CreateVIDCollectionFolder();
             CreateMIDCollectionFolder();
             CreateAudioDevicesCollection();
+            CreateProfileCollectionFolder();
             #endregion
 
             LoadAvailableLightingMode();
@@ -9188,6 +9190,11 @@ namespace adrilight.ViewModel
             LoadAvailableSolidColors();
 
 
+        }
+        private void CreateProfileCollectionFolder()
+        {
+            if (!Directory.Exists(ProfileCollectionFolderPath))
+                Directory.CreateDirectory(ProfileCollectionFolderPath);
         }
         private void CreateAudioDevicesCollection()
         {
@@ -9271,109 +9278,17 @@ namespace adrilight.ViewModel
 
         }
 
-        public List<IDeviceProfile> LoadDeviceProfileIfExist()
+        public List<AppProfile> LoadAppProfileIfExist()
         {
-            var availableDefaultDevice = new List<IDeviceSettings>();
-            var loadedProfiles = new List<IDeviceProfile>();
-            if (!File.Exists(JsonDeviceProfileFileNameAndPath))
+            var existedProfile = new List<AppProfile>();
+            string[] files = Directory.GetFiles(ProfileCollectionFolderPath);
+            foreach (var file in files)
             {
-                var defaultFanHubProfile = new DeviceProfile {
-                    Name = "Fan HUB Default",
-                    Owner = "Ambino",
-                    ProfileUID = Guid.NewGuid().ToString(),
-                    Geometry = "profile",
-                    DeviceType = "ABFANHUB",
-                    Description = "Default Profile for Ambino Fan HUB",
-                    //OutputSettings = availableDefaultDevice.ambinoFanHub.AvailableOutputs
-                };
-                var defaultAmbinobasic24 = new DeviceProfile {
-                    Name = "Ambino Basic 24inch Default",
-                    Owner = "Ambino",
-                    ProfileUID = Guid.NewGuid().ToString(),
-                    Geometry = "profile",
-                    DeviceType = "ABBASIC24",
-                    Description = "Default Profile for Ambino Basic",
-                    //OutputSettings = availableDefaultDevice.AmbinoBasic24Inch.AvailableOutputs
-                };
-                var defaultAmbinobasic27 = new DeviceProfile {
-                    Name = "Ambino Basic 27inch Default",
-                    Owner = "Ambino",
-                    ProfileUID = Guid.NewGuid().ToString(),
-                    Geometry = "profile",
-                    DeviceType = "ABBASIC27",
-                    Description = "Default Profile for Ambino Basic",
-                    //OutputSettings = availableDefaultDevice.AmbinoBasic27Inch.AvailableOutputs
-                };
-                var defaultAmbinobasic29 = new DeviceProfile {
-                    Name = "Ambino Basic 29inch Default",
-                    Owner = "Ambino",
-                    ProfileUID = Guid.NewGuid().ToString(),
-                    Geometry = "profile",
-                    DeviceType = "ABBASIC29",
-                    Description = "Default Profile for Ambino Basic",
-                    //OutputSettings = availableDefaultDevice.AmbinoBasic29Inch.AvailableOutputs
-                };
-                var defaultAmbinobasic32 = new DeviceProfile {
-                    Name = "Ambino Basic 32inch Default",
-                    Owner = "Ambino",
-                    ProfileUID = Guid.NewGuid().ToString(),
-                    Geometry = "profile",
-                    DeviceType = "ABBASIC32",
-                    Description = "Default Profile for Ambino Basic",
-                    //OutputSettings = availableDefaultDevice.AmbinoBasic32Inch.AvailableOutputs
-                };
-                var defaultAmbinobasic34 = new DeviceProfile {
-                    Name = "Ambino Basic 34inch Default",
-                    Owner = "Ambino",
-                    ProfileUID = Guid.NewGuid().ToString(),
-                    Geometry = "profile",
-                    DeviceType = "ABBASIC34",
-                    Description = "Default Profile for Ambino Basic",
-                    //OutputSettings = availableDefaultDevice.AmbinoBasic34Inch.AvailableOutputs
-                };
-                var defaultAmbinoedge1m2 = new DeviceProfile {
-                    Name = "Ambino EDGE 1m2 Default",
-                    Owner = "Ambino",
-                    ProfileUID = Guid.NewGuid().ToString(),
-                    Geometry = "profile",
-                    DeviceType = "ABEDGE1.2",
-                    Description = "Default Profile for Ambino EDGE",
-                    //OutputSettings = availableDefaultDevice.AmbinoEDGE1M2.AvailableOutputs
-                };
-                var defaultAmbinoedge2m = new DeviceProfile {
-                    Name = "Ambino EDGE 2m Default",
-                    Owner = "Ambino",
-                    ProfileUID = Guid.NewGuid().ToString(),
-                    Geometry = "profile",
-                    DeviceType = "ABEDGE2.0",
-                    Description = "Default Profile for Ambino EDGE",
-                    //OutputSettings = availableDefaultDevice.AmbinoEDGE2M.AvailableOutputs
-                };
-                loadedProfiles.Add(defaultFanHubProfile);
-                loadedProfiles.Add(defaultAmbinobasic24);
-                loadedProfiles.Add(defaultAmbinobasic27);
-                loadedProfiles.Add(defaultAmbinobasic29);
-                loadedProfiles.Add(defaultAmbinobasic32);
-                loadedProfiles.Add(defaultAmbinobasic34);
-                loadedProfiles.Add(defaultAmbinoedge1m2);
-                loadedProfiles.Add(defaultAmbinoedge2m);
+                var jsonData = File.ReadAllText(file);
+                var profile = JsonConvert.DeserializeObject<AppProfile>(jsonData, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                existedProfile.Add(profile);
             }
-            else
-            {
-                var json = File.ReadAllText(JsonDeviceProfileFileNameAndPath);
-
-                var existedProfile = JsonConvert.DeserializeObject<List<DeviceProfile>>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
-                if (existedProfile != null)
-                {
-                    foreach (var profile in existedProfile)
-                    {
-                        loadedProfiles.Add(profile);
-                    }
-                }
-
-            }
-
-            return loadedProfiles;
+            return existedProfile;
         }
 
         public List<IAutomationSettings> LoadAutomationIfExist()
@@ -9709,22 +9624,6 @@ namespace adrilight.ViewModel
             File.WriteAllText(JsonSolidColorFileNameAndPath, json);
         }
 
-        public void WriteDeviceProfileCollection()
-        {
-            var profiles = new List<IDeviceProfile>();
-            foreach (var profile in AvailableProfiles)
-            {
-                profiles.Add(profile);
-            }
-            var json = JsonConvert.SerializeObject(profiles, new JsonSerializerSettings() {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
-            Directory.CreateDirectory(JsonPath);
-            File.WriteAllText(JsonDeviceProfileFileNameAndPath, json);
-        }
-
-
-
 
 
         //public void ApplyOutputImportData()
@@ -9960,18 +9859,18 @@ namespace adrilight.ViewModel
             CurrentSpotSetVIDChanged();
         }
 
-        private ObservableCollection<IDeviceProfile> ProfileFilter(IDeviceSettings device)
-        {
-            var filteredProfiles = new ObservableCollection<IDeviceProfile>();
-            foreach (var profile in AvailableProfiles)
-            {
-                if (profile.DeviceType == device.DeviceType)
-                {
-                    filteredProfiles.Add(profile);
-                }
-            }
-            return filteredProfiles;
-        }
+        //private ObservableCollection<DeviceProfile> ProfileFilter(IDeviceSettings device)
+        //{
+        //    var filteredProfiles = new ObservableCollection<DeviceProfile>();
+        //    foreach (var profile in AvailableProfiles)
+        //    {
+        //        if (profile.DeviceType == device.DeviceType)
+        //        {
+        //            filteredProfiles.Add(profile);
+        //        }
+        //    }
+        //    return filteredProfiles;
+        //}
         private string _currentSelectedOnlineItemType;
         public string CurrentSelectedOnlineItemType {
             get { return _currentSelectedOnlineItemType; }
@@ -10378,8 +10277,6 @@ namespace adrilight.ViewModel
             IsLiveViewOpen = true;
             GetItemsForLiveView();
             UpdateLiveView();
-            AvailableProfilesForCurrentDevice = new ObservableCollection<IDeviceProfile>();
-            AvailableProfilesForCurrentDevice = ProfileFilter(CurrentDevice);
             IsSplitLightingWindowOpen = true;
         }
 

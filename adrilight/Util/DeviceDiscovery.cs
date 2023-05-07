@@ -137,7 +137,7 @@ namespace adrilight
                     {
                         IDeviceSettings convertedDevice = new DeviceSettings();
                         convertedDevice.DeviceName = openRGBDevice.Name;
-                        convertedDevice.DeviceType = openRGBDevice.Type.ToString();
+                        //convertedDevice.DeviceType = openRGBDevice.Type.ToString();
                         convertedDevice.FirmwareVersion = openRGBDevice.Version;
                         convertedDevice.OutputPort = AmbinityClient.Client.ToString();
                         convertedDevice.DeviceDescription = "Device Supported Throught Open RGB Client";

@@ -195,7 +195,9 @@
     <Compile Include="Helpers\EventToCommand.cs" />
     <Compile Include="Helpers\LocalFileHelpers.cs" />
     <Compile Include="Helpers\SimpleStringParameterValue.cs" />
+    <Compile Include="Settings\ControllerData.cs" />
     <Compile Include="Settings\DeserializeMethodEnum.cs" />
+    <Compile Include="Settings\AppProfile.cs" />
     <Compile Include="Settings\DeviceStateEnum.cs" />
     <Compile Include="Settings\ModeDirection.cs" />
     <Compile Include="Helpers\ObjectHelpers.cs" />
@@ -214,6 +216,7 @@
     <Compile Include="Settings\DeviceTypeDataEnum.cs" />
     <Compile Include="Settings\DeviceConnectionTypeEnum.cs" />
     <Compile Include="Settings\IOnlineItemSubType.cs" />
+    <Compile Include="Settings\OutputData.cs" />
     <Compile Include="Settings\OutputTypeEnum.cs" />
     <Compile Include="Settings\ResourceLoaderConfig.cs" />
     <Compile Include="Settings\RGBLEDOrderEnum.cs" />
@@ -249,8 +252,6 @@
     <Compile Include="Settings\IActionSettings.cs" />
     <Compile Include="Settings\IAutomationSettings.cs" />
     <Compile Include="Settings\IDeviceCatergory.cs" />
-    <Compile Include="Settings\IDeviceFirmware.cs" />
-    <Compile Include="Settings\IDeviceProfile.cs" />
     <Compile Include="Settings\IDeviceSettings.cs" />
     <Compile Include="Settings\IGeneralSettings.cs" />
     <Compile Include="Settings\IGroupable.cs" />

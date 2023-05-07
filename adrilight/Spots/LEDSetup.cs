@@ -23,6 +23,7 @@ using System.Xml.Schema;
 using Emgu.CV.CvEnum;
 using adrilight.Helpers;
 using MathNet.Numerics.Integration;
+using System.Diagnostics;
 
 namespace adrilight
 {

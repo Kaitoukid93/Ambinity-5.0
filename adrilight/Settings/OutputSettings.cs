@@ -87,7 +87,7 @@ namespace adrilight
         //private MotionCard _outputSelectedMotion;
 
 
-
+        public bool IsLoadingProfile { get; set; }
         public OutputSettings()
         {
             //AvailableLightingMode = new List<ILightingMode>();
@@ -102,7 +102,7 @@ namespace adrilight
         //public int VUOrientation { get => _vUOrientation; set { Set(() => VUOrientation, ref _vUOrientation, value); } }
         //[Reflectable]
         //public int OutputGifSpeed { get => _outputGifSpeed; set { Set(() => OutputGifSpeed, ref _outputGifSpeed, value); } }
-        [Reflectable]
+       
         public string TargetDevice { get => _targetDevice; set { Set(() => TargetDevice, ref _targetDevice, value); } }
         //[Reflectable]
         //public int VUMode { get => _vUMode; set { Set(() => VUMode, ref _vUMode, value); } }
@@ -223,10 +223,12 @@ namespace adrilight
        
      
         public string OutputInterface { get; set; }
-        [JsonIgnore]
         public ISlaveDevice SlaveDevice { get => _slaveDevice; set { Set(() => SlaveDevice, ref _slaveDevice, value); } }
 
-
+        public bool ShouldSerializeAvailableControllers()
+        {
+            return IsLoadingProfile;
+        }
 
         /// <summary>
         /// Idrawable implementation

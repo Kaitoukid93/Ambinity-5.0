@@ -40,7 +40,7 @@ namespace adrilight.View
             }
         }
         //private void ButtonMode_OnClick(object sender, RoutedEventArgs e) => PopupMode.IsOpen = true;
-        private void ButtonProfile_OnClick(object sender, RoutedEventArgs e) => profile_selection.IsOpen = true;
+        
         //private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         //{
         //    if (e.ChangedButton == MouseButton.Left)

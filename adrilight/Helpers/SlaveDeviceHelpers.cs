@@ -30,7 +30,7 @@ namespace adrilight.Helpers
             var newDevice = new DeviceSettings();
             newDevice.DeviceName = deviceName;
             newDevice.DeviceUID = Guid.NewGuid().ToString();
-            newDevice.TypeEnum = type;
+            newDevice.DeviceType = type;
             newDevice.DeviceConnectionType = "wired";
             newDevice.OutputPort = outputPort;
             newDevice.IsSizeNeedUserDefine = true;

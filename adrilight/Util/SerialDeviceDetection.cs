@@ -231,7 +231,7 @@ namespace adrilight.Util
                             //newDevice = availableDefaultDevice.AmbinoEDGE1M2;
                             newDevice.DeviceName = "Ambino EDGE";
                             newDevice.DeviceConnectionType = "wired";
-                            newDevice.DeviceType = "ABEDGE";
+                            newDevice.DeviceType = DeviceTypeEnum.AmbinoEDGE;
                             newDevice.OutputPort = device;
                             newDevice.IsSizeNeedUserDefine = true;
 
@@ -277,21 +277,21 @@ namespace adrilight.Util
                             break;
                         case "Ambino HubV2":
                             //newDevice = availableDefaultDevice.ambinoHUBV2;
-                            newDevice.DeviceType = "ABHUBV2";
+                            newDevice.DeviceType = DeviceTypeEnum.AmbinoHUBV2;
                             newDevice.DeviceConnectionType = "wired";
                             newDevice.OutputPort = device;
                             newDevice.IsSizeNeedUserDefine = true;
                             break;
                         case "Ambino HubV3":
                             //newDevice = availableDefaultDevice.ambinoHUBV3;
-                            newDevice.DeviceType = "ABHUBV3";
+                            newDevice.DeviceType = DeviceTypeEnum.AmbinoHUBV3;
                             newDevice.DeviceConnectionType = "wired";
                             newDevice.OutputPort = device;
                             newDevice.IsSizeNeedUserDefine = true;
                             break;
                         case "Ambino RainPow":
                             //newDevice = availableDefaultDevice.ambinoRainPow;
-                            newDevice.DeviceType = "ABRP";
+                            newDevice.DeviceType = DeviceTypeEnum.AmbinoRainPowPro;
                             newDevice.DeviceConnectionType = "wired";
                             newDevice.OutputPort = device;
                             newDevice.IsSizeNeedUserDefine = true;

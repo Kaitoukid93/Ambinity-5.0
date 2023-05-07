@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace adrilight.Settings
 {
-    internal class DeviceFirmware : ViewModelBase, IDeviceFirmware
+    public class DeviceFirmware : ViewModelBase
     {
         public string Name { get; set; }
         public string TargetHardware { get; set; }
-        public string TargetDeviceType { get; set; }
+        public DeviceTypeEnum TargetDeviceType { get; set; }
         public string Version { get; set; }
         public string ResourceName { get; set; }
         public string Geometry { get; set; }

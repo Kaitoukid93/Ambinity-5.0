@@ -46,7 +46,7 @@ namespace adrilight
         ISlaveDevice SlaveDevice { get; set; }
         //void SetRectangle(System.Drawing.Rectangle rectangle);
         //void SetPreviewRectangle(System.Drawing.Rectangle rectangle);
-
+         bool IsLoadingProfile { get; set; }
         Rectangle Rectangle { get; set; }
         
 

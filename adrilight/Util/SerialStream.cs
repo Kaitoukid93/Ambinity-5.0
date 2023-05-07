@@ -210,7 +210,7 @@ namespace adrilight
 
         {
             //Open device at 1200 baudrate
-            if (DeviceSettings.DeviceType == "ABHUBV2")
+            if (DeviceSettings.DeviceType == DeviceTypeEnum.AmbinoHUBV2)
             {
                 DeviceSettings.IsTransferActive = false;
                 var serialPort = (ISerialPortWrapper)new WrappedSerialPort(new SerialPort(DeviceSettings.OutputPort, 1000000));
@@ -629,7 +629,7 @@ namespace adrilight
                             //receiving over serial takes it time as well and the arduino does both tasks in sequence
                             //+1 ms extra safe zone
                             double fastLedTime;
-                            if (DeviceSettings.DeviceType == "ABHUBV2")
+                            if (DeviceSettings.DeviceType == DeviceTypeEnum.AmbinoHUBV2)
                                 fastLedTime = ((192) / 3.0 * 0.030d);
                             else
                                 fastLedTime = ((streamLength - _messagePreamble.Length) / 3.0 * 0.030d);
