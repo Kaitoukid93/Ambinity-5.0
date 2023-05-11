@@ -97,41 +97,42 @@ namespace adrilight.Util
                             case nameof(ColorPalette):
                                 foreach (var file in files)
                                 {
-                                    var json = File.ReadAllText(file);
+                                    using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                                    {
 
-                                    var data = JsonConvert.DeserializeObject<ColorPalette>(json);
+                                        availableValue.Add(DeserializeFromStream<ColorPalette>(stream));
+                                    }
 
-                                    availableValue.Add(data);
                                 }
                                 break;
                             case nameof(VIDDataModel):
                                 foreach (var file in files)
                                 {
-                                    var json = File.ReadAllText(file);
+                                    using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                                    {
 
-                                    var data = JsonConvert.DeserializeObject<VIDDataModel>(json);
-
-                                    availableValue.Add(data);
+                                        availableValue.Add(DeserializeFromStream<VIDDataModel>(stream));
+                                    }
                                 }
                                 break;
                             case nameof(MIDDataModel):
                                 foreach (var file in files)
                                 {
-                                    var json = File.ReadAllText(file);
+                                    using (var stream = new FileStream(file, FileMode.Open,FileAccess.Read, FileShare.ReadWrite))
+                                    {
 
-                                    var data = JsonConvert.DeserializeObject<MIDDataModel>(json);
-
-                                    availableValue.Add(data);
+                                        availableValue.Add(DeserializeFromStream<MIDDataModel>(stream));
+                                    }
                                 }
                                 break;
                             case nameof(DancingModeParameterValue):
                                 foreach (var file in files)
                                 {
-                                    var json = File.ReadAllText(file);
+                                    using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                                    {
 
-                                    var data = JsonConvert.DeserializeObject<DancingModeParameterValue>(json);
-
-                                    availableValue.Add(data);
+                                        availableValue.Add(DeserializeFromStream<DancingModeParameterValue>(stream));
+                                    }
                                 }
                                 break;
                             case nameof(ChasingPattern):
@@ -160,7 +161,15 @@ namespace adrilight.Util
             }
             return availableValue;
         }
-
+        private static T DeserializeFromStream<T>(Stream stream)
+        {
+            var serializer = new JsonSerializer();
+            using (var sr = new StreamReader(stream))
+            using (var jsonTextReader = new JsonTextReader(sr))
+            {
+                return serializer.Deserialize<T>(jsonTextReader);
+            }
+        }
     }
 }
 

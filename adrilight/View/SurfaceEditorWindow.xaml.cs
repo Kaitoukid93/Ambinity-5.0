@@ -40,7 +40,14 @@ namespace adrilight.View
         {
             this.Close();
         }
+        protected override void OnContentRendered(EventArgs e)
+        {
+            base.OnContentRendered(e);
 
-      
+
+            NonClientAreaContent = new SurfaceEditorNonClientAreaContent();
+
+        }
+
     }
 }

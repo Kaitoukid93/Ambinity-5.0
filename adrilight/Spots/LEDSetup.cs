@@ -66,7 +66,7 @@ namespace adrilight
         private bool _isEnabled = true;
         private bool _isInsideScreen = true;
         private bool _isInControlGroup;
-        public bool IsInControlGroup { get => _isInControlGroup; set { Set(() => IsInControlGroup, ref _isInControlGroup, value); } }
+        public bool IsInControlGroup { get => _isInControlGroup; set { Set(() => IsInControlGroup, ref _isInControlGroup, value); RaisePropertyChanged(nameof(CurrentActiveControlMode)); } }
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); } }
         private IControlMode _maskedControlMode;
         public IControlMode MaskedControlMode { get => _maskedControlMode; set { Set(() => MaskedControlMode, ref _maskedControlMode, value); if (IsInControlGroup) RaisePropertyChanged(nameof(CurrentActiveControlMode)); } }

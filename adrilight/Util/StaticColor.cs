@@ -48,7 +48,7 @@ namespace adrilight
             GeneralSettings.PropertyChanged += PropertyChanged;
             CurrentZone.PropertyChanged += PropertyChanged;
             MainViewViewModel.PropertyChanged += PropertyChanged;
-            Refresh();
+           // Refresh();
             _log.Info($"DesktopDuplicatorReader created.");
         }
 
@@ -60,6 +60,7 @@ namespace adrilight
         private LEDSetup CurrentZone { get; }
         private MainViewViewModel MainViewViewModel { get; }
         private IRainbowTicker RainbowTicker { get; }
+        public LightingModeEnum Type { get; } = LightingModeEnum.StaticColor;
         /// <summary>
         /// breathing constant value
         /// </summary>
@@ -79,10 +80,13 @@ namespace adrilight
             {
                 //which property that require this engine to refresh
                 case nameof(CurrentZone.CurrentActiveControlMode):
-                case nameof(CurrentZone.IsInControlGroup):
+                    var isRunning = _cancellationTokenSource != null;
+                    if (isRunning || (CurrentZone.CurrentActiveControlMode as LightingMode).BasedOn == Type)
+                        Refresh();
+                    break;
                 case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
-                case nameof(MainViewViewModel.IsRegisteringGroup):
-                case nameof(_colorControl):
+                //case nameof(MainViewViewModel.IsRegisteringGroup):
+                //case nameof(_colorControl):
                     Refresh();
                     break;
                 case nameof(GeneralSettings.BreathingSpeed):
@@ -171,16 +175,16 @@ namespace adrilight
 
             var isRunning = _cancellationTokenSource != null;
 
-            var currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
+             _currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
 
             var shouldBeRunning =
-                currentLightingMode.BasedOn == LightingModeEnum.StaticColor &&
+                _currentLightingMode.BasedOn == LightingModeEnum.StaticColor &&
                 //this zone has to be enable, this could be done by stop setting the spots, but the this thread still alive, so...
                 CurrentZone.IsEnabled == true &&
                 //stop this engine when any surface or editor open because this could cause capturing fail
-                MainViewViewModel.IsRichCanvasWindowOpen == false &&
-                //registering group shoud be done
-                MainViewViewModel.IsRegisteringGroup == false;
+                MainViewViewModel.IsRichCanvasWindowOpen == false;
+                ////registering group shoud be done
+                //MainViewViewModel.IsRegisteringGroup == false;
 
             // this is stop sign by one or some of the reason above
             if (isRunning && !shouldBeRunning)
@@ -195,18 +199,7 @@ namespace adrilight
             else if (!isRunning && shouldBeRunning)
             {
                 //start it
-                #region registering params
-                _currentLightingMode = currentLightingMode;
-                _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Color).FirstOrDefault();
-                _breathingControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Breathing).FirstOrDefault();
-                _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault();
-                _brightnessControl.PropertyChanged += (_, __) => OnBrightnessValueChanged(_brightnessControl.Value);
-                _breathingControl.PropertyChanged += (_, __) => OnIsBreathingValueChanged(_breathingControl.Value == 1 ? true : false);
-                _breathingControl.SubParams[0].PropertyChanged += (_, __) => OnBreathingSpeedValueChanged(_breathingControl.SubParams[0].Value);
-                _breathingControl.SubParams[2].PropertyChanged += (_, __) => OnSystemSyncValueChanged(_breathingControl.SubParams[2].Value == 1 ? true : false);
-                _breathingControl.SubParams[1].PropertyChanged += (_, __) => OnSystemSyncBreathingSpeedValueChange(_breathingControl.SubParams[1].Value);
-                _colorControl.PropertyChanged += (_, __) => OnSelectedColorValueChanged(_colorControl.SelectedValue);
-                #endregion
+               
                 _log.Debug("starting the Static Color Engine");
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
@@ -224,10 +217,20 @@ namespace adrilight
 
             _log.Debug("Started Static Color.");
 
-
+            IsRunning = true;
             try
             {
-                //get properties value for first time running
+                #region registering params
+                _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Color).FirstOrDefault();
+                _breathingControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Breathing).FirstOrDefault();
+                _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault();
+                _brightnessControl.PropertyChanged += (_, __) => OnBrightnessValueChanged(_brightnessControl.Value);
+                _breathingControl.PropertyChanged += (_, __) => OnIsBreathingValueChanged(_breathingControl.Value == 1 ? true : false);
+                _breathingControl.SubParams[0].PropertyChanged += (_, __) => OnBreathingSpeedValueChanged(_breathingControl.SubParams[0].Value);
+                _breathingControl.SubParams[2].PropertyChanged += (_, __) => OnSystemSyncValueChanged(_breathingControl.SubParams[2].Value == 1 ? true : false);
+                _breathingControl.SubParams[1].PropertyChanged += (_, __) => OnSystemSyncBreathingSpeedValueChange(_breathingControl.SubParams[1].Value);
+                _colorControl.PropertyChanged += (_, __) => OnSelectedColorValueChanged(_colorControl.SelectedValue);
+                #endregion
                 _isBreathing = _breathingControl.Value == 1 ? true : false;
                 OnIsBreathingValueChanged(_isBreathing);
                 _isSystemSync = _breathingControl.SubParams[2].Value == 1 ? true : false;
@@ -283,7 +286,7 @@ namespace adrilight
             {
 
                 _log.Debug("Stopped the Static Color Engine");
-                //IsRunning = false;
+                IsRunning = false;
                 GC.Collect();
             }
         }

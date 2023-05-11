@@ -88,14 +88,14 @@ namespace adrilight.DesktopDuplication
                 else if (ex.ResultCode.Code == SharpDX.DXGI.ResultCode.AccessDenied.Result.Code)
                 {
                     //Dispose();
-                    throw new DesktopDuplicationException("Access Denied");
+                    //throw new DesktopDuplicationException("Access Denied");
                 }
                 else
                 {
                     Dispose();
                     GC.Collect();
                     //retry right here??
-                    throw new Exception("Unknown, just retry");
+                    //throw new Exception("Unknown, just retry");
 
 
 

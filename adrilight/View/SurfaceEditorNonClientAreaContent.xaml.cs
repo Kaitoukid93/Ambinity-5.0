@@ -1,7 +1,5 @@
-﻿using HandyControl.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,31 +10,19 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace adrilight.View
 {
     /// <summary>
-    /// Interaction logic for PaletteEditWindow.xaml
+    /// Interaction logic for NonClientAreaContent.xaml
     /// </summary>
-    public partial class AmbinoOnlineStoreView
+    public partial class SurfaceEditorNonClientAreaContent : Grid
     {
-        public AmbinoOnlineStoreView()
+        public SurfaceEditorNonClientAreaContent()
         {
             InitializeComponent();
-            
         }
-
-
-        protected override void OnContentRendered(EventArgs e)
-        {
-            base.OnContentRendered(e);
-
-
-            NonClientAreaContent = new StoreNonClientAreaContent();
-
-        }
-
-
     }
 }

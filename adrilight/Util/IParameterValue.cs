@@ -1,6 +1,8 @@
-﻿namespace adrilight.Util
+﻿using System.ComponentModel;
+
+namespace adrilight.Util
 {
-    public interface IParameterValue
+    public interface IParameterValue : INotifyPropertyChanged
     {
         string Name { get; }
         string Description { get; }

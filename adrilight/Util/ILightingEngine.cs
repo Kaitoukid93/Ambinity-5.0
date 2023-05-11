@@ -1,4 +1,5 @@
 ﻿
+using adrilight.Util;
 using System.Threading;
 
 namespace adrilight
@@ -9,6 +10,7 @@ namespace adrilight
         void Run(CancellationToken token);
         void Refresh();
         void Stop();
+        LightingModeEnum Type { get; }
 
     }
 

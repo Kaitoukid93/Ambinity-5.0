@@ -16,9 +16,8 @@
            xmlns:view="clr-namespace:adrilight.View"
            xmlns:spot ="clr-namespace:adrilight.Spots"
            xmlns:settings ="clr-namespace:adrilight.Settings"
-              xmlns:lottie="clr-namespace:LottieSharp;assembly=LottieSharp"
-           d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
-           DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}">
+           xmlns:lottie="clr-namespace:LottieSharp;assembly=LottieSharp"
+          xmlns:viewmodel="clr-namespace:adrilight.ViewModel" d:DataContext="{d:DesignInstance Type=viewmodel:MainViewViewModel}">
 
 
 
@@ -52,7 +51,7 @@
 
     <Grid>
         <richCanvas:RichItemsControl
-            
+                x:Name="liveViewCanvas"
                 ItemsSource="{Binding LiveViewItems}"
                 GridStyle="{StaticResource GridStyle}"
                 EnableSnapping="False"
@@ -67,7 +66,6 @@
                 Background="Transparent"               
                 DisableScroll="True"
                 ZoomKey="LeftCtrl"
-                PreviewKeyDown="Canvas_PreviewKeyDown"
                 TranslateOffset="{Binding CurrentLiveViewOffset,Mode=TwoWay}"
                 Scale="{Binding CurrentLiveViewScale,Mode=TwoWay}"
                 MousePosition="{Binding MousePosition, Mode=OneWayToSource}">
@@ -447,7 +445,7 @@
                             Value="False" />
                         </DataTrigger>
 
-                       
+
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Opacity">
                                 <Setter.Value>
@@ -466,8 +464,6 @@
                 </Style>
             </richCanvas:RichItemsControl.ItemContainerStyle>
         </richCanvas:RichItemsControl>
-
-
         <Grid>
             <hc:TransitioningContentControl>
                 <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Horizontal">

@@ -20,10 +20,6 @@
         /// </summary>
         ListSelection,
         /// <summary>
-        ///    this is came with more than one list
-        /// </summary>
-        MultiListSelection,
-        /// <summary>
         /// this display a chart graph with no control
         /// </summary>
         ChartVisualization,
@@ -32,8 +28,6 @@
         /// </summary>
         PushButtonAction,
 
-        ComboboxSelection,
-        PredefinedListSelection,
 
 
     }

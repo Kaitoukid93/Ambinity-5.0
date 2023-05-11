@@ -1,6 +1,8 @@
-﻿using GalaSoft.MvvmLight;
+﻿using adrilight.Settings;
+using GalaSoft.MvvmLight;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,7 +28,7 @@ namespace adrilight.Util
         public BitmapImage Thumb { get; set; }
         public List<BitmapImage> Screenshots { get; set; }
         public string MarkDownDescription { get; set; }
-        public string SubType { get; set; }
+        public List<DeviceTypeDataEnum> TargetDevices { get; set; }
 
     }
 }

@@ -1,5 +1,7 @@
-﻿using System;
+﻿using adrilight.Settings;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -20,7 +22,7 @@ namespace adrilight.Util
         BitmapImage Thumb { get; set; }
         List<BitmapImage> Screenshots { get; set; }
         string MarkDownDescription { get; set; }
-        string SubType { get; set; }
+        List<DeviceTypeDataEnum> TargetDevices { get; set; }
 
     }
 }

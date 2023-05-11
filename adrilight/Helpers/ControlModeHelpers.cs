@@ -89,7 +89,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Màu LED chuyển động theo nhạc",
-                    Parameters = { GenericBrightnessParameter, GenericColorPaletteAndSolidColorSelectionParameter, GenericAudioDeviceParameter, GenericMIDSelectParameter }
+                    Parameters = { GenericBrightnessParameter, GenericColorPaletteAndSolidColorSelectionParameter, GenericMIDSelectParameter }
 
                 };
             }
@@ -350,19 +350,19 @@ namespace adrilight.Helpers
                 };
             }
         }
-        public IModeParameter GenericAudioDeviceParameter {
-            get
-            {
-                return new ModeParameter() {
+        //public IModeParameter GenericAudioDeviceParameter {
+        //    get
+        //    {
+        //        return new ModeParameter() {
 
-                    Name = "Audio Device",
-                    Description = "Chose Audio Device",
-                    ParamType = ModeParameterEnum.AudioDevice,
-                    Template = ModeParameterTemplateEnum.ComboboxSelection,
-                    Value = 0,
-                };
-            }
-        }
+        //            Name = "Audio Device",
+        //            Description = "Chose Audio Device",
+        //            ParamType = ModeParameterEnum.AudioDevice,
+        //            Template = ModeParameterTemplateEnum.ComboboxSelection,
+        //            Value = 0,
+        //        };
+        //    }
+        //}
         /// <summary>
         /// Use this for rainbow engine to select chasing pattern from database
         /// </summary>

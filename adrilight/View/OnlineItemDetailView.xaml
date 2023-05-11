@@ -9,7 +9,7 @@
            xmlns:local ="clr-namespace:adrilight.View"
              xmlns:mdxam="clr-namespace:MdXaml;assembly=MdXaml"
            mc:Ignorable="d"
-           Background="{StaticResource MainContentBackgroundBrush}"
+           Background="{DynamicResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}">
 
@@ -60,7 +60,7 @@
                 <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
 
 
-                    <Border MinHeight="220" CornerRadius="7" Background="{DynamicResource RegionBrush}" Margin="10">
+                    <Border MinHeight="220" Effect="{DynamicResource EffectShadow1}" CornerRadius="7" Background="{DynamicResource MainContentBackgroundBrush}" Margin="10">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="auto"/>
@@ -69,7 +69,7 @@
                             </Grid.ColumnDefinitions>
                             <!--thumb-->
                             <Grid Grid.Column="0">
-                                <Border VerticalAlignment="Top" HorizontalAlignment="Left" Margin="20,20,10,10" CornerRadius="7" Width="150" Height="150" Background="Transparent">
+                                <Border Effect="{DynamicResource EffectShadow1}" Padding="10" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="20,20,10,10" CornerRadius="7" Width="150" Height="150" Background="{DynamicResource SecondaryRegionBrush}">
                                     <Image RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" Source="{Binding CurrentSelectedOnlineItem.Thumb}"/>
                                 </Border>
                             </Grid>
@@ -83,9 +83,12 @@
                                     <Grid>
                                         <TextBlock HorizontalAlignment="Left" Margin="10,0,0,0" Text="{Binding CurrentSelectedOnlineItem.Owner}" Style="{DynamicResource TextBlockDefault}" Foreground="{DynamicResource PrimaryBrush}"/>
                                     </Grid>
+                                    <hc:Divider HorizontalAlignment="Left" Width="400" LineStroke="{StaticResource RegionBrush}" Margin="10,10,10,10">
+
+                                    </hc:Divider>
                                     <Grid>
                                         <StackPanel Margin="10,0" Orientation="Horizontal">
-                                            <Grid ToolTip="Số lượt download" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                            <!--<Grid ToolTip="Số lượt download" VerticalAlignment="Center" HorizontalAlignment="Center">
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="auto"/>
                                                     <RowDefinition Height="auto"/>
@@ -105,36 +108,55 @@
 
                                                 <TextBlock Margin="0,3,0,0" HorizontalAlignment="Center" Grid.Row="1"  Text="Download" Style="{DynamicResource TextBlockDefault}"/>
                                             </Grid>
-                                            <hc:Divider Margin="20,0,10,0" LineStrokeThickness="1" LineStroke="{DynamicResource BorderBrush}" Orientation="Vertical" MaxHeight="60"/>
-                                            <Grid>
-                                                <Button BorderThickness="0" Height="auto" Padding="10" Style="{DynamicResource ButtonDefault}">
-                                                    <Grid>
-                                                        <Grid.RowDefinitions>
-                                                            <RowDefinition Height="auto"/>
-                                                            <RowDefinition Height="auto"/>
-                                                        </Grid.RowDefinitions>
-
-                                                        <TextBlock HorizontalAlignment="Center" Margin="2" Text="{Binding CurrentSelectedOnlineItem.Type}" Style="{DynamicResource TextBlockTitleBold}"/>
-                                                        <TextBlock HorizontalAlignment="Center" Grid.Row="1" Margin="2" Text="Hạng mục" Style="{DynamicResource TextBlockDefault}"/>
-                                                    </Grid>
-                                                </Button>
-
-                                            </Grid>
-                                            <hc:Divider Margin="10,0" LineStrokeThickness="1" LineStroke="{DynamicResource BorderBrush}" Orientation="Vertical" MaxHeight="60"/>
+                                            <hc:Divider Margin="20,0,10,0" LineStrokeThickness="1" LineStroke="{DynamicResource BorderBrush}" Orientation="Vertical" MaxHeight="60"/>-->
+                                            <!--<hc:Divider Margin="10,0" LineStrokeThickness="1" LineStroke="{DynamicResource BorderBrush}" Orientation="Vertical"/>-->
+                                            
                                             <Grid>
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="auto"/>
                                                     <RowDefinition Height="auto"/>
                                                 </Grid.RowDefinitions>
-                                                <Grid>
-                                                    <Path Margin="10,10,0,3" HorizontalAlignment="Center" VerticalAlignment="Center" Width="25" Height="25" Data="{Binding currentsel,Converter={converters:StaticResourceConverter}}"  Fill="{DynamicResource PrimaryBrush}" Stretch="Uniform"/>
+                                                <Grid Grid.Row="1">
+                                                    <ItemsControl MinHeight="10" MaxWidth="400" ItemsSource="{Binding CurrentSelectedOnlineItem.TargetDevices}">
+                                                        <ItemsControl.ItemsPanel>
+                                                            <ItemsPanelTemplate>
+                                                                <WrapPanel/>
+                                                            </ItemsPanelTemplate>
+                                                        </ItemsControl.ItemsPanel>
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Button Margin="2" Padding="5,0" Height="20" Style="{DynamicResource _lowProfileDefaultButton}" Content="{Binding Name}"/>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                       
+                                                    </ItemsControl>
                                                 </Grid>
-                                                <TextBlock Margin="10,3,0,0" HorizontalAlignment="Center" Grid.Row="1"  Text="Kiểu" Style="{DynamicResource TextBlockDefault}"/>
+                                                <Grid Grid.Row="0" >
+                                                    
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Margin="5,0,0,10" HorizontalAlignment="Left"  Text="Các thiết bị được hỗ trợ" Style="{DynamicResource TextBlockDefaultSecLight}"/>
+                                                        <Button ToolTip="Tìm hiểu thêm"  HorizontalAlignment="Left" Margin="7,0,0,10"  Background="Transparent" hc:IconElement.Geometry="{DynamicResource infoCircle}" Style="{DynamicResource _defaultIconButtonSmall}"/>
+                                                </StackPanel>
+                                                </Grid>
                                             </Grid>
                                         </StackPanel>
                                     </Grid>
+                                    <hc:Divider HorizontalAlignment="Left" LineStroke="{StaticResource RegionBrush}" Width="400" Margin="10,10,10,10">
+
+                                    </hc:Divider>
                                     <Grid>
-                                        <TextBlock HorizontalAlignment="Left" Margin="10" Text="{Binding CurrentSelectedOnlineItem.Description}" Style="{DynamicResource TextBlockDefault}"/>
+                                        <TextBlock HorizontalAlignment="Left" Margin="10,5" Text="{Binding CurrentSelectedOnlineItem.Description}" Style="{DynamicResource TextBlockDefault}"/>
+                                    </Grid>
+                                    <Grid>
+                                        <Button Margin="10,5,0,20" HorizontalAlignment="Left" VerticalAlignment="Top" BorderThickness="0" Padding="10,0" Style="{DynamicResource _mediumProfileDefaultButton}">
+                                            <Grid>
+                                               
+
+                                                <TextBlock VerticalAlignment="Top" HorizontalAlignment="Center" Margin="2" Text="{Binding CurrentSelectedOnlineItem.Type}" Style="{DynamicResource TextBlockDefault}"/>
+                                               
+                                            </Grid>
+                                        </Button>
+
                                     </Grid>
                                 </StackPanel>
 
@@ -157,15 +179,15 @@
                 <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
 
 
-                    <Border CornerRadius="7" Background="{DynamicResource DarkOpacityBrush}" Margin="10">
+                    <Border CornerRadius="7" Effect="{DynamicResource EffectShadow1}" Background="{DynamicResource MainContentBackgroundBrush}" Margin="10">
                         <StackPanel>
 
                             <Grid>
                                 <TextBlock Margin="20,15,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Screenshots" Style="{DynamicResource TextBlockSubTitleBold}"/>
                             </Grid>
-                            <hc:Divider Margin="0,15"/>
+                            <hc:Divider LineStroke="{DynamicResource RegionBrush}" Margin="0,15"/>
                             <Grid>
-                                <hc:Carousel Margin="0,0,0,15"  ItemsSource="{Binding CurrentSelectedOnlineItem.Screenshots}"  IsCenter="True" AutoRun="True" MaxWidth="900" Height="330" VerticalAlignment="Center">
+                                <hc:Carousel Margin="15,0,15,15"  ItemsSource="{Binding CurrentSelectedOnlineItem.Screenshots}"  IsCenter="False" AutoRun="True" Height="330" VerticalAlignment="Center">
                                     <hc:Carousel.ItemTemplate>
                                         <DataTemplate>
                                             <Image Width="600" Source="{Binding}"/>
@@ -182,13 +204,13 @@
                 <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
 
 
-                    <Border CornerRadius="7" Background="{DynamicResource DarkOpacityBrush}" Margin="10">
+                    <Border CornerRadius="7" Effect="{DynamicResource EffectShadow1}" Background="{DynamicResource MainContentBackgroundBrush}" Margin="10">
                         <StackPanel>
 
                             <Grid>
                                 <TextBlock Margin="20,15,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Description" Style="{DynamicResource TextBlockSubTitleBold}"/>
                             </Grid>
-                            <hc:Divider Margin="0,15"/>
+                            <hc:Divider LineStroke="{DynamicResource RegionBrush}" Margin="0,15"/>
                             <Grid MaxHeight="300">
                              
                                     

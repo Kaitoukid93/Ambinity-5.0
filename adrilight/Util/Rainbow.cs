@@ -57,7 +57,7 @@ namespace adrilight
             GeneralSettings.PropertyChanged += PropertyChanged;
             CurrentZone.PropertyChanged += PropertyChanged;
             MainViewViewModel.PropertyChanged += PropertyChanged;
-            Refresh();
+           // Refresh();
             _log.Info($"DesktopDuplicatorReader created.");
         }
 
@@ -69,7 +69,7 @@ namespace adrilight
         private LEDSetup CurrentZone { get; }
         private MainViewViewModel MainViewViewModel { get; }
         private IRainbowTicker RainbowTicker { get; }
-
+        public LightingModeEnum Type { get; } = LightingModeEnum.Rainbow;
         /// <summary>
         /// property changed event catching
         /// </summary>
@@ -82,10 +82,13 @@ namespace adrilight
             {
                 //which property that require this engine to refresh
                 case nameof(CurrentZone.CurrentActiveControlMode):
-                case nameof(CurrentZone.IsInControlGroup):
+                    var isRunning = _cancellationTokenSource != null;
+                    if (isRunning || (CurrentZone.CurrentActiveControlMode as LightingMode).BasedOn == Type)
+                        Refresh();
+                    break;
                 case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
-                case nameof(MainViewViewModel.IsRegisteringGroup):
-                case nameof(_colorControl):
+               // case nameof(MainViewViewModel.IsRegisteringGroup):
+                //case nameof(_colorControl):
                     Refresh();
                     break;
                 case nameof(GeneralSettings.SystemRainbowSpeed):
@@ -187,16 +190,16 @@ namespace adrilight
 
             var isRunning = _cancellationTokenSource != null;
 
-            var currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
+             _currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
 
             var shouldBeRunning =
-                currentLightingMode.BasedOn == LightingModeEnum.Rainbow &&
+                _currentLightingMode.BasedOn == LightingModeEnum.Rainbow &&
                 //this zone has to be enable, this could be done by stop setting the spots, but the this thread still alive, so...
                 CurrentZone.IsEnabled == true &&
                 //stop this engine when any surface or editor open because this could cause capturing fail
-                MainViewViewModel.IsRichCanvasWindowOpen == false &&
-                //registering group shoud be done
-                MainViewViewModel.IsRegisteringGroup == false;
+                MainViewViewModel.IsRichCanvasWindowOpen == false;
+                ////registering group shoud be done
+                //MainViewViewModel.IsRegisteringGroup == false;
 
             // this is stop sign by one or some of the reason above
             if (isRunning && !shouldBeRunning)
@@ -211,8 +214,28 @@ namespace adrilight
             else if (!isRunning && shouldBeRunning)
             {
                 //start it
+               
+                _log.Debug("starting the Static Color Engine");
+                _cancellationTokenSource = new CancellationTokenSource();
+                _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
+                    IsBackground = true,
+                    Priority = ThreadPriority.BelowNormal,
+                    Name = "Rainbow"
+                };
+                _workerThread.Start();
+            }
+
+
+        }
+        public void Run(CancellationToken token)
+        {
+
+            _log.Debug("Started Rainbow engine.");
+            IsRunning = true;
+
+            try
+            {
                 #region registering params
-                _currentLightingMode = currentLightingMode;
                 _speedControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Speed).FirstOrDefault();
                 _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Palette).FirstOrDefault();
                 _colorControl.PropertyChanged += (_, __) =>
@@ -235,29 +258,6 @@ namespace adrilight
                 _vidDataControl.SubParams[0].PropertyChanged += (_, __) => OnVIDIntensityValueChanged(_vidDataControl.SubParams[0].Value);
 
                 #endregion
-                _log.Debug("starting the Static Color Engine");
-                _cancellationTokenSource = new CancellationTokenSource();
-                _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
-                    IsBackground = true,
-                    Priority = ThreadPriority.BelowNormal,
-                    Name = "Rainbow"
-                };
-                _workerThread.Start();
-            }
-
-
-        }
-        public void Run(CancellationToken token)
-        {
-
-            _log.Debug("Started Rainbow engine.");
-
-
-            try
-            {
-                //get properties value for first time running
-
-                //color param
                 OnSelectedPaletteChanged(_colorControl.SelectedValue);
                 OnSelectedVIDDataChanged(_vidDataControl.SelectedValue);
                 OnVIDIntensityValueChanged(_vidDataControl.SubParams[0].Value);
@@ -316,7 +316,7 @@ namespace adrilight
             {
 
                 _log.Debug("Stopped the Rainbow Engine");
-                //IsRunning = false;
+                IsRunning = false;
                 GC.Collect();
             }
         }

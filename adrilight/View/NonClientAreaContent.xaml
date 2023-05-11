@@ -12,34 +12,113 @@
                 </ResourceDictionary>
 
             </ResourceDictionary.MergedDictionaries>
-            </ResourceDictionary>
-            </Grid.Resources>
-            <Grid.ColumnDefinitions>
+        </ResourceDictionary>
+    </Grid.Resources>
+    <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
     </Grid.ColumnDefinitions>
     <Grid Grid.Column="0">
-        <Path HorizontalAlignment="left"  Stretch="Uniform" Margin="0,5,0,0" Data="{StaticResource appicon}" 
-                                      Width="18" 
-                                      Height="18" 
+        <StackPanel Orientation="Horizontal">
+
+
+            <Path HorizontalAlignment="left"  Stretch="Uniform" Margin="5,5,10,0" Data="{DynamicResource appicon}" 
+                                      Width="20" 
+                                      Height="20" 
                                       Fill="{StaticResource PrimaryTextBrush}"/>
+            <TextBlock Margin="5,5,5,0" VerticalAlignment="Center" Text="Adrilight"/>
+        </StackPanel>
     </Grid>
-   
-    <Button Grid.Column="1" Click="ButtonConfig_OnClick" Name="ButtonConfig" Style="{StaticResource ButtonIcon}" hc:IconElement.Geometry="{StaticResource ConfigGeometry}"/>
-    <Popup AllowsTransparency="True"   PlacementTarget="{Binding ElementName=ButtonConfig}" HorizontalOffset="0" Name="PopupConfig" VerticalOffset="2" StaysOpen="False">
-        <hc:TransitioningContentControl BorderBrush="Transparent" BorderThickness="0" TransitionMode="Top2Bottom">
-            <Border BorderThickness="1" Effect="{DynamicResource EffectShadow3}" BorderBrush="{DynamicResource DarkMaskBrush}" Background="{StaticResource RegionBrush}" CornerRadius="7" Margin="15,0,15,15">
-                <StackPanel Orientation="Vertical">
-                    <Button  HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding OpenAppSettingsWindowCommand}" hc:IconElement.Geometry="{StaticResource appsettings}" BorderBrush="Transparent" Margin="5"   Content="App Settings" Style="{StaticResource ButtonDefault}"/>
-                    <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding OpenSurfaceEditorWindowCommand }" hc:IconElement.Geometry="{StaticResource adjustposition}" CommandParameter="about" BorderBrush="Transparent"   Margin="5" Content="Surface Editor" Style="{StaticResource ButtonDefault}"/>
-                    <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding OpenAutomationManagerWindowCommand }" hc:IconElement.Geometry="{StaticResource auto}" CommandParameter="automation" BorderBrush="Transparent"   Margin="5" Content="Automation Settings" Style="{StaticResource ButtonDefault}"/>
-                    <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding OpenAmbinoStoreWindowCommand }" hc:IconElement.Geometry="{StaticResource EyeOpenGeometry}" CommandParameter="store" BorderBrush="Transparent"   Margin="5" Content="Ambino Store" Style="{StaticResource ButtonDefault}"/>
-                    <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding OpenAboutWindowCommand }" hc:IconElement.Geometry="{StaticResource info}" CommandParameter="about" BorderBrush="Transparent"   Margin="5" Content="About" Style="{StaticResource ButtonDefault}"/>
-                    
-                </StackPanel>
 
-            </Border>
-        </hc:TransitioningContentControl>
+    <Grid Grid.Column="1">
 
-    </Popup>
+
+        <StackPanel Orientation="Horizontal">
+            <Button HorizontalAlignment="Stretch" 
+                    HorizontalContentAlignment="Left"  
+                    Padding="0" 
+                    Command="{Binding OpenSurfaceEditorWindowCommand }" 
+                    hc:IconElement.Geometry="{DynamicResource position}" 
+                    CommandParameter="about" 
+                    BorderBrush="Transparent" 
+                    ToolTip="Setup vị trí (Surface Editor)"  
+                    hc:IconElement.Width="18" 
+                    hc:IconElement.Height="18"   
+                    Margin="10,5" 
+                    Style="{DynamicResource ButtonDashed}"/>
+            <Button HorizontalAlignment="Stretch" 
+                    HorizontalContentAlignment="Left" 
+                    Padding="0" 
+                    Command="{Binding OpenAutomationManagerWindowCommand }" 
+                    hc:IconElement.Geometry="{StaticResource auto}" 
+                    CommandParameter="automation" 
+                    BorderBrush="Transparent" 
+                    ToolTip="Phím tắt (Automation)"  
+                    hc:IconElement.Width="18" 
+                    hc:IconElement.Height="18" 
+                    Margin="10,5"  
+                    Style="{DynamicResource ButtonDashed}"/>
+            <Button Padding="0" 
+                    Command="{Binding OpenAmbinoStoreWindowCommand }" 
+                    hc:IconElement.Geometry="{DynamicResource onlineStore}" 
+                    CommandParameter="store" BorderBrush="Transparent"  
+                    Margin="10,5" 
+                    hc:IconElement.Width="18" 
+                    hc:IconElement.Height="18" 
+                    ToolTip="Thư viện (Adrilight store)"  
+                    Style="{DynamicResource ButtonDashed}"/>
+            <Button Grid.Column="1" 
+                    Padding="0" 
+                    Click="ButtonConfig_OnClick" 
+                    Name="ButtonConfig" 
+                    Style="{StaticResource ButtonIcon}" 
+                    hc:IconElement.Width="18" 
+                    hc:IconElement.Height="18" 
+                    Margin="10,5,50,0" 
+                    ToolTip="Cài đặt chung"
+                    hc:IconElement.Geometry="{DynamicResource generalSettings}"/>
+            <Popup AllowsTransparency="True"   
+                   PlacementTarget="{Binding ElementName=ButtonConfig}" 
+                   HorizontalOffset="0" 
+                   Name="PopupConfig" 
+                   VerticalOffset="15" 
+                   StaysOpen="False">
+                <hc:TransitioningContentControl 
+                    BorderBrush="Transparent" 
+                    BorderThickness="0" 
+                    TransitionMode="Top2Bottom">
+                    <Border BorderThickness="0" 
+                            Effect="{DynamicResource EffectShadow1}" 
+                            Background="{DynamicResource MainContentBackgroundBrush }"
+                            CornerRadius="7" 
+                            Margin="15,0,15,15">
+                        <StackPanel Orientation="Vertical">
+                            <Button  HorizontalAlignment="Stretch"
+                                     HorizontalContentAlignment="Left" 
+                                     Background="{DynamicResource SecondaryRegionBrush}"
+                                     Command="{Binding OpenAppSettingsWindowCommand}"
+                                     hc:IconElement.Geometry="{StaticResource appsettings}"
+                                     BorderThickness="0"
+                                     Margin="5,5,5,0"
+                                     Content="Cài đặt chung"  
+                                     Style="{DynamicResource ButtonDefault}"/>
+                            <Button HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Left" 
+                                    Command="{Binding OpenAboutWindowCommand }" 
+                                     Background="{DynamicResource SecondaryRegionBrush}"
+                                    hc:IconElement.Geometry="{StaticResource info}" 
+                                    CommandParameter="about" 
+                                     BorderThickness="0"
+                                    Content="Thông tin ứng dụng"   
+                                    Margin="5" 
+                                    Style="{DynamicResource ButtonDefault}"/>
+
+                        </StackPanel>
+
+                    </Border>
+                </hc:TransitioningContentControl>
+
+            </Popup>
+        </StackPanel>
+    </Grid>
 </Grid>

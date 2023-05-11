@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace adrilight.Settings
 {
-    public class DeviceTypeDataEnum : IOnlineItemSubType
+    public class DeviceTypeDataEnum
     {
         public DeviceTypeDataEnum(string name, DeviceTypeEnum deviceType)
         {
@@ -18,6 +18,7 @@ namespace adrilight.Settings
         public string Name { get; set; }
         public DeviceTypeEnum DeviceType { get; set; }
         public string Description { get; set; }
+        public bool Selected { get; set; } // for the sake of checkCombobox only
         public string Geometry {
             get
             {

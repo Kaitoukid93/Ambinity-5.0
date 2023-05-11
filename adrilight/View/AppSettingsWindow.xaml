@@ -7,7 +7,7 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           Background="{StaticResource MainContentBackgroundBrush}"
+           Background="{DynamicResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
           

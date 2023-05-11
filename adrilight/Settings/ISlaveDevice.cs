@@ -6,7 +6,7 @@ using System.ComponentModel;
 
 namespace adrilight
 {
-    public interface ISlaveDevice:INotifyPropertyChanged
+    public interface ISlaveDevice : INotifyPropertyChanged
     {
         string Name { get; set; }
         int ParrentID { get; set; }
@@ -17,7 +17,7 @@ namespace adrilight
         string Description { get; set; }
         DeviceTypeDataEnum TargetDeviceType { get; set; }
         ObservableCollection<IControlZone> ControlableZones { get; set; }
-        
+
         void UpdateSizeByChild(bool withPoint);
         void RotateLEDSetup(double angleInDegrees);
         void ReflectLEDSetupVertical();

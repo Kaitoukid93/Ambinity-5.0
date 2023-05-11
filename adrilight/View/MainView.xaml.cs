@@ -98,12 +98,7 @@ namespace adrilight.View
            
             
             NonClientAreaContent = new NonClientAreaContent();
-            
 
-            
-
-           
-          
         }
 
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

@@ -9,7 +9,7 @@
            mc:Ignorable="d"
            xmlns:ut ="clr-namespace:adrilight.Util"
            xmlns:mt ="clr-namespace:adrilight_effect_analyzer.Model;assembly=adrilight_effect_analyzer"
-           Background="{StaticResource MainContentBackgroundBrush}"
+           Background="{StaticResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}">
 
@@ -29,7 +29,7 @@
                         <Setter Property="Padding" Value="0"/>
                         <!--<Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
                 <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>-->
-                        <Setter Property="Background" Value="{StaticResource RegionBrush}"/>
+                        <Setter Property="Background" Value="{DynamicResource MainContentBackgroundBrush}"/>
                         <Setter Property="BorderBrush" Value="Transparent"/>
                         <Setter Property="BorderThickness" Value="4"/>
                         <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
@@ -120,7 +120,7 @@
                     </Style>
 
                     <DataTemplate x:Key="_onlineItemTemplate" DataType="{x:Type ut:OnlineItemModel}">
-                        <hc:Card BorderBrush="Transparent" ToolTip="{Binding Description}" hc:BorderElement.CornerRadius="7" Height="160"  Width="160"  Effect="{StaticResource EffectShadow2}"  Footer="{Binding Name}">
+                        <hc:Card Background="{DynamicResource MainContentBackgroundBrush}" BorderBrush="Transparent" ToolTip="{Binding Description}" hc:BorderElement.CornerRadius="7" Height="220"  Width="200"  Effect="{StaticResource EffectShadow2}"  Footer="{Binding Name}">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseLeftButtonDown">
                                     <i:InvokeCommandAction 
@@ -128,32 +128,40 @@
                                             CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}"/>
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
-                            <Border Margin="10"  CornerRadius="7,7,0,0" Style="{StaticResource BorderClip}">
-                                <Image Source="{Binding Thumb}" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
+                            <Border Margin="10"  CornerRadius="7,7,7,7" Style="{StaticResource BorderClip}">
+                                <Border CornerRadius="4" Margin="10">
+                                    <Image Source="{Binding Thumb}" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
+                                </Border>
+                               
 
                             </Border>
 
                             <hc:Card.FooterTemplate>
                                 <DataTemplate>
                                     <!--Name and description+download-->
-                                    <Grid>
-
-
+                                    <Grid Height="90">
                                         <!--Name and description-->
                                         <Grid>
-                                            <StackPanel>
-                                                <TextBlock Margin="12,12" VerticalAlignment="Top" HorizontalAlignment="Left" TextWrapping="Wrap" Text="{Binding DataContext.Name,RelativeSource={RelativeSource AncestorType=hc:Card}}" Style="{DynamicResource TextBlockSubTitleBold}"/>
-                                                <TextBlock HorizontalAlignment="Left" Margin="12,10,10,12" TextWrapping="Wrap" Text="{Binding DataContext.Owner,RelativeSource={RelativeSource AncestorType=hc:Card}}" Style="{DynamicResource TextBlockDefaultSecLight}"/>
-                                            </StackPanel>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="auto"/>
+                                            </Grid.RowDefinitions>
+                                            <Grid  Grid.Row="0">
+                                              
+                                                    <TextBlock Margin="15,0"  VerticalAlignment="Top" HorizontalAlignment="Left" TextWrapping="Wrap" Text="{Binding DataContext.Name,RelativeSource={RelativeSource AncestorType=hc:Card}}" FontWeight="SemiBold" Style="{DynamicResource TextBlockSubTitle}"/>
+                                               
+                                            </Grid>
+                                            <!--download button-->
+                                            <Grid  Grid.Row="1">
+                                                <TextBlock HorizontalAlignment="Left" Margin="10" VerticalAlignment="Bottom" TextWrapping="Wrap" Text="{Binding DataContext.Owner,RelativeSource={RelativeSource AncestorType=hc:Card}}" Style="{DynamicResource TextBlockDefaultSecLight}"/>
+                                                <Button Margin="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Padding="2" Width="40" Height="25" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0" Content="Get" Command="{Binding Path=DataContext.DownloadSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
+                                                    <Button.Background>
+                                                        <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.2"/>
+                                                    </Button.Background>
+                                                </Button>
+                                            </Grid>
                                         </Grid>
-                                        <!--download button-->
-                                        <Grid>
-                                            <Button Margin="12" HorizontalAlignment="Right" VerticalAlignment="Bottom" Padding="2" Width="40" Height="25" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0" Content="Get" Command="{Binding Path=DataContext.DownloadSelectedPaletteCommand, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
-                                                <Button.Background>
-                                                    <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.2"/>
-                                                </Button.Background>
-                                            </Button>
-                                        </Grid>
+                                       
 
                                     </Grid>
                                 </DataTemplate>

@@ -10,8 +10,7 @@
            xmlns:System="clr-namespace:System;assembly=mscorlib"
            mc:Ignorable="d"
            x:Name="window"
-           d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
-           DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
+          xmlns:viewmodel="clr-namespace:adrilight.ViewModel" d:DataContext="{d:DesignInstance Type=viewmodel:MainViewViewModel}"
           >
 
     <UserControl.Resources>
@@ -1016,11 +1015,7 @@
                                                     <Setter Property="ContentTemplate"
                                                             Value="{DynamicResource _charVisualizationTemplate}" />
                                                 </DataTrigger>
-                                                <DataTrigger Binding="{Binding Path=Template}"
-                                                             Value="{x:Static ut:ModeParameterTemplateEnum.ComboboxSelection }">
-                                                    <Setter Property="ContentTemplate"
-                                                            Value="{DynamicResource _comboboxSelectionTemplate}" />
-                                                </DataTrigger>
+                                              
                                             </Style.Triggers>
                                         </Style>
                                     </ContentControl.Style>

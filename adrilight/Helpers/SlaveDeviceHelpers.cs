@@ -37,7 +37,7 @@ namespace adrilight.Helpers
             newDevice.AvailableControllers = new List<IDeviceController>();
             if (hasLightingControl)
             {
-                var lightingController = DefaultCreatedDeviceController(ControllerTypeEnum.LightingController, "LED Controller", "brightness");
+                var lightingController = DefaultCreatedDeviceController(ControllerTypeEnum.LightingController, "Lighting", "brightness");
 
                 foreach (var output in GetOutputMap(type))
                 {
@@ -49,7 +49,7 @@ namespace adrilight.Helpers
             }
             if (hasFancontrol)
             {
-                var pwmController = DefaultCreatedDeviceController(ControllerTypeEnum.PWMController, "PWM Controller", "fanSpeedController");
+                var pwmController = DefaultCreatedDeviceController(ControllerTypeEnum.PWMController, "Fan", "fanSpeedController");
 
                 for (int i = 0; i < outputCount; i++)
                 {

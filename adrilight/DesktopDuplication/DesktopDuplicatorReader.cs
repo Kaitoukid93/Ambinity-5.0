@@ -48,7 +48,7 @@ namespace adrilight
             MainViewViewModel.PropertyChanged += PropertyChanged;
 
 
-            Refresh();
+            // Refresh();
 
             _log.Info($"DesktopDuplicatorReader created.");
         }
@@ -66,7 +66,7 @@ namespace adrilight
         private LEDSetup CurrentZone { get; }
 
         private MainViewViewModel MainViewViewModel { get; }
-
+        public LightingModeEnum Type { get; } = LightingModeEnum.ScreenCapturing;
 
 
         /// <summary>
@@ -81,10 +81,13 @@ namespace adrilight
             {
                 //which property that require this engine to refresh
                 case nameof(CurrentZone.CurrentActiveControlMode):
-                case nameof(CurrentZone.IsInControlGroup):
+                    var isRunning = _cancellationTokenSource != null;
+                    if (isRunning || (CurrentZone.CurrentActiveControlMode as LightingMode).BasedOn == Type)
+                        Refresh();
+                    break;
                 //case nameof(CurrentZone.MaskedControlMode):
                 case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
-                case nameof(MainViewViewModel.IsRegisteringGroup):
+                    // case nameof(MainViewViewModel.IsRegisteringGroup):
                     Refresh();
                     break;
 
@@ -138,9 +141,9 @@ namespace adrilight
                 //stop this engine when this zone is outside or atleast there is 1 pixel outside of the screen region
                 CurrentZone.IsInsideScreen == true &&
                 //this has to be inside of a screen
-                _currentScreenIndex != null &&
-                //registering group shoud be done
-                MainViewViewModel.IsRegisteringGroup == false;
+                _currentScreenIndex != null;
+            ////registering group shoud be done
+            //MainViewViewModel.IsRegisteringGroup == false;
 
             // this is stop sign by one or some of the reason above
             if (isRunning && !shouldBeRunning)
@@ -193,7 +196,7 @@ namespace adrilight
             _log.Debug("Started Desktop Duplication Reader.");
             Bitmap image = null;
             BitmapData bitmapData = new BitmapData();
-
+            IsRunning = true;
             try
             {
                 //get dependency properties from current lighting mode(based on screencapturing)
@@ -264,7 +267,6 @@ namespace adrilight
                                     , 10, spot.Red, spot.Green, spot.Blue);
 
                                 var spotColor = new OpenRGB.NET.Models.Color(finalR, finalG, finalB);
-                                //var semifinalSpotColor = Brightness.applyBrightness(spotColor, brightness, numLED, devicePowerMiliamps, devicePowerVoltage);
                                 ApplySmoothing(
                                     spotColor.R,
                                     spotColor.G,
@@ -283,7 +285,6 @@ namespace adrilight
                     }
 
                     image.UnlockBits(bitmapData);
-
                     int minFrameTimeInMs = 1000 / 60;
                     var elapsedMs = (int)frameTime.ElapsedMilliseconds;
                     if (elapsedMs < minFrameTimeInMs)
@@ -297,7 +298,7 @@ namespace adrilight
                 image?.Dispose();
 
                 _log.Debug("Stopped Desktop Duplication Reader.");
-                //IsRunning = false;
+                IsRunning = false;
                 GC.Collect();
             }
         }
@@ -399,32 +400,39 @@ namespace adrilight
                     HandyControl.Controls.MessageBox.Show("màn hình không khả dụng", "Sáng theo màn hình", MessageBoxButton.OK, MessageBoxImage.Error);
                     _currentScreenIndex = 0;
                 }
-                CurrentFrame = DesktopFrame[(int)_currentScreenIndex].Frame;
-                if (CurrentFrame.Frame == null)
+                var currentDesktop = DesktopFrame[(int)_currentScreenIndex];
+                lock (currentDesktop.Lock)
                 {
-                    return null;
-                }
-                else
-                {
-                    if (ReusableBitmap != null && ReusableBitmap.Width == CurrentFrame.FrameWidth && ReusableBitmap.Height == CurrentFrame.FrameHeight)
-                    {
-                        DesktopImage = ReusableBitmap;
+                    CurrentFrame = currentDesktop.Frame;
 
-                    }
-                    else if (ReusableBitmap != null && (ReusableBitmap.Width != CurrentFrame.FrameWidth || ReusableBitmap.Height != CurrentFrame.FrameHeight))
+
+                    if (CurrentFrame.Frame == null)
                     {
-                        DesktopImage = new Bitmap(CurrentFrame.FrameWidth, CurrentFrame.FrameHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+                        return null;
                     }
-                    else //this is when app start
+                    else
                     {
-                        DesktopImage = new Bitmap(CurrentFrame.FrameWidth, CurrentFrame.FrameHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+                        if (ReusableBitmap != null && ReusableBitmap.Width == CurrentFrame.FrameWidth && ReusableBitmap.Height == CurrentFrame.FrameHeight)
+                        {
+                            DesktopImage = ReusableBitmap;
+
+                        }
+                        else if (ReusableBitmap != null && (ReusableBitmap.Width != CurrentFrame.FrameWidth || ReusableBitmap.Height != CurrentFrame.FrameHeight))
+                        {
+                            DesktopImage = new Bitmap(CurrentFrame.FrameWidth, CurrentFrame.FrameHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+                        }
+                        else //this is when app start
+                        {
+                            DesktopImage = new Bitmap(CurrentFrame.FrameWidth, CurrentFrame.FrameHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+                        }
+                        var DesktopImageBitmapData = DesktopImage.LockBits(new Rectangle(0, 0, CurrentFrame.FrameWidth, CurrentFrame.FrameHeight), ImageLockMode.WriteOnly, DesktopImage.PixelFormat);
+                        IntPtr pixelAddress = DesktopImageBitmapData.Scan0;
+                        Marshal.Copy(CurrentFrame.Frame, 0, pixelAddress, CurrentFrame.Frame.Length);
+                        DesktopImage.UnlockBits(DesktopImageBitmapData);
+                        return DesktopImage;
                     }
-                    var DesktopImageBitmapData = DesktopImage.LockBits(new Rectangle(0, 0, CurrentFrame.FrameWidth, CurrentFrame.FrameHeight), ImageLockMode.WriteOnly, DesktopImage.PixelFormat);
-                    IntPtr pixelAddress = DesktopImageBitmapData.Scan0;
-                    Marshal.Copy(CurrentFrame.Frame, 0, pixelAddress, CurrentFrame.Frame.Length);
-                    DesktopImage.UnlockBits(DesktopImageBitmapData);
-                    return DesktopImage;
                 }
+
             }
             catch (Exception ex)
             {

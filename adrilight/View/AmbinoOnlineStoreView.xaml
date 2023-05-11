@@ -6,15 +6,11 @@
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
-       
            mc:Ignorable="d"
            xmlns:local="clr-namespace:adrilight.View"
-           Background="{StaticResource MainContentBackgroundBrush}"
+           Background="{StaticResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
-           
-           Title="Adrilight Store"
-           
            Height="920" 
            Width="1000" 
            WindowStartupLocation="CenterScreen">
@@ -27,6 +23,71 @@
                     <converters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
                     <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
                     <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
+                    <SolidColorBrush x:Key="primaryBackgroundBrush" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.15"/>
+                    <Style x:Key="_listBoxControlModeStyle" TargetType="ListBoxItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border CornerRadius="4" Name="_Border"
+                                Padding="0"
+                                Margin="2"
+                                Width="64"
+                                Height="60"
+                                Background="Transparent"   
+                                BorderBrush="{StaticResource DarkMaskBrush}"
+                                BorderThickness="0"
+                                SnapsToDevicePixels="true">
+                                        <ContentPresenter />
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+                                            <Setter Property="Background" TargetName="_Border" Value="{DynamicResource primaryBackgroundBrush}"/>
+
+                                            <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                                <Condition Property="IsSelected" Value="True"/>
+                                            </MultiTrigger.Conditions>
+
+
+                                            <!--<Setter Property="Effect" TargetName="_Border" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>-->
+
+                                            <Setter Property="Background" TargetName="_Border" Value="{DynamicResource primaryBackgroundBrush}"/>
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsMouseOver" Value="True"/>
+                                                <Condition Property="IsSelected" Value="False"/>
+                                            </MultiTrigger.Conditions>
+
+                                            <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
+
+                                            <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+                                            <Setter Property="Background" TargetName="_Border" Value="{DynamicResource SecondaryRegionBrush}"/>
+                                            <!--<Setter Property="Effect" TargetName="_Border" Value="{StaticResource Item.MouseOver.Border.Shadow}"/>-->
+                                        </MultiTrigger>
+
+
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <!--<Setter Property="ToolTip" Value="{Binding DocName}"/>-->
+
+                        <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
+
+                    </Style>
                     <DataTemplate x:Key="_itemsColletionView">
                         <local:OnlineItemsCollectionView/>
                     </DataTemplate>
@@ -51,7 +112,7 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <Grid Margin="10,0,10,10">
+    <Grid Margin="10,5,10,10">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
@@ -68,27 +129,41 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <!--side panel category selection-->
-            <Grid>
-                <ListBox SelectedItem="{Binding CurrentSelectedCategory,Mode=TwoWay}" BorderThickness="0" Background="Transparent" ItemsSource="{Binding AvailableStoreCategories}" ItemContainerStyle="{DynamicResource _listBoxModeSelectionStyle}">
+            <Grid Margin="0,10,0,0">
+                <ListBox SelectedItem="{Binding CurrentSelectedCategory,Mode=TwoWay}" BorderThickness="0" Background="Transparent" ItemsSource="{Binding AvailableStoreCategories}" ItemContainerStyle="{DynamicResource _listBoxControlModeStyle}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Border CornerRadius="4">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="auto"/>
+                                </Grid.RowDefinitions>
                                 <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <!--Icon-->
-                                    <Grid>
-                                        <Path Stretch="Uniform" Width="32" Height="32" Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}" Fill="{StaticResource PrimaryTextBrush}"/>
-                                    </Grid>
-                                    <!--Name-->
-                                    <Grid Grid.Column="1">
-                                        <TextBlock Text="{Binding Name}" Style="{DynamicResource TextBlockDefault}"/>
-                                    </Grid>
+                                    <Path x:Name="icon" Fill="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}, Path=Foreground}" 
+                                                  Stretch="Uniform" 
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                  Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
+                                                  Width="22" 
+                                                  ToolTip="{Binding Description}"
+                                                  Height="22">
+                                    </Path>
                                 </Grid>
-                            </Border>
+                                <Grid Grid.Row="1">
+                                    <TextBlock x:Name="text" FontStretch="Condensed" FontSize="10" Margin="5" Style="{DynamicResource TextBlockDefault}" Text="{Binding Name,Mode=TwoWay}"/>
+                                </Grid>
+                            </Grid>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBoxItem}}}" Value="True">
+                                    <Setter TargetName="text" Property="Visibility" Value="Collapsed"/>
+                                    <Setter TargetName="icon" Property="Margin" Value="10"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBoxItem}}}" Value="False">
+                                    <Setter TargetName="text" Property="Visibility" Value="Visible"/>
+                                    <Setter TargetName="icon" Property="Margin" Value="10,10,10,0"/>
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
                         </DataTemplate>
+
                     </ListBox.ItemTemplate>
                 </ListBox>
             </Grid>

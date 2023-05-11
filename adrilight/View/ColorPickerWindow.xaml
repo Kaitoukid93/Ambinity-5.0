@@ -9,7 +9,7 @@
            xmlns:converters="clr-namespace:adrilight.Converter"
            xmlns:view ="clr-namespace:adrilight.View"
            mc:Ignorable="d"
-           Background="{StaticResource MainContentBackgroundBrush}"
+           Background="{DynamicResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            ResizeMode="NoResize"

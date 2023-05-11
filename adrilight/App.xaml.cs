@@ -33,6 +33,7 @@ using System.Threading.Tasks;
 using adrilight.Settings;
 using System.Drawing;
 using System.Web.UI.WebControls.WebParts;
+using HandyControl.Tools.Extension;
 
 namespace adrilight
 {
@@ -158,8 +159,10 @@ namespace adrilight
             //Load setting từ file Json//
             var settingsManager = new UserSettingsManager();
             kernel.Bind(x => x.FromThisAssembly()
-              .SelectAllClasses()
-              .BindAllInterfaces());
+            .SelectAllClasses()
+            .InheritedFrom<ISelectableViewPart>()
+            .BindAllInterfaces());
+
             var serialDeviceDetection = kernel.Get<ISerialDeviceDetection>();
             var captureEngines = kernel.GetAll<ICaptureEngine>();
             var rainbowTicker = kernel.Get<IRainbowTicker>();
@@ -182,7 +185,7 @@ namespace adrilight
             MainViewViewModel = kernel.Get<MainViewViewModel>();
             if (!GeneralSettings.StartMinimized)
                 MainViewViewModel.IsAppActivated = true;
-            MainViewViewModel.AvailableDevices.CollectionChanged += (s, e) =>
+            MainViewViewModel.AvailableDevices.CollectionChanged += async (s, e) =>
             {
                 switch (e.Action)
                 {
@@ -193,15 +196,7 @@ namespace adrilight
                         foreach (IDeviceSettings device in newDevices)
                         {
                             var iD = device.DeviceUID.ToString();
-                            if (kernel.GetAll<IDeviceSettings>(device.DeviceUID.ToString()) != null)
-                            {
-                                kernel.Rebind<IDeviceSettings>().ToConstant(device).Named(iD);
-                            }
-                            else
-                            {
-                                kernel.Bind<IDeviceSettings>().ToConstant(device).Named(iD);
-                            }
-                            
+                            kernel.Bind<IDeviceSettings>().ToConstant(device).Named(iD);
                             //now inject
                             InjectingDevice(kernel, device);
                             //since openRGBStream is single instance, we need to manually add device then refresh                                        
@@ -210,26 +205,25 @@ namespace adrilight
                         break;
                     case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
                         var removedDevice = e.OldItems;
-                        foreach (IDeviceSettings device in removedDevice)
+                        foreach (IDeviceSettings device in removedDevice) // when an item got removed, simply stop dependencies service from running
                         {
-                            //var iD = device.DeviceUID.ToString();
-                            ////stop serialstream
-                            //var serialStream = kernel.Get<ISerialStream>(iD);
-                            //if (serialStream != null)
-                            //    serialStream.Stop();
                             UnInjectingDevice(kernel, device);
-
-
                         }
                         break;
-
+                    case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
+                        ResetDevicesBinding(kernel);
+                        break;
                 }
             };
             if (settingsManager.LoadDeviceIfExists() is not null)
             {
                 foreach (var device in settingsManager.LoadDeviceIfExists())
                 {
-                    MainViewViewModel.AvailableDevices.Insert(0, device);
+                    lock (MainViewViewModel.AvailableDeviceLock)
+                    {
+                        MainViewViewModel.AvailableDevices.Insert(0, device);
+                    }
+
                 }
             }
 
@@ -260,9 +254,26 @@ namespace adrilight
             var availableLightingModes = kernel.GetAll<ILightingEngine>(zone.ZoneUID);
             foreach (var lightingMode in availableLightingModes)
             {
-                lightingMode.Refresh();
+                //only refresh shouldberunning
+                if (lightingMode.Type == (zone.CurrentActiveControlMode as LightingMode).BasedOn)
+                    lightingMode.Refresh();
             }
 
+        }
+        private static void ResetDevicesBinding(IKernel kernel)
+        {
+            var lightingEngineServices = kernel.GetAll<ILightingEngine>();
+            foreach (var lightingEngine in lightingEngineServices)
+            {
+                if (lightingEngine.IsRunning)
+                    lightingEngine.Stop();
+            }
+            var serialStreams = kernel.GetAll<ISerialStream>();
+            serialStreams.ForEach(s => s.Stop());
+            kernel.Unbind<ILightingEngine>();
+            kernel.Unbind<IDeviceSettings>();
+            kernel.Unbind<IControlZone>();
+            kernel.Unbind<ISerialStream>();
         }
         private static void UnInjectingZone(IKernel kernel, IControlZone zone)
         {
@@ -270,7 +281,8 @@ namespace adrilight
             var availableLightingModes = kernel.GetAll<ILightingEngine>(zone.ZoneUID);
             foreach (var lightingMode in availableLightingModes)
             {
-                lightingMode.Stop();
+                if (lightingMode.IsRunning)
+                    lightingMode.Stop();
             }
 
         }
@@ -283,9 +295,6 @@ namespace adrilight
                     UnInjectingZone(kernel, zone as IControlZone);
                 }
             }
-
-             kernel.Unbind<ILightingEngine>();
-            //kernel.Unbind<ISerialStream>();
         }
         private static void InjectingDevice(IKernel kernel, IDeviceSettings device)
         {
@@ -343,15 +352,7 @@ namespace adrilight
                 foreach (var zone in output.SlaveDevice.ControlableZones)
                 {
                     var ledZone = zone as LEDSetup;
-                    if (kernel.GetAll<IControlZone>(zone.ZoneUID) != null)
-                    {
-                        kernel.Rebind<IControlZone>().ToConstant(ledZone).Named((ledZone).ZoneUID);
-                    }
-                    else
-                    {
-                        kernel.Bind<IControlZone>().ToConstant(ledZone).Named((ledZone).ZoneUID);
-                    }
-
+                    kernel.Bind<IControlZone>().ToConstant(ledZone).Named((ledZone).ZoneUID);
                     InjectingZone(kernel, zone as IControlZone);
                 }
             }
@@ -359,18 +360,10 @@ namespace adrilight
             switch (connectionType)
             {
                 case "wired":
-                    if (kernel.GetAll<ISerialStream>(device.DeviceUID.ToString()) != null)
-                    {
-                        kernel.Rebind<ISerialStream>().To<SerialStream>().InSingletonScope().Named(device.DeviceUID.ToString()).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(device.DeviceUID.ToString()));
-                    }
-                    else
-                    {
-                        kernel.Bind<ISerialStream>().To<SerialStream>().InSingletonScope().Named(device.DeviceUID.ToString()).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(device.DeviceUID.ToString()));
-                    }
+                    kernel.Bind<ISerialStream>().To<SerialStream>().InSingletonScope().Named(device.DeviceUID.ToString()).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(device.DeviceUID.ToString()));
                     break;
                 case "wireless":
                     //   kernel.Bind<ISerialStream>().To<NetworkStream>().InSingletonScope().Named(iD).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(iD));
-
                     break;
                 case "OpenRGB":
                     //   kernel.Bind<ISerialStream>().To<OpenRGBStream>().InSingletonScope().Named(iD).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(iD));
@@ -427,12 +420,8 @@ namespace adrilight
                         {
                             kernel.Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("screen", screen.DeviceName);
                             var newDesktopFrame = kernel.Get<ICaptureEngine>(screen.DeviceName);
-                            // newDesktopFrame.RefreshCapturingState();
                         }
                     }
-
-
-
                 }
             }
 
@@ -451,8 +440,6 @@ namespace adrilight
     (sender, args) => ApplicationWideException(sender, args.ExceptionObject as Exception, "CurrentDomain.UnhandledException");
 
             DispatcherUnhandledException += (sender, args) => ApplicationWideException(sender, args.Exception, "DispatcherUnhandledException");
-
-            // var desktopduplicators = kernel.GetAll<IDesktopDuplicatorReader>();
             Exit += (s, e) =>
             {
                 var devices = kernel.GetAll<IDeviceSettings>();
@@ -466,10 +453,7 @@ namespace adrilight
                     Thread.Sleep(10);
                     device.IsTransferActive = false;
                     MainViewViewModel.WriteSingleDeviceInfoJson(device);
-                    /*Thread.Sleep(1000);*/ //wait for serialstream to finising sending
-                    //serialStream.Stop();
                 }
-                //dispose hwmonitor to prevent file lock
                 hwMonitor.Dispose();
                 ambinityClient.Dispose();
 
@@ -489,52 +473,20 @@ namespace adrilight
             {
                 GC.Collect();
                 var devices = kernel.GetAll<IDeviceSettings>();
-                // var deviceDiscovery = kernel.GetAll<IDeviceDiscovery>().FirstOrDefault();
                 foreach (var device in devices)
                 {
                     device.DeviceState = DeviceStateEnum.Normal;
                 }
-                // deviceDiscovery.enable = true;
-                var desktopFrames = kernel.GetAll<ICaptureEngine>();
-                foreach (var desktopFrame in desktopFrames)
-                {
-                    desktopFrame.RefreshCapturingState();
-
-                }
-                //var desktopFrame = kernel.Get<IDesktopFrame>();
-                //var secondDesktopFrame = kernel.Get<ISecondDesktopFrame>();
-                //var thirdDesktopFrame = kernel.Get<IThirdDesktopFrame>();
-                //desktopFrame.RefreshCapturingState();
-                //secondDesktopFrame.RefreshCapturingState();
-                //thirdDesktopFrame.RefreshCapturingState();
-
-
 
                 _log.Debug("Restart the serial stream after sleep!");
             }
             else if (e.Mode == PowerModes.Suspend)
             {
                 var devices = kernel.GetAll<IDeviceSettings>();
-                //var deviceDiscovery = kernel.GetAll<IDeviceDiscovery>().FirstOrDefault();
-                // deviceDiscovery.enable = false;
                 foreach (var device in devices)
                 {
                     device.DeviceState = DeviceStateEnum.Sleep;
-                    //Thread.Sleep(1000);
-                    //serialStream.Stop();
                 }
-
-
-                var desktopFrames = kernel.GetAll<ICaptureEngine>();
-                foreach (var desktopFrame in desktopFrames)
-                {
-                    desktopFrame.Stop();
-                }
-                //var secondDesktopFrame = kernel.Get<ISecondDesktopFrame>();
-                //var thirdDesktopFrame = kernel.Get<IThirdDesktopFrame>();
-                //desktopFrame.Stop();
-                //secondDesktopFrame.Stop();
-                //thirdDesktopFrame.Stop();
                 _log.Debug("Stop the serial stream due to sleep condition!");
             }
 
@@ -542,13 +494,10 @@ namespace adrilight
             SystemEvents.SessionEnding += (s, e) =>
             {
                 var devices = kernel.GetAll<IDeviceSettings>();
-                // var deviceDiscovery = kernel.GetAll<IDeviceDiscovery>().FirstOrDefault();
-                // deviceDiscovery.enable = false;
                 foreach (var device in devices)
                 {
                     device.DeviceState = DeviceStateEnum.Sleep;
                     Thread.Sleep(1000);
-                    //serialStream.Stop();
                 }
 
                 _log.Debug("Stop the serial stream due to power down or log off condition!");

@@ -10,10 +10,10 @@
            xmlns:local ="clr-namespace:adrilight"
            xmlns:view ="clr-namespace:adrilight.View"
            WindowStyle="None"
-           Background="{StaticResource MainContentBackgroundBrush}"
+           Background="{DynamicResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
-         
+           
            WindowStartupLocation="CenterOwner">
   
 
@@ -157,7 +157,7 @@
         </Viewbox>
         <Grid>
             <Border Margin="0,10,0,0" HorizontalAlignment="Right" VerticalAlignment="Top" CornerRadius="7" Background="{DynamicResource MainContentBackgroundBrush}">
-                <Button BorderThickness="0" Margin="5" ToolTip="Xóa tất cả ID" Command="{Binding ResetSpotIDCommand}" CommandParameter="reset" Content="Đặt lại" >
+                <Button Style="{DynamicResource _mediumProfileDefaultButton}" BorderThickness="0" Margin="5" ToolTip="Xóa tất cả ID" Command="{Binding ResetSpotIDCommand}" CommandParameter="reset" Content="Đặt lại" >
 
                 </Button>
             </Border>

@@ -108,7 +108,9 @@
       <Version>4.4.0.4099</Version>
     </PackageReference>
     <PackageReference Include="Expression.Blend.Sdk" Version="1.0.2" />
-    <PackageReference Include="HandyControls" Version="3.4.5" />
+    <PackageReference Include="HandyControls">
+      <Version>3.4.5</Version>
+    </PackageReference>
     <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.2" />
     <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
     <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
@@ -190,6 +192,7 @@
     <Compile Include="DesktopDuplication\ICaptureEngine.cs" />
     <Compile Include="Helpers\AttachedAdorner.cs" />
     <Compile Include="Helpers\Behaviors\GroupBehavior.cs" />
+    <Compile Include="Helpers\CheckComBoBoxHelper.cs" />
     <Compile Include="Helpers\ControlModeHelpers.cs" />
     <Compile Include="Helpers\DancingModeEnum.cs" />
     <Compile Include="Helpers\EventToCommand.cs" />
@@ -215,7 +218,6 @@
     <Compile Include="Settings\DeviceAdvanceController.cs" />
     <Compile Include="Settings\DeviceTypeDataEnum.cs" />
     <Compile Include="Settings\DeviceConnectionTypeEnum.cs" />
-    <Compile Include="Settings\IOnlineItemSubType.cs" />
     <Compile Include="Settings\OutputData.cs" />
     <Compile Include="Settings\OutputTypeEnum.cs" />
     <Compile Include="Settings\ResourceLoaderConfig.cs" />
@@ -273,6 +275,10 @@
     <Compile Include="Spots\ILEDSetup.cs" />
     <Compile Include="Spots\LEDSetup.cs" />
     <Compile Include="Spots\LEDSetupHelpers.cs" />
+    <Compile Include="Util\ModeParameters\DataSource.cs" />
+    <Compile Include="Util\ModeParameters\ListSelectectionParameter.cs" />
+    <Compile Include="Util\ModeParameters\SliderParameter.cs" />
+    <Compile Include="Util\ModeParameters\ToggleParameter.cs" />
     <Compile Include="Util\Music.cs" />
     <Compile Include="Util\AudioDevice.cs" />
     <Compile Include="Util\ChasingPatternTypeEnum.cs" />
@@ -290,11 +296,11 @@
     <Compile Include="Util\ChasingPattern.cs" />
     <Compile Include="Util\OnlineItemModel.cs" />
     <Compile Include="Util\DeviceDiscovery.cs" />
-    <Compile Include="Util\AdrilightUpdater.cs" />
-    <Compile Include="Util\AssemblyHelper.cs" />
-    <Compile Include="Util\AudioFrame.cs" />
+    <Compile Include="Util\Updaters\AdrilightUpdater.cs" />
+    <Compile Include="Helpers\AssemblyHelper.cs" />
+    <Compile Include="Util\CaptureEngine\AudioFrame.cs" />
     <Compile Include="Util\Brightness.cs" />
-    <Compile Include="Util\ColorPalette.cs" />
+    <Compile Include="Util\ColorsDataModel\ColorPalette.cs" />
     <Compile Include="Util\ColorUtil.cs" />
     <Compile Include="Util\ColorWithIndex.cs" />
     <Compile Include="Util\Computer.cs" />
@@ -303,7 +309,7 @@
     <Compile Include="Util\FpsLogger.cs" />
     <Compile Include="Util\Composition.cs" />
     <Compile Include="Util\PWMModeEnum.cs" />
-    <Compile Include="Util\Animation.cs" />
+    <Compile Include="Util\LightingEngine\Animation.cs" />
     <Compile Include="Util\Rainbow.cs" />
     <Compile Include="Util\SelectableLocalPath.cs" />
     <Compile Include="Util\StaticColor.cs" />
@@ -312,7 +318,7 @@
     <Compile Include="Util\MotionCard.cs" />
     <Compile Include="Util\GifCard.cs" />
     <Compile Include="Util\GradientColor.cs" />
-    <Compile Include="Util\ColorCard.cs" />
+    <Compile Include="Util\ColorsDataModel\ColorCard.cs" />
     <Compile Include="Util\HotKeyManager.cs" />
     <Compile Include="Util\HWMonitor.cs" />
     <Compile Include="Util\IDeviceDiscovery.cs" />
@@ -374,6 +380,7 @@
     <Compile Include="Extension\MathExtensions.cs" />
     <Compile Include="Extension\RawRectangleExtensions.cs" />
     <Compile Include="ViewModel\BaseViewModel.cs" />
+    <Compile Include="ViewModel\ISelectableViewParts.cs" />
     <Compile Include="ViewModel\KeyboardHookManagerSingleton.cs" />
     <Compile Include="ViewModel\DeleteMessageDialogViewModel.cs" />
     <Compile Include="ViewModel\ExpandedOutputControlViewmodel.cs" />
@@ -386,6 +393,8 @@
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\VisualProperties.cs" />
+    <Compile Include="View\SurfaceEditorNonClientAreaContent.xaml.cs" />
+    <Compile Include="View\StoreNonClientAreaContent.xaml.cs" />
     <Compile Include="View\PIDQuickEditWindow.xaml.cs" />
     <Compile Include="View\DeviceOutputMapingView.xaml.cs" />
     <Compile Include="View\IDEditToolBarView.xaml.cs" />
@@ -432,7 +441,6 @@
     <Compile Include="View\AllDeviceView.xaml.cs" />
     <Compile Include="View\AppSettingsWindow.xaml.cs" />
     <Compile Include="View\AutomationManagerWindow.xaml.cs" />
-    <Compile Include="View\CheckComboBoxHelper.cs" />
     <Compile Include="View\CollectionItem.cs" />
     <Compile Include="View\ColorPaletteControl.xaml.cs" />
     <Compile Include="View\ColorPaletteSidePanel.xaml.cs" />
@@ -484,6 +492,14 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Properties\DesignTimeResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\SurfaceEditorNonClientAreaContent.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\StoreNonClientAreaContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -1045,5 +1061,6 @@
       <Name>FTPServer</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

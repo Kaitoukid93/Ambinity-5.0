@@ -55,8 +55,8 @@
                             <Border CornerRadius="4" Name="_Border"
                                 Padding="0"
                                 Margin="2"
-                                Width="42"
-                                Height="42"
+                                Width="64"
+                                Height="60"
                                 Background="Transparent"   
                                 BorderBrush="{StaticResource DarkMaskBrush}"
                                 BorderThickness="0"
@@ -96,7 +96,6 @@
                                     <Setter Property="Background" TargetName="_Border" Value="{DynamicResource SecondaryRegionBrush}"/>
                                     <!--<Setter Property="Effect" TargetName="_Border" Value="{StaticResource Item.MouseOver.Border.Shadow}"/>-->
                                 </MultiTrigger>
-
 
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -603,13 +602,15 @@
                         <Grid HorizontalAlignment="Left" Grid.Column="1">
                             <StackPanel HorizontalAlignment="Left">
                                 <TextBlock HorizontalAlignment="Left" Text="{Binding CurrentDevice.DeviceType}" Style="{StaticResource TextBlockSubTitle}" FontWeight="SemiBold" Margin="5,2"/>
+                                
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding CurrentDevice.FirmwareVersion}" Style="{StaticResource TextBlockDefaultPrimary}"  Margin="5,2" HorizontalAlignment="Left"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding CurrentDevice.HardwareVersion}" Style="{StaticResource TextBlockDefaultPrimary}"  Margin="5,2" HorizontalAlignment="Left"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding CurrentDevice.HardwareVersion}" Style="{StaticResource TextBlockDefaultPrimary}"  Margin="5,2" HorizontalAlignment="Left"/>
                                 </Grid>
 
 
@@ -717,7 +718,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid Grid.Column="0">
-                        <Border Effect="{DynamicResource EffectShadow1}" CornerRadius="4" VerticalAlignment="Top" Height="auto" Margin="10,6,10,10" Background="Transparent"  Width="50">
+                        <Border Effect="{DynamicResource EffectShadow1}" CornerRadius="4" VerticalAlignment="Top" Height="auto" Margin="10,6,10,10" Background="Transparent">
                             <Grid>
                                 <Grid.Style>
                                     <Style TargetType="Grid">
@@ -741,16 +742,36 @@
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
                                             <Grid>
-                                                <Path Fill="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}, Path=Foreground}" 
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="auto"/>
+                                                </Grid.RowDefinitions>
+                                                <Grid>
+                                                    <Path x:Name="icon" Fill="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}, Path=Foreground}" 
                                                   Stretch="Uniform" 
-                                                  Margin="0" 
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"
                                                   Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
-                                                  Width="25" 
+                                                  Width="22" 
                                                   ToolTip="{Binding Description}"
-                                                  Height="25">
-                                                </Path>
+                                                  Height="22">
+                                                    </Path>
+                                                </Grid>
+                                                <Grid Grid.Row="1">
+                                                    <TextBlock x:Name="text" FontStretch="Condensed" FontSize="10" Margin="5" Style="{DynamicResource TextBlockDefault}" Text="{Binding Name,Mode=TwoWay}"/>
+                                                </Grid>
                                             </Grid>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBoxItem}}}" Value="True">
+                                                    <Setter TargetName="text" Property="Visibility" Value="Collapsed"/>
+                                                    <Setter TargetName="icon" Property="Margin" Value="10"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBoxItem}}}" Value="False">
+                                                    <Setter TargetName="text" Property="Visibility" Value="Visible"/>
+                                                    <Setter TargetName="icon" Property="Margin" Value="10,10,10,0"/>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
                                         </DataTemplate>
+                                        
                                     </ListBox.ItemTemplate>
                                 </ListBox>
                             </Grid>
@@ -785,10 +806,10 @@
                     </Grid>
                     <!--Zones Preview-->
                     <Grid  Grid.Column="2"  hlprs:perSizeBindingHelper.Active="True"
-                           hlprs:perSizeBindingHelper.BoundActualHeight="{Binding CurrentLiveViewHeight, Mode=OneWayToSource}"
-                           hlprs:perSizeBindingHelper.BoundActualWidth="{Binding CurrentLiveViewWidth, Mode=OneWayToSource}">
+                           hlprs:perSizeBindingHelper.BoundActualHeight="{Binding CurrentLiveViewHeight, Mode=TwoWay}"
+                           hlprs:perSizeBindingHelper.BoundActualWidth="{Binding CurrentLiveViewWidth, Mode=TwoWay}">
                         <Border Margin="0,10,10,10" CornerRadius="4"  Background="Transparent">
-                            <local:DeviceLiveView  Height="{Binding CurrentLiveViewHeight}" Width="{Binding CurrentLiveViewWidth}">
+                            <local:DeviceLiveView>
                             </local:DeviceLiveView>
                         </Border>
                     </Grid>

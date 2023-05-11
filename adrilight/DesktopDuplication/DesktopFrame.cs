@@ -96,8 +96,8 @@ namespace adrilight
 
             }
             var lastScreen = UserSettings.Screens.Where(s => s.Name == DeviceName).FirstOrDefault();
-            
-            
+
+
 
             if (lastScreen != null)
             {
@@ -126,10 +126,10 @@ namespace adrilight
             }
             else
             {
-                
-                    UserSettings.Screens.Add(new DesktopScreen() { Name = currentScreen.DeviceName, Rectangle = currentScreen.Bounds });
-                    MainViewModel.WriteSettingJson(UserSettings);
-                
+
+                UserSettings.Screens.Add(new DesktopScreen() { Name = currentScreen.DeviceName, Rectangle = currentScreen.Bounds });
+                MainViewModel.WriteSettingJson(UserSettings);
+
             }
 
 
@@ -220,7 +220,6 @@ namespace adrilight
         private MainViewViewModel MainViewModel { get; set; }
 
 
-
         private readonly Policy _retryPolicy;
 
         private TimeSpan ProvideDelayDuration(int index)
@@ -292,9 +291,13 @@ namespace adrilight
 
                     // Copy the RGB values into the array.
                     System.Runtime.InteropServices.Marshal.Copy(ptr, rgbValues, 0, bytes);
-                    Frame.Frame = rgbValues;
-                    Frame.FrameWidth = image.Width;
-                    Frame.FrameHeight = image.Height;
+                    lock (Lock)
+                    {
+                        Frame.Frame = rgbValues;
+                        Frame.FrameWidth = image.Width;
+                        Frame.FrameHeight = image.Height;
+                    }
+
                     //if(isPreviewRunning)
                     //    MainViewModel.ShaderImageUpdate(Frame);
                     if (MainViewModel.IsRichCanvasWindowOpen)
@@ -338,11 +341,14 @@ namespace adrilight
         {
             _log.Debug("Stop called for First Desktop Frame");
             if (_workerThread == null) return;
-
+            _desktopDuplicator?.Dispose();
+            _desktopDuplicator = null;
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource = null;
+            GC.Collect();
             _workerThread?.Join();
             _workerThread = null;
+
         }
 
 
@@ -369,7 +375,7 @@ namespace adrilight
                     _log.Debug("The frame size changed from {0}x{1} to {2}x{3}"
                         , _lastObservedWidth, _lastObservedHeight
                         , image.Width, image.Height);
-                  
+
                 }
                 _lastObservedWidth = image.Width;
                 _lastObservedHeight = image.Height;
@@ -389,27 +395,9 @@ namespace adrilight
 
             if (_desktopDuplicator == null)
             {
-                try
-                {
-                    _desktopDuplicator = new DesktopDuplicator(0, _currentScreenIdex);
-                }
-                catch (Exception ex)
-                {
-                    if (ex.Message == "Unknown, just retry")
-                    {
-                        _log.Error(ex, "could be secure desktop or monitor unplug");
-                        _cancellationTokenSource?.Cancel();
-                        _cancellationTokenSource = null;
-                    }
-                    //  UserSettings.ShouldbeRunning = false;
-                    //  RaisePropertyChanged(() => UserSettings.ShouldbeRunning);
 
-                    // _desktopDuplicator.Dispose();
-                    // _desktopDuplicator = null;
-                    GC.Collect();
-                    return null;
+                _desktopDuplicator = new DesktopDuplicator(0, _currentScreenIdex);
 
-                }
 
             }
 

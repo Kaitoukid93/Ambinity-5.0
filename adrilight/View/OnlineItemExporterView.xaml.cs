@@ -1,4 +1,6 @@
-﻿using HandyControl.Data;
+﻿using adrilight.Settings;
+using adrilight.ViewModel;
+using HandyControl.Data;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -29,6 +31,20 @@ namespace adrilight.View
 
         private void ImageSelector_ImageSelected(object sender, RoutedEventArgs e)
         {
+
+        }
+        private void CheckComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var mainViewModel = this.DataContext as MainViewViewModel;
+            foreach (DeviceTypeDataEnum item in e.AddedItems)
+            {
+                mainViewModel.OnlineItemSelectedTargetTypes.Add(item);
+            }
+
+            foreach (DeviceTypeDataEnum item in e.RemovedItems)
+            {
+                mainViewModel.OnlineItemSelectedTargetTypes.Remove(item);
+            }
 
         }
     }

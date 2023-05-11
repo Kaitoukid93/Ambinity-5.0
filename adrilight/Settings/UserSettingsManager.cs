@@ -82,11 +82,13 @@ namespace adrilight
                 switch(outputType)
                 {
                     case (OutputTypeEnum.PWMOutput):
-                        controller.Geometry = "fanspeed";
+                        controller.Geometry = "fanSpeedController";
+                        controller.Name = "Fan";
                         controller.Type = ControllerTypeEnum.PWMController;
                         break;
                     case (OutputTypeEnum.ARGBLEDOutput):
                         controller.Geometry = "brightness";
+                        controller.Name = "Lighting";
                         controller.Type = ControllerTypeEnum.LightingController;
                         break;
                 }

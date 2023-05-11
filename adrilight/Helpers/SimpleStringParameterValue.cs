@@ -1,9 +1,10 @@
 ﻿using adrilight.Util;
+using GalaSoft.MvvmLight;
 using System.Collections.Generic;
 
 namespace adrilight.Helpers
 {
-    public class DancingModeParameterValue : IParameterValue
+    public class DancingModeParameterValue : ViewModelBase, IParameterValue
     {
         public string Name { get; set; }
         public string Description { get; set; }   

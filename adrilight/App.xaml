@@ -36,7 +36,7 @@
                 <Setter Property="hc:BackgroundSwitchElement.MouseDownBackground" Value="{DynamicResource HoverBrush}"/>
                 <Setter Property="hc:BackgroundSwitchElement.MouseHoverBackground" Value="{DynamicResource ButtonHoverBrush}"/>
                 <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+                <Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
             </Style>
             <Style x:Key="_defaultIconButtonSmall" TargetType="Button" BasedOn="{StaticResource ButtonIcon}">
                 <Setter Property="Effect" Value="{DynamicResource EffectShadow1}"/>
@@ -46,7 +46,7 @@
                 <Setter Property="hc:BackgroundSwitchElement.MouseDownBackground" Value="{DynamicResource HoverBrush}"/>
                 <Setter Property="hc:BackgroundSwitchElement.MouseHoverBackground" Value="{DynamicResource ButtonHoverBrush}"/>
                 <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+                <Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
             </Style>
             <Style x:Key="_mediumProfileDefaultButton" TargetType="Button" BasedOn="{StaticResource ButtonCustom}">
                 <Setter Property="Effect" Value="{DynamicResource EffectShadow1}"/>

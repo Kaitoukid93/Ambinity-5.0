@@ -7,10 +7,9 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           Background="{StaticResource MainContentBackgroundBrush}"
+           Background="{DynamicResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
-           
            SizeToContent="Height"
            MaxHeight="1000" 
            Width="400" 
@@ -71,6 +70,15 @@
                         <TextBlock HorizontalAlignment="Center" Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Firmware version:"></TextBlock>
                         <TextBlock Foreground="{DynamicResource PrimaryBrush}" HorizontalAlignment="Left" Grid.Column="1" Margin="5,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="{Binding CurrentDevice.FirmwareVersion}"></TextBlock>
                     </Grid>
+                    <Grid HorizontalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock HorizontalAlignment="Center" Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Serial:"></TextBlock>
+                        <TextBlock Grid.Column="1" Text="{Binding CurrentDevice.DeviceSerial}" Style="{StaticResource TextBlockDefaultPrimary}"  Margin="5,0,0,5" HorizontalAlignment="Left"/>
+                    </Grid>
+                   
                     <Grid HorizontalAlignment="Center">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="auto"/>

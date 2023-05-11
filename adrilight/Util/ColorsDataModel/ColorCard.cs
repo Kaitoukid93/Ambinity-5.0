@@ -11,14 +11,14 @@ using HandyControl.Tools.Extension;
 
 namespace adrilight.Util
 {
-    internal class ColorCard : IParameterValue
+    internal class ColorCard : ViewModelBase, IParameterValue
     {
         public ColorCard() { }
         public string Name { get; set; }
         public string Description { get; set; }
-        public ColorCard(Color startColor, Color stopColor )
+        public ColorCard(Color startColor, Color stopColor)
         {
-           
+
             StartColor = startColor;
             StopColor = stopColor;
 
@@ -26,9 +26,9 @@ namespace adrilight.Util
         }
 
 
-    public Color StartColor { get; set; }
-    public Color StopColor { get; set; }
+        public Color StartColor { get; set; }
+        public Color StopColor { get; set; }
         [JsonIgnore]
-        public string[] ColorCode => new string[2] {StartColor.ToString(),StopColor.ToString() };
+        public string[] ColorCode => new string[2] { StartColor.ToString(), StopColor.ToString() };
     }
 }

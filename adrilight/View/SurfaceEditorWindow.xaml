@@ -13,7 +13,7 @@
            xmlns:local ="clr-namespace:adrilight"
            xmlns:view ="clr-namespace:adrilight.View"
            xmlns:settings ="clr-namespace:adrilight.Settings"
-           Background="{StaticResource MainContentBackgroundBrush}"
+           Background="{StaticResource RegionBrush}"
            x:Name="window"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
@@ -52,24 +52,12 @@
 
     </Window.Resources>
 
-    <Grid Margin="10,0,10,10">
+    <Grid Margin="10,10,10,10">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-  
-        <Grid Grid.Row="0">
-            <!--<ToolBarTray VerticalAlignment="Center">
-                <ToolBar Padding="6" Header="Live view">
-                    <CheckBox IsChecked="{Binding IsRichCanvasWindowOpen}" Margin="10,0,0,0"/>
-                    --><!--<Separator Margin="10,0,0,0"/>-->
-                    <!--<Button Command="{Binding SetRandomOutputColorCommand}" ToolTip="Mỗi thiết bị sẽ được tô màu riêng biệt ngẫu nhiên" Content="Set Random Color" Margin="10,0,0,0"/>--><!--
-                  
-                </ToolBar>
-          
-            </ToolBarTray>-->
-        </Grid>
         <Grid Grid.Row="1">
             <richCanvas:RichItemsControl
                 ItemsSource="{Binding SurfaceEditorItems}"

@@ -1,10 +1,11 @@
 ﻿using System.Drawing;
 using Color = System.Windows.Media.Color;
 using System.Windows.Media;
+using System.ComponentModel;
 
 namespace adrilight.Spots
 {
-    public interface IDeviceSpot
+    public interface IDeviceSpot : INotifyPropertyChanged
     {
         byte Red { get; }
         byte Green { get; }
@@ -17,7 +18,7 @@ namespace adrilight.Spots
         bool HasVID { get; set; }
         Color OnDemandColor { get; }
         Color SentryColor { get; }
-       
+
 
 
         int Index { get; set; }
@@ -38,7 +39,7 @@ namespace adrilight.Spots
         void SetMID(int mid);
         void SetCID(int cid);
 
-        bool GetVIDIfNeeded(int vid, Rectangle rect,int mode);
+        bool GetVIDIfNeeded(int vid, Rectangle rect, int mode);
 
     }
 }

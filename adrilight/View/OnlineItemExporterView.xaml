@@ -8,6 +8,7 @@
            xmlns:converters="clr-namespace:adrilight.Converter"
            xmlns:local ="clr-namespace:adrilight.View"
              xmlns:mdxam="clr-namespace:MdXaml;assembly=MdXaml"
+           xmlns:hlprs ="clr-namespace:adrilight.Helpers"
            mc:Ignorable="d"
            Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
@@ -135,25 +136,26 @@
                                                 </Grid.RowDefinitions>
                                                 <Grid>
                                                     <StackPanel Orientation="Horizontal">
-                                                        <Path Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center" Width="25" Height="25" Data="{Binding OnlineItemSelectedSubType.Geometry,Converter={converters:StaticResourceConverter}}"  Fill="{DynamicResource PrimaryBrush}" Stretch="Uniform"/>
-                                                        <Grid>
 
-                                                            <ItemsControl ItemsSource="{Binding OnlineItemSelectableSubType}" Height="0"/>
-                                                            <ComboBox ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  SelectedItem="{Binding OnlineItemSelectedSubType}" ItemsSource="{Binding OnlineItemSelectableSubType}">
-                                                            <ComboBox.ItemTemplate>
-                                                                <DataTemplate>
-                                                                    <StackPanel Orientation="Horizontal">
-                                                                        <Path Margin="2,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Center" Width="15" Height="15" Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"  Fill="{DynamicResource PrimaryBrush}" Stretch="Uniform"/>
-                                                                        <TextBlock Text="{Binding Name}"/>
-                                                                    </StackPanel>
-                                                                </DataTemplate>
-                                                            </ComboBox.ItemTemplate>
-                                                        </ComboBox>
+                                                        <Grid>
+                                                            <hc:CheckComboBox 
+                                                                BorderThickness="0" 
+                                                                ItemsSource="{Binding OnlineItemSelectableTargetType}"
+                                                                Background="{DynamicResource DarkOpacityBrush}" 
+                                                                DisplayMemberPath="Name" 
+                                                                MinWidth ="150" 
+                                                                MaxWidth="512" 
+                                                                SelectionChanged="CheckComboBox_SelectionChanged"
+                                                                ShowSelectAllButton="True" 
+                                                                hc:InfoElement.Necessary="True"
+                                                                hc:TitleElement.Title="Các thiết bị được hỗ trợ"
+                                                                Style="{DynamicResource CheckComboBoxPlus}">
+                                                            </hc:CheckComboBox>
                                                         </Grid>
                                                     </StackPanel>
 
                                                 </Grid>
-                                                <TextBlock Margin="10,3,0,0" HorizontalAlignment="Center" Grid.Row="1"  Text="Kiểu" Style="{DynamicResource TextBlockDefault}"/>
+                                               
                                             </Grid>
                                         </StackPanel>
                                     </Grid>

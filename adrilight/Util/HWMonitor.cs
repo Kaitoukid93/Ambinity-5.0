@@ -299,19 +299,19 @@ namespace adrilight.Util
                         speeds.Add(80d);
                     }
                     var medianSpeed = speeds.Median();
-                    if (MainViewViewModel.IsSplitLightingWindowOpen)
+                    if (MainViewViewModel.IsSplitLightingWindowOpen && MainViewViewModel.IsAppActivated);
                     {
-                        foreach(var device in MainViewViewModel.AvailableDevices.Where(d=>d.AvailablePWMDevices!=null))
+                        foreach (var device in MainViewViewModel.AvailableDevices.Where(d => d.AvailablePWMDevices != null))
                         {
                             var pwmOutputs = device.AvailablePWMOutputs.ToList();
-                            foreach(var pwmOutput in pwmOutputs)
+                            foreach (var pwmOutput in pwmOutputs)
                             {
                                 var zones = pwmOutput.SlaveDevice.ControlableZones.ToList();
-                                foreach(var zone in zones)
+                                foreach (var zone in zones)
                                 {
                                     var fan = zone as FanMotor;
                                     var currentControlMode = fan.CurrentActiveControlMode as PWMMode;
-                                    if (currentControlMode.BasedOn==PWMModeEnum.auto)
+                                    if (currentControlMode.BasedOn == PWMModeEnum.auto)
                                     {
                                         fan.LineValues.Add(new ObservableValue(medianSpeed));
                                         fan.LineValues.RemoveAt(0);
@@ -326,8 +326,8 @@ namespace adrilight.Util
                                 }
                             }
                         }
-                  
-                   
+
+
 
                     }
                     // decide if it's necessary to update to the fan

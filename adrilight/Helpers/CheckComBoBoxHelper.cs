@@ -1,29 +1,24 @@
 ﻿using HandyControl.Controls;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using NonInvasiveKeyboardHookLibrary;
 
 
-namespace adrilight.View
+namespace adrilight.Helpers
 {
-    public class CheckComboBoxHelper
+    public class CheckComBoBoxHelper
     {
         static bool _isUpdating = false;
 
         public static readonly DependencyProperty SelectedItemsProperty =
-            DependencyProperty.RegisterAttached("SelectedItems", typeof(List<IModifiersType>), typeof(CheckComboBoxHelper),
+            DependencyProperty.RegisterAttached("SelectedItems", typeof(List<string>), typeof(CheckComBoBoxHelper),
                 new FrameworkPropertyMetadata(null, new PropertyChangedCallback(OnPropertyChanged)));
 
-        public static List<IModifiersType> GetSelectedItems(DependencyObject d)
+        public static List<string> GetSelectedItems(DependencyObject d)
         {
-            return d.GetValue(SelectedItemsProperty) as List<IModifiersType>;
+            return d.GetValue(SelectedItemsProperty) as List<string>;
         }
 
-        public static void SetSelectedItems(DependencyObject d, List<IModifiersType> value)
+        public static void SetSelectedItems(DependencyObject d, List<string> value)
         {
             d.SetValue(SelectedItemsProperty, value);
         }
@@ -34,11 +29,11 @@ namespace adrilight.View
 
             if (!_isUpdating)
             {
-                var result = e.NewValue as List<IModifiersType>;
+                var result = e.NewValue as List<string>;
                 checkComboBox.SelectedItems.Clear();
                 if (result != null)
                 {
-                    foreach (var item in (List<IModifiersType>)e.NewValue)
+                    foreach (var item in (List<string>)e.NewValue)
                     {
                         checkComboBox.SelectedItems.Add(item);
                     }
@@ -51,7 +46,7 @@ namespace adrilight.View
         }
 
         public static readonly DependencyProperty AttachProperty =
-         DependencyProperty.RegisterAttached("Attach", typeof(bool), typeof(CheckComboBoxHelper),
+         DependencyProperty.RegisterAttached("Attach", typeof(bool), typeof(CheckComBoBoxHelper),
              new FrameworkPropertyMetadata(default(bool), new PropertyChangedCallback(OnAttached)));
 
         public static bool GetAttach(DependencyObject d)
@@ -74,10 +69,10 @@ namespace adrilight.View
         {
             CheckComboBox checkComboBox = sender as CheckComboBox;
             _isUpdating = true;
-            List<IModifiersType> temp = new List<IModifiersType>();
-            foreach (IModifiersType item in checkComboBox.SelectedItems)
+            List<string> temp = new List<string>();
+            foreach (var item in checkComboBox.SelectedItems)
             {
-                temp.Add(item);
+                temp.Add(item.ToString());
             }
             SetSelectedItems(checkComboBox, temp);
             _isUpdating = false;

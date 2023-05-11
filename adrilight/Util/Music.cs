@@ -60,7 +60,7 @@ namespace adrilight
             GeneralSettings.PropertyChanged += PropertyChanged;
             CurrentZone.PropertyChanged += PropertyChanged;
             MainViewViewModel.PropertyChanged += PropertyChanged;
-            Refresh();
+            // Refresh();
             _log.Info($"DesktopDuplicatorReader created.");
         }
 
@@ -74,6 +74,8 @@ namespace adrilight
         private IRainbowTicker RainbowTicker { get; }
         private ICaptureEngine AudioFrame { get; set; }
 
+        public LightingModeEnum Type { get; } = LightingModeEnum.MusicCapturing;
+
         /// <summary>
         /// property changed event catching
         /// </summary>
@@ -86,10 +88,13 @@ namespace adrilight
             {
                 //which property that require this engine to refresh
                 case nameof(CurrentZone.CurrentActiveControlMode):
-                case nameof(CurrentZone.IsInControlGroup):
+                    var isRunning = _cancellationTokenSource != null;
+                    if (isRunning || (CurrentZone.CurrentActiveControlMode as LightingMode).BasedOn == Type)
+                        Refresh();
+                    break;
                 case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
-                case nameof(MainViewViewModel.IsRegisteringGroup):
-                case nameof(_colorControl):
+                    //case nameof(MainViewViewModel.IsRegisteringGroup):
+                    // case nameof(_colorControl):
                     Refresh();
                     break;
 
@@ -294,16 +299,16 @@ namespace adrilight
 
             var isRunning = _cancellationTokenSource != null;
 
-            var currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
+             _currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
             GetTick(CurrentZone.IsInControlGroup);
             var shouldBeRunning =
-                currentLightingMode.BasedOn == LightingModeEnum.MusicCapturing &&
+                _currentLightingMode.BasedOn == LightingModeEnum.MusicCapturing &&
                 //this zone has to be enable, this could be done by stop setting the spots, but the this thread still alive, so...
                 CurrentZone.IsEnabled == true &&
                 //stop this engine when any surface or editor open because this could cause capturing fail
-                MainViewViewModel.IsRichCanvasWindowOpen == false &&
-                //registering group shoud be done
-                MainViewViewModel.IsRegisteringGroup == false;
+                MainViewViewModel.IsRichCanvasWindowOpen == false;
+                ////registering group shoud be done
+                //MainViewViewModel.IsRegisteringGroup == false;
 
             // this is stop sign by one or some of the reason above
             if (isRunning && !shouldBeRunning)
@@ -318,8 +323,28 @@ namespace adrilight
             else if (!isRunning && shouldBeRunning)
             {
                 //start it
+               
+                _log.Debug("starting the Static Color Engine");
+                _cancellationTokenSource = new CancellationTokenSource();
+                _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
+                    IsBackground = true,
+                    Priority = ThreadPriority.BelowNormal,
+                    Name = "Music"
+                };
+                _workerThread.Start();
+            }
+
+
+        }
+        public void Run(CancellationToken token)
+        {
+
+            _log.Debug("Started Animation engine.");
+            IsRunning = true;
+
+            try
+            {
                 #region registering params
-                _currentLightingMode = currentLightingMode;
                 _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.MixedColor).FirstOrDefault();
                 _colorControl.PropertyChanged += (_, __) =>
                 {
@@ -341,29 +366,6 @@ namespace adrilight
                 _midDataControl.SubParams[1].PropertyChanged += (_, __) => OnDancingModePropertyChanged(_midDataControl.SubParams[1].Value);
                 _midDataControl.SubParams[2].PropertyChanged += (_, __) => OnVUModePropertyChanged(_midDataControl.SubParams[2].Value);
                 #endregion
-                _log.Debug("starting the Static Color Engine");
-                _cancellationTokenSource = new CancellationTokenSource();
-                _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
-                    IsBackground = true,
-                    Priority = ThreadPriority.BelowNormal,
-                    Name = "Animation"
-                };
-                _workerThread.Start();
-            }
-
-
-        }
-        public void Run(CancellationToken token)
-        {
-
-            _log.Debug("Started Animation engine.");
-
-
-            try
-            {
-                //get properties value for first time running
-
-                //color param
                 _selectedColorSource = _colorControl.SelectedValue;
                 OnSelectedPaletteChanged(_selectedColorSource);
                 OnColorUsePropertyChanged(_colorControl.SubParams[0].Value);
@@ -393,7 +395,7 @@ namespace adrilight
                             var columnIndex = spot.MID;
                             if (columnIndex > AudioFrame.Frame.Frame.Length)
                                 columnIndex = 0;
-                            var brightness = (float)_brightness*(currentFrame[translatedIndex] / 255f);
+                            var brightness = (float)_brightness * (currentFrame[translatedIndex] / 255f);
                             ApplySmoothing(brightness * _colorBank[position].R, brightness * _colorBank[position].G, brightness * _colorBank[position].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
                             spot.SetColor(FinalR, FinalG, FinalB, isPreviewRunning);
 
@@ -406,7 +408,7 @@ namespace adrilight
             finally
             {
                 _log.Debug("Stopped the Animation Engine");
-                //IsRunning = false;
+                IsRunning = false;
                 GC.Collect();
             }
         }
@@ -557,7 +559,7 @@ namespace adrilight
             var currentFrame = AudioFrame.Frame;
             byte[] brightnessMap = new byte[maxHeight];
 
-            lock(AudioFrame.Lock)
+            lock (AudioFrame.Lock)
             {
                 switch (_dancingMode)
                 {
@@ -624,7 +626,7 @@ namespace adrilight
                         break;
                 }
             }
-           
+
 
 
 

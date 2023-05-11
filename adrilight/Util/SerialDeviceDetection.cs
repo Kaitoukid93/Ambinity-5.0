@@ -110,7 +110,7 @@ namespace adrilight.Util
                 ResourceHlprs = new ResourceHelpers();
             }
             // Assume serial port timeouts are set.
-            byte[] id;
+            byte[] id = new byte[8];
             byte[] name;
             byte[] fw;
             byte[] hw;
@@ -193,9 +193,7 @@ namespace adrilight.Util
                         offset += readCount;
                         count -= readCount;
                     }
-
-
-                    newDevice.DeviceSerial = BitConverter.ToString(id).Replace('-', ' ');
+                    
                 }
                 if (offset == 3 + idLength) //3 bytes header are valid
                 {
@@ -225,6 +223,7 @@ namespace adrilight.Util
                                 1);
                             newDevice.DashboardWidth = 230;
                             newDevice.DashboardHeight = 270;
+
 
                             break;
                         case "Ambino EDGE":// General Ambino Edge USB Device
@@ -299,6 +298,7 @@ namespace adrilight.Util
                     }
 
                 }
+                newDevice.DeviceSerial = BitConverter.ToString(id);
                 if (offset == 3 + idLength + nameLength) //3 bytes header are valid
                 {
                     fwLength = (byte)_serialPort.ReadByte();
