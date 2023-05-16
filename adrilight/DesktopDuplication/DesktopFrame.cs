@@ -109,7 +109,7 @@ namespace adrilight
                     MainViewModel.WriteSettingJson(UserSettings);
                     //get rect scale
 
-                    foreach (var device in MainViewModel.AvailableDevices.Where(d => !d.IsDummy))
+                    foreach (var device in MainViewModel.AvailableDevices)
                     {
                         foreach (var slaveDevice in device.AvailableLightingDevices)
                         {

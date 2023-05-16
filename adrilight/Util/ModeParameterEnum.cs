@@ -47,6 +47,8 @@
         VID,
         MID,
         DancingMode,
-        AudioDevice
+        AudioDevice,
+        Smoothing,
+        LaunchSufaceEditor,
     }
 }

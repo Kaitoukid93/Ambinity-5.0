@@ -1,10 +1,12 @@
-﻿using GalaSoft.MvvmLight;
+﻿using adrilight.Util.ModeParameters;
+using GalaSoft.MvvmLight;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 
 namespace adrilight.Util
 {
@@ -47,7 +49,7 @@ namespace adrilight.Util
         internal int GetBrightness()
         {
 
-            var brightnessParam = Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault();
+            var brightnessParam = Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
             int brightness = 0;
             if (brightnessParam != null) { }
             brightness = brightnessParam.Value;
@@ -57,7 +59,7 @@ namespace adrilight.Util
 
         internal void SetBrightness(int value)
         {
-            var brightnessParam = Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault();
+            var brightnessParam = Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
             brightnessParam.Value = value;
         }
 

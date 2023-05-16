@@ -13,7 +13,7 @@ namespace adrilight.Spots
     public class LEDSetupHelpers
     {
         private static ControlModeHelpers CtrlHlprs { get; set; }
-        public  LEDSetup BuildLEDSetup(int matrixWidth, int matrixHeight, string name, double width, double height) // general settings is for compare each device setting
+        public  LEDSetup BuildLEDSetup(string name,int left,int top,int matrixWidth, int matrixHeight, double width, double height , int indexOffset) // general settings is for compare each device setting
         {
             if (CtrlHlprs == null)
             {
@@ -24,7 +24,7 @@ namespace adrilight.Spots
             string description = "Default LED Setup for any device";
             string type = "ABRev2";
 
-            var availableSpots = BuildMatrix(width, height, matrixWidth, matrixHeight);
+            var availableSpots = BuildMatrix(width, height, matrixWidth, matrixHeight, indexOffset);
             ObservableCollection<IDeviceSpot> reorderedActiveSpots = new ObservableCollection<IDeviceSpot>();
 
             foreach (var spot in availableSpots)
@@ -37,12 +37,15 @@ namespace adrilight.Spots
             var scaleWidth = width / screenWidth;
             var scaleHeight = height / screenHeight;
             var ledSetup = new LEDSetup(name, owner, type, description, reorderedActiveSpots, width, height);
+            ledSetup.Left = left;
+            ledSetup.Top = top;
             ledSetup.ZoneUID = Guid.NewGuid().ToString();
+            ledSetup.Name = name;
             CtrlHlprs.MakeZoneControlable(ledSetup);
             return ledSetup;
         }
 
-        private static IDeviceSpot[] BuildMatrix(double rectwidth, double rectheight, int spotsX, int spotsY)
+        private static IDeviceSpot[] BuildMatrix(double rectwidth, double rectheight, int spotsX, int spotsY, int indexOffset)
         {
             int spacing = 1;
             if (spotsX == 0)
@@ -57,7 +60,7 @@ namespace adrilight.Spots
 
             //var startPoint = (Math.Max(rectheight,rectwidth) - spotSize * Math.Min(spotsX, spotsY))/2;
             var counter = 0;
-
+            var offSet = indexOffset;
 
 
 
@@ -72,7 +75,7 @@ namespace adrilight.Spots
                     double scaleTop = y / rectheight;
                     double scaleWidth = spotSize / rectwidth;
                     double scaleHeight = spotSize / rectheight;
-                    spotSet[index] = new DeviceSpot( y, x, spotSize, spotSize, scaleTop, scaleLeft, scaleWidth, scaleHeight, index, index, i, index, j, false, "genericSquare");
+                    spotSet[index] = new DeviceSpot( y, x, spotSize, spotSize, scaleTop, scaleLeft, scaleWidth, scaleHeight, index+offSet, index + offSet, i, index + offSet, j, false, "genericSquare");
                     counter++;
 
                 }

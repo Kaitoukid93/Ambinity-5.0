@@ -132,6 +132,7 @@ namespace adrilight.Util
                 catch (Exception)
                 {
                     continue;
+                    
                 }
 
                 //write request info command
@@ -214,8 +215,8 @@ namespace adrilight.Util
                         case "Ambino Basic":// General Ambino Basic USB Device
                                             //newDevice = availableDefaultDevice.AmbinoBasic24Inch;
 
-                            newDevice = new SlaveDeviceHelpers().DefaultCreatedDevice(
-                                DeviceTypeEnum.AmbinoBasic,
+                            newDevice = new SlaveDeviceHelpers().DefaultCreatedAmbinoDevice(
+                                new DeviceType(DeviceTypeEnum.AmbinoBasic),
                                 "Ambino Basic",
                                 device,
                                 false,
@@ -228,25 +229,23 @@ namespace adrilight.Util
                             break;
                         case "Ambino EDGE":// General Ambino Edge USB Device
                             //newDevice = availableDefaultDevice.AmbinoEDGE1M2;
-                            newDevice.DeviceName = "Ambino EDGE";
-                            newDevice.DeviceConnectionType = "wired";
-                            newDevice.DeviceType = DeviceTypeEnum.AmbinoEDGE;
-                            newDevice.OutputPort = device;
-                            newDevice.IsSizeNeedUserDefine = true;
+                            //newDevice.DeviceName = "Ambino EDGE";
+                            //newDevice.DeviceConnectionType = "wired";
+                            //newDevice.DeviceType = new DeviceType("Ambino EDGE",DeviceTypeEnum.AmbinoEDGE);
+                            //newDevice.OutputPort = device;
+                            //newDevice.IsSizeNeedUserDefine = true;
 
                             break;
                         case "Ambino FanHub":
-                            //newDevice = availableDefaultDevice.ambinoFanHub;
-                            newDevice = new SlaveDeviceHelpers().DefaultCreatedDevice(
-                               DeviceTypeEnum.AmbinoFanHub,
-                               "Ambino Basic",
+                            newDevice = new SlaveDeviceHelpers().DefaultCreatedAmbinoDevice(
+                               new DeviceType(DeviceTypeEnum.AmbinoFanHub),
+                            "Ambino Basic",
                                device,
                                true,
                                true,
                                10);
                             newDevice.DashboardWidth = 472;
                             newDevice.DashboardHeight = 270;
-                            //newDevice.AvailableOutputs = new IOutputSettings[10];
                             ////set a default output for this device , simply plugin LED strip with led number of 16
                             //newDevice.AvailableOutputs[0] = new LightingOutput() { OutputID = 0, ControlableZone = new LEDSetup[1] };
                             //newDevice.AvailableOutputs[1] = new LightingOutput() { OutputID = 1, ControlableZone = new LEDSetup[1] };
@@ -276,24 +275,24 @@ namespace adrilight.Util
                             break;
                         case "Ambino HubV2":
                             //newDevice = availableDefaultDevice.ambinoHUBV2;
-                            newDevice.DeviceType = DeviceTypeEnum.AmbinoHUBV2;
-                            newDevice.DeviceConnectionType = "wired";
-                            newDevice.OutputPort = device;
-                            newDevice.IsSizeNeedUserDefine = true;
+                            //newDevice.DeviceType = DeviceTypeEnum.AmbinoHUBV2;
+                            //newDevice.DeviceConnectionType = "wired";
+                            //newDevice.OutputPort = device;
+                            //newDevice.IsSizeNeedUserDefine = true;
                             break;
                         case "Ambino HubV3":
                             //newDevice = availableDefaultDevice.ambinoHUBV3;
-                            newDevice.DeviceType = DeviceTypeEnum.AmbinoHUBV3;
-                            newDevice.DeviceConnectionType = "wired";
-                            newDevice.OutputPort = device;
-                            newDevice.IsSizeNeedUserDefine = true;
+                           // newDevice.DeviceType = DeviceTypeEnum.AmbinoHUBV3;
+                            //newDevice.DeviceConnectionType = "wired";
+                            //newDevice.OutputPort = device;
+                            //newDevice.IsSizeNeedUserDefine = true;
                             break;
                         case "Ambino RainPow":
                             //newDevice = availableDefaultDevice.ambinoRainPow;
-                            newDevice.DeviceType = DeviceTypeEnum.AmbinoRainPowPro;
-                            newDevice.DeviceConnectionType = "wired";
-                            newDevice.OutputPort = device;
-                            newDevice.IsSizeNeedUserDefine = true;
+                           //newDevice.DeviceType = DeviceTypeEnum.AmbinoRainPowPro;
+                            //newDevice.DeviceConnectionType = "wired";
+                            //newDevice.OutputPort = device;
+                            //newDevice.IsSizeNeedUserDefine = true;
                             break;
                     }
 

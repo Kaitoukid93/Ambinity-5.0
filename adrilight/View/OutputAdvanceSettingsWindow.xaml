@@ -7,7 +7,7 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           Background="{StaticResource MainContentBackgroundBrush}"
+           Background="{DynamicResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            ResizeMode="NoResize"
@@ -44,62 +44,6 @@
 
                 </TextBlock>
                 <StackPanel Grid.Row="1">
-                    <Grid Name="Saturation">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="auto"/>
-                            <RowDefinition Height="auto"/>
-                        </Grid.RowDefinitions>
-                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Left" hc:TitleElement.TitlePlacement="Left">
-                            <GroupBox.HeaderTemplate>
-                                <DataTemplate>
-                                    <TextBlock FontWeight="SemiBold" Text="SATURATION THRESOLD"/>
-                                </DataTemplate>
-                            </GroupBox.HeaderTemplate>
-
-                            <!--<Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
-                                      Width="20" 
-                                      Height="20" 
-                                      Fill="{StaticResource PrimaryTextBrush}"/>-->
-                            <hc:PreviewSlider  Value="{Binding CurrentOutput.OutputSaturationThreshold}" Grid.Column="1" MaxWidth="300" MinWidth="200" HorizontalAlignment="Right" Margin="20,0,0,0" Minimum="0" Maximum="20" TickFrequency="0.1">
-                                <hc:PreviewSlider.PreviewContent>
-                                    <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0"/>
-                                </hc:PreviewSlider.PreviewContent>
-                            </hc:PreviewSlider>
-
-
-                        </GroupBox>
-                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Cài đặt này dành cho chế độ sáng theo màn hình"/>
-                    </Grid>
-                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
-
-                    </hc:Divider>
-                    <Grid Name="AmbilightMode">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="auto"/>
-                            <RowDefinition Height="auto"/>
-                        </Grid.RowDefinitions>
-                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="150" Header="SPEED" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
-                            <GroupBox.HeaderTemplate>
-                                <DataTemplate>
-                                    <TextBlock FontWeight="SemiBold" Text="NON LINEAR AMBILIGHT"/>
-                                </DataTemplate>
-                            </GroupBox.HeaderTemplate>
-
-                            <!--<Path Stretch="Uniform" Margin="0" Data="{StaticResource vumetter}" 
-                                      Width="20" 
-                                      Height="20" 
-                                      Fill="{StaticResource PrimaryTextBrush}"/>-->
-                            <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding CurrentOutput.OutputUseLinearLighting}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
-
-                            </ToggleButton>
-
-
-                        </GroupBox>
-                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Cài đặt này ảnh hưởng đến độ sáng cũng như độ tương phản"/>
-                    </Grid>
-                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
-
-                    </hc:Divider>
                     <Grid Name="RGBOrder">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"/>
@@ -195,7 +139,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="auto"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="1" HorizontalAlignment="Right" Background="{StaticResource DarkOpacityBrush}" BorderBrush="{StaticResource BorderBrush}" CornerRadius="7" BorderThickness="0">
+                                <Border Effect="{DynamicResource EffectShadow1}" Padding="2,2,2,4" Grid.Column="1" HorizontalAlignment="Right" Background="{DynamicResource MainContentBackgroundBrush}" BorderBrush="{StaticResource BorderBrush}" CornerRadius="5" BorderThickness="0">
                                     <ListBox SelectedIndex="{Binding CurrentOutput.SleepMode}"   
                              
                               ItemContainerStyle="{StaticResource _listBoxModeSelectionStyle}"  

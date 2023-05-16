@@ -52,7 +52,8 @@ namespace adrilight
         private IControlMode _currentActiveControlMode;
         [JsonIgnore]
         public Type DataType => typeof(LEDSetup);
-        public string Name { get; set; }
+        private string _name;
+        public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
         public string Description { get; set; }
 
         /// <summary>
@@ -126,7 +127,6 @@ namespace adrilight
         private RelayCommand<double> topChangedCommand;
         private double _angle = 0;
         private bool _hasCustomBehavior;
-        private string _name;
         private Rect _vIDSpace;
         private bool _isDeleteable;
         private bool _isResizeable;

@@ -465,6 +465,13 @@
             </richCanvas:RichItemsControl.ItemContainerStyle>
         </richCanvas:RichItemsControl>
         <Grid>
+            <Border Effect="{DynamicResource EffectShadow1}" VerticalAlignment="Top" CornerRadius="4" Margin="10,0" HorizontalAlignment="Left" Background="{DynamicResource MainContentBackgroundBrush}">
+                <Grid>
+                    <CheckBox ToolTip="Bỏ tick mục này nếu máy ăn CPU khi dùng App" Margin="10" Content="Real-time update" IsChecked="False"/>
+                </Grid>
+            </Border>
+        </Grid>
+        <Grid>
             <hc:TransitioningContentControl>
                 <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Horizontal">
                     <Grid>

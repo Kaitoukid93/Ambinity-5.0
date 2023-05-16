@@ -22,6 +22,7 @@ using System.Windows;
 using adrilight.View;
 using NAudio.SoundFont;
 using adrilight.Settings;
+using adrilight.Util.ModeParameters;
 
 namespace adrilight.Util
 {
@@ -319,9 +320,9 @@ namespace adrilight.Util
                                     }
                                     else if (currentControlMode.BasedOn == PWMModeEnum.manual)
                                     {
-                                        fan.LineValues.Add(new ObservableValue(currentControlMode.SpeedParameter.Value));
+                                        fan.LineValues.Add(new ObservableValue((currentControlMode.SpeedParameter as SliderParameter).Value));
                                         fan.LineValues.RemoveAt(0);
-                                        fan.CurrentPWMValue = currentControlMode.SpeedParameter.Value;
+                                        fan.CurrentPWMValue = (currentControlMode.SpeedParameter as SliderParameter).Value;
                                     }
                                 }
                             }

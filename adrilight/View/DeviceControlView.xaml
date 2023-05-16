@@ -480,13 +480,13 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Margin="10">
+    <Grid Margin="0">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <!--device info and hardware control-->
-        <Grid>
+        <Grid Margin="0,10,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
@@ -495,15 +495,15 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-            <Grid Grid.Column="0">
+            <Grid Margin="20,0,10,0" Grid.Column="0">
                 <Button                        
                             Width="32"
                             Padding="0"
                             Height="32" 
-                            Margin="10,0,30,0"  
+                            Margin="10,0,10,0" 
                             VerticalAlignment="Center" 
                             BorderThickness="0" 
-                            HorizontalAlignment="Left" 
+                            HorizontalAlignment="Center" 
                             hc:IconElement.Width="20"
                             hc:IconElement.Height="20"
                             hc:IconElement.Geometry="{DynamicResource back}" 
@@ -601,7 +601,7 @@
 
                         <Grid HorizontalAlignment="Left" Grid.Column="1">
                             <StackPanel HorizontalAlignment="Left">
-                                <TextBlock HorizontalAlignment="Left" Text="{Binding CurrentDevice.DeviceType}" Style="{StaticResource TextBlockSubTitle}" FontWeight="SemiBold" Margin="5,2"/>
+                                <TextBlock HorizontalAlignment="Left" Text="{Binding CurrentDevice.DeviceType.Type}" Style="{StaticResource TextBlockSubTitle}" FontWeight="SemiBold" Margin="5,2"/>
                                 
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -645,7 +645,7 @@
                             <ColumnDefinition Width="auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Path Width="30" Height="30" Margin="5,10" Data="{Binding CurrentDevice.DeviceConnectionGeometry, Converter={converters:StaticResourceConverter}}" Stretch="Uniform" >
+                        <Path Width="30" Height="30" Margin="5,10" Data="{Binding CurrentDevice.DeviceType.ConnectionGeometry, Converter={converters:StaticResourceConverter}}" Stretch="Uniform" >
                             <Path.Style>
                                 <Style TargetType="Path">
                                     <Setter Property="Fill" Value="{StaticResource PrimaryBrush}"/>
@@ -662,7 +662,7 @@
 
                         <Grid HorizontalAlignment="Left" Grid.Column="1">
                             <StackPanel HorizontalAlignment="Left">
-                                <hc:RunningBlock 
+                                <hc:RunningBlock MaxHeight="20"
                                                 Margin="5,0,5,0"
                                                 BorderThickness="0" 
                                                 Padding="0"  
@@ -708,7 +708,7 @@
             <GroupBox VerticalAlignment="Stretch" hc:TitleElement.TitleWidth="auto"  Style="{DynamicResource  GroupBoxOriginal}" HorizontalContentAlignment="Stretch" hc:TitleElement.TitlePlacement="Top">
                 <GroupBox.HeaderTemplate>
                     <DataTemplate>
-                        <TextBlock Margin="60,0,0,0" FontWeight="SemiBold" Style="{DynamicResource TextBlockDefaultSecLight}" Text="ĐIỀU CHỈNH HIỆU ỨNG VÀ CÀI ĐẶT"/>
+                        <TextBlock Visibility="Collapsed" Margin="85,0,0,0" FontWeight="SemiBold" Style="{DynamicResource TextBlockDefaultSecLight}" Text="ĐIỀU CHỈNH HIỆU ỨNG VÀ CÀI ĐẶT"/>
                     </DataTemplate>
                 </GroupBox.HeaderTemplate>
                 <Grid>
@@ -718,7 +718,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid Grid.Column="0">
-                        <Border Effect="{DynamicResource EffectShadow1}" CornerRadius="4" VerticalAlignment="Top" Height="auto" Margin="10,6,10,10" Background="Transparent">
+                        <Border Effect="{DynamicResource EffectShadow1}" CornerRadius="4" VerticalAlignment="Top" Height="auto" Margin="10,6,0,10" Background="Transparent">
                             <Grid>
                                 <Grid.Style>
                                     <Style TargetType="Grid">

@@ -1,4 +1,5 @@
-﻿using GalaSoft.MvvmLight;
+﻿using adrilight.Util.ModeParameters;
+using GalaSoft.MvvmLight;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -46,14 +47,14 @@ namespace adrilight.Util
         public IModeParameter SpeedParameter => Parameters.Where(p => p.ParamType == ModeParameterEnum.Speed).FirstOrDefault();
         internal void SetPWM(int speedValue)
         {
-            var speedParam = Parameters.Where(p => p.ParamType == ModeParameterEnum.Speed).FirstOrDefault();
+            var speedParam = Parameters.Where(p => p.ParamType == ModeParameterEnum.Speed).FirstOrDefault() as SliderParameter;
             if (speedParam != null)
                 speedParam.Value = speedValue;
         }
         internal int GetPWMValue()
         {
             int speed = 0;
-            var speedParam = Parameters.Where(p => p.ParamType == ModeParameterEnum.Speed).FirstOrDefault();
+            var speedParam = Parameters.Where(p => p.ParamType == ModeParameterEnum.Speed).FirstOrDefault() as SliderParameter;
             if (speedParam != null)
                 speed = (int)speedParam.Value;
             return speed;

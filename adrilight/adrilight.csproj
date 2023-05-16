@@ -164,7 +164,7 @@
     <PackageReference Include="Ninject" Version="3.3.4" />
     <PackageReference Include="Ninject.Extensions.Conventions" Version="3.3.0" />
     <PackageReference Include="Ninject.Extensions.NamedScope" Version="3.3.0" />
-    <PackageReference Include="OpenRGB.NET" Version="1.6.0" />
+    <PackageReference Include="OpenRGB.NET" Version="1.7.0" />
     <PackageReference Include="PixiEditor.ColorPicker" Version="3.1.0" />
     <PackageReference Include="Polly" Version="6.1.0" />
     <PackageReference Include="Semver" Version="2.0.4" />
@@ -190,14 +190,17 @@
     <Compile Include="DesktopDuplication\DesktopDuplicator.cs" />
     <Compile Include="DesktopDuplication\DesktopDuplicatorReader.cs" />
     <Compile Include="DesktopDuplication\ICaptureEngine.cs" />
+    <Compile Include="Extension\EnumExtensions.cs" />
     <Compile Include="Helpers\AttachedAdorner.cs" />
     <Compile Include="Helpers\Behaviors\GroupBehavior.cs" />
     <Compile Include="Helpers\CheckComBoBoxHelper.cs" />
     <Compile Include="Helpers\ControlModeHelpers.cs" />
     <Compile Include="Helpers\DancingModeEnum.cs" />
     <Compile Include="Helpers\EventToCommand.cs" />
+    <Compile Include="Helpers\JsonHelpers.cs" />
     <Compile Include="Helpers\LocalFileHelpers.cs" />
     <Compile Include="Helpers\SimpleStringParameterValue.cs" />
+    <Compile Include="Helpers\ZoneData.cs" />
     <Compile Include="Settings\ControllerData.cs" />
     <Compile Include="Settings\DeserializeMethodEnum.cs" />
     <Compile Include="Settings\AppProfile.cs" />
@@ -216,7 +219,7 @@
     <Compile Include="Settings\DesktopFrameCard.cs" />
     <Compile Include="Settings\DesktopScreen.cs" />
     <Compile Include="Settings\DeviceAdvanceController.cs" />
-    <Compile Include="Settings\DeviceTypeDataEnum.cs" />
+    <Compile Include="Settings\DeviceType.cs" />
     <Compile Include="Settings\DeviceConnectionTypeEnum.cs" />
     <Compile Include="Settings\OutputData.cs" />
     <Compile Include="Settings\OutputTypeEnum.cs" />
@@ -275,8 +278,10 @@
     <Compile Include="Spots\ILEDSetup.cs" />
     <Compile Include="Spots\LEDSetup.cs" />
     <Compile Include="Spots\LEDSetupHelpers.cs" />
+    <Compile Include="Util\FileNameCorrector.cs" />
+    <Compile Include="Util\ModeParameters\ButtonParameter.cs" />
     <Compile Include="Util\ModeParameters\DataSource.cs" />
-    <Compile Include="Util\ModeParameters\ListSelectectionParameter.cs" />
+    <Compile Include="Util\ModeParameters\ListSelectionParameter.cs" />
     <Compile Include="Util\ModeParameters\SliderParameter.cs" />
     <Compile Include="Util\ModeParameters\ToggleParameter.cs" />
     <Compile Include="Util\Music.cs" />
@@ -393,6 +398,7 @@
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\VisualProperties.cs" />
+    <Compile Include="View\AudioDeviceSelectionWindowxaml.cs" />
     <Compile Include="View\SurfaceEditorNonClientAreaContent.xaml.cs" />
     <Compile Include="View\StoreNonClientAreaContent.xaml.cs" />
     <Compile Include="View\PIDQuickEditWindow.xaml.cs" />
@@ -492,6 +498,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Properties\DesignTimeResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\AudioDeviceSelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

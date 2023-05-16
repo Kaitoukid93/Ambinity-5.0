@@ -1,4 +1,5 @@
 ﻿using adrilight.Util;
+using adrilight.Util.ModeParameters;
 using adrilight.ViewModel;
 using HandyControl.Data;
 using System;
@@ -38,7 +39,7 @@ namespace adrilight.View
         {
             var grBx = (Border)sender;
             var dataCntx = grBx.DataContext;
-            var dataSource = (ModeParameter)dataCntx;
+            var dataSource = (ListSelectionParameter)dataCntx;
             if (dataSource != null)
             {
                 if (dataSource.ShowMore)

@@ -43,7 +43,25 @@ namespace FTPServer
                 return null;
             }
         }
+        public async Task<String> GetFileByName(string fileName,string folderPath)
+        {
+            var listFilesAddress = new List<String>();
 
+            try
+            {
+                var files = sFTP.ListDirectory(folderPath);
+
+                var file = files.Where(i => i.Name == fileName).FirstOrDefault();
+                   
+                return await Task.FromResult(folderPath + "/" + file.Name);
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("An exception has been caught " + e.ToString());
+                return null;
+            }
+        }
         public async Task<List<SftpFile>> GetAllFilesInFolder(string folderPath)
         {
             var listFiles = new List<SftpFile>();
@@ -131,8 +149,6 @@ namespace FTPServer
             try
             {
                 T file;
-
-
 
                 using (var remoteFileStream = sFTP.OpenRead(filePath))
                 {

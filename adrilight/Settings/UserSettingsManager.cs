@@ -108,7 +108,7 @@ namespace adrilight
                     {
                         if (!File.Exists((slaveDevice as ISlaveDevice).Thumbnail))
                         {
-                            (slaveDevice as ISlaveDevice).Thumbnail = Path.Combine(Directory.GetDirectories(subfolder).FirstOrDefault(), "thumbnail.png");
+                            //(slaveDevice as ISlaveDevice).Thumbnail = Path.Combine(Directory.GetDirectories(subfolder).FirstOrDefault(), "thumbnail.png");
                         }
                     }
                     

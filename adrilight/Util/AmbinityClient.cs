@@ -36,13 +36,7 @@ namespace adrilight
             GeneralSettings = generalSettings ?? throw new ArgumentException(nameof(generalSettings));
             DeviceSettings = deviceSettings ?? throw new ArgumentNullException(nameof(deviceSettings));
             _retryPolicy = Policy.Handle<Exception>().WaitAndRetry(retryCount: 10, sleepDurationProvider: _ => TimeSpan.FromSeconds(1));//rescan device may took longer and user manualy start server also
-
             GeneralSettings.PropertyChanged += UserSettings_PropertyChanged;
-            // IsInitialized = false;
-
-
-            //if (AvailableDevices.Count > 0) // add more condition about 1st time installing when no device found
-            //the logic is, scan for serial device first, if hubV3 found, only then start openRGB 
             RefreshTransferState();
             _log.Info($"SerialStream created.");
         }
@@ -84,7 +78,7 @@ namespace adrilight
             AvailableDevices = new List<IDeviceSettings>();
             foreach (var device in DeviceSettings)
             {
-                if (device.DeviceConnectionType == "OpenRGB")
+                if (device.DeviceType.ConnectionTypeEnum == Settings.DeviceConnectionTypeEnum.OpenRGB)
                     AvailableDevices.Add(device);
             }
             foreach (var device in AvailableDevices)
@@ -92,14 +86,15 @@ namespace adrilight
                 device.IsTransferActive = false;
             }
 
-            if (!IsInitialized && GeneralSettings.IsOpenRGBEnabled) // Only run OpenRGB Stream if User enable OpenRGB Utilities in General Settings
+            if (!IsInitialized) // Only run OpenRGB Stream if User enable OpenRGB Utilities in General Settings
             {
                 //check if OpenRGB is existed in adrilight folder
-
+                //get any openRGB process running
                 if (File.Exists(ORGBExeFileNameAndPath))
                 {
                     // now start open rgb
                     ORGBProcess = System.Diagnostics.Process.Start(ORGBExeFileNameAndPath, "--server --startminimized --gui");
+                    
 
                 }
                 else
@@ -183,8 +178,8 @@ namespace adrilight
             //        {
             //            // Enable OpenRGB
             //            GeneralSettings.IsOpenRGBEnabled = true;
-                       
-                        
+
+
 
             //        }
             //        if (dialog.askagaincheckbox.IsChecked == true)
@@ -239,7 +234,7 @@ namespace adrilight
                     foreach (var device in newOpenRGBDevices)
                     {
                         var deviceUID = device.Name + device.Version + device.Location;
-                        foreach (var existedDevice in AvailableDevices.Where(p => p.DeviceConnectionType == "OpenRGB"))
+                        foreach (var existedDevice in AvailableDevices.Where(p => p.DeviceType.ConnectionTypeEnum == Settings.DeviceConnectionTypeEnum.OpenRGB))
                         {
                             if (deviceUID == existedDevice.DeviceUID)
                                 AvailableOpenRGBDevices.Remove(device);
@@ -304,9 +299,6 @@ namespace adrilight
                                 convertedDevice.IsTransferActive = true;
                                 //convertedDevice.IsEnabled = true;
                                 ReorderedDevices[index] = convertedDevice;
-
-
-
                             }
                             else
                             {

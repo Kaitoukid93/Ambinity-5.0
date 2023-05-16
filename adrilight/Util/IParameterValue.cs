@@ -6,5 +6,6 @@ namespace adrilight.Util
     {
         string Name { get; }
         string Description { get; }
+
     }
 }

@@ -11,6 +11,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DeviceType = adrilight.Settings.DeviceType;
+using OpenRGB.NET.Enums;
 
 namespace adrilight.Helpers
 {
@@ -19,8 +21,78 @@ namespace adrilight.Helpers
 
         private LEDSetupHelpers LEDSetupHlprs { get; set; } = new LEDSetupHelpers();
         private ControlModeHelpers CtrlHlprs { get; set; } = new ControlModeHelpers();
-        public IDeviceSettings DefaultCreatedDevice(
-            DeviceTypeEnum type,
+        public IDeviceSettings DefaultCreateOpenRGBDevice(OpenRGB.NET.Enums.DeviceType type, string deviceName, string outputPort, string serial, string uid)
+        {
+            var newDevice = new DeviceSettings();
+            newDevice.DeviceType = GetTypeFromOpenRGB(type);
+            newDevice.DeviceName = deviceName;
+            newDevice.OutputPort = outputPort;
+            newDevice.DeviceDescription = "Device Supported Throught Open RGB Client";
+            newDevice.DeviceSerial = serial;
+            newDevice.DeviceUID = uid;
+            newDevice.IsSizeNeedUserDefine = true;
+            var lightingController = DefaultCreatedDeviceController(ControllerTypeEnum.LightingController, "Lighting", "brightness");
+            var output = DefaultCreatedOutput(OutputTypeEnum.ARGBLEDOutput, 0, "genericConnector", "Generic ARGB LED Output") as OutputSettings;
+            output.Left = 0;
+            output.Top = 0;
+            output.Width = 500;
+            output.Height = 500;
+            lightingController.Outputs.Add(output);
+            newDevice.AvailableControllers = new List<IDeviceController>();
+            newDevice.AvailableControllers.Add(lightingController);
+            return newDevice;
+        }
+        private DeviceType GetTypeFromOpenRGB(OpenRGB.NET.Enums.DeviceType type)
+        {
+            var returnType = new DeviceType();
+
+            switch (type)
+            {
+                case OpenRGB.NET.Enums.DeviceType.Motherboard:
+                    returnType.Type = DeviceTypeEnum.Motherboard;
+                    break;
+                case OpenRGB.NET.Enums.DeviceType.Dram:
+                    returnType.Type = DeviceTypeEnum.Ram;
+                    break;
+                case OpenRGB.NET.Enums.DeviceType.Cooler:
+                    returnType.Type = DeviceTypeEnum.Cooler;
+                    break;
+                case OpenRGB.NET.Enums.DeviceType.Gpu:
+                    returnType.Type = DeviceTypeEnum.Gpu;
+                    break;
+                case OpenRGB.NET.Enums.DeviceType.Mouse:
+                    returnType.Type = DeviceTypeEnum.Mouse;
+                    break;
+                case OpenRGB.NET.Enums.DeviceType.Mousemat:
+                    returnType.Type = DeviceTypeEnum.Mousemat;
+                    break;
+                case OpenRGB.NET.Enums.DeviceType.Keyboard:
+                    returnType.Type = DeviceTypeEnum.Keyboard;
+                    break;
+                case OpenRGB.NET.Enums.DeviceType.HeadsetStand:
+                    returnType.Type = DeviceTypeEnum.HeadsetStand;
+                    break;
+                case OpenRGB.NET.Enums.DeviceType.Headset:
+                    returnType.Type = DeviceTypeEnum.Headset;
+                    break;
+                case OpenRGB.NET.Enums.DeviceType.Light:
+                    returnType.Type = DeviceTypeEnum.Light;
+                    break;
+                case OpenRGB.NET.Enums.DeviceType.Unknown:
+                    returnType.Type = DeviceTypeEnum.Unknown;
+                    break;
+                case OpenRGB.NET.Enums.DeviceType.Ledstrip:
+                    returnType.Type = DeviceTypeEnum.Ledstrip;
+                    break;
+                case OpenRGB.NET.Enums.DeviceType.Gamepad:
+                    returnType.Type = DeviceTypeEnum.Motherboard;
+                    break;
+            }
+            returnType.ConnectionTypeEnum = DeviceConnectionTypeEnum.OpenRGB;
+            return returnType;
+        }
+        public IDeviceSettings DefaultCreatedAmbinoDevice(
+            DeviceType type,
             string deviceName,
             string outputPort,
             bool hasFancontrol,
@@ -31,7 +103,6 @@ namespace adrilight.Helpers
             newDevice.DeviceName = deviceName;
             newDevice.DeviceUID = Guid.NewGuid().ToString();
             newDevice.DeviceType = type;
-            newDevice.DeviceConnectionType = "wired";
             newDevice.OutputPort = outputPort;
             newDevice.IsSizeNeedUserDefine = true;
             newDevice.AvailableControllers = new List<IDeviceController>();
@@ -62,7 +133,8 @@ namespace adrilight.Helpers
             return newDevice;
 
         }
-        public ISlaveDevice DefaultCreatedSlaveDevice(string name, SlaveDeviceTypeEnum type, int zoneCount)
+
+        public ISlaveDevice DefaultCreatedSlaveDevice(string name, SlaveDeviceTypeEnum type, ZoneData[] zoneData)
         {
             ISlaveDevice newSlaveDevice = new ARGBLEDSlaveDevice();
             switch (type)
@@ -71,10 +143,23 @@ namespace adrilight.Helpers
                     newSlaveDevice = new ARGBLEDSlaveDevice();
                     newSlaveDevice.Name = name;
                     newSlaveDevice.ControlableZones = new ObservableCollection<IControlZone>();
-                    for (int i = 0; i < zoneCount; i++)
+                    for (int i = 0; i < zoneData.Length; i++)
                     {
                         //build a default led setrip with 20 leds each
-                        newSlaveDevice.ControlableZones.Add(LEDSetupHlprs.BuildLEDSetup(20, 1, "ARGB LEDStrip", 1200.0, 60.0));
+                        var top = 0;
+                        var indexOffset = 0;
+                        if (i >= 1)
+                        {
+                            top = i * zoneData[i - 1].Height;
+                            var totalLEDCount = 0;
+                            for (int j = 0; j < i; j++)
+                            {
+                                totalLEDCount += zoneData[j].NumLEDX * zoneData[j].NumLEDY;
+                            }
+                            indexOffset = totalLEDCount;
+                        }
+
+                        newSlaveDevice.ControlableZones.Add(LEDSetupHlprs.BuildLEDSetup(zoneData[i].Name, 0, top, zoneData[i].NumLEDX, zoneData[i].NumLEDY, zoneData[i].Width, zoneData[i].Height,indexOffset));
                     }
 
                     break;
@@ -129,10 +214,10 @@ namespace adrilight.Helpers
             switch (type)
             {
                 case OutputTypeEnum.ARGBLEDOutput:
-                    newOuput.SlaveDevice = DefaultCreatedSlaveDevice("Generic LED Strip", SlaveDeviceTypeEnum.LEDStrip, 1);
+                    newOuput.SlaveDevice = DefaultCreatedSlaveDevice("Generic LED Strip", SlaveDeviceTypeEnum.LEDStrip, new ZoneData[1] { new ZoneData("Zone", 20, 1, 1200, 60) });
                     break;
                 case OutputTypeEnum.PWMOutput:
-                    newOuput.SlaveDevice = DefaultCreatedSlaveDevice("Generic PWM Fan", SlaveDeviceTypeEnum.FanMotor, 1);
+                    newOuput.SlaveDevice = DefaultCreatedSlaveDevice("Generic PWM Fan", SlaveDeviceTypeEnum.FanMotor, null);
                     break;
             }
 
@@ -148,10 +233,10 @@ namespace adrilight.Helpers
 
         }
         //this section return output with exact position to use in output maping view
-        public List<IOutputSettings> GetOutputMap(DeviceTypeEnum type)
+        public List<IOutputSettings> GetOutputMap(DeviceType type)
         {
             var outputList = new List<IOutputSettings>();
-            switch (type)
+            switch (type.Type)
             {
                 case DeviceTypeEnum.AmbinoBasic:
                     {

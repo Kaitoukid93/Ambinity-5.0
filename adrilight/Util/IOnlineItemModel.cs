@@ -22,7 +22,8 @@ namespace adrilight.Util
         BitmapImage Thumb { get; set; }
         List<BitmapImage> Screenshots { get; set; }
         string MarkDownDescription { get; set; }
-        List<DeviceTypeDataEnum> TargetDevices { get; set; }
+        List<DeviceType> TargetDevices { get; set; }
+        bool IsLocalExisted { get; set; }
 
     }
 }

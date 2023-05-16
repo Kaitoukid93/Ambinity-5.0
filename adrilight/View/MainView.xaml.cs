@@ -113,8 +113,6 @@ namespace adrilight.View
             {
                 vm.IsSplitLightingWindowOpen = false;
                 vm.IsRichCanvasWindowOpen = false;
-                if (vm.CurrentDevice != null)
-                    vm.SaveCurrentProfile(vm.CurrentDevice.ActivatedProfileUID);
             }
             e.Cancel = true;
             // Hide Window instead

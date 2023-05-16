@@ -6,11 +6,13 @@ using HandyControl.Tools.Extension;
 using MoreLinq;
 using NAudio.Gui;
 using Newtonsoft.Json;
+using Renci.SshNet.Messages;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,13 +28,14 @@ namespace adrilight.Settings
     /// </summary>
     internal class ARGBLEDSlaveDevice : ViewModelBase, ISlaveDevice, IDrawable
     {
-        /// <summary>
-        /// info properties
-        /// </summary>
+        private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
+        private string SupportedSlaveDeviceFolderPath => Path.Combine(JsonPath, "SupportedDevices");
+        private string deviceDirectory => Directory.Exists(Path.Combine(SupportedSlaveDeviceFolderPath, Name))? Path.Combine(SupportedSlaveDeviceFolderPath, Name): Path.Combine(SupportedSlaveDeviceFolderPath, "GenericDevice");
         public string Name { get; set; }
         public string Owner { get; set; }
         public int ParrentID { get; set; }
-        public string Thumbnail { get; set; }
+        [JsonIgnore]
+        public string Thumbnail => Path.Combine(deviceDirectory, "thumbnail.png");
         public SlaveDeviceTypeEnum DeviceType { get; set; }
         public DeviceTypeEnum DesiredParrent { get; set; }
         public string Description { get; set; }
@@ -50,8 +53,6 @@ namespace adrilight.Settings
         {
             VisualProperties = new VisualProperties();
             Scale = new System.Windows.Point(1, 1);
-
-
         }
 
 
@@ -115,7 +116,7 @@ namespace adrilight.Settings
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
         public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
-        public DeviceTypeDataEnum TargetDeviceType { get; set; }
+        public DeviceType TargetDeviceType { get; set; }
         private DrawableHelpers DrawableHlprs;
         private int GetLEDsCount()
         {

@@ -37,6 +37,8 @@ using System.Windows.Automation.Peers;
 using Rectangle = System.Drawing.Rectangle;
 using MoreLinq;
 using SharpDX.WIC;
+using adrilight.Util.ModeParameters;
+using Emgu.CV.Flann;
 
 namespace adrilight
 {
@@ -58,7 +60,7 @@ namespace adrilight
             GeneralSettings.PropertyChanged += PropertyChanged;
             CurrentZone.PropertyChanged += PropertyChanged;
             MainViewViewModel.PropertyChanged += PropertyChanged;
-           // Refresh();
+            // Refresh();
             _log.Info($"DesktopDuplicatorReader created.");
         }
 
@@ -87,11 +89,11 @@ namespace adrilight
                     if (isRunning || (CurrentZone.CurrentActiveControlMode as LightingMode).BasedOn == Type)
                         Refresh();
                     break;
-                case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
-                //case nameof(MainViewViewModel.IsRegisteringGroup):
-                //case nameof(_colorControl):
-                    Refresh();
-                    break;
+                //case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
+                //    //case nameof(MainViewViewModel.IsRegisteringGroup):
+                //    //case nameof(_colorControl):
+                //    Refresh();
+                   // break;
                     //case nameof(GeneralSettings.SystemRainbowSpeed):
                     //    OnSystemRainbowSpeedChanged(GeneralSettings.SystemRainbowSpeed);
                     //    break;
@@ -109,13 +111,12 @@ namespace adrilight
         private CancellationTokenSource _cancellationTokenSource;
         private Thread _workerThread;
         private LightingMode _currentLightingMode;
-        private IModeParameter _colorControl;
-        private IModeParameter _chasingPatternControl;
-        private IModeParameter _brightnessControl;
-        private IModeParameter _speedControl;
-        private IModeParameter _systemSyncControl;
-        private IModeParameter _vidDataControl;
-        private IParameterValue _selectedColorSource;
+
+        private ListSelectionParameter _colorControl;
+        private ListSelectionParameter _chasingPatternControl;
+        private SliderParameter _brightnessControl;
+        private SliderParameter _speedControl;
+        private ToggleParameter _systemSyncControl;
         private Color[] _colorBank;
         private bool _isSystemSync;
         private bool _isBreathing;
@@ -124,7 +125,6 @@ namespace adrilight
         private double _paletteSpeed;
         private Motion _motion;
         private Frame[] _resizedFrames;
-        private ChasingPattern _pattern;
         private colorUseEnum _colorUse = colorUseEnum.MovingPalette;
         private int _paletteIntensity = 10;
         private int _frameIndex = 0;
@@ -134,38 +134,12 @@ namespace adrilight
         private enum colorUseEnum { StaticPalette, MovingPalette, CyclicPalette };
 
         #region Properties changed event handler 
-        //private void OnSystemRainbowSpeedChanged(int value)
-        //{
-        //    _speedControl.Value = value;
-        //}
-        //private void OnSystemPlaybackSpeedValueChange(int value)
-        //{
-        //    GeneralSettings.SystemPlaybackSpeed = value;
-        //    if(_systemSyncControl != null)
-        //    {
-        //        _systemSyncControl.SubParams[0].Value = value;
-        //    }
-        //}
-        //private void OnSystemSyncValueChanged(bool value)
-        //{
-        //    _isSystemSync = value;
-        //    if (value)
-        //    {
-        //        //hide native speed control
-        //        _speedControl.IsEnabled = false;
-        //        _systemSyncControl.SubParams[0].IsEnabled = true;
 
-        //    }
-        //    else
-        //    {
-        //        _speedControl.IsEnabled = true;
-        //        _systemSyncControl.SubParams[0].IsEnabled = false;
-        //    }
-        //}
         private void OnSelectedPaletteChanged(IParameterValue value)
         {
-            _selectedColorSource = value;
-            if (value is ColorPalette)
+          
+            
+            if (_colorControl.SelectedValue is ColorPalette)
             {
                 //show sub params
                 _colorControl.SubParams[0].IsEnabled = true;
@@ -174,7 +148,7 @@ namespace adrilight
                 _shouldBeMoving = _colorControl.SubParams[0].Value == 1;
 
             }
-            else if (value is ColorCard)
+            else if (_colorControl.SelectedValue is ColorCard)
             {
                 _colorControl.SubParams[0].IsEnabled = false;
                 _colorControl.SubParams[1].IsEnabled = false;
@@ -187,7 +161,7 @@ namespace adrilight
         private void OnPaletteIntensityPropertyChanged(int value)
         {
             _paletteIntensity = value;
-            GetColorBank(_selectedColorSource);
+            GetColorBank(_colorControl.SelectedValue);
         }
         private void OnPaletteSpeedPropertyChanged(int value)
         {
@@ -202,12 +176,12 @@ namespace adrilight
                 case 1:
                     _colorControl.SubParams[2].IsEnabled = true;
                     _colorControl.SubParams[1].IsEnabled = true;
-                    GetColorBank(_selectedColorSource);
+                    GetColorBank(_colorControl.SelectedValue);
                     break;
                 case 0:
                     _colorControl.SubParams[2].IsEnabled = false;
                     _colorControl.SubParams[1].IsEnabled = false;
-                    GetColorBank(_selectedColorSource);
+                    GetColorBank(_colorControl.SelectedValue);
                     break;
 
             }
@@ -303,14 +277,14 @@ namespace adrilight
                 _ticks[1].TickSpeed = _paletteSpeed / 5d;
                 _ticks[1].CurrentTick = 0;
             }
-            _pattern.Tick = _ticks[0];
+            // _pattern.Tick = _ticks[0];
         }
         private void OnSelectedChasingPatternChanged(IParameterValue value)
         {
             //resize motion here
             _frameIndex = 0;
-            _pattern = value as ChasingPattern;
-            _motion = ReadMotionFromDisk(_pattern.Path);
+            var pattern = value as ChasingPattern;
+            _motion = ReadMotionFromDisk(pattern.Path);
             var numLED = CurrentZone.Spots.Count();
             int frameCount = 0;
             lock (_lock)
@@ -354,8 +328,8 @@ namespace adrilight
                 CurrentZone.IsEnabled == true &&
                 //stop this engine when any surface or editor open because this could cause capturing fail
                 MainViewViewModel.IsRichCanvasWindowOpen == false;
-                ////registering group shoud be done
-                //MainViewViewModel.IsRegisteringGroup == false;
+            ////registering group shoud be done
+            //MainViewViewModel.IsRegisteringGroup == false;
 
             // this is stop sign by one or some of the reason above
             if (isRunning && !shouldBeRunning)
@@ -370,7 +344,7 @@ namespace adrilight
             else if (!isRunning && shouldBeRunning)
             {
                 //start it
-               
+                Init();
                 _log.Debug("starting the Static Color Engine");
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
@@ -380,8 +354,63 @@ namespace adrilight
                 };
                 _workerThread.Start();
             }
+            else if(isRunning && shouldBeRunning)
+            {
+                Init();
+            }
 
 
+        }
+        public void Init()
+        {
+            #region registering params
+            _speedControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Speed).FirstOrDefault() as SliderParameter;
+            _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.MixedColor).FirstOrDefault() as ListSelectionParameter;
+            _colorControl.PropertyChanged += (_, __) =>
+            {
+                switch (__.PropertyName)
+                {
+                    case nameof(_colorControl.SelectedValue):
+                        OnSelectedPaletteChanged(_colorControl.SelectedValue);
+                        break;
+                }
+            };
+            _chasingPatternControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.ChasingPattern).FirstOrDefault() as ListSelectionParameter;
+            _chasingPatternControl.PropertyChanged += (_, __) =>
+            {
+                switch (__.PropertyName)
+                {
+                    case nameof(_chasingPatternControl.SelectedValue):
+                        OnSelectedChasingPatternChanged(_chasingPatternControl.SelectedValue);
+                        break;
+                }
+            };
+            _colorControl.SubParams[0].PropertyChanged += (_, __) => OnColorUsePropertyChanged(_colorControl.SubParams[0].Value);
+            _colorControl.SubParams[2].PropertyChanged += (_, __) => OnPaletteIntensityPropertyChanged(_colorControl.SubParams[2].Value);
+            _colorControl.SubParams[1].PropertyChanged += (_, __) => OnPaletteSpeedPropertyChanged(_colorControl.SubParams[1].Value);
+            _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
+            _speedControl.PropertyChanged += (_, __) => OnSpeedChanged(_speedControl.Value);
+            _brightnessControl.PropertyChanged += (_, __) => OnBrightnessValueChanged(_brightnessControl.Value);
+            _systemSyncControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.IsSystemSync).FirstOrDefault() as ToggleParameter;
+            _colorControl.LoadAvailableValues();
+            _chasingPatternControl.LoadAvailableValues();
+            #endregion
+            //safety check
+            if (_colorControl.SelectedValue == null)
+            {
+                _colorControl.SelectedValue = _colorControl.AvailableValues.First();
+            }
+            OnSelectedPaletteChanged(_colorControl.SelectedValue);
+            if (_chasingPatternControl.SelectedValue == null)
+            {
+                _chasingPatternControl.SelectedValue = _chasingPatternControl.AvailableValues.First();
+            }
+            OnSelectedChasingPatternChanged(_chasingPatternControl.SelectedValue);
+            OnColorUsePropertyChanged(_colorControl.SubParams[0].Value);
+            OnPaletteIntensityPropertyChanged(_colorControl.SubParams[2].Value);
+            OnPaletteSpeedPropertyChanged(_colorControl.SubParams[1].Value);
+            OnSpeedChanged(_speedControl.Value);
+            OnBrightnessValueChanged(_brightnessControl.Value);
         }
         public void Run(CancellationToken token)
         {
@@ -391,43 +420,11 @@ namespace adrilight
 
             try
             {
-                #region registering params
-                _speedControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Speed).FirstOrDefault();
-                _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.MixedColor).FirstOrDefault();
-                _colorControl.PropertyChanged += (_, __) =>
-                {
-                    switch (__.PropertyName)
-                    {
-                        case nameof(_colorControl.SelectedValue):
-                            OnSelectedPaletteChanged(_colorControl.SelectedValue);
-                            break;
-                    }
-                };
-
-                _colorControl.SubParams[0].PropertyChanged += (_, __) => OnColorUsePropertyChanged(_colorControl.SubParams[0].Value);
-                _colorControl.SubParams[2].PropertyChanged += (_, __) => OnPaletteIntensityPropertyChanged(_colorControl.SubParams[2].Value);
-                _colorControl.SubParams[1].PropertyChanged += (_, __) => OnPaletteSpeedPropertyChanged(_colorControl.SubParams[1].Value);
-                _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault();
-                _speedControl.PropertyChanged += (_, __) => OnSpeedChanged(_speedControl.Value);
-                _brightnessControl.PropertyChanged += (_, __) => OnBrightnessValueChanged(_brightnessControl.Value);
-                _systemSyncControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.IsSystemSync).FirstOrDefault();
-                //_systemSyncControl.SubParams[0].PropertyChanged += (_, __) => OnSystemPlaybackSpeedValueChange(_systemSyncControl.SubParams[0].Value);
-                //_systemSyncControl.PropertyChanged += (_, __) => OnSystemSyncValueChanged(_systemSyncControl.Value == 1 ? true : false);
-                _chasingPatternControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.ChasingPattern).FirstOrDefault();
-                _chasingPatternControl.PropertyChanged += (_, __) => OnSelectedChasingPatternChanged(_chasingPatternControl.SelectedValue);
-
-                #endregion
-                _selectedColorSource = _colorControl.SelectedValue;
-                OnSelectedChasingPatternChanged(_chasingPatternControl.SelectedValue);
-                OnSelectedPaletteChanged(_selectedColorSource);
-                OnColorUsePropertyChanged(_colorControl.SubParams[0].Value);
-                OnPaletteIntensityPropertyChanged(_colorControl.SubParams[2].Value);
-                OnPaletteSpeedPropertyChanged(_colorControl.SubParams[1].Value);
-                OnSpeedChanged(_speedControl.Value);
-                OnBrightnessValueChanged(_brightnessControl.Value);
-                var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
+               
+                
                 while (!token.IsCancellationRequested)
                 {
+                    var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
                     bool isPreviewRunning = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated;
                     NextTick();
                     lock (CurrentZone.Lock)

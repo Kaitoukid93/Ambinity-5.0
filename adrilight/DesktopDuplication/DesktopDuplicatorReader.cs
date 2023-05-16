@@ -23,6 +23,7 @@ using System.Collections.ObjectModel;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Header;
 using NAudio.SoundFont;
 using Color = System.Windows.Media.Color;
+using adrilight.Util.ModeParameters;
 
 namespace adrilight
 {
@@ -74,7 +75,7 @@ namespace adrilight
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-
+        #region PropertyChanged events
         private void PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
@@ -93,7 +94,21 @@ namespace adrilight
 
             }
         }
+        private void OnBrightnessPropertyChanged(int value)
+        {
+            _brightness = value / 100d;
 
+        }
+        private void OnSmoothingPropertyChanged(int value)
+        {
+            _smoothFactor = value;
+        }
+        private void OnUseLinearLightingPropertyChanged(bool value)
+        {
+            _useLinearLighting = value;
+
+        }
+        #endregion
         /// <summary>
         /// private properties
         /// </summary>
@@ -102,8 +117,13 @@ namespace adrilight
         private Thread _workerThread;
         private LightingMode _currentLightingMode;
         private int? _currentScreenIndex;
+        private bool _useLinearLighting;
+        private double _brightness;
+        private int _smoothFactor;
 
-
+        private SliderParameter _brightnessControl;
+        private SliderParameter _smoothingControl;
+        private ToggleParameter _useLinearLightingControl;
         public void Refresh()
         {
             //find out which screen this zone belongs to
@@ -161,8 +181,7 @@ namespace adrilight
                 //get current lighting mode confirm that based on desktop duplicator reader engine
 
                 _currentLightingMode = currentLightingMode;
-
-
+                Init();
                 _log.Debug("starting the capturing");
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
@@ -171,6 +190,10 @@ namespace adrilight
                     Name = "DesktopDuplicatorReader"
                 };
                 _workerThread.Start();
+            }
+            else if (isRunning && shouldBeRunning)
+            {
+                Init();
             }
         }
         private readonly Policy _retryPolicy;
@@ -189,7 +212,19 @@ namespace adrilight
             }
             return TimeSpan.FromMilliseconds(1000);
         }
-
+        public void Init()
+        {
+            //get dependency properties from current lighting mode(based on screencapturing)
+            _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
+            _brightnessControl.PropertyChanged += (_, __) => OnBrightnessPropertyChanged(_brightnessControl.Value);
+            _smoothingControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Smoothing).FirstOrDefault() as SliderParameter;
+            _smoothingControl.PropertyChanged += (_, __) => OnSmoothingPropertyChanged(_smoothingControl.Value);
+            _useLinearLightingControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.LinearLighting).FirstOrDefault() as ToggleParameter;
+            _useLinearLightingControl.PropertyChanged += (_, __) => OnUseLinearLightingPropertyChanged(_useLinearLightingControl.Value == 1 ? true : false);
+            OnBrightnessPropertyChanged(_brightnessControl.Value);
+            OnUseLinearLightingPropertyChanged(_useLinearLightingControl.Value == 1 ? true : false);
+            OnSmoothingPropertyChanged(_smoothingControl.Value);
+        }
         public void Run(CancellationToken token)
         {
 
@@ -199,8 +234,6 @@ namespace adrilight
             IsRunning = true;
             try
             {
-                //get dependency properties from current lighting mode(based on screencapturing)
-                var brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault();
                 //get current zone size and position respect to screen size scaled 8.0
                 var screenLeft = Screen.AllScreens[(int)_currentScreenIndex].Bounds.Left;
                 var screenTop = Screen.AllScreens[(int)_currentScreenIndex].Bounds.Top;
@@ -216,7 +249,6 @@ namespace adrilight
                     var frameTime = Stopwatch.StartNew();
                     var newImage = _retryPolicy.Execute(() => GetNextFrame(image, isPreviewRunning));
                     TraceFrameDetails(newImage);
-                    var brightness = brightnessControl.Value / 100d;
                     if (newImage == null)
                     {
                         //there was a timeout before there was the next frame, simply retry!
@@ -240,7 +272,7 @@ namespace adrilight
                     lock (CurrentZone.Lock)
                     {
 
-                        //var useLinearLighting = OutputSettings.OutputUseLinearLighting;
+                       
 
                         Parallel.ForEach(CurrentZone.Spots
                             , spot =>
@@ -263,7 +295,7 @@ namespace adrilight
                                 var countInverse = 1f / count;
 
                                 ApplyColorCorrections(sumR * countInverse, sumG * countInverse, sumB * countInverse
-                                    , out byte finalR, out byte finalG, out byte finalB, true
+                                    , out byte finalR, out byte finalG, out byte finalB, _useLinearLighting
                                     , 10, spot.Red, spot.Green, spot.Blue);
 
                                 var spotColor = new OpenRGB.NET.Models.Color(finalR, finalG, finalB);
@@ -277,7 +309,7 @@ namespace adrilight
                                  spot.Red,
                                  spot.Green,
                                  spot.Blue);
-                                spot.SetColor((byte)(RealfinalR * brightness), (byte)(RealfinalG * brightness), (byte)(RealfinalB * brightness), isPreviewRunning);
+                                spot.SetColor((byte)(RealfinalR * _brightness), (byte)(RealfinalG * _brightness), (byte)(RealfinalB * _brightness), isPreviewRunning);
 
                             });
                         //}
@@ -368,10 +400,10 @@ namespace adrilight
         private void ApplySmoothing(float r, float g, float b, out byte semifinalR, out byte semifinalG, out byte semifinalB,
            byte lastColorR, byte lastColorG, byte lastColorB)
         {
-            int smoothingFactor = 2;
-            semifinalR = (byte)((r + smoothingFactor * lastColorR) / (smoothingFactor + 1));
-            semifinalG = (byte)((g + smoothingFactor * lastColorG) / (smoothingFactor + 1));
-            semifinalB = (byte)((b + smoothingFactor * lastColorB) / (smoothingFactor + 1));
+            
+            semifinalR = (byte)((r + _smoothFactor * lastColorR) / (_smoothFactor + 1));
+            semifinalG = (byte)((g + _smoothFactor * lastColorG) / (_smoothFactor + 1));
+            semifinalB = (byte)((b + _smoothFactor * lastColorB) / (_smoothFactor + 1));
         }
 
         private readonly byte[] _nonLinearFadingCache = Enumerable.Range(0, 2560)

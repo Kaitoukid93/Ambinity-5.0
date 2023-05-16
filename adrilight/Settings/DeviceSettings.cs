@@ -19,12 +19,16 @@ using HandyControl.Themes;
 using System.Threading;
 using Newtonsoft.Json;
 using adrilight.Helpers;
+using System.IO;
 
 namespace adrilight
 {
     internal class DeviceSettings : ViewModelBase, IDeviceSettings
     {
-        private int _deviceID;
+        private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
+        private string DevicesCollectionFolderPath => Path.Combine(JsonPath, "Devices");
+        private string ResourceCollectionFolderPath => Path.Combine(JsonPath, "Resource");
+        private string deviceDirectory => Path.Combine(DevicesCollectionFolderPath, DeviceName + "-" + DeviceUID);
         private string _deviceName;
         private string _deviceSerial;
         private string _manufacturer;
@@ -37,73 +41,46 @@ namespace adrilight
         private bool _isEnabled = true;
         private string _outputPort;
         private bool _isTransferActive;
-        private bool _isDummy = false;
-        private bool _isLoading = false;
         private ObservableCollection<ControlZoneGroup> _controlZoneGroups;
         private int _dashboardWidth;
         private int _dashboardHeight;
-
-        private int _selectedOutput = 0;
-        private string _geometry = "generaldevice";
-        private string _deviceConnectionGeometry = "connection";
         private int _baudrate = 1000000;
-        private int _activatedProfileIndex = 0;
         private string _deviceUID;
-        private string _deviceConnectionType = "";
         private bool _isSelected = false;
-        private string _deviceThumbnail;
         private bool _isLoadingProfile = false;
-        private string _activatedProfileUID;
-        private string _fwLocation;
         private DeviceStateEnum _deviceState = DeviceStateEnum.Normal;
         private string _requiredFwVersion;
         private static byte[] requestCommand = { (byte)'d', (byte)'i', (byte)'r' };
-        private static byte[] requestSpeedCommand = { (byte)'1', (byte)'5', (byte)'4' };
         private static byte[] expectedValidHeader = { 15, 12, 93 };
         private bool _isSizeNeedUserDefine = false;
-        private bool _isLoadingSpeed = false;
-        private DeviceTypeEnum _deviceType;
+        private DeviceType _deviceType;
         private int _currentActiveControllerIndex;
         private IDeviceController _currentActiveController;
-        private string _deviceOutputMap;
         public int DashboardWidth { get => _dashboardWidth; set { Set(() => DashboardWidth, ref _dashboardWidth, value); } }
         public int DashboardHeight { get => _dashboardHeight; set { Set(() => DashboardHeight, ref _dashboardHeight, value); } }
-        public string DeviceThumbnail { get => _deviceThumbnail; set { Set(() => DeviceThumbnail, ref _deviceThumbnail, value); } }
-        public string DeviceOutputMap { get => _deviceOutputMap; set { Set(() => DeviceOutputMap, ref _deviceOutputMap, value); } }
-        public DeviceTypeEnum DeviceType { get => _deviceType; set { Set(() => DeviceType, ref _deviceType, value); } }
+        [JsonIgnore]
+        public string DeviceThumbnail => File.Exists(Path.Combine(ResourceCollectionFolderPath, DeviceName + "_thumb.png")) ? Path.Combine(ResourceCollectionFolderPath, DeviceName + "_thumb.png") : Path.Combine(ResourceCollectionFolderPath, DeviceType.Name + "_thumb.png");
+        [JsonIgnore]
+        public string DeviceOutputMap => Path.Combine(deviceDirectory, "outputmap.png");
+        public DeviceType DeviceType { get => _deviceType; set { Set(() => DeviceType, ref _deviceType, value); } }
         public ObservableCollection<ControlZoneGroup> ControlZoneGroups { get => _controlZoneGroups; set { Set(() => ControlZoneGroups, ref _controlZoneGroups, value); } }
         public DeviceStateEnum DeviceState { get => _deviceState; set { Set(() => DeviceState, ref _deviceState, value); } }
         public string RequiredFwVersion { get => _requiredFwVersion; set { Set(() => RequiredFwVersion, ref _requiredFwVersion, value); } }
-        public int DeviceID { get => _deviceID; set { Set(() => DeviceID, ref _deviceID, value); } }
         public string DeviceName { get => _deviceName; set { Set(() => DeviceName, ref _deviceName, value); } }
-        public string FwLocation { get => _fwLocation; set { Set(() => FwLocation, ref _fwLocation, value); } }
         public string DeviceSerial { get => _deviceSerial; set { Set(() => DeviceSerial, ref _deviceSerial, value); } }
         public string Manufacturer { get => _manufacturer; set { Set(() => Manufacturer, ref _manufacturer, value); } }
         public string FirmwareVersion { get => _firmwareVersion; set { Set(() => FirmwareVersion, ref _firmwareVersion, value); } }
         public string HardwareVersion { get => _hardwareVersion; set { Set(() => HardwareVersion, ref _hardwareVersion, value); } }
         public string ProductionDate { get => _productionDate; set { Set(() => ProductionDate, ref _productionDate, value); } }
-        public string ActivatedProfileUID { get => _activatedProfileUID; set { Set(() => ActivatedProfileUID, ref _activatedProfileUID, value); } }
         public bool IsVisible { get => _isVisible; set { Set(() => IsVisible, ref _isVisible, value); } }
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); DeviceEnableChanged(); } }
-        public bool IsLoading { get => _isLoading; set { Set(() => IsLoading, ref _isLoading, value); } }
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); } }
         public string OutputPort { get => _outputPort; set { Set(() => OutputPort, ref _outputPort, value); } }
+        [JsonIgnore]
         public bool IsTransferActive { get => _isTransferActive; set { Set(() => IsTransferActive, ref _isTransferActive, value); } }
-        public bool IsDummy { get => _isDummy; set { Set(() => IsDummy, ref _isDummy, value); } }
-
-
         public int Baudrate { get => _baudrate; set { Set(() => Baudrate, ref _baudrate, value); } }
-        public int ActivatedProfileIndex { get => _activatedProfileIndex; set { Set(() => ActivatedProfileIndex, ref _activatedProfileIndex, value); } }
-
-        public int SelectedOutput { get => _selectedOutput; set { Set(() => SelectedOutput, ref _selectedOutput, value); } }
-        public string Geometry { get => _geometry; set { Set(() => Geometry, ref _geometry, value); } }
         public string DeviceDescription { get => _deviceDescription; set { Set(() => DeviceDescription, ref _deviceDescription, value); } }
         public string DeviceUID { get => _deviceUID; set { Set(() => DeviceUID, ref _deviceUID, value); } }
-
-        public bool IsLoadingSpeed { get => _isLoadingSpeed; set { Set(() => IsLoadingSpeed, ref _isLoadingSpeed, value); } }
-
-        public string DeviceConnectionGeometry { get => _deviceConnectionGeometry; set { Set(() => DeviceConnectionGeometry, ref _deviceConnectionGeometry, value); } }
-        public string DeviceConnectionType { get => _deviceConnectionType; set { Set(() => DeviceConnectionType, ref _deviceConnectionType, value); } }
         public bool IsSizeNeedUserDefine { get => _isSizeNeedUserDefine; set { Set(() => IsSizeNeedUserDefine, ref _isSizeNeedUserDefine, value); } }
         public List<IDeviceController> AvailableControllers { get => _availableControllers; set { Set(() => AvailableControllers, ref _availableControllers, value); } }
         public bool IsLoadingProfile { get => _isLoadingProfile; set { Set(() => IsLoadingProfile, ref _isLoadingProfile, value); IsLoadingProfilePropertyChanged(); } }
@@ -252,22 +229,7 @@ namespace adrilight
 
 
         }
-        public void SetOutput(IOutputSettings output, int outputID)
-        {
-            //AvailableOutputs[outputID].OutputIsLoadingProfile = true;
 
-            //foreach (PropertyInfo property in AvailableOutputs[outputID].GetType().GetProperties())
-            //{
-
-            //    if (Attribute.IsDefined(property, typeof(ReflectableAttribute)))
-            //        property.SetValue(AvailableOutputs[outputID], property.GetValue(output, null), null);
-            //    AvailableOutputs[outputID].LEDPerLED = output.LEDPerLED;
-            //    AvailableOutputs[outputID].LEDPerSpot = output.LEDPerSpot;
-            //}
-
-            //AvailableOutputs[outputID].OutputIsLoadingProfile = false;
-
-        }
         private DrawableHelpers DrawableHlprs;
 
         public Rect GetDeviceRectBound(IControlZone[] zones)
@@ -281,45 +243,6 @@ namespace adrilight
             return DrawableHlprs.GetRealBound(zones);
 
         }
-        public void ActivateProfile(DeviceProfile profile)
-        {
-            //ActivatedProfileUID = profile.ProfileUID;
-
-
-            //    foreach (PropertyInfo property in this.GetType().GetProperties())
-            //    {
-
-            //        if (!Attribute.IsDefined(property, typeof(ProfileLoadingIgnore)))
-            //            property.SetValue(this, property.GetValue(profile.DeviceSettings, null), null);
-            //    }
-            //    controll
-            //profile.Controllers.ForEach(c => AvailableControllers.Add(c.Controller));
-
-            //foreach (var controller in AvailableControllers)
-            //{
-            //    foreach (var output in controller.Outputs)
-            //    {
-            //        var outputData = new OutputData();
-            //        outputData.Output = ObjectHelpers.Clone<OutputSettings>(output as OutputSettings);
-            //        switch (output.OutputType)
-            //        {
-            //            case OutputTypeEnum.PWMOutput:
-            //                outputData.SlaveDevice = ObjectHelpers.Clone<PWMMotorSlaveDevice>(output.SlaveDevice as PWMMotorSlaveDevice);
-            //                break;
-            //            case OutputTypeEnum.ARGBLEDOutput:
-            //                outputData.SlaveDevice = ObjectHelpers.Clone<ARGBLEDSlaveDevice>(output.SlaveDevice as ARGBLEDSlaveDevice);
-            //                break;
-            //        }
-            //        controllerData.Outputs.Add(outputData);
-            //    }
-            //    Controllers.Add(controllerData);
-            //}
-
-
-        }
-
-
-
 
         public void BrightnessUp(int value)
         {
@@ -373,134 +296,6 @@ namespace adrilight
 
         }
 
-
-        //public void DeviceLocator(Color color) // this function send color signal to device to locate new device added
-        //{
-        //    if (OutputPort != null && DeviceConnectionType == "wired")
-        //    {
-        //        var _serialPort = new SerialPort(OutputPort, 1000000);
-        //        _serialPort.DtrEnable = true;
-        //        _serialPort.ReadTimeout = 5000;
-        //        _serialPort.WriteTimeout = 1000;
-        //        try
-        //        {
-        //            _serialPort.Open();
-        //        }
-        //        catch (UnauthorizedAccessException)
-        //        {
-        //            return;
-        //        }
-        //        //just get data of first output only and send signal of 64 LED
-        //        var (outputBuffer, streamLength) = GetLocatorOutputStream(color);
-        //        //write 60 frame of data to ensure device received it
-        //        for (int i = 0; i < 10; i++)
-        //        {
-        //            _serialPort.Write(outputBuffer, 0, streamLength);
-        //            Thread.Sleep(1);
-        //        }
-        //        try
-        //        {
-        //            _serialPort.Close();
-        //        }
-        //        catch (Exception)
-        //        {
-        //            return;
-        //        }
-
-
-        //    }
-
-        //}
-        private readonly byte[] _messagePreamble = { (byte)'a', (byte)'b', (byte)'n' };
-        //private (byte[] Buffer, int OutputLength) GetLocatorOutputStream(Color color)
-        //{
-        //    byte[] outputStream;
-        //    int counter = _messagePreamble.Length;
-        //    int locatorNumLED = 64;
-
-        //    const int colorsPerLed = 3;
-        //    int bufferLength = _messagePreamble.Length + 3 + 3
-        //        + (locatorNumLED * colorsPerLed);
-
-
-        //    outputStream = ArrayPool<byte>.Shared.Rent(bufferLength);
-
-        //    Buffer.BlockCopy(_messagePreamble, 0, outputStream, 0, _messagePreamble.Length);
-
-
-
-
-
-
-
-        //    byte lo = (byte)((locatorNumLED) & 0xff);
-        //    byte hi = (byte)(((locatorNumLED) >> 8) & 0xff);
-        //    byte chk = (byte)(hi ^ lo ^ 0x55);
-        //    outputStream[counter++] = hi;
-        //    outputStream[counter++] = lo;
-        //    outputStream[counter++] = chk;
-        //    outputStream[counter++] = 0;
-        //    outputStream[counter++] = 0;
-        //    outputStream[counter++] = 0;
-
-
-        //    for (int i = 0; i < locatorNumLED; i++)
-        //    {
-
-        //        var RGBOrder = "RGB";
-        //        var reOrderedColor = ReOrderSpotColor(RGBOrder, color.R, color.G, color.B);
-
-        //        outputStream[counter++] = reOrderedColor[0]; // blue
-        //        outputStream[counter++] = reOrderedColor[1]; // green
-        //        outputStream[counter++] = reOrderedColor[2]; // red
-
-
-        //    }
-
-
-        //    return (outputStream, bufferLength);
-
-
-
-        //}
-        //private byte[] ReOrderSpotColor(string order, byte r, byte g, byte b)
-        //{
-        //    byte[] reOrderedColor = new byte[3];
-        //    switch (order)
-        //    {
-        //        case "RGB"://do nothing
-        //            reOrderedColor[0] = r;
-        //            reOrderedColor[1] = g;
-        //            reOrderedColor[2] = b;
-        //            break;
-        //        case "RBG"://do nothing
-        //            reOrderedColor[0] = r;
-        //            reOrderedColor[1] = b;
-        //            reOrderedColor[2] = g;
-        //            break;
-        //        case "BGR"://do nothing
-        //            reOrderedColor[0] = b;
-        //            reOrderedColor[1] = g;
-        //            reOrderedColor[2] = r;
-        //            break;
-        //        case "BRG"://do nothing
-        //            reOrderedColor[0] = b;
-        //            reOrderedColor[1] = r;
-        //            reOrderedColor[2] = g;
-        //            break;
-        //        case "GRB"://do nothing
-        //            reOrderedColor[0] = g;
-        //            reOrderedColor[1] = r;
-        //            reOrderedColor[2] = b;
-        //            break;
-        //        case "GBR"://do nothing
-        //            reOrderedColor[0] = g;
-        //            reOrderedColor[1] = b;
-        //            reOrderedColor[2] = r;
-        //            break;
-        //    }
-        //    return reOrderedColor;
-        //}
         public void UpdateChildSize()
         {
             foreach (var controller in AvailableControllers)
@@ -637,101 +432,6 @@ namespace adrilight
             //reboot serialStream
             IsTransferActive = true;
             RaisePropertyChanged(nameof(IsTransferActive));
-        }
-        public async void RefreshDeviceActualSpeedAsync()
-        {
-            await Task.Run(() => GetActualSpeed());
-            IsLoadingSpeed = false;
-            RaisePropertyChanged(nameof(IsLoadingSpeed));
-            HandyControl.Controls.MessageBox.Show("Speed information sent to device!", "Speed", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-        private void GetActualSpeed()
-        {
-
-            //byte[] speed = new byte[256];
-
-            //bool isValid = false;
-
-
-            //IsTransferActive = false; // stop current serial stream attached to this device
-
-            //var _serialPort = new SerialPort(OutputPort, 1000000);
-            //_serialPort.DtrEnable = true;
-            //_serialPort.ReadTimeout = 5000;
-            //_serialPort.WriteTimeout = 1000;
-            //try
-            //{
-            //    _serialPort.Open();
-            //}
-            //catch (UnauthorizedAccessException)
-            //{
-            //    DeviceActualSpeed = "unknown";
-            //    RaisePropertyChanged(nameof(DeviceActualSpeed));
-            //    return;
-            //}
-
-            ////write request info command
-            //_serialPort.Write(requestSpeedCommand, 0, 3);
-            //int retryCount = 0;
-            //int offset = 0;
-            //int spdInfoLength = 0; // Expected response length of valid deviceID 
-
-
-            //while (offset < 3)
-            //{
-
-
-            //    try
-            //    {
-            //        byte header = (byte)_serialPort.ReadByte();
-            //        if (header == expectedValidHeader[offset])
-            //        {
-            //            offset++;
-            //        }
-            //    }
-            //    catch (TimeoutException)// retry until received valid header
-            //    {
-            //        _serialPort.Write(requestSpeedCommand, 0, 3);
-            //        retryCount++;
-            //        if (retryCount == 3)
-            //        {
-            //            _serialPort.Close();
-            //            _serialPort.Dispose();
-            //            IsTransferActive = true;
-            //            RaisePropertyChanged(nameof(IsTransferActive));
-            //            DeviceActualSpeed = "unknown";
-            //            RaisePropertyChanged(nameof(DeviceActualSpeed));
-            //            return;
-
-            //        }
-            //        Debug.WriteLine("no respond, retrying...");
-            //    }
-
-
-            //}
-            //if (offset == 3) //3 bytes header are valid
-            //{
-            //    spdInfoLength = (byte)_serialPort.ReadByte();
-            //    int count = spdInfoLength;
-            //    speed = new byte[count];
-            //    while (count > 0)
-            //    {
-            //        var readCount = _serialPort.Read(speed, 0, count);
-            //        offset += readCount;
-            //        count -= readCount;
-            //    }
-
-            //}
-
-            //_serialPort.Close();
-            //_serialPort.Dispose();
-            ////if (isValid)
-            ////    newDevices.Add(newDevice);
-            ////reboot serialStream
-            //IsTransferActive = true;
-            //RaisePropertyChanged(nameof(IsTransferActive));
-            //DeviceActualSpeed = speed[0].ToString();
-            //RaisePropertyChanged(nameof(DeviceActualSpeed));
         }
 
     }

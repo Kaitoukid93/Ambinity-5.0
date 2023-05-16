@@ -256,7 +256,7 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right" Margin="10" Grid.Row="1">
 
-                                    <TextBlock Margin="0,0,5,0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding OutputPort}" >
+                                    <TextBlock TextWrapping="WrapWithOverflow" Margin="0,0,5,0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding OutputPort}" >
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
@@ -332,136 +332,7 @@
                 </Grid>
 
 
-                <Grid  hc:RelativePanel.AlignRightWithPanel="True" Margin="0,0,10,0">
-                    <Popup PlacementTarget="{Binding ElementName=profileBadge}" Effect="{StaticResource EffectShadow1}" Placement="Top"  AllowsTransparency="True" Grid.ColumnSpan="2"  HorizontalOffset="10" x:Name="profile_selection" VerticalOffset="2" StaysOpen="False">
-                        <hc:TransitioningContentControl Effect="{StaticResource EffectShadow3}" TransitionMode="Top2Bottom">
-                            <Border  Margin="15,0,15,15" Background="{DynamicResource MainContentBackgroundBrush}" CornerRadius="4" BorderThickness="1">
-                                <StackPanel>
-
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Grid>
-                                            <TextBlock VerticalAlignment="Center" Margin="10,5" HorizontalAlignment="Left" Text="PROFILES"/>
-                                        </Grid>
-
-                                        <!--<StackPanel Grid.Column="1" Orientation="Horizontal">
-                                            <Button Background="Transparent" Height="25" hc:BackgroundSwitchElement.MouseHoverBackground="{DynamicResource ButtonHoverBrush}"  ToolTip="Import Profile" Command="{Binding ImportProfileCommand}" hc:IconElement.Width="15" hc:IconElement.Height="15" Style="{DynamicResource _defaultIconButtonSmall}" BorderBrush="Transparent" hc:IconElement.Geometry="{StaticResource import}" Padding="5" Margin="20,5,5,5"/>
-                                            <Button Background="Transparent" Height="25" ToolTip="Create New Profile" Command="{Binding OpenProfileCreateCommand}" hc:IconElement.Width="15" hc:IconElement.Height="15" Style="{DynamicResource _defaultIconButtonSmall}" BorderBrush="Transparent" hc:IconElement.Geometry="{StaticResource newfile}" Padding="5" Margin="5"/>
-                                            <Button Background="Transparent" Height="25" ToolTip="Save all" Command="{Binding SaveCurrentProfileCommand}" hc:IconElement.Width="15" hc:IconElement.Height="15" Style="{DynamicResource _defaultIconButtonSmall}" BorderBrush="Transparent" hc:IconElement.Geometry="{StaticResource save}" Padding="5" Margin="5"/>
-
-                                        </StackPanel>-->
-                                    </Grid>
-
-                                    <hc:Divider LineStroke="{StaticResource RegionBrush}" Margin="-10,2">
-
-                                    </hc:Divider>
-                                    <StackPanel>
-
-
-                                        <ListView IsSynchronizedWithCurrentItem="False"
-                                                 ItemContainerStyle="{StaticResource _listBoxGeneralModeSelectionStyle}"  
-                                                 Background="Transparent"
-                                                 BorderThickness="0"
-                                                 ItemsSource="{Binding AvailableProfiles}"
-                                                 Style="{StaticResource StackPanelVerticalListBox}">
-
-                                            <ListView.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <StackPanel>
-
-                                                    </StackPanel>
-                                                </ItemsPanelTemplate>
-                                            </ListView.ItemsPanel>
-                                            <ListView.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Grid Margin="5">
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="auto"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="auto"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <Path HorizontalAlignment="Left" Stretch="Uniform" Margin="5" Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}" 
-                                                          Width="20" 
-                                                          Height="20" 
-                                                          Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
-                                                        <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,20,0" Grid.Column="1" Text="{Binding Name}" Style="{StaticResource TextBlockDefault}"/>
-                                                        <Grid Grid.Column="2">
-                                                            <StackPanel Visibility="{Binding Path=IsActivated,Converter={StaticResource Boolean2BooleanReConverter}}" Orientation="Horizontal">
-                                                                <Button Width="25" Height="25" Background="Transparent" ToolTip="Activate" CommandParameter="{Binding .}" Command="{Binding Path=DataContext.ActivateSelectedProfileCommmand, RelativeSource={RelativeSource AncestorType=ListBox}}" hc:IconElement.Width="15" hc:IconElement.Height="15" Style="{DynamicResource ButtonDashed}" BorderBrush="Transparent" hc:IconElement.Geometry="{StaticResource playComposition}" Padding="0" Margin="2"/>
-                                                                <Button Width="25" Height="25" Background="Transparent"  ToolTip="Export Profile" CommandParameter="{Binding .}" Command="{Binding Path=DataContext.ExportItemForOnlineStoreCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" hc:IconElement.Width="15" hc:IconElement.Height="15" Style="{DynamicResource ButtonDashed}"   BorderBrush="Transparent" hc:IconElement.Geometry="{StaticResource export}" Padding="0" Margin="2"/>
-                                                                <Button Width="25" Height="25" Background="Transparent" ToolTip="Delete" CommandParameter="{Binding .}" Command="{Binding Path=DataContext.DeleteAttachedProfileCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" hc:IconElement.Width="15" hc:IconElement.Height="15"  Style="{DynamicResource ButtonDashed}"  BorderBrush="Transparent" hc:IconElement.Geometry="{StaticResource delete}" Padding="0" Margin="2"/>
-                                                            </StackPanel>
-                                                        </Grid>
-
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </ListView.ItemTemplate>
-
-                                        </ListView>
-
-                                    </StackPanel>
-                                    <TextBlock  Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Chưa có Profile nào được thêm">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock" BasedOn="{StaticResource TextBlockDefaultSecLight}">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding AvailableProfiles.Count}" Value="0">
-                                                        <Setter Property="Visibility" Value="Visible"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                    <Button Command="{Binding OpenProfileCreateCommand}" Padding="0" Background="Transparent" BorderThickness="0">
-                                        <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="Create New Profile"/>
-                                    </Button>
-
-                                </StackPanel>
-
-                            </Border>
-                        </hc:TransitioningContentControl>
-
-                    </Popup>
-                    <hc:Badge x:Name="profileBadge"  BadgeMargin="0" Status="{Binding IsSettingsUnsaved}"  Margin="0,0,0,0" Style="{StaticResource BadgeDanger}">
-                        <Border Effect="{DynamicResource EffectShadow1}" Background="{DynamicResource MainContentBackgroundBrush}"   CornerRadius="4" Margin="0,5,5,5" Height="65" VerticalAlignment="Stretch" HorizontalAlignment="Right" Padding="0"  BorderBrush="Transparent">
-                            <Grid Margin="5">
-                                <Grid>
-                                    <StackPanel HorizontalAlignment="Left">
-                                        <TextBlock Text="ACTIVE PROFILE" Style="{DynamicResource TextBlockDefaultSecLight}"  Margin="5,2"/>
-                                        <hc:Divider  LineStroke="{StaticResource RegionBrush}" Margin="-10,2">
-
-                                        </hc:Divider>
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="auto"/>
-                                                <ColumnDefinition Width="auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-
-                                            <Path Grid.Column="0" Width="20" Height="20" Margin="5,2" Data="{StaticResource profile}" Stretch="Uniform" >
-                                                <Path.Style>
-                                                    <Style TargetType="Path">
-                                                        <Setter Property="Fill" Value="{StaticResource PrimaryBrush}"/>
-                                                    </Style>
-                                                </Path.Style>
-
-                                            </Path>
-                                            <TextBlock Grid.Column="1" Text="{Binding CurrentActivatedProfile.Name}" Style="{DynamicResource TextBlockSubTitle}" FontWeight="SemiBold"  Margin="5,0"/>
-                                            <ToggleButton Margin="0,2,0,0" Grid.Column="2" IsChecked="{Binding ElementName=profile_selection,Path=IsOpen,Mode=TwoWay}"  HorizontalAlignment="Right" Style="{DynamicResource ToggleButtonIconTransparent}" hc:IconSwitchElement.Geometry="{DynamicResource showMore}" hc:IconElement.Height="10" hc:IconElement.Width="10" hc:IconSwitchElement.GeometrySelected="{DynamicResource showLess}">
-                                            </ToggleButton>
-                                        </Grid>
-
-                                    </StackPanel>
-                                </Grid>
-                            </Grid>
-
-                        </Border>
-                    </hc:Badge>
-                </Grid>
-
+                
                 <Grid x:Name="AllDevicesPanel" hc:RelativePanel.AlignLeftWithPanel="True"  hc:RelativePanel.Below="{Binding ElementName=Header}">
 
                     <!-- all devices-->

@@ -26,6 +26,7 @@ namespace adrilight.Util.ModeParameters
         {
             Value = defaultValue;
             Template = ModeParameterTemplateEnum.ToggleOnOff;
+            ParamType = type;
 
         }
         private string _name;

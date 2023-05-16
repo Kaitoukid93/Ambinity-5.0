@@ -162,14 +162,9 @@ namespace adrilight
             .SelectAllClasses()
             .InheritedFrom<ISelectableViewPart>()
             .BindAllInterfaces());
-
-            var serialDeviceDetection = kernel.Get<ISerialDeviceDetection>();
             var captureEngines = kernel.GetAll<ICaptureEngine>();
             var rainbowTicker = kernel.Get<IRainbowTicker>();
             var hwMonitor = kernel.Get<IHWMonitor>();
-
-
-
 
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
@@ -180,8 +175,6 @@ namespace adrilight
             {
                 _splashScreen.status.Text = "PROCESSES CREATED";
             });
-            var deviceDiscovery = kernel.Get<IDeviceDiscovery>();
-
             MainViewViewModel = kernel.Get<MainViewViewModel>();
             if (!GeneralSettings.StartMinimized)
                 MainViewViewModel.IsAppActivated = true;
@@ -226,7 +219,7 @@ namespace adrilight
 
                 }
             }
-
+            var deviceDiscovery = kernel.Get<IDeviceDiscovery>();
             return kernel;
 
         }
@@ -356,17 +349,17 @@ namespace adrilight
                     InjectingZone(kernel, zone as IControlZone);
                 }
             }
-            var connectionType = device.DeviceConnectionType;
+            var connectionType = device.DeviceType.ConnectionTypeEnum;
             switch (connectionType)
             {
-                case "wired":
+                case DeviceConnectionTypeEnum.Wired:
                     kernel.Bind<ISerialStream>().To<SerialStream>().InSingletonScope().Named(device.DeviceUID.ToString()).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(device.DeviceUID.ToString()));
                     break;
-                case "wireless":
-                    //   kernel.Bind<ISerialStream>().To<NetworkStream>().InSingletonScope().Named(iD).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(iD));
+                case DeviceConnectionTypeEnum.Wireless:
+                   
                     break;
-                case "OpenRGB":
-                    //   kernel.Bind<ISerialStream>().To<OpenRGBStream>().InSingletonScope().Named(iD).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(iD));
+                case DeviceConnectionTypeEnum.OpenRGB:
+                    kernel.Bind<ISerialStream>().To<OpenRGBStream>().InSingletonScope().Named(device.DeviceUID.ToString()).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(device.DeviceUID.ToString()));
                     break;
 
             }

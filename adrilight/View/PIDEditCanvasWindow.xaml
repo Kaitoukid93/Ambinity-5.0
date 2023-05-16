@@ -190,8 +190,15 @@
 
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-
+                            <Grid IsHitTestVisible="{Binding IsDraggable,Mode=TwoWay}">
+                                <Border HorizontalAlignment="Left" VerticalAlignment="Top" Background="{DynamicResource PrimaryBrush}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Name,Mode=TwoWay}"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
                         </Grid>
+                        
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type spot:DeviceSpot}">
                         <Grid>
@@ -457,6 +464,12 @@
                                           Command="{Binding UnZoneItemsCommand}" CommandParameter="PID">
                                                 <MenuItem.Icon>
                                                     <Path Data="{StaticResource unlock}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="Rename"
+                                          Command="{Binding RenameZoneCommand}" CommandParameter="Rename">
+                                                <MenuItem.Icon>
+                                                    <Path Data="{StaticResource editname}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
                                         </ContextMenu>

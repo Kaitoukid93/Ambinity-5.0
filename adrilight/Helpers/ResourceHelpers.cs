@@ -17,17 +17,25 @@ namespace adrilight.Helpers
         public void CopyResource(string resourceName, string file)
         {
             var assembly = Assembly.GetExecutingAssembly();
-            using (Stream resource = assembly.GetManifestResourceStream(resourceName))
+            try
             {
-                if (resource == null)
+                using (Stream resource = assembly.GetManifestResourceStream(resourceName))
                 {
-                    throw new ArgumentException("No such resource", "resourceName");
-                }
-                using (Stream output = File.OpenWrite(file))
-                {
-                    resource.CopyTo(output);
+                    if (resource == null)
+                    {
+                        throw new ArgumentException("No such resource", "resourceName");
+                    }
+                    using (Stream output = File.OpenWrite(file))
+                    {
+                        resource.CopyTo(output);
+                    }
                 }
             }
+            catch
+            {
+
+            }
+           
         }
         public string[] GetResourceFileName()
         {

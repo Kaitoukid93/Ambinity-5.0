@@ -1,10 +1,12 @@
-﻿using adrilight.Resources;
+﻿using adrilight.Helpers;
+using adrilight.Resources;
 using adrilight.Settings;
 using adrilight.Util;
 using adrilight.ViewModel;
 using Newtonsoft.Json;
 using NLog;
 using Semver;
+using SharpDX.DXGI;
 using Squirrel;
 using System;
 using System.Collections.Generic;
@@ -73,44 +75,19 @@ namespace adrilight
                 {
                     if (Settings.DeviceDiscoveryMode == 0 && !Settings.FrimwareUpgradeIsInProgress && enable)
                     {
+                        var newDevices = new List<IDeviceSettings>();
+                        var oldDevices = new List<IDeviceSettings>();
                         var newOpenRGBDevices = new List<IDeviceSettings>(); // openRGB device scan only run once at startup
+
                         if (!_openRGBIsInit)
                             newOpenRGBDevices = ScanOpenRGBDevices();
                         var connectedSerialDevices = await ScanSerialDevice();
-
-                        MainViewViewModel.FoundNewDevice(connectedSerialDevices[0], newOpenRGBDevices);
-                        MainViewViewModel.OldDeviceReconnected(connectedSerialDevices[1], newOpenRGBDevices);
+                        connectedSerialDevices[0].ForEach(d => newDevices.Add(d));
+                        connectedSerialDevices[1].ForEach(d => oldDevices.Add(d));
+                        newOpenRGBDevices.ForEach(d => newDevices.Add(d));
+                        MainViewViewModel.FoundNewDevice(newDevices);
+                        MainViewViewModel.OldDeviceReconnected(oldDevices);
                     }
-
-                    //else if (Settings.DeviceDiscoveryMode==1)
-                    //{
-
-                    //    var newDevicesString = new StringBuilder().AppendLine($"Tìm thấy các thiết bị mới :").ToString() +"\n";
-                    //    if (newOpenRGBDevices.Count>0)
-                    //    {
-                    //        foreach(var device in newOpenRGBDevices)
-                    //        {
-                    //            newDevicesString += device.DeviceName + "\n";
-                    //        }
-                    //    }
-                    //    if (newSerialDevices.Count > 0)
-                    //    {
-                    //        foreach (var device in newSerialDevices)
-                    //        {
-                    //            newDevicesString += device.DeviceName + "\n";
-                    //        }
-                    //    }
-                    //    newDevicesString += "Bạn có muốn thêm các thiết bị này vào Dashboard không?" + "\n";
-                    //    MessageBoxResult result = HandyControl.Controls.MessageBox.Show(newDevicesString, "New Devices Found", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                    //    if (result == MessageBoxResult.Yes)
-                    //    {
-                    //        // Enable OpenRGB
-                    //        MainViewViewModel.FoundNewDevice(newSerialDevices, newOpenRGBDevices);
-
-                    //    }
-                    //}
-
-                    //else ask before add
 
                 }
                 catch (Exception ex)
@@ -135,40 +112,41 @@ namespace adrilight
                 {
                     try
                     {
-                        IDeviceSettings convertedDevice = new DeviceSettings();
-                        convertedDevice.DeviceName = openRGBDevice.Name;
-                        //convertedDevice.DeviceType = openRGBDevice.Type.ToString();
-                        convertedDevice.FirmwareVersion = openRGBDevice.Version;
-                        convertedDevice.OutputPort = AmbinityClient.Client.ToString();
-                        convertedDevice.DeviceDescription = "Device Supported Throught Open RGB Client";
-                        convertedDevice.DeviceConnectionType = "OpenRGB";
-                        //convertedDevice.DeviceID = AvailableDevices.Count + 1;// this is removed due to unneccessary of device ID, replaced with deviceUID
-                        convertedDevice.DeviceSerial = openRGBDevice.Serial;
-                        convertedDevice.DeviceUID = openRGBDevice.Name + openRGBDevice.Version + openRGBDevice.Location;
-                        convertedDevice.Geometry = "orgb";
-                        convertedDevice.DeviceConnectionGeometry = "orgb";
-                        //convertedDevice.AvailableOutputs = new OutputSettings[openRGBDevice.Zones.Length];
-                        int zoneCount = 0;
-                        foreach (var zone in openRGBDevice.Zones)
+                        var deviceName = openRGBDevice.Name.ToValidFileName();
+                        var deviceUID = Guid.NewGuid().ToString();
+                        if (MainViewViewModel.AvailableDevices.Any(d => d.DeviceName + d.OutputPort == deviceName + openRGBDevice.Location))
                         {
-                            switch (zone.Type)
-                            {
-                                //case OpenRGB.NET.Enums.ZoneType.Single:
-                                //    convertedDevice.AvailableOutputs[zoneCount] = DefaulOutputCollection.GenericLEDStrip(zoneCount, 1, zone.Name, 1, true, "ledstrip");
-                                //    break;
-
-                                //case OpenRGB.NET.Enums.ZoneType.Linear:
-                                //    convertedDevice.AvailableOutputs[zoneCount] = DefaulOutputCollection.GenericLEDStrip(zoneCount, (int)zone.LedCount, zone.Name, 1, true, "ledstrip");
-                                //    break;
-
-                                //case OpenRGB.NET.Enums.ZoneType.Matrix:
-                                //    convertedDevice.AvailableOutputs[zoneCount] = DefaulOutputCollection.GenericLEDMatrix(zoneCount, (int)zone.MatrixMap.Width, (int)zone.MatrixMap.Height, zone.Name, 1, true, "matrix");
-                                //    break;
-                            }
-                            zoneCount++;
+                            MainViewViewModel.AvailableDevices.Where(d => d.DeviceName + d.OutputPort == deviceName + openRGBDevice.Location).FirstOrDefault().IsTransferActive = true;
+                            continue;
                         }
+
+                        var convertedDevice = new SlaveDeviceHelpers().DefaultCreateOpenRGBDevice(openRGBDevice.Type, deviceName, openRGBDevice.Location, openRGBDevice.Serial, deviceUID);
+                        var zonesData = new ZoneData[openRGBDevice.Zones.Length];
+                        for (int i = 0; i < openRGBDevice.Zones.Length; i++)
+                        {
+                            var currentZone = openRGBDevice.Zones[i];
+                            ZoneData currentZoneData = null;
+                            switch (currentZone.Type)
+                            {
+                                case OpenRGB.NET.Enums.ZoneType.Single:
+                                    currentZoneData = new ZoneData(currentZone.Name, 1, 1, 50, 50);
+                                    break;
+
+                                case OpenRGB.NET.Enums.ZoneType.Linear:
+                                    currentZoneData = new ZoneData(currentZone.Name, (int)currentZone.LedCount, 1, (int)currentZone.LedCount * 50, 50);
+                                    break;
+
+                                case OpenRGB.NET.Enums.ZoneType.Matrix:
+                                    currentZoneData = new ZoneData(currentZone.Name, (int)currentZone.MatrixMap.Width, (int)currentZone.MatrixMap.Height, (int)currentZone.MatrixMap.Width * 50, (int)currentZone.MatrixMap.Height * 50);
+                                    break;
+                            }
+                            zonesData[i] = currentZoneData;
+                        }
+                        convertedDevice.DashboardWidth = 230;
+                        convertedDevice.DashboardHeight = 270;
+                        convertedDevice.AvailableControllers[0].Outputs[0].SlaveDevice = new SlaveDeviceHelpers().DefaultCreatedSlaveDevice("Generic LED Strip", SlaveDeviceTypeEnum.LEDStrip, zonesData);
+                        convertedDevice.UpdateChildSize();
                         convertedDevice.IsTransferActive = true;
-                        convertedDevice.IsEnabled = true;
                         newDevices.Add(convertedDevice);
                     }
                     catch (Exception ex)
@@ -204,8 +182,8 @@ namespace adrilight
             var newDevicesDetected = new List<IDeviceSettings>();
             var oldDeviceReconnected = new List<IDeviceSettings>();
             _isSerialScanCompelete = false;
-            ISerialDeviceDetection detector = new SerialDeviceDetection(MainViewViewModel.AvailableDevices.Where(p => p.DeviceConnectionType == "wired").ToList());
-           
+            ISerialDeviceDetection detector = new SerialDeviceDetection(MainViewViewModel.AvailableDevices.Where(p => p.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.Wired).ToList());
+
 
             var jobTask = Task.Run(() =>
             {

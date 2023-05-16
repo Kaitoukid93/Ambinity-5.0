@@ -37,6 +37,8 @@ using System.Windows.Automation.Peers;
 using Rectangle = System.Drawing.Rectangle;
 using MoreLinq;
 using SharpDX.WIC;
+using adrilight.Util.ModeParameters;
+using ColorPicker;
 
 namespace adrilight
 {
@@ -91,11 +93,11 @@ namespace adrilight
                     var isRunning = _cancellationTokenSource != null;
                     if (isRunning || (CurrentZone.CurrentActiveControlMode as LightingMode).BasedOn == Type)
                         Refresh();
-                    break;
-                case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
-                    //case nameof(MainViewViewModel.IsRegisteringGroup):
-                    // case nameof(_colorControl):
-                    Refresh();
+                   // break;
+                //case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
+                //    //case nameof(MainViewViewModel.IsRegisteringGroup):
+                //    // case nameof(_colorControl):
+                //    Refresh();
                     break;
 
             }
@@ -108,9 +110,11 @@ namespace adrilight
         private CancellationTokenSource _cancellationTokenSource;
         private Thread _workerThread;
         private LightingMode _currentLightingMode;
-        private IModeParameter _colorControl;
-        private IModeParameter _brightnessControl;
-        private IParameterValue _selectedColorSource;
+
+        private ListSelectionParameter _colorControl;
+        private SliderParameter _brightnessControl;
+        private ListSelectionParameter _midDataControl;
+
         private Color[] _colorBank;
         private double _brightness;
         private int _speed;
@@ -120,8 +124,6 @@ namespace adrilight
         private Tick[] _ticks;
         private object _lock = new object();
         private bool _shouldBeMoving;
-        private IModeParameter _midDataControl;
-        private MIDDataModel _midPath;
         private int _dancingMode;
         private int _vuMode;
         private enum colorUseEnum { StaticPalette, MovingPalette, CyclicPalette };
@@ -129,12 +131,12 @@ namespace adrilight
         #region Properties changed event handler 
         private void OnSelectedMIDDataChanged(IParameterValue value)
         {
-            _midPath = value as MIDDataModel;
-            if (_midPath.ExecutionType == VIDType.PositonGeneratedID)
+            var mid = value as MIDDataModel;
+            if (mid.ExecutionType == VIDType.PositonGeneratedID)
             {
                 _midDataControl.SubParams[0].IsEnabled = false;
                 //generate VID for this zone here
-                GenerateMID(_midPath.Frequency);
+                GenerateMID(mid.Frequency);
             }
             else
             {
@@ -163,7 +165,7 @@ namespace adrilight
         }
         private void OnSelectedPaletteChanged(IParameterValue value)
         {
-            _selectedColorSource = value;
+
             if (value is ColorPalette)
             {
                 //show sub params
@@ -186,7 +188,7 @@ namespace adrilight
         private void OnPaletteIntensityPropertyChanged(int value)
         {
             _paletteIntensity = value;
-            GetColorBank(_selectedColorSource);
+            GetColorBank(_colorControl.SelectedValue);
         }
         private void OnPaletteSpeedPropertyChanged(int value)
         {
@@ -202,12 +204,12 @@ namespace adrilight
                 case 1:
                     _colorControl.SubParams[2].IsEnabled = true;
                     _colorControl.SubParams[1].IsEnabled = true;
-                    GetColorBank(_selectedColorSource);
+                    GetColorBank(_colorControl.SelectedValue);
                     break;
                 case 0:
                     _colorControl.SubParams[2].IsEnabled = false;
                     _colorControl.SubParams[1].IsEnabled = false;
-                    GetColorBank(_selectedColorSource);
+                    GetColorBank(_colorControl.SelectedValue);
                     break;
 
             }
@@ -323,7 +325,7 @@ namespace adrilight
             else if (!isRunning && shouldBeRunning)
             {
                 //start it
-               
+                Init();
                 _log.Debug("starting the Static Color Engine");
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
@@ -333,8 +335,63 @@ namespace adrilight
                 };
                 _workerThread.Start();
             }
+            else if (isRunning && shouldBeRunning)
+            {
+                Init();
+            }
 
 
+        }
+        public void Init()
+        {
+            #region registering params
+            _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.MixedColor).FirstOrDefault() as ListSelectionParameter;
+            _colorControl.PropertyChanged += (_, __) =>
+            {
+                switch (__.PropertyName)
+                {
+                    case nameof(_colorControl.SelectedValue):
+                        OnSelectedPaletteChanged(_colorControl.SelectedValue);
+                        break;
+                }
+            };
+            _midDataControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.MID).FirstOrDefault() as ListSelectionParameter;
+            _midDataControl.PropertyChanged += (_, __) =>
+            {
+                switch (__.PropertyName)
+                {
+                    case nameof(_midDataControl.SelectedValue):
+                        OnSelectedMIDDataChanged(_midDataControl.SelectedValue);
+                        break;
+                }
+            };
+            _colorControl.SubParams[0].PropertyChanged += (_, __) => OnColorUsePropertyChanged(_colorControl.SubParams[0].Value);
+            _colorControl.SubParams[2].PropertyChanged += (_, __) => OnPaletteIntensityPropertyChanged(_colorControl.SubParams[2].Value);
+            _colorControl.SubParams[1].PropertyChanged += (_, __) => OnPaletteSpeedPropertyChanged(_colorControl.SubParams[1].Value);
+            _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
+            _brightnessControl.PropertyChanged += (_, __) => OnBrightnessValueChanged(_brightnessControl.Value);
+            _midDataControl.SubParams[1].PropertyChanged += (_, __) => OnDancingModePropertyChanged(_midDataControl.SubParams[1].Value);
+            _midDataControl.SubParams[2].PropertyChanged += (_, __) => OnVUModePropertyChanged(_midDataControl.SubParams[2].Value);
+            _colorControl.LoadAvailableValues();
+            _midDataControl.LoadAvailableValues();
+            #endregion
+            //safety check
+            if (_colorControl.SelectedValue == null)
+            {
+                _colorControl.SelectedValue = _colorControl.AvailableValues.First();
+            }
+            OnSelectedPaletteChanged(_colorControl.SelectedValue);
+            if (_midDataControl.SelectedValue == null)
+            {
+                _midDataControl.SelectedValue = _midDataControl.AvailableValues.First();
+            }
+            OnSelectedMIDDataChanged(_midDataControl.SelectedValue);
+            OnColorUsePropertyChanged(_colorControl.SubParams[0].Value);
+            OnPaletteIntensityPropertyChanged(_colorControl.SubParams[2].Value);
+            OnPaletteSpeedPropertyChanged(_colorControl.SubParams[1].Value);
+            OnBrightnessValueChanged(_brightnessControl.Value);
+            OnDancingModePropertyChanged(_midDataControl.SubParams[1].Value);
+            OnVUModePropertyChanged(_midDataControl.SubParams[2].Value);
         }
         public void Run(CancellationToken token)
         {
@@ -344,40 +401,11 @@ namespace adrilight
 
             try
             {
-                #region registering params
-                _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.MixedColor).FirstOrDefault();
-                _colorControl.PropertyChanged += (_, __) =>
-                {
-                    switch (__.PropertyName)
-                    {
-                        case nameof(_colorControl.SelectedValue):
-                            OnSelectedPaletteChanged(_colorControl.SelectedValue);
-                            break;
-                    }
-                };
-
-                _colorControl.SubParams[0].PropertyChanged += (_, __) => OnColorUsePropertyChanged(_colorControl.SubParams[0].Value);
-                _colorControl.SubParams[2].PropertyChanged += (_, __) => OnPaletteIntensityPropertyChanged(_colorControl.SubParams[2].Value);
-                _colorControl.SubParams[1].PropertyChanged += (_, __) => OnPaletteSpeedPropertyChanged(_colorControl.SubParams[1].Value);
-                _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault();
-                _brightnessControl.PropertyChanged += (_, __) => OnBrightnessValueChanged(_brightnessControl.Value);
-                _midDataControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.MID).FirstOrDefault();
-                _midDataControl.PropertyChanged += (_, __) => OnSelectedMIDDataChanged(_midDataControl.SelectedValue);
-                _midDataControl.SubParams[1].PropertyChanged += (_, __) => OnDancingModePropertyChanged(_midDataControl.SubParams[1].Value);
-                _midDataControl.SubParams[2].PropertyChanged += (_, __) => OnVUModePropertyChanged(_midDataControl.SubParams[2].Value);
-                #endregion
-                _selectedColorSource = _colorControl.SelectedValue;
-                OnSelectedPaletteChanged(_selectedColorSource);
-                OnColorUsePropertyChanged(_colorControl.SubParams[0].Value);
-                OnPaletteIntensityPropertyChanged(_colorControl.SubParams[2].Value);
-                OnPaletteSpeedPropertyChanged(_colorControl.SubParams[1].Value);
-                OnBrightnessValueChanged(_brightnessControl.Value);
-                OnSelectedMIDDataChanged(_midDataControl.SelectedValue);
-                OnDancingModePropertyChanged(_midDataControl.SubParams[1].Value);
-                OnVUModePropertyChanged(_midDataControl.SubParams[2].Value);
-                var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
+               
+                
                 while (!token.IsCancellationRequested)
                 {
+                    var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
                     bool isPreviewRunning = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated;
                     NextTick();
                     var ledCount = CurrentZone.Spots.Count();

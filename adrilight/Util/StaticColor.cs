@@ -27,6 +27,7 @@ using System.Net;
 using MathNet.Numerics.Distributions;
 using MoreLinq;
 using SharpDX.Direct2D1.Effects;
+using adrilight.Util.ModeParameters;
 
 namespace adrilight
 {
@@ -84,11 +85,11 @@ namespace adrilight
                     if (isRunning || (CurrentZone.CurrentActiveControlMode as LightingMode).BasedOn == Type)
                         Refresh();
                     break;
-                case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
-                //case nameof(MainViewViewModel.IsRegisteringGroup):
-                //case nameof(_colorControl):
-                    Refresh();
-                    break;
+                //case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
+                ////case nameof(MainViewViewModel.IsRegisteringGroup):
+                ////case nameof(_colorControl):
+                //    Refresh();
+                  //  break;
                 case nameof(GeneralSettings.BreathingSpeed):
                     OnSystemBreathingSpeedChanged(GeneralSettings.BreathingSpeed);
                     break;
@@ -102,9 +103,11 @@ namespace adrilight
         private CancellationTokenSource _cancellationTokenSource;
         private Thread _workerThread;
         private LightingMode _currentLightingMode;
-        private IModeParameter _colorControl;
-        private IModeParameter _breathingControl;
-        private IModeParameter _brightnessControl;
+
+        private ListSelectionParameter _colorControl;
+        private ToggleParameter _breathingControl;
+        private SliderParameter _brightnessControl;
+
         private ColorCard _color;
         private bool _isSystemSync;
         private bool _isBreathing;
@@ -139,8 +142,15 @@ namespace adrilight
         }
         private void OnSelectedColorValueChanged(IParameterValue value)
         {
-            _color = value as ColorCard;
-            _colors = GetColorGradient(_color.StartColor, _color.StopColor, CurrentZone.Spots.Count()).ToArray();
+            var colorCard = value as ColorCard;
+            int numColors;
+            if (CurrentZone.Spots.Count < 2)
+                numColors = 2;
+            else
+            {
+                numColors = CurrentZone.Spots.Count();
+            }
+            _colors = GetColorGradient(colorCard.StartColor, colorCard.StopColor, numColors).ToArray();
         }
         private void OnIsBreathingValueChanged(bool value)
         {
@@ -199,7 +209,7 @@ namespace adrilight
             else if (!isRunning && shouldBeRunning)
             {
                 //start it
-               
+                Init();
                 _log.Debug("starting the Static Color Engine");
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
@@ -209,8 +219,44 @@ namespace adrilight
                 };
                 _workerThread.Start();
             }
+            else if (isRunning && shouldBeRunning)
+            {
+                Init();
+            }
 
-
+        }
+        public void Init()
+        {
+            #region registering params
+            _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Color).FirstOrDefault() as ListSelectionParameter;
+            _colorControl.PropertyChanged += (_, __) =>
+            {
+                switch (__.PropertyName)
+                {
+                    case nameof(_colorControl.SelectedValue):
+                        OnSelectedColorValueChanged(_colorControl.SelectedValue);
+                        break;
+                }
+            };
+            _breathingControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Breathing).FirstOrDefault() as ToggleParameter;
+            _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
+            _brightnessControl.PropertyChanged += (_, __) => OnBrightnessValueChanged(_brightnessControl.Value);
+            _breathingControl.PropertyChanged += (_, __) => OnIsBreathingValueChanged(_breathingControl.Value == 1 ? true : false);
+            _breathingControl.SubParams[0].PropertyChanged += (_, __) => OnBreathingSpeedValueChanged(_breathingControl.SubParams[0].Value);
+            _breathingControl.SubParams[2].PropertyChanged += (_, __) => OnSystemSyncValueChanged(_breathingControl.SubParams[2].Value == 1 ? true : false);
+            _breathingControl.SubParams[1].PropertyChanged += (_, __) => OnSystemSyncBreathingSpeedValueChange(_breathingControl.SubParams[1].Value);
+            _colorControl.LoadAvailableValues();
+            #endregion
+            //safety check
+            if (_colorControl.SelectedValue == null)
+            {
+                _colorControl.SelectedValue = _colorControl.AvailableValues.First();
+            }
+            OnIsBreathingValueChanged(_breathingControl.Value == 1 ? true : false);
+            OnSystemSyncValueChanged(_breathingControl.SubParams[2].Value == 1 ? true : false);
+            OnSelectedColorValueChanged(_colorControl.SelectedValue);
+            OnBreathingSpeedValueChanged(_breathingControl.SubParams[0].Value);
+            OnBrightnessValueChanged(_brightnessControl.Value);
         }
         public void Run(CancellationToken token)
         {
@@ -219,31 +265,11 @@ namespace adrilight
 
             IsRunning = true;
             try
-            {
-                #region registering params
-                _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Color).FirstOrDefault();
-                _breathingControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Breathing).FirstOrDefault();
-                _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault();
-                _brightnessControl.PropertyChanged += (_, __) => OnBrightnessValueChanged(_brightnessControl.Value);
-                _breathingControl.PropertyChanged += (_, __) => OnIsBreathingValueChanged(_breathingControl.Value == 1 ? true : false);
-                _breathingControl.SubParams[0].PropertyChanged += (_, __) => OnBreathingSpeedValueChanged(_breathingControl.SubParams[0].Value);
-                _breathingControl.SubParams[2].PropertyChanged += (_, __) => OnSystemSyncValueChanged(_breathingControl.SubParams[2].Value == 1 ? true : false);
-                _breathingControl.SubParams[1].PropertyChanged += (_, __) => OnSystemSyncBreathingSpeedValueChange(_breathingControl.SubParams[1].Value);
-                _colorControl.PropertyChanged += (_, __) => OnSelectedColorValueChanged(_colorControl.SelectedValue);
-                #endregion
-                _isBreathing = _breathingControl.Value == 1 ? true : false;
-                OnIsBreathingValueChanged(_isBreathing);
-                _isSystemSync = _breathingControl.SubParams[2].Value == 1 ? true : false;
-                OnSystemSyncValueChanged(_isSystemSync);
-                _color = _colorControl.SelectedValue as ColorCard;
-                _colors = GetColorGradient(_color.StartColor, _color.StopColor, CurrentZone.Spots.Count()).ToArray();
-                _breathingSpeed = 2000 - _breathingControl.SubParams[0].Value;
-                _brightness = _brightnessControl.Value / 100d;
-                var startIndex = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
-
-
+            {     
+                
                 while (!token.IsCancellationRequested)
                 {
+                    var startIndex = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
                     bool isPreviewRunning = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated;
 
                     if (_isBreathing)

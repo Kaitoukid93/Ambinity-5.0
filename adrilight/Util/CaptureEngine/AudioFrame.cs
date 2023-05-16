@@ -130,7 +130,7 @@ namespace adrilight
                 StartBassWasapi();
                 while (!token.IsCancellationRequested)
                 {
-                    var isPreviewWindowOpen = MainViewModel.IsInIDEditStage && MainViewModel.IdEditMode == MainViewViewModel.IDMode.FID;
+                    var isPreviewWindowOpen = MainViewModel.IsInIDEditStage && MainViewModel.IdEditMode == MainViewViewModel.IDMode.FID|| MainViewModel.IsAudioSelectionOpen;
                     GetCurrentFFTFrame(32);
                     lock(Lock)
                     {

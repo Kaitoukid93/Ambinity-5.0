@@ -36,12 +36,12 @@ namespace adrilight.View
         private void CheckComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var mainViewModel = this.DataContext as MainViewViewModel;
-            foreach (DeviceTypeDataEnum item in e.AddedItems)
+            foreach (DeviceType item in e.AddedItems)
             {
                 mainViewModel.OnlineItemSelectedTargetTypes.Add(item);
             }
 
-            foreach (DeviceTypeDataEnum item in e.RemovedItems)
+            foreach (DeviceType item in e.RemovedItems)
             {
                 mainViewModel.OnlineItemSelectedTargetTypes.Remove(item);
             }

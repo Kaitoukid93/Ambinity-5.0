@@ -11,6 +11,7 @@ using System.Windows;
 using adrilight.Spots;
 using System.Collections.Generic;
 using adrilight.Settings;
+using Renci.SshNet.Messages;
 
 namespace adrilight
 {
@@ -69,19 +70,19 @@ namespace adrilight
 
                     //start it
                     //find out which position 
-                    lock(AmbinityClient.Lock)
+                    lock (AmbinityClient.Lock)
                     {
                         for (var i = 0; i < AmbinityClient.Client.GetControllerCount(); i++)
                         {
                             var device = AmbinityClient.Client.GetControllerData(i);
-                            var uid = device.Name + device.Version + device.Location;
-                            if (DeviceSettings.DeviceUID == uid)
+                            var deviceName = device.Name.ToValidFileName();
+                            if (DeviceSettings.DeviceName + DeviceSettings.OutputPort == deviceName + device.Location)
                                 //so we're at i
                                 index = i;
 
                         }
                     }
-                  
+
                     _log.Debug("starting the OpenRGB stream for device Name : " + DeviceSettings.DeviceName);
                     Start();
                 }
@@ -109,7 +110,7 @@ namespace adrilight
                 Stop();
                 Thread.Sleep(1000);
             }
-           
+
         }
 
 
@@ -152,115 +153,116 @@ namespace adrilight
 
 
 
-      /*  private OpenRGB.NET.Models.Color[] GetOutputStream(IOutputSettings output)
+        private OpenRGB.NET.Models.Color[] GetOutputStream(ISlaveDevice device)
         {
-            var currentOutput = output;
-            OpenRGB.NET.Models.Color[] outputColor = new OpenRGB.NET.Models.Color[currentOutput.OutputLEDSetup.Spots.Count];
-            int counter = 0;
-            lock (currentOutput.OutputLEDSetup.Lock)
+            var currentDevice = device as ARGBLEDSlaveDevice;
+            int ledCount = currentDevice.LEDCount;
+            OpenRGB.NET.Models.Color[] outputColor = new OpenRGB.NET.Models.Color[ledCount];
+            foreach (var zone in currentDevice.ControlableZones)
             {
-                var isEnabled = currentOutput.OutputIsEnabled;
-                var parrentIsEnabled = DeviceSettings.IsEnabled;
-                var allBlack = true;
-                //}
-                switch (DeviceSettings.CurrentState)
+                var currentZone = zone as LEDSetup;
+                lock (currentZone.Lock)
                 {
-                    case State.normal: // get data from ledsetup
-                        if (!DeviceSettings.IsEnabled || !output.OutputIsEnabled)
-                        {
-
-                                output.OutputLEDSetup.DimLED(0.9f);
-
-                        }
-
-
-                        foreach (DeviceSpot spot in currentOutput.OutputLEDSetup.Spots)
-                        {
-
-                            var RGBOrder = currentOutput.OutputRGBLEDOrder;
-                            var reOrderedColor = ReOrderSpotColor(RGBOrder, spot.Red, spot.Green, spot.Blue);
-
-
-                            outputColor[counter++] = new OpenRGB.NET.Models.Color(reOrderedColor[0], reOrderedColor[1], reOrderedColor[2]);
-
-                            allBlack = allBlack && spot.Red == 0 && spot.Green == 0 && spot.Blue == 0;
-
-                        }
-                        break;
-                    case State.sleep: // send black frame data
-                        foreach (DeviceSpot spot in currentOutput.OutputLEDSetup.Spots)
-                        {
-
-                            switch (currentOutput.SleepMode)
+                    var isEnabled = currentZone.IsEnabled;
+                    var parrentIsEnabled = DeviceSettings.IsEnabled;
+                    var allBlack = true;
+                    //}
+                    switch (DeviceSettings.DeviceState)
+                    {
+                        case DeviceStateEnum.Normal: // get data from ledsetup
+                            if (!DeviceSettings.IsEnabled || !currentZone.IsEnabled)
                             {
-                                case 0:
-                                    if (isEnabled && parrentIsEnabled)
-                                    {
 
+                                currentZone.DimLED(0.9f);
 
-                                        outputColor[counter++] = new OpenRGB.NET.Models.Color(0, 0, 0);
-
-                                    }
-                                    break;
-                                case 1:
-                                    if (isEnabled && parrentIsEnabled)
-                                    {
-                                        var RGBOrder = currentOutput.OutputRGBLEDOrder;
-                                        var reOrderedColor = ReOrderSpotColor(RGBOrder, spot.SentryRed, spot.SentryGreen, spot.SentryBlue);
-
-                                        outputColor[counter++] = new OpenRGB.NET.Models.Color(reOrderedColor[0], reOrderedColor[1], reOrderedColor[2]);
-
-                                    }
-                                    break;
                             }
 
-                        }
-                        break;
+                            foreach (DeviceSpot spot in currentZone.Spots)
+                            {
+
+                                var RGBOrder = currentZone.RGBLEDOrder;
+                                var reOrderedColor = ReOrderSpotColor(RGBOrder, spot.Red, spot.Green, spot.Blue);
+                                outputColor[spot.Index] = new OpenRGB.NET.Models.Color(reOrderedColor[0], reOrderedColor[1], reOrderedColor[2]);
+                                allBlack = allBlack && spot.Red == 0 && spot.Green == 0 && spot.Blue == 0;
+
+                            }
+                            break;
+                        case DeviceStateEnum.Sleep: // send black frame data
+                            foreach (DeviceSpot spot in currentZone.Spots)
+                            {
+
+                                //switch (currentZone.SleepMode)
+                                //{
+                                //    case 0:
+                                //        if (isEnabled && parrentIsEnabled)
+                                //        {
+
+
+                                //            outputColor[counter++] = new OpenRGB.NET.Models.Color(0, 0, 0);
+
+                                //        }
+                                //        break;
+                                //    case 1:
+                                //        if (isEnabled && parrentIsEnabled)
+                                //        {
+                                //            var RGBOrder = currentOutput.OutputRGBLEDOrder;
+                                //            var reOrderedColor = ReOrderSpotColor(RGBOrder, spot.SentryRed, spot.SentryGreen, spot.SentryBlue);
+
+                                //            outputColor[counter++] = new OpenRGB.NET.Models.Color(reOrderedColor[0], reOrderedColor[1], reOrderedColor[2]);
+
+                                //        }
+                                //        break;
+                                //}
+
+                            }
+                            break;
+
+                    }
+
+
+
 
                 }
-
-
-
-                return outputColor;
             }
 
+            return outputColor;
 
 
 
 
         }
-      */
-        private byte[] ReOrderSpotColor(string order, byte r, byte g, byte b)
+
+        private byte[] ReOrderSpotColor(RGBLEDOrderEnum order, byte r, byte g, byte b)
         {
             byte[] reOrderedColor = new byte[3];
             switch (order)
             {
-                case "RGB"://do nothing
+                case RGBLEDOrderEnum.RGB:
                     reOrderedColor[0] = r;
                     reOrderedColor[1] = g;
                     reOrderedColor[2] = b;
                     break;
-                case "RBG"://do nothing
+                case RGBLEDOrderEnum.RBG:
                     reOrderedColor[0] = r;
                     reOrderedColor[1] = b;
                     reOrderedColor[2] = g;
                     break;
-                case "BGR"://do nothing
+                case RGBLEDOrderEnum.BGR:
                     reOrderedColor[0] = b;
                     reOrderedColor[1] = g;
                     reOrderedColor[2] = r;
                     break;
-                case "BRG"://do nothing
+                case RGBLEDOrderEnum.BRG:
                     reOrderedColor[0] = b;
                     reOrderedColor[1] = r;
                     reOrderedColor[2] = g;
                     break;
-                case "GRB"://do nothing
+                case RGBLEDOrderEnum.GRB:
                     reOrderedColor[0] = g;
                     reOrderedColor[1] = r;
                     reOrderedColor[2] = b;
                     break;
-                case "GBR"://do nothing
+                case RGBLEDOrderEnum.GBR:
                     reOrderedColor[0] = g;
                     reOrderedColor[1] = b;
                     reOrderedColor[2] = r;
@@ -288,7 +290,7 @@ namespace adrilight
 
             //retry after exceptions...
             while (!cancellationToken.IsCancellationRequested)
-            {/*
+            {
                 try
                 {
 
@@ -298,38 +300,29 @@ namespace adrilight
                     while (!cancellationToken.IsCancellationRequested)
                     {
 
-
+                        var deviceColors = new List<OpenRGB.NET.Models.Color>();
                         //send frame data
-                            foreach (var output in DeviceSettings.AvailableOutputs)
+
+                        var outputColor = GetOutputStream(DeviceSettings.AvailableLightingOutputs[0].SlaveDevice);
+                        if (outputColor != null)
+                        {
+                            foreach (var color in outputColor)
                             {
-
-                                var deviceColors = new List<OpenRGB.NET.Models.Color>();
-                                for (int i = 0; i < DeviceSettings.AvailableOutputs.Length; i++)
-                                {
-
-                                    var outputColor = GetOutputStream(DeviceSettings.AvailableOutputs[i]);
-                                    if (outputColor != null)
-                                    {
-                                        foreach (var color in outputColor)
-                                            deviceColors.Add(color);
-
-
-                                    }
-
-                                }
-                                lock(AmbinityClient.Lock)
-                                {
-                                    AmbinityClient.Client.UpdateLeds(index, deviceColors.ToArray());
-                                }
-                                
-
-                            
+                                    deviceColors.Add(color == null ? new OpenRGB.NET.Models.Color(0, 0, 0) : color);
+                            }
+                               
                         }
-                        Thread.Sleep(15);
+
+
+                        lock (AmbinityClient.Lock)
+                        {
+                            AmbinityClient.Client.UpdateLeds(index, deviceColors.ToArray());
+                        }
+                        Thread.Sleep(30);
                     }
 
                 }
-                
+
                 catch (OperationCanceledException)
                 {
                     _log.Debug("OperationCanceledException catched. returning.");
@@ -350,11 +343,11 @@ namespace adrilight
                 }
                 finally
                 {
-                  //do nothing at the moment because AmbinityCilent is holding the Client
+                    //do nothing at the moment because AmbinityCilent is holding the Client
 
 
                 }
-            */
+
             }
 
         }
