@@ -2,6 +2,8 @@
 using Color = System.Windows.Media.Color;
 using System.Windows.Media;
 using System.ComponentModel;
+using System.Windows.Shapes;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace adrilight.Spots
 {
@@ -30,7 +32,7 @@ namespace adrilight.Spots
         bool IsActivated { get; set; }
 
 
-        string Shape { get; set; }
+        Geometry Geometry { get; set; }
         void DimLED(float dimFactor);
         void SetColor(byte red, byte green, byte blue, bool raiseEvents);
         void SetSentryColor(byte red, byte green, byte blue);

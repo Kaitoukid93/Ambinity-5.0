@@ -14,6 +14,7 @@
             
            Height="357" 
            Width="400" 
+           SizeToContent="Height"
            WindowStartupLocation="CenterOwner" 
            Left="0" Top="0">
 
@@ -34,16 +35,31 @@
             <TextBox Text="{Binding NewProfileOwner, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" MaxLength="100" Margin="10" hc:InfoElement.Placeholder="Ví dụ : Zooey" hc:InfoElement.Title="NGƯỜI TẠO" Style="{StaticResource TextBoxExtend}" hc:InfoElement.Necessary="True" />
             <TextBox Text="{Binding NewProfileDescription, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" MaxLength="100" Margin="10" hc:InfoElement.Placeholder="Ví dụ : Nice Palette" hc:InfoElement.Title="MÔ TẢ" Style="{StaticResource TextBoxExtend}" hc:InfoElement.Necessary="False" />
              
+           
+            <Grid>
+                <hc:CheckComboBox Margin="10"
+                                                                BorderThickness="0" 
+                                                                ItemsSource="{Binding AvailableDevices}"
+                                                                Background="{DynamicResource DarkOpacityBrush}" 
+                                                                DisplayMemberPath="DeviceName" 
+                                                                MinWidth ="150" 
+                                                                MaxWidth="512" 
+                                                                SelectionChanged="CheckComboBox_SelectionChanged"
+                                                                ShowSelectAllButton="True" 
+                                                                hc:InfoElement.Necessary="True"
+                                                                hc:TitleElement.Title="Chọn thiết bị tham gia vào profile này"
+                                                                Style="{DynamicResource CheckComboBoxPlus}">
+                </hc:CheckComboBox>
+            </Grid>
             <Grid >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Click="Button_Click" Command="{Binding CreateNewProfileCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
+                <Button Command="{Binding CreateNewProfileCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
                 <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
             </Grid>
-            
         </StackPanel>
 
 

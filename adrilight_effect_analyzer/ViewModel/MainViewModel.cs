@@ -6,18 +6,24 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Markup;
 using System.Windows.Media;
+using System.Xml;
 using Color = System.Windows.Media.Color;
 using ColorConverter = System.Windows.Media.ColorConverter;
+using Frame = adrilight_effect_analyzer.Model.Frame;
 
 namespace adrilight_effect_analyzer.ViewModel
 {
@@ -29,6 +35,7 @@ namespace adrilight_effect_analyzer.ViewModel
         }
 
         public ICommand SelectFrameDataFolderCommand { get; set; }
+        public ICommand SelectDeviceGeometryGroupCommand { get; set; }
         public ICommand SelectColorDataFolderCommand { get; set; }
         public void SetupCommand()
         {
@@ -48,6 +55,14 @@ namespace adrilight_effect_analyzer.ViewModel
                 SelectColorDataFolder();
             }
       );
+            SelectDeviceGeometryGroupCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                SelectDeviceGeometryGroupDataFolder();
+            }
+);
         }
         private Frame _currentFrame;
         public Frame CurrentFrame
@@ -72,6 +87,35 @@ namespace adrilight_effect_analyzer.ViewModel
                 RaisePropertyChanged(nameof(Layer));
             }
         }
+        private void SelectDeviceGeometryGroupDataFolder()
+        {
+            System.Windows.Forms.OpenFileDialog Import = new System.Windows.Forms.OpenFileDialog();
+            Import.Title = "Chọn ColorCollection files";
+            Import.CheckFileExists = true;
+            Import.CheckPathExists = true;
+            Import.DefaultExt = "Pro";
+            Import.Filter = "Text files (*.txt)|*.TXT";
+            Import.FilterIndex = 2;
+            Import.Multiselect = false;
+
+            Import.ShowDialog();
+
+            var ColorsText = System.IO.File.ReadAllText(Import.FileName);
+            StringReader sr = new StringReader(ColorsText);
+
+            XmlReader reader = XmlReader.Create(sr);
+
+            GeometryGroup gr = (GeometryGroup)XamlReader.Load(reader);
+            foreach (var path in gr.Children)
+            {
+                double currentLeft = path.Bounds.Left;
+                double currentTop = path.Bounds.Top;
+                double currentWidth = path.Bounds.Width;
+                double currentHeight = path.Bounds.Height;
+                Debug.WriteLine(currentLeft + "-" + currentTop + "|" + currentWidth + "x" + currentHeight);
+
+            }
+        }
         private void SelectColorDataFolder()
         {
 
@@ -88,7 +132,7 @@ namespace adrilight_effect_analyzer.ViewModel
 
             var colors = new List<System.Windows.Media.Color>();
             var ColorsText = System.IO.File.ReadAllLines(Import.FileName);
-            foreach(var colorText in ColorsText)
+            foreach (var colorText in ColorsText)
             {
                 colors.Add((Color)ColorConverter.ConvertFromString(colorText));
             }
@@ -101,11 +145,11 @@ namespace adrilight_effect_analyzer.ViewModel
             }
             var colorsArray = colors.ToArray();
             //add gradients
-            for(int i=0;i<colors.Count();i+=2)
+            for (int i = 0; i < colors.Count(); i += 2)
             {
-                ColorCardCollection.Add(new ColorCard(colorsArray[i], colorsArray[i+1]));
+                ColorCardCollection.Add(new ColorCard(colorsArray[i], colorsArray[i + 1]));
             }
-            
+
             var json = JsonConvert.SerializeObject(ColorCardCollection, new JsonSerializerSettings()
             {
                 TypeNameHandling = TypeNameHandling.Auto
@@ -127,7 +171,7 @@ namespace adrilight_effect_analyzer.ViewModel
 
 
             Layer = new Motion(Import.FileNames.Length);
-            for(int i=0;i<Import.FileNames.Length;i++)
+            for (int i = 0; i < Import.FileNames.Length; i++)
             {
                 BitmapData bitmapData = new BitmapData();
                 Bitmap curentFrame = new Bitmap(Import.FileNames[i]);
@@ -162,10 +206,10 @@ namespace adrilight_effect_analyzer.ViewModel
                     System.Windows.Media.Color pixelColor = new System.Windows.Media.Color();
                     pixelColor = System.Windows.Media.Color.FromRgb((byte)(sumR * countInverse), (byte)(sumG * countInverse), (byte)(sumB * countInverse));
                     //add displaypixel to current frame
-                    
+
                 }
                 var newFrame = new Frame(256);
-                for (int j= 0;j < brightnessMap.Count(); j++)
+                for (int j = 0; j < brightnessMap.Count(); j++)
                 {
                     newFrame.BrightnessData[j] = brightnessMap[j];
                 }
@@ -204,8 +248,8 @@ namespace adrilight_effect_analyzer.ViewModel
                 count += stepCount;
             }
         }
-    
-       
+
+
 
         private Rectangle[] BuildMatrix(int rectwidth, int rectheight, int spotsX, int spotsY)
         {
@@ -217,7 +261,7 @@ namespace adrilight_effect_analyzer.ViewModel
             Rectangle[] rectangleSet = new Rectangle[spotsX * spotsY];
             var rectWidth = (rectwidth - (spacing * (spotsX + 1))) / spotsX;
             var rectHeight = (rectheight - (spacing * (spotsY + 1))) / spotsY;
-            
+
 
 
             //var startPoint = (Math.Max(rectheight,rectwidth) - spotSize * Math.Min(spotsX, spotsY))/2;
@@ -234,7 +278,7 @@ namespace adrilight_effect_analyzer.ViewModel
                     var y = spacing * j + (rectheight - (spotsY * rectHeight) - spacing * (spotsY - 1)) / 2 + j * rectHeight;
                     var index = counter;
 
-                    rectangleSet[index] = new Rectangle(x,y,rectWidth,rectHeight);
+                    rectangleSet[index] = new Rectangle(x, y, rectWidth, rectHeight);
                     counter++;
 
                 }
@@ -259,7 +303,7 @@ namespace adrilight_effect_analyzer.ViewModel
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             Export.RestoreDirectory = true;
 
-            
+
 
             if (Export.ShowDialog() == true)
             {
@@ -291,9 +335,9 @@ namespace adrilight_effect_analyzer.ViewModel
 
             if (Export.ShowDialog() == true)
             {
-               
+
                 File.WriteAllText(Export.FileName, layerJson);
-             
+
             }
         }
 

@@ -72,7 +72,7 @@
                     Style="{DynamicResource ButtonDashed}"/>
             <Button Grid.Column="1" 
                     Padding="0" 
-                    Click="ButtonConfig_OnClick" 
+                    Command="{Binding OpenAppSettingsWindowCommand}"
                     Name="ButtonConfig" 
                     hc:IconElement.Width="18" 
                     hc:IconElement.Height="18" 
@@ -81,48 +81,6 @@
                     ToolTip="Cài đặt chung"
                     Style="{DynamicResource ButtonDashed}"
                     hc:IconElement.Geometry="{DynamicResource generalSettings}"/>
-            <Popup AllowsTransparency="True"   
-                   PlacementTarget="{Binding ElementName=ButtonConfig}" 
-                   HorizontalOffset="0" 
-                   Name="PopupConfig" 
-                   VerticalOffset="15" 
-                   StaysOpen="False">
-                <hc:TransitioningContentControl 
-                    BorderBrush="Transparent" 
-                    BorderThickness="0" 
-                    TransitionMode="Top2Bottom">
-                    <Border BorderThickness="0" 
-                            Effect="{DynamicResource EffectShadow1}" 
-                            Background="{DynamicResource MainContentBackgroundBrush }"
-                            CornerRadius="7" 
-                            Margin="15,0,15,15">
-                        <StackPanel Orientation="Vertical">
-                            <Button  HorizontalAlignment="Stretch"
-                                     HorizontalContentAlignment="Left" 
-                                     Background="{DynamicResource SecondaryRegionBrush}"
-                                     Command="{Binding OpenAppSettingsWindowCommand}"
-                                     hc:IconElement.Geometry="{StaticResource appsettings}"
-                                     BorderThickness="0"
-                                     Margin="5,5,5,0"
-                                     Content="Cài đặt chung"  
-                                     Style="{DynamicResource ButtonDefault}"/>
-                            <Button HorizontalAlignment="Stretch"
-                                    HorizontalContentAlignment="Left" 
-                                    Command="{Binding OpenAboutWindowCommand }" 
-                                     Background="{DynamicResource SecondaryRegionBrush}"
-                                    hc:IconElement.Geometry="{StaticResource info}" 
-                                    CommandParameter="about" 
-                                     BorderThickness="0"
-                                    Content="Thông tin ứng dụng"   
-                                    Margin="5" 
-                                    Style="{DynamicResource ButtonDefault}"/>
-
-                        </StackPanel>
-
-                    </Border>
-                </hc:TransitioningContentControl>
-
-            </Popup>
             <Grid  hc:RelativePanel.AlignRightWithPanel="True" Margin="0,0,10,0">
                 <Popup PlacementTarget="{Binding ElementName=profileBadge}" Effect="{StaticResource EffectShadow1}" AllowsTransparency="True" Grid.ColumnSpan="2"  HorizontalOffset="15" x:Name="profile_selection" VerticalOffset="5" StaysOpen="False">
                     <hc:TransitioningContentControl Effect="{StaticResource EffectShadow3}" TransitionMode="Top2Bottom">
@@ -228,12 +186,12 @@
                                     <Path Grid.Column="0" Width="20" Height="20" Margin="5,5,5,2" Data="{StaticResource profile}" Stretch="Uniform" >
                                         <Path.Style>
                                             <Style TargetType="Path">
-                                                <Setter Property="Fill" Value="{StaticResource PrimaryBrush}"/>
+                                                <Setter Property="Fill" Value="{DynamicResource PrimaryBrush}"/>
                                             </Style>
                                         </Path.Style>
 
                                     </Path>
-                                    <TextBlock Grid.Column="1" Text="Desktop default" Style="{DynamicResource TextBlockSubTitle}" FontWeight="SemiBold"  Margin="5,0"/>
+                                    <TextBlock Grid.Column="1" Text="Profiles" Style="{DynamicResource TextBlockDefaultPrimary}" FontWeight="Bold"  Margin="5,0"/>
                                     <ToggleButton Margin="0,2,0,0" Grid.Column="2" IsChecked="{Binding ElementName=profile_selection,Path=IsOpen,Mode=TwoWay}"  HorizontalAlignment="Right" Style="{DynamicResource ToggleButtonIconTransparent}" hc:IconSwitchElement.Geometry="{DynamicResource showMore}" hc:IconElement.Height="10" hc:IconElement.Width="10" hc:IconSwitchElement.GeometrySelected="{DynamicResource showLess}">
                                     </ToggleButton>
                                 </Grid>

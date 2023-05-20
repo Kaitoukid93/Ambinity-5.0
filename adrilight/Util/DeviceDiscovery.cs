@@ -75,18 +75,23 @@ namespace adrilight
                 {
                     if (Settings.DeviceDiscoveryMode == 0 && !Settings.FrimwareUpgradeIsInProgress && enable)
                     {
-                        var newDevices = new List<IDeviceSettings>();
-                        var oldDevices = new List<IDeviceSettings>();
-                        var newOpenRGBDevices = new List<IDeviceSettings>(); // openRGB device scan only run once at startup
+                        // openRGB device scan only run once at startup
+                        var openRGBDevices = (new List<IDeviceSettings>(), new List<string>());
+                        if (Settings.IsOpenRGBEnabled)
+                        {
+                            openRGBDevices = await ScanOpenRGBDevices();
+                        }
 
-                        if (!_openRGBIsInit)
-                            newOpenRGBDevices = ScanOpenRGBDevices();
-                        var connectedSerialDevices = await ScanSerialDevice();
-                        connectedSerialDevices[0].ForEach(d => newDevices.Add(d));
-                        connectedSerialDevices[1].ForEach(d => oldDevices.Add(d));
-                        newOpenRGBDevices.ForEach(d => newDevices.Add(d));
-                        MainViewViewModel.FoundNewDevice(newDevices);
-                        MainViewViewModel.OldDeviceReconnected(oldDevices);
+                        var serialDevices = await ScanSerialDevice();
+                        var newDevices = new List<IDeviceSettings>();
+                        var oldDevicesReconnected = new List<string>();
+                        openRGBDevices.Item1.ForEach(d => newDevices.Add(d));
+                        serialDevices.Item1.ForEach(d => newDevices.Add(d));
+                        openRGBDevices.Item2.ForEach(d => oldDevicesReconnected.Add(d));
+                        serialDevices.Item2.ForEach(d => oldDevicesReconnected.Add(d));
+
+                        await MainViewViewModel.FoundNewDevice(newDevices);
+                        MainViewViewModel.OldDeviceReconnected(oldDevicesReconnected);
                     }
 
                 }
@@ -100,10 +105,11 @@ namespace adrilight
             }
         }
 
-        private List<IDeviceSettings> ScanOpenRGBDevices()
+        private async Task<(List<IDeviceSettings>, List<string>)> ScanOpenRGBDevices()
         {
 
-            var newDevices = new List<IDeviceSettings>();
+            var newDevicesDetected = new List<IDeviceSettings>();
+            var oldDeviceReconnected = new List<string>();
             var detectedDevices = AmbinityClient.ScanNewDevice();
             if (detectedDevices != null)
             {
@@ -116,7 +122,7 @@ namespace adrilight
                         var deviceUID = Guid.NewGuid().ToString();
                         if (MainViewViewModel.AvailableDevices.Any(d => d.DeviceName + d.OutputPort == deviceName + openRGBDevice.Location))
                         {
-                            MainViewViewModel.AvailableDevices.Where(d => d.DeviceName + d.OutputPort == deviceName + openRGBDevice.Location).FirstOrDefault().IsTransferActive = true;
+                            oldDeviceReconnected.Add(openRGBDevice.Location);
                             continue;
                         }
 
@@ -146,8 +152,7 @@ namespace adrilight
                         convertedDevice.DashboardHeight = 270;
                         convertedDevice.AvailableControllers[0].Outputs[0].SlaveDevice = new SlaveDeviceHelpers().DefaultCreatedSlaveDevice("Generic LED Strip", SlaveDeviceTypeEnum.LEDStrip, zonesData);
                         convertedDevice.UpdateChildSize();
-                        convertedDevice.IsTransferActive = true;
-                        newDevices.Add(convertedDevice);
+                        newDevicesDetected.Add(convertedDevice);
                     }
                     catch (Exception ex)
                     {
@@ -158,11 +163,12 @@ namespace adrilight
                 }
 
             }
-            _openRGBIsInit = true;
-            return newDevices;
-            //else
-            //{
-            //}
+            if(newDevicesDetected.Count > 0|| oldDeviceReconnected.Count>0)
+            {
+                _openRGBIsInit = true;
+            }
+            
+            return await Task.FromResult((newDevicesDetected, oldDeviceReconnected));
         }
         private static object _syncRoot = new object();
         public void Stop()
@@ -177,10 +183,10 @@ namespace adrilight
             _workerThread = null;
         }
 
-        private async Task<List<List<IDeviceSettings>>> ScanSerialDevice()
+        private async Task<(List<IDeviceSettings>, List<string>)> ScanSerialDevice()
         {
             var newDevicesDetected = new List<IDeviceSettings>();
-            var oldDeviceReconnected = new List<IDeviceSettings>();
+            var oldDeviceReconnected = new List<string>();
             _isSerialScanCompelete = false;
             ISerialDeviceDetection detector = new SerialDeviceDetection(MainViewViewModel.AvailableDevices.Where(p => p.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.Wired).ToList());
 
@@ -216,7 +222,7 @@ namespace adrilight
                     Debug.WriteLine("---------------");
                     if (MainViewViewModel.AvailableDevices.Any(p => p.OutputPort == device.OutputPort)) // this device match an old device that existed 
                     {
-                        oldDeviceReconnected.Add(device);
+                        oldDeviceReconnected.Add(device.OutputPort);
 
                     }
                     else
@@ -233,7 +239,7 @@ namespace adrilight
                 _isSerialScanCompelete = true;
 
             }
-            return await Task.FromResult(new List<List<IDeviceSettings>> { newDevicesDetected, oldDeviceReconnected });
+            return await Task.FromResult((newDevicesDetected, oldDeviceReconnected));
         }
     }
 }

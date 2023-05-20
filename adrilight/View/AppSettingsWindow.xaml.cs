@@ -1,4 +1,5 @@
-﻿using adrilight.ViewModel;
+﻿using adrilight.Util.ModeParameters;
+using adrilight.ViewModel;
 using HandyControl.Data;
 using System;
 using System.Collections.Generic;
@@ -32,23 +33,37 @@ namespace adrilight.View
             this.Close();
         }
 
+        private void GroupBox_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var grBx = (Border)sender;
+            var dataCntx = grBx.DataContext;
+            var dataSource = (ListSelectionParameter)dataCntx;
+            if (dataSource != null)
+            {
+                if (dataSource.ShowMore)
+                    dataSource.ShowMore = false;
+                else
+                    dataSource.ShowMore = true;
+            }
+        }
+
         //private void ToggleButton_MouseDown(object sender, MouseButtonEventArgs e)
         //{
-          
-            
+
+
         //}
 
         //private void betatoggle_Checked(object sender, RoutedEventArgs e)
         //{
         //    var vm = this.DataContext as MainViewViewModel;
-           
+
         //        //open password dialog
         //        if (vm.OpenPasswordDialogCommand.CanExecute("pw"))
         //        {
         //            vm.OpenPasswordDialogCommand.Execute("pw");
         //        }
 
-            
+
         //}
 
         //private void betatoggle_Unchecked(object sender, RoutedEventArgs e)

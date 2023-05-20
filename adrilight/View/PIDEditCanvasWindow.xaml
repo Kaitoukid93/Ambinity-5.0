@@ -113,7 +113,12 @@
                                 <Path Data="{StaticResource import}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                             </MenuItem.Icon>
                         </MenuItem>
-                        
+                        <MenuItem Header="Import LED Layout" Command="{Binding AddSpotGeometryCommand}">
+                            <MenuItem.Icon>
+                                <Path Data="{StaticResource import}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+
                         <MenuItem Header="Clear" Command="{Binding ClearPIDCanvasCommand}">
                             <MenuItem.Icon>
                                 <Path Data="{StaticResource clear}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
@@ -155,17 +160,19 @@
                                     </Style>
                                 </ItemsControl.ItemContainerStyle>
                                 <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Path RenderTransformOrigin="0.5,0.5" Data="{Binding Shape,Converter={converters:StaticResourceConverter}}"
-                                                Stretch="Fill"
-                                                ToolTip="{Binding id}"                              
-                                                StrokeThickness="{Binding BorderThickness}" 
+                                    <DataTemplate DataType="{x:Type spot:DeviceSpot}">
+                                        <Path RenderTransformOrigin="0.5,0.5" Data="{Binding Geometry,Mode=TwoWay}"
+                                                Stretch="Uniform"
                                                 Width="{Binding Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
                                                 Height="{Binding Height,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
                                             <Path.Fill>
                                                 <SolidColorBrush Color="{Binding OnDemandColor}"  />
                                             </Path.Fill>
+                                            <!--<Path.RenderTransform>
+                                                <RotateTransform Angle="{Binding Angle,Mode=TwoWay}"></RotateTransform>
+                                            </Path.RenderTransform>-->
                                             <Path.Style>
+                                                
                                                 <Style TargetType="{x:Type Path}">
 
                                                     <Style.Triggers>
@@ -174,15 +181,7 @@
 
                                                         </Trigger>
                                                     </Style.Triggers>
-                                                    <Setter Property="RenderTransform" >
-                                                        <Setter.Value>
-                                                            <TransformGroup >
-                                                                <ScaleTransform/>
-                                                                <TranslateTransform  />
-                                                                <RotateTransform Angle="{Binding Angle}" />
-                                                            </TransformGroup>
-                                                        </Setter.Value>
-                                                    </Setter>
+                                                 
                                                 </Style>
                                             </Path.Style>
                                         </Path>
@@ -232,26 +231,16 @@
                                     </StackPanel>
                                 </Border>
                             </Grid.ToolTip>
-                            <Path RenderTransformOrigin="0.5,0.5" Data="{Binding Shape,Converter={converters:StaticResourceConverter}}" 
-                              Stretch="Fill"
+                            <Path RenderTransformOrigin="0.5,0.5" Data="{Binding Geometry,Mode=TwoWay}" 
+                              Stretch="Uniform"
                               Width="{Binding Width}"
                               Height="{Binding Height}">
                                 <Path.Fill>
                                     <SolidColorBrush Color="{Binding OnDemandColor}"  />
                                 </Path.Fill>
-                                <Path.Style>
-                                    <Style TargetType="{x:Type Path}">
-                                        <Setter Property="RenderTransform">
-                                            <Setter.Value>
-                                                <TransformGroup >
-                                                    <ScaleTransform/>
-                                                    <TranslateTransform  />
-                                                    <RotateTransform Angle="{Binding Angle}" />
-                                                </TransformGroup>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </Path.Style>
+                                <!--<Path.RenderTransform>
+                                    <RotateTransform Angle="{Binding Angle,Mode=TwoWay}"></RotateTransform>
+                                </Path.RenderTransform>-->
                             </Path>
                         </Grid>
 

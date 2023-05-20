@@ -63,7 +63,7 @@ namespace adrilight.View
 
             var grBx = (Button)sender;
             var dataCntx = grBx.DataContext;
-            var dataSource = (ModeParameter)dataCntx;
+            var dataSource = (IModeParameter)dataCntx;
             if (dataSource != null)
             {
                 if (dataSource.ShowMore)

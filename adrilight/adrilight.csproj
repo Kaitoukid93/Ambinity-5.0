@@ -201,6 +201,10 @@
     <Compile Include="Helpers\LocalFileHelpers.cs" />
     <Compile Include="Helpers\SimpleStringParameterValue.cs" />
     <Compile Include="Helpers\ZoneData.cs" />
+    <Compile Include="Settings\Automation\ActionParameter.cs" />
+    <Compile Include="Settings\Automation\ActionSettings.cs" />
+    <Compile Include="Settings\Automation\ActionType.cs" />
+    <Compile Include="Settings\Automation\AutomationSettings.cs" />
     <Compile Include="Settings\ControllerData.cs" />
     <Compile Include="Settings\DeserializeMethodEnum.cs" />
     <Compile Include="Settings\AppProfile.cs" />
@@ -212,9 +216,6 @@
     <Compile Include="Helpers\SlaveDeviceHelpers.cs" />
     <Compile Include="Resources\IContext.cs" />
     <Compile Include="Resources\WpfContext.cs" />
-    <Compile Include="Settings\ActionParameter.cs" />
-    <Compile Include="Settings\ActionSettings.cs" />
-    <Compile Include="Settings\ActionType.cs" />
     <Compile Include="Settings\ControlZoneGroup.cs" />
     <Compile Include="Settings\DesktopFrameCard.cs" />
     <Compile Include="Settings\DesktopScreen.cs" />
@@ -228,7 +229,6 @@
     <Compile Include="Settings\SlaveDeviceTypeEnum.cs" />
     <Compile Include="Settings\PWMMotorSlaveDevice.cs" />
     <Compile Include="Settings\ARGBLEDSlaveDevice.cs" />
-    <Compile Include="Settings\AutomationSettings.cs" />
     <Compile Include="Settings\ControllerTypeEnum.cs" />
     <Compile Include="Settings\DeviceTypeEnum.cs" />
     <Compile Include="Settings\FanMotor.cs" />
@@ -253,9 +253,6 @@
     <Compile Include="Settings\GeneralSettings.cs" />
     <Compile Include="Settings\Border.cs" />
     <Compile Include="Settings\Group.cs" />
-    <Compile Include="Settings\IActionParameter.cs" />
-    <Compile Include="Settings\IActionSettings.cs" />
-    <Compile Include="Settings\IAutomationSettings.cs" />
     <Compile Include="Settings\IDeviceCatergory.cs" />
     <Compile Include="Settings\IDeviceSettings.cs" />
     <Compile Include="Settings\IGeneralSettings.cs" />
@@ -281,6 +278,7 @@
     <Compile Include="Util\FileNameCorrector.cs" />
     <Compile Include="Util\ModeParameters\ButtonParameter.cs" />
     <Compile Include="Util\ModeParameters\DataSource.cs" />
+    <Compile Include="Util\ModeParameters\IModeParameter.cs" />
     <Compile Include="Util\ModeParameters\ListSelectionParameter.cs" />
     <Compile Include="Util\ModeParameters\SliderParameter.cs" />
     <Compile Include="Util\ModeParameters\ToggleParameter.cs" />
@@ -289,13 +287,11 @@
     <Compile Include="Util\ChasingPatternTypeEnum.cs" />
     <Compile Include="Util\ColorEditingObject.cs" />
     <Compile Include="Util\ColumnDataModel.cs" />
-    <Compile Include="Util\IModeParameter.cs" />
     <Compile Include="Util\IOnlineItemModel.cs" />
     <Compile Include="Util\ILightingEngine.cs" />
     <Compile Include="Util\IParameterValue.cs" />
     <Compile Include="Util\LightingModeEnum.cs" />
     <Compile Include="Util\MIDFrequency.cs" />
-    <Compile Include="Util\ModeParameter.cs" />
     <Compile Include="Util\ModeParameterEnum.cs" />
     <Compile Include="Util\ModeParameterTemplateEnum.cs" />
     <Compile Include="Util\ChasingPattern.cs" />
@@ -429,7 +425,7 @@
     <Compile Include="View\ScaleSelectionWindow.xaml.cs" />
     <Compile Include="View\PIDEditCanvasWindow.xaml.cs" />
     <Compile Include="View\SurfaceEditorWindow.xaml.cs" />
-    <Compile Include="View\AutomationColorPickerWindow.xaml.cs" />
+    <Compile Include="View\AutomationValuePickerWindow.xaml.cs" />
     <Compile Include="View\TargetDeviceSelectionWindow.xaml.cs" />
     <Compile Include="View\HotKeySelectionWindow.xaml.cs" />
     <Compile Include="View\CommonInfoDialog.xaml.cs" />
@@ -625,7 +621,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\AutomationColorPickerWindow.xaml">
+    <Page Include="View\AutomationValuePickerWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

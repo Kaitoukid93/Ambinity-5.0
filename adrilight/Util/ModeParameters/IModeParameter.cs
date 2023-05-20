@@ -1,6 +1,4 @@
-﻿using LiveCharts;
-using LiveCharts.Defaults;
-using System.Collections.Generic;
+﻿
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
@@ -26,7 +24,7 @@ namespace adrilight.Util
         /// </summary>
         bool IsEnabled { get; set; }
         ObservableCollection<SubParameter> SubParams { get; set; }
-        bool ShowMore{ get; set; }
- 
+        bool ShowMore { get; set; }
+
     }
 }

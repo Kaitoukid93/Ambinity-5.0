@@ -6,9 +6,15 @@
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:local ="clr-namespace:adrilight.View"
+           xmlns:app="clr-namespace:adrilight"
+           xmlns:ut ="clr-namespace:adrilight.Util"
+           xmlns:settings ="clr-namespace:adrilight.Settings"
+           xmlns:automation ="clr-namespace:adrilight.Settings.Automation"
+           xmlns:parameters ="clr-namespace:adrilight.Util.ModeParameters"
+           xmlns:System="clr-namespace:System;assembly=mscorlib"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           Background="{StaticResource MainContentBackgroundBrush}"
+           Background="{DynamicResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
            ResizeMode="NoResize"
@@ -125,7 +131,7 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <ListView MaxHeight="500" Margin="0,10,0,10" HorizontalAlignment="Center"  Background="Transparent" BorderThickness="0" ItemsSource="{Binding AutomationParamList}">
+        <ListView MaxHeight="500" Margin="0,10,0,10" HorizontalAlignment="Center"  Background="Transparent" BorderThickness="0" ItemsSource="{Binding AutomationParamList,Mode=TwoWay}">
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapPanel Orientation="Vertical"/>
@@ -146,34 +152,32 @@
                     </Border>
                 </ControlTemplate>
             </ListView.Template>
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Button Click="Button_Click"  FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" Height="auto" Width="auto" VerticalAlignment="Center" hc:BorderElement.CornerRadius="6" Margin="0" Padding="5,3" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0">
+            <ListView.Resources>
+                <DataTemplate DataType="{x:Type automation:ActionParameter}">
+                    <Button CommandParameter="{Binding .}" Command="{Binding Path=DataContext.SetCurrentActionParamForSelectedActionCommand, RelativeSource={RelativeSource AncestorType=ListView}}" Content="{Binding Name}" Click="Button_Click"  FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" Height="auto" Width="auto" VerticalAlignment="Center" hc:BorderElement.CornerRadius="2" Margin="0" Padding="5,3" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0">
                         <Button.Background>
                             <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
                         </Button.Background>
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource ButtonDefault}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Path=DataContext.ParamType, RelativeSource={RelativeSource AncestorType=ListView}}" Value="device">
-                                        <Setter Property="Content" Value="{Binding DeviceName}"/>
-                                        <Setter Property="CommandParameter" Value="{Binding .}"/>
-                                        <Setter Property="Command" Value="{Binding Path=DataContext.SetCurrentActionTargetDeviceForSelectedActionCommand, RelativeSource={RelativeSource AncestorType=ListView}}"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Path=DataContext.ParamType, RelativeSource={RelativeSource AncestorType=ListView}}" Value="action">
-                                        <Setter Property="Content" Value="{Binding Name}"/>
-                                        <Setter Property="CommandParameter" Value="{Binding .}"/>
-                                        <Setter Property="Command" Value="{Binding Path=DataContext.SetCurrentActionTypeForSelectedActionCommand, RelativeSource={RelativeSource AncestorType=ListView}}"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Path=DataContext.ParamType, RelativeSource={RelativeSource AncestorType=ListView}}" Value="param">
-                                        <Setter Property="Content" Value="{Binding Name}"/>
-                                        <Setter Property="CommandParameter" Value="{Binding .}"/> 
-                                        <Setter Property="Command" Value="{Binding Path=DataContext.SetCurrentActionParamForSelectedActionCommand, RelativeSource={RelativeSource AncestorType=ListView}}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
                     </Button>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type automation:ActionType}">
+                    <Button CommandParameter="{Binding .}" Command="{Binding Path=DataContext.SetCurrentActionTypeForSelectedActionCommand, RelativeSource={RelativeSource AncestorType=ListView}}" Content="{Binding Name}" Click="Button_Click"  FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" Height="auto" Width="auto" VerticalAlignment="Center" hc:BorderElement.CornerRadius="2" Margin="0" Padding="5,3" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0">
+                        <Button.Background>
+                            <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
+                        </Button.Background>
+                    </Button>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type app:DeviceSettings}">
+                    <Button CommandParameter="{Binding .}" Command="{Binding Path=DataContext.SetCurrentActionTargetDeviceForSelectedActionCommand, RelativeSource={RelativeSource AncestorType=ListView}}" Content="{Binding DeviceName}" Click="Button_Click"  FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" Height="auto" Width="auto" VerticalAlignment="Center" hc:BorderElement.CornerRadius="2" Margin="0" Padding="5,3" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0">
+                        <Button.Background>
+                            <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
+                        </Button.Background>
+                    </Button>
+                </DataTemplate>
+            </ListView.Resources>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ContentControl Content="{Binding .}"/>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

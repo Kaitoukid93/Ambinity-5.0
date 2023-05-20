@@ -1,12 +1,9 @@
 ﻿using adrilight.Helpers;
-using adrilight.Util;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Media;
 using System.Windows.Forms;
+using System.Windows.Shapes;
 
 namespace adrilight.Spots
 {
@@ -75,7 +72,8 @@ namespace adrilight.Spots
                     double scaleTop = y / rectheight;
                     double scaleWidth = spotSize / rectwidth;
                     double scaleHeight = spotSize / rectheight;
-                    spotSet[index] = new DeviceSpot( y, x, spotSize, spotSize, scaleTop, scaleLeft, scaleWidth, scaleHeight, index+offSet, index + offSet, i, index + offSet, j, false, "genericSquare");
+                    var geometry = Geometry.Parse("M0 0H100V100H0V0Z");
+                    spotSet[index] = new DeviceSpot( y, x, spotSize, spotSize, scaleTop, scaleLeft, scaleWidth, scaleHeight, index+offSet, index + offSet, i, index + offSet, j, false, geometry);
                     counter++;
 
                 }

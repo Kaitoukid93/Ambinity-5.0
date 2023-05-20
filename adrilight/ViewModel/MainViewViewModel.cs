@@ -49,13 +49,11 @@ using MoreLinq.Extensions;
 using SelectionMode = System.Windows.Controls.SelectionMode;
 using Border = adrilight.Settings.Border;
 using Un4seen.BassWasapi;
-using System.Windows.Threading;
-using HidSharp;
-using NLog.Fluent;
-using SharpDX.WIC;
-using Emgu.CV.CvEnum;
 using adrilight.Util.ModeParameters;
-using adrilight.Extension;
+using adrilight.Settings.Automation;
+using System.Xml;
+using System.Windows.Markup;
+using Formatting = Newtonsoft.Json.Formatting;
 
 namespace adrilight.ViewModel
 {
@@ -157,9 +155,9 @@ namespace adrilight.ViewModel
 
 
 
-        private List<IActionParameter> _availableParametersforCurrentAction;
+        private List<ActionParameter> _availableParametersforCurrentAction;
 
-        public List<IActionParameter> AvailableParametersforCurrentAction {
+        public List<ActionParameter> AvailableParametersforCurrentAction {
             get
             {
                 return _availableParametersforCurrentAction;
@@ -186,9 +184,9 @@ namespace adrilight.ViewModel
             }
         }
 
-        private List<IActionParameter> _allAvailableParametersforCurrentAction;
+        private List<ActionParameter> _allAvailableParametersforCurrentAction;
 
-        public List<IActionParameter> AllAvailableParametersforCurrentAction {
+        public List<ActionParameter> AllAvailableParametersforCurrentAction {
             get
             {
                 return _allAvailableParametersforCurrentAction;
@@ -217,9 +215,9 @@ namespace adrilight.ViewModel
             }
         }
 
-        private IActionSettings _currentSelectedAction;
+        private ActionSettings _currentSelectedAction;
 
-        public IActionSettings CurrentSelectedAction {
+        public ActionSettings CurrentSelectedAction {
             get
             {
                 return _currentSelectedAction;
@@ -264,11 +262,11 @@ namespace adrilight.ViewModel
             }
         }
 
-        private IActionParameter _selectedParameter;
+        private ActionParameter _selectedParameter;
 
-        public IActionParameter SelectedParameter {
+        public ActionParameter SelectedParameter {
             get { return _selectedParameter; }
-            set { _selectedParameter = value; }
+            set { _selectedParameter = value; RaisePropertyChanged(); }
         }
 
         private string _selectedActionType;
@@ -542,6 +540,7 @@ namespace adrilight.ViewModel
         public ICommand OpenRectangleRotateCommand { get; set; }
         public ICommand AddItemsToPIDCanvasCommand { get; set; }
         public ICommand AddImageToPIDCanvasCommand { get; set; }
+        public ICommand AddSpotGeometryCommand { get; set; }
         public ICommand SaveCurretSurfaceLayoutCommand { get; set; }
         public ICommand SaveCurrentLEDSetupLayoutCommand { get; set; }
         public ICommand SetRandomOutputColorCommand { get; set; }
@@ -821,9 +820,9 @@ namespace adrilight.ViewModel
             }
         }
 
-        private ObservableCollection<IAutomationSettings> _availableAutomations;
+        private ObservableCollection<AutomationSettings> _availableAutomations;
 
-        public ObservableCollection<IAutomationSettings> AvailableAutomations {
+        public ObservableCollection<AutomationSettings> AvailableAutomations {
             get { return _availableAutomations; }
             set
             {
@@ -1227,7 +1226,7 @@ namespace adrilight.ViewModel
         public IGeneralSettings GeneralSettings { get; }
 
         public ISerialStream[] SerialStreams { get; }
-        public IAmbinityClient AmbinityClient { get; set; }
+        //public IAmbinityClient AmbinityClient { get; set; }
         private static ReaderWriterLockSlim _readWriteLock = new ReaderWriterLockSlim();
         public object this[string propertyName] {
             get
@@ -1246,7 +1245,7 @@ namespace adrilight.ViewModel
                 myPropInfo.SetValue(this, value, null);
             }
         }
-        public MainViewViewModel(IGeneralSettings generalSettings, IAmbinityClient ambinityClient, IList<ISelectableViewPart> selectableViewParts
+        public MainViewViewModel(IGeneralSettings generalSettings, IList<ISelectableViewPart> selectableViewParts
             )
         {
             #region load Params
@@ -1255,7 +1254,7 @@ namespace adrilight.ViewModel
                 .ToList();
             SelectedViewPart = SelectableViewParts.First();
             DisplayCards = new ObservableCollection<IDeviceSettings>();
-            AmbinityClient = ambinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
+            //AmbinityClient = ambinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
             #endregion
 
 
@@ -1286,7 +1285,7 @@ namespace adrilight.ViewModel
 
 
             #region load Automation
-            AvailableAutomations = new ObservableCollection<IAutomationSettings>();
+            AvailableAutomations = new ObservableCollection<AutomationSettings>();
             foreach (var automation in LoadAutomationIfExist())
             {
                 AvailableAutomations.Add(automation);
@@ -1699,75 +1698,96 @@ namespace adrilight.ViewModel
             }
         }
         #endregion
-
-        public void FoundNewDevice(List<IDeviceSettings> newDevices)
+        private bool _searchingForDevices;
+        public bool SearchingForDevices {
+            get { return _searchingForDevices; }
+            set
+            {
+                _searchingForDevices = value;
+                RaisePropertyChanged();
+            }
+        }
+        public void SetDashboardStatusText(string text, bool isLoading)
+        {
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                DashboardLoadingText = text;
+                SearchingForDevices = isLoading;
+            });
+        }
+        private string _dashboardLoadingText = "Searching for supported device...";
+        public string DashboardLoadingText {
+            get { return _dashboardLoadingText; }
+            set
+            {
+                _dashboardLoadingText = value;
+                RaisePropertyChanged();
+            }
+        }
+        public async Task FoundNewDevice(List<IDeviceSettings> newDevices)
         {
             if (_isloadingProfile)
                 return;
-            System.Windows.Application.Current.Dispatcher.BeginInvoke(async () =>
-           {
+            await System.Windows.Application.Current.Dispatcher.BeginInvoke(async () =>
+            {
 
-               if (newDevices != null && newDevices.Count > 0)
-               {
-                   foreach (var device in newDevices)
-                   {
-                       WriteDeviceInfo(device);
-                       var thumbPath = await FTPHlprs.GetFileByName(device.DeviceName + ".png", thumbResourceFolderPath);
-                       if (thumbPath != null)
-                       {
-                           FTPHlprs.DownloadFile(thumbPath, Path.Combine(ResourceFolderPath, device.DeviceName + "_thumb.png"));
-                       }
-                       lock (AvailableDeviceLock)
-                       {
-                           AvailableDevices.Insert(0, device);
-                       }
-                   }
-                   //WriteDeviceInfoJson();
-               }
-             
-           });
+                if (newDevices != null && newDevices.Count > 0)
+                {
+                    foreach (var device in newDevices)
+                    {
+                        device.IsTransferActive = true;
+                        if (device.DeviceType.Type == DeviceTypeEnum.AmbinoBasic)
+                        {
+                            GeneralSettings.IsOpenRGBEnabled = true;
+                        }
+                        WriteDeviceInfo(device);
+                        var thumbPath = await FTPHlprs.GetFileByName(device.DeviceName + ".png", thumbResourceFolderPath);
+                        if (thumbPath != null)
+                        {
+                            FTPHlprs.DownloadFile(thumbPath, Path.Combine(ResourceFolderPath, device.DeviceName + "_thumb.png"));
+                        }
+                        lock (AvailableDeviceLock)
+                        {
+                            AvailableDevices.Insert(0, device);
+
+                        }
+                    }
+                    SearchingForDevices = false;
+                }
+
+            });
 
         }
-        public void OldDeviceReconnected(List<IDeviceSettings> oldSerialDevice)
+        public void OldDeviceReconnected(List<string> oldDevices)
         {
             if (_isloadingProfile)
                 return;
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
 
-                if (oldSerialDevice != null && oldSerialDevice.Count > 0)
+                if (oldDevices != null && oldDevices.Count > 0)
                 {
 
 
-                    foreach (var serialDevice in oldSerialDevice)
+                    foreach (var port in oldDevices)
                     {
                         //set first device found active again since it's recconected
 
-                        var oldDevice = AvailableDevices.Where(p => p.OutputPort == serialDevice.OutputPort).FirstOrDefault();
-                        if (oldDevice.IsTransferActive == true)
+                        var oldDevice = AvailableDevices.Where(p => p.OutputPort == port).FirstOrDefault();
+                        if (oldDevice.IsTransferActive == false)
                         {
                             //try to poke it
-                            oldDevice.IsTransferActive = false;
+                            oldDevice.IsTransferActive = true;
+                            if (oldDevice.DeviceType.Type == DeviceTypeEnum.AmbinoBasic)
+                            {
+                                GeneralSettings.IsOpenRGBEnabled = true;
+                            }
                         }
-                        oldDevice.IsTransferActive = true;
-                        RaisePropertyChanged(nameof(oldDevice.IsTransferActive));
 
-                        //restart it's serialstram by 
-                        //setting the transferactive to true, no matter it; s active or not
                         WriteSingleDeviceInfoJson(oldDevice);
                     }
-                    //if (oldOpenRGBDevices != null)
-                    //{
-                    //    foreach (var openRGBDevice in oldOpenRGBDevices)
-                    //    {
-                    //        if (!AvailableDevices.Any(p => p.DeviceUID == openRGBDevice.DeviceUID)) // if device is already existed in the dashboard
-                    //        {
-                    //            AvailableDevices.Insert(0, openRGBDevice);
-                    //        }
-                    //    }
-                    //}
 
-
+                    SearchingForDevices = false;
                 }
             });
 
@@ -1980,9 +2000,9 @@ namespace adrilight.ViewModel
 
 
 
-        private IAutomationSettings _currentSelectedAutomation;
+        private AutomationSettings _currentSelectedAutomation;
 
-        public IAutomationSettings CurrentSelectedAutomation {
+        public AutomationSettings CurrentSelectedAutomation {
             get => _currentSelectedAutomation;
             set
             {
@@ -2822,6 +2842,16 @@ namespace adrilight.ViewModel
 
             }
             );
+            AddSpotGeometryCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+
+                AddSpotGeometry();
+
+            }
+            );
             DeleteSelectedItemsCommand = new RelayCommand<ObservableCollection<IDrawable>>((p) =>
             {
                 return true;
@@ -3092,7 +3122,7 @@ namespace adrilight.ViewModel
                 DeleteSelectedGif(p);
             });
 
-            DeleteSelectedAutomationCommand = new RelayCommand<IAutomationSettings>((p) =>
+            DeleteSelectedAutomationCommand = new RelayCommand<AutomationSettings>((p) =>
             {
                 return true;
             }, (p) =>
@@ -3458,49 +3488,42 @@ namespace adrilight.ViewModel
             //        IsSpeedSettingUnsetted = false;
             //    }
             //});
-            OpenActionsManagerWindowCommand = new RelayCommand<IAutomationSettings>((p) =>
+            OpenActionsManagerWindowCommand = new RelayCommand<AutomationSettings>((p) =>
             {
                 return true;
             }, (p) =>
             {
                 OpenActionsManagerWindow(p);
             });
-            OpenHotKeySelectionWindowCommand = new RelayCommand<IAutomationSettings>((p) =>
+            OpenHotKeySelectionWindowCommand = new RelayCommand<AutomationSettings>((p) =>
             {
                 return true;
             }, (p) =>
             {
                 OpenHotKeySelectionWindow(p);
             });
-            OpenTargetDeviceSelectionWindowCommand = new RelayCommand<IActionSettings>((p) =>
+            OpenTargetDeviceSelectionWindowCommand = new RelayCommand<ActionSettings>((p) =>
             {
                 return true;
             }, (p) =>
             {
                 OpenTargetDeviceSelectionWindow(p);
             });
-            OpenTargetActionSelectionWindowCommand = new RelayCommand<IActionSettings>((p) =>
+            OpenTargetActionSelectionWindowCommand = new RelayCommand<ActionSettings>((p) =>
             {
                 return true;
             }, (p) =>
             {
                 OpenTargetActionSelectionWindow(p);
             });
-            OpenAutomationValuePickerWindowCommand = new RelayCommand<IActionSettings>((p) =>
+            OpenAutomationValuePickerWindowCommand = new RelayCommand<ActionSettings>((p) =>
             {
                 return true;
             }, (p) =>
             {
-                switch (p.ActionParameter.Type)
-                {
-                    case "color":
-                        //open color picker windows
-                        OpenAutomationColorPickerWindow(p);
-                        break;
-                }
-
+                OpenAutomationValuePickerWindow(p);
             });
-            OpenTargetParamSelectionWindowCommand = new RelayCommand<IActionSettings>((p) =>
+            OpenTargetParamSelectionWindowCommand = new RelayCommand<ActionSettings>((p) =>
             {
                 return true;
             }, (p) =>
@@ -3557,14 +3580,14 @@ namespace adrilight.ViewModel
             {
                 AddSelectedActionTypeToList(p);
             });
-            ExecuteAutomationFromManagerCommand = new RelayCommand<ObservableCollection<IActionSettings>>((p) =>
+            ExecuteAutomationFromManagerCommand = new RelayCommand<ObservableCollection<ActionSettings>>((p) =>
             {
                 return true;
             }, (p) =>
             {
                 ExecuteAutomationActions(p);
             });
-            DeleteSelectedActionFromListCommand = new RelayCommand<IActionSettings>((p) =>
+            DeleteSelectedActionFromListCommand = new RelayCommand<ActionSettings>((p) =>
             {
                 return true;
             }, (p) =>
@@ -3578,7 +3601,7 @@ namespace adrilight.ViewModel
             {
                 SetCurrentActionTargetDeviceForSelectedAction(p);
             });
-            SetCurrentActionParamForSelectedActionCommand = new RelayCommand<IActionParameter>((p) =>
+            SetCurrentActionParamForSelectedActionCommand = new RelayCommand<ActionParameter>((p) =>
             {
                 return true;
             }, (p) =>
@@ -4193,23 +4216,23 @@ namespace adrilight.ViewModel
         //    }
         //}
 
-        private void OpenActionsManagerWindow(IAutomationSettings selectedautomation)
+        private void OpenActionsManagerWindow(AutomationSettings selectedautomation)
         {
             if (AssemblyHelper.CreateInternalInstance($"View.{"ActionManagerWindow"}") is System.Windows.Window window)
             {
                 CurrentSelectedAutomation = selectedautomation;
                 AvailableActionsforCurrentDevice = new ObservableCollection<ActionType>();
-                AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Kích hoạt", Description = "Kích hoạt một Profile có sẵn", Geometry = "apply", Type = "Activate", LinkText = "Cho thiết bị", IsValueDisplayed = false });
-                AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Tăng", Description = "Tăng giá trị của một thuộc tính", Geometry = "apply", Type = "Increase", LinkText = "Của thiết bị", IsValueDisplayed = false });
-                AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Giảm", Description = "Giảm giá trị của một thuộc tính", Geometry = "apply", Type = "Decrease", LinkText = "Của thiết bị", IsValueDisplayed = false });
-                AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Bật", Description = "Bật một tính năng", Geometry = "apply", Type = "On", LinkText = "Của thiết bị", IsValueDisplayed = false });
-                AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Tắt", Description = "Tắt một tính năng", Geometry = "apply", Type = "Off", LinkText = "Của thiết bị", IsValueDisplayed = false });
-                AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Chuyển", Description = "Chuyển đổi đồng thời kích hoạt một tính năng", Geometry = "apply", Type = "Change", LinkText = "Của thiết bị", ToResultText = "thành", IsValueDisplayed = true });
+                AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Kích hoạt", Description = "Kích hoạt một Profile có sẵn", Geometry = "apply", Type = "Activate", LinkText = "", IsValueDisplayed = false, IsTargetDeviceDisplayed = false });
+                AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Tăng", Description = "Tăng giá trị của một thuộc tính", Geometry = "apply", Type = "Increase", LinkText = "Của thiết bị", IsValueDisplayed = false, IsTargetDeviceDisplayed = true });
+                AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Giảm", Description = "Giảm giá trị của một thuộc tính", Geometry = "apply", Type = "Decrease", LinkText = "Của thiết bị", IsValueDisplayed = false, IsTargetDeviceDisplayed = true });
+                AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Bật", Description = "Bật một tính năng", Geometry = "apply", Type = "On", LinkText = "Của thiết bị", IsValueDisplayed = false, IsTargetDeviceDisplayed = true });
+                AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Tắt", Description = "Tắt một tính năng", Geometry = "apply", Type = "Off", LinkText = "Của thiết bị", IsValueDisplayed = false, IsTargetDeviceDisplayed = true });
+                AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Chuyển", Description = "Chuyển đổi đồng thời kích hoạt một tính năng", Geometry = "apply", Type = "Change", LinkText = "Của thiết bị", ToResultText = "thành", IsValueDisplayed = true, IsTargetDeviceDisplayed = true });
                 window.Owner = System.Windows.Application.Current.MainWindow;
                 window.ShowDialog();
             }
         }
-        private void OpenHotKeySelectionWindow(IAutomationSettings selectedautomation)
+        private void OpenHotKeySelectionWindow(AutomationSettings selectedautomation)
         {
             if (AssemblyHelper.CreateInternalInstance($"View.{"HotKeySelectionWindow"}") is System.Windows.Window window)
             {
@@ -4230,7 +4253,7 @@ namespace adrilight.ViewModel
                 window.ShowDialog();
             }
         }
-        private void OpenTargetDeviceSelectionWindow(IActionSettings selectedAction)
+        private void OpenTargetDeviceSelectionWindow(ActionSettings selectedAction)
         {
 
             CurrentSelectedAction = selectedAction;
@@ -4257,7 +4280,7 @@ namespace adrilight.ViewModel
                 window.ShowDialog();
             }
         }
-        private void OpenTargetActionSelectionWindow(IActionSettings selectedAction)
+        private void OpenTargetActionSelectionWindow(ActionSettings selectedAction)
         {
 
 
@@ -4271,31 +4294,47 @@ namespace adrilight.ViewModel
                 AutomationParamList.Add(actionType);
             }
 
-
-
-
-
-
-
             if (AssemblyHelper.CreateInternalInstance($"View.{"TargetDeviceSelectionWindow"}") is System.Windows.Window window)
             {
                 window.Owner = System.Windows.Application.Current.MainWindow;
                 window.ShowDialog();
             }
         }
-
-        private void OpenAutomationColorPickerWindow(IActionSettings selectedAction)
+        private ObservableCollection<object> _automationValuePickerList;
+        public ObservableCollection<object> AutomationValuePickerList {
+            get { return _automationValuePickerList; }
+            set
+            {
+                _automationValuePickerList = value;
+                RaisePropertyChanged();
+            }
+        }
+        private void OpenAutomationValuePickerWindow(ActionSettings selectedAction)
         {
-            if (AssemblyHelper.CreateInternalInstance($"View.{"AutomationColorPickerWindow"}") is System.Windows.Window window)
+            if (AssemblyHelper.CreateInternalInstance($"View.{"AutomationValuePickerWindow"}") is System.Windows.Window window)
             {
                 CurrentSelectedAction = selectedAction;
+                var targetDevice = AvailableDevices.Where(x => x.DeviceUID == CurrentSelectedAction.TargetDeviceUID).FirstOrDefault();
+                if (targetDevice == null)
+                    return;
+                CurrentSelectedAction = selectedAction;
                 RaisePropertyChanged(nameof(CurrentSelectedAction));
+                AutomationValuePickerList = new ObservableCollection<object>();
+                switch (selectedAction.ActionParameter.Type)
+                {
+                    case "color":
+                        (targetDevice.AvailableLightingDevices[0].ControlableZones[0] as LEDSetup).GetStaticColorDataSource().ForEach(c => AutomationValuePickerList.Add(c));
+                        break;
+                    case "mode":
+                        targetDevice.AvailableLightingDevices[0].ControlableZones[0].AvailableControlMode.ForEach(m => AutomationValuePickerList.Add((m as LightingMode).BasedOn));
+                        break;
+                }
                 window.Owner = System.Windows.Application.Current.MainWindow;
                 window.ShowDialog();
             }
         }
 
-        private IActionParameter GetAutoMationParam(string paramType, string value)
+        private ActionParameter GetAutoMationParam(string paramType, string value)
         {
             var returnParam = new ActionParameter();
             switch (paramType)
@@ -4318,6 +4357,12 @@ namespace adrilight.ViewModel
                     returnParam.Type = "color";
                     returnParam.Value = Color.FromRgb(255, 255, 0);
                     break;
+                case "mode":
+                    returnParam.Name = "Chế độ";
+                    returnParam.Geometry = "brightness";
+                    returnParam.Type = "mode";
+                    returnParam.Value = value;
+                    break;
                 case "speed":
                     returnParam.Name = "Tốc độ fan";
                     returnParam.Geometry = "brightness";
@@ -4328,49 +4373,57 @@ namespace adrilight.ViewModel
             }
             return returnParam;
         }
-        private void OpenTargetParamSelectionWindow(IActionSettings selectedAction)
+        private void OpenTargetParamSelectionWindow(ActionSettings selectedAction)
         {
 
 
             CurrentSelectedAction = selectedAction;
             RaisePropertyChanged(nameof(CurrentSelectedAction));
             ParamType = "param";
-
+            var targetDevice = AvailableDevices.Where(x => x.DeviceUID == CurrentSelectedAction.TargetDeviceUID).FirstOrDefault();
+           
             switch (CurrentSelectedAction.ActionType.Type)
             {
-                //case "Activate":
-                //    AutomationParamList = new ObservableCollection<object>();
-                //    var targetDevice = AvailableDevices.Where(x => x.DeviceUID == CurrentSelectedAction.TargetDeviceUID).FirstOrDefault();
-                //    foreach (var profile in AvailableProfiles)
-                //    {
-                //        if (profile.DeviceType == targetDevice.DeviceType)
-                //        {
-                //            AutomationParamList.Add(new ActionParameter { Geometry = profile.Geometry, Name = profile.Name, Type = "profile", Value = profile.ProfileUID });
-                //        }
-
-                //    }
-                //    break;
+                case "Activate":
+                    AutomationParamList = new ObservableCollection<object>();
+                    foreach (var profile in AvailableProfiles)
+                    {
+                        AutomationParamList.Add(new ActionParameter { Geometry = profile.Geometry, Name = profile.Name, Type = "profile", Value = profile.Name });
+                    }
+                    break;
                 case "Increase":
+                    if (targetDevice == null)
+                        return;
                     AutomationParamList = new ObservableCollection<object>();
                     AutomationParamList.Add(GetAutoMationParam("brightness", "up"));
                     AutomationParamList.Add(GetAutoMationParam("speed", "up"));
                     break;
                 case "Decrease":
+                    if (targetDevice == null)
+                        return;
                     AutomationParamList = new ObservableCollection<object>();
                     AutomationParamList.Add(GetAutoMationParam("brightness", "down"));
                     AutomationParamList.Add(GetAutoMationParam("speed", "down"));
                     break;
                 case "Off":
+                    if (targetDevice == null)
+                        return;
                     AutomationParamList = new ObservableCollection<object>();
                     AutomationParamList.Add(GetAutoMationParam("state", "off"));
                     break;
                 case "On":
+                    if (targetDevice == null)
+                        return;
                     AutomationParamList = new ObservableCollection<object>();
                     AutomationParamList.Add(GetAutoMationParam("state", "on"));
                     break;
                 case "Change":
+                    if (targetDevice == null)
+                        return;
                     AutomationParamList = new ObservableCollection<object>();
                     AutomationParamList.Add(GetAutoMationParam("color", "#ffff53c9"));
+                    if (targetDevice != null)
+                        AutomationParamList.Add(GetAutoMationParam("mode", targetDevice.AvailableLightingDevices[0].ControlableZones[0].CurrentActiveControlMode.Name));
                     break;
             }
 
@@ -4438,7 +4491,7 @@ namespace adrilight.ViewModel
         }
         private void AddSelectedActionTypeToList(ActionType actionType)
         {
-            IActionSettings newBlankAction = new ActionSettings {
+            ActionSettings newBlankAction = new ActionSettings {
                 ActionType = actionType,
                 ActionParameter = new ActionParameter { Name = "Thuộc tính", Type = "unknown", Value = "none" },
             };
@@ -4449,12 +4502,12 @@ namespace adrilight.ViewModel
             newBlankAction.ActionType.ToResultText = resultText;
             if (CurrentSelectedAutomation.Actions == null)
             {
-                CurrentSelectedAutomation.Actions = new ObservableCollection<IActionSettings>();
+                CurrentSelectedAutomation.Actions = new ObservableCollection<ActionSettings>();
             }
             CurrentSelectedAutomation.Actions.Add(newBlankAction);
             RaisePropertyChanged(nameof(CurrentSelectedAutomation.Actions));
         }
-        private void DeleteSelectedActionFromList(IActionSettings action)
+        private void DeleteSelectedActionFromList(ActionSettings action)
         {
             CurrentSelectedAutomation.Actions.Remove(action);
             RaisePropertyChanged(nameof(CurrentSelectedAutomation.Actions));
@@ -4468,7 +4521,7 @@ namespace adrilight.ViewModel
                 CurrentSelectedAction.ActionParameter = new ActionParameter { Name = "Thuộc tính", Type = "unknown", Value = "none" };
             RaisePropertyChanged(nameof(CurrentSelectedAction.ActionType));
         }
-        private void SetCurrentActionParamForSelectedAction(IActionParameter param)
+        private void SetCurrentActionParamForSelectedAction(ActionParameter param)
         {
             CurrentSelectedAction.ActionParameter = param;
             RaisePropertyChanged(nameof(CurrentSelectedAction.ActionType));
@@ -4585,21 +4638,30 @@ namespace adrilight.ViewModel
             OnlineItemScreenShotCollection = new ObservableCollection<string>();
             OnlineItemSelectableTargetType = new ObservableCollection<DeviceType>();
             OnlineItemSelectedTargetTypes = new List<DeviceType>();
-            foreach (DeviceTypeEnum type in Enum.GetValues(typeof(DeviceTypeEnum)))
-            {
-                OnlineItemSelectableTargetType.Add(new DeviceType(type));
-            }
+
             if (p.GetType() == typeof(ARGBLEDSlaveDevice))
             {
                 CurrentItemForExport.Name = (p as ARGBLEDSlaveDevice).Name;
+                foreach (DeviceTypeEnum type in Enum.GetValues(typeof(DeviceTypeEnum)))
+                {
+                    OnlineItemSelectableTargetType.Add(new DeviceType(type));
+                }
             }
             else if (p.GetType() == typeof(ColorPalette))
             {
                 CurrentItemForExport.Name = (p as ColorPalette).Name;
+                foreach (DeviceTypeEnum type in Enum.GetValues(typeof(DeviceTypeEnum)))
+                {
+                    OnlineItemSelectableTargetType.Add(new DeviceType(type));
+                }
             }
             else if (p.GetType() == typeof(AppProfile))
             {
                 CurrentItemForExport.Name = (p as AppProfile).Name;
+                foreach (var deviceProfile in (p as AppProfile).DeviceProfiles)
+                {
+                    OnlineItemSelectableTargetType.Add(deviceProfile.DeviceType);
+                }
             }
             onlineExportWindow = new OnlineItemExporterView();
             onlineExportWindow.Show();
@@ -4933,11 +4995,39 @@ namespace adrilight.ViewModel
                 window.ShowDialog();
             }
         }
-
+        private ListSelectionParameter _accentColorSelection;
+        public ListSelectionParameter AccentColorSelection {
+            get { return _accentColorSelection; }
+            set
+            {
+                _accentColorSelection = value;
+                RaisePropertyChanged();
+            }
+        }
         private void OpenAppSettingsWindow()
         {
             if (AssemblyHelper.CreateInternalInstance($"View.{"AppSettingsWindow"}") is System.Windows.Window window)
             {
+                //init app acent color selection
+                AccentColorSelection = new ListSelectionParameter(ModeParameterEnum.Color) {
+
+                    Name = "Màu chủ đề",
+                    Description = "Chọn màu chủ đạo cho ứng dụng, Sau khi chọn màu, bạn nên khởi động lại ứng dụng",
+                    DataSourceLocaFolderNames = new List<string>() { "Colors" }
+                };
+                AccentColorSelection.LoadAvailableValues();
+                AccentColorSelection.SelectedValue = new ColorCard(GeneralSettings.AccentColor, GeneralSettings.AccentColor);
+                AccentColorSelection.PropertyChanged += (_, __) =>
+                {
+                    switch (__.PropertyName)
+                    {
+                        case nameof(AccentColorSelection.SelectedValue):
+                            ThemeManager.Current.AccentColor = new SolidColorBrush((AccentColorSelection.SelectedValue as ColorCard).StartColor);
+                            GeneralSettings.AccentColor = (AccentColorSelection.SelectedValue as ColorCard).StartColor;
+
+                            break;
+                    }
+                };
                 window.Owner = System.Windows.Application.Current.MainWindow;
                 window.ShowDialog();
             }
@@ -5058,7 +5148,7 @@ namespace adrilight.ViewModel
                 compatibleDevices.AddRange(AvailableDevices.ToList());
                 AvailableDevices.Clear();//reset the collection so kernel can be unbind
                 compatibleDevices.ForEach(d => AvailableDevices.Add(d));
-
+                SelectedViewPart = SelectableViewParts[0];
                 if (counter == 0)
                 {
                     HandyControl.Controls.MessageBox.Show("Profile không thích hợp với bất kỳ thiết bị nào hiện có", "No Device Compatible", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -5069,6 +5159,7 @@ namespace adrilight.ViewModel
                     CurrentActivatedProfile = profile;
                 }
                 _isloadingProfile = false;
+
             }
 
         }
@@ -5158,8 +5249,8 @@ namespace adrilight.ViewModel
                 //dispose locked WinRing0 file first
                 //if (HWMonitor != null)
                 //    HWMonitor.Dispose();
-                if (AmbinityClient != null)
-                    AmbinityClient.Dispose();
+                //if (AmbinityClient != null)
+                //    AmbinityClient.Dispose();
                 //remember to dispose openrgbstream too!!!
                 await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
                 {
@@ -5173,35 +5264,10 @@ namespace adrilight.ViewModel
 
         }
 
-
-        //private void SaveCurrentSelectedAutomation()
-        //{
-        //    CurrentSelectedAutomation.Modifiers = new List<NonInvasiveKeyboardHookLibrary.ModifierKeys>();
-        //    foreach (var modifier in AvailableModifiers)
-        //    {
-        //        if (modifier.IsChecked)
-        //        {
-        //            CurrentSelectedAutomation.Modifiers.Add(modifier);
-        //        }
-        //    }
-
-        //    WriteAutomationCollectionJson();
-        //    AvailableAutomations = new ObservableCollection<IAutomationSettings>();
-        //    foreach (var automation in LoadAutomationIfExist())
-        //    {
-        //        AvailableAutomations.Add(automation);
-        //    }
-        //    if (GeneralSettings.HotkeyEnable)
-        //    {
-        //        Unregister();
-        //        Register();
-        //    }
-        //}
-
         private void SaveAllAutomation()
         {
             WriteAutomationCollectionJson();
-            AvailableAutomations = new ObservableCollection<IAutomationSettings>();
+            AvailableAutomations = new ObservableCollection<AutomationSettings>();
             foreach (var automation in LoadAutomationIfExist())
             {
                 AvailableAutomations.Add(automation);
@@ -5256,13 +5322,19 @@ namespace adrilight.ViewModel
                 Register();
             }
         }
+        public ObservableCollection<IDeviceSettings> SelectedDevicesForCurrentProfile { get; set; }
         private void CreateNewProfile()
         {
+            if (SelectedDevicesForCurrentProfile.Count == 0)
+            {
+                HandyControl.Controls.MessageBox.Show("Bạn phải chọn ít nhất một thiết bị tham gia vào profile này", "No device selected!!", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
             var newAppProfile = new AppProfile();
             newAppProfile.Name = NewProfileName;
             newAppProfile.Owner = NewProfileOwner;
             newAppProfile.Description = NewProfileDescription;
-            foreach (var device in AvailableDevices)
+            foreach (var device in SelectedDevicesForCurrentProfile)
             {
                 var newprofile = new DeviceProfile {
                     Name = device.DeviceName + "Profile",
@@ -5277,16 +5349,17 @@ namespace adrilight.ViewModel
             //AvailableProfiles.Add(newprofile);
             AvailableProfiles.Add(newAppProfile);
             WriteSimpleJson(newAppProfile, Path.Combine(Path.Combine(ProfileCollectionFolderPath, "collection"), newAppProfile.Name + ".aap")); // .aap stands for adrilight application profile ...
+            addNewProfileWindow.Close();
             //WriteDeviceProfileCollection();
         }
-
+        private AddNewProfileWindow addNewProfileWindow { get; set; }
         private void OpenCreatenewProfileWindow()
         {
-            if (AssemblyHelper.CreateInternalInstance($"View.{"AddNewProfileWindow"}") is System.Windows.Window window)
-            {
-                window.Owner = System.Windows.Application.Current.MainWindow;
-                window.ShowDialog();
-            }
+            addNewProfileWindow = new AddNewProfileWindow();
+            addNewProfileWindow.Owner = System.Windows.Application.Current.MainWindow;
+            SelectedDevicesForCurrentProfile = new ObservableCollection<IDeviceSettings>();
+            addNewProfileWindow.ShowDialog();
+
         }
 
 
@@ -5370,7 +5443,7 @@ namespace adrilight.ViewModel
             }
         }
 
-        private void ExecuteAutomationActions(ObservableCollection<IActionSettings> actions)
+        private void ExecuteAutomationActions(ObservableCollection<ActionSettings> actions)
         {
             if (actions == null)
                 return;
@@ -6482,6 +6555,8 @@ namespace adrilight.ViewModel
         }
         private void UpdateLiveView()
         {
+            if (!IsLiveViewOpen)
+                return;
             //simple just set the scale
             CurrentDevice.UpdateChildSize();
             if (DrawableHlprs == null)
@@ -6615,14 +6690,16 @@ namespace adrilight.ViewModel
         private void GetItemsForLiveView()
         {
             IsInIsolateMode = false;
-            if (LiveViewItems != null)
+            if (LiveViewItems == null)
+            {
+                LiveViewItems = new ObservableCollection<IDrawable>();
+            }
+            else
             {
                 LiveViewItems.Clear();
-                LiveViewItems = null;
             }
             LiveViewSelectedItems = new ObservableCollection<IDrawable>();
-            //LiveViewSelectedItems.CollectionChanged += LiveViewSelectedItemsChanged;
-            LiveViewItems = new ObservableCollection<IDrawable>();
+
             IDrawable lastSelectedItem = null;
             foreach (var item in CurrentDevice.CurrentLiveViewZones)
             {
@@ -7030,37 +7107,6 @@ namespace adrilight.ViewModel
 
         }
 
-
-
-        //private void LaunchMIDEditWindow()
-        //{
-        //    if (AssemblyHelper.CreateInternalInstance($"View.{"MIDEditWindow"}") is System.Windows.Window window)
-        //    {
-        //        BackupSpots = new List<IDeviceSpot>();
-        //        foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-        //        {
-        //            BackupSpots.Add(spot);
-        //        }
-
-        //        window.Owner = System.Windows.Application.Current.MainWindow;
-        //        window.ShowDialog();
-        //    }
-        //}
-
-        //private void LaunchCIDEditWindow()
-        //{
-        //    if (AssemblyHelper.CreateInternalInstance($"View.{"CIDEditWindow"}") is System.Windows.Window window)
-        //    {
-        //        BackupSpots = new List<IDeviceSpot>();
-        //        foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-        //        {
-        //            BackupSpots.Add(spot);
-        //        }
-
-        //        window.Owner = System.Windows.Application.Current.MainWindow;
-        //        window.ShowDialog();
-        //    }
-        //}
         #region color and palette edit properties
         /// <summary>
         /// contains list of color that user can edit
@@ -7462,7 +7508,7 @@ namespace adrilight.ViewModel
         }
         public class DrawableShape
         {
-            public string Geometry { get; set; }
+            public Geometry Geometry { get; set; }
             public string Name { get; set; }
         }
         public DrawableShape SelectedShape { get; set; }
@@ -7473,22 +7519,16 @@ namespace adrilight.ViewModel
         private void OpenAddNewItemWindow()
         {
             AvailableShapeToAdd = new List<DrawableShape>();
-            var circle = new DrawableShape() {
-                Geometry = "genericCircle",
+            var circleShape = new DrawableShape() {
+                Geometry =Geometry.Parse("M100 50C100 77.6142 77.6142 100 50 100C22.3858 100 0 77.6142 0 50C0 22.3858 22.3858 0 50 0C77.6142 0 100 22.3858 100 50Z"),
                 Name = "Round"
             };
-            var square = new DrawableShape() {
-                Geometry = "genericSquare",
+            var squareShape = new DrawableShape() {
+                Geometry = Geometry.Parse("M0 0H100V100H0V0Z"),
                 Name = "Square"
             };
-            var logitechLogo = new DrawableShape() {
-                Geometry = "logitechLogo",
-                Name = "Logitech Logo"
-            };
-
-            AvailableShapeToAdd.Add(square);
-            AvailableShapeToAdd.Add(circle);
-            AvailableShapeToAdd.Add(logitechLogo);
+            AvailableShapeToAdd.Add(squareShape);
+            AvailableShapeToAdd.Add(circleShape);
             //AvailableShapeToAdd.Add(ambinoA1Inner);
             //AvailableShapeToAdd.Add(ambinoA1Outer);
             if (AssemblyHelper.CreateInternalInstance($"View.{"NewItemParametersWindow"}") is System.Windows.Window window)
@@ -7521,6 +7561,75 @@ namespace adrilight.ViewModel
 
                 }
             }
+        }
+        #region pid canvas viewmodel
+        private void AddSpotGeometry()
+        {
+            System.Windows.Forms.OpenFileDialog Import = new System.Windows.Forms.OpenFileDialog();
+            Import.Title = "Chọn GeometryGroup files";
+            Import.CheckFileExists = true;
+            Import.CheckPathExists = true;
+            Import.DefaultExt = "Pro";
+            Import.Filter = "Text files (*.txt)|*.TXT";
+            Import.FilterIndex = 2;
+            Import.Multiselect = false;
+
+            Import.ShowDialog();
+
+            var ColorsText = System.IO.File.ReadAllText(Import.FileName);
+            try
+            {
+                StringReader sr = new StringReader(ColorsText);
+
+                XmlReader reader = XmlReader.Create(sr);
+
+                GeometryGroup gr = (GeometryGroup)XamlReader.Load(reader);
+                foreach (var path in gr.Children)
+                {
+                    double currentLeft = path.Bounds.Left;
+                    double currentTop = path.Bounds.Top;
+                    double currentWidth = path.Bounds.Width;
+                    double currentHeight = path.Bounds.Height;
+                    Debug.WriteLine(currentLeft + "-" + currentTop + "|" + currentWidth + "x" + currentHeight);
+
+                }
+
+                var lastSpotID = PIDEditWindowsRichCanvasItems.Where(s => s is DeviceSpot).Count();
+                var newItems = new ObservableCollection<IDrawable>();
+                for (int i = 0; i < gr.Children.Count; i++)
+                {
+                    var newItem = new DeviceSpot(
+                        gr.Children[i].Bounds.Top,
+                        gr.Children[i].Bounds.Left,
+                        gr.Children[i].Bounds.Width,
+                        gr.Children[i].Bounds.Height,
+                        1,
+                        1,
+                        1,
+                        1,
+                        lastSpotID + i,
+                        lastSpotID + i,
+                        lastSpotID + i,
+                        lastSpotID + i,
+                        lastSpotID + i,
+                        false,
+                        gr.Children[i]);
+                    newItem.IsSelected = true;
+                    newItem.IsDeleteable = true;
+                    newItems.Add(newItem);
+
+                }
+                foreach (var item in newItems)
+                {
+                    PIDEditWindowsRichCanvasItems.Add(item);
+                    //CurrentOutput.OutputLEDSetup.Spots.Add(item as DeviceSpot);
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
         }
         private void AddImage()
         {
@@ -7558,10 +7667,6 @@ namespace adrilight.ViewModel
                 selectedItems[i].IsSelected = false;
                 if (selectedItems[i].IsDeleteable)
                     itemSource.Remove(selectedItems[i]);
-                //foreach ()
-                //    if (CurrentOutput.OutputLEDSetup.Spots.Contains(selectedItems[i] as DeviceSpot))
-                //        CurrentOutput.OutputLEDSetup.Spots.Remove(selectedItems[i] as DeviceSpot);
-
             }
         }
         private void AddItemsToPIDCanvas()
@@ -7629,6 +7734,7 @@ namespace adrilight.ViewModel
 
             }
         }
+        #endregion
         private DrawableHelpers DrawableHlprs { get; set; }
         private ControlModeHelpers CtrlHlprs { get; set; }
         private void SaveCurrentLEDSetupLayout(string mode)
@@ -7992,7 +8098,7 @@ namespace adrilight.ViewModel
         private void CreateNewAutomation()
         {
             var name = NewAutomationName;
-            IAutomationSettings newAutomation = new AutomationSettings { Name = name };
+            AutomationSettings newAutomation = new AutomationSettings { Name = name };
 
             //var doAbsolutelyNothing = new List<IActionSettings>(); // doing nothing to all devices
             //if (AvailableDevices.Count > 0 && AvailableProfiles.Count > 0)
@@ -8043,13 +8149,13 @@ namespace adrilight.ViewModel
             {
                 File.Delete(JsonGeneralFileNameAndPath);
             }
-            if (AmbinityClient != null)
-                AmbinityClient.Dispose();
+            //if (AmbinityClient != null)
+            //    AmbinityClient.Dispose();
             System.Windows.Forms.Application.Restart();
             Process.GetCurrentProcess().Kill();
         }
 
-        private void DeleteSelectedAutomation(IAutomationSettings automation)
+        private void DeleteSelectedAutomation(AutomationSettings automation)
         {
             AvailableAutomations.Remove(automation);
             WriteAutomationCollectionJson();
@@ -8846,6 +8952,7 @@ namespace adrilight.ViewModel
                     return;
                 }
             }
+            SearchingForDevices = true;
             #region checking and creating resource folder path if not exist
             CreateColorCollectionFolder();
             CreatePaletteCollectionFolder();
@@ -8987,62 +9094,9 @@ namespace adrilight.ViewModel
 
         }
 
-        public List<IAutomationSettings> LoadAutomationIfExist()
+        public List<AutomationSettings> LoadAutomationIfExist()
         {
-            var loadedAutomations = new List<IAutomationSettings>();
-
-            //if (!File.Exists(JsonAutomationFileNameAndPath))
-            //{
-            //    var brightnessUpAllDevices = new List<IActionSettings>(); // load all profile 0 on the list apply to all devices
-            //    var brightnessDownAllDevices = new List<IActionSettings>(); // load all profile 0 on the list apply to all devices
-            //    if (AvailableDevices.Count > 0 && AvailableProfiles.Count > 0)
-            //    {
-            //        foreach (var device in AvailableDevices)
-            //        {
-            //            IActionSettings brightnessUp = new ActionSettings {
-            //                ActionType = "Brightness Control",
-            //                TargetDeviceUID = device.DeviceUID,
-            //                TargetDeviceName = device.DeviceName,
-            //                TargetDeviceType = device.DeviceType,
-            //                ActionParameter = new ActionParameter { Name= "Brightness Up", Type="brightness",Value="up"  },
-
-            //            };
-            //            IActionSettings brightnessDown = new ActionSettings {
-            //                ActionType = "Brightness Control",
-            //                TargetDeviceUID = device.DeviceUID,
-            //                TargetDeviceName = device.DeviceName,
-            //                TargetDeviceType = device.DeviceType,
-            //                ActionParameter = new ActionParameter { Name = "Brightness Down", Type = "brightness", Value = "down" },
-
-            //            };
-            //            brightnessUpAllDevices.Add(brightnessUp);
-            //            brightnessDownAllDevices.Add(brightnessDown);
-            //        }
-
-            //    }
-
-            //    var BrightnessUpAllDevicesAutomation = new AutomationSettings {
-            //        Name = "Brightness Up",
-            //        Actions = brightnessUpAllDevices,
-            //        ConditionTypeIndex = 0,//key stroke detection
-            //        Modifiers = new List<IModifiersType> { new ModifiersType { Name ="CTRL", ModifierKey=NonInvasiveKeyboardHookLibrary.ModifierKeys.Control,IsChecked=true }, new ModifiersType { Name = "SHIFT", ModifierKey = NonInvasiveKeyboardHookLibrary.ModifierKeys.Shift, IsChecked = true } },
-            //        Condition = 120// F9
-
-            //    };
-            //    var BrightnessDownAllDevicesAutomation = new AutomationSettings {
-            //        Name = "Brightness Down",
-            //        Actions = brightnessDownAllDevices,
-            //        Modifiers = new List<IModifiersType> { new ModifiersType { Name = "CTRL", ModifierKey = NonInvasiveKeyboardHookLibrary.ModifierKeys.Control, IsChecked = true }, new ModifiersType { Name = "SHIFT", ModifierKey = NonInvasiveKeyboardHookLibrary.ModifierKeys.Shift, IsChecked = true } },
-            //        ConditionTypeIndex = 0,//key stroke detection
-            //        Condition = 121// F10
-
-            //    };
-            //    loadedAutomations.Add(BrightnessUpAllDevicesAutomation);
-            //    loadedAutomations.Add(BrightnessDownAllDevicesAutomation);
-
-            //}
-            //else
-            //{
+            var loadedAutomations = new List<AutomationSettings>();
             if (File.Exists(JsonAutomationFileNameAndPath))
             {
                 var json = File.ReadAllText(JsonAutomationFileNameAndPath);
@@ -9190,7 +9244,7 @@ namespace adrilight.ViewModel
         {
             AvailableDevices.Remove(CurrentDevice);
             //WriteDeviceInfoJson();
-            AmbinityClient.Dispose();
+            // AmbinityClient.Dispose();
             System.Windows.Forms.Application.Restart();
             Process.GetCurrentProcess().Kill();
         }
@@ -9295,7 +9349,7 @@ namespace adrilight.ViewModel
 
         public void WriteAutomationCollectionJson()
         {
-            var automations = new List<IAutomationSettings>();
+            var automations = new List<AutomationSettings>();
             foreach (var automation in AvailableAutomations)
             {
                 automations.Add(automation);
@@ -9597,13 +9651,10 @@ namespace adrilight.ViewModel
             CurrentOnlineStoreView = "Details";
 
         }
-        private string _currentView;
 
-        private bool _isLiveViewOpen;
-        public bool IsLiveViewOpen {
-            get { return _isLiveViewOpen; }
-            set { _isLiveViewOpen = value; RaisePropertyChanged(); }
-        }
+
+
+        public bool IsLiveViewOpen => SelectedViewPart == SelectableViewParts[1];
         private bool _isAppActivated;
         public bool IsAppActivated {
             get { return _isAppActivated; }
@@ -9975,7 +10026,6 @@ namespace adrilight.ViewModel
         {
             SelectedViewPart = SelectableViewParts[1];
             CurrentDevice = selectedDevice;
-            IsLiveViewOpen = true;
             GetItemsForLiveView();
             UpdateLiveView();
             IsSplitLightingWindowOpen = true;
@@ -9989,12 +10039,11 @@ namespace adrilight.ViewModel
             set
             {
                 Set(ref _selectedViewPart, value);
+
             }
         }
         public void BackToDashboard()
         {
-
-            IsLiveViewOpen = false;
             SelectedViewPart = SelectableViewParts[0];
         }
 

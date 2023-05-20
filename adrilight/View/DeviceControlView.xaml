@@ -58,7 +58,7 @@
                                 Width="64"
                                 Height="60"
                                 Background="Transparent"   
-                                BorderBrush="{StaticResource DarkMaskBrush}"
+                                BorderBrush="{DynamicResource DarkMaskBrush}"
                                 BorderThickness="0"
                                 SnapsToDevicePixels="true">
                                 <ContentPresenter />
@@ -570,10 +570,10 @@
                         <Style TargetType="Button" BasedOn="{StaticResource ButtonDefault}">
                             <Setter Property="IsEnabled" Value="True"/>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentDevice.DeviceConnectionType}" Value="OpenRGB">
+                                <DataTrigger Binding="{Binding CurrentDevice.DeviceType.ConnectionType}" Value="OpenRGB">
                                     <Setter Property="IsEnabled" Value="False"/>
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding CurrentDevice.DeviceConnectionType}" Value="wireless">
+                                <DataTrigger Binding="{Binding CurrentDevice.DeviceType.ConnectionType}" Value="wireless">
                                     <Setter Property="IsEnabled" Value="False"/>
                                 </DataTrigger>
                             </Style.Triggers>
@@ -587,7 +587,7 @@
                         <Path Width="30" Height="30" Margin="5,10" Data="{StaticResource hardware}" Stretch="Uniform" >
                             <Path.Style>
                                 <Style TargetType="Path">
-                                    <Setter Property="Fill" Value="{StaticResource PrimaryBrush}"/>
+                                    <Setter Property="Fill" Value="{DynamicResource PrimaryBrush}"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding CurrentDevice.IsTransferActive}" Value="False">
                                             <Setter Property="Fill" Value="{StaticResource SecondaryTextBrush}"/>
@@ -648,7 +648,7 @@
                         <Path Width="30" Height="30" Margin="5,10" Data="{Binding CurrentDevice.DeviceType.ConnectionGeometry, Converter={converters:StaticResourceConverter}}" Stretch="Uniform" >
                             <Path.Style>
                                 <Style TargetType="Path">
-                                    <Setter Property="Fill" Value="{StaticResource PrimaryBrush}"/>
+                                    <Setter Property="Fill" Value="{DynamicResource PrimaryBrush}"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding CurrentDevice.IsTransferActive}" Value="False">
                                             <Setter Property="Fill" Value="{DynamicResource SecondaryTextBrush}"/>

@@ -10,7 +10,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using Color = System.Windows.Media.Color;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace adrilight.Spots
 {
@@ -18,14 +20,14 @@ namespace adrilight.Spots
     sealed class DeviceSpot : ViewModelBase, IDeviceSpot, IDrawable
     {
 
-        public DeviceSpot(double top, double left, double width, double height, double scaleTop, double scaleLeft, double scaleWidth, double scaleHeight, int index, int positionIndex, int virtualIndex, int musicIndex, int columnIndex, bool isActivated, string shape)
+        public DeviceSpot(double top, double left, double width, double height, double scaleTop, double scaleLeft, double scaleWidth, double scaleHeight, int index, int positionIndex, int virtualIndex, int musicIndex, int columnIndex, bool isActivated, Geometry geometry)
         {
             Top = top;
             Left = left;
             Width = width;
             Height = height;
 
-            Shape = shape;
+            Geometry = geometry;
 
 
             Index = index;
@@ -55,7 +57,8 @@ namespace adrilight.Spots
             set { Set(() => IsFirst, ref _isFirst, value); }
         }
         public int MID { get; set; }
-        public string Shape { get; set; }
+        private Geometry _geometry;
+        public Geometry Geometry { get => _geometry; set { Set(() => Geometry, ref _geometry, value); } }
         public Color OnDemandColor => Color.FromRgb(Red, Green, Blue);
         public Color SentryColor => Color.FromRgb(SentryRed, SentryGreen, SentryBlue);
 

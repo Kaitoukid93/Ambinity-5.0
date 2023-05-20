@@ -7,6 +7,9 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:local ="clr-namespace:adrilight.View"
            xmlns:converters="clr-namespace:adrilight.Converter"
+           xmlns:ut ="clr-namespace:adrilight.Util"
+           xmlns:parameters ="clr-namespace:adrilight.Util.ModeParameters"
+           xmlns:System="clr-namespace:System;assembly=mscorlib"
            mc:Ignorable="d"
            Background="{DynamicResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
@@ -66,7 +69,7 @@
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="{x:Type ListViewItem}">
-                                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" Margin="2" CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" Margin="2" CornerRadius="7" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
                                         <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
 
                                     </Border>
@@ -77,10 +80,10 @@
                                                 <Condition Property="IsSelected" Value="False"/>
                                             </MultiTrigger.Conditions>
 
-                                            <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
+                                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource HoverBrush}"/>
                                             <!--<Setter Property="BorderThickness" TargetName="Bd" Value="4"/>-->
                                             <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
-                                            <Setter Property="Effect" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>
+                                            <!--<Setter Property="Effect" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>-->
                                         </MultiTrigger>
 
 
@@ -91,7 +94,7 @@
                                             </MultiTrigger.Conditions>
 
                                             <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
-                                            <Setter Property="Effect" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>
+                                            <!--<Setter Property="Effect" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>-->
                                         </MultiTrigger>
                                         <MultiTrigger>
                                             <MultiTrigger.Conditions>
@@ -100,7 +103,7 @@
                                             </MultiTrigger.Conditions>
 
                                             <!--<Setter Property="BorderThickness" TargetName="Bd" Value="6"/>-->
-                                            <Setter Property="Effect" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>
+                                            <!--<Setter Property="Effect" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>-->
                                         </MultiTrigger>
                                         <Trigger Property="IsEnabled" Value="False">
                                             <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{StaticResource {x:Static SystemColors.GrayTextBrushKey}}"/>
@@ -169,7 +172,7 @@
 
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <Border Height="auto" Width="450" CornerRadius="20" Background="{DynamicResource DarkOpacityBrush}">
+                            <Border Effect="{DynamicResource EffectShadow1}" Height="auto" Width="450" CornerRadius="5" Background="{DynamicResource MainContentBackgroundBrush}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="auto"/>
@@ -186,21 +189,21 @@
                                             <hc:TransitioningContentControl Grid.Column="1">
                                                 <Grid>
                                                     <WrapPanel VerticalAlignment="Center" Margin="5" Orientation="Horizontal">
-                                                        <Button Command="{Binding Path=DataContext.OpenTargetActionSelectionWindowCommand, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding .}"  HorizontalAlignment="Center" Height="auto" Width="auto" VerticalAlignment="Top" hc:BorderElement.CornerRadius="6" Margin="5" FontSize="15" FontWeight="SemiBold" Content="{Binding ActionType.Name}" Padding="5,3" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0">
+                                                        <Button hc:BorderElement.CornerRadius="2" Command="{Binding Path=DataContext.OpenTargetActionSelectionWindowCommand, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding .}"  HorizontalAlignment="Center" Height="auto" Width="auto" VerticalAlignment="Top" Margin="5" FontSize="15" FontWeight="SemiBold" Content="{Binding ActionType.Name}" Padding="5,3" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0">
                                                             <Button.Background>
                                                                 <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
                                                             </Button.Background>
                                                         </Button>
-                                                        <Button CommandParameter="{Binding .}" Command="{Binding Path=DataContext.OpenTargetParamSelectionWindowCommand, RelativeSource={RelativeSource AncestorType=ListView}}" HorizontalAlignment="Center" Height="auto" Width="auto" VerticalAlignment="Top" hc:BorderElement.CornerRadius="6" Margin="5" FontSize="15" FontWeight="SemiBold" Content="{Binding ActionParameter.Name}" Padding="5,3" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0">
+                                                        <Button CommandParameter="{Binding .}" Command="{Binding Path=DataContext.OpenTargetParamSelectionWindowCommand, RelativeSource={RelativeSource AncestorType=ListView}}" HorizontalAlignment="Center" Height="auto" Width="auto" VerticalAlignment="Top" hc:BorderElement.CornerRadius="2" Margin="5" FontSize="15" FontWeight="SemiBold" Content="{Binding ActionParameter.Name}" Padding="5,3" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0">
                                                             <Button.Background>
                                                                 <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
                                                             </Button.Background>
                                                         </Button>
-                                                        <TextBlock Margin="7" HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Text="{Binding ActionType.LinkText}" Style="{DynamicResource TextBlockSubTitle}">
+                                                        <TextBlock Visibility="{Binding ActionType.IsTargetDeviceDisplayed,Converter={StaticResource boolToVisibilityConvert}}" Margin="7" HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Text="{Binding ActionType.LinkText}" Style="{DynamicResource TextBlockSubTitle}">
 
                                                         </TextBlock>
 
-                                                        <Button CommandParameter="{Binding .}" Command="{Binding Path=DataContext.OpenTargetDeviceSelectionWindowCommand, RelativeSource={RelativeSource AncestorType=ListView}}" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" Height="auto" Width="auto" VerticalAlignment="Top" hc:BorderElement.CornerRadius="6" Margin="5" Content="{Binding TargetDeviceName,TargetNullValue='Chọn thiết bị'}" Padding="5,3" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0">
+                                                        <Button Visibility="{Binding ActionType.IsTargetDeviceDisplayed,Converter={StaticResource boolToVisibilityConvert}}" CommandParameter="{Binding .}" Command="{Binding Path=DataContext.OpenTargetDeviceSelectionWindowCommand, RelativeSource={RelativeSource AncestorType=ListView}}" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" Height="auto" Width="auto" VerticalAlignment="Top" hc:BorderElement.CornerRadius="2" Margin="5" Content="{Binding TargetDeviceName,TargetNullValue='Chọn thiết bị'}" Padding="5,3" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0">
                                                             <Button.Background>
                                                                 <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
                                                             </Button.Background>
@@ -208,7 +211,7 @@
                                                         <TextBlock Visibility="{Binding ActionType.IsValueDisplayed,Converter={StaticResource boolToVisibilityConvert}}" Margin="7" HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" Text="{Binding ActionType.ToResultText}" Style="{DynamicResource TextBlockSubTitle}">
 
                                                         </TextBlock>
-                                                        <Button Visibility="{Binding ActionType.IsValueDisplayed,Converter={StaticResource boolToVisibilityConvert}}" CommandParameter="{Binding .}" Command="{Binding Path=DataContext.OpenAutomationValuePickerWindowCommand, RelativeSource={RelativeSource AncestorType=ListView}}" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" Height="auto" Width="auto" VerticalAlignment="Top" hc:BorderElement.CornerRadius="6" Margin="5"  Padding="5,3"  BorderThickness="0">
+                                                        <Button MinWidth="32" MinHeight="25" Visibility="{Binding ActionType.IsValueDisplayed,Converter={StaticResource boolToVisibilityConvert}}" CommandParameter="{Binding .}" Command="{Binding Path=DataContext.OpenAutomationValuePickerWindowCommand, RelativeSource={RelativeSource AncestorType=ListView}}" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" Height="auto" Width="auto" VerticalAlignment="Top" hc:BorderElement.CornerRadius="2" Margin="5"  Padding="5,3"  BorderThickness="0">
                                                             <Button.Style>
                                                                 <Style TargetType="Button" BasedOn="{StaticResource ButtonDefault}">
                                                                     <Setter Property="Background" Value="{DynamicResource DefaultBackgroundColor }">
@@ -224,32 +227,37 @@
                                                              
                                                             </Button.Style>
                                                             <Grid>
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="auto"/>
-                                                                    <ColumnDefinition Width="auto"/>
-                                                                    
-                                                                </Grid.ColumnDefinitions>
-                                                                <Border  Margin="2,0,0,0" CornerRadius="4" Width="15" Height="15" Grid.Column="0">
-                                                                    <Border.Background>
-                                                                        <SolidColorBrush Color ="{Binding Path=ActionParameter.Value}"/>
-                                                                    </Border.Background>
-                                                                    <Border.Style>
-                                                                        <Style TargetType="Border">
-                                                                            <Setter Property="Visibility" Value="Collapsed">
-
-                                                                            </Setter>
-                                                                            
-                                                                            <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding Path=ActionParameter.Type}" Value="color">
-                                                                            <Setter Property="Visibility" Value="Visible"/>
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                        </Style>
-
-                                                                    </Border.Style>
-                                                                </Border>
+                                                                <Grid.Resources>
+                                                                    <DataTemplate DataType="{x:Type ut:ModeParameterEnum}">
+                                                                        <TextBlock Text="{Binding .}"/>
+                                                                    </DataTemplate>
+                                                                    <DataTemplate DataType="{x:Type ut:ColorCard}">
+                                                                        <Grid>
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                
+                                                                           
+                                                                            <Border CornerRadius="2" Width="20" Height="20">
+                                                                                        <Border.Background>
+                                                                                            <LinearGradientBrush StartPoint="0,1" EndPoint = "1,0">
+                                                                                                <GradientStop Color="{Binding StartColor}" Offset="0.0" />
+                                                                                                <GradientStop Color="{Binding StopColor}" Offset="1.0" />
+                                                                                            </LinearGradientBrush>
+                                                                                        </Border.Background>
+                                                                                    </Border>
+                                                                                    <TextBlock>
+                                                                                        <TextBlock.Text>
+                                                                                            <MultiBinding StringFormat=" {0} - {1}">
+                                                                                                <Binding Path="StartColor"/>
+                                                                                                <Binding Path="StopColor"/>
+                                                                                            </MultiBinding>
+                                                                                        </TextBlock.Text>
+                                                                                    </TextBlock>
+                                                                                </StackPanel>
+                                                                        </Grid>
+                                                                    </DataTemplate>
+                                                                </Grid.Resources>
                                                                 <Grid Grid.Column="1">
-                                                                    <TextBlock Margin="5,0,0,0" Text="{Binding Path=ActionParameter.Value,TargetNullValue='Chọn màu'}"/>
+                                                                    <ContentControl Content="{Binding Path=ActionParameter.Value}"/>
                                                                 </Grid>
                                                             </Grid>
                                                           
@@ -312,7 +320,7 @@
 
                         <ListView.ItemTemplate>
                             <DataTemplate>
-                                <Border HorizontalAlignment="Left" BorderThickness="1" Height="auto" Width="auto" CornerRadius="10" Background="{DynamicResource DarkOpacityBrush}">
+                                <Border HorizontalAlignment="Left" BorderThickness="1" Height="auto" Width="auto" CornerRadius="5" Background="{DynamicResource MainContentBackgroundBrush}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="auto"/>

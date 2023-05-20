@@ -36,8 +36,9 @@
         <!--load efect folder button-->
         <Grid>
             <StackPanel>
-                <Button Command="{Binding SelectColorDataFolderCommand}" VerticalAlignment="Top" HorizontalAlignment="Right" Width="50" Padding="16,8" Margin="15" Style="{StaticResource ButtonDashedDanger}" hc:IconElement.Geometry="{StaticResource AddGeometry}"/>
+                <Button Command="{Binding SelectColorDataFolderCommand}" VerticalAlignment="Top" HorizontalAlignment="Right" Width="50" Padding="16,8" Margin="15" Style="{DynamicResource ButtonDashedDanger}" hc:IconElement.Geometry="{StaticResource AddGeometry}"/>
                 <Button Command="{Binding SelectFrameDataFolderCommand}" VerticalAlignment="Top" HorizontalAlignment="Right" Width="50" Padding="16,8" Margin="15" Style="{StaticResource ButtonDashedDanger}" hc:IconElement.Geometry="{StaticResource AddGeometry}"/>
+                <Button Command="{Binding SelectDeviceGeometryGroupCommand}" VerticalAlignment="Top" HorizontalAlignment="Right" Width="50" Padding="16,8" Margin="15" Style="{StaticResource ButtonDashedDanger}" hc:IconElement.Geometry="{StaticResource AddGeometry}"/>
             </StackPanel>
          
         </Grid>

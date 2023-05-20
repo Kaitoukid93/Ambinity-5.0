@@ -78,7 +78,7 @@
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="{x:Type ListViewItem}">
-                                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" Margin="2" CornerRadius="20" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" Margin="2" CornerRadius="7" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
                                         <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
 
                                     </Border>
@@ -90,9 +90,9 @@
                                             </MultiTrigger.Conditions>
 
                                             <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
-                                            <!--<Setter Property="BorderThickness" TargetName="Bd" Value="4"/>-->
+                                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource HoverBrush}"/>
                                             <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
-                                            <Setter Property="Effect" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>
+                                            
                                         </MultiTrigger>
 
                     
@@ -103,7 +103,7 @@
                                             </MultiTrigger.Conditions>
 
                                             <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
-                                            <Setter Property="Effect" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>
+                                            
                                         </MultiTrigger>
                                         <MultiTrigger>
                                             <MultiTrigger.Conditions>
@@ -112,7 +112,7 @@
                                             </MultiTrigger.Conditions>
 
                                             <!--<Setter Property="BorderThickness" TargetName="Bd" Value="6"/>-->
-                                            <Setter Property="Effect" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>
+                                            
                                         </MultiTrigger>
                                         <Trigger Property="IsEnabled" Value="False">
                                             <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{StaticResource {x:Static SystemColors.GrayTextBrushKey}}"/>
@@ -170,7 +170,7 @@
 
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Border Height="150" Width="150" CornerRadius="20" Background="{DynamicResource DarkOpacityBrush}">
+                        <Border Height="150" Width="150" CornerRadius="7" Background="{DynamicResource MainContentBackgroundBrush}">
                             <!--<i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseLeftButtonDown">
                                     <i:InvokeCommandAction 

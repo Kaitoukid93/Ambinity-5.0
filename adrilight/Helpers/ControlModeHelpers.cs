@@ -249,8 +249,7 @@ namespace adrilight.Helpers
                     Description = "Available Colors",
                     DataSourceLocaFolderNames = new List<string>() { "Colors" },
                     SubParams = new ObservableCollection<SubParameter>() {
-                        new SubParameter("Custom Color",ModeParameterTemplateEnum.PushButtonAction,"Add Color","Add",0,0,0),
-                        new SubParameter("Import Color",ModeParameterTemplateEnum.PushButtonAction,"Import Color","Import",0,0,0)
+                        new SubParameter("Custom Color",ModeParameterTemplateEnum.PushButtonAction,"Add Color","Add",0,0,0)
                     }
 
                 };
@@ -367,22 +366,6 @@ namespace adrilight.Helpers
             }
         }
 
-        /// <summary>
-        /// Select screen for capturing
-        /// </summary>
-        public IModeParameter ScreenSelection {
-            get
-            {
-                return new ModeParameter() {
-
-                    Name = "Chọn màn hình",
-                    Description = "Chọn màn hình để capture",
-                    ParamType = ModeParameterEnum.ScreenIndex,
-                    Template = ModeParameterTemplateEnum.ListSelection,
-                    Value = 0,
-                };
-            }
-        }
         #endregion
     }
 }

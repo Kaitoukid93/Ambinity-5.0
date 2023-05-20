@@ -1,5 +1,6 @@
 ﻿using adrilight.Util.ModeParameters;
 using GalaSoft.MvvmLight;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -44,8 +45,9 @@ namespace adrilight.Util
         /// List of parameters that this mode have
         /// </summary>
         public List<IModeParameter> Parameters { get; set; }
-        public string Geometry { get; set;}
-        public IModeParameter SpeedParameter => Parameters.Where(p => p.ParamType == ModeParameterEnum.Speed).FirstOrDefault();
+        public string Geometry { get; set; }
+        [JsonIgnore]
+        public IModeParameter ColorParameter => Parameters.Where(p => p.ParamType == ModeParameterEnum.Color).FirstOrDefault();
         internal int GetBrightness()
         {
 

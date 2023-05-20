@@ -214,10 +214,13 @@ namespace adrilight
                 {
                     lock (MainViewViewModel.AvailableDeviceLock)
                     {
+                       
                         MainViewViewModel.AvailableDevices.Insert(0, device);
+                       
                     }
 
                 }
+                
             }
             var deviceDiscovery = kernel.Get<IDeviceDiscovery>();
             return kernel;
@@ -440,15 +443,16 @@ namespace adrilight
                 var ambinityClient = kernel.GetAll<IAmbinityClient>().FirstOrDefault();
                 var deviceDiscovery = kernel.GetAll<IDeviceDiscovery>().FirstOrDefault();
                 deviceDiscovery.Stop();
+                GeneralSettings.IsOpenRGBEnabled=false;
                 foreach (var device in devices)
                 {
                     device.DeviceState = DeviceStateEnum.Sleep;
                     Thread.Sleep(10);
-                    device.IsTransferActive = false;
+                    //device.IsTransferActive = false;
                     MainViewViewModel.WriteSingleDeviceInfoJson(device);
                 }
-                hwMonitor.Dispose();
-                ambinityClient.Dispose();
+                //hwMonitor.Dispose();
+                //ambinityClient.Dispose();
 
 
 

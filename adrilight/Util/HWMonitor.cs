@@ -300,7 +300,7 @@ namespace adrilight.Util
                         speeds.Add(80d);
                     }
                     var medianSpeed = speeds.Median();
-                    if (MainViewViewModel.IsSplitLightingWindowOpen && MainViewViewModel.IsAppActivated);
+                    if (MainViewViewModel.IsSplitLightingWindowOpen && MainViewViewModel.IsAppActivated)
                     {
                         foreach (var device in MainViewViewModel.AvailableDevices.Where(d => d.AvailablePWMDevices != null))
                         {

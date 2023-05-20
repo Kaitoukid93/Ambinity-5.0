@@ -11,6 +11,7 @@
            xmlns:behaviors="clr-namespace:adrilight.Helpers.Behaviors"
            xmlns:helpers="clr-namespace:adrilight.Helpers"
            xmlns:local ="clr-namespace:adrilight"
+           xmlns:spot ="clr-namespace:adrilight.Spots"
            xmlns:view ="clr-namespace:adrilight.View"
            xmlns:settings ="clr-namespace:adrilight.Settings"
            Background="{StaticResource RegionBrush}"
@@ -136,16 +137,18 @@
                                                     </Style>
                                                 </ItemsControl.ItemContainerStyle>
                                                 <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Path RenderTransformOrigin="0.5,0.5" Data="{Binding Shape,Converter={converters:StaticResourceConverter}}"
-                                                Stretch="Fill"
+                                                    <DataTemplate DataType="{x:Type spot:DeviceSpot}">
+                                                        <Path RenderTransformOrigin="0.5,0.5" Data="{Binding Geometry,Mode=TwoWay}"
+                                                Stretch="Uniform"
                                                 ToolTip="{Binding Index}"                              
-                                                StrokeThickness="{Binding BorderThickness}" 
                                                 Width="{Binding Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
                                                 Height="{Binding Height,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
                                                             <Path.Fill>
                                                                 <SolidColorBrush Color="{Binding OnDemandColor}"  />
                                                             </Path.Fill>
+                                                            <!--<Path.RenderTransform>
+                                                                <RotateTransform Angle="{Binding Angle,Mode=TwoWay}"></RotateTransform>
+                                                            </Path.RenderTransform>-->
                                                             <Path.Style>
                                                                 <Style TargetType="{x:Type Path}">
 
@@ -155,15 +158,6 @@
 
                                                                         </Trigger>
                                                                     </Style.Triggers>
-                                                                    <Setter Property="RenderTransform" >
-                                                                        <Setter.Value>
-                                                                            <TransformGroup >
-                                                                                <ScaleTransform/>
-                                                                                <TranslateTransform  />
-                                                                                <RotateTransform Angle="{Binding Angle}" />
-                                                                            </TransformGroup>
-                                                                        </Setter.Value>
-                                                                    </Setter>
                                                                 </Style>
                                                             </Path.Style>
                                                         </Path>

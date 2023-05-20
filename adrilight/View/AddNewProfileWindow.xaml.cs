@@ -1,4 +1,5 @@
-﻿using HandyControl.Data;
+﻿using adrilight.ViewModel;
+using HandyControl.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +31,18 @@ namespace adrilight.View
             this.Close();
         }
 
-      
+        private void CheckComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var mainViewModel = this.DataContext as MainViewViewModel;
+            foreach (DeviceSettings item in e.AddedItems)
+            {
+                mainViewModel.SelectedDevicesForCurrentProfile.Add(item);
+            }
+
+            foreach (DeviceSettings item in e.RemovedItems)
+            {
+                mainViewModel.SelectedDevicesForCurrentProfile.Remove(item);
+            }
+        }
     }
 }

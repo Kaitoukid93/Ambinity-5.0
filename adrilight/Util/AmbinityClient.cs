@@ -18,6 +18,7 @@ using System.IO.Compression;
 using OpenRGB.NET.Models;
 using System.Threading.Tasks;
 using adrilight.View;
+using adrilight.ViewModel;
 
 namespace adrilight
 {
@@ -31,20 +32,20 @@ namespace adrilight
         private string ORGBExeFolderNameAndPath => Path.Combine(ORGBPath, "OpenRGB\\");
         private string ORGBExeFileNameAndPath => Path.Combine(ORGBExeFolderNameAndPath, "OpenRGB Windows 64-bit\\OpenRGB.exe");
 
-        public AmbinityClient(IDeviceSettings[] deviceSettings, IGeneralSettings generalSettings)
+        public AmbinityClient(IGeneralSettings generalSettings,MainViewViewModel mainViewViewModel)
         {
             GeneralSettings = generalSettings ?? throw new ArgumentException(nameof(generalSettings));
-            DeviceSettings = deviceSettings ?? throw new ArgumentNullException(nameof(deviceSettings));
-            _retryPolicy = Policy.Handle<Exception>().WaitAndRetry(retryCount: 10, sleepDurationProvider: _ => TimeSpan.FromSeconds(1));//rescan device may took longer and user manualy start server also
-            GeneralSettings.PropertyChanged += UserSettings_PropertyChanged;
-            RefreshTransferState();
+           MainViewViewModel = mainViewViewModel ?? throw new ArgumentException(nameof(mainViewViewModel));
+            _retryPolicy = Policy
+           .Handle<Exception>()
+           .WaitAndRetryAsync(10, _ => TimeSpan.FromSeconds(1));
+            GeneralSettings.PropertyChanged += UserSettings_PropertyChangedAsync;
+            //RefreshTransferState();
             _log.Info($"SerialStream created.");
         }
         //Dependency Injection//
-        private IDeviceSettings[] DeviceSettings { get; set; }
-        private IGeneralSettings GeneralSettings { get; set; }
-        private IDeviceSettings[] ReorderedDevices { get; set; }
-        public List<IDeviceSettings> AvailableDevices { get; set; }
+        private IGeneralSettings GeneralSettings { get;}
+        private MainViewViewModel MainViewViewModel { get; }
         private System.Diagnostics.Process _oRGBProcess;
         public System.Diagnostics.Process ORGBProcess {
             get { return _oRGBProcess; }
@@ -60,75 +61,37 @@ namespace adrilight
 
         private readonly Policy _retryPolicy;
 
-        private void UserSettings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private async void UserSettings_PropertyChangedAsync(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            //switch (e.PropertyName)
-            //{
-            //    case nameof(GeneralSettings.IsOpenRGBEnabled):
-
-            //        RefreshTransferState();
-            //        break;
-            //}
+            switch (e.PropertyName)
+            {
+                case nameof(GeneralSettings.IsOpenRGBEnabled):
+                    await RefreshTransferState();
+                    break;
+            }
         }
 
-        public bool IsRunning => _workerThread != null && _workerThread.IsAlive;
 
-        public void RefreshTransferState()
+        public async Task RefreshTransferState()
         {
-            AvailableDevices = new List<IDeviceSettings>();
-            foreach (var device in DeviceSettings)
+
+            if (!IsInitialized && GeneralSettings.IsOpenRGBEnabled) // Only run OpenRGB Stream if User enable OpenRGB Utilities in General Settings
             {
-                if (device.DeviceType.ConnectionTypeEnum == Settings.DeviceConnectionTypeEnum.OpenRGB)
-                    AvailableDevices.Add(device);
-            }
-            foreach (var device in AvailableDevices)
-            {
-                device.IsTransferActive = false;
-            }
-
-            if (!IsInitialized) // Only run OpenRGB Stream if User enable OpenRGB Utilities in General Settings
-            {
-                //check if OpenRGB is existed in adrilight folder
-                //get any openRGB process running
-                if (File.Exists(ORGBExeFileNameAndPath))
-                {
-                    // now start open rgb
-                    ORGBProcess = System.Diagnostics.Process.Start(ORGBExeFileNameAndPath, "--server --startminimized --gui");
-                    
-
-                }
-                else
-                {
-                    //coppy ORGB from resource // this action using ZipStorer
-                    try
-                    {
-                        Directory.CreateDirectory(ORGBPath);
-
-                        CopyResource("adrilight.Tools.OpenRGB.OpenRGB.zip", Path.Combine(ORGBPath, "OpenRGB.zip"));
-                        //Create directory to extract
-                        Directory.CreateDirectory(ORGBExeFolderNameAndPath);
-                        //then extract
-                        ZipFile.ExtractToDirectory(Path.Combine(ORGBPath, "OpenRGB.zip"), ORGBExeFolderNameAndPath);
-                        //then delete the zip to prevent further conflict
-                        File.Delete(Path.Combine(ORGBPath, "OpenRGB.zip"));
-                    }
-                    catch (ArgumentException)
-                    {
-                        //show messagebox no firmware found for this device
-                        return;
-                    }
-
-                    ORGBProcess = System.Diagnostics.Process.Start(ORGBExeFileNameAndPath, "--server --startminimized --gui");
-                }
-
-
+                MainViewViewModel.SetDashboardStatusText("Starting OpenRGB service...", true);
+                LaunchOpenRGBProcess();
+                await Task.Delay(3000);
                 try
                 {
                     if (Client != null)
                         Client.Dispose();
-                    var attempt = 0;
-                    _retryPolicy.Execute(() => RefreshOpenRGBDeviceState(true)); _log.Info($"Attempt {++attempt}");
-                    IsInitialized = true;
+                    MainViewViewModel.SetDashboardStatusText("Searching for OpenRGB devices...", true);
+                    var result = await _retryPolicy.ExecuteAsync(async () => await RefreshOpenRGBDeviceState());
+                    if (result)
+                    {
+                        MainViewViewModel.SetDashboardStatusText("Done!", false);
+                        IsInitialized = true;
+                    }
+                        
                 }
                 catch (TimeoutException)
                 {
@@ -154,48 +117,35 @@ namespace adrilight
                 }
             }
 
-            //else if (!GeneralSettings.IsOpenRGBEnabled && GeneralSettings.OpenRGBAskAgain) // show message require user to turn on Using OpenRGB
-            //{
-            //    //MessageBoxResult result = HandyControl.Controls.MessageBox.Show("Bạn phải bật Enable OpenRGB để có thể tìm thấy và điều khiển các thiết bị OpenRGB! bạn có muốn bật không?", "OpenRGB is disabled", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            //    //if (result == MessageBoxResult.Yes)
-            //    //{
-            //    //    // Enable OpenRGB
-            //    //    GeneralSettings.IsOpenRGBEnabled = true;
-            //    //    RefreshTransferState();
+        }
+        private void LaunchOpenRGBProcess()
+        {
+            if (!File.Exists(ORGBExeFileNameAndPath))
+            {
 
-            //    //}
+                try
+                {
+                    Directory.CreateDirectory(ORGBPath);
 
+                    CopyResource("adrilight.Tools.OpenRGB.OpenRGB.zip", Path.Combine(ORGBPath, "OpenRGB.zip"));
+                    //Create directory to extract
+                    Directory.CreateDirectory(ORGBExeFolderNameAndPath);
+                    //then extract
+                    ZipFile.ExtractToDirectory(Path.Combine(ORGBPath, "OpenRGB.zip"), ORGBExeFolderNameAndPath);
+                    //then delete the zip to prevent further conflict
+                    File.Delete(Path.Combine(ORGBPath, "OpenRGB.zip"));
+                }
+                catch (ArgumentException)
+                {
+                    //show messagebox no firmware found for this device
+                    return;
+                }
 
+            }
+            ORGBProcess = System.Diagnostics.Process.Start(ORGBExeFileNameAndPath, "--server --startminimized --gui");
 
-            //    // Display the dialog box and read the response
-            //    System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
-            //    {
-            //        var dialog = new CommonAskingDialog();
-            //        //dialog.header.Text = "OpenRGB is disabled"
-            //        dialog.question.Text = "Bạn phải bật Enable OpenRGB để có thể tìm thấy và điều khiển các thiết bị OpenRGB! bạn có muốn bật không?";
-            //        bool? result = dialog.ShowDialog();
-            //        if (result == true)
-            //        {
-            //            // Enable OpenRGB
-            //            GeneralSettings.IsOpenRGBEnabled = true;
-
-
-
-            //        }
-            //        if (dialog.askagaincheckbox.IsChecked == true)
-            //        {
-            //            GeneralSettings.OpenRGBAskAgain = false;
-            //        }
-            //        else
-            //        {
-            //            GeneralSettings.OpenRGBAskAgain = true;
-            //        }
-            //        RefreshTransferState();
-            //    });
-            //}
 
         }
-
         private void CopyResource(string resourceName, string file)
         {
             var assembly = Assembly.GetExecutingAssembly();
@@ -217,9 +167,6 @@ namespace adrilight
             var AvailableOpenRGBDevices = new List<Device>();
             try
             {
-                if (Client != null)
-                    Client.Dispose();
-                Client = new OpenRGBClient("127.0.0.1", 6742, name: "Ambinity", autoconnect: true, timeout: 1000);
 
                 if (Client != null && Client.Connected == true)
                 {
@@ -230,41 +177,24 @@ namespace adrilight
                     {
                         AvailableOpenRGBDevices.Add(device);
                     }
-                    //check if any devices is already in the dashboard
-                    foreach (var device in newOpenRGBDevices)
-                    {
-                        var deviceUID = device.Name + device.Version + device.Location;
-                        foreach (var existedDevice in AvailableDevices.Where(p => p.DeviceType.ConnectionTypeEnum == Settings.DeviceConnectionTypeEnum.OpenRGB))
-                        {
-                            if (deviceUID == existedDevice.DeviceUID)
-                                AvailableOpenRGBDevices.Remove(device);
-                        }
-                    }
-
                 }
 
             }
             catch (Exception ex)
             {
-                //HandyControl.Controls.MessageBox.Show("sum ting wong");
+                //something could happen to openRGB client
+
             }
-
-            //WriteOpenRGBDeviceInfoJson();
-
             return AvailableOpenRGBDevices;
         }
 
 
-        private Thread _workerThread;
-        private CancellationTokenSource _cancellationTokenSource;
-        public void RefreshOpenRGBDeviceState(bool init)//init
+        public async Task<bool> RefreshOpenRGBDeviceState()//init
         {
-            if (init)
-            {
-                if (Client != null)
-                    Client.Dispose();
-                Client = new OpenRGBClient("127.0.0.1", 6742, name: "Ambinity", autoconnect: true, timeout: 1000);
-            }
+
+            if (Client != null)
+                Client.Dispose();
+            Client = new OpenRGBClient("127.0.0.1", 6742, name: "Ambinity", autoconnect: true, timeout: 1000);
 
             if (Client != null)
             {
@@ -274,43 +204,21 @@ namespace adrilight
 
                     var devices = Client.GetAllControllerData();
                     int index = 0;
-                    ReorderedDevices = new DeviceSettings[devices.Length];
                     foreach (var device in devices)
                     {
-
                         for (var i = 0; i < device.Modes.Length; i++)
                         {
-
                             Debug.WriteLine(device.Modes[i].Name.ToString());
                             if (device.Modes[i].Name == "Direct")
                             {
                                 Client.SetMode(index, i);
                             }
                         }
-
+                        index++;
 
                         _log.Info($"Device found : " + device.Name.ToString() + "At index: " + index);
-
-                        var deviceUID = device.Name + device.Version + device.Location;
-                        foreach (var convertedDevice in AvailableDevices)
-                        {
-                            if (deviceUID == convertedDevice.DeviceUID) // this is known device
-                            {
-                                convertedDevice.IsTransferActive = true;
-                                //convertedDevice.IsEnabled = true;
-                                ReorderedDevices[index] = convertedDevice;
-                            }
-                            else
-                            {
-                                // this is new device from ORGB, prompt asking user to add or not?
-
-                            }
-
-                        }
-                        index++;
                     }
-
-
+                    return await Task.FromResult(true);
                 }
                 else // this could happen due to device scanning is in progress
                 {
@@ -322,10 +230,8 @@ namespace adrilight
 
 
                 }
-
-
             }
-
+            return await Task.FromResult(false);
         }
 
         public void Dispose()
@@ -333,7 +239,16 @@ namespace adrilight
             if (Client != null)
                 Client.Dispose();
             if (ORGBProcess != null)
-                ORGBProcess.Kill();
+            {
+                try { ORGBProcess.Kill(); }
+
+                catch
+                {
+
+                }
+
+            }
+
             GC.SuppressFinalize(this);
         }
 

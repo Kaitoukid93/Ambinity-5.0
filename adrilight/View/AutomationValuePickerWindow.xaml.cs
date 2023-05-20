@@ -18,20 +18,14 @@ namespace adrilight.View
     /// <summary>
     /// Interaction logic for PaletteEditWindow.xaml
     /// </summary>
-    public partial class AutomationColorPickerWindow
+    public partial class AutomationValuePickerWindow
     {
-        public AutomationColorPickerWindow()
+        public AutomationValuePickerWindow()
         {
             InitializeComponent();
         }
-       
 
-        private void ColorPicker_Confirmed(object sender, HandyControl.Data.FunctionEventArgs<Color> e)
-        {
-            this.Close();
-        }
-
-        private void mColorPicker_Canceled(object sender, EventArgs e)
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
         }

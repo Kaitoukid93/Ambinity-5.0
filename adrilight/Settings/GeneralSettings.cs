@@ -1,6 +1,6 @@
 ﻿using adrilight.Settings;
 using GalaSoft.MvvmLight;
-
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -44,7 +44,7 @@ namespace adrilight
         private List<DesktopScreen> _screens;
         public GeneralSettings()
         {
-         
+
         }
         public List<DesktopScreen> Screens { get => _screens; set { Set(() => Screens, ref _screens, value); } }
         public int StartupDelaySecond { get => _startupDelaySecond; set { Set(() => StartupDelaySecond, ref _startupDelaySecond, value); } }
@@ -66,6 +66,7 @@ namespace adrilight
         public bool Autostart { get => _autostart; set { Set(() => Autostart, ref _autostart, value); } }
         public bool FrimwareUpgradeIsInProgress { get => _firmwareUpgradeIsInProgress; set { Set(() => FrimwareUpgradeIsInProgress, ref _firmwareUpgradeIsInProgress, value); } }
         public Color AccentColor { get => _accentColor; set { Set(() => AccentColor, ref _accentColor, value); } }
+        [JsonIgnore]
         public bool IsOpenRGBEnabled { get => _isOpenRGBEnabled; set { Set(() => IsOpenRGBEnabled, ref _isOpenRGBEnabled, value); } }
         public bool DriverRequested { get => _driverRequested; set { Set(() => DriverRequested, ref _driverRequested, value); } }
         public bool OpenRGBConfigRequested { get => _openRGBConfigRequested; set { Set(() => OpenRGBConfigRequested, ref _openRGBConfigRequested, value); } }

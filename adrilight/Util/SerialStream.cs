@@ -271,10 +271,10 @@ namespace adrilight
             int counter = _messagePreamble.Length;
             var fan = currentPWMDevice.ControlableZones[0] as FanMotor;
             const int colorsPerLed = 3;
-            const int hilocheckLenght = 3;
+            const int hilocheckLength = 3;
             const int extraHeader = 3;
             int ledCount = currentLightingDevice.LEDCount;
-            int bufferLength = _messagePreamble.Length + hilocheckLenght + extraHeader + (ledCount * colorsPerLed);
+            int bufferLength = _messagePreamble.Length + hilocheckLength + extraHeader + (ledCount * colorsPerLed);
             outputStream = ArrayPool<byte>.Shared.Rent(bufferLength);
             Buffer.BlockCopy(_messagePreamble, 0, outputStream, 0, _messagePreamble.Length);
             byte lo = (byte)((ledCount == 0 ? 1 : ledCount) & 0xff);

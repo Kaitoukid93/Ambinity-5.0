@@ -24,40 +24,6 @@ namespace adrilight.View
         {
             InitializeComponent();
         }
-        private void ButtonConfig_OnClick(object sender, RoutedEventArgs e) => PopupConfig.IsOpen = true;
-        private void ButtonSkins_OnClick(object sender, RoutedEventArgs e)
-        {
-            //if (e.OriginalSource is Button { Tag: SkinType skinType })
-            //{
-            //    PopupConfig.IsOpen = false;
-            //    if (skinType.Equals(GlobalData.Config.Skin))
-            //    {
-            //        return;
-            //    }
-
-            //    GlobalData.Config.Skin = skinType;
-            //    GlobalData.Save();
-            //    ((App)Application.Current).UpdateSkin(skinType);
-            //    Messenger.Default.Send(skinType, MessageToken.SkinUpdated);
-            //}
-        }
-        private void ButtonLangs_OnClick(object sender, RoutedEventArgs e)
-        {
-            //if (e.OriginalSource is Button { Tag: string langName })
-            //{
-            //    PopupConfig.IsOpen = false;
-            //    if (langName.Equals(GlobalData.Config.Lang))
-            //    {
-            //        return;
-            //    }
-
-            //    ConfigHelper.Instance.SetLang(langName);
-            //    LangProvider.Culture = new CultureInfo(langName);
-            //    Messenger.Default.Send<object>(null, MessageToken.LangUpdated);
-
-            //    GlobalData.Config.Lang = langName;
-            //    GlobalData.Save();
-            //}
-        }
+      
     }
 }

@@ -98,7 +98,7 @@
                                                     </i:EventTrigger>
                                                 </i:Interaction.Triggers>
                                               
-                                                <Path RenderTransformOrigin="0.5,0.5" Data="{Binding Shape,Converter={converters:StaticResourceConverter}}"
+                                                <Path RenderTransformOrigin="0.5,0.5" Data="{Binding Geometry}"
                                                 Stretch="Fill"                             
                                                 StrokeThickness="{Binding BorderThickness}" 
                                                 Width="{Binding Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 

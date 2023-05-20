@@ -70,21 +70,28 @@ namespace adrilight
 
                     //start it
                     //find out which position 
-                    lock (AmbinityClient.Lock)
+                    try
                     {
-                        for (var i = 0; i < AmbinityClient.Client.GetControllerCount(); i++)
+                        lock (AmbinityClient.Lock)
                         {
-                            var device = AmbinityClient.Client.GetControllerData(i);
-                            var deviceName = device.Name.ToValidFileName();
-                            if (DeviceSettings.DeviceName + DeviceSettings.OutputPort == deviceName + device.Location)
-                                //so we're at i
-                                index = i;
+                            for (var i = 0; i < AmbinityClient.Client.GetControllerCount(); i++)
+                            {
+                                var device = AmbinityClient.Client.GetControllerData(i);
+                                var deviceName = device.Name.ToValidFileName();
+                                if (DeviceSettings.DeviceName + DeviceSettings.OutputPort == deviceName + device.Location)
+                                    //so we're at i
+                                    index = i;
 
+                            }
+                            _log.Debug("starting the OpenRGB stream for device Name : " + DeviceSettings.DeviceName);
+                            Start();
                         }
                     }
-
-                    _log.Debug("starting the OpenRGB stream for device Name : " + DeviceSettings.DeviceName);
-                    Start();
+                    catch(Exception ex)
+                    {
+                        Debug.Write(ex);
+                    }
+  
                 }
                 else
                 {

@@ -259,7 +259,7 @@
                                     <TextBlock TextWrapping="WrapWithOverflow" Margin="0,0,5,0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding OutputPort}" >
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsTransferActive}" Value="False">
                                                         <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
@@ -271,7 +271,7 @@
                                     <Path Width="25" Height="25" Margin="5,5" Data="{DynamicResource connection}" Stretch="Uniform" >
                                         <Path.Style>
                                             <Style TargetType="Path">
-                                                <Setter Property="Fill" Value="{StaticResource PrimaryBrush}"/>
+                                                <Setter Property="Fill" Value="{DynamicResource PrimaryBrush}"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsTransferActive}" Value="False">
                                                         <Setter Property="Fill" Value="{DynamicResource SecondaryTextBrush}"/>
@@ -297,7 +297,7 @@
         </ResourceDictionary>
 
     </UserControl.Resources>
-    <Grid Margin="10,10,10,10" >
+    <Grid>
 
 
         <Grid.RowDefinitions>
@@ -319,8 +319,8 @@
 
         <Grid Width="auto" x:Name="parrentGrid" Grid.Row="1" >
 
-
-            <hc:RelativePanel  Margin="0">
+            
+            <hc:RelativePanel  Margin="10">
                 <Grid Margin="0"  x:Name="Header"  hc:RelativePanel.AlignLeftWithPanel="True" hc:RelativePanel.AlignTopWithPanel="True" >
                     <TextBlock
                     Margin="15,10,10,20" 
@@ -336,6 +336,7 @@
                 <Grid x:Name="AllDevicesPanel" hc:RelativePanel.AlignLeftWithPanel="True"  hc:RelativePanel.Below="{Binding ElementName=Header}">
 
                     <!-- all devices-->
+                  
                     <ListView  Margin="0" 
                        
                        Name="itm" 
@@ -376,8 +377,21 @@
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>-->
                     </ListView>
+                   
                 </Grid>
             </hc:RelativePanel>
+            <Border Background="{DynamicResource DarkOpacityBrush}" Visibility="{Binding SearchingForDevices,Mode=TwoWay,Converter={StaticResource Boolean2VisibilityConverter}}">
+                
+            </Border>
+            <Grid Visibility="{Binding SearchingForDevices,Mode=TwoWay,Converter={StaticResource Boolean2VisibilityConverter}}">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+            <hc:LoadingLine  VerticalAlignment="Bottom" Height="20" Width="100"/>
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="1" Style="{DynamicResource TextBlockSubTitle}" Text="{Binding DashboardLoadingText,Mode=TwoWay}"/>
+            </Grid>
 
         </Grid>
 

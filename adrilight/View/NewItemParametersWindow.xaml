@@ -75,7 +75,7 @@
                                                 <ColumnDefinition Width="auto"/>
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
-                                            <Path Margin="5" Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}" Width="20" Height="20" Fill="{DynamicResource PrimaryBrush}" Stretch="Uniform" />
+                                            <Path Margin="5" Data="{Binding PathData}" Width="20" Height="20" Fill="{DynamicResource PrimaryBrush}" Stretch="Uniform" />
                                             <TextBlock  Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5" Grid.Column="1" Text="{Binding Name}" Style="{StaticResource TextBlockDefault}"/>
                                         </Grid>
                                     </DataTemplate>

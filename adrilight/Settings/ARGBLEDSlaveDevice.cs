@@ -131,6 +131,7 @@ namespace adrilight.Settings
 
             return ledCount;
         }
+        
         public void UpdateSizeByChild(bool withPoint)
         {
 
