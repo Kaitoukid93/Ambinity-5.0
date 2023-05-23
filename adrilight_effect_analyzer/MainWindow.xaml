@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:adrilight_effect_analyzer"
         xmlns:vm="clr-namespace:adrilight_effect_analyzer.ViewModel"  
         xmlns:hc="https://handyorg.github.io/handycontrol"
-         
+        xmlns:richcanvas="clr-namespace:RichCanvas;assembly=RichCanvas"
         mc:Ignorable="d"
 
         Title="MainWindow" Height="450" Width="800">
@@ -42,72 +42,14 @@
             </StackPanel>
          
         </Grid>
-        <!--list of frame in this layer-->
-        <!--<Grid VerticalAlignment="Top" Grid.Row="1" Margin="5">
-            <ListView ItemsSource="{Binding Layer.Frame}">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Viewbox  HorizontalAlignment="Center" VerticalAlignment="Center"  Name="PreviewBox">
+        <Grid Grid.Row="1">
+            <richcanvas:RichItemsControl
+            EnableGrid="true"
+            GridSpacing="1"
+            MaxScale="100"
+            MinScale="0.1"
+            ></richcanvas:RichItemsControl>
+        </Grid>
 
-                                <ItemsControl
-                          Name="PreviewGird"  
-                          BorderThickness="1"
-                          HorizontalAlignment="Center"
-                          VerticalAlignment="Center" 
-                          ItemsSource="{Binding FrameData}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <Canvas HorizontalAlignment="Center" VerticalAlignment="Top" Name="PreviewCanvas"
-                               
-                                Margin="0" 
-                                Width="256" 
-                                Height="4" >
-                                            </Canvas>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemContainerStyle>
-                                        <Style TargetType="ContentPresenter">
-                                            <Setter Property="Canvas.Left" Value="{Binding Rect.X}"/>
-                                            <Setter Property="Canvas.Top" Value="{Binding Rect.Y}"/>
-                                        </Style>
-                                    </ItemsControl.ItemContainerStyle>
-
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid>
-                                                <Rectangle
-                                             
-                                                StrokeThickness="0" 
-                                                Width="{Binding Rect.Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
-                                                Height="{Binding Rect.Height,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
-                                                    <Rectangle.Fill>
-                                                        <SolidColorBrush Color="{Binding FillColor,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"  />
-                                                    </Rectangle.Fill>
-
-
-                                                    --><!--<i:Interaction.Triggers>
-                                                    -->
-                                                    <!--<i:EventTrigger EventName="MouseDown" >
-                                                        <i:InvokeCommandAction Command="{Binding DataContext.SetNextSpotVIDCommand,RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding .}" />
-                                                    </i:EventTrigger>-->
-                                                    <!--
-                                                   
-                                                </i:Interaction.Triggers>--><!--
-
-                                                </Rectangle>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </Viewbox>
-                        </Grid>
-                    
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-           
-        </Grid>-->
-        
     </Grid>
 </hc:Window>

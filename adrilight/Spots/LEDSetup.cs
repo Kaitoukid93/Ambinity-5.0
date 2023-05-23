@@ -133,10 +133,11 @@ namespace adrilight
         private Rect _vIDSpace;
         private bool _isDeleteable;
         private bool _isResizeable;
-        private double _scaleTop;
-        private double _scaleLeft;
-        private double _scaleWidth = 1;
-        private double _scaleHeight = 1;
+        private double _actualWidth;
+        private double _actualHeight;
+        public double ActualWidth { get => _actualWidth; set { Set(() => ActualWidth, ref _actualWidth, value); } }
+
+        public double ActualHeight { get => _actualHeight; set { Set(() => ActualHeight, ref _actualHeight, value); } }
         private RGBLEDOrderEnum _rgbLEDOrder = RGBLEDOrderEnum.RGB;
         public RGBLEDOrderEnum RGBLEDOrder { get => _rgbLEDOrder; set { Set(() => RGBLEDOrder, ref _rgbLEDOrder, value); } }
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
@@ -317,16 +318,16 @@ namespace adrilight
             {
                 if (!(spot as IDrawable).SetScale(scaleX, scaleY, keepOrigin)) return false;
             }
-            var width = Width * scaleX;
-            var height = Height * scaleY;
-            if (width < 10 || height < 10)
+            var width = ActualWidth * scaleX;
+            var height = ActualHeight * scaleY;
+            if (width < 1 || height < 1)
             {
                 return false;
             }
             else
             {
-                Width *= scaleX;
-                Height *= scaleY;
+                ActualWidth *= scaleX;
+                ActualHeight *= scaleY;
                 if (!keepOrigin)
                 {
                     Left *= scaleX;

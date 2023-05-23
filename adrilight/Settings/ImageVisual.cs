@@ -38,6 +38,11 @@ namespace adrilight.Settings
         private bool _isResizeable;
         private string _imagePath;
         private bool _isDeleteable;
+        private double _actualWidth;
+        private double _actualHeight;
+        public double ActualWidth { get => _actualWidth; set { Set(() => ActualWidth, ref _actualWidth, value); } }
+
+        public double ActualHeight { get => _actualHeight; set { Set(() => ActualHeight, ref _actualHeight, value); } }
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public string ImagePath { get => _imagePath; set { Set(() => ImagePath, ref _imagePath, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
@@ -104,16 +109,16 @@ namespace adrilight.Settings
         public bool SetScale(double scaleX, double scaleY, bool keepOrigin)
         {
 
-            var width = Width * scaleX;
-            var height = Height * scaleY;
-            if (width < 10 || height < 10)
+            var width = ActualWidth * scaleX;
+            var height = ActualHeight * scaleY;
+            if (width < 1 || height < 1)
             {
                 return false;
             }
             else
             {
-                Width *= scaleX;
-                Height *= scaleY;
+                ActualWidth *= scaleX;
+                ActualHeight *= scaleY;
                 if (!keepOrigin)
                 {
                     Left *= scaleX;

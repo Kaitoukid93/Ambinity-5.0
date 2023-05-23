@@ -128,8 +128,8 @@ namespace adrilight.Helpers
                 }
                 newDevice.AvailableControllers.Add(pwmController);
             }
-
-            newDevice.UpdateChildSize();
+            
+           // newDevice.UpdateChildSize();
             return newDevice;
 
         }

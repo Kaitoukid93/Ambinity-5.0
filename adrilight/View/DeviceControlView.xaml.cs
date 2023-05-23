@@ -19,14 +19,14 @@ namespace adrilight.View
     /// <summary>
     /// Interaction logic for DeviceLigtingControl.xaml
     /// </summary>
-    public  partial class DeviceControlView : UserControl
+    public partial class DeviceControlView : UserControl
     {
-      
 
-        public  DeviceControlView()
+
+        public DeviceControlView()
         {
             InitializeComponent();
-           
+
 
         }
 
@@ -41,7 +41,7 @@ namespace adrilight.View
             }
 
             public int Order => 900;
-
+            public string Geometry => "animation";
             public string ViewPartName => "Device Control View";
 
             public object Content { get => lazyContent.Value; }

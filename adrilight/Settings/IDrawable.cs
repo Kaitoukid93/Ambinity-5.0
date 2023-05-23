@@ -37,11 +37,11 @@ namespace adrilight
         bool IsResizeable { get; set; }
         bool IsDeleteable { get; set; }
         double Width { get; set; }
-
         System.Drawing.Rectangle GetRect { get;}
         double Height { get; set; }
 
-
+        double ActualWidth { get; set; }
+        double ActualHeight { get; set; }
         VisualProperties VisualProperties { get; set; }
 
 

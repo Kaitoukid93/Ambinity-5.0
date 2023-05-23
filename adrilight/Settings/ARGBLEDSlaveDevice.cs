@@ -26,11 +26,11 @@ namespace adrilight.Settings
     /// <summary>
     /// this class holding LED Zones that current slave device has
     /// </summary>
-    internal class ARGBLEDSlaveDevice : ViewModelBase, ISlaveDevice, IDrawable
+    public class ARGBLEDSlaveDevice : ViewModelBase, ISlaveDevice, IDrawable
     {
         private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
         private string SupportedSlaveDeviceFolderPath => Path.Combine(JsonPath, "SupportedDevices");
-        private string deviceDirectory => Directory.Exists(Path.Combine(SupportedSlaveDeviceFolderPath, Name))? Path.Combine(SupportedSlaveDeviceFolderPath, Name): Path.Combine(SupportedSlaveDeviceFolderPath, "GenericDevice");
+        private string deviceDirectory => Directory.Exists(Path.Combine(SupportedSlaveDeviceFolderPath, Name)) ? Path.Combine(SupportedSlaveDeviceFolderPath, Name) : Path.Combine(SupportedSlaveDeviceFolderPath, "GenericDevice");
         public string Name { get; set; }
         public string Owner { get; set; }
         public int ParrentID { get; set; }
@@ -39,6 +39,7 @@ namespace adrilight.Settings
         public SlaveDeviceTypeEnum DeviceType { get; set; }
         public DeviceTypeEnum DesiredParrent { get; set; }
         public string Description { get; set; }
+        public ImageVisual Image { get; set; }
 
         /// <summary>
         /// Zone properties
@@ -53,6 +54,7 @@ namespace adrilight.Settings
         {
             VisualProperties = new VisualProperties();
             Scale = new System.Windows.Point(1, 1);
+            ControlableZones = new ObservableCollection<IControlZone>();
         }
 
 
@@ -67,8 +69,10 @@ namespace adrilight.Settings
         private bool _isSelected;
         private bool _isSelectable = true;
         private bool _isDraggable = true;
-        private double _width = 100;
-        private double _height = 100;
+        private double _actualWidth;
+        private double _actualHeight;
+        private double _width;
+        private double _height;
         private VisualProperties _visualProperties;
         private bool _shouldBringIntoView;
         private System.Windows.Point _directionPoint;
@@ -76,14 +80,9 @@ namespace adrilight.Settings
         private RelayCommand<double> topChangedCommand;
         private double _angle = 0;
         private bool _hasCustomBehavior;
-        private string _name;
-
         private bool _isDeleteable;
         private bool _isResizeable;
-        private double _scaleTop;
-        private double _scaleLeft;
-        private double _scaleWidth = 1;
-        private double _scaleHeight = 1;
+
 
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
@@ -96,9 +95,11 @@ namespace adrilight.Settings
 
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
 
-        public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }
+        public double Width  { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }
+        public double Height { get => _height; set { Set(() => Height, ref _height, value);OnHeightUpdated(); } }
+        public double ActualWidth { get => _actualWidth; set { Set(() => ActualWidth, ref _actualWidth, value); } }
 
-        public double Height { get => _height; set { Set(() => Height, ref _height, value); OnHeightUpdated(); } }
+        public double ActualHeight { get => _actualHeight; set { Set(() => ActualHeight, ref _actualHeight, value); } }
 
         public VisualProperties VisualProperties { get => _visualProperties; set { Set(() => VisualProperties, ref _visualProperties, value); } }
 
@@ -131,7 +132,7 @@ namespace adrilight.Settings
 
             return ledCount;
         }
-        
+
         public void UpdateSizeByChild(bool withPoint)
         {
 
@@ -195,8 +196,8 @@ namespace adrilight.Settings
                 (zone as IDrawable).Top -= newBound.Top;
             }
             UpdateSizeByChild(false);
-            
-            
+
+
             Left = RotatePoint(devicePos, newCenter, 90.0).X;
             Top = RotatePoint(devicePos, newCenter, 90.0).Y;
 

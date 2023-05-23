@@ -33,10 +33,9 @@
 
     <Grid Margin="10">
         <StackPanel>
-            <TextBlock Margin="10" Text="New item" Style="{StaticResource TextBlockLarge}">
+            <TextBlock Margin="10" Text="New spot" Style="{StaticResource TextBlockLarge}">
 
             </TextBlock>
-
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"/>
@@ -53,7 +52,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="auto"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="1" HorizontalAlignment="Right" Background="{DynamicResource RegionBrush}" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="7" BorderThickness="0">
+                        <Border Padding="0,0,0,2" Grid.Column="1" HorizontalAlignment="Right" Background="{DynamicResource RegionBrush}" BorderBrush="{DynamicResource BorderBrush}" CornerRadius="5" BorderThickness="0">
                             <ListBox SelectedIndex="1"
                              ItemsSource="{Binding AvailableShapeToAdd}" SelectedItem="{Binding SelectedShape}"
                               ItemContainerStyle="{StaticResource _listBoxModeSelectionStyle}"  
@@ -64,7 +63,7 @@
 
                                 <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <WrapPanel Orientation="Vertical"/>
+                                        <WrapPanel Orientation="Horizontal"/>
                                     </ItemsPanelTemplate>
                                 </ListBox.ItemsPanel>
                              
@@ -75,7 +74,7 @@
                                                 <ColumnDefinition Width="auto"/>
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
-                                            <Path Margin="5" Data="{Binding PathData}" Width="20" Height="20" Fill="{DynamicResource PrimaryBrush}" Stretch="Uniform" />
+                                            <Path Margin="5" Data="{Binding Geometry}" Width="20" Height="20" Fill="{DynamicResource PrimaryBrush}" Stretch="Uniform" />
                                             <TextBlock  Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5" Grid.Column="1" Text="{Binding Name}" Style="{StaticResource TextBlockDefault}"/>
                                         </Grid>
                                     </DataTemplate>
@@ -92,6 +91,9 @@
 
 
             </Grid>
+            <Button Command="{Binding AddSpotGeometryCommand}" HorizontalAlignment="Center" Margin="10" Content="Add shape from data file" Style="{DynamicResource _lowProfileDefaultButton}">
+
+            </Button>
             <Grid>
                 <StackPanel>
                     <hc:NumericUpDown Value="{Binding NewItemWidth}" x:Name="width" DecimalPlaces="1"   hc:InfoElement.TitleWidth="90"  hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="WIDTH" Style="{StaticResource NumericUpDownPlus}" hc:InfoElement.Necessary="True" Margin="0,15,10,0"/>

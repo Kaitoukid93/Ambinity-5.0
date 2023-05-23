@@ -541,6 +541,7 @@ namespace adrilight.ViewModel
         public ICommand AddItemsToPIDCanvasCommand { get; set; }
         public ICommand AddImageToPIDCanvasCommand { get; set; }
         public ICommand AddSpotGeometryCommand { get; set; }
+        public ICommand AddSpotLayoutCommand { get; set; }
         public ICommand SaveCurretSurfaceLayoutCommand { get; set; }
         public ICommand SaveCurrentLEDSetupLayoutCommand { get; set; }
         public ICommand SetRandomOutputColorCommand { get; set; }
@@ -552,7 +553,6 @@ namespace adrilight.ViewModel
         public ICommand AglignSelectedItemstoLeftCommand { get; set; }
         public ICommand SpreadItemLeftHorizontalCommand { get; set; }
         public ICommand SpreadItemRightHorizontalCommand { get; set; }
-
         public ICommand SpreadItemUpVerticalCommand { get; set; }
         public ICommand SpreadItemDownVerticalCommand { get; set; }
         public ICommand AglignSelectedItemstoTopCommand { get; set; }
@@ -699,7 +699,6 @@ namespace adrilight.ViewModel
         public ICommand DeviceRectDropCommand { get; set; }
         public ICommand DeleteCommand { get; set; }
         public ICommand SetCustomColorCommand { get; set; }
-
         public ICommand AdjustPositionCommand { get; set; }
         public ICommand SnapshotCommand { get; set; }
 
@@ -2852,6 +2851,16 @@ namespace adrilight.ViewModel
 
             }
             );
+            AddSpotLayoutCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+
+                AddSpotLayout();
+
+            }
+           );
             DeleteSelectedItemsCommand = new RelayCommand<ObservableCollection<IDrawable>>((p) =>
             {
                 return true;
@@ -4381,7 +4390,7 @@ namespace adrilight.ViewModel
             RaisePropertyChanged(nameof(CurrentSelectedAction));
             ParamType = "param";
             var targetDevice = AvailableDevices.Where(x => x.DeviceUID == CurrentSelectedAction.TargetDeviceUID).FirstOrDefault();
-           
+
             switch (CurrentSelectedAction.ActionType.Type)
             {
                 case "Activate":
@@ -5858,6 +5867,8 @@ namespace adrilight.ViewModel
             var newZone = new LEDSetup();
             var spotList = itemSource.Where(s => s is DeviceSpot && s.IsSelected).ToList();
             //spotList.ForEach(spot => spot.IsSelected = false);
+            if (spotList.Count < 1)
+                return;
             foreach (var spot in spotList)
             {
                 var clonedSpot = ObjectHelpers.Clone<DeviceSpot>(spot as DeviceSpot);
@@ -7515,12 +7526,20 @@ namespace adrilight.ViewModel
         public double NewItemWidth { get; set; }
         public double NewItemHeight { get; set; }
         public int ItemNumber { get; set; }
-        public List<DrawableShape> AvailableShapeToAdd { get; set; }
+        private ObservableCollection<DrawableShape> _availableShapeToAdd;
+        public ObservableCollection<DrawableShape> AvailableShapeToAdd {
+            get { return _availableShapeToAdd; }
+            set
+            {
+                _availableShapeToAdd = value;
+                RaisePropertyChanged();
+            }
+        }
         private void OpenAddNewItemWindow()
         {
-            AvailableShapeToAdd = new List<DrawableShape>();
+            AvailableShapeToAdd = new ObservableCollection<DrawableShape>();
             var circleShape = new DrawableShape() {
-                Geometry =Geometry.Parse("M100 50C100 77.6142 77.6142 100 50 100C22.3858 100 0 77.6142 0 50C0 22.3858 22.3858 0 50 0C77.6142 0 100 22.3858 100 50Z"),
+                Geometry = Geometry.Parse("M100 50C100 77.6142 77.6142 100 50 100C22.3858 100 0 77.6142 0 50C0 22.3858 22.3858 0 50 0C77.6142 0 100 22.3858 100 50Z"),
                 Name = "Round"
             };
             var squareShape = new DrawableShape() {
@@ -7563,7 +7582,7 @@ namespace adrilight.ViewModel
             }
         }
         #region pid canvas viewmodel
-        private void AddSpotGeometry()
+        private void AddSpotLayout()
         {
             System.Windows.Forms.OpenFileDialog Import = new System.Windows.Forms.OpenFileDialog();
             Import.Title = "Chọn GeometryGroup files";
@@ -7576,23 +7595,15 @@ namespace adrilight.ViewModel
 
             Import.ShowDialog();
 
-            var ColorsText = System.IO.File.ReadAllText(Import.FileName);
+            var text = System.IO.File.ReadAllText(Import.FileName);
             try
             {
-                StringReader sr = new StringReader(ColorsText);
+                StringReader sr = new StringReader(text);
 
                 XmlReader reader = XmlReader.Create(sr);
 
                 GeometryGroup gr = (GeometryGroup)XamlReader.Load(reader);
-                foreach (var path in gr.Children)
-                {
-                    double currentLeft = path.Bounds.Left;
-                    double currentTop = path.Bounds.Top;
-                    double currentWidth = path.Bounds.Width;
-                    double currentHeight = path.Bounds.Height;
-                    Debug.WriteLine(currentLeft + "-" + currentTop + "|" + currentWidth + "x" + currentHeight);
 
-                }
 
                 var lastSpotID = PIDEditWindowsRichCanvasItems.Where(s => s is DeviceSpot).Count();
                 var newItems = new ObservableCollection<IDrawable>();
@@ -7631,6 +7642,42 @@ namespace adrilight.ViewModel
             }
 
         }
+        private void AddSpotGeometry()
+        {
+            System.Windows.Forms.OpenFileDialog Import = new System.Windows.Forms.OpenFileDialog();
+            Import.Title = "Chọn GeometryGroup files";
+            Import.CheckFileExists = true;
+            Import.CheckPathExists = true;
+            Import.DefaultExt = "Pro";
+            Import.Filter = "Text files (*.txt)|*.TXT";
+            Import.FilterIndex = 2;
+            Import.Multiselect = false;
+
+            Import.ShowDialog();
+
+            var text = System.IO.File.ReadAllText(Import.FileName);
+            try
+            {
+                StringReader sr = new StringReader(text);
+
+                XmlReader reader = XmlReader.Create(sr);
+
+                Geometry geo = (Geometry)XamlReader.Load(reader);
+
+
+                var lastSpotID = PIDEditWindowsRichCanvasItems.Where(s => s is DeviceSpot).Count();
+                var newItem = new DrawableShape() {
+                    Geometry = geo,
+                };
+                AvailableShapeToAdd.Add(newItem);
+                
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+        }
         private void AddImage()
         {
             OpenFileDialog addImage = new OpenFileDialog();
@@ -7645,13 +7692,13 @@ namespace adrilight.ViewModel
 
             if (!string.IsNullOrEmpty(addImage.FileName) && File.Exists(addImage.FileName))
             {
-
+                Bitmap bitmap = (Bitmap)Bitmap.FromFile(addImage.FileName, true);               
                 var image = new ImageVisual {
                     Top = MousePosition.Y,
                     Left = MousePosition.X,
                     ImagePath = addImage.FileName,
-                    Height = 500,
-                    Width = 500,
+                    Height = bitmap.Height,
+                    Width = bitmap.Width,
                     IsResizeable = true,
                     IsDeleteable = true
                 };

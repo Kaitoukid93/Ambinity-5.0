@@ -106,8 +106,12 @@ namespace adrilight
         public string TargetDevice { get => _targetDevice; set { Set(() => TargetDevice, ref _targetDevice, value); } }
         //[Reflectable]
         //public int VUMode { get => _vUMode; set { Set(() => VUMode, ref _vUMode, value); } }
- 
-      
+
+        private double _actualWidth;
+        private double _actualHeight;
+        public double ActualWidth { get => _actualWidth; set { Set(() => ActualWidth, ref _actualWidth, value); } }
+
+        public double ActualHeight { get => _actualHeight; set { Set(() => ActualHeight, ref _actualHeight, value); } }
         public int OutputID { get => _outputID; set { Set(() => OutputID, ref _outputID, value); } }
         public OutputTypeEnum OutputType { get => _outputType; set { Set(() => OutputType, ref _outputType, value); } }
         public string OutputDescription { get => _outputDescription; set { Set(() => OutputDescription, ref _outputDescription, value); } }

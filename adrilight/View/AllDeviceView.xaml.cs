@@ -42,6 +42,7 @@ namespace adrilight.View
             public int Order => 100;
 
             public string ViewPartName => "All Device View";
+            public string Geometry => "";
 
             public object Content { get => lazyContent.Value; }
         }

@@ -43,6 +43,11 @@ namespace adrilight.Settings
         }
         private int _currentActiveControlModeIndex;
         private bool _isInControlGroup;
+        private double _actualWidth;
+        private double _actualHeight;
+        public double ActualWidth { get => _actualWidth; set { Set(() => ActualWidth, ref _actualWidth, value); } }
+
+        public double ActualHeight { get => _actualHeight; set { Set(() => ActualHeight, ref _actualHeight, value); } }
         public bool IsInControlGroup { get => _isInControlGroup; set { Set(() => IsInControlGroup, ref _isInControlGroup, value); } }
         public string Name { get; set; }
         [JsonIgnore]

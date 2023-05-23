@@ -10,6 +10,7 @@ namespace adrilight.ViewModel
     {
         int Order { get; }
         string ViewPartName { get; }
+        string Geometry { get; }
         object Content { get; }
     }
 }

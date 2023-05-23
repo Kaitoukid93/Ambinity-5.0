@@ -1,0 +1,533 @@
+﻿<Application x:Class="adrilight_content_creator.App"
+            xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:adrilight_content_creator"
+    xmlns:interactivity="clr-namespace:HandyControl.Interactivity;assembly=HandyControl"
+    xmlns:ex="clr-namespace:HandyControl.Tools.Extension;assembly=HandyControl"
+    xmlns:langs="clr-namespace:HandyControl.Properties.Langs;assembly=HandyControl">
+    <Application.Resources>
+        <ResourceDictionary>
+
+            <vm:ViewModelLocator x:Key="Locator" xmlns:vm="clr-namespace:adrilight_content_creator.ViewModel" />
+            <Style x:Key="MessageBoxCustom" TargetType="hc:MessageBox" BasedOn="{StaticResource {x:Type hc:MessageBox}}">
+                <Setter Property="NonClientAreaBackground" Value="#262e2f"/>
+                <Setter Property="OtherButtonHoverBackground" Value="#888580"/>
+                <Setter Property="OtherButtonForeground" Value="White"/>
+                <Setter Property="OtherButtonHoverForeground" Value="White"/>
+                <Setter Property="NonClientAreaForeground" Value="White"/>
+                <Setter Property="CloseButtonForeground" Value="White"/>
+            </Style>
+            <Style x:Key="_lowProfileDefaultButton" TargetType="Button" BasedOn="{StaticResource ButtonCustom}">
+                <Setter Property="Effect" Value="{DynamicResource EffectShadow1}"/>
+                <Setter Property="Padding" Value="10,0"/>
+                <Setter Property="hc:BorderElement.CornerRadius" Value="4"/>
+                <Setter Property="Height" Value="28"/>
+                <Setter Property="hc:BackgroundSwitchElement.MouseDownBackground" Value="{DynamicResource HoverBrush}"/>
+                <Setter Property="hc:BackgroundSwitchElement.MouseHoverBackground" Value="{DynamicResource ButtonHoverBrush}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+            </Style>
+
+            <Style x:Key="_defaultIconButton" TargetType="Button" BasedOn="{StaticResource ButtonIcon}">
+                <Setter Property="Effect" Value="{DynamicResource EffectShadow1}"/>
+                <Setter Property="Padding" Value="5"/>
+                <Setter Property="hc:BorderElement.CornerRadius" Value="4"/>
+                <Setter Property="Height" Value="28"/>
+                <Setter Property="hc:BackgroundSwitchElement.MouseDownBackground" Value="{DynamicResource HoverBrush}"/>
+                <Setter Property="hc:BackgroundSwitchElement.MouseHoverBackground" Value="{DynamicResource ButtonHoverBrush}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
+            </Style>
+            <Style x:Key="_defaultIconButtonSmall" TargetType="Button" BasedOn="{StaticResource ButtonIcon}">
+                <Setter Property="Effect" Value="{DynamicResource EffectShadow1}"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="hc:BorderElement.CornerRadius" Value="4"/>
+                <Setter Property="Height" Value="14"/>
+                <Setter Property="hc:BackgroundSwitchElement.MouseDownBackground" Value="{DynamicResource HoverBrush}"/>
+                <Setter Property="hc:BackgroundSwitchElement.MouseHoverBackground" Value="{DynamicResource ButtonHoverBrush}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Background" Value="{DynamicResource RegionBrush}"/>
+            </Style>
+            <Style x:Key="_mediumProfileDefaultButton" TargetType="Button" BasedOn="{StaticResource ButtonCustom}">
+                <Setter Property="Effect" Value="{DynamicResource EffectShadow1}"/>
+                <Setter Property="Padding" Value="10,0"/>
+                <Setter Property="hc:BorderElement.CornerRadius" Value="4"/>
+                <Setter Property="Height" Value="32"/>
+                <Setter Property="hc:BackgroundSwitchElement.MouseDownBackground" Value="{DynamicResource HoverBrush}"/>
+                <Setter Property="hc:BackgroundSwitchElement.MouseHoverBackground" Value="{DynamicResource ButtonHoverBrush}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Background" Value="{DynamicResource SecondaryRegionBrush}"/>
+            </Style>
+            <Style x:Key="_listBoxGeneralModeSelectionStyle" TargetType="ListBoxItem">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBoxItem">
+                            <Border CornerRadius="4" Name="_Border"
+                                Padding="0"
+                                Margin="5"
+                                Effect="{DynamicResource EffectShadow1}"
+                                Background="Transparent"   
+                                BorderBrush="{StaticResource DarkMaskBrush}"
+                                BorderThickness="0"
+                                SnapsToDevicePixels="true">
+                                <ContentPresenter />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                        <Condition Property="IsSelected" Value="True"/>
+                                    </MultiTrigger.Conditions>
+
+
+                                    <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}"/>-->
+                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource SecondaryRegionBrush}"/>
+
+
+
+                                </MultiTrigger>
+
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                        <Condition Property="IsSelected" Value="True"/>
+                                    </MultiTrigger.Conditions>
+
+
+                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource SecondaryRegionBrush}"/>
+                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+                                </MultiTrigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsMouseOver" Value="True"/>
+                                        <Condition Property="IsSelected" Value="False"/>
+                                    </MultiTrigger.Conditions>
+
+                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource SecondaryRegionBrush}"/>
+
+                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+
+                                </MultiTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" />
+                    </Trigger>
+                </Style.Triggers>
+
+            </Style>
+            <Style x:Key="_listBoxVerticalToolBarStyle" TargetType="ListBoxItem">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBoxItem">
+                            <Border CornerRadius="2" Name="_Border"
+                                Padding="0"
+                                Margin="2"
+                                Width="42"
+                                Height="42"
+                                Effect="{DynamicResource EffectShadow1}"
+                                Background="Transparent"   
+                                BorderBrush="{StaticResource DarkMaskBrush}"
+                                BorderThickness="0"
+                                SnapsToDevicePixels="true">
+                                <ContentPresenter />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                        <Condition Property="IsSelected" Value="True"/>
+                                    </MultiTrigger.Conditions>
+
+
+                                    <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}"/>-->
+                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource SecondaryRegionBrush}"/>
+
+
+
+                                </MultiTrigger>
+
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                        <Condition Property="IsSelected" Value="True"/>
+                                    </MultiTrigger.Conditions>
+
+
+                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource SecondaryRegionBrush}"/>
+                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+                                </MultiTrigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsMouseOver" Value="True"/>
+                                        <Condition Property="IsSelected" Value="False"/>
+                                    </MultiTrigger.Conditions>
+
+                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource SecondaryRegionBrush}"/>
+
+                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+
+                                </MultiTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" />
+                    </Trigger>
+                </Style.Triggers>
+
+            </Style>
+
+            <Style TargetType="{x:Type MenuItem}">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type MenuItem}">
+                            <Border Margin="5,2" Padding="3" CornerRadius="4" Background="{TemplateBinding Background}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ContentPresenter HorizontalAlignment="Left" Width="15" Height="15"  Content="{TemplateBinding Icon}" Margin="5,5" />
+                                    <ContentPresenter Grid.Column="1" HorizontalAlignment="Left" Content="{TemplateBinding Header}" Margin="5,5" />
+                                </Grid>
+
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsHighlighted" Value="True">
+                                    <Setter Property="Background"  Value="{DynamicResource SecondaryRegionBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+
+                <Setter Property="Foreground">
+                    <Setter.Value>
+                        <SolidColorBrush Color="{StaticResource PrimaryTextColor}"/>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style TargetType="{x:Type ContextMenu}">
+                <Setter Property="SnapsToDevicePixels"
+          Value="True" />
+                <Setter Property="OverridesDefaultStyle"
+          Value="True" />
+                <Setter Property="Grid.IsSharedSizeScope"
+          Value="true" />
+                <Setter Property="HasDropShadow"
+          Value="True" />
+
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type ContextMenu}">
+                            <Border Margin="10" Effect="{StaticResource EffectShadow3}" Padding="0"  x:Name="Border"
+                Background="{StaticResource RegionBrush}"
+                BorderThickness="0">
+                                <Border.BorderBrush>
+                                    <SolidColorBrush Color="Transparent" />
+                                </Border.BorderBrush>
+                                <StackPanel IsItemsHost="True"
+                      KeyboardNavigation.DirectionalNavigation="Cycle" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="HasDropShadow"
+                   Value="true">
+                                    <Setter TargetName="Border"
+                    Property="Padding"
+                    Value="0,3,0,3" />
+                                    <Setter TargetName="Border"
+                    Property="CornerRadius"
+                    Value="7" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+
+
+                </Setter>
+            </Style>
+            <Style x:Key="_listBoxModeSelectionStyle" TargetType="ListBoxItem">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBoxItem">
+                            <Border CornerRadius="2" Name="_Border"
+                                Padding="0"
+                                Margin="2"
+                                
+                                Effect="{DynamicResource EffectShadow1}"
+                                BorderBrush="{StaticResource DarkMaskBrush}"
+                                BorderThickness="0"
+                                SnapsToDevicePixels="true">
+                                <ContentPresenter />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                        <Condition Property="IsSelected" Value="True"/>
+                                    </MultiTrigger.Conditions>
+                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource SecondaryRegionBrush}"/>
+                                </MultiTrigger>
+
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                        <Condition Property="IsSelected" Value="True"/>
+                                    </MultiTrigger.Conditions>
+
+
+                                    <Setter Property="Background" TargetName="_Border" Value="{StaticResource SecondaryRegionBrush}"/>
+                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+                                </MultiTrigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsMouseOver" Value="True"/>
+                                        <Condition Property="IsSelected" Value="False"/>
+                                    </MultiTrigger.Conditions>
+
+                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource HoverBrush}"/>
+
+                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+
+                                </MultiTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" />
+                    </Trigger>
+                </Style.Triggers>
+
+            </Style>
+            <Style x:Key="_ComboboxItemStyle" TargetType="ComboBoxItem">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ComboBoxItem">
+                            <Border CornerRadius="2" Name="_Border"
+                                Padding="5"
+                                Margin="4,4"
+                                Background="Transparent"   
+                                BorderBrush="{StaticResource DarkMaskBrush}"
+                                BorderThickness="0"
+                                SnapsToDevicePixels="true">
+                                <ContentPresenter/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                        <Condition Property="IsSelected" Value="True"/>
+                                    </MultiTrigger.Conditions>
+
+
+                                    <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}"/>-->
+                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource PrimaryBrush}"/>
+
+
+
+                                </MultiTrigger>
+
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                        <Condition Property="IsSelected" Value="True"/>
+                                    </MultiTrigger.Conditions>
+
+
+                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource DarkMaskBrush}"/>
+                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+                                </MultiTrigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsMouseOver" Value="True"/>
+                                        <Condition Property="IsSelected" Value="False"/>
+                                    </MultiTrigger.Conditions>
+
+                                    <Setter Property="Background" TargetName="_Border" Value="{DynamicResource SecondaryRegionBrush}"/>
+
+                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+
+                                </MultiTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+
+
+                </Setter>
+            </Style>
+            <Style x:Key="ToggleButtonSwitchSmallerElipse" BasedOn="{StaticResource BaseStyle}" TargetType="ToggleButton">
+                <Setter Property="FocusVisualStyle">
+                    <Setter.Value>
+                        <Style>
+                            <Setter Property="Control.Template">
+                                <Setter.Value>
+                                    <ControlTemplate>
+                                        <Rectangle Style="{StaticResource RectangleFocusVisualCircular}"/>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Background" Value="{StaticResource SecondaryRegionBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="Padding" Value="6,0,0,0"/>
+                <Setter Property="Width" Value="36"/>
+                <Setter Property="Height" Value="22"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ToggleButton">
+                            <ControlTemplate.Resources>
+                                <Storyboard x:Key="StoryboardChecked">
+                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(TranslateTransform.X)" Storyboard.TargetName="thumb">
+                                        <EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="14">
+                                            <EasingDoubleKeyFrame.EasingFunction>
+                                                <PowerEase EasingMode="EaseOut"/>
+                                            </EasingDoubleKeyFrame.EasingFunction>
+                                        </EasingDoubleKeyFrame>
+                                    </DoubleAnimationUsingKeyFrames>
+                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" Storyboard.TargetName="lightBorder">
+                                        <EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="1"/>
+                                    </DoubleAnimationUsingKeyFrames>
+                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)" Storyboard.TargetName="innerBorder">
+                                        <EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="0">
+                                            <EasingDoubleKeyFrame.EasingFunction>
+                                                <PowerEase EasingMode="EaseOut"/>
+                                            </EasingDoubleKeyFrame.EasingFunction>
+                                        </EasingDoubleKeyFrame>
+                                    </DoubleAnimationUsingKeyFrames>
+                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="innerBorder">
+                                        <EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="0">
+                                            <EasingDoubleKeyFrame.EasingFunction>
+                                                <PowerEase EasingMode="EaseOut"/>
+                                            </EasingDoubleKeyFrame.EasingFunction>
+                                        </EasingDoubleKeyFrame>
+                                    </DoubleAnimationUsingKeyFrames>
+                                </Storyboard>
+                                <Storyboard x:Key="StoryboardUnChecked">
+                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(TranslateTransform.X)" Storyboard.TargetName="thumb">
+                                        <EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="0">
+                                            <EasingDoubleKeyFrame.EasingFunction>
+                                                <PowerEase EasingMode="EaseOut"/>
+                                            </EasingDoubleKeyFrame.EasingFunction>
+                                        </EasingDoubleKeyFrame>
+                                    </DoubleAnimationUsingKeyFrames>
+                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" Storyboard.TargetName="lightBorder">
+                                        <EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="0"/>
+                                    </DoubleAnimationUsingKeyFrames>
+                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)" Storyboard.TargetName="innerBorder">
+                                        <EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="1">
+                                            <EasingDoubleKeyFrame.EasingFunction>
+                                                <PowerEase EasingMode="EaseOut"/>
+                                            </EasingDoubleKeyFrame.EasingFunction>
+                                        </EasingDoubleKeyFrame>
+                                    </DoubleAnimationUsingKeyFrames>
+                                    <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="innerBorder">
+                                        <EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="1">
+                                            <EasingDoubleKeyFrame.EasingFunction>
+                                                <PowerEase EasingMode="EaseOut"/>
+                                            </EasingDoubleKeyFrame.EasingFunction>
+                                        </EasingDoubleKeyFrame>
+                                    </DoubleAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </ControlTemplate.Resources>
+                            <Viewbox>
+                                <Grid x:Name="templateRoot" Background="Transparent" SnapsToDevicePixels="True">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="2" Height="22" Width="36" x:Name="backBorder" Background="Transparent" CornerRadius="11"/>
+                                    <Border Grid.Column="0" Height="22" Width="36" Opacity="0" x:Name="lightBorder" Background="{DynamicResource PrimaryBrush}" CornerRadius="11" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"/>
+                                    <Border Grid.Column="0" Height="20" Margin="1" Background="Transparent" CornerRadius="11" Name="innerBorder" RenderTransformOrigin=".8,0.5">
+                                        <Border.RenderTransform>
+                                            <TransformGroup>
+                                                <ScaleTransform/>
+                                            </TransformGroup>
+                                        </Border.RenderTransform>
+                                    </Border>
+                                    <hc:SimplePanel Grid.Column="0" Margin="3,0">
+                                        <Border HorizontalAlignment="Left" CornerRadius="8" Name="thumb" Effect="{StaticResource EffectShadow2}" Background="{StaticResource TextIconBrush}" Width="16" Height="16" RenderTransformOrigin="0.5,0.5">
+                                            <Border.RenderTransform>
+                                                <TransformGroup>
+                                                    <TranslateTransform/>
+                                                </TransformGroup>
+                                            </Border.RenderTransform>
+                                        </Border>
+                                    </hc:SimplePanel>
+                                    <ContentPresenter x:Name="contentPresenter" Visibility="Collapsed" Grid.Column="1" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                </Grid>
+                            </Viewbox>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="HasContent" Value="true">
+                                    <Setter Property="Visibility" TargetName="contentPresenter" Value="Visible"/>
+                                </Trigger>
+                                <Trigger Property="IsChecked" Value="true">
+                                    <Trigger.EnterActions>
+                                        <BeginStoryboard Storyboard="{StaticResource StoryboardChecked}"/>
+                                    </Trigger.EnterActions>
+                                    <Trigger.ExitActions>
+                                        <BeginStoryboard Storyboard="{StaticResource StoryboardUnChecked}"/>
+                                    </Trigger.ExitActions>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Opacity" Value="0.4"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <ResourceDictionary.MergedDictionaries>
+                <hc:ThemeResources>
+                    <hc:ThemeResources.ThemeDictionaries>
+                        <ResourceDictionary x:Key="Light" hc:ThemeDictionary.Key="Light">
+
+                            <!-- Put the resources you want to use in the Light theme Here -->
+
+                            <SolidColorBrush x:Key="DarkOpacityBrush" Color="#FFFCFCFC" />
+                            <SolidColorBrush x:Key="PrimaryTextBrush" Color="#FF212329" />
+                            <SolidColorBrush x:Key="SecondaryRegionBrush" Color="#FFE0E0E0" />
+                            <SolidColorBrush x:Key="DarkMaskBrush" Color="#FFDDDDDD" />
+                            <SolidColorBrush x:Key="RegionBrush" Color="#FFF4F4F4" />
+                        </ResourceDictionary>
+
+                        <ResourceDictionary x:Key="Dark" hc:ThemeDictionary.Key="Dark">
+
+                            <!-- Put the resources you want to use in the Dark theme Here -->
+
+                            <SolidColorBrush x:Key="HoverBrush" Color="#FF323232" />
+                            <SolidColorBrush x:Key="ButtonHoverBrush" Color="#FF434343" />
+                            <SolidColorBrush x:Key="MainContentBackgroundBrush" Color="#FF2b2b2b" />
+                            <SolidColorBrush x:Key="DarkMaskBrush" Color="#FF222222" />
+                            <SolidColorBrush x:Key="RegionBrush" Color="#FF202020" />
+                            <SolidColorBrush x:Key="SecondaryRegionBrush" Color="#FF363636" />
+                        </ResourceDictionary>
+                    </hc:ThemeResources.ThemeDictionaries>
+                </hc:ThemeResources>
+                <hc:Theme/>
+            </ResourceDictionary.MergedDictionaries>
+
+
+        </ResourceDictionary>
+    </Application.Resources>
+
+
+</Application>

@@ -46,7 +46,11 @@ namespace adrilight.Settings
         public string Geometry { get => _geometry; set { Set(() => Geometry, ref _geometry, value); } }
         public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
         public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
+        private double _actualWidth;
+        private double _actualHeight;
+        public double ActualWidth { get => _actualWidth; set { Set(() => ActualWidth, ref _actualWidth, value); } }
 
+        public double ActualHeight { get => _actualHeight; set { Set(() => ActualHeight, ref _actualHeight, value); } }
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
         [JsonIgnore]
         public Type DataType => typeof(PathGuide);

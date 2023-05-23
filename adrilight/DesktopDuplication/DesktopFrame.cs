@@ -172,47 +172,47 @@ namespace adrilight
         //this is called when resolution has changed and we need to update out components
         private void HandleResolutionChange(Rectangle lastRect, Rectangle currentRect, ISlaveDevice Device)
         {
-            var scaleX = (double)currentRect.Width / (double)lastRect.Width;
-            var scaleY = (double)currentRect.Height / (double)lastRect.Height;
-            var deltaX = (double)currentRect.Left - (double)lastRect.Left;
-            var deltaY = (double)currentRect.Top - (double)lastRect.Top;
-            var ledDevice = Device as ARGBLEDSlaveDevice;
-            foreach (var zone in ledDevice.ControlableZones)
-            {
-                var ledZone = zone as LEDSetup;
-                if (CheckRectangle(lastRect, ledZone.GetRect))
-                {
-                    //only scale the zone that in this screen
-                    //move them out first
-                    var translatedLeft = (double)ledZone.GetRect.Left - (double)lastRect.Left;
-                    var translatedTop = (double)ledZone.GetRect.Top - (double)lastRect.Top;
-                    translatedLeft *= scaleX;
-                    translatedTop *= scaleY;
-                    ledZone.SetScale(scaleX, scaleY, false);
-                    //move it as the screen shift
-                    ledZone.Left = translatedLeft + currentRect.Left;
-                    ledZone.Top = translatedTop + currentRect.Top;
-                }
-                else
-                {
-                    //with normal zone, simple get them out of slavedevice
-                    ledZone.Left = ledZone.GetRect.Left;
-                    ledZone.Top = ledZone.GetRect.Top;
-                }
+            //var scaleX = (double)currentRect.Width / (double)lastRect.Width;
+            //var scaleY = (double)currentRect.Height / (double)lastRect.Height;
+            //var deltaX = (double)currentRect.Left - (double)lastRect.Left;
+            //var deltaY = (double)currentRect.Top - (double)lastRect.Top;
+            //var ledDevice = Device as ARGBLEDSlaveDevice;
+            //foreach (var zone in ledDevice.ControlableZones)
+            //{
+            //    var ledZone = zone as LEDSetup;
+            //    if (CheckRectangle(lastRect, ledZone.GetRect))
+            //    {
+            //        //only scale the zone that in this screen
+            //        //move them out first
+            //        var translatedLeft = (double)ledZone.GetRect.Left - (double)lastRect.Left;
+            //        var translatedTop = (double)ledZone.GetRect.Top - (double)lastRect.Top;
+            //        translatedLeft *= scaleX;
+            //        translatedTop *= scaleY;
+            //        ledZone.SetScale(scaleX, scaleY, false);
+            //        //move it as the screen shift
+            //        ledZone.Left = translatedLeft + currentRect.Left;
+            //        ledZone.Top = translatedTop + currentRect.Top;
+            //    }
+            //    else
+            //    {
+            //        //with normal zone, simple get them out of slavedevice
+            //        ledZone.Left = ledZone.GetRect.Left;
+            //        ledZone.Top = ledZone.GetRect.Top;
+            //    }
 
 
-            }
-            //now we combine with unaffected zone and get newbound
-            ledDevice.UpdateSizeByChild(true);
-            //reset zone offset
-            foreach (var zone in ledDevice.ControlableZones)
-            {
-                var ledZone = zone as LEDSetup;
-                ledZone.Left -= ledDevice.Left;
-                ledZone.Top -= ledDevice.Top;
-                ledZone.OffsetX = ledDevice.Left;
-                ledZone.OffsetY = ledDevice.Top;
-            }
+            //}
+            ////now we combine with unaffected zone and get newbound
+            //ledDevice.UpdateSizeByChild(true);
+            ////reset zone offset
+            //foreach (var zone in ledDevice.ControlableZones)
+            //{
+            //    var ledZone = zone as LEDSetup;
+            //    ledZone.Left -= ledDevice.Left;
+            //    ledZone.Top -= ledDevice.Top;
+            //    ledZone.OffsetX = ledDevice.Left;
+            //    ledZone.OffsetY = ledDevice.Top;
+            //}
 
         }
 

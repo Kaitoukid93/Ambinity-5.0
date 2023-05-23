@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DropBoxServer", "DropBoxSer
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FTPServer", "FTPServer\FTPServer.csproj", "{5B8BF436-7610-4335-80EB-809A7E7A655F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "adrilight_content_creator", "adrilight_content_creator\adrilight_content_creator.csproj", "{D071DEAC-2133-4021-84F0-908B6FF8BECB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,8 +27,8 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}.Debug|Any CPU.Build.0 = Debug|x64
 		{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}.Debug|x64.ActiveCfg = Debug|x64
 		{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}.Debug|x64.Build.0 = Debug|x64
 		{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -37,9 +39,10 @@ Global
 		{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}.Release|x64.Build.0 = Release|Any CPU
 		{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}.Release|x86.ActiveCfg = Release|Any CPU
 		{676C8A62-95E9-4E4A-A73F-C8DAD62C0851}.Release|x86.Build.0 = Release|Any CPU
-		{8966A6B0-CEC4-4337-A5BE-AF363303E02A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8966A6B0-CEC4-4337-A5BE-AF363303E02A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8966A6B0-CEC4-4337-A5BE-AF363303E02A}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{8966A6B0-CEC4-4337-A5BE-AF363303E02A}.Debug|Any CPU.Build.0 = Debug|x64
 		{8966A6B0-CEC4-4337-A5BE-AF363303E02A}.Debug|x64.ActiveCfg = Debug|x64
+		{8966A6B0-CEC4-4337-A5BE-AF363303E02A}.Debug|x64.Build.0 = Debug|x64
 		{8966A6B0-CEC4-4337-A5BE-AF363303E02A}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{8966A6B0-CEC4-4337-A5BE-AF363303E02A}.Debug|x86.Build.0 = Debug|Any CPU
 		{8966A6B0-CEC4-4337-A5BE-AF363303E02A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -95,6 +98,18 @@ Global
 		{5B8BF436-7610-4335-80EB-809A7E7A655F}.Release|x64.Build.0 = Release|Any CPU
 		{5B8BF436-7610-4335-80EB-809A7E7A655F}.Release|x86.ActiveCfg = Release|Any CPU
 		{5B8BF436-7610-4335-80EB-809A7E7A655F}.Release|x86.Build.0 = Release|Any CPU
+		{D071DEAC-2133-4021-84F0-908B6FF8BECB}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{D071DEAC-2133-4021-84F0-908B6FF8BECB}.Debug|Any CPU.Build.0 = Debug|x64
+		{D071DEAC-2133-4021-84F0-908B6FF8BECB}.Debug|x64.ActiveCfg = Debug|x64
+		{D071DEAC-2133-4021-84F0-908B6FF8BECB}.Debug|x64.Build.0 = Debug|x64
+		{D071DEAC-2133-4021-84F0-908B6FF8BECB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D071DEAC-2133-4021-84F0-908B6FF8BECB}.Debug|x86.Build.0 = Debug|Any CPU
+		{D071DEAC-2133-4021-84F0-908B6FF8BECB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D071DEAC-2133-4021-84F0-908B6FF8BECB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D071DEAC-2133-4021-84F0-908B6FF8BECB}.Release|x64.ActiveCfg = Release|Any CPU
+		{D071DEAC-2133-4021-84F0-908B6FF8BECB}.Release|x64.Build.0 = Release|Any CPU
+		{D071DEAC-2133-4021-84F0-908B6FF8BECB}.Release|x86.ActiveCfg = Release|Any CPU
+		{D071DEAC-2133-4021-84F0-908B6FF8BECB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

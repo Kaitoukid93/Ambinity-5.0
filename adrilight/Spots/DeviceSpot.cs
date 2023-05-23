@@ -17,15 +17,15 @@ using Rectangle = System.Drawing.Rectangle;
 namespace adrilight.Spots
 {
     [DebuggerDisplay("Spot: Rectangle={Rectangle}, Color={Red},{Green},{Blue}")]
-    sealed class DeviceSpot : ViewModelBase, IDeviceSpot, IDrawable
+    public class DeviceSpot : ViewModelBase, IDeviceSpot, IDrawable
     {
 
         public DeviceSpot(double top, double left, double width, double height, double scaleTop, double scaleLeft, double scaleWidth, double scaleHeight, int index, int positionIndex, int virtualIndex, int musicIndex, int columnIndex, bool isActivated, Geometry geometry)
         {
             Top = top;
             Left = left;
-            Width = width;
-            Height = height;
+            ActualWidth = width;
+            ActualHeight = height;
 
             Geometry = geometry;
 
@@ -187,12 +187,9 @@ namespace adrilight.Spots
         private double _angle = 0;
         private bool _hasCustomBehavior;
         private string _name;
-
+        private double _actualWidth;
+        private double _actualHeight;
         private bool _isResizeable;
-        private double _scaleWidth;
-        private double _scaleHeight;
-        private double _scaleTop;
-        private double _scaleLeft;
         private bool _isDeleteable;
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public double CenterX => Width / 2 + Left;
@@ -207,8 +204,10 @@ namespace adrilight.Spots
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
 
         public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }
-
         public double Height { get => _height; set { Set(() => Height, ref _height, value); OnHeightUpdated(); } }
+        public double ActualWidth { get => _actualWidth; set { Set(() => ActualWidth, ref _actualWidth, value); } }
+
+        public double ActualHeight { get => _actualHeight; set { Set(() => ActualHeight, ref _actualHeight, value); } }
 
         public VisualProperties VisualProperties { get => _visualProperties; set { Set(() => VisualProperties, ref _visualProperties, value); } }
 
@@ -230,16 +229,16 @@ namespace adrilight.Spots
         {
 
 
-            var width = Width * scaleX;
-            var height = Height * scaleY;
-            if (width < 8 || height < 8)
+            var width = ActualWidth * scaleX;
+            var height = ActualHeight * scaleY;
+            if (width < 1 || height < 1)
             {
                 return false;
             }
             else
             {
-                Width *= scaleX;
-                Height *= scaleY;
+                ActualWidth *= scaleX;
+                ActualHeight *= scaleY;
                 if (!keepOrigin)
                 {
                     Left *= scaleX;

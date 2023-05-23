@@ -86,7 +86,9 @@
                 RealTimeDraggingEnabled="True"
                 RealTimeSelectionEnabled="False"
                 SelectedItems="{Binding PIDEditWindowSelectedItems}"
-                Scale="1"
+                Scale="1.0"
+                SnapsToDevicePixels="False"
+                MaxScale="100"
                 MousePosition="{Binding MousePosition, Mode=OneWayToSource}">
                 <richCanvas:RichItemsControl.SelectionRectangleStyle>
                     <Style TargetType="Rectangle">
@@ -113,7 +115,7 @@
                                 <Path Data="{StaticResource import}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Import LED Layout" Command="{Binding AddSpotGeometryCommand}">
+                        <MenuItem Header="Import LED Layout" Command="{Binding AddSpotLayoutCommand}">
                             <MenuItem.Icon>
                                 <Path Data="{StaticResource import}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                             </MenuItem.Icon>

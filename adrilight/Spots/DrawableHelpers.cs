@@ -126,8 +126,8 @@ namespace adrilight.Spots
             {
                 int top = (int)(item as IDrawable).Top;
                 int left = (int)(item as IDrawable).Left;
-                int width = (int)(item as IDrawable).Width;
-                int height = (int)(item as IDrawable).Height;
+                int width = (int)(item as IDrawable).ActualWidth;
+                int height = (int)(item as IDrawable).ActualHeight;
 
                 listRect.Add(new Rect(left, top, width, height));
             }
