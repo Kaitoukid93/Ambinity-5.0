@@ -176,6 +176,9 @@
     </PackageReference>
     <PackageReference Include="Tmds.MDns" Version="0.7.1" />
     <PackageReference Include="WindowsDisplayAPI" Version="1.3.0.13" />
+    <PackageReference Include="Wpf.Controls.PanAndZoom">
+      <Version>2.3.4</Version>
+    </PackageReference>
     <PackageReference Include="WpfAnimatedGif" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
@@ -224,6 +227,7 @@
     <Compile Include="Settings\DeviceConnectionTypeEnum.cs" />
     <Compile Include="Settings\OutputData.cs" />
     <Compile Include="Settings\OutputTypeEnum.cs" />
+    <Compile Include="Settings\ProfileIgnoreAttribute.cs" />
     <Compile Include="Settings\ResourceLoaderConfig.cs" />
     <Compile Include="Settings\RGBLEDOrderEnum.cs" />
     <Compile Include="Settings\SlaveDeviceTypeEnum.cs" />
@@ -395,6 +399,7 @@
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\VisualProperties.cs" />
     <Compile Include="View\AudioDeviceSelectionWindowxaml.cs" />
+    <Compile Include="View\ZoneVisualizer.cs" />
     <Compile Include="View\SurfaceEditorNonClientAreaContent.xaml.cs" />
     <Compile Include="View\StoreNonClientAreaContent.xaml.cs" />
     <Compile Include="View\PIDQuickEditWindow.xaml.cs" />
@@ -493,6 +498,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="View\LEDVisualizer.cs" />
     <Page Include="Properties\DesignTimeResources.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

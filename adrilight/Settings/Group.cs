@@ -41,13 +41,8 @@ namespace adrilight.Settings
         public double CenterY => Height / 2 + Top;
         public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
         public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
-        public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
+        public Rect GetRect => new Rect(Left, Top, Width, Height);
         public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
-        private double _actualWidth;
-        private double _actualHeight;
-        public double ActualWidth { get => _actualWidth; set { Set(() => ActualWidth, ref _actualWidth, value); } }
-
-        public double ActualHeight { get => _actualHeight; set { Set(() => ActualHeight, ref _actualHeight, value); } }
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
 
         public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }

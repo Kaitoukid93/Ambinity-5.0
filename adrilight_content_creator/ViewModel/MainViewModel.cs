@@ -7,6 +7,7 @@ using adrilight.ViewModel;
 using Castle.Core.Resource;
 using HandyControl.Tools.Extension;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 using SharpVectors.Converters;
 using SharpVectors.Renderers.Wpf;
 using System;
@@ -19,12 +20,14 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
 using System.Xml;
 using static adrilight.ViewModel.MainViewViewModel;
+using static System.Windows.Forms.AxHost;
 using Color = System.Windows.Media.Color;
 using ColorConverter = System.Windows.Media.ColorConverter;
 
@@ -45,9 +48,15 @@ namespace adrilight_content_creator.ViewModel
             CanvasItems = new ObservableCollection<IDrawable>();
             CanvasSelectedItems = new ObservableCollection<IDrawable>();
             CanvasSelectedItems.CollectionChanged += SelectedItemsChanged;
+            AvailableDeviceTypes = new ObservableCollection<SlaveDeviceTypeEnum>();
+            foreach (SlaveDeviceTypeEnum type in Enum.GetValues(typeof(SlaveDeviceTypeEnum)))
+            {
+                AvailableDeviceTypes.Add(type);
+            }
         }
 
         public ICommand OpenAddNewDrawableItemCommand { get; set; }
+        public ICommand SaveDeviceDataCommand { get; set; }
         public ICommand ApplyDeviceActualDimensionCommand { get; set; }
         public ICommand AddImageToPIDCanvasCommand { get; set; }
         public ICommand AddItemsToPIDCanvasCommand { get; set; }
@@ -59,6 +68,15 @@ namespace adrilight_content_creator.ViewModel
         public ICommand CombineSelectedSpotsCommand { get; set; }
         public ICommand AddNewZoneCommand { get; set; }
         public ICommand SelectPIDCanvasItemCommand { get; set; }
+        private bool _canSelectMultipleItems;
+        public bool CanSelectMultipleItems
+        {
+            get { return _canSelectMultipleItems; }
+            set
+            {
+                _canSelectMultipleItems = value;
+            }
+        }
         private void SelectedItemsChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
@@ -103,6 +121,16 @@ namespace adrilight_content_creator.ViewModel
             {
 
                 ApplyDeviceActualDimension();
+
+            }
+           );
+            SaveDeviceDataCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+
+                SaveDeviceData();
 
             }
            );
@@ -166,7 +194,7 @@ namespace adrilight_content_creator.ViewModel
                 return true;
             }, (p) =>
             {
-                AddNewZone(CanvasItems, CanvasSelectedItems);
+                AddNewZone();
             });
             CombineSelectedSpotsCommand = new RelayCommand<string>((p) =>
             {
@@ -196,7 +224,42 @@ namespace adrilight_content_creator.ViewModel
             }
          );
         }
-
+        private double _selectionRectangleStrokeThickness = 2.0;
+        public double SelectionRectangleStrokeThickness
+        {
+            get { return _selectionRectangleStrokeThickness; }
+            set
+            {
+                _selectionRectangleStrokeThickness = value;
+                RaisePropertyChanged();
+            }
+        }
+        private Thickness _canvasItemBorder = new Thickness(2.0);
+        public Thickness CanvasItemBorder
+        {
+            get { return _canvasItemBorder; }
+            set
+            {
+                _canvasItemBorder = value;
+                RaisePropertyChanged();
+            }
+        }
+        private double _canvasScale = 1.0;
+        public double CanvasScale
+        {
+            get { return _canvasScale; }
+            set
+            {
+                _canvasScale = value;
+                CalculateItemsBorderThickness(value);
+                RaisePropertyChanged();
+            }
+        }
+        private void CalculateItemsBorderThickness(double scaleValue) // this keeps items border remain the same 2px anytime
+        {
+            SelectionRectangleStrokeThickness = 2 / scaleValue;
+            CanvasItemBorder = new Thickness(SelectionRectangleStrokeThickness);
+        }
         public IList<ISelectableViewPart> SelectableViewParts { get; }
         public ISelectableViewPart _selectedViewPart;
         public ISelectableViewPart SelectedViewPart
@@ -231,8 +294,8 @@ namespace adrilight_content_creator.ViewModel
         {
             //get all child and set size
             var boundRct = GetDeviceRectBound(zone.Spots.ToList());
-            zone.ActualWidth = boundRct.Width;
-            zone.ActualHeight = boundRct.Height;
+            zone.Width = boundRct.Width;
+            zone.Height = boundRct.Height;
             if (withPoint)
             {
                 zone.Left = boundRct.Left;
@@ -243,7 +306,7 @@ namespace adrilight_content_creator.ViewModel
         }
         private DrawableHelpers DrawableHlprs;
         private ControlModeHelpers CtrlHlprs;
-        public System.Drawing.Rectangle GetDeviceRectBound(List<IDrawable> spots)
+        public Rect GetDeviceRectBound(List<IDrawable> spots)
         {
 
 
@@ -259,7 +322,7 @@ namespace adrilight_content_creator.ViewModel
 
 
         }
-        public System.Drawing.Rectangle GetDeviceRectBound(List<IDeviceSpot> spots)
+        public Rect GetDeviceRectBound(List<IDeviceSpot> spots)
         {
 
 
@@ -329,15 +392,15 @@ namespace adrilight_content_creator.ViewModel
                       shape);
             newItem.IsSelected = false;
             newItem.IsDeleteable = true;
-            spotList.ForEach(s => CanvasItems.Remove(s));
             CanvasSelectedItems.Clear();
             CanvasItems.Add(newItem);
+            spotList.ForEach(s => CanvasItems.Remove(s));
         }
-        private void AddNewZone(ObservableCollection<IDrawable> itemSource, ObservableCollection<IDrawable> selectedItemsSource) // create new zone from selected spot fomr wellknown itemsource
+        private void AddNewZone() // create new zone from selected spot fomr wellknown itemsource
         {
 
             var newZone = new LEDSetup();
-            var spotList = itemSource.Where(s => s is DeviceSpot && s.IsSelected).ToList();
+            var spotList = CanvasItems.Where(s => s is DeviceSpot && s.IsSelected).ToList();
             if (spotList.Count < 1)
                 return;
             foreach (var spot in spotList)
@@ -347,7 +410,7 @@ namespace adrilight_content_creator.ViewModel
 
             }
             UpdateZoneSize(true, newZone);
-            spotList.ForEach(spot => itemSource.Remove(spot));
+
             foreach (var spot in newZone.Spots)
             {
 
@@ -356,8 +419,9 @@ namespace adrilight_content_creator.ViewModel
                 (spot as DeviceSpot).IsSelected = false;
 
             }
-            selectedItemsSource.Clear();
-            itemSource.Add(newZone);
+            CanvasSelectedItems.Clear();
+            CanvasItems.Add(newZone);
+            spotList.ForEach(spot => CanvasItems.Remove(spot));
 
         }
         private void OpenAddNewItemWindow()
@@ -400,34 +464,22 @@ namespace adrilight_content_creator.ViewModel
                 RaisePropertyChanged();
             }
         }
-
-        private void ApplyDeviceActualDimension()
+        public string Name { get; set; }
+        public string Description { get; set; } 
+        public string Vendor { get; set; }
+        private void SaveDeviceData()
         {
-
-
             if (DrawableHlprs == null)
                 DrawableHlprs = new DrawableHelpers();
             if (CtrlHlprs == null)
                 CtrlHlprs = new ControlModeHelpers();
 
-            var usableItems = CanvasItems.OfType<IDrawable>().Where(d => d is DeviceSpot || d is LEDSetup);
-            if (usableItems.Count() == 0)
+            var usableZone = CanvasItems.Where(z => z is LEDSetup).ToList();
+            if (usableZone.Count() == 0)
             {
-                HandyControl.Controls.MessageBox.Show("Bạn phải thêm ít nhất 1 LED", "Invalid LED number", MessageBoxButton.OK, MessageBoxImage.Warning);
+                HandyControl.Controls.MessageBox.Show("Bạn phải thêm ít nhất 1 Zone", "Invalid LED number", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            //check if there is any zone exist
-            if (CanvasItems.Where(d => d is LEDSetup).Count() == 0)//no zone at all so we add all device spot in to single zone
-            {
-                //select all spot
-                var availableSpot = CanvasItems.Where(s => s is DeviceSpot).ToList();
-                availableSpot.ForEach(s => s.IsSelected = true);
-
-                //add single zone grab all available spot to canvas
-                AddNewZone(CanvasItems, CanvasSelectedItems);
-
-            }
-            var usableZone = CanvasItems.Where(z => z is LEDSetup).ToList();
             var rectBound = GetDeviceRectBound(CanvasItems.ToList());
             var image = CanvasItems.Where(i => i is ImageVisual).FirstOrDefault();
             System.Windows.Point scale = new System.Windows.Point(DeviceActualWidth / rectBound.Width, DeviceActualHeight / rectBound.Height);
@@ -443,24 +495,81 @@ namespace adrilight_content_creator.ViewModel
                 CtrlHlprs.MakeZoneControlable(ledSetup);
 
             }
-            var newDevice = new ARGBLEDSlaveDevice();
-            newDevice.ActualWidth = DeviceActualWidth;
-            newDevice.ActualHeight = DeviceActualHeight;
-            if(image!=null)
+             Device = new ARGBLEDSlaveDevice();
+            Device.ActualWidth = DeviceActualWidth;
+            Device.ActualHeight = DeviceActualHeight;
+            Device.Width = DeviceActualWidth;
+            Device.Height = DeviceActualHeight;
+            Device.Name = Name;
+            Device.Description = Description;
+            Device.Vendor = Vendor;
+            Device.DeviceType = DeviceType;
+
+            if (image != null)
             {
+                image.Left -= rectBound.Left;
+                image.Top -= rectBound.Top;
                 image.SetScale(scale.X, scale.Y, false);
-                newDevice.Image = image as ImageVisual;
-                
+                Device.Image = image as ImageVisual;
+
             }
-            usableZone.ForEach(zone => newDevice.ControlableZones.Add(zone as LEDSetup));
+            usableZone.ForEach(zone => Device.ControlableZones.Add(zone as LEDSetup));
             CanvasSelectedItems.Clear();
             usableZone.ForEach(zone => CanvasItems.Remove(zone));
             CanvasItems.Remove(image);
-            CanvasItems.Add(newDevice);
-
-
-
+            CanvasItems.Add(Device);
+            CanSelectMultipleItems = false;
+            ExportCurrentDeviceToFile();
         }
+        private void ExportCurrentDeviceToFile()
+        {
+            Microsoft.Win32.SaveFileDialog Export = new Microsoft.Win32.SaveFileDialog();
+            Export.CreatePrompt = true;
+            Export.OverwritePrompt = true;
+
+            Export.Title = "Xuất dữ liệu";
+            Export.FileName = "Layer";
+            Export.CheckFileExists = false;
+            Export.CheckPathExists = true;
+            Export.DefaultExt = "json";
+            Export.Filter = "All files (*.*)|*.*";
+            Export.InitialDirectory =
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            Export.RestoreDirectory = true;
+
+            var layerJson = JsonConvert.SerializeObject(Device, new JsonSerializerSettings()
+            {
+                TypeNameHandling = TypeNameHandling.Auto
+            });
+
+            if (Export.ShowDialog() == true)
+            {
+
+                File.WriteAllText(Export.FileName, layerJson);
+
+            }
+        }
+
+        private void ApplyDeviceActualDimension()
+        {
+
+
+            if (DrawableHlprs == null)
+                DrawableHlprs = new DrawableHelpers();
+            if (CtrlHlprs == null)
+                CtrlHlprs = new ControlModeHelpers();
+            var rectBound = GetDeviceRectBound(CanvasItems.ToList());
+            System.Windows.Point scale = new System.Windows.Point(DeviceActualWidth / rectBound.Width, DeviceActualHeight / rectBound.Height);
+            foreach (var item in CanvasItems)
+            {
+                item.Left -= rectBound.Left;
+                item.Top -= rectBound.Top;
+                item.SetScale(scale.X, scale.Y, false);
+            }
+        }
+        public SlaveDeviceTypeEnum DeviceType { get; set; }
+        public ObservableCollection<SlaveDeviceTypeEnum> AvailableDeviceTypes { get; set; }
+        public ARGBLEDSlaveDevice Device { get; set; }
         private IDrawable _canvasSelectedItem;
         public IDrawable CanvasSelectedItem
         {
@@ -508,8 +617,8 @@ namespace adrilight_content_creator.ViewModel
                     Top = MousePosition.Y,
                     Left = MousePosition.X,
                     ImagePath = addImage.FileName,
-                    ActualHeight = bitmap.Height,
-                    ActualWidth = bitmap.Width,
+                    Width = DeviceActualWidth,
+                    Height = DeviceActualHeight,
                     IsResizeable = true,
                     IsDeleteable = true
                 };
@@ -663,9 +772,9 @@ namespace adrilight_content_creator.ViewModel
         }
         private void ClearPIDCanvas()
         {
-            var itemToRemove = CanvasItems.Where(s => s is DeviceSpot || s is LEDSetup).ToList();
+
             CanvasSelectedItems.Clear();
-            itemToRemove.ForEach(item => CanvasItems.Remove(item));
+            CanvasItems.Clear();
 
         }
         private void LockSelectedItem(ObservableCollection<IDrawable> itemSource)
@@ -767,72 +876,73 @@ namespace adrilight_content_creator.ViewModel
             Import.Multiselect = false;
 
             Import.ShowDialog();
-
-            var fileName = Import.FileName;
-            var xamlFileName = fileName.Replace(".svg", ".xaml");
-            var settings = new WpfDrawingSettings { IncludeRuntime = true, TextAsGeometry = true };
-            var converter = new FileSvgConverter(settings);
-
-            using var fileStream = File.OpenRead(fileName);
-            converter.Convert(fileStream, xamlFileName);
-            var xaml = File.ReadAllText(xamlFileName);
-            File.Delete(xamlFileName);
-
-            var parsed = (DrawingGroup)XamlReader.Parse(xaml, new ParserContext { BaseUri = new Uri(System.IO.Path.GetDirectoryName(fileName)) });
-            var geometry = GatherGeometry(parsed);
-
-            var group = new DrawingGroup { Children = new DrawingCollection(geometry) };
-            // var stringValue = "";
-            var newItems = new List<IDrawable>();
-            foreach (var geometryDrawing in geometry)
+            if (!string.IsNullOrEmpty(Import.FileName) && File.Exists(Import.FileName))
             {
-                var scaled = Geometry.Combine(
-                    geometryDrawing.Geometry,
-                    geometryDrawing.Geometry, GeometryCombineMode.Intersect,
-                    new TransformGroup
-                    {
-                        Children = new TransformCollection
+                var fileName = Import.FileName;
+                var xamlFileName = fileName.Replace(".svg", ".xaml");
+                var settings = new WpfDrawingSettings { IncludeRuntime = true, TextAsGeometry = true };
+                var converter = new FileSvgConverter(settings);
+
+                using var fileStream = File.OpenRead(fileName);
+                converter.Convert(fileStream, xamlFileName);
+                var xaml = File.ReadAllText(xamlFileName);
+                File.Delete(xamlFileName);
+
+                var parsed = (DrawingGroup)XamlReader.Parse(xaml, new ParserContext { BaseUri = new Uri(System.IO.Path.GetDirectoryName(fileName)) });
+                var geometry = GatherGeometry(parsed);
+
+                var group = new DrawingGroup { Children = new DrawingCollection(geometry) };
+                // var stringValue = "";
+                var newItems = new List<IDrawable>();
+                foreach (var geometryDrawing in geometry)
+                {
+                    var scaled = Geometry.Combine(
+                        geometryDrawing.Geometry,
+                        geometryDrawing.Geometry, GeometryCombineMode.Intersect,
+                        new TransformGroup
                         {
+                            Children = new TransformCollection
+                            {
                             new TranslateTransform(group.Bounds.X * -1, group.Bounds.Y * -1),
                             new ScaleTransform(1.0 , 1.0 )
+                            }
                         }
-                    }
-                );
+                    );
 
-                var scaledString = scaled.ToString(CultureInfo.InvariantCulture)
-                    .Replace("F1", "")
-                    .Replace(";", ",")
-                    .Replace("L", " L")
-                    .Replace("C", " C");
+                    var scaledString = scaled.ToString(CultureInfo.InvariantCulture)
+                        .Replace("F1", "")
+                        .Replace(";", ",")
+                        .Replace("L", " L")
+                        .Replace("C", " C");
 
-                //stringValue = stringValue + " " + scaledString;
-                var lastSpotID = CanvasItems.Where(s => s is DeviceSpot).Count();
-                var shape = Geometry.Parse(scaledString.Trim());
-                var newItem = new DeviceSpot(
-                       shape.Bounds.Top,
-                       shape.Bounds.Left,
-                       shape.Bounds.Width,
-                       shape.Bounds.Height,
-                       1,
-                       1,
-                       1,
-                       1,
-                       lastSpotID,
-                       lastSpotID,
-                       lastSpotID,
-                       lastSpotID,
-                       lastSpotID,
-                       false,
-                       shape);
-                newItem.IsSelected = true;
-                newItem.IsDeleteable = true;
-                CanvasItems.Add(newItem);
+                    //stringValue = stringValue + " " + scaledString;
+                    var lastSpotID = CanvasItems.Where(s => s is DeviceSpot).Count();
+                    var shape = Geometry.Parse(scaledString.Trim());
+                    var newItem = new DeviceSpot(
+                           shape.Bounds.Top,
+                           shape.Bounds.Left,
+                           shape.Bounds.Width,
+                           shape.Bounds.Height,
+                           1,
+                           1,
+                           1,
+                           1,
+                           lastSpotID,
+                           lastSpotID,
+                           lastSpotID,
+                           lastSpotID,
+                           lastSpotID,
+                           false,
+                           shape);
+                    newItem.IsSelected = true;
+                    newItem.IsDeleteable = true;
+                    CanvasItems.Add(newItem);
+                }
+                //create geometry
+
+
+
             }
-            //create geometry
-
-
-
-
         }
         public string InputShapeData { get; set; }
         private void AddSpotGeometry()

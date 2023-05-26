@@ -13,7 +13,7 @@
            xmlns:local ="clr-namespace:adrilight"
            xmlns:spot ="clr-namespace:adrilight.Spots"
            xmlns:view ="clr-namespace:adrilight.View"
-           xmlns:settings ="clr-namespace:adrilight.Settings"
+           xmlns:settings ="clr-namespace:adrilight.Settings" xmlns:paz="clr-namespace:Wpf.Controls.PanAndZoom;assembly=Wpf.Controls.PanAndZoom"
            Background="{StaticResource RegionBrush}"
            x:Name="window"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
@@ -41,8 +41,8 @@
                     <DropShadowEffect x:Key="Item.MouseOver.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource DarkMaskBrush}}"/>
                     <hc:Boolean2BooleanReConverter x:Key="booltoVreconv"/>
                     <GeometryDrawing x:Key="GridStyle"
-                         Geometry="M0,0 L0,1 0.03,1 0.03,0.03 1,0.03 1,0 Z"
-                         Brush="{DynamicResource SecondaryBorderBrush}" />
+                         Geometry="M0,0 H1 V1 H2 V2 H1 V1 H0Z"
+                         Brush="{DynamicResource DarkOpacityBrush}" />
                     <SolidColorBrush x:Key="_primaryBackgroundColor" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.1"/>
 
                 </ResourceDictionary>
@@ -60,10 +60,12 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="1">
+          
             <richCanvas:RichItemsControl
                 ItemsSource="{Binding SurfaceEditorItems}"
-                 GridStyle="{StaticResource GridStyle}"
+                GridStyle="{StaticResource GridStyle}"
                 EnableSnapping="False"
+                UseLayoutRounding="False"
                 GridSpacing="24"
                 EnableGrid="true"
                 Scrolling="OnScrolling"
@@ -71,22 +73,26 @@
                 RealTimeDraggingEnabled="False"
                 RealTimeSelectionEnabled="False"
                 SelectedItems="{Binding SurfaceEditorSelectedItems}"
-                Scale="0.5"
+                Scale="{Binding CanvasScale,Mode=TwoWay}"
                 MaxScale="20"
                 MinScale="0.1">
                 <richCanvas:RichItemsControl.SelectionRectangleStyle>
                     <Style TargetType="Rectangle">
                         <Setter Property="Fill" Value="Transparent" />
                         <Setter Property="Stroke" Value="{DynamicResource PrimaryBrush}" />
-                        <Setter Property="StrokeThickness" Value="3" />
-                        <Setter Property="StrokeDashArray" Value="3" />
+                        <Setter Property="StrokeDashArray" Value="2" />
+                        <Setter Property="StrokeThickness" Value="{Binding DataContext.SelectionRectangleStrokeThickness,RelativeSource={RelativeSource AncestorType={x:Type view:SurfaceEditorWindow}}}" />
                     </Style>
                 </richCanvas:RichItemsControl.SelectionRectangleStyle>
              
                 <richCanvas:RichItemsControl.Resources>
                     <DataTemplate DataType="{x:Type settings:ARGBLEDSlaveDevice}">
-                        <Grid >
-                            <ItemsControl  Margin="0,-1,0,0"
+                        <Grid>
+                            <Canvas Width="{Binding Width,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" 
+                                                Height="{Binding Height, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}">
+                                <Image Stretch="Uniform" Source="{Binding Thumbnail}" Canvas.Left="{Binding Image.Left}" Canvas.Top="{Binding Image.Top}" Height="{Binding Image.Height}" RenderOptions.BitmapScalingMode="HighQuality" Width="{Binding Image.Width}"/>
+                            </Canvas>
+                            <ItemsControl
                                     Name="PreviewGird"  
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Top" 
@@ -138,28 +144,19 @@
                                                 </ItemsControl.ItemContainerStyle>
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate DataType="{x:Type spot:DeviceSpot}">
-                                                        <Path RenderTransformOrigin="0.5,0.5" Data="{Binding Geometry,Mode=TwoWay}"
-                                                Stretch="Uniform"
-                                                ToolTip="{Binding Index}"                              
-                                                Width="{Binding Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
-                                                Height="{Binding Height,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
-                                                            <Path.Fill>
+                                                        <Path RenderTransformOrigin="0.5,0.5" 
+                                                              Data="{Binding Geometry,Mode=TwoWay}"
+                                                              Stretch="Uniform"
+                                                               StrokeThickness="{Binding DataContext.SelectionRectangleStrokeThickness,RelativeSource={RelativeSource AncestorType={x:Type view:SurfaceEditorWindow}}}"
+                                                              ToolTip="{Binding Index}"                              
+                                                              Width="{Binding Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
+                                                              Height="{Binding Height,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                                            <Path.Stroke>
                                                                 <SolidColorBrush Color="{Binding OnDemandColor}"  />
+                                                            </Path.Stroke>
+                                                            <Path.Fill>
+                                                                <SolidColorBrush Color="{Binding OnDemandColor}" Opacity="0.5" />
                                                             </Path.Fill>
-                                                            <!--<Path.RenderTransform>
-                                                                <RotateTransform Angle="{Binding Angle,Mode=TwoWay}"></RotateTransform>
-                                                            </Path.RenderTransform>-->
-                                                            <Path.Style>
-                                                                <Style TargetType="{x:Type Path}">
-
-                                                                    <Style.Triggers>
-                                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                                            <Setter Property="Opacity"  Value="0.5"/>
-
-                                                                        </Trigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </Path.Style>
                                                         </Path>
                                                     </DataTemplate>
 
@@ -189,15 +186,17 @@
                                     
                                 </i:Interaction.Triggers>
 
-                                <Rectangle  Height="{Binding Height}" Width="{Binding Width}">
+                                <Rectangle  StrokeThickness="0.5"  Height="{Binding Height}" Width="{Binding Width}">
                                     <Rectangle.Style>
                                         <Style TargetType="Rectangle">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                                     <Setter Property="Fill" Value="{DynamicResource _primaryBackgroundColor}"/>
+                                                    <Setter Property ="Stroke" Value="{DynamicResource PrimaryBrush}"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding IsSelected}" Value="False">
                                                     <Setter Property="Fill" Value="Transparent"/>
+                                                    <Setter Property ="Stroke" Value="Transparent"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                             
@@ -228,7 +227,7 @@
 
                     <DataTemplate x:Key="HoverAdornerTemplate">
                         <Border BorderBrush="{DynamicResource PrimaryBrush}"
-                            BorderThickness="3">
+                            BorderThickness="0.5">
                         </Border>
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type settings:Border}">
@@ -277,7 +276,7 @@
                             <Rectangle Stroke="{DynamicResource SecondaryBorderBrush}"
                                    Width="{Binding Width}"
                                    Height="{Binding Height}"
-                               StrokeThickness="5"
+                               StrokeThickness="2"
                                Fill="Transparent"
                                StrokeDashArray="2"
                                IsHitTestVisible="False">
@@ -297,7 +296,7 @@
                 <richCanvas:RichItemsControl.ItemContainerStyle>
                     <Style TargetType="richCanvas:RichItemContainer">
 
-                        <Setter Property="Template">
+                        <!--<Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="{x:Type richCanvas:RichItemContainer}">
                                     <Border x:Name="Bd" 
@@ -314,7 +313,7 @@
                                                 <Condition Property="IsMouseOver" Value="True"/>
                                                 <Condition Property="IsSelected" Value="False"/>
                                             </MultiTrigger.Conditions>
-                                            <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
+                                            <Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>
                                             <Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
                                             <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryTextBrush}"/>
                                         </MultiTrigger>
@@ -323,7 +322,7 @@
                                                 <Condition Property="IsMouseOver" Value="False"/>
                                                 <Condition Property="IsSelected" Value="False"/>
                                             </MultiTrigger.Conditions>
-                                            <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
+                                            <Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>
                                             <Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
                                             <Setter Property="BorderBrush" TargetName="Bd" Value="Transparent"/>
                                         </MultiTrigger>
@@ -347,7 +346,7 @@
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Setter.Value>
-                        </Setter>
+                        </Setter>-->
                        
                         <Setter Property="helpers:EventToCommand.Event"
                             Value="LeftChanged, TopChanged" />
@@ -365,8 +364,8 @@
                             Value="{Binding DataContext, ElementName=window}" />
                         <Setter Property="helpers:AttachedAdorner.HasHoverAdorner"
                             Value="{Binding IsSelectable}" />
-                        <!--<Setter Property="helpers:AttachedAdorner.ShowResizeAdorner"
-                            Value="{Binding IsSelected}" />-->
+                        <Setter Property="helpers:AttachedAdorner.ShowResizeAdorner"
+                            Value="{Binding IsSelected}" />
                         <Setter Property="Top"
                             Value="{Binding Top, Mode=TwoWay}" />
 
@@ -463,12 +462,12 @@
                                                     <Path Data="{StaticResource lock}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
                                             </MenuItem>
-                                            <!--<MenuItem Header="Sửa Cấu hình LED (LED Setup)"
+                                            <MenuItem Header="Sửa Cấu hình LED (LED Setup)"
                                           Command="{Binding LaunchPIDEditWindowCommand}" CommandParameter="{Binding SurfaceEditorSelectedItem}" >
                                                 <MenuItem.Icon>
                                                     <Path Data="{StaticResource info}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                 </MenuItem.Icon>
-                                            </MenuItem>-->
+                                            </MenuItem>
 
                                         </ContextMenu>
                                     </Setter.Value>

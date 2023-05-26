@@ -17,7 +17,8 @@ namespace adrilight
         string Description { get; set; }
         DeviceType TargetDeviceType { get; set; }
         ObservableCollection<IControlZone> ControlableZones { get; set; }
-
+        public double ActualWidth { get; set; }
+        public double ActualHeight { get; set; }
         void UpdateSizeByChild(bool withPoint);
         void RotateLEDSetup(double angleInDegrees);
         void ReflectLEDSetupVertical();

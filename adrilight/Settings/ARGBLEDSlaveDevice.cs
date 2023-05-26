@@ -33,6 +33,7 @@ namespace adrilight.Settings
         private string deviceDirectory => Directory.Exists(Path.Combine(SupportedSlaveDeviceFolderPath, Name)) ? Path.Combine(SupportedSlaveDeviceFolderPath, Name) : Path.Combine(SupportedSlaveDeviceFolderPath, "GenericDevice");
         public string Name { get; set; }
         public string Owner { get; set; }
+        public string Vendor { get; set; }
         public int ParrentID { get; set; }
         [JsonIgnore]
         public string Thumbnail => Path.Combine(deviceDirectory, "thumbnail.png");
@@ -45,6 +46,7 @@ namespace adrilight.Settings
         /// Zone properties
         /// </summary>
         private ObservableCollection<IControlZone> _controlableZones;
+        [ProfileIgnore]
         public ObservableCollection<IControlZone> ControlableZones { get => _controlableZones; set { Set(() => ControlableZones, ref _controlableZones, value); } }
         [JsonIgnore]
         public Type DataType => typeof(ARGBLEDSlaveDevice);
@@ -89,14 +91,14 @@ namespace adrilight.Settings
         public double CenterX => Width / 2 + Left;
         public double CenterY => Height / 2 + Top;
         public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
-        public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
+        public double Top { get => _top; set { Set(() => Top, ref _top, value); UpdateChildOffSet(); } }
         public int LEDCount => GetLEDsCount();
-        public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
+        public double Left { get => _left; set { Set(() => Left, ref _left, value); UpdateChildOffSet(); } }
 
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
 
-        public double Width  { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }
-        public double Height { get => _height; set { Set(() => Height, ref _height, value);OnHeightUpdated(); } }
+        public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }
+        public double Height { get => _height; set { Set(() => Height, ref _height, value); OnHeightUpdated(); } }
         public double ActualWidth { get => _actualWidth; set { Set(() => ActualWidth, ref _actualWidth, value); } }
 
         public double ActualHeight { get => _actualHeight; set { Set(() => ActualHeight, ref _actualHeight, value); } }
@@ -116,7 +118,7 @@ namespace adrilight.Settings
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
-        public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
+        public Rect GetRect => new Rect(Left, Top, Width, Height);
         public DeviceType TargetDeviceType { get; set; }
         private DrawableHelpers DrawableHlprs;
         private int GetLEDsCount()
@@ -132,7 +134,21 @@ namespace adrilight.Settings
 
             return ledCount;
         }
+        private void UpdateChildOffSet()
+        {
+            foreach (var zone in ControlableZones)
+            {
+                var ledZone = zone as LEDSetup;
+                ledZone.OffsetX = Left;
+                ledZone.OffsetY = Top;
+            }
+            if (Image != null)
+            {
+                Image.OffsetX = Left;
+                Image.OffsetY = Top;
+            }
 
+        }
         public void UpdateSizeByChild(bool withPoint)
         {
 
@@ -217,11 +233,11 @@ namespace adrilight.Settings
             double sinTheta = Math.Sin(angleInRadians);
             return new Point {
                 X =
-                    (int)
+                    
                     (cosTheta * (pointToRotate.X - centerPoint.X) -
                     sinTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.X),
                 Y =
-                    (int)
+                    
                     (sinTheta * (pointToRotate.X - centerPoint.X) +
                     cosTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.Y)
             };

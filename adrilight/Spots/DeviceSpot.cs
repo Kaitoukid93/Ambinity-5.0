@@ -2,17 +2,11 @@
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Shapes;
 using Color = System.Windows.Media.Color;
-using Rectangle = System.Drawing.Rectangle;
 
 namespace adrilight.Spots
 {
@@ -24,8 +18,8 @@ namespace adrilight.Spots
         {
             Top = top;
             Left = left;
-            ActualWidth = width;
-            ActualHeight = height;
+            Width = width;
+            Height = height;
 
             Geometry = geometry;
 
@@ -78,14 +72,16 @@ namespace adrilight.Spots
         public byte Red { get; private set; }
         public byte Green { get; private set; }
         public byte Blue { get; private set; }
-        public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
-        public bool GetVIDIfNeeded(int vid, Rectangle rect, int mode)
+        public Rect GetRect => new Rect(Left, Top, Width, Height);
+        public bool GetVIDIfNeeded(int vid, Rect rect, int mode)
         {
             if (mode == 0)
             {
                 if (!HasVID)
                 {
-                    var intersectRect = Rectangle.Intersect(GetRect, rect);
+                    var intersectRect = Rect.Intersect(GetRect, rect);
+                    if (intersectRect.IsEmpty)
+                        return false;
                     double intersectArea = intersectRect.Width * intersectRect.Height;
                     double spotArea = GetRect.Width* GetRect.Height;
                     if ((intersectArea / spotArea) > 0.1)
@@ -101,7 +97,7 @@ namespace adrilight.Spots
             {
                 if (HasVID)
                 {
-                    var intersectRect = Rectangle.Intersect(GetRect, rect);
+                    var intersectRect = Rect.Intersect(GetRect, rect);
                     if (intersectRect.Width * intersectRect.Height / (GetRect.Width * GetRect.Height) > 0.1)
                     {
                         SetVID(0);
@@ -114,6 +110,10 @@ namespace adrilight.Spots
 
             return false;
 
+        }
+        public void UpdateView()
+        {
+            RaisePropertyChanged(nameof(OnDemandColor));
         }
         public void SetColor(byte red, byte green, byte blue, bool raiseEvents)
         {
@@ -187,8 +187,6 @@ namespace adrilight.Spots
         private double _angle = 0;
         private bool _hasCustomBehavior;
         private string _name;
-        private double _actualWidth;
-        private double _actualHeight;
         private bool _isResizeable;
         private bool _isDeleteable;
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
@@ -205,9 +203,7 @@ namespace adrilight.Spots
 
         public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }
         public double Height { get => _height; set { Set(() => Height, ref _height, value); OnHeightUpdated(); } }
-        public double ActualWidth { get => _actualWidth; set { Set(() => ActualWidth, ref _actualWidth, value); } }
 
-        public double ActualHeight { get => _actualHeight; set { Set(() => ActualHeight, ref _actualHeight, value); } }
 
         public VisualProperties VisualProperties { get => _visualProperties; set { Set(() => VisualProperties, ref _visualProperties, value); } }
 
@@ -229,16 +225,16 @@ namespace adrilight.Spots
         {
 
 
-            var width = ActualWidth * scaleX;
-            var height = ActualHeight * scaleY;
+            var width = Width * scaleX;
+            var height = Height * scaleY;
             if (width < 1 || height < 1)
             {
                 return false;
             }
             else
             {
-                ActualWidth *= scaleX;
-                ActualHeight *= scaleY;
+                Width *= scaleX;
+                Height *= scaleY;
                 if (!keepOrigin)
                 {
                     Left *= scaleX;

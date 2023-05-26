@@ -22,6 +22,7 @@ using NAudio.SoundFont;
 using System.Collections.Generic;
 using SharpDX.DirectWrite;
 using adrilight.Spots;
+using System.Windows;
 
 namespace adrilight
 {
@@ -101,7 +102,7 @@ namespace adrilight
 
             if (lastScreen != null)
             {
-                var lastRect = lastScreen.Rectangle;
+                var lastRect = new Rect(lastScreen.Rectangle.Left, lastScreen.Rectangle.Top, lastScreen.Rectangle.Width, lastScreen.Rectangle.Height);
                 //screen size change when the app is not alive, update components
                 if (lastRect.Width != currentRect.Width || lastRect.Height != currentRect.Height || lastRect.Left != currentRect.Left || lastRect.Top != currentRect.Top)
                 {
@@ -114,7 +115,7 @@ namespace adrilight
                         foreach (var slaveDevice in device.AvailableLightingDevices)
                         {
 
-                            HandleResolutionChange(lastRect, currentRect, slaveDevice);
+                            HandleResolutionChange(lastRect, new Rect(currentScreen.Bounds.Left, currentScreen.Bounds.Top, currentScreen.Bounds.Width, currentScreen.Bounds.Height), slaveDevice);
 
                         }
                     }
@@ -163,56 +164,56 @@ namespace adrilight
         }
 
 
-        private bool CheckRectangle(Rectangle parrentRect, Rectangle childRect)
+        private bool CheckRectangle(Rect parrentRect, Rect childRect)
         {
-            if (Rectangle.Intersect(parrentRect, childRect).Equals(childRect))
+            if (Rect.Intersect(parrentRect, childRect).Equals(childRect))
                 return true;
             return false;
         }
         //this is called when resolution has changed and we need to update out components
-        private void HandleResolutionChange(Rectangle lastRect, Rectangle currentRect, ISlaveDevice Device)
+        private void HandleResolutionChange(Rect lastRect, Rect currentRect, ISlaveDevice Device)
         {
-            //var scaleX = (double)currentRect.Width / (double)lastRect.Width;
-            //var scaleY = (double)currentRect.Height / (double)lastRect.Height;
-            //var deltaX = (double)currentRect.Left - (double)lastRect.Left;
-            //var deltaY = (double)currentRect.Top - (double)lastRect.Top;
-            //var ledDevice = Device as ARGBLEDSlaveDevice;
-            //foreach (var zone in ledDevice.ControlableZones)
-            //{
-            //    var ledZone = zone as LEDSetup;
-            //    if (CheckRectangle(lastRect, ledZone.GetRect))
-            //    {
-            //        //only scale the zone that in this screen
-            //        //move them out first
-            //        var translatedLeft = (double)ledZone.GetRect.Left - (double)lastRect.Left;
-            //        var translatedTop = (double)ledZone.GetRect.Top - (double)lastRect.Top;
-            //        translatedLeft *= scaleX;
-            //        translatedTop *= scaleY;
-            //        ledZone.SetScale(scaleX, scaleY, false);
-            //        //move it as the screen shift
-            //        ledZone.Left = translatedLeft + currentRect.Left;
-            //        ledZone.Top = translatedTop + currentRect.Top;
-            //    }
-            //    else
-            //    {
-            //        //with normal zone, simple get them out of slavedevice
-            //        ledZone.Left = ledZone.GetRect.Left;
-            //        ledZone.Top = ledZone.GetRect.Top;
-            //    }
+            var scaleX = currentRect.Width / lastRect.Width;
+            var scaleY = currentRect.Height / lastRect.Height;
+            var deltaX = currentRect.Left - lastRect.Left;
+            var deltaY = currentRect.Top - lastRect.Top;
+            var ledDevice = Device as ARGBLEDSlaveDevice;
+            foreach (var zone in ledDevice.ControlableZones)
+            {
+                var ledZone = zone as LEDSetup;
+                if (CheckRectangle(lastRect, ledZone.GetRect))
+                {
+                    //only scale the zone that in this screen
+                    //move them out first
+                    var translatedLeft = ledZone.GetRect.Left - lastRect.Left;
+                    var translatedTop = ledZone.GetRect.Top - lastRect.Top;
+                    translatedLeft *= scaleX;
+                    translatedTop *= scaleY;
+                    ledZone.SetScale(scaleX, scaleY, false);
+                    //move it as the screen shift
+                    ledZone.Left = translatedLeft + currentRect.Left;
+                    ledZone.Top = translatedTop + currentRect.Top;
+                }
+                else
+                {
+                    //with normal zone, simple get them out of slavedevice
+                    ledZone.Left = ledZone.GetRect.Left;
+                    ledZone.Top = ledZone.GetRect.Top;
+                }
 
 
-            //}
-            ////now we combine with unaffected zone and get newbound
-            //ledDevice.UpdateSizeByChild(true);
-            ////reset zone offset
-            //foreach (var zone in ledDevice.ControlableZones)
-            //{
-            //    var ledZone = zone as LEDSetup;
-            //    ledZone.Left -= ledDevice.Left;
-            //    ledZone.Top -= ledDevice.Top;
-            //    ledZone.OffsetX = ledDevice.Left;
-            //    ledZone.OffsetY = ledDevice.Top;
-            //}
+            }
+            //now we combine with unaffected zone and get newbound
+            ledDevice.UpdateSizeByChild(true);
+            //reset zone offset
+            foreach (var zone in ledDevice.ControlableZones)
+            {
+                var ledZone = zone as LEDSetup;
+                ledZone.Left -= ledDevice.Left;
+                ledZone.Top -= ledDevice.Top;
+                ledZone.OffsetX = ledDevice.Left;
+                ledZone.OffsetY = ledDevice.Top;
+            }
 
         }
 
@@ -251,7 +252,8 @@ namespace adrilight
             IsRunning = true;
             NeededRefreshing = false;
             _log.Debug("Started Reading of First Desktop Frame.");
-            Bitmap image = null;
+            //byte[] image = null;
+            Rect frameSize = new Rect();
             Frame = new ByteFrame();
 
 
@@ -267,35 +269,33 @@ namespace adrilight
                     var frameTime = Stopwatch.StartNew();
                     // var context = new Context();
                     // context.Add("image", image);
-                    var newImage = _retryPolicy.Execute(() => GetNextFrame(image));
-                    TraceFrameDetails(newImage);
-                    if (newImage == null)
+                    var frame = _retryPolicy.Execute(() => GetNextFrame());
+                    //TraceFrameDetails(newImage);
+                    if (frame == null)
                     {
                         //there was a timeout before there was the next frame, simply retry!
                         continue;
                     }
-                    image = newImage;
+                    //image = newImage;
 
                     // Lock the bitmap's bits.  
-                    var rect = new System.Drawing.Rectangle(0, 0, image.Width, image.Height);
-                    System.Drawing.Imaging.BitmapData bmpData =
-                        image.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite,
-                        image.PixelFormat);
+                    //var rect = new System.Drawing.Rectangle(0, 0, image.Width, image.Height);
+                   // System.Drawing.Imaging.BitmapData bmpData =
+                      //  image.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite,
+                      //  image.PixelFormat);
 
                     // Get the address of the first line.
-                    IntPtr ptr = bmpData.Scan0;
+                   // IntPtr ptr = bmpData.Scan0;
 
                     // Declare an array to hold the bytes of the bitmap.
-                    int bytes = Math.Abs(bmpData.Stride) * image.Height;
-                    byte[] rgbValues = new byte[bytes];
+                   // int bytes = Math.Abs(bmpData.Stride) * image.Height;
+                   // byte[] rgbValues = new byte[bytes];
 
                     // Copy the RGB values into the array.
-                    System.Runtime.InteropServices.Marshal.Copy(ptr, rgbValues, 0, bytes);
+                    //System.Runtime.InteropServices.Marshal.Copy(ptr, rgbValues, 0, bytes);
                     lock (Lock)
                     {
-                        Frame.Frame = rgbValues;
-                        Frame.FrameWidth = image.Width;
-                        Frame.FrameHeight = image.Height;
+                        Frame = frame;
                     }
 
                     //if(isPreviewRunning)
@@ -306,8 +306,8 @@ namespace adrilight
                     }
 
 
-                    image.UnlockBits(bitmapData);
-                    int minFrameTimeInMs = 1000 / 60;
+                   // image.UnlockBits(bitmapData);
+                    int minFrameTimeInMs = 1000 / 30;
                     var elapsedMs = (int)frameTime.ElapsedMilliseconds;
                     if (elapsedMs < minFrameTimeInMs)
                     {
@@ -322,7 +322,7 @@ namespace adrilight
 
             finally
             {
-                image?.Dispose();
+                //image?.Dispose();
                 _desktopDuplicator?.Dispose();
                 _desktopDuplicator = null;
                 _log.Debug("Stopped Desktop Duplication Reader.");
@@ -388,7 +388,7 @@ namespace adrilight
 
 
 
-        private Bitmap GetNextFrame(Bitmap reusableBitmap)
+        private ByteFrame GetNextFrame()
         {
 
 
@@ -403,7 +403,7 @@ namespace adrilight
 
             try
             {
-                var latestFrame = _desktopDuplicator.GetLatestFrame(reusableBitmap);
+                var latestFrame = _desktopDuplicator.GetLatestFrame();
                 return latestFrame;
             }
             catch (Exception ex)

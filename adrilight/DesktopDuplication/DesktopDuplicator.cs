@@ -13,6 +13,7 @@ using MapFlags = SharpDX.Direct3D11.MapFlags;
 using Rectangle = SharpDX.Mathematics.Interop.RawRectangle;
 using adrilight.Util;
 using System.Windows;
+using LiveCharts.Maps;
 
 namespace adrilight.DesktopDuplication
 {
@@ -36,7 +37,7 @@ namespace adrilight.DesktopDuplication
         /// <param name="whichOutputDevice">The output device to duplicate (i.e. monitor). Begins with zero, which seems to correspond to the primary monitor.</param>
         public DesktopDuplicator(int whichGraphicsCardAdapter, int whichOutputDevice)
         {
-            
+
             Adapter1 adapter;
             try
             {
@@ -57,8 +58,8 @@ namespace adrilight.DesktopDuplication
                 if (ex.ResultCode == SharpDX.DXGI.ResultCode.NotFound)
                 {
 
-                   // HandyControl.Controls.MessageBox.Show(" Không thể capture màn hình " + (whichOutputDevice + 1).ToString(), "Screen Capture", MessageBoxButton.OK, MessageBoxImage.Warning,);
-                    
+                    // HandyControl.Controls.MessageBox.Show(" Không thể capture màn hình " + (whichOutputDevice + 1).ToString(), "Screen Capture", MessageBoxButton.OK, MessageBoxImage.Warning,);
+
                     output = adapter.GetOutput(0);
 
                 }
@@ -106,14 +107,14 @@ namespace adrilight.DesktopDuplication
 
 
         }
-       
+
         private static readonly FpsLogger _desktopFrameLogger = new FpsLogger("DesktopDuplication");
 
 
         /// <summary>
         /// Retrieves the latest desktop image and associated metadata.
         /// </summary>
-        public Bitmap GetLatestFrame(Bitmap reusableImage)
+        public ByteFrame GetLatestFrame()
         {
             // Try to get the latest frame; this may timeout
             var succeeded = RetrieveFrame();
@@ -122,7 +123,7 @@ namespace adrilight.DesktopDuplication
 
             _desktopFrameLogger.TrackSingleFrame();
 
-            return ProcessFrame(reusableImage);
+            return ProcessFrame();
 
         }
 
@@ -134,7 +135,7 @@ namespace adrilight.DesktopDuplication
 
             int desktopWidth;
             int desktopHeight;
-            if(_outputDescription.DesktopBounds.GetWidth()>=_outputDescription.DesktopBounds.GetHeight()) //landscape mode
+            if (_outputDescription.DesktopBounds.GetWidth() >= _outputDescription.DesktopBounds.GetHeight()) //landscape mode
             {
 
                 desktopWidth = _outputDescription.DesktopBounds.GetWidth();
@@ -154,8 +155,8 @@ namespace adrilight.DesktopDuplication
                     CpuAccessFlags = CpuAccessFlags.Read,
                     BindFlags = BindFlags.None,
                     Format = Format.B8G8R8A8_UNorm,
-                    Width = desktopWidth/scalingFactor,
-                    Height = desktopHeight/scalingFactor,
+                    Width = desktopWidth / scalingFactor,
+                    Height = desktopHeight / scalingFactor,
                     OptionFlags = ResourceOptionFlags.None,
                     MipLevels = 1,
                     ArraySize = 1,
@@ -193,7 +194,7 @@ namespace adrilight.DesktopDuplication
 
                 throw new DesktopDuplicationException("Failed to acquire next frame.", ex);
             }
-           // if (desktopResource == null) throw new Exception("desktopResource is null");
+            // if (desktopResource == null) throw new Exception("desktopResource is null");
 
             if (_smallerTexture == null)
             {
@@ -220,8 +221,8 @@ namespace adrilight.DesktopDuplication
 
                 _device.ImmediateContext.CopySubresourceRegion(tempTexture, 0, null, _smallerTexture, 0);
             }
-           
-                _outputDuplication.ReleaseFrame();
+
+            _outputDuplication.ReleaseFrame();
 
             // Generates the mipmap of the screen
             _device.ImmediateContext.GenerateMips(_smallerTextureView);
@@ -233,12 +234,12 @@ namespace adrilight.DesktopDuplication
             return true;
         }
 
-        private Bitmap ProcessFrame(Bitmap reusableImage)
+        private ByteFrame ProcessFrame()
         {
             // Get the desktop capture texture
             var mapSource = _device.ImmediateContext.MapSubresource(_stagingTexture, 0, MapMode.Read, MapFlags.None);
 
-            Bitmap image;
+            //Rectangle frame;
             int height;
             int width;
             if (_outputDescription.DesktopBounds.GetWidth() >= _outputDescription.DesktopBounds.GetHeight()) //landscape mode
@@ -254,48 +255,48 @@ namespace adrilight.DesktopDuplication
                 height = _outputDescription.DesktopBounds.GetWidth() / scalingFactor;
             }
 
-            if (reusableImage != null && reusableImage.Width == width && reusableImage.Height == height)
-            {
-                image = reusableImage;
-            }
-            else
-            {
-                image = new Bitmap(width, height, PixelFormat.Format32bppRgb);
-
-            }
+            // frame = new Rectangle(0, 0, width, height);
 
             var boundsRect = new System.Drawing.Rectangle(0, 0, width, height);
 
             // Copy pixels from screen capture Texture to GDI bitmap
-            var mapDest = image.LockBits(boundsRect, ImageLockMode.WriteOnly, image.PixelFormat);
+
             var sourcePtr = mapSource.DataPointer;
-            var destPtr = mapDest.Scan0;
+            //var destPtr = mapDest.Scan0;
 
-            if (mapSource.RowPitch == mapDest.Stride)
-            {
-                //fast copy
-                Utilities.CopyMemory(destPtr, sourcePtr, height * mapDest.Stride);
-            }
-            else
-            {
-                //safe copy
-                for (int y = 0; y < height; y++)
-                {
-                    // Copy a single line 
-                    Utilities.CopyMemory(destPtr, sourcePtr, width * 4);
+            //if (mapSource.RowPitch == mapDest.Stride)
+            //{
+            //    //fast copy
+            //    Utilities.CopyMemory(destPtr, sourcePtr, height * mapDest.Stride);
+            //}
+            //else
+            //{
+            //    //safe copy
+            //    for (int y = 0; y < height; y++)
+            //    {
+            //        // Copy a single line 
+            //        Utilities.CopyMemory(destPtr, sourcePtr, width * 4);
 
-                    // Advance pointers
-                    sourcePtr = IntPtr.Add(sourcePtr, mapSource.RowPitch);
-                    destPtr = IntPtr.Add(destPtr, mapDest.Stride);
-                }
-            }
+            //        // Advance pointers
+            //        sourcePtr = IntPtr.Add(sourcePtr, mapSource.RowPitch);
+            //        destPtr = IntPtr.Add(destPtr, mapDest.Stride);
+            //    }
+            //}
+            int stride = 4 * (width * 8 + 31) / 32;
+            int bytes = Math.Abs(stride) * height;
+            byte[] rgbValues = new byte[bytes];
+            System.Runtime.InteropServices.Marshal.Copy(sourcePtr, rgbValues, 0, bytes);
 
             // Release source and dest locks
-            image.UnlockBits(mapDest);
+            //image.UnlockBits(mapDest);
             _device.ImmediateContext.UnmapSubresource(_stagingTexture, 0);
-            return image;
+            var frame = new ByteFrame() {
+                Frame = rgbValues,
+                FrameWidth = width,
+                FrameHeight = height
+            };
+            return frame;
         }
-
 
         public bool IsDisposed { get; private set; }
 

@@ -121,7 +121,8 @@ namespace adrilight
         private double _brightness;
         private double _speed;
         private int _vidIntensity;
-
+        private int _displayUpdateRate = 25;
+        private int _frameRate = 60;
 
 
         #region Properties changed event handler 
@@ -294,6 +295,7 @@ namespace adrilight
 
             _log.Debug("Started Rainbow engine.");
             IsRunning = true;
+            int updateIntervalCounter = 0;
             try
             { 
                 double StartIndex = 0d;
@@ -301,7 +303,9 @@ namespace adrilight
                 while (!token.IsCancellationRequested)
                 {
                     var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
-                    bool isPreviewRunning = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated;
+                    bool shouldViewUpdate = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated && updateIntervalCounter > _frameRate/_displayUpdateRate;
+                    if (shouldViewUpdate)
+                        updateIntervalCounter = 0;
 
                     StartIndex -= _speed;
                     if (StartIndex < 0)
@@ -329,20 +333,21 @@ namespace adrilight
                             if (spot.HasVID)
                             {
                                 ApplySmoothing((float)_brightness * _colorBank[position].R, (float)_brightness * _colorBank[position].G, (float)_brightness * _colorBank[position].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
-                                spot.SetColor(FinalR, FinalG, FinalB, isPreviewRunning);
+                                spot.SetColor(FinalR, FinalG, FinalB, false);
                             }
 
                             else
                             {
-                                spot.SetColor(0, 0, 0, isPreviewRunning);
+                                spot.SetColor(0, 0, 0, false);
                             }
                         }
 
 
 
                     }
-
-                    Thread.Sleep(10);
+                    var sleepTime = 1000 / _frameRate;
+                    Thread.Sleep(sleepTime);
+                    updateIntervalCounter++;
                 }
             }
             finally
@@ -430,6 +435,9 @@ namespace adrilight
         }
         private void GenerateVID(IParameterValue value)
         {
+            var vid = value as VIDDataModel;
+            if (vid.ExecutionType == VIDType.PredefinedID)
+                return;
             Rect vidSpace = new Rect();
             if (CurrentZone.IsInControlGroup)
             {
@@ -443,25 +451,24 @@ namespace adrilight
             //brush rect will move as the dirrection, so intersect size increase
             //this is moving left to right
 
-            int vidSpaceWidth;
-            int vidSpaceHeight;
-            int zoneOffSetLeft;
-            int zoneOffSetTop;
+            double vidSpaceWidth;
+            double vidSpaceHeight;
+            double zoneOffSetLeft;
+            double zoneOffSetTop;
             int VIDCount;
             CurrentZone.ResetVIDStage();
-            var vid = value as VIDDataModel;
             switch (vid.Dirrection)
             {
                 case VIDDirrection.left2right:
-                    vidSpaceWidth = (int)vidSpace.Width;
-                    vidSpaceHeight = (int)vidSpace.Height;
-                    zoneOffSetLeft = (int)(CurrentZone.GetRect.Left - vidSpace.Left);
-                    zoneOffSetTop = (int)(CurrentZone.GetRect.Top - vidSpace.Top);
-                    VIDCount = zoneOffSetLeft;
+                    vidSpaceWidth = vidSpace.Width;
+                    vidSpaceHeight = vidSpace.Height;
+                    zoneOffSetLeft = CurrentZone.GetRect.Left - vidSpace.Left;
+                    zoneOffSetTop = CurrentZone.GetRect.Top - vidSpace.Top;
+                    VIDCount = (int)zoneOffSetLeft;
                     for (int x = 0; x < vidSpaceWidth; x += 5)
                     {
                         int settedVIDCount = 0;
-                        var brush = new Rectangle(0 - zoneOffSetLeft, 0 - zoneOffSetTop, x, vidSpaceHeight);
+                        var brush = new Rect(0 - zoneOffSetLeft, 0 - zoneOffSetTop, x, vidSpaceHeight);
                         foreach (var spot in CurrentZone.Spots)
                         {
                             if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
@@ -478,13 +485,13 @@ namespace adrilight
                 case VIDDirrection.right2left:
                     vidSpaceWidth = (int)vidSpace.Width;
                     vidSpaceHeight = (int)vidSpace.Height;
-                    zoneOffSetLeft = (int)(CurrentZone.GetRect.Left - vidSpace.Left);
-                    zoneOffSetTop = (int)(CurrentZone.GetRect.Top - vidSpace.Top);
-                    VIDCount = vidSpaceWidth - zoneOffSetLeft;
-                    for (int x = vidSpaceWidth; x > 0; x -= 5)
+                    zoneOffSetLeft = CurrentZone.GetRect.Left - vidSpace.Left;
+                    zoneOffSetTop = CurrentZone.GetRect.Top - vidSpace.Top;
+                    VIDCount = (int)(vidSpaceWidth - zoneOffSetLeft);
+                    for (int x = (int)vidSpaceWidth; x > 0; x -= 5)
                     {
                         int settedVIDCount = 0;
-                        var brush = new Rectangle(x - zoneOffSetLeft, 0 - zoneOffSetTop, vidSpaceWidth - x, vidSpaceHeight);
+                        var brush = new Rect(x - zoneOffSetLeft, 0 - zoneOffSetTop, vidSpaceWidth - x, vidSpaceHeight);
                         foreach (var spot in CurrentZone.Spots)
                         {
                             if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
@@ -499,15 +506,15 @@ namespace adrilight
                     }
                     break;
                 case VIDDirrection.bot2top:
-                    vidSpaceWidth = (int)vidSpace.Width;
-                    vidSpaceHeight = (int)vidSpace.Height;
-                    zoneOffSetLeft = (int)(CurrentZone.GetRect.Left - vidSpace.Left);
-                    zoneOffSetTop = (int)(CurrentZone.GetRect.Top - vidSpace.Top);
-                    VIDCount = vidSpaceHeight - zoneOffSetTop;
-                    for (int y = vidSpaceHeight; y > 0; y -= 5)
+                    vidSpaceWidth = vidSpace.Width;
+                    vidSpaceHeight = vidSpace.Height;
+                    zoneOffSetLeft = CurrentZone.GetRect.Left - vidSpace.Left;
+                    zoneOffSetTop = CurrentZone.GetRect.Top - vidSpace.Top;
+                    VIDCount = (int)(vidSpaceHeight - zoneOffSetTop);
+                    for (int y = (int)vidSpaceHeight; y > 0; y -= 5)
                     {
                         int settedVIDCount = 0;
-                        var brush = new Rectangle(0 - zoneOffSetLeft, y - zoneOffSetTop, vidSpaceWidth, vidSpaceHeight - y);
+                        var brush = new Rect(0 - zoneOffSetLeft, y - zoneOffSetTop, vidSpaceWidth, vidSpaceHeight - y);
                         foreach (var spot in CurrentZone.Spots)
                         {
                             if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
@@ -522,15 +529,15 @@ namespace adrilight
                     }
                     break;
                 case VIDDirrection.top2bot:
-                    vidSpaceWidth = (int)vidSpace.Width;
-                    vidSpaceHeight = (int)vidSpace.Height;
-                    zoneOffSetLeft = (int)(CurrentZone.GetRect.Left - vidSpace.Left);
-                    zoneOffSetTop = (int)(CurrentZone.GetRect.Top - vidSpace.Top);
-                    VIDCount = zoneOffSetTop;
-                    for (int y = 0; y < vidSpaceHeight; y += 5)
+                    vidSpaceWidth = vidSpace.Width;
+                    vidSpaceHeight = vidSpace.Height;
+                    zoneOffSetLeft = CurrentZone.GetRect.Left - vidSpace.Left;
+                    zoneOffSetTop = CurrentZone.GetRect.Top - vidSpace.Top;
+                    VIDCount = (int)zoneOffSetTop;
+                    for (int y = 0; y < (int)vidSpaceHeight; y += 5)
                     {
                         int settedVIDCount = 0;
-                        var brush = new Rectangle(0 - zoneOffSetLeft, 0 - zoneOffSetTop, vidSpaceWidth, y);
+                        var brush = new Rect(0 - zoneOffSetLeft, 0 - zoneOffSetTop, vidSpaceWidth, y);
                         foreach (var spot in CurrentZone.Spots)
                         {
                             if (spot.GetVIDIfNeeded(VIDCount, brush, 0))

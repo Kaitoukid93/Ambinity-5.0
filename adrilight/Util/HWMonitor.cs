@@ -302,31 +302,31 @@ namespace adrilight.Util
                     var medianSpeed = speeds.Median();
                     if (MainViewViewModel.IsSplitLightingWindowOpen && MainViewViewModel.IsAppActivated)
                     {
-                        foreach (var device in MainViewViewModel.AvailableDevices.Where(d => d.AvailablePWMDevices != null))
-                        {
-                            var pwmOutputs = device.AvailablePWMOutputs.ToList();
-                            foreach (var pwmOutput in pwmOutputs)
-                            {
-                                var zones = pwmOutput.SlaveDevice.ControlableZones.ToList();
-                                foreach (var zone in zones)
-                                {
-                                    var fan = zone as FanMotor;
-                                    var currentControlMode = fan.CurrentActiveControlMode as PWMMode;
-                                    if (currentControlMode.BasedOn == PWMModeEnum.auto)
-                                    {
-                                        fan.LineValues.Add(new ObservableValue(medianSpeed));
-                                        fan.LineValues.RemoveAt(0);
-                                        fan.CurrentPWMValue = (int)medianSpeed;
-                                    }
-                                    else if (currentControlMode.BasedOn == PWMModeEnum.manual)
-                                    {
-                                        fan.LineValues.Add(new ObservableValue((currentControlMode.SpeedParameter as SliderParameter).Value));
-                                        fan.LineValues.RemoveAt(0);
-                                        fan.CurrentPWMValue = (currentControlMode.SpeedParameter as SliderParameter).Value;
-                                    }
-                                }
-                            }
-                        }
+                        //foreach (var device in MainViewViewModel.AvailableDevices.Where(d => d.AvailablePWMDevices != null))
+                        //{
+                        //    var pwmOutputs = device.AvailablePWMOutputs.ToList();
+                        //    foreach (var pwmOutput in pwmOutputs)
+                        //    {
+                        //        var zones = pwmOutput.SlaveDevice.ControlableZones.ToList();
+                        //        foreach (var zone in zones)
+                        //        {
+                        //            var fan = zone as FanMotor;
+                        //            var currentControlMode = fan.CurrentActiveControlMode as PWMMode;
+                        //            if (currentControlMode.BasedOn == PWMModeEnum.auto)
+                        //            {
+                        //                fan.LineValues.Add(new ObservableValue(medianSpeed));
+                        //                fan.LineValues.RemoveAt(0);
+                        //                fan.CurrentPWMValue = (int)medianSpeed;
+                        //            }
+                        //            else if (currentControlMode.BasedOn == PWMModeEnum.manual)
+                        //            {
+                        //                fan.LineValues.Add(new ObservableValue((currentControlMode.SpeedParameter as SliderParameter).Value));
+                        //                fan.LineValues.RemoveAt(0);
+                        //                fan.CurrentPWMValue = (currentControlMode.SpeedParameter as SliderParameter).Value;
+                        //            }
+                        //        }
+                        //    }
+                       // }
 
 
 

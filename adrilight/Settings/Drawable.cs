@@ -39,11 +39,6 @@ namespace adrilight
 
         private bool _isResizeable;
         private bool _isDeleteable;
-        private double _actualWidth;
-        private double _actualHeight;
-        public double ActualWidth { get => _actualWidth; set { Set(() => ActualWidth, ref _actualWidth, value); } }
-
-        public double ActualHeight { get => _actualHeight; set { Set(() => ActualHeight, ref _actualHeight, value); } }
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
         public double CenterX => Width / 2 + Left;
@@ -53,7 +48,7 @@ namespace adrilight
         [JsonIgnore]
         public Type DataType => typeof(Drawable);
         public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
-        public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
+        public Rect GetRect => new Rect(Left, Top, Width, Height);
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
 
         public double Width { get => _width; set { Set(() => Width, ref _width, value);OnWidthUpdated(); } }

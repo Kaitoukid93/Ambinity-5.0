@@ -27,7 +27,7 @@ namespace adrilight_content_creator.View
 
         public int Order => 200;
 
-        public string ViewPartName => "Efect Creator";
+        public string ViewPartName => "Effect";
         public string Geometry => "chasingPattern";
 
         public object Content { get => lazyContent.Value; }

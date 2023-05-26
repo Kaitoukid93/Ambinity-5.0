@@ -39,11 +39,7 @@ namespace adrilight.Settings
         private bool _isDeleteable;
         private int _index;
         private WriteableBitmap _source;
-        private double _actualWidth;
-        private double _actualHeight;
-        public double ActualWidth { get => _actualWidth; set { Set(() => ActualWidth, ref _actualWidth, value); } }
 
-        public double ActualHeight { get => _actualHeight; set { Set(() => ActualHeight, ref _actualHeight, value); } }
         public int Index { get => _index; set { Set(() => Index, ref _index, value); } }
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
@@ -73,7 +69,7 @@ namespace adrilight.Settings
 
         public Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
         public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
-        public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
+        public Rect GetRect => new Rect(Left, Top, Width, Height);
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);

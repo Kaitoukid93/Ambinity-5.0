@@ -121,7 +121,7 @@ namespace FTPServer
             catch (Exception exception)
             {
                 // Log error
-                throw;
+                //throw;
             }
 
         }

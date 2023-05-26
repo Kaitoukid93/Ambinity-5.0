@@ -38,11 +38,11 @@ namespace adrilight.Settings
         private bool _isResizeable;
         private string _imagePath;
         private bool _isDeleteable;
-        private double _actualWidth;
-        private double _actualHeight;
-        public double ActualWidth { get => _actualWidth; set { Set(() => ActualWidth, ref _actualWidth, value); } }
+        private double _offsetX;
+        private double _offsetY;
+        public double OffsetX { get => _offsetX; set { Set(() => OffsetX, ref _offsetX, value); } }
+        public double OffsetY { get => _offsetY; set { Set(() => OffsetY, ref _offsetY, value); } }
 
-        public double ActualHeight { get => _actualHeight; set { Set(() => ActualHeight, ref _actualHeight, value); } }
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public string ImagePath { get => _imagePath; set { Set(() => ImagePath, ref _imagePath, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
@@ -55,7 +55,7 @@ namespace adrilight.Settings
         public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
 
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
-        public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
+        public Rect GetRect => new Rect(Left + OffsetX, Top + OffsetY, Width, Height);
         public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }
 
         public double Height { get => _height; set { Set(() => Height, ref _height, value); OnHeightUpdated(); } }
@@ -109,16 +109,16 @@ namespace adrilight.Settings
         public bool SetScale(double scaleX, double scaleY, bool keepOrigin)
         {
 
-            var width = ActualWidth * scaleX;
-            var height = ActualHeight * scaleY;
+            var width = Width * scaleX;
+            var height = Height * scaleY;
             if (width < 1 || height < 1)
             {
                 return false;
             }
             else
             {
-                ActualWidth *= scaleX;
-                ActualHeight *= scaleY;
+                Width *= scaleX;
+                Height *= scaleY;
                 if (!keepOrigin)
                 {
                     Left *= scaleX;

@@ -451,8 +451,8 @@ namespace adrilight
                     //device.IsTransferActive = false;
                     MainViewViewModel.WriteSingleDeviceInfoJson(device);
                 }
-                //hwMonitor.Dispose();
-                //ambinityClient.Dispose();
+                hwMonitor.Dispose();
+                ambinityClient.Dispose();
 
 
 

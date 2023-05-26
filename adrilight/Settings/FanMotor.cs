@@ -39,7 +39,7 @@ namespace adrilight.Settings
             VisualProperties = new VisualProperties();
             Scale = new System.Windows.Point(1, 1);
             AvailableControlMode = new List<IControlMode>();
-        
+
         }
         private int _currentActiveControlModeIndex;
         private bool _isInControlGroup;
@@ -92,7 +92,7 @@ namespace adrilight.Settings
         private double _scaleLeft;
         private double _scaleWidth = 1;
         private double _scaleHeight = 1;
-        public Rectangle GetRect => new Rectangle((int)(Left), (int)(Top), (int)Width, (int)Height);
+        public Rect GetRect => new Rect(Left, Top, Width, Height);
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
         public double CenterX => Width / 2 + Left;
@@ -130,7 +130,7 @@ namespace adrilight.Settings
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
 
         public string Type { get; set; }
-        
+
         private DrawableHelpers DrawableHlprs;
         public void UpdateSizeByChild(bool withPoint)
         {
@@ -139,7 +139,7 @@ namespace adrilight.Settings
             //Width = boundRct.Width;
             //Height = boundRct.Height;
         }
-        public Rectangle GetDeviceRectBound(IControlZone[] zones)
+        public Rect GetDeviceRectBound(IControlZone[] zones)
 
         {
             if (DrawableHlprs == null)

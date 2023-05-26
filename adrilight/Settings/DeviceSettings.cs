@@ -20,6 +20,7 @@ using System.Threading;
 using Newtonsoft.Json;
 using adrilight.Helpers;
 using System.IO;
+using System.Web.UI.WebControls.WebParts;
 
 namespace adrilight
 {
@@ -317,7 +318,36 @@ namespace adrilight
                 }
             }
         }
+        public void ActivateProfile(IDeviceSettings device)
+        {
+            int slaveDeviceCounter = 0;
+            foreach (var slaveDevice in AvailableLightingDevices)
+            {
+                int ledZoneCounter = 0;
+                var slaveDeviceProfileData = device.AvailableLightingDevices[slaveDeviceCounter] as ARGBLEDSlaveDevice;
+                foreach (PropertyInfo property in slaveDevice.GetType().GetProperties())
+                {
 
+                    if (property.CanWrite && !Attribute.IsDefined(property, typeof(ProfileIgnoreAttribute)))
+                            property.SetValue(slaveDevice, property.GetValue(slaveDeviceProfileData, null), null);
+                }
+                foreach (var zone in slaveDevice.ControlableZones)
+                {
+                    var ledZone = zone as LEDSetup;
+                    var zoneProfileData = slaveDeviceProfileData.ControlableZones[ledZoneCounter] as LEDSetup;
+                    foreach (PropertyInfo property in ledZone.GetType().GetProperties())
+                    {
+
+                        // if (Attribute.IsDefined(property, typeof(ReflectableAttribute)))
+                        if (property.CanWrite)
+                            property.SetValue(ledZone, property.GetValue(zoneProfileData, null), null);
+                    }
+                    ledZoneCounter++;
+                }
+                slaveDeviceCounter++;
+            }
+
+        }
         public void RefreshFirmwareVersion()
         {
 

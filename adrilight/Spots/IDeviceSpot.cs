@@ -1,9 +1,7 @@
-﻿using System.Drawing;
-using Color = System.Windows.Media.Color;
+﻿using System.ComponentModel;
+using System.Windows;
 using System.Windows.Media;
-using System.ComponentModel;
-using System.Windows.Shapes;
-using Rectangle = System.Drawing.Rectangle;
+using Color = System.Windows.Media.Color;
 
 namespace adrilight.Spots
 {
@@ -41,7 +39,7 @@ namespace adrilight.Spots
         void SetMID(int mid);
         void SetCID(int cid);
 
-        bool GetVIDIfNeeded(int vid, Rectangle rect, int mode);
-
+        bool GetVIDIfNeeded(int vid, Rect rect, int mode);
+        void UpdateView();
     }
 }

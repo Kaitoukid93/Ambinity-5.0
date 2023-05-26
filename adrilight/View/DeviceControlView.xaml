@@ -533,23 +533,12 @@
                     <Image RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,0,0" MaxWidth="300" MaxHeight="70" Stretch="Uniform" Source="{Binding CurrentDevice.DeviceThumbnail}"/>
                 </Border>
                 <StackPanel Margin="20,5" Grid.Column="1">
-                    <hc:RunningBlock 
-                                                Margin="0,0,10,0"
-                                                BorderThickness="0" 
-                                                Padding="0"  
-                                                Duration="0:0:9" 
-                                                Height="32" 
-                                                HorizontalAlignment="Left" 
-                                                AutoRun="True"  Width="150" 
-                                                Runaway="False" 
-                                                VerticalAlignment="Stretch" >
-                        <hc:RunningBlock.Content>
+                 
                             <TextBlock  Text="{Binding CurrentDevice.DeviceName}" 
                                                                 FlowDirection="RightToLeft"
                                                                 FontWeight="SemiBold"
                                                                 Style="{StaticResource TextBlockTitle}"/>
-                        </hc:RunningBlock.Content>
-                    </hc:RunningBlock>
+                    
                     <Grid>
                         <StackPanel>
                             <TextBlock HorizontalAlignment="Left" Text="{Binding CurrentDevice.HardwareVersion}" Style="{DynamicResource TextBlockDefaultPrimary}"/>
@@ -570,10 +559,10 @@
                         <Style TargetType="Button" BasedOn="{StaticResource ButtonDefault}">
                             <Setter Property="IsEnabled" Value="True"/>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentDevice.DeviceType.ConnectionType}" Value="OpenRGB">
+                                <DataTrigger Binding="{Binding CurrentDevice.DeviceType.ConnectionTypeEnum}" Value="OpenRGB">
                                     <Setter Property="IsEnabled" Value="False"/>
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding CurrentDevice.DeviceType.ConnectionType}" Value="wireless">
+                                <DataTrigger Binding="{Binding CurrentDevice.DeviceType.ConnectionTypeEnum}" Value="wireless">
                                     <Setter Property="IsEnabled" Value="False"/>
                                 </DataTrigger>
                             </Style.Triggers>
@@ -631,10 +620,10 @@
                         <Style TargetType="Button" BasedOn="{StaticResource ButtonDefault}">
                             <Setter Property="IsEnabled" Value="True"/>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentDevice.DeviceConnectionType}" Value="OpenRGB">
+                                <DataTrigger Binding="{Binding CurrentDevice.DeviceType.ConnectionTypeEnum}" Value="OpenRGB">
                                     <Setter Property="IsEnabled" Value="False"/>
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding CurrentDevice.DeviceConnectionType}" Value="wireless">
+                                <DataTrigger Binding="{Binding CurrentDevice.DeviceType.ConnectionTypeEnum}" Value="wireless">
                                     <Setter Property="IsEnabled" Value="True"/>
                                 </DataTrigger>
                             </Style.Triggers>
@@ -662,24 +651,12 @@
 
                         <Grid HorizontalAlignment="Left" Grid.Column="1">
                             <StackPanel HorizontalAlignment="Left">
-                                <hc:RunningBlock MaxHeight="20"
-                                                Margin="5,0,5,0"
-                                                BorderThickness="0" 
-                                                Padding="0"  
-                                                Duration="0:0:9" 
-                                                
-                                                HorizontalAlignment="Left" 
-                                                AutoRun="True"  MaxWidth="100"
-                                                Runaway="False" 
-                                                VerticalAlignment="Stretch" >
-                                    <hc:RunningBlock.Content>
+                           
                                         <TextBlock  Text="{Binding CurrentDevice.OutputPort}" 
                                                                 FlowDirection="RightToLeft"
                                                                  FontWeight="SemiBold"
                                                                 Style="{StaticResource TextBlockSubTitle}"/>
-                                    </hc:RunningBlock.Content>
-
-                                </hc:RunningBlock>
+                                 
                                 <TextBlock Text="Connected" Style="{StaticResource TextBlockDefaultPrimary}" Visibility="{Binding CurrentDevice.IsTransferActive,Converter={StaticResource boolToVisibilityConvert}}" Margin="5,5" HorizontalAlignment="Left"/>
                                 <TextBlock Text="Disconnected"  Margin="5,5" HorizontalAlignment="Left">
                                     <TextBlock.Style>

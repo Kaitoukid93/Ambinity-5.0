@@ -1725,7 +1725,7 @@ namespace adrilight.ViewModel
         }
         public async Task FoundNewDevice(List<IDeviceSettings> newDevices)
         {
-            if (_isloadingProfile)
+            if (IsLoadingProfile)
                 return;
             await System.Windows.Application.Current.Dispatcher.BeginInvoke(async () =>
             {
@@ -1759,7 +1759,7 @@ namespace adrilight.ViewModel
         }
         public void OldDeviceReconnected(List<string> oldDevices)
         {
-            if (_isloadingProfile)
+            if (IsLoadingProfile)
                 return;
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
@@ -2648,8 +2648,9 @@ namespace adrilight.ViewModel
                 return true;
             }, async (p) =>
             {
+                IsLoadingProfile = true;
                 await Task.Run(() => { System.Windows.Application.Current.Dispatcher.InvokeAsync(() => ActivateSelectedProfile(p)); });
-
+                IsLoadingProfile = false;
             }
           );
             DeleteAttachedProfileCommand = new RelayCommand<AppProfile>((p) =>
@@ -5128,6 +5129,14 @@ namespace adrilight.ViewModel
             set { _currentActivatedProfile = value; RaisePropertyChanged(); }
         }
         private bool _isloadingProfile = false;
+        public bool IsLoadingProfile {
+            get { return _isloadingProfile; }
+            set
+            {
+                _isloadingProfile = value;
+                RaisePropertyChanged();
+            }
+        }
         public void ActivateSelectedProfile(AppProfile profile)
         {
             //construct devices from profile data
@@ -5135,7 +5144,6 @@ namespace adrilight.ViewModel
             List<IDeviceSettings> compatibleDevices = new List<IDeviceSettings>();
             lock (AvailableDeviceLock)
             {
-                _isloadingProfile = true;
                 int counter = 0;
                 foreach (var deviceProfile in profile.DeviceProfiles)
                 {
@@ -5167,7 +5175,6 @@ namespace adrilight.ViewModel
                     HandyControl.Controls.MessageBox.Show("Áp dụng thành công Profile" + profile.Name, "Profile Activated", MessageBoxButton.OK, MessageBoxImage.Information);
                     CurrentActivatedProfile = profile;
                 }
-                _isloadingProfile = false;
 
             }
 
@@ -6544,11 +6551,7 @@ namespace adrilight.ViewModel
             get { return _selectedSlaveDevice; }
             set { _selectedSlaveDevice = value; RaisePropertyChanged(); }
         }
-        private double _currentLiveViewScale;
-        public double CurrentLiveViewScale {
-            get { return _currentLiveViewScale; }
-            set { _currentLiveViewScale = value; RaisePropertyChanged(); }
-        }
+       
         private double _currentLiveViewWidth;
         public double CurrentLiveViewWidth {
             get { return _currentLiveViewWidth; }
@@ -6564,22 +6567,57 @@ namespace adrilight.ViewModel
             get { return _currentLiveViewOffset; }
             set { _currentLiveViewOffset = value; RaisePropertyChanged(); }
         }
+        private double _selectionRectangleStrokeThickness = 2.0;
+        public double SelectionRectangleStrokeThickness {
+            get { return _selectionRectangleStrokeThickness; }
+            set
+            {
+                _selectionRectangleStrokeThickness = value;
+                RaisePropertyChanged();
+            }
+        }
+     
+        private Thickness _canvasItemBorder = new Thickness(2.0);
+        public Thickness CanvasItemBorder {
+            get { return _canvasItemBorder; }
+            set
+            {
+                _canvasItemBorder = value;
+                RaisePropertyChanged();
+            }
+        }
+        private double _canvasScale = 1.0;
+        public double CanvasScale {
+            get { return _canvasScale; }
+            set
+            {
+                _canvasScale = value;
+                CalculateItemsBorderThickness(value);
+                RaisePropertyChanged();
+            }
+        }
+        private void CalculateItemsBorderThickness(double scaleValue) // this keeps items border remain the same 2px anytime
+        {
+            SelectionRectangleStrokeThickness = 2 / scaleValue;
+            CanvasItemBorder = new Thickness(SelectionRectangleStrokeThickness);
+        
+        }
         private void UpdateLiveView()
         {
             if (!IsLiveViewOpen)
                 return;
             //simple just set the scale
-            CurrentDevice.UpdateChildSize();
+            //CurrentDevice.UpdateChildSize();
             if (DrawableHlprs == null)
                 DrawableHlprs = new DrawableHelpers();
             var liveViewItemsBound = DrawableHlprs.GetRealBound(LiveViewItems.Where(i => i is not PathGuide).ToArray());
             var widthScale = (CurrentLiveViewWidth - 50) / liveViewItemsBound.Width;
             var scaleHeight = (CurrentLiveViewHeight - 50) / liveViewItemsBound.Height;
-            CurrentLiveViewScale = Math.Min(widthScale, scaleHeight);
-            var currentWidth = liveViewItemsBound.Width * CurrentLiveViewScale;
-            var currentHeight = liveViewItemsBound.Height * CurrentLiveViewScale;
+            CanvasScale = Math.Min(widthScale, scaleHeight);
+            var currentWidth = liveViewItemsBound.Width * CanvasScale;
+            var currentHeight = liveViewItemsBound.Height * CanvasScale;
             //set current device offset
-            CurrentLiveViewOffset = new Point(0 - liveViewItemsBound.Left * CurrentLiveViewScale + (CurrentLiveViewWidth - currentWidth) / 2, 0 - liveViewItemsBound.Top * CurrentLiveViewScale + (CurrentLiveViewHeight - currentHeight) / 2);
+            CurrentLiveViewOffset = new Point(0 - liveViewItemsBound.Left * CanvasScale + (CurrentLiveViewWidth - currentWidth) / 2, 0 - liveViewItemsBound.Top * CanvasScale + (CurrentLiveViewHeight - currentHeight) / 2);
         }
         private bool _showSelectedItemToolbar;
         public bool ShowSelectedItemToolbar {
@@ -6710,7 +6748,17 @@ namespace adrilight.ViewModel
                 LiveViewItems.Clear();
             }
             LiveViewSelectedItems = new ObservableCollection<IDrawable>();
-
+            foreach(var device in CurrentDevice.AvailableLightingDevices)
+            {
+                var lightingDevice = device as ARGBLEDSlaveDevice;
+                if(lightingDevice.Image!=null)
+                {
+                    lightingDevice.Image.IsSelectable = false;
+                    lightingDevice.Image.ImagePath = lightingDevice.Thumbnail;
+                    LiveViewItems.Add(lightingDevice.Image);
+                }
+               
+            }
             IDrawable lastSelectedItem = null;
             foreach (var item in CurrentDevice.CurrentLiveViewZones)
             {
@@ -7856,16 +7904,7 @@ namespace adrilight.ViewModel
             var screens = SurfaceEditorItems.OfType<IDrawable>().Where(d => d is ScreenBound);
             foreach (var item in SurfaceEditorItems.Where(i => i is ARGBLEDSlaveDevice))
             {
-                var ledDevice = item as ARGBLEDSlaveDevice;
-
-                foreach (var zone in ledDevice.ControlableZones)
-                {
-
-                    var ledZone = zone as LEDSetup;
-                    ledZone.OffsetX = ledDevice.Left;
-                    ledZone.OffsetY = ledDevice.Top;
-
-                }
+               
                 item.IsSelected = false;
 
             }
@@ -7875,8 +7914,10 @@ namespace adrilight.ViewModel
                 GetItemsForLiveView();
                 UpdateLiveView();
             }
-
             surfaceeditorWindow.Close();
+            surfaceeditorWindow = null;
+            SurfaceEditorItems = null;
+            SurfaceEditorSelectedItems = null;
             IsRichCanvasWindowOpen = false;
         }
         private void ResetPID()
@@ -9943,13 +9984,13 @@ namespace adrilight.ViewModel
 
                 foreach (var zone in LiveViewItems.Where(z => z is LEDSetup))
                 {
-                    if (!Rectangle.Intersect(zone.GetRect, brush.GetRect).IsEmpty)
+                    if (!Rect.Intersect(zone.GetRect, brush.GetRect).IsEmpty)
                     {
                         //this zone is being touch by the brush
                         //check if this brush touch any spot inside this zone
                         var ledSetup = zone as LEDSetup;
-                        var intersectRect = Rectangle.Intersect(ledSetup.GetRect, brush.GetRect);
-                        intersectRect.Offset(new System.Drawing.Point(0 - (int)ledSetup.GetRect.Left, 0 - (int)ledSetup.GetRect.Top));
+                        var intersectRect = Rect.Intersect(ledSetup.GetRect, brush.GetRect);
+                        intersectRect.Offset(0 - ledSetup.GetRect.Left, 0 - ledSetup.GetRect.Top);
 
                         foreach (var spot in ledSetup.Spots)
                         {
@@ -10076,8 +10117,6 @@ namespace adrilight.ViewModel
             GetItemsForLiveView();
             UpdateLiveView();
             IsSplitLightingWindowOpen = true;
-
-
         }
         public IList<ISelectableViewPart> SelectableViewParts { get; }
         public ISelectableViewPart _selectedViewPart;

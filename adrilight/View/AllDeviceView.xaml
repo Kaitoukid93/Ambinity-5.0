@@ -213,23 +213,12 @@
                                     <ColumnDefinition Width="auto"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel>
-                                    <hc:RunningBlock 
-                                                Margin="15,10,0,0"
-                                                BorderThickness="0" 
-                                                Padding="0"  
-                                                Duration="0:0:9" 
-                                                Height="32" 
-                                                HorizontalAlignment="Left" 
-                                                AutoRun="True"  Width="150" 
-                                                Runaway="False" 
-                                                VerticalAlignment="Stretch" >
-                                        <hc:RunningBlock.Content>
+                                    
                                             <TextBlock Text="{Binding DeviceName}" 
                                                    FlowDirection="RightToLeft"
                                                    FontWeight="SemiBold"
                                                    Style="{StaticResource TextBlockTitle}"/>
-                                        </hc:RunningBlock.Content>
-                                    </hc:RunningBlock>
+                                      
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Margin="15,0,0,10" HorizontalAlignment="Left" Text="{Binding HardwareVersion}" Style="{DynamicResource TextBlockDefaultPrimary}"/>
 

@@ -20,15 +20,6 @@ namespace adrilight.Spots
             var rect = new Rect(xMin, yMin, xMax - xMin, yMax - yMin);
             return rect;
         }
-        public Rectangle GetBoundRectangle(Rect[] rects)
-        {
-            int xMin = (int)rects.Min(s => s.Left);
-            int yMin = (int)rects.Min(s => s.Top);
-            int xMax = (int)rects.Max(s => s.Left + s.Width);
-            int yMax = (int)rects.Max(s => s.Top + s.Height);
-            var rect = new Rectangle(xMin, yMin, xMax - xMin, yMax - yMin);
-            return rect;
-        }
         public Rect GetBound(IControlZone[] zones)
         {
             var listRect = new List<Rect>();
@@ -83,15 +74,15 @@ namespace adrilight.Spots
 
             return GetBound(listRect.ToArray());
         }
-        public Rectangle GetBound(List<IControlZone> items)
+        public Rect GetBound(List<IDrawable> items)
         {
             var listRect = new List<Rect>();
             foreach (var item in items)
             {
-                int top = (int)(item as IDrawable).Top;
-                int left = (int)(item as IDrawable).Left;
-                int width = (int)(item as IDrawable).Width;
-                int height = (int)(item as IDrawable).Height;
+                double top = (item as IDrawable).Top;
+                double left = (item as IDrawable).Left;
+                double width = (item as IDrawable).Width;
+                double height = (item as IDrawable).Height;
 
                 listRect.Add(new Rect(left, top, width, height));
             }
@@ -99,43 +90,7 @@ namespace adrilight.Spots
 
 
 
-            return GetBoundRectangle(listRect.ToArray());
-        }
-        public Rectangle GetBound(List<Rectangle> items)
-        {
-            var listRect = new List<Rect>();
-            foreach (var item in items)
-            {
-                int top = item.Top;
-                int left = item.Left;
-                int width = item.Width;
-                int height = item.Height;
-
-                listRect.Add(new Rect(left, top, width, height));
-            }
-
-
-
-
-            return GetBoundRectangle(listRect.ToArray());
-        }
-        public Rectangle GetBound(List<IDrawable> items)
-        {
-            var listRect = new List<Rect>();
-            foreach (var item in items)
-            {
-                int top = (int)(item as IDrawable).Top;
-                int left = (int)(item as IDrawable).Left;
-                int width = (int)(item as IDrawable).ActualWidth;
-                int height = (int)(item as IDrawable).ActualHeight;
-
-                listRect.Add(new Rect(left, top, width, height));
-            }
-
-
-
-
-            return GetBoundRectangle(listRect.ToArray());
+            return GetBound(listRect.ToArray());
         }
 
     }

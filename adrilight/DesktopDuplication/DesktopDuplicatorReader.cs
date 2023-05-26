@@ -120,6 +120,8 @@ namespace adrilight
         private bool _useLinearLighting;
         private double _brightness;
         private int _smoothFactor;
+        private int _displayUpdateRate = 25;
+        private int _frameRate = 60;
 
         private SliderParameter _brightnessControl;
         private SliderParameter _smoothingControl;
@@ -239,15 +241,18 @@ namespace adrilight
                 var screenTop = Screen.AllScreens[(int)_currentScreenIndex].Bounds.Top;
                 var x = (int)((CurrentZone.Left + CurrentZone.OffsetX - screenLeft) / 8.0);
                 var y = (int)((CurrentZone.Top + CurrentZone.OffsetY - screenTop) / 8.0);
-                var width = (int)(CurrentZone.Width / 8.0);
-                var height = (int)(CurrentZone.Height / 8.0);
+                var width = (int)(CurrentZone.Width / 8.0)>=1? (int)(CurrentZone.Width / 8.0):1;
+                var height = (int)(CurrentZone.Height / 8.0)>=1? (int)(CurrentZone.Height / 8.0):1;
+                int updateIntervalCounter = 0;
                 while (!token.IsCancellationRequested)
                 {
 
                     //this indicator that user is opening this device and we need raise event when color update on each spot
-                    bool isPreviewRunning = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated;
+                    bool shouldViewUpdate = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated && updateIntervalCounter > _frameRate/_displayUpdateRate;
+                    if (shouldViewUpdate)
+                        updateIntervalCounter = 0;
                     var frameTime = Stopwatch.StartNew();
-                    var newImage = _retryPolicy.Execute(() => GetNextFrame(image, isPreviewRunning));
+                    var newImage = _retryPolicy.Execute(() => GetNextFrame(image, shouldViewUpdate));
                     TraceFrameDetails(newImage);
                     if (newImage == null)
                     {
@@ -309,20 +314,20 @@ namespace adrilight
                                  spot.Red,
                                  spot.Green,
                                  spot.Blue);
-                                spot.SetColor((byte)(RealfinalR * _brightness), (byte)(RealfinalG * _brightness), (byte)(RealfinalB * _brightness), isPreviewRunning);
+                                spot.SetColor((byte)(RealfinalR * _brightness), (byte)(RealfinalG * _brightness), (byte)(RealfinalB * _brightness), false);
 
                             });
-                        //}
 
                     }
 
                     image.UnlockBits(bitmapData);
-                    int minFrameTimeInMs = 1000 / 60;
+                    int minFrameTimeInMs = 1000 / _frameRate;
                     var elapsedMs = (int)frameTime.ElapsedMilliseconds;
                     if (elapsedMs < minFrameTimeInMs)
                     {
                         Thread.Sleep(minFrameTimeInMs - elapsedMs);
                     }
+                    updateIntervalCounter++;
                 }
             }
             finally

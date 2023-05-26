@@ -78,6 +78,7 @@
                                                 VerticalAlignment="Top" 
                                                 Name="PreviewCanvas"
                                                 Margin="0" 
+                                                UseLayoutRounding="False"
                                                 Width="{Binding Width,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" 
                                                 Height="{Binding Height, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" >
                                             </Canvas>

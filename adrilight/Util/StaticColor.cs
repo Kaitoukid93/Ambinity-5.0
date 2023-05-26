@@ -114,6 +114,8 @@ namespace adrilight
         private double _brightness;
         private int _breathingSpeed;
         private Color[] _colors;
+        private int _displayUpdateRate = 25;
+        private int _frameRate = 60;
         #region Properties changed event handler 
         private void OnSystemBreathingSpeedChanged(int value)
         {
@@ -264,14 +266,16 @@ namespace adrilight
             _log.Debug("Started Static Color.");
 
             IsRunning = true;
+            int updateIntervalCounter = 0;
             try
             {     
                 
                 while (!token.IsCancellationRequested)
                 {
                     var startIndex = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
-                    bool isPreviewRunning = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated;
-
+                    bool shouldViewUpdate = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated && updateIntervalCounter > _frameRate/_displayUpdateRate ;
+                    if(shouldViewUpdate)
+                        updateIntervalCounter = 0;
                     if (_isBreathing)
                     {
                         if (_isSystemSync)
@@ -290,22 +294,25 @@ namespace adrilight
                         }
 
                     }
+                    
+                    if( updateIntervalCounter > 0 )
+                    {
 
+                    }
                     lock (CurrentZone.Lock)
                     {
                         foreach(var spot in CurrentZone.Spots)
                         {
                             ApplySmoothing(_colors[spot.Index - startIndex].R, _colors[spot.Index - startIndex].G, _colors[spot.Index - startIndex].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
-                            spot.SetColor((byte)(_brightness * FinalR), (byte)(_brightness * FinalG), (byte)(_brightness * FinalB), isPreviewRunning);
+                            spot.SetColor((byte)(_brightness * FinalR), (byte)(_brightness * FinalG), (byte)(_brightness * FinalB), false);
                         }
-                               
-                               
-
-                            
+   
                     }
 
                     //threadSleep for static mode is 1s, for breathing is 10ms
-                    Thread.Sleep(10);
+                    var sleepTime = 1000 / _frameRate;
+                    Thread.Sleep(sleepTime);
+                    updateIntervalCounter++;
                 }
             }
             finally

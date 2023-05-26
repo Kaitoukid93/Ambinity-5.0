@@ -93,11 +93,6 @@ namespace adrilight
                     var isRunning = _cancellationTokenSource != null;
                     if (isRunning || (CurrentZone.CurrentActiveControlMode as LightingMode).BasedOn == Type)
                         Refresh();
-                   // break;
-                //case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
-                //    //case nameof(MainViewViewModel.IsRegisteringGroup):
-                //    // case nameof(_colorControl):
-                //    Refresh();
                     break;
 
             }
@@ -126,6 +121,8 @@ namespace adrilight
         private bool _shouldBeMoving;
         private int _dancingMode;
         private int _vuMode;
+        private int _displayUpdateRate = 25;
+        private int _frameRate = 60;
         private enum colorUseEnum { StaticPalette, MovingPalette, CyclicPalette };
 
         #region Properties changed event handler 
@@ -401,12 +398,14 @@ namespace adrilight
 
             try
             {
-               
-                
+
+                int updateIntervalCounter = 0;
                 while (!token.IsCancellationRequested)
                 {
                     var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
-                    bool isPreviewRunning = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated;
+                    bool shouldViewUpdate = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated && updateIntervalCounter > _frameRate/_displayUpdateRate;
+                    if (shouldViewUpdate)
+                        updateIntervalCounter = 0;
                     NextTick();
                     var ledCount = CurrentZone.Spots.Count();
                     var offset = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
@@ -425,12 +424,14 @@ namespace adrilight
                                 columnIndex = 0;
                             var brightness = (float)_brightness * (currentFrame[translatedIndex] / 255f);
                             ApplySmoothing(brightness * _colorBank[position].R, brightness * _colorBank[position].G, brightness * _colorBank[position].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
-                            spot.SetColor(FinalR, FinalG, FinalB, isPreviewRunning);
+                            spot.SetColor(FinalR, FinalG, FinalB, shouldViewUpdate);
 
                         }
 
                     }
-                    Thread.Sleep(10);
+                    var sleepTime = 1000 / _frameRate;
+                    Thread.Sleep(sleepTime);
+                    updateIntervalCounter++;
                 }
             }
             finally

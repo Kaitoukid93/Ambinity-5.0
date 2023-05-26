@@ -116,10 +116,7 @@ namespace adrilight
         private ListSelectionParameter _chasingPatternControl;
         private SliderParameter _brightnessControl;
         private SliderParameter _speedControl;
-        private ToggleParameter _systemSyncControl;
         private Color[] _colorBank;
-        private bool _isSystemSync;
-        private bool _isBreathing;
         private double _brightness;
         private int _speed;
         private double _paletteSpeed;
@@ -131,6 +128,8 @@ namespace adrilight
         private Tick[] _ticks;
         private object _lock = new object();
         private bool _shouldBeMoving;
+        private int _displayUpdateRate = 25;
+        private int _frameRate = 60;
         private enum colorUseEnum { StaticPalette, MovingPalette, CyclicPalette };
 
         #region Properties changed event handler 
@@ -391,7 +390,6 @@ namespace adrilight
             _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
             _speedControl.PropertyChanged += (_, __) => OnSpeedChanged(_speedControl.Value);
             _brightnessControl.PropertyChanged += (_, __) => OnBrightnessValueChanged(_brightnessControl.Value);
-            _systemSyncControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.IsSystemSync).FirstOrDefault() as ToggleParameter;
             _colorControl.LoadAvailableValues();
             _chasingPatternControl.LoadAvailableValues();
             #endregion
@@ -420,12 +418,14 @@ namespace adrilight
 
             try
             {
-               
-                
+
+                int updateIntervalCounter = 0;
                 while (!token.IsCancellationRequested)
                 {
                     var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
-                    bool isPreviewRunning = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated;
+                    bool shouldViewUpdate = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated && updateIntervalCounter > _frameRate/_displayUpdateRate;
+                    if (shouldViewUpdate)
+                        updateIntervalCounter = 0;
                     NextTick();
                     lock (CurrentZone.Lock)
                     {
@@ -438,12 +438,14 @@ namespace adrilight
                             {
                                 float brightness = ((_resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData[spot.Index - startPID]) * (float)_brightness) / 255;
                                 ApplySmoothing(brightness * _colorBank[position].R, brightness * _colorBank[position].G, brightness * _colorBank[position].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
-                                spot.SetColor(FinalR, FinalG, FinalB, isPreviewRunning);
+                                spot.SetColor(FinalR, FinalG, FinalB, shouldViewUpdate);
                             }
                         }
 
                     }
-                    Thread.Sleep(10);
+                    var sleepTime = 1000 / _frameRate;
+                    Thread.Sleep(sleepTime);
+                    updateIntervalCounter++;
                 }
             }
             finally

@@ -133,11 +133,6 @@ namespace adrilight
         private Rect _vIDSpace;
         private bool _isDeleteable;
         private bool _isResizeable;
-        private double _actualWidth;
-        private double _actualHeight;
-        public double ActualWidth { get => _actualWidth; set { Set(() => ActualWidth, ref _actualWidth, value); } }
-
-        public double ActualHeight { get => _actualHeight; set { Set(() => ActualHeight, ref _actualHeight, value); } }
         private RGBLEDOrderEnum _rgbLEDOrder = RGBLEDOrderEnum.RGB;
         public RGBLEDOrderEnum RGBLEDOrder { get => _rgbLEDOrder; set { Set(() => RGBLEDOrder, ref _rgbLEDOrder, value); } }
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
@@ -176,7 +171,7 @@ namespace adrilight
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
         [JsonIgnore]
-        public Rectangle GetRect => new Rectangle((int)(Left + OffsetX), (int)(Top + OffsetY), (int)Width, (int)Height);
+        public Rect GetRect => new Rect(Left + OffsetX, Top + OffsetY, Width, Height);
         public string Type { get; set; }
         private DrawableHelpers DrawableHlprs;
         public List<ColorCard> GetStaticColorDataSource()
@@ -208,6 +203,13 @@ namespace adrilight
 
 
         }
+        public void UpdateView()
+        {
+            foreach(var spot in Spots)
+            {
+                spot.UpdateView();
+            }
+        }
         /// <summary>
         /// Rotates one point around another
         /// </summary>
@@ -222,11 +224,11 @@ namespace adrilight
             double sinTheta = Math.Sin(angleInRadians);
             return new Point {
                 X =
-                    (int)
+                    
                     (cosTheta * (pointToRotate.X - centerPoint.X) -
                     sinTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.X),
                 Y =
-                    (int)
+                    
                     (sinTheta * (pointToRotate.X - centerPoint.X) +
                     cosTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.Y)
             };
@@ -296,7 +298,7 @@ namespace adrilight
             Spots.Clear();
             reorderedSpots.ForEach(s => Spots.Add(s));
         }
-        public Rectangle GetDeviceRectBound(List<IDeviceSpot> spots)
+        public Rect GetDeviceRectBound(List<IDeviceSpot> spots)
         {
 
 
@@ -318,16 +320,16 @@ namespace adrilight
             {
                 if (!(spot as IDrawable).SetScale(scaleX, scaleY, keepOrigin)) return false;
             }
-            var width = ActualWidth * scaleX;
-            var height = ActualHeight * scaleY;
+            var width = Width * scaleX;
+            var height = Height * scaleY;
             if (width < 1 || height < 1)
             {
                 return false;
             }
             else
             {
-                ActualWidth *= scaleX;
-                ActualHeight *= scaleY;
+                Width *= scaleX;
+                Height *= scaleY;
                 if (!keepOrigin)
                 {
                     Left *= scaleX;

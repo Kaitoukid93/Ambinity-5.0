@@ -416,7 +416,7 @@
     <Border Margin="1,1,1,1">
 
 
-        <hc:ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
+        <hc:ScrollViewer IsInertiaEnabled="True" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto">
 
 
             <Grid Margin="10,0,10,10">

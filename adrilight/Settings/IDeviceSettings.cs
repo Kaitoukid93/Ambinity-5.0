@@ -59,5 +59,6 @@ namespace adrilight
         void BrightnessDown(int value);
         void SpeedUp(int value);
         void SpeedDown(int value);
+        void ActivateProfile(IDeviceSettings profile);
     }
 }

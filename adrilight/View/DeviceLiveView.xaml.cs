@@ -27,29 +27,17 @@ namespace adrilight.View
         {
 
             InitializeComponent();
-            //MainViewModel = this.DataContext as MainViewViewModel;
+
         }
-        //MainViewViewModel MainViewModel { get; set; }
         private void OnScrolling(object sender, RoutedEventArgs e)
         {
             AttachedAdorner.OnScrolling();
 
         }
 
-        //private void Canvas_PreviewKeyDown(object sender, KeyEventArgs e)
-        //{
-        //    if (e.Key == Key.OemOpenBrackets)
-        //    {
-        //        if (MainViewModel.IsInIDEditStage)
-        //            MainViewModel.DecreaseBrushSize();
-        //    }
-        //    if (e.Key == Key.OemCloseBrackets)
-        //    {
-        //        if (MainViewModel.IsInIDEditStage)
-        //            MainViewModel.IncreaseBrushSize();
-        //    }
-        //}
-       
-
     }
+
+
+
+
 }

@@ -17,7 +17,7 @@
            xmlns:spot ="clr-namespace:adrilight.Spots"
            xmlns:settings ="clr-namespace:adrilight.Settings"
            xmlns:lottie="clr-namespace:LottieSharp;assembly=LottieSharp"
-          xmlns:viewmodel="clr-namespace:adrilight.ViewModel" d:DataContext="{d:DesignInstance Type=viewmodel:MainViewViewModel}">
+           xmlns:viewmodel="clr-namespace:adrilight.ViewModel" d:DataContext="{d:DesignInstance Type=viewmodel:MainViewViewModel}">
 
 
 
@@ -55,7 +55,8 @@
                 ItemsSource="{Binding LiveViewItems}"
                 GridStyle="{StaticResource GridStyle}"
                 EnableSnapping="False"
-                MaxScale="20"
+                MinScale="0.1"
+                MaxScale="100"
                 GridSpacing="24"
                 EnableGrid="False"
                 Scrolling="OnScrolling"
@@ -65,17 +66,18 @@
                 DisableAutoPanning="True"
                 Background="Transparent"               
                 DisableScroll="True"
+                UseLayoutRounding="False"
                 ZoomKey="LeftCtrl"
                 TranslateOffset="{Binding CurrentLiveViewOffset,Mode=TwoWay}"
-                Scale="{Binding CurrentLiveViewScale,Mode=TwoWay}"
+                Scale="{Binding CanvasScale,Mode=TwoWay}"
                 MousePosition="{Binding MousePosition, Mode=OneWayToSource}">
 
             <richCanvas:RichItemsControl.SelectionRectangleStyle>
                 <Style TargetType="Rectangle">
                     <Setter Property="Fill" Value="Transparent" />
                     <Setter Property="Stroke" Value="{DynamicResource PrimaryBrush}" />
-                    <Setter Property="StrokeThickness" Value="3" />
-                    <Setter Property="StrokeDashArray" Value="3" />
+                    <Setter Property="StrokeDashArray" Value="2" />
+                    <Setter Property="StrokeThickness" Value="{Binding DataContext.SelectionRectangleStrokeThickness,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" />
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding DataContext.IsInIDEditStage,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" Value="True">
                             <Setter Property="Opacity" Value="0.1" />
@@ -96,10 +98,19 @@
 
             </i:Interaction.Triggers>
             <richCanvas:RichItemsControl.Resources>
+                <DataTemplate DataType="{x:Type settings:ImageVisual}">
+                    <Image Stretch="Uniform" Source="{Binding ImagePath}" RenderOptions.BitmapScalingMode="HighQuality"/>
+                </DataTemplate>
                 <DataTemplate DataType="{x:Type local:LEDSetup}">
                     <Grid>
-                        <Grid>
-                            <ItemsControl ToolTip="{Binding Name}" Margin="0,0,0,0"  
+                        <view:ZoneVisualizer Width="{Binding Width}" Height="{Binding Height}" Zone="{Binding}" RenderOptions.BitmapScalingMode="Linear">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                                    <i:InvokeCommandAction Command="{Binding DataContext.SelectLiveViewItemCommand,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" CommandParameter="{Binding .}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </view:ZoneVisualizer>
+                        <!--<ItemsControl ToolTip="{Binding Name}" Margin="0,0,0,0"  
                                     Name="PreviewGird"  
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center" 
@@ -130,11 +141,12 @@
                                 </ItemsControl.ItemContainerStyle>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Grid Height="{Binding Height}" Width="{Binding Width}">
+                                        <Grid>
+                                            <view:LEDVisualizer Spot="{Binding}"/>
 
-                                            <Path RenderTransformOrigin="0.5,0.5" Data="{Binding Geometry}"
+                                            --><!--<Path RenderTransformOrigin="0.5,0.5" Data="{Binding Geometry}"
                                                 Stretch="Fill"
-                                                StrokeThickness="2"
+                                                StrokeThickness="{Binding DataContext.SelectionRectangleStrokeThickness,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}"
                                                 Width="{Binding Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
                                                 Height="{Binding Height,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
                                                 <Path.Stroke>
@@ -161,7 +173,7 @@
                                                         </Setter>
                                                     </Style>
                                                 </Path.Style>
-                                            </Path>
+                                            </Path>--><!--
                                             <Viewbox RenderTransformOrigin="0.5,0.5" Stretch="Uniform">
                                                 <Viewbox.Style>
                                                     <Style TargetType="{x:Type Viewbox}">
@@ -203,9 +215,9 @@
                                         </Grid>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                            </ItemsControl>-->
 
-                        </Grid>
+                    
                     </Grid>
                 </DataTemplate>
                 <DataTemplate DataType="{x:Type settings:PathGuide}">
@@ -309,7 +321,7 @@
                 <DataTemplate x:Key="HoverAdornerTemplate">
                     <Grid>
                         <Border BorderBrush="{DynamicResource PrimaryBrush}"
-                            BorderThickness="3">
+                             BorderThickness="1">
                         </Border>
                     </Grid>
 
@@ -334,12 +346,15 @@
                         <Rectangle Stroke="{DynamicResource SecondaryBorderBrush}"
                                    Width="{Binding Width,Mode=TwoWay}"
                                    Height="{Binding Height,Mode=TwoWay}"
-                               StrokeThickness="4"
-                               Fill="Transparent"
-                               StrokeDashArray="2">
+                                   StrokeDashArray="2"
+                                   StrokeThickness="{Binding DataContext.SelectionRectangleStrokeThickness,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}"
+                                   Fill="Transparent">
                         </Rectangle>
-                        <Border HorizontalAlignment="Left" VerticalAlignment="Top" Background="{DynamicResource PrimaryBrush}">
-                            <TextBlock Margin="2" Style="{DynamicResource TextBlockDefault}" HorizontalAlignment="Left" VerticalAlignment="Top" Text="{Binding Name}"/>
+                        <Border MaxWidth="20" MaxHeight="20" HorizontalAlignment="Left" VerticalAlignment="Top" Background="{DynamicResource PrimaryBrush}">
+                            <Viewbox>
+                                <TextBlock Margin="5" Style="{DynamicResource TextBlockDefault}" HorizontalAlignment="Left" VerticalAlignment="Top" Text="{Binding Name}"/>
+                            </Viewbox>
+                           
                         </Border>
 
                     </Grid>
@@ -449,32 +464,25 @@
                             Value="False" />
                         </DataTrigger>
 
-
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Opacity">
-                                <Setter.Value>
-                                    1.0
-                                </Setter.Value>
-                            </Setter>
-                        </Trigger>
-                        <Trigger Property="IsSelected" Value="False">
-                            <Setter Property="Opacity">
-                                <Setter.Value>
-                                    0.7
-                                </Setter.Value>
-                            </Setter>
-                        </Trigger>
+                        <DataTrigger Binding="{Binding DataType}" Value="{x:Type settings:ImageVisual}">
+                            <Setter Property="helpers:AttachedAdorner.HasHoverAdorner"
+                            Value="False" />
+                            <Setter Property="IsSelectable"
+                            Value="False" />
+                            <Setter Property="IsDraggable"
+                            Value="False" />
+                        </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </richCanvas:RichItemsControl.ItemContainerStyle>
         </richCanvas:RichItemsControl>
-        <Grid>
+        <!--<Grid>
             <Border Effect="{DynamicResource EffectShadow1}" VerticalAlignment="Top" CornerRadius="4" Margin="10,0" HorizontalAlignment="Left" Background="{DynamicResource MainContentBackgroundBrush}">
                 <Grid>
                     <CheckBox ToolTip="Bỏ tick mục này nếu máy ăn CPU khi dùng App" Margin="10" Content="Real-time update" IsChecked="False"/>
                 </Grid>
             </Border>
-        </Grid>
+        </Grid>-->
         <Grid>
             <hc:TransitioningContentControl>
                 <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Horizontal">
