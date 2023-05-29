@@ -381,7 +381,10 @@ namespace adrilight
                     NextTick();
                     var ledCount = CurrentZone.Spots.Count();
                     var offset = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
-                    var currentFrame = BrightnessMapCreator(CurrentZone.Spots[0].MID, CurrentZone.Spots.Count());
+                    var id = CurrentZone.Spots[0].MID;
+                    if (id > 31)
+                        id = 0;
+                    var currentFrame = BrightnessMapCreator(id, CurrentZone.Spots.Count());
                     lock (CurrentZone.Lock)
                     {
                         foreach (var spot in CurrentZone.Spots)

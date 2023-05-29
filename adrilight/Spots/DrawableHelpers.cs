@@ -1,22 +1,17 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace adrilight.Spots
 {
     public class DrawableHelpers
     {
-        public  Rect GetBound(Rect[] rects)
+        public Rect GetBound(Rect[] rects)
         {
             double xMin = rects.Min(s => s.Left);
             double yMin = rects.Min(s => s.Top);
             double xMax = rects.Max(s => s.Left + s.Width);
-            double yMax = rects.Max(s => s.Top+ s.Height);
+            double yMax = rects.Max(s => s.Top + s.Height);
             var rect = new Rect(xMin, yMin, xMax - xMin, yMax - yMin);
             return rect;
         }
@@ -33,7 +28,7 @@ namespace adrilight.Spots
                 listRect.Add(new Rect(left, top, width, height));
             }
 
-        
+
 
 
             return GetBound(listRect.ToArray());
@@ -79,6 +74,8 @@ namespace adrilight.Spots
             var listRect = new List<Rect>();
             foreach (var item in items)
             {
+                if (item == null)
+                    continue;
                 double top = (item as IDrawable).Top;
                 double left = (item as IDrawable).Left;
                 double width = (item as IDrawable).Width;

@@ -24,6 +24,7 @@ namespace adrilight.View
             _leds = new List<LEDVisualizer>();
             this.Loaded += ZoneVisualizer_Loaded;
             this.Unloaded += ZoneVisualizer_Unloaded;
+            this.SizeChanged += ZoneSize_Changed;
         }
         DrawingGroup backingStore = new DrawingGroup();
         private void Render()
@@ -56,6 +57,11 @@ namespace adrilight.View
             _timer.Start();
             _timer.Tick += TimerOnTick;
 
+        }
+        private void ZoneSize_Changed(object sender, SizeChangedEventArgs e)
+        {
+            SetupZone();
+            Update();
         }
         protected override void OnRender(DrawingContext drawingContext)
         {
@@ -131,6 +137,7 @@ namespace adrilight.View
             ZoneVisualizer led = d as ZoneVisualizer;
             led.SetupZone();
         }
+
         #endregion
     }
 }

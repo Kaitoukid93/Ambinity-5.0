@@ -18,7 +18,7 @@ namespace adrilight
         public double ActualWidth { get; set; }
         public double ActualHeight { get; set; }
         void UpdateSizeByChild(bool withPoint);
-        //void RotateLEDSetup(double angleInDegrees);
-        //void ReflectLEDSetupVertical();
+        void RotateLEDSetup(double angleInDegrees);
+        void ReflectLEDSetupVertical();
     }
 }

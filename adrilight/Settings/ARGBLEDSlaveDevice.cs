@@ -74,20 +74,27 @@ namespace adrilight.Settings
         private bool _hasCustomBehavior;
         private bool _isDeleteable;
         private bool _isResizeable;
-
+        private double _scale = 1.0;
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
+
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
+
         public double CenterX => Width / 2 + Left;
+
         public double CenterY => Height / 2 + Top;
+
         public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
+
         public double Top { get => _top; set { Set(() => Top, ref _top, value); UpdateChildOffSet(); } }
-        public int LEDCount => GetLEDsCount();
+
         public double Left { get => _left; set { Set(() => Left, ref _left, value); UpdateChildOffSet(); } }
 
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
 
         public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }
+
         public double Height { get => _height; set { Set(() => Height, ref _height, value); OnHeightUpdated(); } }
+
         public double ActualWidth { get => _actualWidth; set { Set(() => ActualWidth, ref _actualWidth, value); } }
 
         public double ActualHeight { get => _actualHeight; set { Set(() => ActualHeight, ref _actualHeight, value); } }
@@ -96,20 +103,24 @@ namespace adrilight.Settings
 
         public bool IsSelectable { get => _isSelectable; set { Set(() => IsSelectable, ref _isSelectable, value); } }
 
+        public int LEDCount => GetLEDsCount();
+
         public bool IsDraggable { get => _isDraggable; set { Set(() => IsDraggable, ref _isDraggable, value); } }
 
         public bool HasCustomBehavior { get => _hasCustomBehavior; set { Set(() => HasCustomBehavior, ref _hasCustomBehavior, value); } }
 
         public bool ShouldBringIntoView { get => _shouldBringIntoView; set { Set(() => ShouldBringIntoView, ref _hasCustomBehavior, value); } }
-        private double _scale = 1.0;
 
         public double Scale { get => _scale; set { Set(() => Scale, ref _scale, value); } }
 
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
+
         public Rect GetRect => new Rect(Left, Top, Width, Height);
+
         public DeviceType TargetDeviceType { get; set; }
+
         private DrawableHelpers DrawableHlprs;
 
         private int GetLEDsCount()
@@ -201,15 +212,16 @@ namespace adrilight.Settings
                 (zone as IDrawable).Height = width;
             }
             //rotate background image
-            Image.Angle += angleInDegrees;
-            if (Image.Angle == 360)
+            if (Image != null)
             {
-                Image.Angle = 0;
+                Image.Angle += angleInDegrees;
+                if (Image.Angle == 360)
+                {
+                    Image.Angle = 0;
+                }
+
             }
-            var newImageWidth = Image.Height;
-            var newImageHeight = Image.Width;
-            Image.Width = newImageWidth;
-            Image.Height = newImageHeight;
+
             var newBound = GetDeviceRectBound();
             foreach (var zone in ControlableZones)
             {
@@ -251,6 +263,12 @@ namespace adrilight.Settings
             List<IDrawable> children = new List<IDrawable>();
             foreach (var zone in ControlableZones)
             { children.Add(zone as IDrawable); }
+            if (Image != null)
+            {
+                //get image rotation bounding box
+                var rect = new Rect(Image.Left, Image.Top, Image.Width, Image.Height);
+
+            }
             children.Add(Image as IDrawable);
             if (DrawableHlprs == null)
             {

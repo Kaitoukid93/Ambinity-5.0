@@ -244,12 +244,12 @@ namespace adrilight
                 (spot as IDrawable).Top -= newBound.Top;
             }
         }
-        private Geometry RotateGeometry(Geometry inputGeometry)
+        private Geometry RotateGeometry(Geometry inputGeometry, double angle)
         {
             //rotate the geometry
             var inputGeometryClone = inputGeometry.Clone(); // we need a clone since in order to
                                                             // apply a Transform and geometry might be readonly
-            inputGeometryClone.Transform = new RotateTransform(90.0);// applying some transform to it
+            inputGeometryClone.Transform = new RotateTransform(angle);// applying some transform to it
             var result = inputGeometryClone.GetFlattenedPathGeometry();
             result.Freeze();
             return result;
@@ -269,16 +269,15 @@ namespace adrilight
 
             foreach (var spot in Spots)
             {
-                spot.Geometry = RotateGeometry(spot.Geometry);
+                spot.Geometry = RotateGeometry(spot.Geometry, angleInDegrees);
                 var translatedCenterPoint = new Point(centerPoint.X - Left, centerPoint.Y - Top);
                 var pos = new Point((spot as IDrawable).Left, (spot as IDrawable).Top + (spot as IDrawable).Height); //bottom left will become new topleft
                 var width = (spot as IDrawable).Width;
                 var height = (spot as IDrawable).Height;
-                (spot as IDrawable).Left = RotatePoint(pos, centerPoint, 90.0).X;
-                (spot as IDrawable).Top = RotatePoint(pos, centerPoint, 90.0).Y;
+                (spot as IDrawable).Left = RotatePoint(pos, centerPoint, angleInDegrees).X;
+                (spot as IDrawable).Top = RotatePoint(pos, centerPoint, angleInDegrees).Y;
                 (spot as IDrawable).Width = height;
                 (spot as IDrawable).Height = width;
-
 
             }
             var newBound = GetDeviceRectBound(Spots.ToList());

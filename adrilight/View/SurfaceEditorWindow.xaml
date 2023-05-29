@@ -92,13 +92,24 @@
                 <richCanvas:RichItemsControl.Resources>
                     <DataTemplate DataType="{x:Type settings:ARGBLEDSlaveDevice}">
                         <Grid>
+                            <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="MouseDoubleClick">
+                                        <i:InvokeCommandAction Command="{Binding DataContext.LaunchPIDEditWindowCommand,RelativeSource={RelativeSource AncestorType={x:Type view:SurfaceEditorWindow}}}" CommandParameter="{Binding}" />
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="MouseLeftButtonDown">
+                                        <i:InvokeCommandAction Command="{Binding DataContext.SelectSurfaceEditorItemCommand,RelativeSource={RelativeSource AncestorType={x:Type view:SurfaceEditorWindow}}}" CommandParameter="{Binding}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
                             <Canvas Width="{Binding Width,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" 
                                                 Height="{Binding Height, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}">
-                                <Image RenderTransformOrigin="0.5,0.5" Stretch="Uniform" Source="{Binding Thumbnail}" Canvas.Left="{Binding Image.Left}" Canvas.Top="{Binding Image.Top}" Height="{Binding Image.Height}" RenderOptions.BitmapScalingMode="HighQuality" Width="{Binding Image.Width}">
-                                    <Image.RenderTransform>
-                                        <RotateTransform Angle="{Binding Image.Angle,Mode=TwoWay}"/>
-                                    </Image.RenderTransform>
-                                </Image>
+                                <Grid Background="Red">
+                                    <Image RenderTransformOrigin="0.5,0.5" Stretch="Uniform" Source="{Binding Thumbnail}" Canvas.Left="{Binding Image.Left}" Canvas.Top="{Binding Image.Top}" Height="{Binding Image.Height}" RenderOptions.BitmapScalingMode="HighQuality" Width="{Binding Image.Width}">
+                                        <Image.RenderTransform>
+                                            <RotateTransform Angle="{Binding Image.Angle,Mode=TwoWay}"/>
+                                        </Image.RenderTransform>
+                                    </Image>
+                                </Grid>
+                               
                             </Canvas>
                             <ItemsControl
                                     Name="PreviewGird"  
@@ -126,51 +137,8 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="{x:Type local:LEDSetup}">
                                         <Grid>
-
-                                            <ItemsControl IsHitTestVisible="{Binding IsDraggable,Mode=TwoWay}" Margin="0,0,0,0"  
-                                    Name="PreviewGird"  
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Top" 
-                                    ItemsSource="{Binding Spots}">
-                                                <ItemsControl.ItemsPanel>
-                                                    <ItemsPanelTemplate>
-                                                        <Canvas 
-                                                HorizontalAlignment="Center" 
-                                                VerticalAlignment="Top" 
-                                                Name="PreviewCanvas"
-                                                Margin="0" 
-                                                Width="{Binding Width,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" 
-                                                Height="{Binding Height, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" >
-                                                        </Canvas>
-                                                    </ItemsPanelTemplate>
-                                                </ItemsControl.ItemsPanel>
-                                                <ItemsControl.ItemContainerStyle>
-                                                    <Style TargetType="ContentPresenter">
-                                                        <Setter Property="Canvas.Left" Value="{Binding Left}"/>
-                                                        <Setter Property="Canvas.Top" Value="{Binding Top}"/>
-                                                    </Style>
-                                                </ItemsControl.ItemContainerStyle>
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate DataType="{x:Type spot:DeviceSpot}">
-                                                        <Path RenderTransformOrigin="0.5,0.5" 
-                                                              Data="{Binding Geometry,Mode=TwoWay}"
-                                                              Stretch="Uniform"
-                                                               StrokeThickness="{Binding DataContext.SelectionRectangleStrokeThickness,RelativeSource={RelativeSource AncestorType={x:Type view:SurfaceEditorWindow}}}"
-                                                              ToolTip="{Binding Index}"                              
-                                                              Width="{Binding Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
-                                                              Height="{Binding Height,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
-                                                            <Path.Stroke>
-                                                                <SolidColorBrush Color="{Binding OnDemandColor}"  />
-                                                            </Path.Stroke>
-                                                            <Path.Fill>
-                                                                <SolidColorBrush Color="{Binding OnDemandColor}" Opacity="0.5" />
-                                                            </Path.Fill>
-                                                        </Path>
-                                                    </DataTemplate>
-
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-
+                                            <view:ZoneVisualizer Width="{Binding Width}" Height="{Binding Height}" Zone="{Binding}" RenderOptions.BitmapScalingMode="Linear">
+                                            </view:ZoneVisualizer>
                                         </Grid>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -184,17 +152,7 @@
                                 </Border>
                             </Grid>
                             <ContentControl>
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="MouseDoubleClick">
-                                        <i:InvokeCommandAction Command="{Binding DataContext.LaunchPIDEditWindowCommand,RelativeSource={RelativeSource AncestorType={x:Type view:SurfaceEditorWindow}}}" CommandParameter="{Binding .}" />
-                                    </i:EventTrigger>
-                                    <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
-                                        <i:InvokeCommandAction Command="{Binding DataContext.SelectSurfaceEditorItemCommand,RelativeSource={RelativeSource AncestorType={x:Type view:SurfaceEditorWindow}}}" CommandParameter="{Binding .}" />
-                                    </i:EventTrigger>
-                                    
-                                </i:Interaction.Triggers>
-
-                                <Rectangle  StrokeThickness="0.5"  Height="{Binding Height}" Width="{Binding Width}">
+                                <Rectangle IsHitTestVisible="True" StrokeThickness="0.5"  Height="{Binding Height}" Width="{Binding Width}">
                                     <Rectangle.Style>
                                         <Style TargetType="Rectangle">
                                             <Style.Triggers>

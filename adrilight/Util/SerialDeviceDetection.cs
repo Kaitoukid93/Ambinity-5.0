@@ -5,13 +5,10 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.IO.Ports;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace adrilight.Util
@@ -104,8 +101,8 @@ namespace adrilight.Util
         }
         static List<IDeviceSettings> RequestDeviceInformation()
         {
-          
-            if(ResourceHlprs==null)
+
+            if (ResourceHlprs == null)
             {
                 ResourceHlprs = new ResourceHelpers();
             }
@@ -132,7 +129,7 @@ namespace adrilight.Util
                 catch (Exception)
                 {
                     continue;
-                    
+
                 }
 
                 //write request info command
@@ -194,7 +191,7 @@ namespace adrilight.Util
                         offset += readCount;
                         count -= readCount;
                     }
-                    
+
                 }
                 if (offset == 3 + idLength) //3 bytes header are valid
                 {
@@ -246,6 +243,7 @@ namespace adrilight.Util
                                10);
                             newDevice.DashboardWidth = 472;
                             newDevice.DashboardHeight = 270;
+
                             ////set a default output for this device , simply plugin LED strip with led number of 16
                             //newDevice.AvailableOutputs[0] = new LightingOutput() { OutputID = 0, ControlableZone = new LEDSetup[1] };
                             //newDevice.AvailableOutputs[1] = new LightingOutput() { OutputID = 1, ControlableZone = new LEDSetup[1] };
@@ -282,20 +280,20 @@ namespace adrilight.Util
                             break;
                         case "Ambino HubV3":
                             //newDevice = availableDefaultDevice.ambinoHUBV3;
-                           // newDevice.DeviceType = DeviceTypeEnum.AmbinoHUBV3;
+                            // newDevice.DeviceType = DeviceTypeEnum.AmbinoHUBV3;
                             //newDevice.DeviceConnectionType = "wired";
                             //newDevice.OutputPort = device;
                             //newDevice.IsSizeNeedUserDefine = true;
                             break;
                         case "Ambino RainPow":
                             //newDevice = availableDefaultDevice.ambinoRainPow;
-                           //newDevice.DeviceType = DeviceTypeEnum.AmbinoRainPowPro;
+                            //newDevice.DeviceType = DeviceTypeEnum.AmbinoRainPowPro;
                             //newDevice.DeviceConnectionType = "wired";
                             //newDevice.OutputPort = device;
                             //newDevice.IsSizeNeedUserDefine = true;
                             break;
                     }
-
+                    newDevice.UpdateChildSize();
                 }
                 newDevice.DeviceSerial = BitConverter.ToString(id);
                 if (offset == 3 + idLength + nameLength) //3 bytes header are valid
