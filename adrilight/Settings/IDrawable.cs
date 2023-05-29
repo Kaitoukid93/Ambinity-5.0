@@ -1,17 +1,8 @@
-﻿using adrilight.Spots;
+﻿using adrilight.ViewModel;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
-using adrilight.Util;
-using System.Windows.Input;
-using adrilight.ViewModel;
 using System.Windows;
-using SharpDX;
-using System.Drawing;
+using System.Windows.Input;
 
 namespace adrilight
 {
@@ -37,7 +28,7 @@ namespace adrilight
         bool IsResizeable { get; set; }
         bool IsDeleteable { get; set; }
         double Width { get; set; }
-        Rect GetRect { get;}
+        Rect GetRect { get; }
         double Height { get; set; }
         VisualProperties VisualProperties { get; set; }
 
@@ -53,7 +44,7 @@ namespace adrilight
         bool ShouldBringIntoView { get; set; }
 
         bool SetScale(double scaleX, double scaleY, bool keepOrigin);
-        System.Windows.Point Scale { get; set; }
+        //System.Windows.Point Scale { get; set; }
         ICommand LeftChangedCommand { get; }
 
         ICommand TopChangedCommand { get; }

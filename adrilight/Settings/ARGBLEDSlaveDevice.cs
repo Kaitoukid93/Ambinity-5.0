@@ -1,23 +1,13 @@
 ﻿using adrilight.Spots;
-using adrilight.Util;
 using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
-using HandyControl.Tools.Extension;
-using MoreLinq;
-using NAudio.Gui;
 using Newtonsoft.Json;
-using Renci.SshNet.Messages;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Input;
 using Point = System.Windows.Point;
 
@@ -35,8 +25,10 @@ namespace adrilight.Settings
         public string Owner { get; set; }
         public string Vendor { get; set; }
         public int ParrentID { get; set; }
+
         [JsonIgnore]
         public string Thumbnail => Path.Combine(deviceDirectory, "thumbnail.png");
+
         public SlaveDeviceTypeEnum DeviceType { get; set; }
         public DeviceTypeEnum DesiredParrent { get; set; }
         public string Description { get; set; }
@@ -46,21 +38,19 @@ namespace adrilight.Settings
         /// Zone properties
         /// </summary>
         private ObservableCollection<IControlZone> _controlableZones;
+
         [ProfileIgnore]
         public ObservableCollection<IControlZone> ControlableZones { get => _controlableZones; set { Set(() => ControlableZones, ref _controlableZones, value); } }
+
         [JsonIgnore]
         public Type DataType => typeof(ARGBLEDSlaveDevice);
-
 
         public ARGBLEDSlaveDevice()
         {
             VisualProperties = new VisualProperties();
-            Scale = new System.Windows.Point(1, 1);
+            Scale = 1.0;
             ControlableZones = new ObservableCollection<IControlZone>();
         }
-
-
-
 
         /// <summary>
         /// drawable properties
@@ -84,7 +74,6 @@ namespace adrilight.Settings
         private bool _hasCustomBehavior;
         private bool _isDeleteable;
         private bool _isResizeable;
-
 
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
@@ -112,8 +101,9 @@ namespace adrilight.Settings
         public bool HasCustomBehavior { get => _hasCustomBehavior; set { Set(() => HasCustomBehavior, ref _hasCustomBehavior, value); } }
 
         public bool ShouldBringIntoView { get => _shouldBringIntoView; set { Set(() => ShouldBringIntoView, ref _hasCustomBehavior, value); } }
+        private double _scale = 1.0;
 
-        public System.Windows.Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
+        public double Scale { get => _scale; set { Set(() => Scale, ref _scale, value); } }
 
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
 
@@ -121,6 +111,7 @@ namespace adrilight.Settings
         public Rect GetRect => new Rect(Left, Top, Width, Height);
         public DeviceType TargetDeviceType { get; set; }
         private DrawableHelpers DrawableHlprs;
+
         private int GetLEDsCount()
         {
             int ledCount = 0;
@@ -134,6 +125,7 @@ namespace adrilight.Settings
 
             return ledCount;
         }
+
         private void UpdateChildOffSet()
         {
             foreach (var zone in ControlableZones)
@@ -147,12 +139,15 @@ namespace adrilight.Settings
                 Image.OffsetX = Left;
                 Image.OffsetY = Top;
             }
-
         }
+
         public void UpdateSizeByChild(bool withPoint)
         {
-
-            var boundRct = GetDeviceRectBound(ControlableZones.ToArray());
+            List<IDrawable> children = new List<IDrawable>();
+            foreach (var zone in ControlableZones)
+            { children.Add(zone as IDrawable); }
+            children.Add(Image as IDrawable);
+            var boundRct = GetDeviceRectBound();
             Width = boundRct.Width;
             Height = boundRct.Height;
 
@@ -161,13 +156,14 @@ namespace adrilight.Settings
                 Left = boundRct.Left;
                 Top = boundRct.Top;
             }
-
         }
+
         private static Point ReflectPointVertical(Point pointToReflect, double center)
         {
             double distance = pointToReflect.X - center;
             return new Point(center - distance, pointToReflect.Y);
         }
+
         public void ReflectLEDSetupVertical()
         {
             var center = Width; // reflect using right edge
@@ -177,9 +173,8 @@ namespace adrilight.Settings
                 var pos = new Point((zone as IDrawable).Left + (zone as IDrawable).Width, (zone as IDrawable).Top);
                 (zone as IDrawable).Left = ReflectPointVertical(pos, center).X;
                 (zone as IDrawable).Top = ReflectPointVertical(pos, center).Y;
-
             }
-            var newBound = GetDeviceRectBound(ControlableZones.ToArray());
+            var newBound = GetDeviceRectBound();
             foreach (var zone in ControlableZones)
             {
                 (zone as IDrawable).Left -= newBound.Left;
@@ -188,6 +183,7 @@ namespace adrilight.Settings
             UpdateSizeByChild(false);
             Left += Width;
         }
+
         public void RotateLEDSetup(double angleInDegrees)
         {
             var center = new Point(Width / 2, Height / 2);
@@ -203,9 +199,18 @@ namespace adrilight.Settings
                 (zone as IDrawable).Top = RotatePoint(pos, center, 90.0).Y;
                 (zone as IDrawable).Width = height;
                 (zone as IDrawable).Height = width;
-
             }
-            var newBound = GetDeviceRectBound(ControlableZones.ToArray());
+            //rotate background image
+            Image.Angle += angleInDegrees;
+            if (Image.Angle == 360)
+            {
+                Image.Angle = 0;
+            }
+            var newImageWidth = Image.Height;
+            var newImageHeight = Image.Width;
+            Image.Width = newImageWidth;
+            Image.Height = newImageHeight;
+            var newBound = GetDeviceRectBound();
             foreach (var zone in ControlableZones)
             {
                 (zone as IDrawable).Left -= newBound.Left;
@@ -213,12 +218,10 @@ namespace adrilight.Settings
             }
             UpdateSizeByChild(false);
 
-
             Left = RotatePoint(devicePos, newCenter, 90.0).X;
             Top = RotatePoint(devicePos, newCenter, 90.0).Y;
-
-
         }
+
         /// <summary>
         /// Rotates one point around another
         /// </summary>
@@ -233,27 +236,53 @@ namespace adrilight.Settings
             double sinTheta = Math.Sin(angleInRadians);
             return new Point {
                 X =
-                    
+
                     (cosTheta * (pointToRotate.X - centerPoint.X) -
                     sinTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.X),
                 Y =
-                    
+
                     (sinTheta * (pointToRotate.X - centerPoint.X) +
                     cosTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.Y)
             };
         }
-        public Rect GetDeviceRectBound(IControlZone[] zones)
+
+        public Rect GetDeviceRectBound()
         {
-
-
+            List<IDrawable> children = new List<IDrawable>();
+            foreach (var zone in ControlableZones)
+            { children.Add(zone as IDrawable); }
+            children.Add(Image as IDrawable);
             if (DrawableHlprs == null)
+            {
                 DrawableHlprs = new DrawableHelpers();
-
-
-            return DrawableHlprs.GetBound(zones);
-
-
+            }
+            return DrawableHlprs.GetBound(children);
         }
+
+        public bool ApplyScale(double scale)
+        {
+            var scaleFactor = scale / Scale;
+            foreach (var zone in ControlableZones)
+            {
+                if (!(zone as IDrawable).SetScale(scaleFactor, scaleFactor, false)) return false;
+            }
+            var width = Width * scaleFactor;
+            var height = Height * scaleFactor;
+            if (width < 10 || height < 10)
+            {
+                return false;
+            }
+            else
+            {
+                Width *= scaleFactor;
+                Height *= scaleFactor;
+            }
+
+            Image?.SetScale(scaleFactor, scaleFactor, false);
+            Scale = scale;
+            return true;
+        }
+
         public bool SetScale(double scaleX, double scaleY, bool keepOrigin)
         {
             foreach (var zone in ControlableZones)
@@ -283,15 +312,13 @@ namespace adrilight.Settings
                 (zone as LEDSetup).OffsetY = Top;
             }
             return true;
-
         }
+
         /// <summary>
         /// tell zones to update size and position after system or local change of resolution
         /// </summary>
         /// <param name="scaleX"></param>
         /// <param name="scaleY"></param>
-
-
 
         private void MoveChildX(double delta)
         {
@@ -300,6 +327,7 @@ namespace adrilight.Settings
                 (ledZone as LEDSetup).Left += delta;
             }
         }
+
         private void MoveChildY(double delta)
         {
             foreach (var ledZone in ControlableZones)
@@ -307,15 +335,21 @@ namespace adrilight.Settings
                 (ledZone as LEDSetup).Top += delta;
             }
         }
-        protected virtual void OnLeftChanged(double delta) { }
 
-        protected virtual void OnTopChanged(double delta) { }
+        protected virtual void OnLeftChanged(double delta)
+        { }
 
-        protected virtual void OnWidthUpdated() { }
+        protected virtual void OnTopChanged(double delta)
+        { }
 
-        protected virtual void OnHeightUpdated() { }
+        protected virtual void OnWidthUpdated()
+        { }
 
-        protected virtual void OnRotationChanged() { }
+        protected virtual void OnHeightUpdated()
+        { }
+
+        protected virtual void OnRotationChanged()
+        { }
 
         protected virtual void OnIsSelectedChanged(bool value)
         {
@@ -333,6 +367,7 @@ namespace adrilight.Settings
                             }
                         }
                         break;
+
                     case false:
                         foreach (var zone in ControlableZones)
                         {
@@ -344,9 +379,9 @@ namespace adrilight.Settings
                         break;
                 }
             }
-
         }
 
-        public virtual void OnDrawingEnded(Action<object> callback = default) { }
+        public virtual void OnDrawingEnded(Action<object> callback = default)
+        { }
     }
 }

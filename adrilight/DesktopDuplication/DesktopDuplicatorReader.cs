@@ -1,29 +1,21 @@
-﻿using System;
+﻿using adrilight.DesktopDuplication;
+using adrilight.Spots;
+using adrilight.Util;
+using adrilight.Util.ModeParameters;
+using adrilight.ViewModel;
+using NLog;
+using Polly;
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using adrilight.DesktopDuplication;
-using NLog;
-using Polly;
-using System.Linq;
-using System.Windows.Media.Imaging;
-using adrilight.ViewModel;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
-using adrilight.Resources;
-using adrilight.Util;
-using adrilight.Spots;
 using System.Windows;
-using adrilight.Helpers;
-using adrilight.Settings;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Header;
-using NAudio.SoundFont;
+using System.Windows.Forms;
 using Color = System.Windows.Media.Color;
-using adrilight.Util.ModeParameters;
 
 namespace adrilight
 {
@@ -128,6 +120,10 @@ namespace adrilight
         private ToggleParameter _useLinearLightingControl;
         public void Refresh()
         {
+            if (CurrentZone.CurrentActiveControlMode == null)
+            {
+                return;
+            }
             //find out which screen this zone belongs to
             var actualLeft = CurrentZone.Left + CurrentZone.OffsetX;
             var actualTop = CurrentZone.Top + CurrentZone.OffsetY;
@@ -241,14 +237,14 @@ namespace adrilight
                 var screenTop = Screen.AllScreens[(int)_currentScreenIndex].Bounds.Top;
                 var x = (int)((CurrentZone.Left + CurrentZone.OffsetX - screenLeft) / 8.0);
                 var y = (int)((CurrentZone.Top + CurrentZone.OffsetY - screenTop) / 8.0);
-                var width = (int)(CurrentZone.Width / 8.0)>=1? (int)(CurrentZone.Width / 8.0):1;
-                var height = (int)(CurrentZone.Height / 8.0)>=1? (int)(CurrentZone.Height / 8.0):1;
+                var width = (int)(CurrentZone.Width / 8.0) >= 1 ? (int)(CurrentZone.Width / 8.0) : 1;
+                var height = (int)(CurrentZone.Height / 8.0) >= 1 ? (int)(CurrentZone.Height / 8.0) : 1;
                 int updateIntervalCounter = 0;
                 while (!token.IsCancellationRequested)
                 {
 
                     //this indicator that user is opening this device and we need raise event when color update on each spot
-                    bool shouldViewUpdate = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated && updateIntervalCounter > _frameRate/_displayUpdateRate;
+                    bool shouldViewUpdate = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated && updateIntervalCounter > _frameRate / _displayUpdateRate;
                     if (shouldViewUpdate)
                         updateIntervalCounter = 0;
                     var frameTime = Stopwatch.StartNew();
@@ -277,7 +273,7 @@ namespace adrilight
                     lock (CurrentZone.Lock)
                     {
 
-                       
+
 
                         Parallel.ForEach(CurrentZone.Spots
                             , spot =>
@@ -405,7 +401,7 @@ namespace adrilight
         private void ApplySmoothing(float r, float g, float b, out byte semifinalR, out byte semifinalG, out byte semifinalB,
            byte lastColorR, byte lastColorG, byte lastColorB)
         {
-            
+
             semifinalR = (byte)((r + _smoothFactor * lastColorR) / (_smoothFactor + 1));
             semifinalG = (byte)((g + _smoothFactor * lastColorG) / (_smoothFactor + 1));
             semifinalB = (byte)((b + _smoothFactor * lastColorB) / (_smoothFactor + 1));

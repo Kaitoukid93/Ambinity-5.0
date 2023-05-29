@@ -1,20 +1,6 @@
 ﻿using adrilight.Spots;
-using MathNet.Numerics;
-using NAudio.Gui;
-using OpenRGB.NET.Models;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Windows.Threading;
-using TimeLineTool;
 using Color = System.Windows.Media.Color;
 using Pen = System.Windows.Media.Pen;
 
@@ -27,6 +13,7 @@ namespace adrilight.View
         private readonly SolidColorBrush _penBrush;
         public Geometry? DisplayGeometry { get; private set; }
         public DeviceSpot? Spot { get; }
+
         public LEDVisualizer(DeviceSpot spot)
         {
             _fillBrush = new SolidColorBrush();
@@ -58,22 +45,25 @@ namespace adrilight.View
         //{
         //    return DisplayGeometry != null && DisplayGeometry.FillContains(position);
         //}
-      
+
         private void UpdateLED()
         {
-
             try
             {
-              
                 double width = Spot.Width;
-                double height = Spot.Height ;
+                double height = Spot.Height;
 
                 Geometry geometry = Spot.Geometry.Clone();
+                var boundsLeft = geometry.Bounds.Left;
+                var boundsTop = geometry.Bounds.Top;
+                var scaleX = width / geometry.Bounds.Width;
+                var scaleY = height / geometry.Bounds.Height;
                 geometry.Transform = new TransformGroup {
                     Children = new TransformCollection
                     {
-                    new ScaleTransform(width/geometry.Bounds.Width, height/geometry.Bounds.Height),
-                    new TranslateTransform(Spot.Left-geometry.Bounds.Left, Spot.Top-geometry.Bounds.Top)
+                         new ScaleTransform(scaleX, scaleY),
+                        new TranslateTransform(Spot.Left-boundsLeft*scaleX, Spot.Top-boundsTop*scaleY)
+
                 }
                 };
                 DisplayGeometry = geometry;
@@ -83,8 +73,5 @@ namespace adrilight.View
                 //CreateRectangleGeometry();
             }
         }
-
-
-
     }
 }

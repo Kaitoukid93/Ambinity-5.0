@@ -1,32 +1,22 @@
-﻿using adrilight.DesktopDuplication;
-using adrilight.Extensions;
+﻿using adrilight.Helpers;
 using adrilight.Settings;
 using adrilight.Spots;
 using adrilight.Util;
+using adrilight.Util.ModeParameters;
 using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
+using HandyControl.Tools.Extension;
 using Newtonsoft.Json;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
-using Point = System.Windows.Point;
-using Color = System.Windows.Media.Color;
-using System.Xml.Schema;
-using Emgu.CV.CvEnum;
-using adrilight.Helpers;
-using MathNet.Numerics.Integration;
-using System.Diagnostics;
-using adrilight.Util.ModeParameters;
-using HandyControl.Tools.Extension;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using Color = System.Windows.Media.Color;
+using Point = System.Windows.Point;
 
 namespace adrilight
 {
@@ -51,7 +41,7 @@ namespace adrilight
         /// </summary>
         public BitmapImage Thumb { get; set; }
 
-        private int _currentActiveControlModeIndex;
+        //private int _currentActiveControlModeIndex;
         private IControlMode _currentActiveControlMode;
         [JsonIgnore]
         public Type DataType => typeof(LEDSetup);
@@ -63,17 +53,17 @@ namespace adrilight
         /// this list contains all available control mode ex: auto-manual,music-rainbow-capturing...
         /// </summary>
         public List<IControlMode> AvailableControlMode { get; set; }
-        [JsonIgnore]
-        public IControlMode CurrentActiveControlMode => IsInControlGroup ? MaskedControlMode : AvailableControlMode[CurrentActiveControlModeIndex >= 0 ? CurrentActiveControlModeIndex : 0];
-        public int CurrentActiveControlModeIndex { get => _currentActiveControlModeIndex; set { if (value >= 0) Set(() => CurrentActiveControlModeIndex, ref _currentActiveControlModeIndex, value); RaisePropertyChanged(nameof(CurrentActiveControlMode)); } }
-
+        // [JsonIgnore]
+        //public IControlMode CurrentActiveControlMode => IsInControlGroup ? MaskedControlMode : AvailableControlMode[CurrentActiveControlModeIndex >= 0 ? CurrentActiveControlModeIndex : 0];
+        public IControlMode CurrentActiveControlMode { get => _currentActiveControlMode; set { Set(() => CurrentActiveControlMode, ref _currentActiveControlMode, value); } }
+        //public int CurrentActiveControlModeIndex { get => _currentActiveControlModeIndex; set { if (value >= 0) Set(() => CurrentActiveControlModeIndex, ref _currentActiveControlModeIndex, value); RaisePropertyChanged(nameof(CurrentActiveControlMode)); } }
         private bool _isEnabled = true;
         private bool _isInsideScreen = true;
         private bool _isInControlGroup;
-        public bool IsInControlGroup { get => _isInControlGroup; set { Set(() => IsInControlGroup, ref _isInControlGroup, value); RaisePropertyChanged(nameof(CurrentActiveControlMode)); } }
+        public bool IsInControlGroup { get => _isInControlGroup; set { Set(() => IsInControlGroup, ref _isInControlGroup, value); } }
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); } }
-        private IControlMode _maskedControlMode;
-        public IControlMode MaskedControlMode { get => _maskedControlMode; set { Set(() => MaskedControlMode, ref _maskedControlMode, value); if (IsInControlGroup) RaisePropertyChanged(nameof(CurrentActiveControlMode)); } }
+        //private IControlMode _maskedControlMode;
+        //public IControlMode MaskedControlMode { get => _maskedControlMode; set { Set(() => MaskedControlMode, ref _maskedControlMode, value); if (IsInControlGroup) RaisePropertyChanged(nameof(CurrentActiveControlMode)); } }
 
 
         //LED Setup properties
@@ -205,7 +195,7 @@ namespace adrilight
         }
         public void UpdateView()
         {
-            foreach(var spot in Spots)
+            foreach (var spot in Spots)
             {
                 spot.UpdateView();
             }
@@ -224,11 +214,11 @@ namespace adrilight
             double sinTheta = Math.Sin(angleInRadians);
             return new Point {
                 X =
-                    
+
                     (cosTheta * (pointToRotate.X - centerPoint.X) -
                     sinTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.X),
                 Y =
-                    
+
                     (sinTheta * (pointToRotate.X - centerPoint.X) +
                     cosTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.Y)
             };
@@ -258,9 +248,20 @@ namespace adrilight
         {
             //rotate the geometry
             var inputGeometryClone = inputGeometry.Clone(); // we need a clone since in order to
-                                                           // apply a Transform and geometry might be readonly
+                                                            // apply a Transform and geometry might be readonly
             inputGeometryClone.Transform = new RotateTransform(90.0);// applying some transform to it
             var result = inputGeometryClone.GetFlattenedPathGeometry();
+            result.Freeze();
+            return result;
+        }
+        private Geometry ScaleGeometry(Geometry inputGeometry, double scaleX, double scaleY)
+        {
+            //rotate the geometry
+            var inputGeometryClone = inputGeometry.Clone(); // we need a clone since in order to
+                                                            // apply a Transform and geometry might be readonly
+            inputGeometryClone.Transform = new ScaleTransform(scaleX, scaleY);// applying some transform to it
+            var result = inputGeometryClone.GetFlattenedPathGeometry();
+            result.Freeze();
             return result;
         }
         public void RotateLEDSetup(double angleInDegrees, Point centerPoint)
@@ -268,9 +269,6 @@ namespace adrilight
 
             foreach (var spot in Spots)
             {
-                
-
-
                 spot.Geometry = RotateGeometry(spot.Geometry);
                 var translatedCenterPoint = new Point(centerPoint.X - Left, centerPoint.Y - Top);
                 var pos = new Point((spot as IDrawable).Left, (spot as IDrawable).Top + (spot as IDrawable).Height); //bottom left will become new topleft
@@ -280,7 +278,7 @@ namespace adrilight
                 (spot as IDrawable).Top = RotatePoint(pos, centerPoint, 90.0).Y;
                 (spot as IDrawable).Width = height;
                 (spot as IDrawable).Height = width;
-                
+
 
             }
             var newBound = GetDeviceRectBound(Spots.ToList());
@@ -319,6 +317,7 @@ namespace adrilight
             foreach (var spot in Spots)
             {
                 if (!(spot as IDrawable).SetScale(scaleX, scaleY, keepOrigin)) return false;
+                spot.Geometry = ScaleGeometry(spot.Geometry, scaleX, scaleY);
             }
             var width = Width * scaleX;
             var height = Height * scaleY;
@@ -336,6 +335,7 @@ namespace adrilight
                     Top *= scaleY;
                 }
             }
+
             return true;
         }
 
@@ -363,6 +363,7 @@ namespace adrilight
                 spot.Index = spot.BackupID;
             }
         }
+
         protected virtual void OnLeftChanged(double delta) { }
 
         protected virtual void OnTopChanged(double delta) { }

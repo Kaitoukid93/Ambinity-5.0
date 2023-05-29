@@ -1,13 +1,7 @@
-﻿using adrilight.Spots;
-using adrilight.ViewModel;
+﻿using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
@@ -70,7 +64,6 @@ namespace adrilight.Settings
 
         public bool ShouldBringIntoView { get => _shouldBringIntoView; set { Set(() => ShouldBringIntoView, ref _hasCustomBehavior, value); } }
 
-        public Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
         public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
 
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
@@ -80,21 +73,20 @@ namespace adrilight.Settings
         public ImageVisual()
         {
             VisualProperties = new VisualProperties();
-            Scale = new Point(1, 1);
             Width = Screen.PrimaryScreen.Bounds.Width;
             Height = Screen.PrimaryScreen.Bounds.Height;
             IsDraggable = true;
             IsSelectable = true;
         }
-        
+
 
         protected virtual void OnLeftChanged(double delta)
         {
-            
+
         }
         protected virtual void OnTopChanged(double delta)
         {
-            
+
         }
 
         protected virtual void OnWidthUpdated() { }

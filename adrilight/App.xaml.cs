@@ -1,8 +1,15 @@
-﻿
+﻿using adrilight.Ninject;
+using adrilight.Settings;
+using adrilight.Util;
 using adrilight.View;
 using adrilight.ViewModel;
+using HandyControl.Themes;
+using HandyControl.Tools.Extension;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Win32;
 using Ninject;
+using Ninject.Extensions.Conventions;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
@@ -11,50 +18,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Windows;
-using Ninject.Extensions.Conventions;
-using adrilight.Resources;
-using adrilight.Util;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights;
-using Microsoft.Extensions.DependencyInjection;
-using adrilight.Ninject;
-using adrilight.Spots;
-using System.Diagnostics;
-using System.Windows.Forms;
-using System.Windows.Controls;
-using GalaSoft.MvvmLight;
 using System.Threading;
-using Un4seen.BassWasapi;
-using Un4seen.Bass;
-using System.Windows.Media;
-using HandyControl.Themes;
 using System.Threading.Tasks;
-using adrilight.Settings;
-using System.Drawing;
-using System.Web.UI.WebControls.WebParts;
-using HandyControl.Tools.Extension;
+using System.Windows;
+using System.Windows.Forms;
+using System.Windows.Media;
 
 namespace adrilight
 {
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    /// 
+    ///
     //structures to display bitmap image after getting data from shader
-
-
 
     public sealed partial class App : System.Windows.Application
     {
         private static readonly ILogger _log = LogManager.GetCurrentClassLogger();
         private static System.Threading.Mutex _mutex = null;
         private static Mutex _adrilightMutex;
+
         protected override async void OnStartup(StartupEventArgs startupEvent)
         {
-
-
-
             //check if this app is already open in the background
             _adrilightMutex = new Mutex(true, "adrilight2");
             if (!_adrilightMutex.WaitOne(TimeSpan.Zero, true))
@@ -112,23 +97,21 @@ namespace adrilight
 
             SetupTrackingForProcessWideEvents(_telemetryClient);
             kernel.Get<AdrilightUpdater>().StartThread();
-
         }
-
 
         protected override void OnExit(ExitEventArgs e)
         {
-
-
             base.OnExit(e);
             _adrilightMutex?.Dispose();
 
             LogManager.Shutdown();
         }
+
         protected void CloseMutexHandler(object sender, EventArgs startupEvent)
         {
             _mutex?.Close();
         }
+
         private TelemetryClient _telemetryClient;
 
         private static TelemetryClient SetupApplicationInsights(IDeviceSettings settings)
@@ -150,10 +133,8 @@ namespace adrilight
 
         private static View.SplashScreen _splashScreen;
 
-
         internal static IKernel SetupDependencyInjection(bool isInDesignMode)
         {
-
             var kernel = new StandardKernel(new DeviceSettingsInjectModule());
             GeneralSettings = kernel.Get<IGeneralSettings>();
             //Load setting từ file Json//
@@ -192,10 +173,11 @@ namespace adrilight
                             kernel.Bind<IDeviceSettings>().ToConstant(device).Named(iD);
                             //now inject
                             InjectingDevice(kernel, device);
-                            //since openRGBStream is single instance, we need to manually add device then refresh                                        
+                            //since openRGBStream is single instance, we need to manually add device then refresh
                         }
 
                         break;
+
                     case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
                         var removedDevice = e.OldItems;
                         foreach (IDeviceSettings device in removedDevice) // when an item got removed, simply stop dependencies service from running
@@ -203,6 +185,7 @@ namespace adrilight
                             UnInjectingDevice(kernel, device);
                         }
                         break;
+
                     case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
                         ResetDevicesBinding(kernel);
                         break;
@@ -214,19 +197,15 @@ namespace adrilight
                 {
                     lock (MainViewViewModel.AvailableDeviceLock)
                     {
-                       
                         MainViewViewModel.AvailableDevices.Insert(0, device);
-                       
                     }
-
                 }
-                
             }
             var deviceDiscovery = kernel.Get<IDeviceDiscovery>();
             return kernel;
-
         }
-        void App_Activated(object sender, EventArgs e)
+
+        private void App_Activated(object sender, EventArgs e)
         {
             // Application activated
             //tell mainview that this app is being focused
@@ -234,12 +213,13 @@ namespace adrilight
                 MainViewViewModel.IsAppActivated = true;
         }
 
-        void App_Deactivated(object sender, EventArgs e)
+        private void App_Deactivated(object sender, EventArgs e)
         {
             // Application deactivated
             if (MainViewViewModel != null)
                 MainViewViewModel.IsAppActivated = false;
         }
+
         private static void InjectingZone(IKernel kernel, IControlZone zone)
         {
             kernel.Bind<ILightingEngine>().To<DesktopDuplicatorReader>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
@@ -248,14 +228,15 @@ namespace adrilight
             kernel.Bind<ILightingEngine>().To<Animation>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
             kernel.Bind<ILightingEngine>().To<Music>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
             var availableLightingModes = kernel.GetAll<ILightingEngine>(zone.ZoneUID);
+            if (zone.CurrentActiveControlMode == null)
+                zone.CurrentActiveControlMode = zone.AvailableControlMode.FirstOrDefault();
             foreach (var lightingMode in availableLightingModes)
             {
-                //only refresh shouldberunning
                 if (lightingMode.Type == (zone.CurrentActiveControlMode as LightingMode).BasedOn)
                     lightingMode.Refresh();
             }
-
         }
+
         private static void ResetDevicesBinding(IKernel kernel)
         {
             var lightingEngineServices = kernel.GetAll<ILightingEngine>();
@@ -271,17 +252,17 @@ namespace adrilight
             kernel.Unbind<IControlZone>();
             kernel.Unbind<ISerialStream>();
         }
+
         private static void UnInjectingZone(IKernel kernel, IControlZone zone)
         {
-
             var availableLightingModes = kernel.GetAll<ILightingEngine>(zone.ZoneUID);
             foreach (var lightingMode in availableLightingModes)
             {
                 if (lightingMode.IsRunning)
                     lightingMode.Stop();
             }
-
         }
+
         private static void UnInjectingDevice(IKernel kernel, IDeviceSettings device)
         {
             foreach (var output in device.AvailableLightingOutputs)
@@ -292,6 +273,7 @@ namespace adrilight
                 }
             }
         }
+
         private static void InjectingDevice(IKernel kernel, IDeviceSettings device)
         {
             foreach (var output in device.AvailableLightingOutputs)
@@ -358,17 +340,19 @@ namespace adrilight
                 case DeviceConnectionTypeEnum.Wired:
                     kernel.Bind<ISerialStream>().To<SerialStream>().InSingletonScope().Named(device.DeviceUID.ToString()).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(device.DeviceUID.ToString()));
                     break;
+
                 case DeviceConnectionTypeEnum.Wireless:
-                   
+
                     break;
+
                 case DeviceConnectionTypeEnum.OpenRGB:
                     kernel.Bind<ISerialStream>().To<OpenRGBStream>().InSingletonScope().Named(device.DeviceUID.ToString()).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(device.DeviceUID.ToString()));
                     break;
-
             }
             var serialStream = kernel.Get<ISerialStream>(device.DeviceUID.ToString());
             //serialStream.RefreshTransferState();
         }
+
         private void ScreenSetupChanged()
         {
             foreach (var desktopDuplicatorReader in kernel.GetAll<ILightingEngine>())
@@ -389,10 +373,7 @@ namespace adrilight
                     var desktopFrame = kernel.Get<ICaptureEngine>(screen.DeviceName);
                     if (desktopFrame != null) // this screen is injected already, simply restart it
                         desktopFrame.RefreshCapturingState();
-
-
                 }
-
             }
             else if (Screen.AllScreens.Length == kernel.GetAll<ICaptureEngine>().Count())
             {
@@ -421,8 +402,6 @@ namespace adrilight
                 }
             }
 
-
-
             //restart process
 
             foreach (var desktopDuplicatorReader in kernel.GetAll<ILightingEngine>())
@@ -430,6 +409,7 @@ namespace adrilight
                 desktopDuplicatorReader.Refresh();
             }
         }
+
         private void SetupLoggingForProcessWideEvents()
         {
             AppDomain.CurrentDomain.UnhandledException +=
@@ -443,7 +423,7 @@ namespace adrilight
                 var ambinityClient = kernel.GetAll<IAmbinityClient>().FirstOrDefault();
                 var deviceDiscovery = kernel.GetAll<IDeviceDiscovery>().FirstOrDefault();
                 deviceDiscovery.Stop();
-                GeneralSettings.IsOpenRGBEnabled=false;
+                GeneralSettings.IsOpenRGBEnabled = false;
                 foreach (var device in devices)
                 {
                     device.DeviceState = DeviceStateEnum.Sleep;
@@ -453,8 +433,6 @@ namespace adrilight
                 }
                 hwMonitor.Dispose();
                 ambinityClient.Dispose();
-
-
 
                 _log.Debug("Application exit!");
             };
@@ -486,7 +464,6 @@ namespace adrilight
                 }
                 _log.Debug("Stop the serial stream due to sleep condition!");
             }
-
         };
             SystemEvents.SessionEnding += (s, e) =>
             {
@@ -500,8 +477,6 @@ namespace adrilight
                 _log.Debug("Stop the serial stream due to power down or log off condition!");
             };
         }
-
-
 
         private void SetupTrackingForProcessWideEvents(TelemetryClient tc)
         {
@@ -533,7 +508,6 @@ namespace adrilight
             _log.Info($"DEBUG logging set up!");
         }
 
-
         private IKernel kernel;
         public static MainViewViewModel MainViewViewModel { get; set; }
 
@@ -550,10 +524,7 @@ namespace adrilight
             else
             {
                 //_mainForm.Visibility = Visibility.Collapsed;
-
             }
-
-
         }
 
         //private void MainForm_FormClosed(object sender, EventArgs e)
@@ -565,12 +536,9 @@ namespace adrilight
         //    _mainForm = null;
         //}
 
-
-
         public static string VersionNumber { get; } = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
 
         private static IGeneralSettings GeneralSettings { get; set; }
-
 
         private void ApplicationWideException(object sender, Exception ex, string eventSource)
         {
@@ -604,5 +572,4 @@ namespace adrilight
             }
         }
     }
-
 }

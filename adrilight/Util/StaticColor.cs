@@ -1,33 +1,13 @@
-﻿using System;
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Threading;
-using System.Threading.Tasks;
-using adrilight.DesktopDuplication;
-using NLog;
-using Polly;
-using System.Linq;
-using System.Windows.Media.Imaging;
-using adrilight.ViewModel;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
-using adrilight.Resources;
-using adrilight.Util;
-using adrilight.Spots;
-using System.Windows;
-using adrilight.Helpers;
-using adrilight.Settings;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Header;
-using NAudio.SoundFont;
-using Color = System.Windows.Media.Color;
-using System.Net;
-using MathNet.Numerics.Distributions;
-using MoreLinq;
-using SharpDX.Direct2D1.Effects;
+﻿using adrilight.Util;
 using adrilight.Util.ModeParameters;
+using adrilight.ViewModel;
+using MoreLinq;
+using NLog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using Color = System.Windows.Media.Color;
 
 namespace adrilight
 {
@@ -49,7 +29,7 @@ namespace adrilight
             GeneralSettings.PropertyChanged += PropertyChanged;
             CurrentZone.PropertyChanged += PropertyChanged;
             MainViewViewModel.PropertyChanged += PropertyChanged;
-           // Refresh();
+            // Refresh();
             _log.Info($"DesktopDuplicatorReader created.");
         }
 
@@ -89,7 +69,7 @@ namespace adrilight
                 ////case nameof(MainViewViewModel.IsRegisteringGroup):
                 ////case nameof(_colorControl):
                 //    Refresh();
-                  //  break;
+                //  break;
                 case nameof(GeneralSettings.BreathingSpeed):
                     OnSystemBreathingSpeedChanged(GeneralSettings.BreathingSpeed);
                     break;
@@ -184,10 +164,13 @@ namespace adrilight
 
         public void Refresh()
         {
-
+            if (CurrentZone.CurrentActiveControlMode == null)
+            {
+                return;
+            }
             var isRunning = _cancellationTokenSource != null;
 
-             _currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
+            _currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
 
             var shouldBeRunning =
                 _currentLightingMode.BasedOn == LightingModeEnum.StaticColor &&
@@ -195,8 +178,8 @@ namespace adrilight
                 CurrentZone.IsEnabled == true &&
                 //stop this engine when any surface or editor open because this could cause capturing fail
                 MainViewViewModel.IsRichCanvasWindowOpen == false;
-                ////registering group shoud be done
-                //MainViewViewModel.IsRegisteringGroup == false;
+            ////registering group shoud be done
+            //MainViewViewModel.IsRegisteringGroup == false;
 
             // this is stop sign by one or some of the reason above
             if (isRunning && !shouldBeRunning)
@@ -268,13 +251,13 @@ namespace adrilight
             IsRunning = true;
             int updateIntervalCounter = 0;
             try
-            {     
-                
+            {
+
                 while (!token.IsCancellationRequested)
                 {
                     var startIndex = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
-                    bool shouldViewUpdate = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated && updateIntervalCounter > _frameRate/_displayUpdateRate ;
-                    if(shouldViewUpdate)
+                    bool shouldViewUpdate = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated && updateIntervalCounter > _frameRate / _displayUpdateRate;
+                    if (shouldViewUpdate)
                         updateIntervalCounter = 0;
                     if (_isBreathing)
                     {
@@ -294,19 +277,19 @@ namespace adrilight
                         }
 
                     }
-                    
-                    if( updateIntervalCounter > 0 )
+
+                    if (updateIntervalCounter > 0)
                     {
 
                     }
                     lock (CurrentZone.Lock)
                     {
-                        foreach(var spot in CurrentZone.Spots)
+                        foreach (var spot in CurrentZone.Spots)
                         {
                             ApplySmoothing(_colors[spot.Index - startIndex].R, _colors[spot.Index - startIndex].G, _colors[spot.Index - startIndex].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
                             spot.SetColor((byte)(_brightness * FinalR), (byte)(_brightness * FinalG), (byte)(_brightness * FinalB), false);
                         }
-   
+
                     }
 
                     //threadSleep for static mode is 1s, for breathing is 10ms

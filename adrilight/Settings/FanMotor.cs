@@ -1,21 +1,14 @@
-﻿using adrilight.Helpers;
-using adrilight.Spots;
+﻿using adrilight.Spots;
 using adrilight.Util;
 using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
 using LiveCharts;
 using LiveCharts.Defaults;
-using NAudio.Gui;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
@@ -41,7 +34,8 @@ namespace adrilight.Settings
             AvailableControlMode = new List<IControlMode>();
 
         }
-        private int _currentActiveControlModeIndex;
+        // private int _currentActiveControlModeIndex;
+        private IControlMode _currentActiveControlMode;
         private bool _isInControlGroup;
         private double _actualWidth;
         private double _actualHeight;
@@ -54,11 +48,11 @@ namespace adrilight.Settings
         public Type DataType => typeof(FanMotor);
         public string Description { get; set; }
         public List<IControlMode> AvailableControlMode { get; set; }
-        [JsonIgnore]
-        public IControlMode CurrentActiveControlMode => IsInControlGroup ? MaskedControlMode : AvailableControlMode[CurrentActiveControlModeIndex >= 0 ? CurrentActiveControlModeIndex : 0];
-        public int CurrentActiveControlModeIndex { get => _currentActiveControlModeIndex; set { if (value >= 0) Set(() => CurrentActiveControlModeIndex, ref _currentActiveControlModeIndex, value); RaisePropertyChanged(nameof(CurrentActiveControlMode)); } }
-        private IControlMode _maskedControlMode;
-        public IControlMode MaskedControlMode { get => _maskedControlMode; set { Set(() => MaskedControlMode, ref _maskedControlMode, value); if (IsInControlGroup) RaisePropertyChanged(nameof(CurrentActiveControlMode)); } }
+        // [JsonIgnore]
+        public IControlMode CurrentActiveControlMode { get => _currentActiveControlMode; set { Set(() => CurrentActiveControlMode, ref _currentActiveControlMode, value); } }
+        // public int CurrentActiveControlModeIndex { get => _currentActiveControlModeIndex; set { if (value >= 0) Set(() => CurrentActiveControlModeIndex, ref _currentActiveControlModeIndex, value); RaisePropertyChanged(nameof(CurrentActiveControlMode)); } }
+        //private IControlMode _maskedControlMode;
+        //  public IControlMode MaskedControlMode { get => _maskedControlMode; set { Set(() => MaskedControlMode, ref _maskedControlMode, value); if (IsInControlGroup) RaisePropertyChanged(nameof(CurrentActiveControlMode)); } }
         public string ZoneUID { get; set; }
         public string GroupID { get; set; }
         private bool _isEnabled = true;
@@ -138,6 +132,13 @@ namespace adrilight.Settings
             //var boundRct = GetDeviceRectBound(Spots.ToList());
             //Width = boundRct.Width;
             //Height = boundRct.Height;
+        }
+        public async Task SetControlMode(IControlMode controlMode)
+        {
+            await Task.Run(() =>
+            {
+                CurrentActiveControlMode = controlMode;
+            });
         }
         public Rect GetDeviceRectBound(IControlZone[] zones)
 

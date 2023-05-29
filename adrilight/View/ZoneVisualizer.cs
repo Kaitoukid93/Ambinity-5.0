@@ -1,22 +1,11 @@
 ﻿using adrilight.Spots;
-using MathNet.Numerics;
-using NAudio.Gui;
-using OpenRGB.NET.Models;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Windows.Threading;
-using TimeLineTool;
 using Color = System.Windows.Media.Color;
-using Pen = System.Windows.Media.Pen;
 
 namespace adrilight.View
 {
@@ -24,28 +13,38 @@ namespace adrilight.View
     {
         private const double UPDATE_FRAME_RATE = 25.0;
         private readonly DispatcherTimer _timer;
-        private readonly SolidColorBrush _fillBrush;
-        private readonly Pen _pen;
-        private readonly SolidColorBrush _penBrush;
         private readonly List<LEDVisualizer> _leds;
         private Color[] _previousState = Array.Empty<Color>();
         public Geometry? DisplayGeometry { get; private set; }
         public ZoneVisualizer()
         {
-            _timer = new DispatcherTimer(DispatcherPriority.Background) { Interval = TimeSpan.FromMilliseconds(1000.0 / UPDATE_FRAME_RATE) };
+            _timer = new DispatcherTimer(DispatcherPriority.Normal) { Interval = TimeSpan.FromMilliseconds(1000.0 / UPDATE_FRAME_RATE) };
             _timer.Start();
             _timer.Tick += TimerOnTick;
-            _fillBrush = new SolidColorBrush();
-            _penBrush = new SolidColorBrush();
-            _pen = new Pen(_penBrush, 1.0) { LineJoin = PenLineJoin.Round };
             _leds = new List<LEDVisualizer>();
             this.Loaded += ZoneVisualizer_Loaded;
             this.Unloaded += ZoneVisualizer_Unloaded;
-            //CreateLedGeometry();
-            //PointerReleased += OnPointerReleased;
-            //PropertyChanged += OnPropertyChanged;
         }
-
+        DrawingGroup backingStore = new DrawingGroup();
+        private void Render()
+        {
+            var drawingContext = backingStore.Open();
+            try
+            {
+                lock (_leds)
+                {
+                    foreach (var led in _leds)
+                    {
+                        led.RenderGeometry(drawingContext);
+                    }
+                }
+            }
+            finally
+            {
+                //boundsPush?.Dispose();
+            }
+            drawingContext.Close();
+        }
         private void ZoneVisualizer_Unloaded(object sender, RoutedEventArgs e)
         {
             _timer.Stop();
@@ -56,28 +55,20 @@ namespace adrilight.View
         {
             _timer.Start();
             _timer.Tick += TimerOnTick;
-          
+
         }
         protected override void OnRender(DrawingContext drawingContext)
         {
+            base.OnRender(drawingContext);
 
-            try
-            {
-                foreach(var led in _leds )
-                {
-                    led.RenderGeometry(drawingContext);
-                }
+            Render(); // put content into our backingStore
+            drawingContext.DrawDrawing(backingStore);
 
-            }
-            finally
-            {
-                //boundsPush?.Dispose();
-            }
         }
 
-       private void SetupZone()
+        private void SetupZone()
         {
-            lock(_leds)
+            lock (_leds)
             {
                 _leds.Clear();
             }
@@ -117,12 +108,13 @@ namespace adrilight.View
 
         private void Update()
         {
-            InvalidateVisual();
+            Render();
+            //InvalidateVisual();
         }
         private void TimerOnTick(object? sender, EventArgs e)
         {
-            if(IsDirty())
-            Update();
+            if (IsDirty())
+                Update();
         }
         #region Properties
 

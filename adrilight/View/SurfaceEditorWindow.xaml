@@ -60,15 +60,16 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="1">
-          
+        
             <richCanvas:RichItemsControl
                 ItemsSource="{Binding SurfaceEditorItems}"
                 GridStyle="{StaticResource GridStyle}"
                 EnableSnapping="False"
                 UseLayoutRounding="False"
                 GridSpacing="24"
-                EnableGrid="true"
+                EnableGrid="False"
                 Scrolling="OnScrolling"
+                ScrollFactor="0.5"
                 CanSelectMultipleItems="True"
                 RealTimeDraggingEnabled="False"
                 RealTimeSelectionEnabled="False"
@@ -76,6 +77,9 @@
                 Scale="{Binding CanvasScale,Mode=TwoWay}"
                 MaxScale="20"
                 MinScale="0.1">
+                <richCanvas:RichItemsControl.CacheMode>
+                    <BitmapCache EnableClearType="False" RenderAtScale="1.0" SnapsToDevicePixels="False"/>
+                </richCanvas:RichItemsControl.CacheMode>
                 <richCanvas:RichItemsControl.SelectionRectangleStyle>
                     <Style TargetType="Rectangle">
                         <Setter Property="Fill" Value="Transparent" />
@@ -90,7 +94,11 @@
                         <Grid>
                             <Canvas Width="{Binding Width,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" 
                                                 Height="{Binding Height, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}">
-                                <Image Stretch="Uniform" Source="{Binding Thumbnail}" Canvas.Left="{Binding Image.Left}" Canvas.Top="{Binding Image.Top}" Height="{Binding Image.Height}" RenderOptions.BitmapScalingMode="HighQuality" Width="{Binding Image.Width}"/>
+                                <Image RenderTransformOrigin="0.5,0.5" Stretch="Uniform" Source="{Binding Thumbnail}" Canvas.Left="{Binding Image.Left}" Canvas.Top="{Binding Image.Top}" Height="{Binding Image.Height}" RenderOptions.BitmapScalingMode="HighQuality" Width="{Binding Image.Width}">
+                                    <Image.RenderTransform>
+                                        <RotateTransform Angle="{Binding Image.Angle,Mode=TwoWay}"/>
+                                    </Image.RenderTransform>
+                                </Image>
                             </Canvas>
                             <ItemsControl
                                     Name="PreviewGird"  
@@ -393,8 +401,8 @@
                         <Setter Property="ShouldBringIntoView"
                             Value="{Binding ShouldBringIntoView, Mode=TwoWay}" />
 
-                        <Setter Property="Scale"
-                            Value="{Binding Scale, Mode=TwoWay}" />
+                        <!--<Setter Property="Scale"
+                            Value="{Binding Scale, Mode=TwoWay}" />-->
 
                         
                         <Style.Triggers>
@@ -492,6 +500,72 @@
                     </Style>
                 </richCanvas:RichItemsControl.ItemContainerStyle>
             </richCanvas:RichItemsControl>
+            <hc:TransitioningContentControl TransitionMode="Left2Right">
+                <Border Effect="{DynamicResource EffectShadow3}"  Margin="0,0,10,10"  HorizontalAlignment="Left" VerticalAlignment="Top" Background="{DynamicResource MainContentBackgroundBrush}" CornerRadius="4">
+                    <StackPanel>
+                        <Grid ToolTip="Device scale">
+                            <StackPanel>
+                                <Grid>
+                                    <GroupBox Margin="10"   HorizontalContentAlignment="Left"  Style="{StaticResource GroupBoxOriginal}"  hc:TitleElement.TitlePlacement="Left">
+                                        <GroupBox.HeaderTemplate>
+                                            <DataTemplate>
+                                                <StackPanel>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="auto" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+
+                                                        <TextBlock HorizontalAlignment="Left"  FontWeight="SemiBold" Text="SCALE" />
+                                                        <Button ToolTip="Tìm hiểu thêm" Grid.Column="1" HorizontalAlignment="Left"  Background="Transparent" Margin="10,0,0,0" hc:IconElement.Geometry="{DynamicResource infoCircle}" Style="{DynamicResource _defaultIconButtonSmall}" />
+                                                    </Grid>
+                                                    <TextBlock Margin="0,5,0,0" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Chỉnh kích thước bút vẽ" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </GroupBox.HeaderTemplate>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <hc:NumericUpDown VerticalAlignment="Center" HorizontalAlignment="Right" Minimum="1" Maximum="100" Value="{Binding SelectedItemScaleValue, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                            </hc:NumericUpDown>
+                                            <Button Grid.Column="1" Command="{Binding ApplySelectedItemsScaleCommand}" Content="Apply" Style="{DynamicResource _mediumProfileDefaultButton}"/>
+                                        </Grid>
+
+                                    </GroupBox>
+                                </Grid>
+                                <hc:Divider Margin="0"  LineStroke="{DynamicResource RegionBrush}">
+                                </hc:Divider>
+                                <Grid>
+                                    <GroupBox Margin="10"  HorizontalContentAlignment="Left"  Style="{DynamicResource GroupBoxOriginal}"  hc:TitleElement.TitlePlacement="Left">
+                                        <GroupBox.HeaderTemplate>
+                                            <DataTemplate>
+                                                <StackPanel>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="auto" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+
+                                                        <TextBlock HorizontalAlignment="Left"  FontWeight="SemiBold" Text="ROTATION" />
+                                                        <Button ToolTip="Tìm hiểu thêm" Grid.Column="1" HorizontalAlignment="Left"  Background="Transparent" Margin="10,0,0,0" hc:IconElement.Geometry="{DynamicResource infoCircle}" Style="{DynamicResource _defaultIconButtonSmall}" />
+                                                    </Grid>
+
+                                                    <TextBlock Margin="0,5,0,0" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Giá trị càng cao, màu trong palette càng dày đặc" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </GroupBox.HeaderTemplate>
+
+                                        <hc:NumericUpDown VerticalAlignment="Center" HorizontalAlignment="Right" Minimum="1" Maximum="100" Value="{Binding BrushIntensity, Mode=TwoWay}">
+                                        </hc:NumericUpDown>
+                                    </GroupBox>
+                                </Grid>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </hc:TransitioningContentControl>
         </Grid>
         <Grid Grid.Row="2" >
             <Grid.ColumnDefinitions>

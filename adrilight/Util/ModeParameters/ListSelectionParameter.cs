@@ -7,8 +7,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace adrilight.Util.ModeParameters
@@ -58,6 +56,12 @@ namespace adrilight.Util.ModeParameters
         public void RefreshCollection()
         {
             RaisePropertyChanged(nameof(AvailableValues));
+        }
+        public void DisposeCollection()
+        {
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            { AvailableValues.Clear(); });
+
         }
         public void LoadAvailableValues()
         {

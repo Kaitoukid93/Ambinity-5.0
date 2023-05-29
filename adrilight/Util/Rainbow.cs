@@ -1,42 +1,15 @@
-﻿using System;
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Threading;
-using System.Threading.Tasks;
-using adrilight.DesktopDuplication;
-using NLog;
-using Polly;
-using System.Linq;
-using System.Windows.Media.Imaging;
-using adrilight.ViewModel;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
-using adrilight.Resources;
-using adrilight.Util;
-using adrilight.Spots;
-using System.Windows;
-using adrilight.Helpers;
-using adrilight.Settings;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Header;
-using NAudio.SoundFont;
-using Color = System.Windows.Media.Color;
-using System.Net;
-using MathNet.Numerics.Distributions;
-using ColorPalette = adrilight.Util.ColorPalette;
-using SixLabors.ImageSharp;
-using HandyControl.Tools.Extension;
-using adrilight_effect_analyzer.Model;
-using Newtonsoft.Json;
-using System.IO;
-using System.Reflection;
-using Microsoft.Win32.TaskScheduler;
-using System.Windows.Automation.Peers;
-using Rectangle = System.Drawing.Rectangle;
-using MoreLinq;
+﻿using adrilight.Util;
 using adrilight.Util.ModeParameters;
+using adrilight.ViewModel;
+using MoreLinq;
+using NLog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Windows;
+using Color = System.Windows.Media.Color;
+using ColorPalette = adrilight.Util.ColorPalette;
 
 namespace adrilight
 {
@@ -91,7 +64,7 @@ namespace adrilight
                 //    // case nameof(MainViewViewModel.IsRegisteringGroup):
                 //    //case nameof(_colorControl):
                 //    Refresh();
-                    //break;
+                //break;
                 case nameof(GeneralSettings.SystemRainbowSpeed):
                     OnSystemSpeedChanged(GeneralSettings.SystemRainbowSpeed);
                     break;
@@ -196,7 +169,10 @@ namespace adrilight
 
         public void Refresh()
         {
-
+            if (CurrentZone.CurrentActiveControlMode == null)
+            {
+                return;
+            }
             var isRunning = _cancellationTokenSource != null;
 
             _currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
@@ -297,13 +273,13 @@ namespace adrilight
             IsRunning = true;
             int updateIntervalCounter = 0;
             try
-            { 
+            {
                 double StartIndex = 0d;
-                
+
                 while (!token.IsCancellationRequested)
                 {
                     var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
-                    bool shouldViewUpdate = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated && updateIntervalCounter > _frameRate/_displayUpdateRate;
+                    bool shouldViewUpdate = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated && updateIntervalCounter > _frameRate / _displayUpdateRate;
                     if (shouldViewUpdate)
                         updateIntervalCounter = 0;
 

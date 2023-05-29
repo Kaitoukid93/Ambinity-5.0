@@ -1,22 +1,8 @@
 ﻿using adrilight.Util;
 using adrilight.Util.ModeParameters;
-using adrilight.ViewModel;
-using HandyControl.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using static Un4seen.Bass.Misc.EncoderOPUS;
 
 namespace adrilight.View
 {
@@ -52,11 +38,14 @@ namespace adrilight.View
 
         private void ButtonMode_OnClick(object sender, RoutedEventArgs e)
         {
-                PopupMode.IsOpen = true;
+            PopupMode.IsOpen = true;
         }
 
 
-        private void NewModeSelected(object sender, SelectionChangedEventArgs e) => PopupMode.IsOpen = false;
+        private void NewModeSelected(object sender, SelectionChangedEventArgs e)
+        {
+            PopupMode.IsOpen = false;
+        }
 
         private void Expand_ParamList(object sender, RoutedEventArgs e)
         {
