@@ -2,10 +2,7 @@
 using adrilight.Helpers;
 using adrilight.Settings;
 using adrilight.Spots;
-using adrilight.View;
-using adrilight.ViewModel;
-using Castle.Core.Resource;
-using HandyControl.Tools.Extension;
+using adrilight_content_creator.View;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using SharpVectors.Converters;
@@ -20,16 +17,10 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Markup;
 using System.Windows.Media;
-using System.Windows.Media.Media3D;
-using System.Windows.Shapes;
 using System.Xml;
 using static adrilight.ViewModel.MainViewViewModel;
-using static System.Windows.Forms.AxHost;
-using Color = System.Windows.Media.Color;
-using ColorConverter = System.Windows.Media.ColorConverter;
 
 
 namespace adrilight_content_creator.ViewModel
@@ -60,6 +51,8 @@ namespace adrilight_content_creator.ViewModel
         public ICommand ApplyDeviceActualDimensionCommand { get; set; }
         public ICommand AddImageToPIDCanvasCommand { get; set; }
         public ICommand AddItemsToPIDCanvasCommand { get; set; }
+        public ICommand ChangeSelectedSpotSizeCommand { get; set; }
+        public ICommand OpenChangeSpotSizeWindowCommand { get; set; }
         public ICommand AddSpotLayoutCommand { get; set; }
         public ICommand AddSpotGeometryCommand { get; set; }
         public ICommand ImportSVGCommand { get; set; }
@@ -223,6 +216,26 @@ namespace adrilight_content_creator.ViewModel
 
             }
          );
+            ChangeSelectedSpotSizeCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+
+                SetSpotSize();
+
+            }
+         );
+            OpenChangeSpotSizeWindowCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+
+                OpenChangeSpotSizeWindow();
+
+            }
+       );
         }
         private double _selectionRectangleStrokeThickness = 2.0;
         public double SelectionRectangleStrokeThickness
@@ -424,6 +437,54 @@ namespace adrilight_content_creator.ViewModel
             spotList.ForEach(spot => CanvasItems.Remove(spot));
 
         }
+        private double _newSpotWidth;
+        public double NewSpotWidth
+        {
+            get { return _newSpotWidth; }
+            set
+            {
+                _newSpotWidth = value;
+                RaisePropertyChanged();
+            }
+        }
+        private double _newSpotHeight;
+        public double NewSpotHeight
+        {
+            get { return _newSpotHeight; }
+            set
+            {
+                _newSpotHeight = value;
+                RaisePropertyChanged();
+            }
+        }
+        private void OpenChangeSpotSizeWindow()
+        {
+            var changeSpotSizeWindow = new ChangeSpotSizeWindow();
+            changeSpotSizeWindow.ShowDialog();
+        }
+        private void SetSpotSize()
+        {
+            var led = CanvasSelectedItem as DeviceSpot;
+            if (led == null)
+                return;
+            var geometry = led.Geometry.Clone();
+            var scaleX = NewSpotWidth / led.Width;
+            var scaleY = NewSpotHeight / led.Height;
+            geometry.Transform = new TransformGroup
+            {
+                Children = new TransformCollection
+                {
+                    new ScaleTransform(scaleX, scaleY),
+                   // new TranslateTransform(0-boundsLeft*scaleX, 0-boundsTop*scaleY),
+                    // new RotateTransform(angleInDegrees)
+        }
+            };
+            var result = geometry.GetFlattenedPathGeometry();
+            result.Freeze();
+            led.Geometry = result;
+            led.Width = NewSpotWidth;
+            led.Height = NewSpotHeight;
+        }
         private void OpenAddNewItemWindow()
         {
             AvailableShapeToAdd = new ObservableCollection<DrawableShape>();
@@ -465,7 +526,7 @@ namespace adrilight_content_creator.ViewModel
             }
         }
         public string Name { get; set; }
-        public string Description { get; set; } 
+        public string Description { get; set; }
         public string Vendor { get; set; }
         private void SaveDeviceData()
         {
@@ -495,7 +556,7 @@ namespace adrilight_content_creator.ViewModel
                 CtrlHlprs.MakeZoneControlable(ledSetup);
 
             }
-             Device = new ARGBLEDSlaveDevice();
+            Device = new ARGBLEDSlaveDevice();
             Device.ActualWidth = DeviceActualWidth;
             Device.ActualHeight = DeviceActualHeight;
             Device.Width = DeviceActualWidth;

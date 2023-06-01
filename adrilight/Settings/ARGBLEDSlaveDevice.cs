@@ -121,7 +121,7 @@ namespace adrilight.Settings
 
         public DeviceType TargetDeviceType { get; set; }
 
-        private DrawableHelpers DrawableHlprs;
+        private DrawableHelpers DrawableHlprs = new DrawableHelpers();
 
         private int GetLEDsCount()
         {
@@ -197,21 +197,12 @@ namespace adrilight.Settings
 
         public void RotateLEDSetup(double angleInDegrees)
         {
-            var center = new Point(Width / 2, Height / 2);
-            var devicePos = new Point(Left, (Top + Height));
-            var newCenter = new Point(CenterX, CenterY);
+            var center = new Point(Left + Width / 2, Top + Height / 2);
             foreach (var zone in ControlableZones)
             {
-                (zone as LEDSetup).RotateLEDSetup(90.0, center);
-                var pos = new Point((zone as IDrawable).Left, (zone as IDrawable).Top + (zone as IDrawable).Height);
-                var width = (zone as IDrawable).Width;
-                var height = (zone as IDrawable).Height;
-                (zone as IDrawable).Left = RotatePoint(pos, center, 90.0).X;
-                (zone as IDrawable).Top = RotatePoint(pos, center, 90.0).Y;
-                (zone as IDrawable).Width = height;
-                (zone as IDrawable).Height = width;
+                (zone as LEDSetup).RotateLEDSetup(angleInDegrees, center);
             }
-            //rotate background image
+            //rotate background image,
             if (Image != null)
             {
                 Image.Angle += angleInDegrees;
@@ -219,43 +210,23 @@ namespace adrilight.Settings
                 {
                     Image.Angle = 0;
                 }
-
             }
-
             var newBound = GetDeviceRectBound();
             foreach (var zone in ControlableZones)
             {
                 (zone as IDrawable).Left -= newBound.Left;
                 (zone as IDrawable).Top -= newBound.Top;
             }
-            UpdateSizeByChild(false);
-
-            Left = RotatePoint(devicePos, newCenter, 90.0).X;
-            Top = RotatePoint(devicePos, newCenter, 90.0).Y;
-        }
-
-        /// <summary>
-        /// Rotates one point around another
-        /// </summary>
-        /// <param name="pointToRotate">The point to rotate.</param>
-        /// <param name="centerPoint">The center point of rotation.</param>
-        /// <param name="angleInDegrees">The rotation angle in degrees.</param>
-        /// <returns>Rotated point</returns>
-        private static Point RotatePoint(Point pointToRotate, Point centerPoint, double angleInDegrees)
-        {
-            double angleInRadians = angleInDegrees * (Math.PI / 180);
-            double cosTheta = Math.Cos(angleInRadians);
-            double sinTheta = Math.Sin(angleInRadians);
-            return new Point {
-                X =
-
-                    (cosTheta * (pointToRotate.X - centerPoint.X) -
-                    sinTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.X),
-                Y =
-
-                    (sinTheta * (pointToRotate.X - centerPoint.X) +
-                    cosTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.Y)
-            };
+            if (Image != null)
+            {
+                Image.Left += (newBound.Width - Width) / 2;
+                Image.Top += (newBound.Height - Height) / 2;
+            }
+            // UpdateSizeByChild(false);
+            Left = newBound.Left;
+            Top = newBound.Top;
+            Width = newBound.Width;
+            Height = newBound.Height;
         }
 
         public Rect GetDeviceRectBound()
@@ -266,14 +237,12 @@ namespace adrilight.Settings
             if (Image != null)
             {
                 //get image rotation bounding box
-                var rect = new Rect(Image.Left, Image.Top, Image.Width, Image.Height);
+                var rect = new Rect(Image.Left + Image.OffsetX, Image.Top + Image.OffsetY, Image.Width, Image.Height);
+                var rotatedImageBoundingBox = DrawableHlprs.RotateRectangle(rect, new Point(CenterX, CenterY), Image.Angle);
+                var r = new Drawable(rotatedImageBoundingBox.Top, rotatedImageBoundingBox.Left, rotatedImageBoundingBox.Width, rotatedImageBoundingBox.Height);
+                children.Add(r);
+            }
 
-            }
-            children.Add(Image as IDrawable);
-            if (DrawableHlprs == null)
-            {
-                DrawableHlprs = new DrawableHelpers();
-            }
             return DrawableHlprs.GetBound(children);
         }
 

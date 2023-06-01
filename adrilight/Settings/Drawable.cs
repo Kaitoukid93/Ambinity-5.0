@@ -1,26 +1,16 @@
-﻿using adrilight.Settings;
-using adrilight.Spots;
-using adrilight.Util;
-using adrilight.ViewModel;
+﻿using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
 using Point = System.Windows.Point;
 
 namespace adrilight
 {
-    public abstract class Drawable : ViewModelBase, IDrawable
+    public class Drawable : ViewModelBase, IDrawable
     {
-     
+
         private double _top = 0;
         private double _left = 0;
         private bool _isSelected;
@@ -51,9 +41,9 @@ namespace adrilight
         public Rect GetRect => new Rect(Left, Top, Width, Height);
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
 
-        public double Width { get => _width; set { Set(() => Width, ref _width, value);OnWidthUpdated(); } }
+        public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }
 
-        public double Height { get => _height; set { Set(() => Height, ref _height, value);OnHeightUpdated(); } }
+        public double Height { get => _height; set { Set(() => Height, ref _height, value); OnHeightUpdated(); } }
 
         public VisualProperties VisualProperties { get => _visualProperties; set { Set(() => VisualProperties, ref _visualProperties, value); } }
 
@@ -71,12 +61,17 @@ namespace adrilight
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
         public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
-    
+
         public Drawable()
         {
             VisualProperties = new VisualProperties();
             Scale = new Point(1, 1);
         }
+        public Drawable(double top, double left, double width, double height)
+        {
+            Top = top; Left = left; Width = width; Height = height;
+        }
+
         public bool SetScale(double scaleX, double scaleY, bool keepOrigin)
         {
 

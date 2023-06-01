@@ -6804,13 +6804,10 @@ namespace adrilight.ViewModel
             foreach (var device in CurrentDevice.AvailableLightingDevices)
             {
                 var lightingDevice = device as ARGBLEDSlaveDevice;
-                if (lightingDevice.Image != null)
-                {
-                    lightingDevice.Image.IsSelectable = false;
-                    lightingDevice.Image.ImagePath = lightingDevice.Thumbnail;
-                    LiveViewItems.Add(lightingDevice.Image);
-                }
+
+                LiveViewItems.Add(lightingDevice);
             }
+
             IDrawable lastSelectedItem = null;
             foreach (var item in CurrentDevice.CurrentLiveViewZones)
             {
@@ -7099,7 +7096,7 @@ namespace adrilight.ViewModel
         private void RotateSelectedSurfaceEditorItem(ObservableCollection<IDrawable> p)
         {
             CurrentEditingPIDItem = p.Where(p => p.IsSelected).FirstOrDefault() as ARGBLEDSlaveDevice;
-            CurrentEditingPIDItem.RotateLEDSetup(90.0);
+            CurrentEditingPIDItem.RotateLEDSetup(120);
         }
 
         private void ReflectSelectedSurfaceEditorItem(ObservableCollection<IDrawable> p)

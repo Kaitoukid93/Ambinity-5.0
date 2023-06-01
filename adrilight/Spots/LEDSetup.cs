@@ -16,6 +16,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Color = System.Windows.Media.Color;
+using Geometry = System.Windows.Media.Geometry;
 using Point = System.Windows.Point;
 
 namespace adrilight
@@ -163,7 +164,7 @@ namespace adrilight
         [JsonIgnore]
         public Rect GetRect => new Rect(Left + OffsetX, Top + OffsetY, Width, Height);
         public string Type { get; set; }
-        private DrawableHelpers DrawableHlprs;
+        private DrawableHelpers DrawableHlprs = new DrawableHelpers();
         public List<ColorCard> GetStaticColorDataSource()
         {
             var colors = new List<ColorCard>();
@@ -244,16 +245,7 @@ namespace adrilight
                 (spot as IDrawable).Top -= newBound.Top;
             }
         }
-        private Geometry RotateGeometry(Geometry inputGeometry, double angle)
-        {
-            //rotate the geometry
-            var inputGeometryClone = inputGeometry.Clone(); // we need a clone since in order to
-                                                            // apply a Transform and geometry might be readonly
-            inputGeometryClone.Transform = new RotateTransform(angle);// applying some transform to it
-            var result = inputGeometryClone.GetFlattenedPathGeometry();
-            result.Freeze();
-            return result;
-        }
+
         private Geometry ScaleGeometry(Geometry inputGeometry, double scaleX, double scaleY)
         {
             //rotate the geometry
@@ -269,15 +261,14 @@ namespace adrilight
 
             foreach (var spot in Spots)
             {
-                spot.Geometry = RotateGeometry(spot.Geometry, angleInDegrees);
-                var translatedCenterPoint = new Point(centerPoint.X - Left, centerPoint.Y - Top);
-                var pos = new Point((spot as IDrawable).Left, (spot as IDrawable).Top + (spot as IDrawable).Height); //bottom left will become new topleft
-                var width = (spot as IDrawable).Width;
-                var height = (spot as IDrawable).Height;
-                (spot as IDrawable).Left = RotatePoint(pos, centerPoint, angleInDegrees).X;
-                (spot as IDrawable).Top = RotatePoint(pos, centerPoint, angleInDegrees).Y;
-                (spot as IDrawable).Width = height;
-                (spot as IDrawable).Height = width;
+                //spot.Geometry = RotateGeometry(spot.Geometry, angleInDegrees);
+                //var translatedCenterPoint = new Point(centerPoint.X - Left, centerPoint.Y - Top);
+                //var newSpotBound = DrawableHlprs.RotateRectangle(new Rect((spot as IDrawable).Left + Left + OffsetX, (spot as IDrawable).Top + Top + OffsetY, (spot as IDrawable).Width, (spot as IDrawable).Height), centerPoint, angleInDegrees);
+                //(spot as IDrawable).Left = newSpotBound.Left;
+                //(spot as IDrawable).Top = newSpotBound.Top;
+                //(spot as IDrawable).Width = newSpotBound.Width;
+                //(spot as IDrawable).Height = newSpotBound.Height;
+                (spot as DeviceSpot).RotateSpot(angleInDegrees, centerPoint, GetRect.Left, GetRect.Top);
 
             }
             var newBound = GetDeviceRectBound(Spots.ToList());
@@ -286,7 +277,10 @@ namespace adrilight
                 (spot as IDrawable).Left -= newBound.Left;
                 (spot as IDrawable).Top -= newBound.Top;
             }
-
+            Left = newBound.Left;
+            Top = newBound.Top;
+            Width = newBound.Width;
+            Height = newBound.Height;
             //UpdateSizeByChild(false);
         }
         public void ReorderSpots()
@@ -297,10 +291,6 @@ namespace adrilight
         }
         public Rect GetDeviceRectBound(List<IDeviceSpot> spots)
         {
-
-
-            if (DrawableHlprs == null)
-                DrawableHlprs = new DrawableHelpers();
             var listDrawable = new List<IDrawable>();
             foreach (var spot in spots)
             {

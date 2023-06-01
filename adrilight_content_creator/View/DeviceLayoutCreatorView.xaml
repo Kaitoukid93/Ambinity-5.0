@@ -491,7 +491,7 @@
                                                 <Separator Margin="10,5">
                                                 </Separator>
                                                 <MenuItem Header="Thu phóng"
-                                          Command="{Binding OpenRectangleScaleCommand}" CommandParameter="{Binding CanvasItems}">
+                                          Command="{Binding OpenChangeSpotSizeWindowCommand}">
                                                     <MenuItem.Icon>
                                                         <Path Data="{StaticResource scale}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                     </MenuItem.Icon>

@@ -100,13 +100,13 @@
                                         <i:InvokeCommandAction Command="{Binding DataContext.SelectSurfaceEditorItemCommand,RelativeSource={RelativeSource AncestorType={x:Type view:SurfaceEditorWindow}}}" CommandParameter="{Binding}" />
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
-                            <Canvas Width="{Binding Width,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" 
+                            <Canvas HorizontalAlignment="Center" VerticalAlignment="Center" Width="{Binding Width,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" 
                                                 Height="{Binding Height, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}">
-                                <Grid Background="Red">
-                                    <Image RenderTransformOrigin="0.5,0.5" Stretch="Uniform" Source="{Binding Thumbnail}" Canvas.Left="{Binding Image.Left}" Canvas.Top="{Binding Image.Top}" Height="{Binding Image.Height}" RenderOptions.BitmapScalingMode="HighQuality" Width="{Binding Image.Width}">
-                                        <Image.RenderTransform>
+                                <Grid Background="Gray">
+                                    <Image RenderTransformOrigin="0.5,0.5" Stretch="Uniform" Source="{Binding Thumbnail}"  Height="{Binding Image.Height}" RenderOptions.BitmapScalingMode="HighQuality" Width="{Binding Image.Width}">
+                                        <Image.LayoutTransform>
                                             <RotateTransform Angle="{Binding Image.Angle,Mode=TwoWay}"/>
-                                        </Image.RenderTransform>
+                                        </Image.LayoutTransform>
                                     </Image>
                                 </Grid>
                                

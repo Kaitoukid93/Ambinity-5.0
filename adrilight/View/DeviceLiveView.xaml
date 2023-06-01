@@ -128,8 +128,18 @@
                 </i:EventTrigger>
             </i:Interaction.Triggers>
             <richCanvas:RichItemsControl.Resources>
-                <DataTemplate DataType="{x:Type settings:ImageVisual}">
-                    <Image Stretch="Uniform" Source="{Binding ImagePath}" RenderOptions.BitmapScalingMode="HighQuality" />
+                <DataTemplate DataType="{x:Type settings:ARGBLEDSlaveDevice}">
+                    <Canvas HorizontalAlignment="Center" VerticalAlignment="Center" Width="{Binding Width,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" 
+                                                Height="{Binding Height, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}">
+                        <Grid Background="Gray">
+                            <Image RenderTransformOrigin="0.5,0.5" Stretch="Uniform" Source="{Binding Thumbnail}" Canvas.Left="{Binding Image.Left}" Canvas.Top="{Binding Image.Top}" Height="{Binding Image.Height}" RenderOptions.BitmapScalingMode="HighQuality" Width="{Binding Image.Width}">
+                                <Image.LayoutTransform>
+                                    <RotateTransform Angle="{Binding Image.Angle,Mode=TwoWay}"/>
+                                </Image.LayoutTransform>
+                            </Image>
+                        </Grid>
+
+                    </Canvas>
                 </DataTemplate>
                 <DataTemplate DataType="{x:Type local:LEDSetup}">
                     <Grid>

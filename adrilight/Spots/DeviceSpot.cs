@@ -83,7 +83,7 @@ namespace adrilight.Spots
                     if (intersectRect.IsEmpty)
                         return false;
                     double intersectArea = intersectRect.Width * intersectRect.Height;
-                    double spotArea = GetRect.Width* GetRect.Height;
+                    double spotArea = GetRect.Width * GetRect.Height;
                     if ((intersectArea / spotArea) > 0.1)
                     {
                         SetVID(vid);
@@ -125,7 +125,7 @@ namespace adrilight.Spots
             if (raiseEvents)
             {
                 RaisePropertyChanged(nameof(OnDemandColor));
-               
+
             }
         }
         public void SetSentryColor(byte red, byte green, byte blue)
@@ -204,7 +204,6 @@ namespace adrilight.Spots
         public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }
         public double Height { get => _height; set { Set(() => Height, ref _height, value); OnHeightUpdated(); } }
 
-
         public VisualProperties VisualProperties { get => _visualProperties; set { Set(() => VisualProperties, ref _visualProperties, value); } }
 
         public bool IsSelectable { get => _isSelectable; set { Set(() => IsSelectable, ref _isSelectable, value); } }
@@ -220,6 +219,7 @@ namespace adrilight.Spots
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
+        private DrawableHelpers DrawableHlprs => new DrawableHelpers();
         public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
         public bool SetScale(double scaleX, double scaleY, bool keepOrigin)
         {
@@ -246,7 +246,37 @@ namespace adrilight.Spots
 
         }
 
+        public void RotateSpot(double angleInDegrees, Point centerPoint, double offsetX, double offsetY)
+        {
+            //clone the geometry
+            var inputGeometryClone = Geometry.Clone();
+            //scale the geometry from native size to spot size
+            var boundsLeft = inputGeometryClone.Bounds.Left;
+            var boundsTop = inputGeometryClone.Bounds.Top;
+            var scaleX = Width / inputGeometryClone.Bounds.Width;
+            var scaleY = Height / inputGeometryClone.Bounds.Height;
+            inputGeometryClone.Transform = new TransformGroup {
+                Children = new TransformCollection
+                {
+                    new ScaleTransform(scaleX, scaleY),
+                    new TranslateTransform(offsetX+Left-boundsLeft*scaleX, offsetY+Top -boundsTop*scaleY),
+                   // new RotateTransform(angleInDegrees)
+                }
+            };
+            inputGeometryClone.Transform = new RotateTransform(angleInDegrees, centerPoint.X - (offsetX + Left), centerPoint.Y - (offsetY + Top));
+            var deltaX = inputGeometryClone.Bounds.Left;
+            var deltaY = inputGeometryClone.Bounds.Top;
+            Top += deltaY + offsetY;
+            Left += deltaX + offsetX;
+            Width = inputGeometryClone.Bounds.Width;
+            Height = inputGeometryClone.Bounds.Height;
+            Angle += angleInDegrees;
+            if (Angle > 360)
+            {
+                Angle -= 360;
+            }
 
+        }
 
 
         public void OnLeftChanged(double delta) { }

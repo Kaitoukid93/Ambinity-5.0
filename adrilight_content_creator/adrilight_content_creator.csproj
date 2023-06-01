@@ -164,6 +164,9 @@
     <Compile Include="View\EffectAnalyzerView.xaml.cs">
       <DependentUpon>EffectAnalyzerView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\ChangeSpotSizeWindow.xaml.cs">
+      <DependentUpon>ChangeSpotSizeWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\NewItemParametersWindow.xaml.cs">
       <DependentUpon>NewItemParametersWindow.xaml</DependentUpon>
     </Compile>
@@ -192,6 +195,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\GeometryCollection.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ChangeSpotSizeWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
