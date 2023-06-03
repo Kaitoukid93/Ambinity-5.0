@@ -317,8 +317,8 @@ namespace adrilight_content_creator.ViewModel
 
 
         }
-        private DrawableHelpers DrawableHlprs;
-        private ControlModeHelpers CtrlHlprs;
+        private DrawableHelpers DrawableHlprs = new DrawableHelpers();
+        private ControlModeHelpers CtrlHlprs = new ControlModeHelpers();
         public Rect GetDeviceRectBound(List<IDrawable> spots)
         {
 
@@ -359,19 +359,18 @@ namespace adrilight_content_creator.ViewModel
                 return;
 
             var bound = GetDeviceRectBound(spotList);
-            var geometryList = new List<Geometry>();
-            spotList.ForEach(p => geometryList.Add((p as DeviceSpot).Geometry));
+
             var stringValue = "";
-            foreach (var geometry in geometryList)
+            foreach (var spot in spotList)
             {
                 var scaled = Geometry.Combine(
-                    geometry,
-                    geometry, GeometryCombineMode.Intersect,
+                    (spot as DeviceSpot).Geometry,
+                    (spot as DeviceSpot).Geometry, GeometryCombineMode.Intersect,
                     new TransformGroup
                     {
                         Children = new TransformCollection
                         {
-                            new TranslateTransform(bound.X * -1, bound.Y * -1),
+                            new TranslateTransform(spot.Left, spot.Top),
                             new ScaleTransform(1.0 , 1.0 )
                         }
                     }
@@ -464,26 +463,35 @@ namespace adrilight_content_creator.ViewModel
         }
         private void SetSpotSize()
         {
-            var led = CanvasSelectedItem as DeviceSpot;
-            if (led == null)
-                return;
-            var geometry = led.Geometry.Clone();
-            var scaleX = NewSpotWidth / led.Width;
-            var scaleY = NewSpotHeight / led.Height;
-            geometry.Transform = new TransformGroup
+            //get total bound
+            var usableItems = CanvasSelectedItems.Where(i => i is DeviceSpot).ToList();
+            var bound = DrawableHlprs.GetBound(usableItems);
+            var scaleX = NewSpotWidth / bound.Width;
+            var scaleY = NewSpotHeight / bound.Height;
+            foreach (var item in CanvasSelectedItems)
             {
-                Children = new TransformCollection
+                var led = item as DeviceSpot;
+                if (led == null)
+                    return;
+                var geometry = led.Geometry.Clone();
+
+                geometry.Transform = new TransformGroup
+                {
+                    Children = new TransformCollection
                 {
                     new ScaleTransform(scaleX, scaleY),
                    // new TranslateTransform(0-boundsLeft*scaleX, 0-boundsTop*scaleY),
                     // new RotateTransform(angleInDegrees)
         }
-            };
-            var result = geometry.GetFlattenedPathGeometry();
-            result.Freeze();
-            led.Geometry = result;
-            led.Width = NewSpotWidth;
-            led.Height = NewSpotHeight;
+                };
+                var result = geometry.GetFlattenedPathGeometry();
+                result.Freeze();
+                led.Geometry = result;
+                led.Width = result.Bounds.Width;
+                led.Height = result.Bounds.Height;
+                led.Left *= scaleX; led.Top *= scaleY;
+            }
+
         }
         private void OpenAddNewItemWindow()
         {
@@ -530,10 +538,7 @@ namespace adrilight_content_creator.ViewModel
         public string Vendor { get; set; }
         private void SaveDeviceData()
         {
-            if (DrawableHlprs == null)
-                DrawableHlprs = new DrawableHelpers();
-            if (CtrlHlprs == null)
-                CtrlHlprs = new ControlModeHelpers();
+
 
             var usableZone = CanvasItems.Where(z => z is LEDSetup).ToList();
             if (usableZone.Count() == 0)
@@ -615,10 +620,7 @@ namespace adrilight_content_creator.ViewModel
         {
 
 
-            if (DrawableHlprs == null)
-                DrawableHlprs = new DrawableHelpers();
-            if (CtrlHlprs == null)
-                CtrlHlprs = new ControlModeHelpers();
+
             var rectBound = GetDeviceRectBound(CanvasItems.ToList());
             System.Windows.Point scale = new System.Windows.Point(DeviceActualWidth / rectBound.Width, DeviceActualHeight / rectBound.Height);
             foreach (var item in CanvasItems)
@@ -957,6 +959,8 @@ namespace adrilight_content_creator.ViewModel
                 var newItems = new List<IDrawable>();
                 foreach (var geometryDrawing in geometry)
                 {
+                    var offsetLeft = geometryDrawing.Bounds.Left;
+                    var offsetTop = geometryDrawing.Bounds.Top;
                     var scaled = Geometry.Combine(
                         geometryDrawing.Geometry,
                         geometryDrawing.Geometry, GeometryCombineMode.Intersect,
@@ -964,7 +968,7 @@ namespace adrilight_content_creator.ViewModel
                         {
                             Children = new TransformCollection
                             {
-                            new TranslateTransform(group.Bounds.X * -1, group.Bounds.Y * -1),
+                            new TranslateTransform(offsetLeft * -1, offsetTop * -1),
                             new ScaleTransform(1.0 , 1.0 )
                             }
                         }
@@ -980,8 +984,8 @@ namespace adrilight_content_creator.ViewModel
                     var lastSpotID = CanvasItems.Where(s => s is DeviceSpot).Count();
                     var shape = Geometry.Parse(scaledString.Trim());
                     var newItem = new DeviceSpot(
-                           shape.Bounds.Top,
-                           shape.Bounds.Left,
+                           offsetTop,
+                           offsetLeft,
                            shape.Bounds.Width,
                            shape.Bounds.Height,
                            1,

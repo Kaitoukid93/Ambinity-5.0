@@ -124,6 +124,7 @@ namespace adrilight
         private Rect _vIDSpace;
         private bool _isDeleteable;
         private bool _isResizeable;
+        private string _zoneWarningText = string.Empty;
         private RGBLEDOrderEnum _rgbLEDOrder = RGBLEDOrderEnum.RGB;
         public RGBLEDOrderEnum RGBLEDOrder { get => _rgbLEDOrder; set { Set(() => RGBLEDOrder, ref _rgbLEDOrder, value); } }
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
@@ -140,7 +141,7 @@ namespace adrilight
         public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
 
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); } }
-
+        public string ZoneWarningText { get => _zoneWarningText; set { Set(() => ZoneWarningText, ref _zoneWarningText, value); } }
         public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }
 
         public double Height { get => _height; set { Set(() => Height, ref _height, value); OnHeightUpdated(); } }
@@ -261,15 +262,7 @@ namespace adrilight
 
             foreach (var spot in Spots)
             {
-                //spot.Geometry = RotateGeometry(spot.Geometry, angleInDegrees);
-                //var translatedCenterPoint = new Point(centerPoint.X - Left, centerPoint.Y - Top);
-                //var newSpotBound = DrawableHlprs.RotateRectangle(new Rect((spot as IDrawable).Left + Left + OffsetX, (spot as IDrawable).Top + Top + OffsetY, (spot as IDrawable).Width, (spot as IDrawable).Height), centerPoint, angleInDegrees);
-                //(spot as IDrawable).Left = newSpotBound.Left;
-                //(spot as IDrawable).Top = newSpotBound.Top;
-                //(spot as IDrawable).Width = newSpotBound.Width;
-                //(spot as IDrawable).Height = newSpotBound.Height;
                 (spot as DeviceSpot).RotateSpot(angleInDegrees, centerPoint, GetRect.Left, GetRect.Top);
-
             }
             var newBound = GetDeviceRectBound(Spots.ToList());
             foreach (var spot in Spots)
@@ -281,7 +274,6 @@ namespace adrilight
             Top = newBound.Top;
             Width = newBound.Width;
             Height = newBound.Height;
-            //UpdateSizeByChild(false);
         }
         public void ReorderSpots()
         {

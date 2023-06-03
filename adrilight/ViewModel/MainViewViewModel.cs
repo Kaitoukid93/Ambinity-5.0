@@ -3433,7 +3433,8 @@ namespace adrilight.ViewModel
                 if (p.IsSelectable)
                 {
                     p.IsSelected = true;
-                    SurfaceEditorSelectedItem = p;
+                    SurfaceEditorSelectedDevice = p as ARGBLEDSlaveDevice;
+                    SelectedItemScaleValue = SurfaceEditorSelectedDevice.Scale;
                 }
 
 
@@ -3443,20 +3444,19 @@ namespace adrilight.ViewModel
                 return true;
             }, (p) =>
             {
-                if (SurfaceEditorSelectedItem is ARGBLEDSlaveDevice)
+                if (SurfaceEditorSelectedDevice != null)
                 {
-                    var device = SurfaceEditorSelectedItem as ARGBLEDSlaveDevice;
 
-                    device.ApplyScale(SelectedItemScaleValue);
+                    SurfaceEditorSelectedDevice.ApplyScale(SelectedItemScaleValue);
                 }
 
             });
             GroupSelectedZoneForMaskedControlCommand = new RelayCommand<string>((p) =>
             {
                 return true;
-            }, (p) =>
+            }, async (p) =>
             {
-                AddZoneToGroup();
+                await AddZoneToGroup();
             });
             SelectSlaveDeviceForCurrentOutputCommand = new RelayCommand<ARGBLEDSlaveDevice>((p) =>
             {
@@ -6298,7 +6298,6 @@ namespace adrilight.ViewModel
             foreach (var item in childItems)
             {
                 item.IsSelected = false;
-                //item.MaskedControlMode = group.MaskedControlZone.CurrentActiveControlMode;
                 item.IsSelectable = false;
                 item.IsInControlGroup = true;
                 item.GroupID = group.GroupUID;
@@ -6306,15 +6305,6 @@ namespace adrilight.ViewModel
             group.MaskedControlZone.PropertyChanged += (_, __) =>
             {
                 WriteSingleDeviceInfoJson(CurrentDevice);
-                //switch (__.PropertyName)
-                //{
-                //    case nameof(group.MaskedControlZone.CurrentActiveControlModeIndex):
-                //        foreach (var item in childItems)
-                //        {
-                //            item.MaskedControlMode = group.MaskedControlZone.CurrentActiveControlMode;
-                //        }
-                //        break;
-                //}
             };
             IsRegisteringGroup = false;
         }
@@ -6325,7 +6315,6 @@ namespace adrilight.ViewModel
             foreach (var item in childItems)
             {
                 item.IsSelected = false;
-                // item.MaskedControlMode = group.MaskedControlZone.CurrentActiveControlMode;
                 item.IsSelectable = false;
                 item.IsInControlGroup = true;
                 item.GroupID = group.GroupUID;
@@ -6333,15 +6322,6 @@ namespace adrilight.ViewModel
             group.MaskedControlZone.PropertyChanged += (_, __) =>
             {
                 WriteSingleDeviceInfoJson(CurrentDevice);
-                //switch (__.PropertyName)
-                //{
-                //    case nameof(group.MaskedControlZone.CurrentActiveControlModeIndex):
-                //        foreach (var item in childItems)
-                //        {
-                //            item.MaskedControlMode = group.MaskedControlZone.CurrentActiveControlMode;
-                //        }
-                //        break;
-                //}
             };
             IsRegisteringGroup = false;
         }
@@ -6395,7 +6375,7 @@ namespace adrilight.ViewModel
                     zone.GroupID = null;
                     zone.IsInControlGroup = false;
                     (zone as IDrawable).IsSelectable = true;
-                    // (zone as IControlZone).MaskedControlMode = null;
+                    (zone as IControlZone).CurrentActiveControlMode = (zone as IControlZone).AvailableControlMode.First();
                 }
             }
             SelectedSlaveDevice = null;
@@ -6472,7 +6452,7 @@ namespace adrilight.ViewModel
             return border;
         }
 
-        private void AddZoneToGroup()
+        private async Task AddZoneToGroup()
         {
             if (!File.Exists(Path.Combine(ResourceFolderPath, "Group_thumb.png")))
             {
@@ -6532,12 +6512,15 @@ namespace adrilight.ViewModel
                         break;
                 }
                 LiveViewSelectedItem = newGroup;
+                newGroup.MaskedControlZone.CurrentActiveControlMode = newGroup.MaskedControlZone.AvailableControlMode.First();
                 SelectedControlZone = newGroup.MaskedControlZone;
                 //set display slave device
                 SelectedSlaveDevice = newGroup.MaskedSlaveDevice;
+
                 CanUnGroup = true;
                 CanGroup = false;
                 CurrentDevice.ControlZoneGroups.Add(newGroup);
+                await ChangeSelectedControlZoneActiveControlMode(newGroup.MaskedControlZone.CurrentActiveControlMode);
             }
         }
 
@@ -7096,7 +7079,7 @@ namespace adrilight.ViewModel
         private void RotateSelectedSurfaceEditorItem(ObservableCollection<IDrawable> p)
         {
             CurrentEditingPIDItem = p.Where(p => p.IsSelected).FirstOrDefault() as ARGBLEDSlaveDevice;
-            CurrentEditingPIDItem.RotateLEDSetup(120);
+            CurrentEditingPIDItem.RotateLEDSetup(30);
         }
 
         private void ReflectSelectedSurfaceEditorItem(ObservableCollection<IDrawable> p)
@@ -8056,7 +8039,7 @@ namespace adrilight.ViewModel
                     break;
             }
         }
-        public IDrawable SurfaceEditorSelectedItem { get; set; }
+        public ARGBLEDSlaveDevice SurfaceEditorSelectedDevice { get; set; }
         private double _selectedItemScaleValue;
         public double SelectedItemScaleValue { get { return _selectedItemScaleValue; } set { _selectedItemScaleValue = value; RaisePropertyChanged(); } }
         private void OpenSurfaceEditorWindow()

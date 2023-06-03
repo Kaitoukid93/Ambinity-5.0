@@ -102,7 +102,7 @@
                                 </i:Interaction.Triggers>
                             <Canvas HorizontalAlignment="Center" VerticalAlignment="Center" Width="{Binding Width,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" 
                                                 Height="{Binding Height, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}">
-                                <Grid Background="Gray">
+                                <Grid>
                                     <Image RenderTransformOrigin="0.5,0.5" Stretch="Uniform" Source="{Binding Thumbnail}"  Height="{Binding Image.Height}" RenderOptions.BitmapScalingMode="HighQuality" Width="{Binding Image.Width}">
                                         <Image.LayoutTransform>
                                             <RotateTransform Angle="{Binding Image.Angle,Mode=TwoWay}"/>
@@ -475,20 +475,19 @@
                                                         </Grid.ColumnDefinitions>
 
                                                         <TextBlock HorizontalAlignment="Left"  FontWeight="SemiBold" Text="SCALE" />
-                                                        <Button ToolTip="Tìm hiểu thêm" Grid.Column="1" HorizontalAlignment="Left"  Background="Transparent" Margin="10,0,0,0" hc:IconElement.Geometry="{DynamicResource infoCircle}" Style="{DynamicResource _defaultIconButtonSmall}" />
                                                     </Grid>
-                                                    <TextBlock Margin="0,5,0,0" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Chỉnh kích thước bút vẽ" />
+                                                    <TextBlock Margin="0,5,0,0" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Device scale" />
                                                 </StackPanel>
                                             </DataTemplate>
                                         </GroupBox.HeaderTemplate>
                                         <Grid>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="auto"/>
                                                 <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="auto"/>
                                             </Grid.ColumnDefinitions>
-                                            <hc:NumericUpDown VerticalAlignment="Center" HorizontalAlignment="Right" Minimum="1" Maximum="100" Value="{Binding SelectedItemScaleValue, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                                            <hc:NumericUpDown  VerticalAlignment="Center" HorizontalAlignment="Right" Minimum="1" Maximum="100" Value="{Binding SelectedItemScaleValue, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
                                             </hc:NumericUpDown>
-                                            <Button Grid.Column="1" Command="{Binding ApplySelectedItemsScaleCommand}" Content="Apply" Style="{DynamicResource _mediumProfileDefaultButton}"/>
+                                            <Button HorizontalAlignment="Right" Margin="10" Grid.Column="1" Command="{Binding ApplySelectedItemsScaleCommand}" Content="Apply" Style="{DynamicResource _mediumProfileDefaultButton}"/>
                                         </Grid>
 
                                     </GroupBox>

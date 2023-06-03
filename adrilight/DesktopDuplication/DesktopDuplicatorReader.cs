@@ -146,6 +146,14 @@ namespace adrilight
                     _currentScreenIndex = Array.IndexOf(Screen.AllScreens, screen);
 
             }
+            if (_currentScreenIndex == null)
+            {
+                CurrentZone.ZoneWarningText = "Vị trí của Zone nằm ngoài ranh giới màn hình!";
+            }
+            else
+            {
+                CurrentZone.ZoneWarningText = string.Empty;
+            }
             var isRunning = _cancellationTokenSource != null;
 
             var currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;

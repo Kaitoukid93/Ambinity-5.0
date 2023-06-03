@@ -286,7 +286,12 @@ namespace adrilight
                     {
                         foreach (var spot in CurrentZone.Spots)
                         {
-                            ApplySmoothing(_colors[spot.Index - startIndex].R, _colors[spot.Index - startIndex].G, _colors[spot.Index - startIndex].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
+                            var index = spot.Index - startIndex;
+                            if (index >= _colors.Length)
+                            {
+                                index = 0;
+                            }
+                            ApplySmoothing(_colors[index].R, _colors[index].G, _colors[index].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
                             spot.SetColor((byte)(_brightness * FinalR), (byte)(_brightness * FinalG), (byte)(_brightness * FinalB), false);
                         }
 

@@ -58,12 +58,15 @@ namespace adrilight.View
                 var boundsTop = geometry.Bounds.Top;
                 var scaleX = width / geometry.Bounds.Width;
                 var scaleY = height / geometry.Bounds.Height;
-                geometry.Transform = new RotateTransform(Spot.Angle);
-                var newX = geometry.Bounds.Left;
-                var newY = geometry.Bounds.Top;
-                var rotatedGeometry = geometry.GetFlattenedPathGeometry();
-                rotatedGeometry.Transform = new TranslateTransform(newX * -1, newY * -1);
-                DisplayGeometry = rotatedGeometry;
+                geometry.Transform = new TransformGroup {
+                    Children = new TransformCollection
+                    {
+                         new ScaleTransform(scaleX, scaleY),
+                        new TranslateTransform(Spot.Left-boundsLeft*scaleX, Spot.Top-boundsTop*scaleY)
+
+                }
+                };
+                DisplayGeometry = geometry;
             }
             catch (Exception ex)
             {

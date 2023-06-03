@@ -129,9 +129,9 @@
             </i:Interaction.Triggers>
             <richCanvas:RichItemsControl.Resources>
                 <DataTemplate DataType="{x:Type settings:ARGBLEDSlaveDevice}">
-                    <Canvas HorizontalAlignment="Center" VerticalAlignment="Center" Width="{Binding Width,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" 
+                    <Canvas IsHitTestVisible="False" HorizontalAlignment="Center" VerticalAlignment="Center" Width="{Binding Width,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" 
                                                 Height="{Binding Height, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}">
-                        <Grid Background="Gray">
+                        <Grid>
                             <Image RenderTransformOrigin="0.5,0.5" Stretch="Uniform" Source="{Binding Thumbnail}" Canvas.Left="{Binding Image.Left}" Canvas.Top="{Binding Image.Top}" Height="{Binding Image.Height}" RenderOptions.BitmapScalingMode="HighQuality" Width="{Binding Image.Width}">
                                 <Image.LayoutTransform>
                                     <RotateTransform Angle="{Binding Image.Angle,Mode=TwoWay}"/>
@@ -150,7 +150,11 @@
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </view:ZoneVisualizer>
-                        
+                        <Grid>
+                            <Viewbox>
+                                <TextBlock Margin="20" Text="{Binding ZoneWarningText}" Style="{DynamicResource TextBlockDefaultWarning}"/>
+                            </Viewbox>
+                        </Grid>
         <!--<ItemsControl ToolTip="{Binding Name}" Margin="0,0,0,0"
                                     Name="PreviewGird"
                                     HorizontalAlignment="Center"

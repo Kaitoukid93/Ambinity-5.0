@@ -260,22 +260,24 @@ namespace adrilight.Spots
                 {
                     new ScaleTransform(scaleX, scaleY),
                     new TranslateTransform(offsetX+Left-boundsLeft*scaleX, offsetY+Top -boundsTop*scaleY),
-                   // new RotateTransform(angleInDegrees)
                 }
             };
+            //rotate geometry using center point(absolute)
             inputGeometryClone.Transform = new RotateTransform(angleInDegrees, centerPoint.X - (offsetX + Left), centerPoint.Y - (offsetY + Top));
+            //how much the bounding box move
             var deltaX = inputGeometryClone.Bounds.Left;
             var deltaY = inputGeometryClone.Bounds.Top;
+            //create new bounding box
             Top += deltaY + offsetY;
             Left += deltaX + offsetX;
             Width = inputGeometryClone.Bounds.Width;
             Height = inputGeometryClone.Bounds.Height;
-            Angle += angleInDegrees;
-            if (Angle > 360)
-            {
-                Angle -= 360;
-            }
-
+            //flatten geometry do remove any empty zone
+            var rotatedGeometry = inputGeometryClone.GetFlattenedPathGeometry();
+            rotatedGeometry.Transform = new TranslateTransform(deltaX * -1, deltaY * -1);
+            var result = rotatedGeometry.GetFlattenedPathGeometry();
+            result.Freeze();
+            Geometry = result;
         }
 
 

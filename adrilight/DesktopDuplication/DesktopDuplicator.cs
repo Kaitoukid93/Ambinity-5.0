@@ -1,19 +1,12 @@
-﻿using System;
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
+﻿using adrilight.Extensions;
+using adrilight.Util;
 using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
-using adrilight.Extensions;
-
+using System;
+using System.Drawing.Imaging;
 using Device = SharpDX.Direct3D11.Device;
 using MapFlags = SharpDX.Direct3D11.MapFlags;
-using Rectangle = SharpDX.Mathematics.Interop.RawRectangle;
-using adrilight.Util;
-using System.Windows;
-using LiveCharts.Maps;
 
 namespace adrilight.DesktopDuplication
 {
@@ -255,37 +248,35 @@ namespace adrilight.DesktopDuplication
                 height = _outputDescription.DesktopBounds.GetWidth() / scalingFactor;
             }
 
-            // frame = new Rectangle(0, 0, width, height);
 
-            var boundsRect = new System.Drawing.Rectangle(0, 0, width, height);
 
             // Copy pixels from screen capture Texture to GDI bitmap
 
             var sourcePtr = mapSource.DataPointer;
-            //var destPtr = mapDest.Scan0;
 
-            //if (mapSource.RowPitch == mapDest.Stride)
-            //{
-            //    //fast copy
-            //    Utilities.CopyMemory(destPtr, sourcePtr, height * mapDest.Stride);
-            //}
-            //else
-            //{
-            //    //safe copy
-            //    for (int y = 0; y < height; y++)
-            //    {
-            //        // Copy a single line 
-            //        Utilities.CopyMemory(destPtr, sourcePtr, width * 4);
 
-            //        // Advance pointers
-            //        sourcePtr = IntPtr.Add(sourcePtr, mapSource.RowPitch);
-            //        destPtr = IntPtr.Add(destPtr, mapDest.Stride);
-            //    }
-            //}
-            int stride = 4 * (width * 8 + 31) / 32;
+            int bitsPerPixel = ((int)PixelFormat.Format32bppRgb & 0xff00) >> 8;
+            int bytesPerPixel = (bitsPerPixel + 7) / 8;
+            int stride = 4 * ((width * bytesPerPixel + 3) / 4);
             int bytes = Math.Abs(stride) * height;
             byte[] rgbValues = new byte[bytes];
-            System.Runtime.InteropServices.Marshal.Copy(sourcePtr, rgbValues, 0, bytes);
+            if (mapSource.RowPitch == stride)
+            {
+                //fast copy
+                System.Runtime.InteropServices.Marshal.Copy(sourcePtr, rgbValues, 0, bytes);
+            }
+            else
+            {
+                //safe copy
+                for (int y = 0; y < height; y++)
+                {
+                    // Copy a single line 
+                    System.Runtime.InteropServices.Marshal.Copy(sourcePtr, rgbValues, y * stride, width * 4);
+                    sourcePtr = IntPtr.Add(sourcePtr, mapSource.RowPitch);
+
+                }
+            }
+            // System.Runtime.InteropServices.Marshal.Copy(destPtr, rgbValues, 0, bytes);
 
             // Release source and dest locks
             //image.UnlockBits(mapDest);

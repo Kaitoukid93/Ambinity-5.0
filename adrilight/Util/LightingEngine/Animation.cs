@@ -413,7 +413,12 @@ namespace adrilight
                             position %= _colorBank.Length;
                             lock (_lock)
                             {
-                                float brightness = ((_resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData[spot.Index - startPID]) * (float)_brightness) / 255;
+                                var index = spot.Index - startPID;
+                                if (index >= (_resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData.Length))
+                                {
+                                    index = 0;
+                                }
+                                float brightness = ((_resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData[index]) * (float)_brightness) / 255;
                                 ApplySmoothing(brightness * _colorBank[position].R, brightness * _colorBank[position].G, brightness * _colorBank[position].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
                                 spot.SetColor(FinalR, FinalG, FinalB, shouldViewUpdate);
                             }

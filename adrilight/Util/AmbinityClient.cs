@@ -1,24 +1,15 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO.Ports;
-using System.Threading;
+﻿using adrilight.ViewModel;
 using NLog;
-using System.Buffers;
-using adrilight.Util;
-using System.Linq;
-using Newtonsoft.Json;
-using System.Windows;
-using adrilight.Spots;
 using OpenRGB.NET;
-using System.Collections.Generic;
-using Polly;
-using System.IO;
-using System.Reflection;
-using System.IO.Compression;
 using OpenRGB.NET.Models;
+using Polly;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.IO.Compression;
+using System.Reflection;
 using System.Threading.Tasks;
-using adrilight.View;
-using adrilight.ViewModel;
 
 namespace adrilight
 {
@@ -32,10 +23,10 @@ namespace adrilight
         private string ORGBExeFolderNameAndPath => Path.Combine(ORGBPath, "OpenRGB\\");
         private string ORGBExeFileNameAndPath => Path.Combine(ORGBExeFolderNameAndPath, "OpenRGB Windows 64-bit\\OpenRGB.exe");
 
-        public AmbinityClient(IGeneralSettings generalSettings,MainViewViewModel mainViewViewModel)
+        public AmbinityClient(IGeneralSettings generalSettings, MainViewViewModel mainViewViewModel)
         {
             GeneralSettings = generalSettings ?? throw new ArgumentException(nameof(generalSettings));
-           MainViewViewModel = mainViewViewModel ?? throw new ArgumentException(nameof(mainViewViewModel));
+            MainViewViewModel = mainViewViewModel ?? throw new ArgumentException(nameof(mainViewViewModel));
             _retryPolicy = Policy
            .Handle<Exception>()
            .WaitAndRetryAsync(10, _ => TimeSpan.FromSeconds(1));
@@ -44,7 +35,7 @@ namespace adrilight
             _log.Info($"SerialStream created.");
         }
         //Dependency Injection//
-        private IGeneralSettings GeneralSettings { get;}
+        private IGeneralSettings GeneralSettings { get; }
         private MainViewViewModel MainViewViewModel { get; }
         private System.Diagnostics.Process _oRGBProcess;
         public System.Diagnostics.Process ORGBProcess {
@@ -91,12 +82,13 @@ namespace adrilight
                         MainViewViewModel.SetDashboardStatusText("Done!", false);
                         IsInitialized = true;
                     }
-                        
+
                 }
                 catch (TimeoutException)
                 {
                     HandyControl.Controls.MessageBox.Show("Không tìm thấy Server OpenRGB, Hãy thử thoát ứng dụng và mở lại");
                     IsInitialized = false;
+                    MainViewViewModel.SearchingForDevices = false;
                     //IsAvailable= false;
 
                 }
