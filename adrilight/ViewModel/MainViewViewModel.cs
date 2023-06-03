@@ -525,6 +525,8 @@ namespace adrilight.ViewModel
         public ICommand ChangeSelectedControlZoneActiveControlModeCommand { get; set; }
         public ICommand SelectSurfaceEditorItemCommand { get; set; }
         public ICommand ApplySelectedItemsScaleCommand { get; set; }
+        public ICommand ApplySelectedItemsRotationCommand { get; set; }
+        public ICommand RestoreSelectedSurfaceDeviceSizeAndRotationCommand { get; set; }
         public ICommand LaunchAdrilightStoreItemCeatorWindowCommand { get; set; }
         public ICommand DownloadSelectedChasingPattern { get; set; }
         public ICommand DownloadSelectedPaletteCommand { get; set; }
@@ -2705,14 +2707,7 @@ namespace adrilight.ViewModel
             }
           );
 
-            OpenRectangleScaleCommand = new RelayCommand<ObservableCollection<IDrawable>>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                OpenRectangleScaleWindow(p);
-            }
-          );
+
             SetSelectedMotionCommand = new RelayCommand<ITimeLineDataItem>((p) =>
             {
                 return true;
@@ -2797,14 +2792,7 @@ namespace adrilight.ViewModel
                 IsRichCanvasWindowOpen = false;
             }
     );
-            OpenRectangleRotateCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                OpenRectangleRotateWindow();
-            }
-        );
+
             SetSelectedItemLiveViewCommand = new RelayCommand<IOutputSettings>((p) =>
             {
                 return true;
@@ -3250,25 +3238,7 @@ namespace adrilight.ViewModel
             {
                 //SnapShot();
             });
-            LaunchPIDEditWindowCommand = new RelayCommand<IDrawable>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                if (!Keyboard.IsKeyDown(Key.LeftCtrl) && !Keyboard.IsKeyDown(Key.RightCtrl))
-                {
-                    if ((p as ARGBLEDSlaveDevice).ControlableZones.Any(z => z.IsInControlGroup))
-                    {
-                        HandyControl.Controls.MessageBox.Show("Không thể chỉnh sửa cấu hình LED khi thiết bị nằm trong Group. Ungroup trước khi chỉnh sửa", "Device is in group", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return;
-                    }
-                    LaunchPIDEditWindow(p);
-                }
-                else
-                {
-                    ExportItemForOnlineStore(p as ARGBLEDSlaveDevice);
-                }
-            });
+
             OpenSpotPIDQuickEDitWindowCommand = new RelayCommand<ObservableCollection<IDrawable>>((p) =>
             {
                 return true;
@@ -3435,6 +3405,7 @@ namespace adrilight.ViewModel
                     p.IsSelected = true;
                     SurfaceEditorSelectedDevice = p as ARGBLEDSlaveDevice;
                     SelectedItemScaleValue = SurfaceEditorSelectedDevice.Scale;
+                    SelectedItemRotationValue = SurfaceEditorSelectedDevice.Angle;
                 }
 
 
@@ -3451,6 +3422,30 @@ namespace adrilight.ViewModel
                 }
 
             });
+            ApplySelectedItemsRotationCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                if (SurfaceEditorSelectedDevice != null)
+                {
+                    SurfaceEditorSelectedDevice.RotateLEDSetup(SelectedItemRotationValue);
+                }
+
+            });
+            RestoreSelectedSurfaceDeviceSizeAndRotationCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                if (SurfaceEditorSelectedDevice != null)
+                {
+                    SurfaceEditorSelectedDevice.RotateLEDSetup(0);
+                    SurfaceEditorSelectedDevice.ApplyScale(1.0);
+                }
+
+            });
+
             GroupSelectedZoneForMaskedControlCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -4649,6 +4644,8 @@ namespace adrilight.ViewModel
 
         private void ExportItemForOnlineStore(object p)
         {
+            if (p == null)
+                return;
             CurrentContentForExport = p;
             CurrentItemForExport = new OnlineItemModel() { Name = "Change Name", Description = "Change Description", Type = p.GetType().Name.ToString(), Owner = "Change Owner" };
             OnlineItemScreenShotCollection = new ObservableCollection<string>();
@@ -7066,6 +7063,8 @@ namespace adrilight.ViewModel
             CurrentIDType = "PID";
             CountPID = 0;
             CurrentEditingPIDItem = p.Where(p => p.IsSelected).FirstOrDefault() as ARGBLEDSlaveDevice;
+            if (CurrentEditingPIDItem == null)
+                return;
             foreach (var zone in CurrentEditingPIDItem.ControlableZones)
             {
                 (zone as LEDSetup).BackupSpots();
@@ -7078,8 +7077,14 @@ namespace adrilight.ViewModel
 
         private void RotateSelectedSurfaceEditorItem(ObservableCollection<IDrawable> p)
         {
-            CurrentEditingPIDItem = p.Where(p => p.IsSelected).FirstOrDefault() as ARGBLEDSlaveDevice;
-            CurrentEditingPIDItem.RotateLEDSetup(30);
+            if (SurfaceEditorSelectedDevice == null)
+                return;
+            var targetAngle = SurfaceEditorSelectedDevice.Angle + 90;
+            if (targetAngle >= 360)
+            {
+                targetAngle -= 360;
+            }
+            SurfaceEditorSelectedDevice.RotateLEDSetup(targetAngle);
         }
 
         private void ReflectSelectedSurfaceEditorItem(ObservableCollection<IDrawable> p)
@@ -7133,66 +7138,66 @@ namespace adrilight.ViewModel
             }
         }
 
-        private void LaunchPIDEditWindow(IDrawable p)
-        {
-            CurrentEditingDevice = p as ARGBLEDSlaveDevice;
-            CurrentIDType = "PID";
-            //Clone this slave device
-            var temp = ObjectHelpers.Clone<ARGBLEDSlaveDevice>(p as ARGBLEDSlaveDevice);
+        //private void LaunchPIDEditWindow(IDrawable p)
+        //{
+        //    CurrentEditingDevice = p as ARGBLEDSlaveDevice;
+        //    CurrentIDType = "PID";
+        //    //Clone this slave device
+        //    var temp = ObjectHelpers.Clone<ARGBLEDSlaveDevice>(p as ARGBLEDSlaveDevice);
 
-            CountPID = 0;
+        //    CountPID = 0;
 
-            //add output border rect
-            PIDEditWindowsRichCanvasItems = new ObservableCollection<IDrawable>();
-            // PIDEditWindowsRichCanvasItems.CollectionChanged += PIDEditItemsChanged;
-            //ad zone border
-            PIDEditWindowSelectedItems = new ObservableCollection<IDrawable>();
-            PIDEditWindowSelectedItems.CollectionChanged += PIDEditSelectedItemsChanged;
-            // PIDEditWindowsRichCanvasSelectedItem = null;
-            foreach (var zone in temp.ControlableZones)
-            {
-                var ledSetup = zone as LEDSetup;
-                //deselect any selected zone
-                ledSetup.IsSelected = false;
-                ledSetup.Left = ledSetup.GetRect.Left;
-                ledSetup.Top = ledSetup.GetRect.Top;
-                PIDEditWindowsRichCanvasItems.Add(ledSetup);
-            }
+        //    //add output border rect
+        //    PIDEditWindowsRichCanvasItems = new ObservableCollection<IDrawable>();
+        //    // PIDEditWindowsRichCanvasItems.CollectionChanged += PIDEditItemsChanged;
+        //    //ad zone border
+        //    PIDEditWindowSelectedItems = new ObservableCollection<IDrawable>();
+        //    PIDEditWindowSelectedItems.CollectionChanged += PIDEditSelectedItemsChanged;
+        //    // PIDEditWindowsRichCanvasSelectedItem = null;
+        //    foreach (var zone in temp.ControlableZones)
+        //    {
+        //        var ledSetup = zone as LEDSetup;
+        //        //deselect any selected zone
+        //        ledSetup.IsSelected = false;
+        //        ledSetup.Left = ledSetup.GetRect.Left;
+        //        ledSetup.Top = ledSetup.GetRect.Top;
+        //        PIDEditWindowsRichCanvasItems.Add(ledSetup);
+        //    }
 
-            //add virtual borders
-            if (GeneralSettings.IsMultipleScreenEnable)
-            {
-                for (int i = 0; i < Screen.AllScreens.Length; i++)
-                {
-                    ScreenBound screen = new ScreenBound();
-                    screen.Width = Screen.AllScreens[i].Bounds.Width;
-                    screen.Height = Screen.AllScreens[i].Bounds.Height;
-                    screen.Top = Screen.AllScreens[i].Bounds.Top;
-                    screen.Left = Screen.AllScreens[i].Bounds.Left;
-                    screen.Index = i;
-                    PIDEditWindowsRichCanvasItems.Insert(0, screen);
-                }
-            }
-            else
-            {
-                ScreenBound screen = new ScreenBound();
-                PIDEditWindowsRichCanvasItems.Insert(0, screen);
-            }
+        //    //add virtual borders
+        //    if (GeneralSettings.IsMultipleScreenEnable)
+        //    {
+        //        for (int i = 0; i < Screen.AllScreens.Length; i++)
+        //        {
+        //            ScreenBound screen = new ScreenBound();
+        //            screen.Width = Screen.AllScreens[i].Bounds.Width;
+        //            screen.Height = Screen.AllScreens[i].Bounds.Height;
+        //            screen.Top = Screen.AllScreens[i].Bounds.Top;
+        //            screen.Left = Screen.AllScreens[i].Bounds.Left;
+        //            screen.Index = i;
+        //            PIDEditWindowsRichCanvasItems.Insert(0, screen);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        ScreenBound screen = new ScreenBound();
+        //        PIDEditWindowsRichCanvasItems.Insert(0, screen);
+        //    }
 
-            PathGuide pathGuide = new PathGuide() {
-                Width = 200,
-                Height = 200,
-                IsDraggable = true,
-                IsSelectable = true,
-                IsResizeable = false,
-                Geometry = "AmbinoA1Guide"
-            };
+        //    PathGuide pathGuide = new PathGuide() {
+        //        Width = 200,
+        //        Height = 200,
+        //        IsDraggable = true,
+        //        IsSelectable = true,
+        //        IsResizeable = false,
+        //        Geometry = "AmbinoA1Guide"
+        //    };
 
-            surfaceeditorWindow.Close();
-            IsRichCanvasWindowOpen = true;
-            pidEditCanvasWindow = new PIDEditCanvasWindow();
-            pidEditCanvasWindow.ShowDialog();
-        }
+        //    surfaceeditorWindow.Close();
+        //    IsRichCanvasWindowOpen = true;
+        //    pidEditCanvasWindow = new PIDEditCanvasWindow();
+        //    pidEditCanvasWindow.ShowDialog();
+        //}
 
         #region color and palette edit properties
 
@@ -7425,12 +7430,7 @@ namespace adrilight.ViewModel
             }
         }
 
-        private void OpenRectangleScaleWindow(ObservableCollection<IDrawable> itemSource) // set scale for all surface editor selected items
-        {
-            var window = new ScaleSelectionWindow(itemSource);
-            window.Owner = System.Windows.Application.Current.MainWindow;
-            window.ShowDialog();
-        }
+
 
         private void OpenAvailableLedSetupForCurrentDeviceWindow()
         {
@@ -7448,14 +7448,6 @@ namespace adrilight.ViewModel
             window.ShowDialog();
         }
 
-        private void OpenRectangleRotateWindow() // set scale for all surface editor selected items
-        {
-            if (AssemblyHelper.CreateInternalInstance($"View.{"RotateSelectionWindow"}") is System.Windows.Window window)
-            {
-                window.Owner = System.Windows.Application.Current.MainWindow;
-                window.ShowDialog();
-            }
-        }
 
         private double _itemScaleValue = 1.0;
 
@@ -7533,34 +7525,31 @@ namespace adrilight.ViewModel
         {
             //get min X
             double spacing = 10.0;
-            double minLeft = itemSource.OfType<IDrawable>().Where(d => d.IsSelected).Min(x => x.Left);
-            var selectedItems = itemSource.OfType<IDrawable>().Where(d => d.IsSelected).ToArray();
+            var selectedItems = itemSource.OfType<IDrawable>().Where(d => d.IsSelected);
+            IDrawable[] orderedItems = new IDrawable[selectedItems.Count()];
+            orderedItems = selectedItems.OrderBy(i => i.Left).ToArray();
             switch (dirrection)
             {
                 case 0:
-                    for (int i = 0; i < selectedItems.Count(); i++)
+
+                    for (int i = 0; i < orderedItems.Count(); i++)
                     {
                         if (i == 0)
-                            selectedItems[i].Left = minLeft;
-                        else
-                        {
-                            var previousLeft = selectedItems[i - 1].Left;
-                            selectedItems[i].Left = selectedItems[i - 1].Width + previousLeft + spacing;
-                        }
+                            continue;
+                        var previousLeft = orderedItems[i - 1].Left;
+                        orderedItems[i].Left = orderedItems[i - 1].Width + previousLeft + spacing;
+
                     }
                     AglignSelectedItemstoTop(itemSource);
                     break;
-
                 case 1:
-                    for (int i = 0; i < selectedItems.Count(); i++)
+                    for (int i = 0; i < orderedItems.Count(); i++)
                     {
                         if (i == 0)
-                            selectedItems[i].Left = minLeft;
-                        else
-                        {
-                            var previousLeft = selectedItems[i - 1].Left;
-                            selectedItems[i].Left = previousLeft - (selectedItems[i].Width + spacing);
-                        }
+                            continue;
+                        var previousLeft = orderedItems[i - 1].Left;
+                        orderedItems[i].Left = previousLeft - (orderedItems[i].Width + spacing);
+
                     }
                     AglignSelectedItemstoTop(itemSource);
                     break;
@@ -7571,20 +7560,19 @@ namespace adrilight.ViewModel
         {
             //get min Y
             double spacing = 10.0;
-            double minTop = itemSource.OfType<IDrawable>().Where(d => d.IsSelected).Min(x => x.Top);
-            var selectedItems = itemSource.OfType<IDrawable>().Where(d => d.IsSelected).ToArray();
+            var selectedItems = itemSource.OfType<IDrawable>().Where(d => d.IsSelected);
+            IDrawable[] orderedItems = new IDrawable[selectedItems.Count()];
+            orderedItems = selectedItems.OrderBy(i => i.Top).ToArray();
             switch (dirrection)
             {
                 case 0:
                     for (int i = 0; i < selectedItems.Count(); i++)
                     {
                         if (i == 0)
-                            selectedItems[i].Top = minTop;
-                        else
-                        {
-                            var previousTop = selectedItems[i - 1].Top;
-                            selectedItems[i].Top = selectedItems[i - 1].Height + previousTop + spacing;
-                        }
+                            continue;
+                        var previousTop = orderedItems[i - 1].Top;
+                        orderedItems[i].Top = orderedItems[i - 1].Height + previousTop + spacing;
+
                     }
                     AglignSelectedItemstoLeft(itemSource);
                     break;
@@ -7593,12 +7581,10 @@ namespace adrilight.ViewModel
                     for (int i = 0; i < selectedItems.Count(); i++)
                     {
                         if (i == 0)
-                            selectedItems[i].Top = minTop;
-                        else
-                        {
-                            var previousTop = selectedItems[i - 1].Top;
-                            selectedItems[i].Top = previousTop - (selectedItems[i].Height + spacing);
-                        }
+                            continue;
+                        var previousTop = orderedItems[i - 1].Top;
+                        orderedItems[i].Top = previousTop - (orderedItems[i].Height + spacing);
+
                     }
                     AglignSelectedItemstoLeft(itemSource);
                     break;
@@ -8039,9 +8025,14 @@ namespace adrilight.ViewModel
                     break;
             }
         }
-        public ARGBLEDSlaveDevice SurfaceEditorSelectedDevice { get; set; }
+        private ARGBLEDSlaveDevice _surfaceEditorSelectedDevice;
+
+        public ARGBLEDSlaveDevice SurfaceEditorSelectedDevice { get { return _surfaceEditorSelectedDevice; } set { _surfaceEditorSelectedDevice = value; RaisePropertyChanged(); } }
+
         private double _selectedItemScaleValue;
         public double SelectedItemScaleValue { get { return _selectedItemScaleValue; } set { _selectedItemScaleValue = value; RaisePropertyChanged(); } }
+        private double _selectedItemRotationValue;
+        public double SelectedItemRotationValue { get { return _selectedItemRotationValue; } set { _selectedItemRotationValue = value; RaisePropertyChanged(); } }
         private void OpenSurfaceEditorWindow()
         {
             SurfaceEditorItems = new ObservableCollection<IDrawable>();

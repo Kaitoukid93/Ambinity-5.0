@@ -782,13 +782,13 @@
 
                         <StackPanel>
 
-                            <Grid>
+                            <!--<Grid>
                                 <local:SlaveDeviceInfoView>
                                 </local:SlaveDeviceInfoView>
-                            </Grid>
+                            </Grid>-->
 
-                            <hc:Divider  LineStroke="{StaticResource RegionBrush}" Margin="-10,10">
-                            </hc:Divider>
+                            <!--<hc:Divider  LineStroke="{StaticResource RegionBrush}" Margin="-10,10">
+                            </hc:Divider>-->
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="auto" />

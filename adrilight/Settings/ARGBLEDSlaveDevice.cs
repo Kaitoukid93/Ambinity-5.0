@@ -197,15 +197,16 @@ namespace adrilight.Settings
 
         public void RotateLEDSetup(double angleInDegrees)
         {
+            var deltaAngle = angleInDegrees - Angle;
             var center = new Point(Left + Width / 2, Top + Height / 2);
             foreach (var zone in ControlableZones)
             {
-                (zone as LEDSetup).RotateLEDSetup(angleInDegrees, center);
+                (zone as LEDSetup).RotateLEDSetup(deltaAngle, center);
             }
             //rotate background image,
             if (Image != null)
             {
-                Image.Angle += angleInDegrees;
+                Image.Angle += deltaAngle;
                 if (Image.Angle == 360)
                 {
                     Image.Angle = 0;
@@ -227,6 +228,7 @@ namespace adrilight.Settings
             Top = newBound.Top;
             Width = newBound.Width;
             Height = newBound.Height;
+            Angle = angleInDegrees;
         }
 
         public Rect GetDeviceRectBound()
@@ -351,6 +353,10 @@ namespace adrilight.Settings
                             {
                                 if (spot.Index == 0)
                                     spot.SetColor(0, 0, 255, true);
+                                else
+                                {
+                                    spot.SetColor(0, 0, 0, true);
+                                }
                             }
                         }
                         break;

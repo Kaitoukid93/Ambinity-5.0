@@ -399,6 +399,7 @@
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\VisualProperties.cs" />
     <Compile Include="View\AudioDeviceSelectionWindowxaml.cs" />
+    <Compile Include="View\PIDQuickEditNonClientAreaContent.xaml.cs" />
     <Compile Include="View\ZoneVisualizer.cs" />
     <Compile Include="View\SurfaceEditorNonClientAreaContent.xaml.cs" />
     <Compile Include="View\StoreNonClientAreaContent.xaml.cs" />
@@ -504,6 +505,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\AudioDeviceSelectionWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\PIDQuickEditNonClientAreaContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

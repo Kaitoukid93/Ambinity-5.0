@@ -257,6 +257,7 @@ namespace adrilight
                 {
                     var startIndex = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
                     bool shouldViewUpdate = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated && updateIntervalCounter > _frameRate / _displayUpdateRate;
+                    bool shouldSetColor = !MainViewViewModel.IsRichCanvasWindowOpen;
                     if (shouldViewUpdate)
                         updateIntervalCounter = 0;
                     if (_isBreathing)
@@ -292,7 +293,8 @@ namespace adrilight
                                 index = 0;
                             }
                             ApplySmoothing(_colors[index].R, _colors[index].G, _colors[index].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
-                            spot.SetColor((byte)(_brightness * FinalR), (byte)(_brightness * FinalG), (byte)(_brightness * FinalB), false);
+                            if (shouldSetColor)
+                                spot.SetColor((byte)(_brightness * FinalR), (byte)(_brightness * FinalG), (byte)(_brightness * FinalB), false);
                         }
 
                     }
