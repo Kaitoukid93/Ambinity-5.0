@@ -212,19 +212,9 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="auto"/>
                                 </Grid.ColumnDefinitions>
-                                <StackPanel>
-                                    
-                                            <TextBlock Text="{Binding DeviceName}" 
-                                                   FlowDirection="RightToLeft"
+                                <TextBlock Margin="20,10" HorizontalAlignment="Left" Text="{Binding DeviceName}" 
                                                    FontWeight="SemiBold"
                                                    Style="{StaticResource TextBlockTitle}"/>
-                                      
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Margin="15,0,0,10" HorizontalAlignment="Left" Text="{Binding HardwareVersion}" Style="{DynamicResource TextBlockDefaultPrimary}"/>
-
-                                    </StackPanel>
-
-                                </StackPanel>
                                 <ToggleButton Grid.Column="1"
                                         IsChecked="{Binding IsEnabled}" 
                                         BorderThickness="0"                                     
@@ -236,7 +226,7 @@
                                 </ToggleButton>
                             </Grid>
                             <Grid Grid.Row="1">
-                                <Image Margin="10" HorizontalAlignment="Center" Source="{Binding DeviceThumbnail}" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" />
+                                <Image Margin="10"  Source="{Binding DeviceThumbnail}" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform" />
                             </Grid>
                             <Grid Grid.Row="2">
                                 <Grid.ColumnDefinitions>
@@ -308,7 +298,7 @@
 
         <Grid Width="auto" x:Name="parrentGrid" Grid.Row="1" >
 
-            
+
             <hc:RelativePanel  Margin="10">
                 <Grid Margin="0"  x:Name="Header"  hc:RelativePanel.AlignLeftWithPanel="True" hc:RelativePanel.AlignTopWithPanel="True" >
                     <TextBlock
@@ -321,11 +311,11 @@
                 </Grid>
 
 
-                
+
                 <Grid x:Name="AllDevicesPanel" hc:RelativePanel.AlignLeftWithPanel="True"  hc:RelativePanel.Below="{Binding ElementName=Header}">
 
                     <!-- all devices-->
-                  
+
                     <ListView  Margin="0" 
                        
                        Name="itm" 
@@ -366,11 +356,11 @@
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>-->
                     </ListView>
-                   
+
                 </Grid>
             </hc:RelativePanel>
             <Border Background="{DynamicResource DarkOpacityBrush}" Visibility="{Binding SearchingForDevices,Mode=TwoWay,Converter={StaticResource Boolean2VisibilityConverter}}">
-                
+
             </Border>
             <Grid Visibility="{Binding SearchingForDevices,Mode=TwoWay,Converter={StaticResource Boolean2VisibilityConverter}}">
 
@@ -378,7 +368,7 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-            <hc:LoadingLine  VerticalAlignment="Bottom" Height="20" Width="100"/>
+                <hc:LoadingLine  VerticalAlignment="Bottom" Height="20" Width="100"/>
                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="1" Style="{DynamicResource TextBlockSubTitle}" Text="{Binding DashboardLoadingText,Mode=TwoWay}"/>
             </Grid>
 

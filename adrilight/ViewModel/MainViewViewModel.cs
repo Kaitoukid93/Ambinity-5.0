@@ -1382,9 +1382,7 @@ namespace adrilight.ViewModel
             // write thumbnail
             //if this device is ambino legacy, search resource fo the thumbnail
             var thumbnailResourcePath = "adrilight.Resources.Thumbnails." + device.DeviceType.Type.ToString() + "_thumb.png";
-            var outputmapResourcePath = "adrilight.Resources.OutputMaps." + device.DeviceType.Type.ToString() + "_outputmap.png";
             ResourceHlprs.CopyResource(thumbnailResourcePath, Path.Combine(directory, "thumbnail.png"));
-            ResourceHlprs.CopyResource(outputmapResourcePath, Path.Combine(directory, "outputmap.png"));
             //write output info
             var lightingOutputDirectory = Path.Combine(directory, "LightingOutputs"); //contains lighting controller info
             foreach (var output in device.AvailableLightingOutputs)
@@ -1763,7 +1761,8 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-
+        private int _noDeviceDetectedCounter;
+        private bool _isDeviceDiscoveryInit;
         public async Task FoundNewDevice(List<IDeviceSettings> newDevices)
         {
             if (IsLoadingProfile)
@@ -1791,6 +1790,27 @@ namespace adrilight.ViewModel
                         }
                     }
                     SearchingForDevices = false;
+                }
+                else
+                {
+                    if (_noDeviceDetectedCounter < 10)
+                        _noDeviceDetectedCounter++;
+                    if (_noDeviceDetectedCounter >= 10)
+                    {
+                        SearchingForDevices = false;
+                        if (!_isDeviceDiscoveryInit)
+                        {
+                            var result = HandyControl.Controls.MessageBox.Show("Không phát hiện ra thiết bị nào được hỗ trợ", "No device detected", MessageBoxButton.YesNo, MessageBoxImage.Error);
+                            if (result == MessageBoxResult.Yes)//stop showing message
+                            {
+                                //open device setup wizard
+                            }
+                        }
+
+                        _isDeviceDiscoveryInit = true;
+                    }
+
+
                 }
             });
         }
@@ -3320,6 +3340,20 @@ namespace adrilight.ViewModel
                     SelectedSlaveDevice = null;
                 }
             });
+            UnselectAllSurfaceEditorItemCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                if (!Keyboard.IsKeyDown(Key.LeftCtrl)) // user is draging or holding ctrl
+                {
+                    foreach (var item in SurfaceEditorItems)
+                    {
+                        item.IsSelected = false;
+                    }
+                    SurfaceEditorSelectedDevice = null;
+                }
+            });
 
             LiveViewMouseButtonUpCommand = new RelayCommand<string>((p) =>
             {
@@ -3344,19 +3378,19 @@ namespace adrilight.ViewModel
                 }
             });
 
-            UnselectAllSurfaceEditorItemCommand = new RelayCommand<IDrawable>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                if (!Keyboard.IsKeyDown(Key.LeftCtrl)) // user is draging or holding ctrl
-                {
-                    foreach (var item in SurfaceEditorItems.Where(i => i != p))
-                    {
-                        item.IsSelected = false;
-                    }
-                }
-            });
+            //UnselectAllSurfaceEditorItemCommand = new RelayCommand<IDrawable>((p) =>
+            //{
+            //    return true;
+            //}, (p) =>
+            //{
+            //    if (!Keyboard.IsKeyDown(Key.LeftCtrl)) // user is draging or holding ctrl
+            //    {
+            //        foreach (var item in SurfaceEditorItems.Where(i => i != p))
+            //        {
+            //            item.IsSelected = false;
+            //        }
+            //    }
+            //});
             IsolateSelectedItemsCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -8449,18 +8483,6 @@ namespace adrilight.ViewModel
             OOTBItems = new ObservableCollection<IDrawable>();
             OOTBSelectedItems = new ObservableCollection<IDrawable>();
             //get image ready
-            var outputMapImage = new ImageVisual() {
-                Name = "Output Map",
-                ImagePath = CurrentDevice.DeviceOutputMap,
-                Width = 500,
-                Height = 500,
-                Left = 0,
-                Top = 0,
-                IsDraggable = false,
-                IsSelectable = false,
-                IsResizeable = false
-            };
-            OOTBItems.Add(outputMapImage);
             //output map
             foreach (var output in CurrentDevice.AvailableLightingOutputs)
             {

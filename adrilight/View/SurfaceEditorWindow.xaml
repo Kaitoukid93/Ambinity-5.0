@@ -69,11 +69,11 @@
                 GridSpacing="24"
                 EnableGrid="False"
                 Scrolling="OnScrolling"
+                SelectedItems="{Binding SurfaceEditorSelectedItems}"
                 ScrollFactor="0.5"
                 CanSelectMultipleItems="True"
                 RealTimeDraggingEnabled="False"
                 RealTimeSelectionEnabled="False"
-                SelectedItems="{Binding SurfaceEditorSelectedItems}"
                 Scale="{Binding CanvasScale,Mode=TwoWay}"
                 MaxScale="20"
                 MinScale="0.1">
@@ -88,7 +88,11 @@
                         <Setter Property="StrokeThickness" Value="{Binding DataContext.SelectionRectangleStrokeThickness,RelativeSource={RelativeSource AncestorType={x:Type view:SurfaceEditorWindow}}}" />
                     </Style>
                 </richCanvas:RichItemsControl.SelectionRectangleStyle>
-             
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                        <i:InvokeCommandAction Command="{Binding DataContext.UnselectAllSurfaceEditorItemCommand,RelativeSource={RelativeSource AncestorType={x:Type view:SurfaceEditorWindow}}}" CommandParameter="unselect" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
                 <richCanvas:RichItemsControl.Resources>
                     <DataTemplate DataType="{x:Type settings:ARGBLEDSlaveDevice}">
                         <Grid>
@@ -441,10 +445,10 @@
             <Grid>
                 <Grid.Style>
                     <Style TargetType="Grid">
-                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Setter Property="Visibility" Value="Visible"/>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding SurfaceEditorSelectedItems.Count}" Value="1">
-                                <Setter Property="Visibility" Value="Visible"/>
+                            <DataTrigger Binding="{Binding SurfaceEditorSelectedDevice}" Value="{x:Null}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -677,6 +681,7 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
+            <TextBlock Text="Nhấn giữ ctrl và kéo thả để di chuyển nhiều thiết bị. Để chọn nhiều thiết bị, quét hoặc nhấn ctrl rồi click lần lượt vào các thiết bị cần chọn" Style="{DynamicResource TextBlockDefaultWarning}"/>
             <Button  Command="{Binding SaveCurretSurfaceLayoutCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Save"/>
             <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
         </Grid>

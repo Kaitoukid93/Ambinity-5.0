@@ -1,18 +1,12 @@
-﻿using adrilight;
-using adrilight.Settings;
+﻿using adrilight.Settings;
 using adrilight.Spots;
 using adrilight.Util;
-using LiveCharts.Defaults;
 using LiveCharts;
-using SharpDX.Direct3D9;
+using LiveCharts.Defaults;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DeviceType = adrilight.Settings.DeviceType;
-using OpenRGB.NET.Enums;
 
 namespace adrilight.Helpers
 {
@@ -128,8 +122,8 @@ namespace adrilight.Helpers
                 }
                 newDevice.AvailableControllers.Add(pwmController);
             }
-            
-           // newDevice.UpdateChildSize();
+
+            // newDevice.UpdateChildSize();
             return newDevice;
 
         }
@@ -159,7 +153,7 @@ namespace adrilight.Helpers
                             indexOffset = totalLEDCount;
                         }
 
-                        newSlaveDevice.ControlableZones.Add(LEDSetupHlprs.BuildLEDSetup(zoneData[i].Name, 0, top, zoneData[i].NumLEDX, zoneData[i].NumLEDY, zoneData[i].Width, zoneData[i].Height,indexOffset));
+                        newSlaveDevice.ControlableZones.Add(LEDSetupHlprs.BuildLEDSetup(zoneData[i].Name, 0, top, zoneData[i].NumLEDX, zoneData[i].NumLEDY, zoneData[i].Width, zoneData[i].Height, indexOffset));
                     }
 
                     break;
@@ -241,11 +235,6 @@ namespace adrilight.Helpers
                 case DeviceTypeEnum.AmbinoBasic:
                     {
                         var output = DefaultCreatedOutput(OutputTypeEnum.ARGBLEDOutput, 0, "genericConnector", "Generic ARGB LED Output") as OutputSettings;
-
-                        output.Left = 31.6699;
-                        output.Top = 0;
-                        output.Width = 444.6089;
-                        output.Height = 275.3435;
                         outputList.Add(output);
                     }
                     break;
@@ -254,51 +243,6 @@ namespace adrilight.Helpers
                         for (int i = 0; i < 10; i++)
                         {
                             var output = DefaultCreatedOutput(OutputTypeEnum.ARGBLEDOutput, i, "genericConnector", "Generic ARGB LED Output") as OutputSettings;
-                            output.Width = 80;
-                            output.Height = 80;
-                            switch (i)
-                            {
-                                case 0:
-                                    output.Left = 0;
-                                    output.Top = 0;
-                                    break;
-                                case 1:
-                                    output.Left = 0;
-                                    output.Top = 420;
-                                    break;
-                                case 2:
-                                    output.Left = 105;
-                                    output.Top = 0;
-                                    break;
-                                case 3:
-                                    output.Left = 105;
-                                    output.Top = 420;
-                                    break;
-                                case 4:
-                                    output.Left = 210;
-                                    output.Top = 0;
-                                    break;
-                                case 5:
-                                    output.Left = 210;
-                                    output.Top = 420;
-                                    break;
-                                case 6:
-                                    output.Left = 315;
-                                    output.Top = 0;
-                                    break;
-                                case 7:
-                                    output.Left = 315;
-                                    output.Top = 420;
-                                    break;
-                                case 8:
-                                    output.Left = 420;
-                                    output.Top = 0;
-                                    break;
-                                case 9:
-                                    output.Left = 420;
-                                    output.Top = 420;
-                                    break;
-                            }
                             outputList.Add(output);
                         }
 

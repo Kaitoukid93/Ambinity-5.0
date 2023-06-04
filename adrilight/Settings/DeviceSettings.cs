@@ -1,26 +1,18 @@
 ﻿using adrilight.Settings;
 using adrilight.Spots;
-using adrilight.Util;
 using GalaSoft.MvvmLight;
+using Newtonsoft.Json;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
+using System.IO.Ports;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
-using adrilight.ViewModel;
-using System.IO.Ports;
-using System.Diagnostics;
 using System.Windows;
-using System.Buffers;
-using HandyControl.Themes;
-using System.Threading;
-using Newtonsoft.Json;
-using adrilight.Helpers;
-using System.IO;
-using System.Web.UI.WebControls.WebParts;
 
 namespace adrilight
 {
@@ -61,8 +53,6 @@ namespace adrilight
         public int DashboardHeight { get => _dashboardHeight; set { Set(() => DashboardHeight, ref _dashboardHeight, value); } }
         [JsonIgnore]
         public string DeviceThumbnail => File.Exists(Path.Combine(ResourceCollectionFolderPath, DeviceName + "_thumb.png")) ? Path.Combine(ResourceCollectionFolderPath, DeviceName + "_thumb.png") : Path.Combine(ResourceCollectionFolderPath, DeviceType.Name + "_thumb.png");
-        [JsonIgnore]
-        public string DeviceOutputMap => Path.Combine(deviceDirectory, "outputmap.png");
         public DeviceType DeviceType { get => _deviceType; set { Set(() => DeviceType, ref _deviceType, value); } }
         public ObservableCollection<ControlZoneGroup> ControlZoneGroups { get => _controlZoneGroups; set { Set(() => ControlZoneGroups, ref _controlZoneGroups, value); } }
         public DeviceStateEnum DeviceState { get => _deviceState; set { Set(() => DeviceState, ref _deviceState, value); } }
@@ -329,7 +319,7 @@ namespace adrilight
                 {
 
                     if (property.CanWrite && !Attribute.IsDefined(property, typeof(ProfileIgnoreAttribute)))
-                            property.SetValue(slaveDevice, property.GetValue(slaveDeviceProfileData, null), null);
+                        property.SetValue(slaveDevice, property.GetValue(slaveDeviceProfileData, null), null);
                 }
                 foreach (var zone in slaveDevice.ControlableZones)
                 {

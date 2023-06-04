@@ -214,7 +214,7 @@ namespace adrilight.Util
 
                             newDevice = new SlaveDeviceHelpers().DefaultCreatedAmbinoDevice(
                                 new DeviceType(DeviceTypeEnum.AmbinoBasic),
-                                "Ambino Basic",
+                                newDevice.DeviceName,
                                 device,
                                 false,
                                 true,
@@ -236,7 +236,7 @@ namespace adrilight.Util
                         case "Ambino FanHub":
                             newDevice = new SlaveDeviceHelpers().DefaultCreatedAmbinoDevice(
                                new DeviceType(DeviceTypeEnum.AmbinoFanHub),
-                            "Ambino Basic",
+                            newDevice.DeviceName,
                                device,
                                true,
                                true,
