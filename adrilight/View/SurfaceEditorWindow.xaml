@@ -13,7 +13,7 @@
            xmlns:local ="clr-namespace:adrilight"
            xmlns:spot ="clr-namespace:adrilight.Spots"
            xmlns:view ="clr-namespace:adrilight.View"
-           xmlns:settings ="clr-namespace:adrilight.Settings" xmlns:paz="clr-namespace:Wpf.Controls.PanAndZoom;assembly=Wpf.Controls.PanAndZoom"
+           xmlns:settings ="clr-namespace:adrilight.Settings"
            Background="{StaticResource RegionBrush}"
            x:Name="window"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"

@@ -14,7 +14,7 @@
            xmlns:view="clr-namespace:adrilight.View"
            xmlns:spot ="clr-namespace:adrilight.Spots"
            xmlns:settings ="clr-namespace:adrilight.Settings"
-              xmlns:lottie="clr-namespace:LottieSharp;assembly=LottieSharp"
+           xmlns:lottie="clr-namespace:LottieSharp;assembly=LottieSharp"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}">
 
@@ -33,6 +33,7 @@
                     <DropShadowEffect x:Key="Item.SelectedActive.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}"/>
                     <DropShadowEffect x:Key="Item.MouseOver.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource DarkMaskBrush}}"/>
                     <hc:Boolean2BooleanReConverter x:Key="booltoVreconv"/>
+                    <SolidColorBrush x:Key="primaryBackgroundBrush" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.5" />
                     <GeometryDrawing x:Key="GridStyle"
                          Geometry="M0,0 L0,1 0.03,1 0.03,0.03 1,0.03 1,0 Z"
                          Brush="{DynamicResource SecondaryBorderBrush}" />
@@ -78,7 +79,7 @@
 
             </ToolBarTray>
         </Grid>-->
-    <Grid>
+    <!--<Grid>
         <richCanvas:RichItemsControl
              ItemsSource="{Binding OOTBItems}"
                  GridStyle="{StaticResource GridStyle}"
@@ -221,18 +222,18 @@
                                             <Condition Property="IsMouseOver" Value="True"/>
                                             <Condition Property="IsSelected" Value="False"/>
                                         </MultiTrigger.Conditions>
-                                        <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
+                                        --><!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
                                         <!--<Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
-                                        <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryTextBrush}"/>-->
+                                        <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryTextBrush}"/>--><!--
                                     </MultiTrigger>
                                     <MultiTrigger>
                                         <MultiTrigger.Conditions>
                                             <Condition Property="IsMouseOver" Value="False"/>
                                             <Condition Property="IsSelected" Value="False"/>
                                         </MultiTrigger.Conditions>
-                                        <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
+                                        --><!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
                                         <!--<Setter Property="BorderThickness" TargetName="Bd" Value="1.0"/>
-                                        <Setter Property="BorderBrush" TargetName="Bd" Value="Transparent"/>-->
+                                        <Setter Property="BorderBrush" TargetName="Bd" Value="Transparent"/>--><!--
                                     </MultiTrigger>
                                     <MultiTrigger>
                                         <MultiTrigger.Conditions>
@@ -273,8 +274,8 @@
                             Value="{Binding DataContext, ElementName=window}" />
                     <Setter Property="helpers:AttachedAdorner.HasHoverAdorner"
                             Value="{Binding IsSelectable}" />
-                    <!--<Setter Property="helpers:AttachedAdorner.ShowResizeAdorner"
-                            Value="{Binding IsSelected}" />-->
+                    --><!--<Setter Property="helpers:AttachedAdorner.ShowResizeAdorner"
+                            Value="{Binding IsSelected}" />--><!--
                     <Setter Property="Top"
                             Value="{Binding GetRect.Top}" />
 
@@ -374,7 +375,7 @@
                                 </Setter.Value>
                             </Setter>
                         </Trigger>
-                        <!--<Trigger Property="IsDraggable" Value="False">
+                        --><!--<Trigger Property="IsDraggable" Value="False">
                             <Setter Property="ContextMenu">
                                 <Setter.Value>
                                     <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
@@ -388,12 +389,63 @@
                                     </ContextMenu>
                                 </Setter.Value>
                             </Setter>
-                        </Trigger>-->
+                        </Trigger>--><!--
                     </Style.Triggers>
                 </Style>
             </richCanvas:RichItemsControl.ItemContainerStyle>
         </richCanvas:RichItemsControl>
+    </Grid>-->
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="auto"/>
+        </Grid.ColumnDefinitions>
+        <ItemsControl ItemsSource="{Binding CurrentDevice.AvailableLightingOutputs}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid>
+                        
+                    </UniformGrid>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Border CornerRadius="4" Margin="5" Background="{DynamicResource MainContentBackgroundBrush}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="2" Margin="10" Style="{DynamicResource TextBlockSubTitle}" FontWeight="SemiBold" Text="{Binding SlaveDevice.Name}"/>
+                                <Image Grid.Row="1" Margin="10" Source="{Binding SlaveDevice.Thumbnail}" RenderOptions.BitmapScalingMode="Fant" Stretch="Uniform"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Padding="0" BorderBrush="{DynamicResource SecondaryBorderBrush}" BorderThickness="2" VerticalAlignment="Top" Margin="5" CornerRadius="2" Width="32" Height="32" HorizontalAlignment="Left" Background="Transparent">
+                                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Style="{DynamicResource TextBlockSubTitle}" FontWeight="SemiBold"  Text="{Binding OutputID}"/>
+                                    </Border>
+                                    
+                                    <StackPanel Grid.Column="1" Margin="5" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right">
+                                        <Button ToolTip="Chọn thiết bị cắm vào" Command="{Binding DataContext.OpenSlaveDeviceSelectorCommand,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceOutputMapingView}}}" CommandParameter="{Binding .}" Margin="5"  Width="20" Background="Transparent" Height="20" Style="{DynamicResource _defaultIconButtonSmall}" hc:IconElement.Geometry="{DynamicResource edit}"/>
+                                        <ToggleButton ToolTip="Tắt nút này nếu bạn không cắm gì cả" IsChecked="{Binding IsEnabled}" Style="{DynamicResource ToggleButtonSwitchSmallerElipse}"/>
+                                    </StackPanel>
+                                </Grid>
+                              
+                               
+                            </Grid>
+                        </Border>
+                      
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <Grid Width="300" Grid.Column="1">
+            <Image RenderOptions.BitmapScalingMode="Fant" Margin="20" Stretch="Uniform" Source="{Binding CurrentDevice.DeviceOutputMap}"/>
+        </Grid>
     </Grid>
-
-
 </UserControl>

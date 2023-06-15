@@ -1,28 +1,19 @@
-﻿using System;
+﻿using adrilight.DesktopDuplication;
+using adrilight.Settings;
+using adrilight.Spots;
+using adrilight.ViewModel;
+using GalaSoft.MvvmLight;
+using NLog;
+using Polly;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Threading;
-using System.Threading.Tasks;
-using adrilight.DesktopDuplication;
-using NLog;
-using Polly;
 using System.Linq;
-using System.Windows.Media.Imaging;
-using adrilight.ViewModel;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
-using adrilight.Resources;
-using adrilight.Util;
-using GalaSoft.MvvmLight;
-using Microsoft.Win32;
-using SharpDX.DXGI;
-using adrilight.Settings;
-using NAudio.SoundFont;
-using System.Collections.Generic;
-using SharpDX.DirectWrite;
-using adrilight.Spots;
+using System.Threading;
 using System.Windows;
+using System.Windows.Forms;
 
 namespace adrilight
 {
@@ -265,7 +256,6 @@ namespace adrilight
 
                 while (!token.IsCancellationRequested)
                 {
-                    var isPreviewRunning = MainViewModel.IsSplitLightingWindowOpen;
                     var frameTime = Stopwatch.StartNew();
                     // var context = new Context();
                     // context.Add("image", image);
@@ -280,16 +270,16 @@ namespace adrilight
 
                     // Lock the bitmap's bits.  
                     //var rect = new System.Drawing.Rectangle(0, 0, image.Width, image.Height);
-                   // System.Drawing.Imaging.BitmapData bmpData =
-                      //  image.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite,
-                      //  image.PixelFormat);
+                    // System.Drawing.Imaging.BitmapData bmpData =
+                    //  image.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite,
+                    //  image.PixelFormat);
 
                     // Get the address of the first line.
-                   // IntPtr ptr = bmpData.Scan0;
+                    // IntPtr ptr = bmpData.Scan0;
 
                     // Declare an array to hold the bytes of the bitmap.
-                   // int bytes = Math.Abs(bmpData.Stride) * image.Height;
-                   // byte[] rgbValues = new byte[bytes];
+                    // int bytes = Math.Abs(bmpData.Stride) * image.Height;
+                    // byte[] rgbValues = new byte[bytes];
 
                     // Copy the RGB values into the array.
                     //System.Runtime.InteropServices.Marshal.Copy(ptr, rgbValues, 0, bytes);
@@ -297,16 +287,13 @@ namespace adrilight
                     {
                         Frame = frame;
                     }
-
-                    //if(isPreviewRunning)
-                    //    MainViewModel.ShaderImageUpdate(Frame);
-                    if (MainViewModel.IsRichCanvasWindowOpen)
+                    if (MainViewModel.IsRegionSelectionOpen)
                     {
                         MainViewModel.DesktopsPreviewUpdate(Frame, _currentScreenIdex);
                     }
 
 
-                   // image.UnlockBits(bitmapData);
+                    // image.UnlockBits(bitmapData);
                     int minFrameTimeInMs = 1000 / 30;
                     var elapsedMs = (int)frameTime.ElapsedMilliseconds;
                     if (elapsedMs < minFrameTimeInMs)

@@ -104,7 +104,7 @@ namespace adrilight.Helpers
             {
                 var lightingController = DefaultCreatedDeviceController(ControllerTypeEnum.LightingController, "Lighting", "brightness");
 
-                foreach (var output in GetOutputMap(type))
+                foreach (var output in GetOutputMap(outputCount))
                 {
                     lightingController.Outputs.Add(output);
 
@@ -227,27 +227,13 @@ namespace adrilight.Helpers
 
         }
         //this section return output with exact position to use in output maping view
-        public List<IOutputSettings> GetOutputMap(DeviceType type)
+        public List<IOutputSettings> GetOutputMap(int count)
         {
             var outputList = new List<IOutputSettings>();
-            switch (type.Type)
+            for (int i = 0; i < count; i++)
             {
-                case DeviceTypeEnum.AmbinoBasic:
-                    {
-                        var output = DefaultCreatedOutput(OutputTypeEnum.ARGBLEDOutput, 0, "genericConnector", "Generic ARGB LED Output") as OutputSettings;
-                        outputList.Add(output);
-                    }
-                    break;
-                case DeviceTypeEnum.AmbinoFanHub:
-                    {
-                        for (int i = 0; i < 10; i++)
-                        {
-                            var output = DefaultCreatedOutput(OutputTypeEnum.ARGBLEDOutput, i, "genericConnector", "Generic ARGB LED Output") as OutputSettings;
-                            outputList.Add(output);
-                        }
-
-                    }
-                    break;
+                var output = DefaultCreatedOutput(OutputTypeEnum.ARGBLEDOutput, i, "genericConnector", "Generic ARGB LED Output") as OutputSettings;
+                outputList.Add(output);
             }
             return outputList;
         }

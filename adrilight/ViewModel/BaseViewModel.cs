@@ -1,11 +1,5 @@
 ﻿using GalaSoft.MvvmLight;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace adrilight.ViewModel
@@ -14,10 +8,10 @@ namespace adrilight.ViewModel
     {
         public BaseViewModel()
         {
-            ReadData();
+            // ReadData();
         }
-        
-        public virtual void ReadData() { }
+
+        // public virtual void ReadData() { }
     }
     public class RelayCommand<T> : ICommand
     {
@@ -30,7 +24,7 @@ namespace adrilight.ViewModel
             _execute = execute;
         }
 
-        public RelayCommand(Predicate<T> canExecute,Action<T> execute)
+        public RelayCommand(Predicate<T> canExecute, Action<T> execute)
         {
             if (execute == null)
             {

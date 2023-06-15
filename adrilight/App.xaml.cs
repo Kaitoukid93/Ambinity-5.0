@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
+using SplashScreen = adrilight.View.SplashScreen;
 
 namespace adrilight
 {
@@ -63,14 +64,13 @@ namespace adrilight
             //set style and color of the default theme
             ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
             ThemeManager.Current.AccentColor = System.Windows.Media.Brushes.BlueViolet;
-            _splashScreen = new View.SplashScreen();
-            //_splashScreen.WindowState = WindowState.Minimized;
-            _splashScreen.Header.Text = "Adrilight is loading";
-            _splashScreen.status.Text = "LOADING KERNEL...";
-            _splashScreen.Show();
             //_splashScreen.WindowState = WindowState.Normal;
 
             // inject all, this task may takes long time
+            _splashScreen = new SplashScreen();
+            _splashScreen.Show();
+            _splashScreen.Header.Text = "Adrilight is loading";
+            _splashScreen.status.Text = "LOADING KERNEL...";
             kernel = await Task.Run(() => SetupDependencyInjection(false));
             //close splash screen and open dashboard
             _splashScreen.Close();
@@ -135,6 +135,7 @@ namespace adrilight
 
         internal static IKernel SetupDependencyInjection(bool isInDesignMode)
         {
+
             var kernel = new StandardKernel(new DeviceSettingsInjectModule());
             GeneralSettings = kernel.Get<IGeneralSettings>();
             //Load setting từ file Json//

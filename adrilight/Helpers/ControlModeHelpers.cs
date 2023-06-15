@@ -1,15 +1,9 @@
 ﻿using adrilight.Util;
-using LiveCharts.Defaults;
-using LiveCharts;
+using adrilight.Util.ModeParameters;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
 using System.IO;
-using adrilight.Util.ModeParameters;
 
 namespace adrilight.Helpers
 {
@@ -72,7 +66,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Sáng theo màn hình với vị trí cài sẵn",
-                    Parameters = { GenericBrightnessParameter,GenericSmoothParameter, UseLinearLighting,GenericLaunchSufaceEditorButtonParameter }
+                    Parameters = { GenericBrightnessParameter, GenericSmoothParameter, UseLinearLighting, GenericLaunchRegionSelectionButtonParameter }
 
                 };
             }
@@ -90,7 +84,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Màu LED chuyển động theo nhạc",
-                    Parameters = { GenericBrightnessParameter, GenericColorPaletteAndSolidColorSelectionParameter, GenericMIDSelectParameter,GenericLaunchAudioDeviceSelectionButtonParameter }
+                    Parameters = { GenericBrightnessParameter, GenericColorPaletteAndSolidColorSelectionParameter, GenericMIDSelectParameter, GenericLaunchAudioDeviceSelectionButtonParameter }
 
                 };
             }
@@ -147,13 +141,13 @@ namespace adrilight.Helpers
         #region default lightingmode parameter defined by ambino
         public SliderParameter GenericSpeedParameter(int min, int max, int defaultValue)
         {
-            
-                return new SliderParameter(min, max, defaultValue, ModeParameterEnum.Speed) {
-                    Name = "Speed",
-                    Description = "Speed of Motion",
-                    Geometry = "speed"
-                };
-            
+
+            return new SliderParameter(min, max, defaultValue, ModeParameterEnum.Speed) {
+                Name = "Speed",
+                Description = "Speed of Motion",
+                Geometry = "speed"
+            };
+
         }
 
         public IModeParameter UseLinearLighting {
@@ -278,7 +272,7 @@ namespace adrilight.Helpers
 
                     Name = "Colors",
                     Description = "Available Colors",
-                    DataSourceLocaFolderNames = new List<string>() { "ColorPalettes","Colors" },
+                    DataSourceLocaFolderNames = new List<string>() { "ColorPalettes", "Colors" },
                     SubParams = new ObservableCollection<SubParameter>() {
                         new SubParameter("Palette Color Use",ModeParameterTemplateEnum.ListSelection,"Color Mode","",0,0,0){ AvailableValue = new List<string>(){"Static","Moving"}}, // include static palette, moving palette, cyclic palette color
                         new SubParameter("Speed Of Change",ModeParameterTemplateEnum.ValueSlider,"Speed of change","",1,5,1),
@@ -293,7 +287,7 @@ namespace adrilight.Helpers
         public IModeParameter GenericBrightnessParameter {
             get
             {
-                return new SliderParameter(10,100,60, ModeParameterEnum.Brightness) {
+                return new SliderParameter(10, 100, 60, ModeParameterEnum.Brightness) {
 
                     Name = "Brightness",
                     Geometry = "brightness",
@@ -314,10 +308,10 @@ namespace adrilight.Helpers
                 };
             }
         }
-        public IModeParameter GenericLaunchSufaceEditorButtonParameter {
+        public IModeParameter GenericLaunchRegionSelectionButtonParameter {
             get
             {
-                return new ButtonParameter("surfaceEditor") {
+                return new ButtonParameter("screenRegionSelection") {
 
                     Name = "Cài đặt vị trí",
                     Description = "Mở cửa sổ cài đặt vị trí capture",
@@ -361,7 +355,7 @@ namespace adrilight.Helpers
 
                     Name = "Pattern",
                     Description = "The motion to be colored",
-                    DataSourceLocaFolderNames = new List<string>() { "ChasingPatterns"},
+                    DataSourceLocaFolderNames = new List<string>() { "ChasingPatterns" },
                 };
             }
         }

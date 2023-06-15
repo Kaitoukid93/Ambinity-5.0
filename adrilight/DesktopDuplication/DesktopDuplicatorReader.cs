@@ -12,7 +12,6 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using Color = System.Windows.Media.Color;
@@ -112,7 +111,6 @@ namespace adrilight
         private bool _useLinearLighting;
         private double _brightness;
         private int _smoothFactor;
-        private int _displayUpdateRate = 25;
         private int _frameRate = 60;
 
         private SliderParameter _brightnessControl;
@@ -245,18 +243,17 @@ namespace adrilight
                 var screenTop = Screen.AllScreens[(int)_currentScreenIndex].Bounds.Top;
                 var x = (int)((CurrentZone.Left + CurrentZone.OffsetX - screenLeft) / 8.0);
                 var y = (int)((CurrentZone.Top + CurrentZone.OffsetY - screenTop) / 8.0);
-                var width = (int)(CurrentZone.Width / 8.0) >= 1 ? (int)(CurrentZone.Width / 8.0) : 1;
-                var height = (int)(CurrentZone.Height / 8.0) >= 1 ? (int)(CurrentZone.Height / 8.0) : 1;
+                var zoneWidth = (int)(CurrentZone.Width / 8.0) >= 1 ? (int)(CurrentZone.Width / 8.0) : 1;
+                var zoneHeight = (int)(CurrentZone.Height / 8.0) >= 1 ? (int)(CurrentZone.Height / 8.0) : 1;
                 int updateIntervalCounter = 0;
                 while (!token.IsCancellationRequested)
                 {
 
                     //this indicator that user is opening this device and we need raise event when color update on each spot
-                    bool shouldViewUpdate = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated && updateIntervalCounter > _frameRate / _displayUpdateRate;
-                    if (shouldViewUpdate)
-                        updateIntervalCounter = 0;
+
+
                     var frameTime = Stopwatch.StartNew();
-                    var newImage = _retryPolicy.Execute(() => GetNextFrame(image, shouldViewUpdate));
+                    var newImage = _retryPolicy.Execute(() => GetNextFrame(image));
                     TraceFrameDetails(newImage);
                     if (newImage == null)
                     {
@@ -266,7 +263,7 @@ namespace adrilight
                     image = newImage;
                     try
                     {
-                        image.LockBits(new Rectangle(x, y, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppRgb, bitmapData);
+                        image.LockBits(new Rectangle(x, y, zoneWidth, zoneHeight), ImageLockMode.ReadOnly, PixelFormat.Format32bppRgb, bitmapData);
                     }
 
                     catch (System.ArgumentException)
@@ -283,44 +280,43 @@ namespace adrilight
 
 
 
-                        Parallel.ForEach(CurrentZone.Spots
-                            , spot =>
-                            {
-                                var left = (spot as DeviceSpot).Left / 8.0;
-                                var top = (spot as DeviceSpot).Top / 8.0;
-                                var width = (spot as DeviceSpot).Width / 8.0;
-                                var height = (spot as DeviceSpot).Height / 8.0;
-                                const int numberOfSteps = 15;
-                                int stepx = Math.Max(1, (int)(width) / numberOfSteps);
-                                int stepy = Math.Max(1, (int)(height) / numberOfSteps);
-                                Rectangle actualRectangle = new Rectangle(
-                                    (int)(left),
-                                    (int)(top),
-                                    (int)(width),
-                                    (int)(height));
-                                GetAverageColorOfRectangularRegion(actualRectangle, stepy, stepx, bitmapData,
-                                    out int sumR, out int sumG, out int sumB, out int count);
+                        foreach (var spot in CurrentZone.Spots)
+                        {
+                            var left = (spot as DeviceSpot).Left / 8.0;
+                            var top = (spot as DeviceSpot).Top / 8.0;
+                            var width = (spot as DeviceSpot).Width / 8.0;
+                            var height = (spot as DeviceSpot).Height / 8.0;
+                            const int numberOfSteps = 15;
+                            int stepx = Math.Max(1, (int)(width) / numberOfSteps);
+                            int stepy = Math.Max(1, (int)(height) / numberOfSteps);
+                            Rectangle actualRectangle = new Rectangle(
+                                (int)(left),
+                                (int)(top),
+                                (int)(width),
+                                (int)(height));
+                            GetAverageColorOfRectangularRegion(actualRectangle, stepy, stepx, bitmapData,
+                                out int sumR, out int sumG, out int sumB, out int count);
 
-                                var countInverse = 1f / count;
+                            var countInverse = 1f / count;
 
-                                ApplyColorCorrections(sumR * countInverse, sumG * countInverse, sumB * countInverse
-                                    , out byte finalR, out byte finalG, out byte finalB, _useLinearLighting
-                                    , 10, spot.Red, spot.Green, spot.Blue);
+                            ApplyColorCorrections(sumR * countInverse, sumG * countInverse, sumB * countInverse
+                                , out byte finalR, out byte finalG, out byte finalB, _useLinearLighting
+                                , 10, spot.Red, spot.Green, spot.Blue);
 
-                                var spotColor = new OpenRGB.NET.Models.Color(finalR, finalG, finalB);
-                                ApplySmoothing(
-                                    spotColor.R,
-                                    spotColor.G,
-                                    spotColor.B,
-                                    out byte RealfinalR,
-                                    out byte RealfinalG,
-                                    out byte RealfinalB,
-                                 spot.Red,
-                                 spot.Green,
-                                 spot.Blue);
-                                spot.SetColor((byte)(RealfinalR * _brightness), (byte)(RealfinalG * _brightness), (byte)(RealfinalB * _brightness), false);
+                            var spotColor = new OpenRGB.NET.Models.Color(finalR, finalG, finalB);
+                            ApplySmoothing(
+                                spotColor.R,
+                                spotColor.G,
+                                spotColor.B,
+                                out byte RealfinalR,
+                                out byte RealfinalG,
+                                out byte RealfinalB,
+                             spot.Red,
+                             spot.Green,
+                             spot.Blue);
+                            spot.SetColor((byte)(RealfinalR * _brightness), (byte)(RealfinalG * _brightness), (byte)(RealfinalB * _brightness), false);
 
-                            });
+                        }
 
                     }
 
@@ -429,7 +425,7 @@ namespace adrilight
             const float factor = 80f;
             return (byte)(256f * ((float)Math.Pow(factor, color / 256f) - 1f) / (factor - 1));
         }
-        private Bitmap GetNextFrame(Bitmap ReusableBitmap, bool isPreviewRunning)
+        private Bitmap GetNextFrame(Bitmap ReusableBitmap)
         {
 
             try

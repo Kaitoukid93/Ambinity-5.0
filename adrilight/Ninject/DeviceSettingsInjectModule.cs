@@ -1,16 +1,9 @@
 ﻿using adrilight.Resources;
-using adrilight.Settings;
-using adrilight.Spots;
 using adrilight.Util;
 using adrilight.View;
 using adrilight.ViewModel;
-using Emgu.CV.Ocl;
 using Ninject.Modules;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Forms;
-using Un4seen.BassWasapi;
 
 namespace adrilight.Ninject
 {

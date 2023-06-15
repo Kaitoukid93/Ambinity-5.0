@@ -94,7 +94,6 @@ namespace adrilight
         private double _brightness;
         private int _breathingSpeed;
         private Color[] _colors;
-        private int _displayUpdateRate = 25;
         private int _frameRate = 60;
         #region Properties changed event handler 
         private void OnSystemBreathingSpeedChanged(int value)
@@ -256,10 +255,7 @@ namespace adrilight
                 while (!token.IsCancellationRequested)
                 {
                     var startIndex = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
-                    bool shouldViewUpdate = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated && updateIntervalCounter > _frameRate / _displayUpdateRate;
                     bool shouldSetColor = !MainViewViewModel.IsRichCanvasWindowOpen;
-                    if (shouldViewUpdate)
-                        updateIntervalCounter = 0;
                     if (_isBreathing)
                     {
                         if (_isSystemSync)

@@ -15,6 +15,7 @@
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -27,7 +28,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -398,7 +398,8 @@
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\VisualProperties.cs" />
-    <Compile Include="View\AudioDeviceSelectionWindowxaml.cs" />
+    <Compile Include="View\RegionSelectionWindow.xaml.cs" />
+    <Compile Include="View\AudioDeviceSelectionWindow.xaml.cs" />
     <Compile Include="View\PIDQuickEditNonClientAreaContent.xaml.cs" />
     <Compile Include="View\ZoneVisualizer.cs" />
     <Compile Include="View\SurfaceEditorNonClientAreaContent.xaml.cs" />
@@ -501,6 +502,10 @@
     </ApplicationDefinition>
     <Compile Include="View\LEDVisualizer.cs" />
     <Page Include="Properties\DesignTimeResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\RegionSelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -889,22 +894,25 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <EmbeddedResource Include="Resources\Thumbnails\Group_thumb.png">
+    <EmbeddedResource Include="Resources\Images\Ambino Basic_thumb.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resources\Thumbnails\AmbinoFanHub_thumb.png">
+    <EmbeddedResource Include="Resources\Images\Ambino EDGE_thumb.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resources\OutputMaps\AmbinoFanHub_outputmap.png">
+    <EmbeddedResource Include="Resources\Images\Ambino FanHub_outputmap.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resources\Thumbnails\Undefined_thumb.png">
+    <EmbeddedResource Include="Resources\Images\Ambino FanHub_thumb.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resources\OutputMaps\AmbinoBasic_outputmap.png">
+    <EmbeddedResource Include="Resources\Images\Ambino HubV2_thumb.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resources\Thumbnails\AmbinoBasic_thumb.png">
+    <EmbeddedResource Include="Resources\Images\Ambino HubV3_outputmap.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Images\Ambino HubV3_thumb.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -1068,10 +1076,6 @@
     <ProjectReference Include="..\adrilight_effect_analyzer\adrilight_effect_analyzer.csproj">
       <Project>{8966a6b0-cec4-4337-a5be-af363303e02a}</Project>
       <Name>adrilight_effect_analyzer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DropBoxServer\DropBoxServer.csproj">
-      <Project>{70622579-52B5-4E44-8B3D-54715A0410A0}</Project>
-      <Name>DropBoxServer</Name>
     </ProjectReference>
     <ProjectReference Include="..\FTPServer\FTPServer.csproj">
       <Project>{5B8BF436-7610-4335-80EB-809A7E7A655F}</Project>

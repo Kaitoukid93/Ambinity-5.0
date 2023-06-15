@@ -243,33 +243,6 @@ namespace adrilight.Util
                                10);
                             newDevice.DashboardWidth = 472;
                             newDevice.DashboardHeight = 270;
-
-                            ////set a default output for this device , simply plugin LED strip with led number of 16
-                            //newDevice.AvailableOutputs[0] = new LightingOutput() { OutputID = 0, ControlableZone = new LEDSetup[1] };
-                            //newDevice.AvailableOutputs[1] = new LightingOutput() { OutputID = 1, ControlableZone = new LEDSetup[1] };
-                            //newDevice.AvailableOutputs[2] = new LightingOutput() { OutputID = 2, ControlableZone = new LEDSetup[1] };
-                            //newDevice.AvailableOutputs[3] = new LightingOutput() { OutputID = 3, ControlableZone = new LEDSetup[1] };
-                            //newDevice.AvailableOutputs[4] = new LightingOutput() { OutputID = 4, ControlableZone = new LEDSetup[1] };
-                            //newDevice.AvailableOutputs[5] = new LightingOutput() { OutputID = 5, ControlableZone = new LEDSetup[1] };
-                            //newDevice.AvailableOutputs[6] = new LightingOutput() { OutputID = 6, ControlableZone = new LEDSetup[1] };
-                            //newDevice.AvailableOutputs[7] = new LightingOutput() { OutputID = 7, ControlableZone = new LEDSetup[1] };
-                            //newDevice.AvailableOutputs[8] = new LightingOutput() { OutputID = 8, ControlableZone = new LEDSetup[1] };
-                            //newDevice.AvailableOutputs[9] = new LightingOutput() { OutputID = 9, ControlableZone = new LEDSetup[1] };
-                            ////build leds for zones
-                            //newDevice.AvailableOutputs[0].ControlableZone[0] = ledSetupHlprs.BuildLEDSetup(16, 1, "Fan", 160.0, 10.0);
-                            //newDevice.AvailableOutputs[1].ControlableZone[0] = ledSetupHlprs.BuildLEDSetup(16, 1, "Fan", 160.0, 10.0);
-                            //newDevice.AvailableOutputs[2].ControlableZone[0] = ledSetupHlprs.BuildLEDSetup(16, 1, "Fan", 160.0, 10.0);
-                            //newDevice.AvailableOutputs[3].ControlableZone[0] = ledSetupHlprs.BuildLEDSetup(16, 1, "Fan", 160.0, 10.0);
-                            //newDevice.AvailableOutputs[4].ControlableZone[0] = ledSetupHlprs.BuildLEDSetup(16, 1, "Fan", 160.0, 10.0);
-                            //newDevice.AvailableOutputs[5].ControlableZone[0] = ledSetupHlprs.BuildLEDSetup(16, 1, "Fan", 160.0, 10.0);
-                            //newDevice.AvailableOutputs[6].ControlableZone[0] = ledSetupHlprs.BuildLEDSetup(16, 1, "Fan", 160.0, 10.0);
-                            //newDevice.AvailableOutputs[7].ControlableZone[0] = ledSetupHlprs.BuildLEDSetup(16, 1, "Fan", 160.0, 10.0);
-                            //newDevice.AvailableOutputs[8].ControlableZone[0] = ledSetupHlprs.BuildLEDSetup(16, 1, "Fan", 160.0, 10.0);
-                            //newDevice.AvailableOutputs[9].ControlableZone[0] = ledSetupHlprs.BuildLEDSetup(16, 1, "Fan", 160.0, 10.0);
-
-
-
-
                             break;
                         case "Ambino HubV2":
                             //newDevice = availableDefaultDevice.ambinoHUBV2;
@@ -279,11 +252,15 @@ namespace adrilight.Util
                             //newDevice.IsSizeNeedUserDefine = true;
                             break;
                         case "Ambino HubV3":
-                            //newDevice = availableDefaultDevice.ambinoHUBV3;
-                            // newDevice.DeviceType = DeviceTypeEnum.AmbinoHUBV3;
-                            //newDevice.DeviceConnectionType = "wired";
-                            //newDevice.OutputPort = device;
-                            //newDevice.IsSizeNeedUserDefine = true;
+                            newDevice = new SlaveDeviceHelpers().DefaultCreatedAmbinoDevice(
+                              new DeviceType(DeviceTypeEnum.AmbinoHUBV3),
+                           newDevice.DeviceName,
+                              device,
+                              false,
+                              true,
+                              4);
+                            newDevice.DashboardWidth = 320;
+                            newDevice.DashboardHeight = 270;
                             break;
                         case "Ambino RainPow":
                             //newDevice = availableDefaultDevice.ambinoRainPow;

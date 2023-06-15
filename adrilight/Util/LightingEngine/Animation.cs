@@ -102,7 +102,6 @@ namespace adrilight
         private Tick[] _ticks;
         private object _lock = new object();
         private bool _shouldBeMoving;
-        private int _displayUpdateRate = 25;
         private int _frameRate = 60;
         private enum colorUseEnum { StaticPalette, MovingPalette, CyclicPalette };
 
@@ -400,10 +399,7 @@ namespace adrilight
                 while (!token.IsCancellationRequested)
                 {
                     var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
-                    bool shouldViewUpdate = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated && updateIntervalCounter > _frameRate / _displayUpdateRate;
                     bool shouldSetColor = !MainViewViewModel.IsRichCanvasWindowOpen;
-                    if (shouldViewUpdate)
-                        updateIntervalCounter = 0;
                     NextTick();
                     lock (CurrentZone.Lock)
                     {
@@ -422,7 +418,7 @@ namespace adrilight
                                 float brightness = ((_resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData[index]) * (float)_brightness) / 255;
                                 ApplySmoothing(brightness * _colorBank[position].R, brightness * _colorBank[position].G, brightness * _colorBank[position].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
                                 if (shouldSetColor)
-                                    spot.SetColor(FinalR, FinalG, FinalB, shouldViewUpdate);
+                                    spot.SetColor(FinalR, FinalG, FinalB, false);
                             }
                         }
 

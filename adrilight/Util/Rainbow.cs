@@ -94,7 +94,6 @@ namespace adrilight
         private double _brightness;
         private double _speed;
         private int _vidIntensity;
-        private int _displayUpdateRate = 25;
         private int _frameRate = 60;
 
 
@@ -271,7 +270,6 @@ namespace adrilight
 
             _log.Debug("Started Rainbow engine.");
             IsRunning = true;
-            int updateIntervalCounter = 0;
             try
             {
                 double StartIndex = 0d;
@@ -279,11 +277,7 @@ namespace adrilight
                 while (!token.IsCancellationRequested)
                 {
                     var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
-                    bool shouldViewUpdate = MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated && updateIntervalCounter > _frameRate / _displayUpdateRate;
                     bool shouldSetColor = !MainViewViewModel.IsRichCanvasWindowOpen;
-                    if (shouldViewUpdate)
-                        updateIntervalCounter = 0;
-
                     StartIndex -= _speed;
                     if (StartIndex < 0)
                     {
@@ -326,7 +320,6 @@ namespace adrilight
                     }
                     var sleepTime = 1000 / _frameRate;
                     Thread.Sleep(sleepTime);
-                    updateIntervalCounter++;
                 }
             }
             finally

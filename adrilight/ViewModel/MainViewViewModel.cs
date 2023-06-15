@@ -54,6 +54,7 @@ using Point = System.Windows.Point;
 using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
 using SelectionMode = System.Windows.Controls.SelectionMode;
 using SplashScreen = adrilight.View.SplashScreen;
+using Task = System.Threading.Tasks.Task;
 
 namespace adrilight.ViewModel
 {
@@ -70,7 +71,7 @@ namespace adrilight.ViewModel
         private string JsonGifsFileNameAndPath => Path.Combine(JsonPath, "Gif");
         private string JsonFWToolsFileNameAndPath => Path.Combine(JsonPath, "FWTools");
 
-        private string JsonFWToolsFWListFileNameAndPath => Path.Combine(JsonPath, "adrilight-fwlist.json");
+        private string JsonFWToolsFWListFileNameAndPath => Path.Combine(JsonFWToolsFileNameAndPath, "adrilight-fwlist.json");
         private string JsonGifsCollectionFileNameAndPath => Path.Combine(JsonPath, "adrilight-gifCollection.json");
         private string JsonGroupFileNameAndPath => Path.Combine(JsonPath, "adrilight-groupInfos.json");
 
@@ -881,20 +882,6 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-
-        private ObservableCollection<IDeviceSettings> _displayCards;
-
-        public ObservableCollection<IDeviceSettings> DisplayCards {
-            get { return _displayCards; }
-
-            set
-            {
-                if (_displayCards == value) return;
-                _displayCards = value;
-                RaisePropertyChanged();
-            }
-        }
-
         public ICommand SelectCardCommand { get; set; }
         public ICommand SelectOnlineItemCommand { get; set; }
         public ICommand LightingModeSelection { get; set; }
@@ -1091,11 +1078,11 @@ namespace adrilight.ViewModel
             set { _audioVisualizers = value; RaisePropertyChanged(); }
         }
 
-        private ObservableCollection<WriteableBitmap> _desktops;
+        private ObservableCollection<DesktopFrameCard> _availableBitmaps;
 
-        public ObservableCollection<WriteableBitmap> Desktops {
-            get { return _desktops; }
-            set { _desktops = value; RaisePropertyChanged(); }
+        public ObservableCollection<DesktopFrameCard> AvailableBitmaps {
+            get { return _availableBitmaps; }
+            set { _availableBitmaps = value; RaisePropertyChanged(); }
         }
 
         public WriteableBitmap _greyBitmap;
@@ -1288,15 +1275,13 @@ namespace adrilight.ViewModel
             SelectableViewParts = selectableViewParts.OrderBy(p => p.Order)
                 .ToList();
             SelectedViewPart = SelectableViewParts.First();
-            DisplayCards = new ObservableCollection<IDeviceSettings>();
-            //AmbinityClient = ambinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
-
+            ReadData();
             #endregion load Params
 
             #region Registering devices
 
             AvailableDevices = new ObservableCollection<IDeviceSettings>();
-            AvailableDevices.CollectionChanged += (s, e) =>
+            AvailableDevices.CollectionChanged += async (s, e) =>
             {
                 switch (e.Action)
                 {
@@ -1306,7 +1291,7 @@ namespace adrilight.ViewModel
                         //Get ID:
                         foreach (IDeviceSettings device in newDevices)
                         {
-                            RegisterDevice(device);
+                            await RegisterDevice(device);
                         }
                         break;
                 }
@@ -1498,7 +1483,7 @@ namespace adrilight.ViewModel
             };
         }
 
-        private void RegisterDevice(IDeviceSettings device)
+        private async Task RegisterDevice(IDeviceSettings device)
         {
             device.PropertyChanged += (_, __) =>
             {
@@ -1530,11 +1515,11 @@ namespace adrilight.ViewModel
                     switch (group.Type)
                     {
                         case ControllerTypeEnum.LightingController:
-                            RegisterGroupItem(childItems.Cast<LEDSetup>().ToList(), group);
+                            await Task.Run(() => RegisterGroupItem(childItems.Cast<LEDSetup>().ToList(), group));
                             break;
 
                         case ControllerTypeEnum.PWMController:
-                            RegisterGroupItem(childItems.Cast<FanMotor>().ToList(), group);
+                            await Task.Run(() => RegisterGroupItem(childItems.Cast<FanMotor>().ToList(), group));
                             break;
                     }
                 }
@@ -1790,6 +1775,7 @@ namespace adrilight.ViewModel
                         }
                     }
                     SearchingForDevices = false;
+                    _isDeviceDiscoveryInit = true;
                 }
                 else
                 {
@@ -1842,6 +1828,7 @@ namespace adrilight.ViewModel
                     }
 
                     SearchingForDevices = false;
+                    _isDeviceDiscoveryInit = true;
                 }
             });
         }
@@ -1900,25 +1887,25 @@ namespace adrilight.ViewModel
         {
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
-                if (Desktops[index] == null)
+                if (AvailableBitmaps[index] == null)
                 {
-                    Desktops[index] = new WriteableBitmap(frame.FrameWidth, frame.FrameHeight, 96, 96, PixelFormats.Bgra32, null);
+                    AvailableBitmaps[index].Bitmap = new WriteableBitmap(frame.FrameWidth, frame.FrameHeight, 96, 96, PixelFormats.Bgra32, null);
                 }
-                else if (Desktops[index] != null && (Desktops[index].Width != frame.FrameWidth || Desktops[index].Height != frame.FrameHeight))
+                else if (AvailableBitmaps[index].Bitmap != null && (AvailableBitmaps[index].Bitmap.Width != frame.FrameWidth || AvailableBitmaps[index].Bitmap.Height != frame.FrameHeight))
                 {
-                    Desktops[index] = new WriteableBitmap(frame.FrameWidth, frame.FrameHeight, 96, 96, PixelFormats.Bgra32, null);
+                    AvailableBitmaps[index].Bitmap = new WriteableBitmap(frame.FrameWidth, frame.FrameHeight, 96, 96, PixelFormats.Bgra32, null);
                 }
-                else if (Desktops[index] != null && Desktops[index].Width == frame.FrameWidth && Desktops[index].Height == frame.FrameHeight)
+                else if (AvailableBitmaps[index].Bitmap != null && AvailableBitmaps[index].Bitmap.Width == frame.FrameWidth && AvailableBitmaps[index].Bitmap.Height == frame.FrameHeight)
                 {
                     if (frame != null)
                     {
-                        Desktops[index].Lock();
-                        IntPtr pixelAddress = Desktops[index].BackBuffer;
+                        AvailableBitmaps[index].Bitmap.Lock();
+                        IntPtr pixelAddress = AvailableBitmaps[index].Bitmap.BackBuffer;
                         Marshal.Copy(frame.Frame, 0, pixelAddress, frame.Frame.Length);
 
-                        Desktops[index].AddDirtyRect(new Int32Rect(0, 0, frame.FrameWidth, frame.FrameHeight));
+                        AvailableBitmaps[index].Bitmap.AddDirtyRect(new Int32Rect(0, 0, frame.FrameWidth, frame.FrameHeight));
 
-                        Desktops[index].Unlock();
+                        AvailableBitmaps[index].Bitmap.Unlock();
 
                         //ShaderBitmap = MatrixBitmap;
                         //RaisePropertyChanged(() => DeviceRectWidthMax);
@@ -2433,7 +2420,7 @@ namespace adrilight.ViewModel
             }
         }
 
-        public override void ReadData()
+        public void ReadData()
         {
             LoadContextMenu();
             LoadData();
@@ -2628,8 +2615,8 @@ namespace adrilight.ViewModel
             {
                 switch (p)
                 {
-                    case "surfaceEditor":
-                        OpenSurfaceEditorWindow();
+                    case "screenRegionSelection":
+                        OpenRegionSelectionWindow();
                         break;
 
                     case "audioDevice":
@@ -3799,6 +3786,10 @@ namespace adrilight.ViewModel
             {
                 if (OOTBStage < 2)
                     OOTBStage++;
+                if (OOTBStage == 2)
+                {
+                    GetItemsReadyForOOTBQuickSurfaceEditor();
+                }
             });
 
             OpenTutorialCommand = new RelayCommand<string>((p) =>
@@ -5664,20 +5655,20 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-
-        private void UpgradeIfAvailable(IDeviceSettings device)
+        private bool _isDownloadingFirmware;
+        public bool IsDownloadingFirmware {
+            get
+            {
+                return _isDownloadingFirmware;
+            }
+            set
+            {
+                _isDownloadingFirmware = value;
+                RaisePropertyChanged();
+            }
+        }
+        private async Task UpgradeIfAvailable(IDeviceSettings device)
         {
-            // set device to DFU first,
-            // CurrentDevice.State = State.DFU;
-
-            // CurrentDevice.TransferActive = false;
-            // switch deviceProcessorType
-            // case ch55x
-            // Check if there is new version come with this app
-            // Coppy corresponding firmware file for current device to firmware folder
-            // get the file path
-            // upload with CMD.exe
-            //disable DeviceDiscovery first
             GeneralSettings.FrimwareUpgradeIsInProgress = true;
             if (device.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV2)
             {
@@ -5742,72 +5733,85 @@ namespace adrilight.ViewModel
                     }
                     else
                     {
+                        var fwOutputLocation = Path.Combine(JsonFWToolsFileNameAndPath, currentDeviceFirmwareInfo.Name);
+                        try
+                        {
+                            ResourceHlprs.CopyResource(currentDeviceFirmwareInfo.ResourceName, fwOutputLocation);
+                        }
+                        catch (ArgumentException)
+                        {
+                            //show messagebox no firmware found for this device
+                            return;
+                        }
                         if (device.FirmwareVersion != currentDeviceFirmwareInfo.Version)
                         {
                             //coppy hex file to FWTools folder
-                            var fwOutputLocation = Path.Combine(JsonFWToolsFileNameAndPath, currentDeviceFirmwareInfo.Name);
-                            try
-                            {
-                                ResourceHlprs.CopyResource(currentDeviceFirmwareInfo.ResourceName, fwOutputLocation);
-                            }
-                            catch (ArgumentException)
-                            {
-                                //show messagebox no firmware found for this device
-                                return;
-                            }
-
-                            //check if specific driver for CH375 is instaled on this computer
-                            if (GeneralSettings.DriverRequested)
-                            {
-                                //coppy resource
-                                ResourceHlprs.CopyResource("adrilight.Tools.FWTools.CH372DRV.EXE", Path.Combine(JsonFWToolsFileNameAndPath, "CH372DRV.EXE"));
-                                //launch driver installer
-                                System.Diagnostics.Process.Start(Path.Combine(JsonFWToolsFileNameAndPath, "CH372DRV.EXE"));
-                                GeneralSettings.DriverRequested = false;
-                                return;
-                            }
-                            else
-                            {
-                                //put device in dfu state
-                                device.DeviceState = DeviceStateEnum.DFU;
-                                // wait for device to enter dfu
-                                Thread.Sleep(1000);
-                                FwUploadPercentVissible = true;
-                                var startInfo = new System.Diagnostics.ProcessStartInfo {
-                                    WorkingDirectory = JsonFWToolsFileNameAndPath,
-                                    RedirectStandardOutput = true,
-                                    RedirectStandardError = true,
-                                    CreateNoWindow = true,
-                                    UseShellExecute = false,
-                                    FileName = "cmd.exe",
-                                    Arguments = "/C vnproch55x " + fwOutputLocation
-                                };
-                                var proc = new Process() {
-                                    StartInfo = startInfo,
-                                    EnableRaisingEvents = true
-                                };
-
-                                // see below for output handler
-                                proc.ErrorDataReceived += proc_DataReceived;
-                                proc.OutputDataReceived += proc_DataReceived;
-
-                                proc.Start();
-
-                                proc.BeginErrorReadLine();
-                                proc.BeginOutputReadLine();
-                                proc.Exited += proc_FinishUploading;
-                            }
+                            IsDownloadingFirmware = true;
+                            await Task.Run(() => UpgradeSelectedDeviceFirmware(device, fwOutputLocation));
+                            IsDownloadingFirmware = false;
                         }
                         else
                         {
-                            HandyControl.Controls.MessageBox.Show("Không có phiên bản mới cho thiết bị này", "Firmware uploading", MessageBoxButton.OK, MessageBoxImage.Information);
+                            var result = HandyControl.Controls.MessageBox.Show("Không có phiên bản mới cho thiết bị này, Bạn có muốn nạp lại phiên bản mới nhất không?", "Firmware uploading", MessageBoxButton.YesNo, MessageBoxImage.Information);
+                            if (result == MessageBoxResult.Yes)
+                            {
+                                IsDownloadingFirmware = true;
+                                await Task.Run(() => UpgradeSelectedDeviceFirmware(device, fwOutputLocation));
+                                IsDownloadingFirmware = false;
+                            }
                             GeneralSettings.FrimwareUpgradeIsInProgress = false;
                         }
                     }
                 }
             }
         }
+        private void PromptDriverInstaller()
+        {
+            //coppy resource
+            ResourceHlprs.CopyResource("adrilight.Tools.FWTools.CH372DRV.EXE", Path.Combine(JsonFWToolsFileNameAndPath, "CH372DRV.EXE"));
+            //launch driver installer
+            var drvInstlr = System.Diagnostics.Process.Start(Path.Combine(JsonFWToolsFileNameAndPath, "CH372DRV.EXE"));
+            drvInstlr.WaitForExit();
 
+            GeneralSettings.DriverRequested = false;
+            // return;
+        }
+        private async Task UpgradeSelectedDeviceFirmware(IDeviceSettings device, string fwPath)
+        {
+            if (GeneralSettings.DriverRequested)
+            {
+                await Task.Run(() => PromptDriverInstaller());
+                return;
+            }
+            //put device in dfu state
+            device.DeviceState = DeviceStateEnum.DFU;
+            // wait for device to enter dfu
+            Thread.Sleep(1000);
+            FwUploadPercentVissible = true;
+            var startInfo = new System.Diagnostics.ProcessStartInfo {
+                WorkingDirectory = JsonFWToolsFileNameAndPath,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                FileName = "cmd.exe",
+                Arguments = "/C vnproch55x " + fwPath
+            };
+            var proc = new Process() {
+                StartInfo = startInfo,
+                EnableRaisingEvents = true
+            };
+
+            // see below for output handler
+            proc.ErrorDataReceived += proc_DataReceived;
+            proc.OutputDataReceived += proc_DataReceived;
+
+            proc.Start();
+
+            proc.BeginErrorReadLine();
+            proc.BeginOutputReadLine();
+            proc.Exited += proc_FinishUploading;
+        }
         private void proc_FinishUploading(object sender, System.EventArgs e)
         {
             //FwUploadPercent = 0;
@@ -6323,7 +6327,7 @@ namespace adrilight.ViewModel
             set { _isRegisteringGroup = value; RaisePropertyChanged(); }
         }
 
-        private void RegisterGroupItem(List<LEDSetup> childItems, ControlZoneGroup group)
+        private async void RegisterGroupItem(List<LEDSetup> childItems, ControlZoneGroup group)
         {
             IsRegisteringGroup = true;
             foreach (var item in childItems)
@@ -6332,11 +6336,8 @@ namespace adrilight.ViewModel
                 item.IsSelectable = false;
                 item.IsInControlGroup = true;
                 item.GroupID = group.GroupUID;
+                await Task.Run(() => { item.CurrentActiveControlMode = group.MaskedControlZone.CurrentActiveControlMode; });
             }
-            group.MaskedControlZone.PropertyChanged += (_, __) =>
-            {
-                WriteSingleDeviceInfoJson(CurrentDevice);
-            };
             IsRegisteringGroup = false;
         }
 
@@ -6528,20 +6529,14 @@ namespace adrilight.ViewModel
                         //Thumbnail = Path.Combine(ResourceFolderPath, "Group_thumb.png")
                     };
                 }
+                newGroup.MaskedControlZone.PropertyChanged += (_, __) =>
+                {
+                    WriteSingleDeviceInfoJson(CurrentDevice);
+                };
                 //add group border
                 GetGroupBorder(selectedItems, newGroup);
                 newGroup.Border.IsSelected = true;
                 LiveViewItems.Add(newGroup.Border);
-                switch (newGroup.Type)
-                {
-                    case ControllerTypeEnum.LightingController:
-                        RegisterGroupItem(selectedItems.Cast<LEDSetup>().ToList(), newGroup);
-                        break;
-
-                    case ControllerTypeEnum.PWMController:
-                        RegisterGroupItem(selectedItems.Cast<FanMotor>().ToList(), newGroup);
-                        break;
-                }
                 LiveViewSelectedItem = newGroup;
                 newGroup.MaskedControlZone.CurrentActiveControlMode = newGroup.MaskedControlZone.AvailableControlMode.First();
                 SelectedControlZone = newGroup.MaskedControlZone;
@@ -6551,7 +6546,17 @@ namespace adrilight.ViewModel
                 CanUnGroup = true;
                 CanGroup = false;
                 CurrentDevice.ControlZoneGroups.Add(newGroup);
-                await ChangeSelectedControlZoneActiveControlMode(newGroup.MaskedControlZone.CurrentActiveControlMode);
+                switch (newGroup.Type)
+                {
+                    case ControllerTypeEnum.LightingController:
+                        await Task.Run(() => RegisterGroupItem(selectedItems.Cast<LEDSetup>().ToList(), newGroup));
+                        break;
+
+                    case ControllerTypeEnum.PWMController:
+                        await Task.Run(() => RegisterGroupItem(selectedItems.Cast<FanMotor>().ToList(), newGroup));
+                        break;
+                }
+
             }
         }
 
@@ -6683,10 +6688,18 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-
+        private bool _isLoadingControlMode;
+        public bool IsLoadingControlMode {
+            get { return _isLoadingControlMode; }
+            set
+            {
+                _isLoadingControlMode = value;
+                RaisePropertyChanged();
+            }
+        }
         private async Task ChangeSelectedControlZoneActiveControlMode(IControlMode controlMode)
         {
-
+            IsLoadingControlMode = true;
             if (LiveViewSelectedItem is ControlZoneGroup)
             {
                 var group = LiveViewSelectedItem as ControlZoneGroup;
@@ -6705,7 +6718,7 @@ namespace adrilight.ViewModel
                 await Task.Run(() => { zone.CurrentActiveControlMode = controlMode; });
             }
 
-
+            IsLoadingControlMode = false;
 
         }
 
@@ -6800,6 +6813,47 @@ namespace adrilight.ViewModel
                 //{
                 //    CanGroup = true;
                 //}
+            }
+        }
+        public ObservableCollection<IDrawable> OOTBQUickSurfaceEditorItems { get; set; }
+        public ObservableCollection<IDrawable> OOTBQUickSurfaceEditorSelectedItems { get; set; }
+        //this called when ootb stage==2
+        private void GetItemsReadyForOOTBQuickSurfaceEditor()
+        {
+            OOTBQUickSurfaceEditorItems = new ObservableCollection<IDrawable>();
+            OOTBQUickSurfaceEditorSelectedItems = new ObservableCollection<IDrawable>();
+            //add child
+            foreach (var item in CurrentDevice.AvailableLightingDevices)
+            {
+                var device = item as ARGBLEDSlaveDevice;
+                device.IsSelected = true;
+                OOTBQUickSurfaceEditorItems.Add(device);
+            }
+            //spread items
+            SpreadItemHorizontal(OOTBQUickSurfaceEditorItems, 0);
+            foreach (var item in OOTBQUickSurfaceEditorItems)
+            {
+                item.IsSelected = false;
+            }
+            //add screen border
+            ScreenBound screen = new ScreenBound();
+            if (GeneralSettings.IsMultipleScreenEnable)
+            {
+                for (int i = 0; i < Screen.AllScreens.Length; i++)
+                {
+                    screen = new ScreenBound();
+                    screen.Width = Screen.AllScreens[i].Bounds.Width;
+                    screen.Height = Screen.AllScreens[i].Bounds.Height;
+                    screen.Top = Screen.AllScreens[i].Bounds.Top;
+                    screen.Left = Screen.AllScreens[i].Bounds.Left;
+                    screen.Index = i;
+                    OOTBQUickSurfaceEditorItems.Insert(0, screen);
+                }
+            }
+            else
+            {
+                screen = new ScreenBound();
+                OOTBQUickSurfaceEditorItems.Insert(0, screen);
             }
         }
 
@@ -7171,7 +7225,52 @@ namespace adrilight.ViewModel
                 window.ShowDialog();
             }
         }
+        public bool IsRegionSelectionOpen { get; set; }
+        private RegionSelectionWindow regionSelectionView { get; set; }
+        private void OpenRegionSelectionWindow()
+        {
+            //add virtual borders
+            AvailableBitmaps = new ObservableCollection<DesktopFrameCard>();
+            if (GeneralSettings.IsMultipleScreenEnable)
+            {
+                for (int i = 0; i < Screen.AllScreens.Length; i++)
+                {
+                    //ScreenBound screen = new ScreenBound();
+                    //screen.Width = Screen.AllScreens[i].Bounds.Width;
+                    //screen.Height = Screen.AllScreens[i].Bounds.Height;
+                    //screen.Top = Screen.AllScreens[i].Bounds.Top;
+                    //screen.Left = Screen.AllScreens[i].Bounds.Left;
+                    //screen.Index = i;
+                    //screen.ShouldBringIntoView = true;
+                    var source = new WriteableBitmap((int)(Screen.AllScreens[i].Bounds.Width / 8.0), (int)(Screen.AllScreens[i].Bounds.Height / 8.0), 96, 96, PixelFormats.Bgra32, null);
+                    var image = new DesktopFrameCard() {
+                        Bitmap = source,
+                        Name = Screen.AllScreens[i].DeviceName
 
+
+                    };
+                    AvailableBitmaps.Add(image);
+                    //screen.Source = Desktops[i];
+                    //SurfaceEditorItems.Insert(0, screen);
+                }
+            }
+            else
+            {
+                var source = new WriteableBitmap((int)(Screen.AllScreens[0].Bounds.Width / 8.0), (int)(Screen.AllScreens[0].Bounds.Height / 8.0), 96, 96, PixelFormats.Bgra32, null);
+                var image = new DesktopFrameCard() {
+                    Bitmap = source,
+                    Name = Screen.AllScreens[0].DeviceName
+
+
+                };
+                AvailableBitmaps.Add(image);
+            }
+            regionSelectionView = new RegionSelectionWindow();
+            regionSelectionView.Owner = System.Windows.Application.Current.MainWindow;
+            regionSelectionView.Closing += (_, __) => IsRegionSelectionOpen = false;
+            IsRegionSelectionOpen = true;
+            regionSelectionView.ShowDialog();
+        }
         //private void LaunchPIDEditWindow(IDrawable p)
         //{
         //    CurrentEditingDevice = p as ARGBLEDSlaveDevice;
@@ -8079,31 +8178,6 @@ namespace adrilight.ViewModel
                     SurfaceEditorItems.Add(slaveDevice as ARGBLEDSlaveDevice);
                 }
             }
-            //add virtual borders
-            Desktops = new ObservableCollection<WriteableBitmap>();
-            if (GeneralSettings.IsMultipleScreenEnable)
-            {
-                for (int i = 0; i < Screen.AllScreens.Length; i++)
-                {
-                    ScreenBound screen = new ScreenBound();
-                    screen.Width = Screen.AllScreens[i].Bounds.Width;
-                    screen.Height = Screen.AllScreens[i].Bounds.Height;
-                    screen.Top = Screen.AllScreens[i].Bounds.Top;
-                    screen.Left = Screen.AllScreens[i].Bounds.Left;
-                    screen.Index = i;
-                    screen.ShouldBringIntoView = true;
-                    var source = new WriteableBitmap((int)(screen.Width / 8.0), (int)(screen.Height / 8.0), 96, 96, PixelFormats.Bgra32, null);
-                    Desktops.Add(source);
-                    //screen.Source = Desktops[i];
-                    SurfaceEditorItems.Insert(0, screen);
-                }
-            }
-            else
-            {
-                ScreenBound screen = new ScreenBound();
-                SurfaceEditorItems.Insert(0, screen);
-            }
-
             surfaceeditorWindow = new SurfaceEditorWindow();
             IsRichCanvasWindowOpen = true;
 
@@ -8724,23 +8798,6 @@ namespace adrilight.ViewModel
                 Geometry = "binary",
                 ResourceName = "adrilight.DeviceFirmware.ABR1p.hex"
             };
-            //IDeviceFirmware ABR1e = new DeviceFirmware() {
-            //    Name = "ABR1e.hex",
-            //    Version = "1.0.5",
-            //    TargetHardware = "ABR1e",
-            //    TargetDeviceType = "ABBASIC",
-            //    Geometry = "binary",
-            //    ResourceName = "adrilight.DeviceFirmware.ABR1e.hex"
-            //};
-
-            //IDeviceFirmware ABR2p = new DeviceFirmware() {
-            //    Name = "ABR2p.hex",
-            //    Version = "1.0.5",
-            //    TargetHardware = "ABR2p",
-            //    TargetDeviceType = "ABBASIC",
-            //    Geometry = "binary",
-            //    ResourceName = "adrilight.DeviceFirmware.ABR2p.hex"
-            //};
             var ABR2e = new DeviceFirmware() {
                 Name = "ABR2e.hex",
                 Version = "1.0.6",
@@ -8765,14 +8822,6 @@ namespace adrilight.ViewModel
                 Geometry = "binary",
                 ResourceName = "adrilight.DeviceFirmware.AER2e.hex"
             };
-            //IDeviceFirmware AER2p = new DeviceFirmware() {
-            //    Name = "AER2p.hex",
-            //    Version = "1.0.3",
-            //    TargetHardware = "AER2p",
-            //    TargetDeviceType = "ABEDGE",
-            //    Geometry = "binary",
-            //    ResourceName = "adrilight.DeviceFirmware.AER2p.hex"
-            //};
             var AFR1g = new DeviceFirmware() {
                 Name = "AFR1g.hex",
                 Version = "1.0.3",
@@ -8800,7 +8849,7 @@ namespace adrilight.ViewModel
             var AHR2g = new DeviceFirmware() {
                 Name = "AHR2g.hex",
                 Version = "1.0.1",
-                TargetHardware = "AHR1g",
+                TargetHardware = "AHR2g",
                 TargetDeviceType = DeviceTypeEnum.AmbinoHUBV3,
                 Geometry = "binary",
                 ResourceName = "adrilight.DeviceFirmware.AHR2g.hex"
@@ -8815,8 +8864,6 @@ namespace adrilight.ViewModel
             };
             var firmwareList = new List<DeviceFirmware>();
             firmwareList.Add(ABR1p);
-            //firmwareList.Add(ABR2p);
-            //firmwareList.Add(ABR1e);
             firmwareList.Add(ABR2e);
             firmwareList.Add(AER1e);
             firmwareList.Add(AER2e);
@@ -8848,39 +8895,6 @@ namespace adrilight.ViewModel
             //+-------------------------------------------------+--------+----+----+-------+
             //| Ambino HUBV3 CH552G rev2                        | CH552G |    |    | AHR2g |
             //+-------------------------------------------------+--------+----+----+-------+
-
-            //foreach(var device in DefaultDeviceCollection.AvailableDefaultDevice())
-            //{
-            //    string requiredFwVersion = "1.0.0";
-            //    switch (device.HardwareVersion)
-            //    {
-            //        case "ABR1p":
-            //            requiredFwVersion = "1.0.5";
-            //            break;
-            //        case "ABR2p":
-            //            requiredFwVersion = "1.0.5";
-            //            break;
-            //        case "ABR1e":
-            //            requiredFwVersion = "1.0.5";
-            //            break;
-            //        case "AER1e":
-            //            requiredFwVersion = "1.0.3";
-            //            break;
-            //        case "AER2p":
-            //            requiredFwVersion = "1.0.3";
-            //            break;
-            //        case "AFR1g":
-            //            requiredFwVersion = "1.0.2";
-            //            break;
-            //        case "AHR1g":
-            //            requiredFwVersion = "1.0.1";
-            //            break;
-            //        case "ARR1p":
-            //            requiredFwVersion = "1.0.1";
-            //            break;
-            //    }
-
-            //}
             var requiredFwVersionjson = JsonConvert.SerializeObject(firmwareList, Formatting.Indented);
             File.WriteAllText(JsonFWToolsFWListFileNameAndPath, requiredFwVersionjson);
         }
@@ -9071,13 +9085,8 @@ namespace adrilight.ViewModel
             }
             // WriteDeviceProfileCollection();
         }
-
-        public void LoadData()
+        private void SFTPInit()
         {
-            if (ResourceHlprs == null)
-                ResourceHlprs = new ResourceHelpers();
-            if (LocalFileHlprs == null)
-                LocalFileHlprs = new LocalFileHelpers();
             if (FTPHlprs == null)
             {
                 string host = @"103.148.57.184";
@@ -9094,16 +9103,26 @@ namespace adrilight.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    HandyControl.Controls.MessageBox.Show("Server không khả dụng ở thời điểm hiện tại, vui lòng thử lại sau", "Server notfound", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
+                    HandyControl.Controls.MessageBox.Show("Adrilight Server không khả dụng ở thời điểm hiện tại", "Server notfound", MessageBoxButton.OK, MessageBoxImage.Error);
+                    //return;
                 }
             }
-            SearchingForDevices = true;
+        }
+        public void LoadData()
+        {
+
+            if (ResourceHlprs == null)
+                ResourceHlprs = new ResourceHelpers();
+            if (LocalFileHlprs == null)
+                LocalFileHlprs = new LocalFileHelpers();
+            Task.Run(() => SFTPInit());
+            if (GeneralSettings.DeviceDiscoveryMode == 0)
+                SearchingForDevices = true;
 
             #region checking and creating resource folder path if not exist
-
             CreateColorCollectionFolder();
             CreatePaletteCollectionFolder();
+            CreateResourceCollectionFolder();
             CreateChasingPatternCollectionFolder();
             CreateVIDCollectionFolder();
             CreateMIDCollectionFolder();
@@ -9111,7 +9130,7 @@ namespace adrilight.ViewModel
             CreateProfileCollectionFolder();
             CreateSupportedDevicesCollectionFolder();
 
-            #endregion checking and creating resource folder path if not exist
+            #endregion
 
             LoadAvailableLightingMode();
             LoadAvailableAnimations();
@@ -9120,7 +9139,18 @@ namespace adrilight.ViewModel
             LoadAvailableProfiles();
             LoadAvailableSolidColors();
         }
-
+        private void CreateResourceCollectionFolder()
+        {
+            if (!Directory.Exists(ResourceFolderPath))
+            {
+                Directory.CreateDirectory(ResourceFolderPath);
+                var allResourceNames = ResourceHlprs.GetResourceFileName();
+                foreach (var resourceName in allResourceNames.Where(r => r.EndsWith(".png")))
+                {
+                    ResourceHlprs.CopyResource(resourceName, Path.Combine(ResourceFolderPath, resourceName.Remove(0, 27)));
+                }
+            }
+        }
         private void CreateProfileCollectionFolder()
         {
             if (!Directory.Exists(ProfileCollectionFolderPath))
@@ -9154,7 +9184,7 @@ namespace adrilight.ViewModel
                 var allResourceNames = ResourceHlprs.GetResourceFileName();
                 foreach (var resourceName in allResourceNames.Where(r => r.EndsWith(".AML")))
                 {
-                    ResourceHlprs.CopyResource(resourceName, Path.Combine(collectionFolder, resourceName));
+                    ResourceHlprs.CopyResource(resourceName, Path.Combine(collectionFolder, resourceName.Remove(0, 36)));
                 }
                 var config = new ResourceLoaderConfig(nameof(ChasingPattern), DeserializeMethodEnum.MultiJson);
                 var configJson = JsonConvert.SerializeObject(config, new JsonSerializerSettings() {

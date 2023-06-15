@@ -3,13 +3,17 @@
     /// <summary>
     /// Interaction logic for PaletteEditWindow.xaml
     /// </summary>
-    public partial class SlaveDeviceCollectionView
+    public partial class RegionSelectionWindow
     {
-        public SlaveDeviceCollectionView()
+        public RegionSelectionWindow()
         {
             InitializeComponent();
 
         }
+
+
+
+
 
     }
 }

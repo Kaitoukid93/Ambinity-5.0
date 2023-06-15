@@ -874,7 +874,9 @@
                             </Grid>
                         </StackPanel>
                     </Border>
-
+                    <Grid>
+                        
+                   
                     <ItemsControl x:Name="paramList" Margin="0,0,0,0" ItemsSource="{Binding SelectedControlZone.CurrentActiveControlMode.Parameters,Mode=TwoWay,IsAsync=True}">
 
                         <ItemsControl.ItemsPanel>
@@ -917,6 +919,13 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+                        <Border Background="{DynamicResource DarkOpacityBrush}" Visibility="{Binding IsLoadingControlMode,Mode=TwoWay,Converter={StaticResource Boolean2VisibilityConverter}}">
+
+                        </Border>
+                        <Grid Visibility="{Binding IsLoadingControlMode,Mode=TwoWay,Converter={StaticResource Boolean2VisibilityConverter}}">
+                            <hc:LoadingLine  VerticalAlignment="Center" Height="20" Width="100"/>
+                        </Grid>
+                    </Grid>
                 </StackPanel>
             </Grid>
         </hc:ScrollViewer>

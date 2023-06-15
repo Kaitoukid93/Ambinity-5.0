@@ -1,21 +1,13 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO.Ports;
-using System.Threading;
-using NLog;
-using System.Buffers;
-using adrilight.Util;
-using System.Linq;
-using Newtonsoft.Json;
-using System.Windows;
+﻿using adrilight.Settings;
 using adrilight.Spots;
-using adrilight.Settings;
-using System.Collections.ObjectModel;
-using System.Windows.Documents;
-using SharpDX.DXGI;
-using Castle.Core.Internal;
-using static System.Windows.Forms.AxHost;
-using System.Web.UI.WebControls.WebParts;
+using adrilight.Util;
+using Newtonsoft.Json;
+using NLog;
+using System;
+using System.Buffers;
+using System.IO.Ports;
+using System.Linq;
+using System.Threading;
 
 namespace adrilight
 {
@@ -35,6 +27,20 @@ namespace adrilight
 
             // DeviceSpotSets = deviceSpotSets ?? throw new ArgumentNullException(nameof(deviceSpotSets));
             DeviceSettings.PropertyChanged += UserSettings_PropertyChanged;
+            foreach (var output in deviceSettings.AvailableLightingOutputs)
+            {
+                output.PropertyChanged += (_, __) =>
+                {
+                    switch (__.PropertyName)
+                    {
+                        case nameof(output.SlaveDevice):
+                            LightingDevicesChanged();
+                            break;
+                    }
+                };
+
+
+            }
             DeviceSettings.DeviceState = DeviceStateEnum.Normal;
             _hasPWMCOntroller = DeviceSettings.AvailablePWMOutputs != null && DeviceSettings.AvailablePWMOutputs.Count() > 0;
             RefreshTransferState();
@@ -107,7 +113,7 @@ namespace adrilight
 
 
         }
-
+        #region PropertyChanged events
         private void UserSettings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
@@ -119,7 +125,26 @@ namespace adrilight
                     break;
             }
         }
+        private void LightingDevicesChanged()
+        {
+            #region Get All Needed Params from current device
+            _lightingDevices = new ARGBLEDSlaveDevice[DeviceSettings.AvailableLightingDevices.Length];
+            for (int i = 0; i < DeviceSettings.AvailableLightingDevices.Length; i++)
+            {
+                _lightingDevices[i] = DeviceSettings.AvailableLightingDevices[i] as ARGBLEDSlaveDevice;
+            }
+            if (DeviceSettings.AvailablePWMDevices != null)
+            {
+                _pwmDevices = new PWMMotorSlaveDevice[DeviceSettings.AvailablePWMDevices.Length];
+                for (int i = 0; i < DeviceSettings.AvailablePWMDevices.Length; i++)
+                {
+                    _pwmDevices[i] = DeviceSettings.AvailablePWMDevices[i] as PWMMotorSlaveDevice;
+                }
+            }
 
+            #endregion
+        }
+        #endregion
 
         /// <summary>
         /// private properties
@@ -314,7 +339,7 @@ namespace adrilight
                                 }
 
 
-                                
+
                                 foreach (DeviceSpot spot in ledZone.Spots)
                                 {
                                     if (spot.IsEnabled)
@@ -334,7 +359,7 @@ namespace adrilight
 
                                 }
                                 //fill the rest of outputStream zero
-                                
+
                                 break;
                             case DeviceStateEnum.Sleep: // send black frame data
                                 foreach (DeviceSpot spot in ledZone.Spots)
@@ -437,7 +462,7 @@ namespace adrilight
 
                                 }
 
-                                
+
                                 foreach (DeviceSpot spot in ledZone.Spots)
                                 {
                                     if (spot.IsEnabled)
@@ -564,22 +589,7 @@ namespace adrilight
         {
             var cancellationToken = (CancellationToken)tokenObject;
 
-            #region Get All Needed Params from current device
-            _lightingDevices = new ARGBLEDSlaveDevice[DeviceSettings.AvailableLightingDevices.Length];
-            for (int i = 0; i < DeviceSettings.AvailableLightingDevices.Length; i++)
-            {
-                _lightingDevices[i] = DeviceSettings.AvailableLightingDevices[i] as ARGBLEDSlaveDevice;
-            }
-            if (DeviceSettings.AvailablePWMDevices != null)
-            {
-                _pwmDevices = new PWMMotorSlaveDevice[DeviceSettings.AvailablePWMDevices.Length];
-                for (int i = 0; i < DeviceSettings.AvailablePWMDevices.Length; i++)
-                {
-                    _pwmDevices[i] = DeviceSettings.AvailablePWMDevices[i] as PWMMotorSlaveDevice;
-                }
-            }
-
-            #endregion
+            LightingDevicesChanged();
 
             if (String.IsNullOrEmpty(DeviceSettings.OutputPort))
             {
@@ -634,16 +644,9 @@ namespace adrilight
                             else
                                 fastLedTime = ((streamLength - _messagePreamble.Length) / 3.0 * 0.030d);
                             var serialTransferTime = outputBuffer.Length * 10 * 1000 / baudRate;
-                            var minTimespan = (int)(fastLedTime + serialTransferTime);
-
-
-
+                            var minTimespan = (int)(fastLedTime + serialTransferTime) + 1;
                             Thread.Sleep(minTimespan);
                         }
-
-
-
-
 
                     }
                 }
@@ -660,16 +663,16 @@ namespace adrilight
 
                     _log.Debug(ex, "Exception catched.");
                     //to be safe, we reset the serial port
-                    if (!isDisconnectedMessage)
-                    {
-                        var result = HandyControl.Controls.MessageBox.Show("USB của " + DeviceSettings.DeviceName + " Đã ngắt kết nối!!!. Kiểm tra lại kết nối", "Mất kết nối", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    //if (!isDisconnectedMessage)
+                    //{
+                    //    var result = HandyControl.Controls.MessageBox.Show("USB của " + DeviceSettings.DeviceName + " Đã ngắt kết nối!!!. Kiểm tra lại kết nối", "Mất kết nối", MessageBoxButton.OK, MessageBoxImage.Warning);
 
-                        if (result == MessageBoxResult.OK)//stop showing message
-                        {
+                    //    if (result == MessageBoxResult.OK)//stop showing message
+                    //    {
 
-                            isDisconnectedMessage = true;
-                        }
-                    }
+                    //        isDisconnectedMessage = true;
+                    //    }
+                    //}
 
 
 

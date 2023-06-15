@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace adrilight.Helpers
 {
@@ -35,14 +31,14 @@ namespace adrilight.Helpers
             {
 
             }
-           
+
         }
         public string[] GetResourceFileName()
         {
             var assembly = Assembly.GetExecutingAssembly();
             return assembly.GetManifestResourceNames();
-            
-            
+
+
         }
     }
 }

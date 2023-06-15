@@ -53,6 +53,8 @@ namespace adrilight
         public int DashboardHeight { get => _dashboardHeight; set { Set(() => DashboardHeight, ref _dashboardHeight, value); } }
         [JsonIgnore]
         public string DeviceThumbnail => File.Exists(Path.Combine(ResourceCollectionFolderPath, DeviceName + "_thumb.png")) ? Path.Combine(ResourceCollectionFolderPath, DeviceName + "_thumb.png") : Path.Combine(ResourceCollectionFolderPath, DeviceType.Name + "_thumb.png");
+        [JsonIgnore]
+        public string DeviceOutputMap => File.Exists(Path.Combine(ResourceCollectionFolderPath, DeviceName + "_outputmap.png")) ? Path.Combine(ResourceCollectionFolderPath, DeviceName + "_outputmap.png") : DeviceThumbnail;
         public DeviceType DeviceType { get => _deviceType; set { Set(() => DeviceType, ref _deviceType, value); } }
         public ObservableCollection<ControlZoneGroup> ControlZoneGroups { get => _controlZoneGroups; set { Set(() => ControlZoneGroups, ref _controlZoneGroups, value); } }
         public DeviceStateEnum DeviceState { get => _deviceState; set { Set(() => DeviceState, ref _deviceState, value); } }

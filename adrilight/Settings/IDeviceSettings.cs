@@ -29,6 +29,7 @@ namespace adrilight
         ObservableCollection<IControlZone> AvailableControlZones { get; }
         ObservableCollection<ControlZoneGroup> CurrentLiveViewGroup { get; }
         string DeviceThumbnail { get; }
+        string DeviceOutputMap { get; }
         int Baudrate { get; set; }
         string DeviceUID { get; set; }
         bool IsSelected { get; set; }
