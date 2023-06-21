@@ -121,7 +121,7 @@ namespace adrilight
         private RelayCommand<double> topChangedCommand;
         private double _angle = 0;
         private bool _hasCustomBehavior;
-        private Rect _vIDSpace;
+        private Rect _groupRect;
         private bool _isDeleteable;
         private bool _isResizeable;
         private string _zoneWarningText = string.Empty;
@@ -134,7 +134,7 @@ namespace adrilight
         public bool IsScreenCaptureEnabled { get => _isScreenCaptureEnabled; set { Set(() => IsScreenCaptureEnabled, ref _isScreenCaptureEnabled, value); } }
         public string ZoneUID { get; set; }
         public string GroupID { get; set; }
-        public Rect VIDSpace { get => _vIDSpace; set { Set(() => VIDSpace, ref _vIDSpace, value); } }
+        public Rect GroupRect { get => _groupRect; set { Set(() => GroupRect, ref _groupRect, value); } }
         public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
         public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
 

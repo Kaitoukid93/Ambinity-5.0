@@ -417,31 +417,89 @@
                             </Border>
                         </hc:TransitioningContentControl>
                     </DataTemplate>
-                    <DataTemplate  x:Key="_buttonParamTemplate"  DataType="{x:Type parameters:ButtonParameter}">
+                    <DataTemplate  x:Key="_buttonParamTemplate"  DataType="{x:Type parameters:BaseButtonParameter}">
                         <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
-                            <Border Effect="{DynamicResource EffectShadow1}" Margin="0,0,0,5" Padding="0" CornerRadius="4" Background="{DynamicResource MainContentBackgroundBrush}">
-                                <Button Command="{Binding DataContext.OpenExternalWindowsFromModeParameterCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}" CommandParameter="{Binding CommandParameter}"  HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" hc:BorderElement.CornerRadius="7" Margin="0" hc:BackgroundSwitchElement.MouseHoverBackground="{DynamicResource ButtonHoverBrush}" hc:BackgroundSwitchElement.MouseDownBackground="{DynamicResource SecondaryRegionBrush}" Style="{DynamicResource ButtonCustom}" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                                    <Grid Margin="10">
-                                        <GroupBox VerticalAlignment="Stretch" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
-                                            <GroupBox.HeaderTemplate>
-                                                <DataTemplate>
-                                                    <StackPanel>
-                                                        <TextBlock  FontWeight="SemiBold" Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox},Converter={StaticResource toUpperValueConverter}}" />
-                                                        <TextBlock Margin="0,5,0,0" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="{Binding DataContext.Description, RelativeSource={RelativeSource AncestorType=GroupBox}}" />
-                                                    </StackPanel>
-                                                </DataTemplate>
-                                            </GroupBox.HeaderTemplate>
-                                            <Grid>
-
-                                                <Path HorizontalAlignment="Right" Stretch="Uniform" Margin="5" Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
+                            <StackPanel>
+                                <Border Effect="{DynamicResource EffectShadow1}" Margin="0,0,0,5" Padding="0" CornerRadius="4" Background="{DynamicResource MainContentBackgroundBrush}">
+                                    <Button Command="{Binding DataContext.OpenExternalWindowsFromModeParameterCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}" CommandParameter="{Binding .}"  HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" hc:BorderElement.CornerRadius="7" Margin="0" hc:BackgroundSwitchElement.MouseHoverBackground="{DynamicResource ButtonHoverBrush}" hc:BackgroundSwitchElement.MouseDownBackground="{DynamicResource SecondaryRegionBrush}" Style="{DynamicResource ButtonCustom}" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                        <Grid Margin="10">
+                                            <GroupBox VerticalAlignment="Stretch" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                                                <GroupBox.HeaderTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel>
+                                                            <TextBlock  FontWeight="SemiBold" Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox},Converter={StaticResource toUpperValueConverter}}" />
+                                                            <TextBlock Margin="0,5,0,0" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="{Binding DataContext.Description, RelativeSource={RelativeSource AncestorType=GroupBox}}" />
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </GroupBox.HeaderTemplate>
+                                                <Grid>
+                                                    <Path HorizontalAlignment="Right" Stretch="Uniform" Margin="5" Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
                                                           Width="18"
                                                           Height="18"
                                                           Fill="{DynamicResource PrimaryTextBrush}" />
-                                            </Grid>
-                                        </GroupBox>
+                                                </Grid>
+                                            </GroupBox>
+                                        </Grid>
+                                    </Button>
+                                </Border>
+                                <Border Effect="{DynamicResource EffectShadow1}" Margin="0,1,0,5" Background="{DynamicResource MainContentBackgroundBrush}" VerticalAlignment="Top"   CornerRadius="4,4,4,4">
+                                    <Grid>
+                                        <ContentControl Content="{Binding PreviewContent}">
+                                            <ContentControl.Resources>
+                                                <DataTemplate DataType="{x:Type parameters:CapturingRegionPreview}">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Grid Margin="10,5">
+                                                            <StackPanel>
+                                                                <TextBlock HorizontalAlignment="Left" Text="{Binding SourceName}" Style="{DynamicResource TextBlockSubTitleBold}"/>
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <TextBlock HorizontalAlignment="Left" Text="Scaled size : " Style="{DynamicResource TextBlockDefaultSecLight}"/>
+                                                                    <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}">
+                                                                        <TextBlock.Text>
+                                                                            <MultiBinding StringFormat="{}{0}*{1}">
+                                                                                <Binding Path="Canvas.Width" />
+                                                                                <Binding Path="Canvas.Height" />
+                                                                            </MultiBinding>
+                                                                        </TextBlock.Text>
+                                                                    </TextBlock>
+                                                                </StackPanel>
+                                                                <StackPanel Orientation="Vertical">
+                                                                    <TextBlock HorizontalAlignment="Left" Text="Capturing region : " Style="{DynamicResource TextBlockDefaultSecLight}"/>
+                                                                    <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}">
+                                                                        <TextBlock.Text>
+                                                                            <MultiBinding StringFormat="{}[{0:0.##},{1:0.##},{2:0.##},{3:0.##}]">
+                                                                                <Binding Path="Region.Left" />
+                                                                                <Binding Path="Region.Top" />
+                                                                                <Binding Path="Region.Width" />
+                                                                                <Binding Path="Region.Height" />
+                                                                            </MultiBinding>
+                                                                        </TextBlock.Text>
+                                                                    </TextBlock>
+                                                                </StackPanel>
+                                                            </StackPanel>
+                                                        </Grid>
+                                                        <Viewbox HorizontalAlignment="Right" Grid.Column="1" Margin="10">
+                                                            <Border BorderThickness="1" BorderBrush="{DynamicResource SecondaryBorderBrush}">
+                                                                <Canvas Background="{DynamicResource SecondaryRegionBrush}" Width="{Binding Canvas.Width}" Height="{Binding Canvas.Height}">
+                                                                    <Rectangle Fill="{DynamicResource primaryBackgroundBrush}" Stroke="{DynamicResource PrimaryBrush}"
+                                                                Canvas.Left="{Binding Region.Left}" 
+                                                                Canvas.Top="{Binding Region.Top}" 
+                                                                Width="{Binding Region.Width}" 
+                                                                Height="{Binding Region.Height}">
+                                                                    </Rectangle>
+                                                                </Canvas>
+                                                            </Border>
+                                                        </Viewbox>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ContentControl.Resources>
+                                        </ContentControl>
                                     </Grid>
-                                </Button>
-                            </Border>
+                                </Border>
+                            </StackPanel>
                         </hc:TransitioningContentControl>
                     </DataTemplate>
                     <DataTemplate x:Key="_sliderParamTemplate"  DataType="{x:Type parameters:SliderParameter}">
@@ -544,6 +602,13 @@
                                                                             </DataTemplate>
                                                                         </ItemsControl.ItemTemplate>
                                                                     </ItemsControl>
+                                                                </Border>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                        <DataTemplate DataType="{x:Type ut:Gif}">
+                                                            <Grid>
+                                                                <Border Effect="{DynamicResource EffectShadow1}" Padding="10,0" MaxWidth="200" Height="40"  CornerRadius="2" Background="{DynamicResource SecondaryRegionBrush}">
+                                                                    <TextBlock Style="{DynamicResource TextBlockSubTitleBold}" Text="{Binding Name}"/>
                                                                 </Border>
                                                             </Grid>
                                                         </DataTemplate>
@@ -695,6 +760,13 @@
                                                                                             </DataTemplate>
                                                                                         </ItemsControl.ItemTemplate>
                                                                                     </ItemsControl>
+                                                                                </Border>
+                                                                            </Grid>
+                                                                        </DataTemplate>
+                                                                        <DataTemplate DataType="{x:Type ut:Gif}">
+                                                                            <Grid>
+                                                                                <Border Width="86" Height="86" Effect="{DynamicResource EffectShadow1}" ToolTip="{Binding Name}" CornerRadius="2,2,2,2" Style="{StaticResource BorderClip}">
+                                                                                    <Image Stretch="Uniform" Source="{Binding Path}"/>
                                                                                 </Border>
                                                                             </Grid>
                                                                         </DataTemplate>
@@ -875,50 +947,50 @@
                         </StackPanel>
                     </Border>
                     <Grid>
-                        
-                   
-                    <ItemsControl x:Name="paramList" Margin="0,0,0,0" ItemsSource="{Binding SelectedControlZone.CurrentActiveControlMode.Parameters,Mode=TwoWay,IsAsync=True}">
 
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <VirtualizingStackPanel IsVirtualizing="True"
+
+                        <ItemsControl x:Name="paramList" Margin="0,0,0,0" ItemsSource="{Binding SelectedControlZone.CurrentActiveControlMode.Parameters,Mode=TwoWay,IsAsync=True}">
+
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel IsVirtualizing="True"
                               VirtualizationMode="Recycling" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
 
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <ContentControl Content="{Binding}">
-                                    <ContentControl.Style>
-                                        <Style TargetType="{x:Type ContentControl}">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Path=Template}"
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <ContentControl Content="{Binding}">
+                                        <ContentControl.Style>
+                                            <Style TargetType="{x:Type ContentControl}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Path=Template}"
                                                              Value="{x:Static ut:ModeParameterTemplateEnum.ValueSlider}">
-                                                    <Setter Property="ContentTemplate"
+                                                        <Setter Property="ContentTemplate"
                                                             Value="{DynamicResource _sliderParamTemplate}" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Path=Template}"
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Path=Template}"
                                                              Value="{x:Static ut:ModeParameterTemplateEnum.ListSelection}">
-                                                    <Setter Property="ContentTemplate"
+                                                        <Setter Property="ContentTemplate"
                                                             Value="{DynamicResource _listSelectionParamTemplate}" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Path=Template}"
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Path=Template}"
                                                              Value="{x:Static ut:ModeParameterTemplateEnum.ToggleOnOff}">
-                                                    <Setter Property="ContentTemplate"
+                                                        <Setter Property="ContentTemplate"
                                                             Value="{DynamicResource _toggleParamTemplate}" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Path=Template}"
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Path=Template}"
                                                              Value="{x:Static ut:ModeParameterTemplateEnum.PushButtonAction }">
-                                                    <Setter Property="ContentTemplate"
+                                                        <Setter Property="ContentTemplate"
                                                             Value="{DynamicResource _buttonParamTemplate}" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </ContentControl.Style>
-                                </ContentControl>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ContentControl.Style>
+                                    </ContentControl>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                         <Border Background="{DynamicResource DarkOpacityBrush}" Visibility="{Binding IsLoadingControlMode,Mode=TwoWay,Converter={StaticResource Boolean2VisibilityConverter}}">
 
                         </Border>

@@ -49,6 +49,7 @@
         DancingMode,
         AudioDevice,
         Smoothing,
-        LaunchSufaceEditor,
+        CapturingRegion,
+        Gifs,
     }
 }

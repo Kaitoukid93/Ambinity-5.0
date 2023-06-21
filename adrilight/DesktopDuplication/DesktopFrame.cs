@@ -6,7 +6,6 @@ using GalaSoft.MvvmLight;
 using NLog;
 using Polly;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -14,6 +13,8 @@ using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
+using Windows.Graphics.Capture;
+using Windows.Graphics.DirectX.Direct3D11;
 
 namespace adrilight
 {
@@ -31,7 +32,10 @@ namespace adrilight
 
             //  SystemEvents.DisplaySettingsChanged += new EventHandler(SystemEvents_DisplaySettingsChanged);
 
-
+            //SystemEvents.DisplaySettingsChanged += (s, e) =>
+            //{
+            //    RefreshCapturingState();
+            //};
             UserSettings.PropertyChanged += PropertyChanged;
             // SettingsViewModel.PropertyChanged += PropertyChanged;
             RefreshCapturingState();
@@ -57,7 +61,7 @@ namespace adrilight
         #region private field
         private Thread _workerThread;
         private CancellationTokenSource _cancellationTokenSource;
-        private int _currentScreenIdex => Array.IndexOf(Screen.AllScreens, Screen.AllScreens.Where(s => s.DeviceName == DeviceName).FirstOrDefault());
+        private int _currentScreenIdex;
         #endregion
 
         #region public properties
@@ -73,56 +77,61 @@ namespace adrilight
         {
             var isRunning = _cancellationTokenSource != null && IsRunning;
             var shouldBeRunning = true;
-            //  var shouldBeRefreshing = NeededRefreshing;
-
-            //safety check about resolution and screen
-            var currentScreen = Screen.AllScreens.Where(s => s.DeviceName == DeviceName).FirstOrDefault();
-            var currentRect = currentScreen.Bounds;
-            if (UserSettings.Screens == null)
+            _currentScreenIdex = Array.IndexOf(Screen.AllScreens, Screen.AllScreens.Where(s => s.DeviceName == DeviceName).FirstOrDefault());
+            if (_currentScreenIdex == -1)
             {
-                // no screen recorded before
-                UserSettings.Screens = new List<DesktopScreen>();
-                foreach (var screen in Screen.AllScreens)
-                    UserSettings.Screens.Add(new DesktopScreen() { Name = screen.DeviceName, Rectangle = screen.Bounds });
-                MainViewModel.WriteSettingJson(UserSettings);
-
+                shouldBeRunning = false;
             }
-            var lastScreen = UserSettings.Screens.Where(s => s.Name == DeviceName).FirstOrDefault();
+            ////  var shouldBeRefreshing = NeededRefreshing;
+
+            ////safety check about resolution and screen
+            //var currentScreen = Screen.AllScreens.Where(s => s.DeviceName == DeviceName).FirstOrDefault();
+            //var currentRect = currentScreen.Bounds;
+            //if (UserSettings.Screens == null)
+            //{
+            //    // no screen recorded before
+            //    UserSettings.Screens = new List<DesktopScreen>();
+            //    foreach (var screen in Screen.AllScreens)
+            //        UserSettings.Screens.Add(new DesktopScreen() { Name = screen.DeviceName, Rectangle = screen.Bounds });
+            //    MainViewModel.WriteSettingJson(UserSettings);
+
+            //}
+            //var lastScreen = UserSettings.Screens.Where(s => s.Name == DeviceName).FirstOrDefault();
 
 
 
-            if (lastScreen != null)
-            {
-                var lastRect = new Rect(lastScreen.Rectangle.Left, lastScreen.Rectangle.Top, lastScreen.Rectangle.Width, lastScreen.Rectangle.Height);
-                //screen size change when the app is not alive, update components
-                if (lastRect.Width != currentRect.Width || lastRect.Height != currentRect.Height || lastRect.Left != currentRect.Left || lastRect.Top != currentRect.Top)
-                {
-                    lastScreen.Rectangle = currentRect;
-                    MainViewModel.WriteSettingJson(UserSettings);
-                    //get rect scale
+            //if (lastScreen != null)
+            //{
+            //    var lastRect = new Rect(lastScreen.Rectangle.Left, lastScreen.Rectangle.Top, lastScreen.Rectangle.Width, lastScreen.Rectangle.Height);
+            //    //screen size change when the app is not alive, update components
+            //    if (lastRect.Width != currentRect.Width || lastRect.Height != currentRect.Height || lastRect.Left != currentRect.Left || lastRect.Top != currentRect.Top)
+            //    {
+            //        lastScreen.Rectangle = currentRect;
+            //        MainViewModel.WriteSettingJson(UserSettings);
+            //        //get rect scale
 
-                    foreach (var device in MainViewModel.AvailableDevices)
-                    {
-                        foreach (var slaveDevice in device.AvailableLightingDevices)
-                        {
+            //        foreach (var device in MainViewModel.AvailableDevices)
+            //        {
+            //            foreach (var slaveDevice in device.AvailableLightingDevices)
+            //            {
 
-                            HandleResolutionChange(lastRect, new Rect(currentScreen.Bounds.Left, currentScreen.Bounds.Top, currentScreen.Bounds.Width, currentScreen.Bounds.Height), slaveDevice);
+            //                HandleResolutionChange(lastRect, new Rect(currentScreen.Bounds.Left, currentScreen.Bounds.Top, currentScreen.Bounds.Width, currentScreen.Bounds.Height), slaveDevice);
 
-                        }
-                    }
-                    //update zone list
+            //            }
+            //        }
+            //        //update zone list
 
 
 
-                }
-            }
-            else
-            {
+            //    }
+            //}
+            //else
+            //{
 
-                UserSettings.Screens.Add(new DesktopScreen() { Name = currentScreen.DeviceName, Rectangle = currentScreen.Bounds });
-                MainViewModel.WriteSettingJson(UserSettings);
+            //    UserSettings.Screens.Add(new DesktopScreen() { Name = currentScreen.DeviceName, Rectangle = currentScreen.Bounds });
+            //    MainViewModel.WriteSettingJson(UserSettings);
 
-            }
+            //}
 
 
 
@@ -210,7 +219,8 @@ namespace adrilight
 
         private IGeneralSettings UserSettings { get; set; }
         private MainViewViewModel MainViewModel { get; set; }
-
+        private IDirect3DDevice device;
+        private BasicCapture capture;
 
         private readonly Policy _retryPolicy;
 
@@ -251,41 +261,44 @@ namespace adrilight
             try
             {
 
-
+                device = Direct3D11Helper.CreateDevice();
                 BitmapData bitmapData = new BitmapData();
-
+                MonitorInfo monitor = (from m in MonitorEnumerationHelper.GetMonitors()
+                                       where m.DeviceName == DeviceName
+                                       select m).First();
+                StartHmonCapture(monitor.Hmon);
                 while (!token.IsCancellationRequested)
                 {
                     var frameTime = Stopwatch.StartNew();
-                    // var context = new Context();
-                    // context.Add("image", image);
-                    var frame = _retryPolicy.Execute(() => GetNextFrame());
-                    //TraceFrameDetails(newImage);
-                    if (frame == null)
-                    {
-                        //there was a timeout before there was the next frame, simply retry!
-                        continue;
-                    }
-                    //image = newImage;
+                    //    // var context = new Context();
+                    //    // context.Add("image", image);
+                    //    var frame = _retryPolicy.Execute(() => GetNextFrame());
+                    //    //TraceFrameDetails(newImage);
+                    //    if (frame == null)
+                    //    {
+                    //        //there was a timeout before there was the next frame, simply retry!
+                    //        continue;
+                    //    }
+                    //    //image = newImage;
 
-                    // Lock the bitmap's bits.  
-                    //var rect = new System.Drawing.Rectangle(0, 0, image.Width, image.Height);
-                    // System.Drawing.Imaging.BitmapData bmpData =
-                    //  image.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite,
-                    //  image.PixelFormat);
+                    //    // Lock the bitmap's bits.  
+                    //    //var rect = new System.Drawing.Rectangle(0, 0, image.Width, image.Height);
+                    //    // System.Drawing.Imaging.BitmapData bmpData =
+                    //    //  image.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite,
+                    //    //  image.PixelFormat);
 
-                    // Get the address of the first line.
-                    // IntPtr ptr = bmpData.Scan0;
+                    //    // Get the address of the first line.
+                    //    // IntPtr ptr = bmpData.Scan0;
 
-                    // Declare an array to hold the bytes of the bitmap.
-                    // int bytes = Math.Abs(bmpData.Stride) * image.Height;
-                    // byte[] rgbValues = new byte[bytes];
+                    //    // Declare an array to hold the bytes of the bitmap.
+                    //    // int bytes = Math.Abs(bmpData.Stride) * image.Height;
+                    //    // byte[] rgbValues = new byte[bytes];
 
-                    // Copy the RGB values into the array.
-                    //System.Runtime.InteropServices.Marshal.Copy(ptr, rgbValues, 0, bytes);
+                    //    // Copy the RGB values into the array.
+                    //    //System.Runtime.InteropServices.Marshal.Copy(ptr, rgbValues, 0, bytes);
                     lock (Lock)
                     {
-                        Frame = frame;
+                        Frame = capture.CurrentFrame;
                     }
                     if (MainViewModel.IsRegionSelectionOpen)
                     {
@@ -293,7 +306,7 @@ namespace adrilight
                     }
 
 
-                    // image.UnlockBits(bitmapData);
+                    //    // image.UnlockBits(bitmapData);
                     int minFrameTimeInMs = 1000 / 30;
                     var elapsedMs = (int)frameTime.ElapsedMilliseconds;
                     if (elapsedMs < minFrameTimeInMs)
@@ -307,15 +320,16 @@ namespace adrilight
 
             }
 
-            finally
-            {
-                //image?.Dispose();
-                _desktopDuplicator?.Dispose();
-                _desktopDuplicator = null;
-                _log.Debug("Stopped Desktop Duplication Reader.");
-                IsRunning = false;
-                GC.Collect();
-            }
+            //finally
+            //{
+            //    //image?.Dispose();
+            //    _desktopDuplicator?.Dispose();
+            //    _desktopDuplicator = null;
+            //    _log.Debug("Stopped Desktop Duplication Reader.");
+            //    IsRunning = false;
+            //    capture?.Dispose();
+            //    GC.Collect();
+            //}
         }
 
 
@@ -332,14 +346,35 @@ namespace adrilight
             _desktopDuplicator = null;
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource = null;
+            capture?.Dispose();
             GC.Collect();
             _workerThread?.Join();
             _workerThread = null;
 
         }
 
+        private void StartHmonCapture(IntPtr hmon)
+        {
+            GraphicsCaptureItem item = CaptureHelper.CreateItemForMonitor(hmon);
+            if (item != null)
+            {
+                StartCaptureFromItem(item);
+            }
+        }
+        public void StartCaptureFromItem(GraphicsCaptureItem item)
+        {
+            try
+            {
+                StopCapture();
+                capture = new BasicCapture(device, item);
+                capture.StartCapture();
+            }
+            catch (Exception ex)
+            {
 
+            }
 
+        }
 
 
 
@@ -395,13 +430,8 @@ namespace adrilight
             }
             catch (Exception ex)
             {
-                if (ex.Message != "_outputDuplication is null" && ex.Message != "Access Lost, resolution might be changed" && ex.Message != "Invalid call, might be retrying" && ex.Message != "Failed to release frame.")
-                {
-                    _log.Error(ex, "GetNextFrame() failed.");
 
-                    // throw;
-                }
-                else if (ex.Message == "Access Lost, resolution might be changed")
+                if (ex.Message == "Access Lost, resolution might be changed")
                 {
                     _log.Error(ex, "Access Lost, retrying");
 
@@ -417,18 +447,22 @@ namespace adrilight
 
                 else
                 {
-                    throw new DesktopDuplicationException("Unknown Device Error", ex);
+                    // throw new DesktopDuplicationException("Unknown Device Error", ex);
                 }
 
 
-                _desktopDuplicator.Dispose();
+                _desktopDuplicator?.Dispose();
                 _desktopDuplicator = null;
                 GC.Collect();
                 return null;
             }
         }
 
+        public void StopCapture()
+        {
+            capture?.Dispose();
 
+        }
 
 
     }

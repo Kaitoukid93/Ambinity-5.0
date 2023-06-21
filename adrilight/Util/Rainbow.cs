@@ -413,7 +413,7 @@ namespace adrilight
             Rect vidSpace = new Rect();
             if (CurrentZone.IsInControlGroup)
             {
-                vidSpace = CurrentZone.VIDSpace;
+                vidSpace = CurrentZone.GroupRect;
             }
             else
             {

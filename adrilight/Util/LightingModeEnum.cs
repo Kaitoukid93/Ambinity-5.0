@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace adrilight.Util
+﻿namespace adrilight.Util
 {
     /// <summary>
     ///     Enum representing the various device types supported.
@@ -30,11 +24,14 @@ namespace adrilight.Util
         ///     this LightingMode require Animation engine
         /// </summary>
         Animation,
-
         /// <summary>
-        ///     this LightingMode require Static Color engine
+        ///     this LightingMode require Music Color engine
         /// </summary>
         MusicCapturing,
+        /// <summary>
+        ///     this LightingMode require Gixelation Color engine
+        /// </summary>
+        Gifxelation,
         /// <summary>
         ///     this LightingMode Require Custom engine
         /// </summary>

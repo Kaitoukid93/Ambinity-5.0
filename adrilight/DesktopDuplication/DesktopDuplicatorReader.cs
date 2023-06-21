@@ -13,7 +13,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
-using System.Windows.Forms;
 using Color = System.Windows.Media.Color;
 
 namespace adrilight
@@ -29,7 +28,7 @@ namespace adrilight
             )
         {
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
-            DesktopFrame = desktopFrame ?? throw new ArgumentNullException(nameof(desktopFrame));
+            DesktopFrame = desktopFrame.Where(d => d is DesktopFrame).ToArray() ?? throw new ArgumentNullException(nameof(desktopFrame));
             CurrentZone = zone as LEDSetup ?? throw new ArgumentNullException(nameof(zone));
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             _retryPolicy = Policy.Handle<Exception>().WaitAndRetryForever(ProvideDelayDuration);
@@ -99,6 +98,34 @@ namespace adrilight
             _useLinearLighting = value;
 
         }
+        private void OnCapturingRegionChanged(CapturingRegion region)
+        {
+            var left = region.ScaleX * DesktopFrame[(int)_currentScreenIndex].Frame.FrameWidth;
+            var top = region.ScaleY * DesktopFrame[(int)_currentScreenIndex].Frame.FrameHeight;
+            var width = region.ScaleWidth * DesktopFrame[(int)_currentScreenIndex].Frame.FrameWidth;
+            var height = region.ScaleHeight * DesktopFrame[(int)_currentScreenIndex].Frame.FrameHeight;
+            Rect zoneParrent = new Rect();
+            if (CurrentZone.IsInControlGroup)
+            {
+                zoneParrent = CurrentZone.GroupRect;
+
+            }
+            else
+            {
+                zoneParrent = new Rect(CurrentZone.GetRect.Left, CurrentZone.GetRect.Top, CurrentZone.Width, CurrentZone.Height);
+            }
+            var zoneLeft = CurrentZone.GetRect.Left - zoneParrent.Left;
+            var zoneTop = CurrentZone.GetRect.Top - zoneParrent.Top;
+            var zoneRegion = new CapturingRegion(zoneLeft / zoneParrent.Width, zoneTop / zoneParrent.Height, CurrentZone.Width / zoneParrent.Width, CurrentZone.Height / zoneParrent.Height);
+
+            _currentCapturingRegion = new Rectangle((int)(zoneRegion.ScaleX * width + left), (int)(zoneRegion.ScaleY * height + top), (int)(zoneRegion.ScaleWidth * width), (int)(zoneRegion.ScaleHeight * height));
+        }
+        private void OnCapturingSourceChanged(int sourceIndex)
+        {
+            if (sourceIndex >= DesktopFrame.Length)
+                _regionControl.CapturingSourceIndex = 0;
+            _currentScreenIndex = _regionControl.CapturingSourceIndex;
+        }
         #endregion
         /// <summary>
         /// private properties
@@ -112,46 +139,48 @@ namespace adrilight
         private double _brightness;
         private int _smoothFactor;
         private int _frameRate = 60;
+        private Rectangle _currentCapturingRegion;
 
         private SliderParameter _brightnessControl;
         private SliderParameter _smoothingControl;
         private ToggleParameter _useLinearLightingControl;
+        private CapturingRegionSelectionButtonParameter _regionControl;
         public void Refresh()
         {
             if (CurrentZone.CurrentActiveControlMode == null)
             {
                 return;
             }
-            //find out which screen this zone belongs to
-            var actualLeft = CurrentZone.Left + CurrentZone.OffsetX;
-            var actualTop = CurrentZone.Top + CurrentZone.OffsetY;
-            var width = CurrentZone.Width;
-            var height = CurrentZone.Height;
-            _currentScreenIndex = null;
-            foreach (var screen in Screen.AllScreens)
-            {
-                var screenRect = new Rectangle(
-                    (int)screen.Bounds.Left,
-                    (int)screen.Bounds.Top,
-                    (int)screen.Bounds.Width,
-                    (int)screen.Bounds.Height);
-                var zoneRect = new Rectangle(
-                    (int)actualLeft,
-                    (int)actualTop,
-                    (int)width,
-                    (int)height);
-                if (Rectangle.Intersect(screenRect, zoneRect).Equals(zoneRect))
-                    _currentScreenIndex = Array.IndexOf(Screen.AllScreens, screen);
+            ////find out which screen this zone belongs to
+            //var actualLeft = CurrentZone.Left + CurrentZone.OffsetX;
+            //var actualTop = CurrentZone.Top + CurrentZone.OffsetY;
+            //var width = CurrentZone.Width;
+            //var height = CurrentZone.Height;
+            //_currentScreenIndex = null;
+            //foreach (var screen in Screen.AllScreens)
+            //{
+            //    var screenRect = new Rectangle(
+            //        (int)screen.Bounds.Left,
+            //        (int)screen.Bounds.Top,
+            //        (int)screen.Bounds.Width,
+            //        (int)screen.Bounds.Height);
+            //    var zoneRect = new Rectangle(
+            //        (int)actualLeft,
+            //        (int)actualTop,
+            //        (int)width,
+            //        (int)height);
+            //    if (Rectangle.Intersect(screenRect, zoneRect).Equals(zoneRect))
+            //        _currentScreenIndex = Array.IndexOf(Screen.AllScreens, screen);
 
-            }
-            if (_currentScreenIndex == null)
-            {
-                CurrentZone.ZoneWarningText = "Vị trí của Zone nằm ngoài ranh giới màn hình!";
-            }
-            else
-            {
-                CurrentZone.ZoneWarningText = string.Empty;
-            }
+            //}
+            //if (_currentScreenIndex == null)
+            //{
+            //    CurrentZone.ZoneWarningText = "Vị trí của Zone nằm ngoài ranh giới màn hình!";
+            //}
+            //else
+            //{
+            //    CurrentZone.ZoneWarningText = string.Empty;
+            //}
             var isRunning = _cancellationTokenSource != null;
 
             var currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
@@ -163,9 +192,7 @@ namespace adrilight
                 //stop this engine when any surface or editor open because this could cause capturing fail
                 MainViewViewModel.IsRichCanvasWindowOpen == false &&
                 //stop this engine when this zone is outside or atleast there is 1 pixel outside of the screen region
-                CurrentZone.IsInsideScreen == true &&
-                //this has to be inside of a screen
-                _currentScreenIndex != null;
+                CurrentZone.IsInsideScreen == true;
             ////registering group shoud be done
             //MainViewViewModel.IsRegisteringGroup == false;
 
@@ -225,9 +252,25 @@ namespace adrilight
             _smoothingControl.PropertyChanged += (_, __) => OnSmoothingPropertyChanged(_smoothingControl.Value);
             _useLinearLightingControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.LinearLighting).FirstOrDefault() as ToggleParameter;
             _useLinearLightingControl.PropertyChanged += (_, __) => OnUseLinearLightingPropertyChanged(_useLinearLightingControl.Value == 1 ? true : false);
+            _regionControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.CapturingRegion).FirstOrDefault() as CapturingRegionSelectionButtonParameter;
+            _regionControl.PropertyChanged += (_, __) =>
+            {
+                switch (__.PropertyName)
+                {
+                    case nameof(_regionControl.CapturingSourceIndex):
+                        OnCapturingSourceChanged(_regionControl.CapturingSourceIndex);
+                        OnCapturingRegionChanged(_regionControl.CapturingRegion);
+                        break;
+                    case nameof(_regionControl.CapturingRegion):
+                        OnCapturingRegionChanged(_regionControl.CapturingRegion);
+                        break;
+                }
+            };
             OnBrightnessPropertyChanged(_brightnessControl.Value);
             OnUseLinearLightingPropertyChanged(_useLinearLightingControl.Value == 1 ? true : false);
             OnSmoothingPropertyChanged(_smoothingControl.Value);
+            OnCapturingSourceChanged(_regionControl.CapturingSourceIndex);
+
         }
         public void Run(CancellationToken token)
         {
@@ -239,12 +282,12 @@ namespace adrilight
             try
             {
                 //get current zone size and position respect to screen size scaled 8.0
-                var screenLeft = Screen.AllScreens[(int)_currentScreenIndex].Bounds.Left;
-                var screenTop = Screen.AllScreens[(int)_currentScreenIndex].Bounds.Top;
-                var x = (int)((CurrentZone.Left + CurrentZone.OffsetX - screenLeft) / 8.0);
-                var y = (int)((CurrentZone.Top + CurrentZone.OffsetY - screenTop) / 8.0);
-                var zoneWidth = (int)(CurrentZone.Width / 8.0) >= 1 ? (int)(CurrentZone.Width / 8.0) : 1;
-                var zoneHeight = (int)(CurrentZone.Height / 8.0) >= 1 ? (int)(CurrentZone.Height / 8.0) : 1;
+                //var screenLeft = Screen.AllScreens[(int)_currentScreenIndex].Bounds.Left;
+                //var screenTop = Screen.AllScreens[(int)_currentScreenIndex].Bounds.Top;
+                //var x = (int)((CurrentZone.Left + CurrentZone.OffsetX - screenLeft) / 8.0);
+                //var y = (int)((CurrentZone.Top + CurrentZone.OffsetY - screenTop) / 8.0);
+                //var zoneWidth = (int)(CurrentZone.Width / 8.0) >= 1 ? (int)(CurrentZone.Width / 8.0) : 1;
+                //var zoneHeight = (int)(CurrentZone.Height / 8.0) >= 1 ? (int)(CurrentZone.Height / 8.0) : 1;
                 int updateIntervalCounter = 0;
                 while (!token.IsCancellationRequested)
                 {
@@ -260,10 +303,19 @@ namespace adrilight
                         //there was a timeout before there was the next frame, simply retry!
                         continue;
                     }
+                    if (image != null && (newImage.Width != image.Width || newImage.Height != image.Height))
+                    {
+                        OnCapturingRegionChanged(_regionControl.CapturingRegion);
+                    }
+                    else
+                    {
+                        OnCapturingRegionChanged(_regionControl.CapturingRegion);
+                    }
+
                     image = newImage;
                     try
                     {
-                        image.LockBits(new Rectangle(x, y, zoneWidth, zoneHeight), ImageLockMode.ReadOnly, PixelFormat.Format32bppRgb, bitmapData);
+                        image.LockBits(_currentCapturingRegion, ImageLockMode.ReadOnly, PixelFormat.Format32bppRgb, bitmapData);
                     }
 
                     catch (System.ArgumentException)
@@ -282,10 +334,10 @@ namespace adrilight
 
                         foreach (var spot in CurrentZone.Spots)
                         {
-                            var left = (spot as DeviceSpot).Left / 8.0;
-                            var top = (spot as DeviceSpot).Top / 8.0;
-                            var width = (spot as DeviceSpot).Width / 8.0;
-                            var height = (spot as DeviceSpot).Height / 8.0;
+                            var left = ((spot as DeviceSpot).Left / CurrentZone.Width) * _currentCapturingRegion.Width;
+                            var top = ((spot as DeviceSpot).Top / CurrentZone.Height) * _currentCapturingRegion.Height;
+                            var width = Math.Max(1, ((spot as DeviceSpot).Width / CurrentZone.Width) * _currentCapturingRegion.Width);
+                            var height = Math.Max(1, ((spot as DeviceSpot).Height / CurrentZone.Height) * _currentCapturingRegion.Height);
                             const int numberOfSteps = 15;
                             int stepx = Math.Max(1, (int)(width) / numberOfSteps);
                             int stepy = Math.Max(1, (int)(height) / numberOfSteps);

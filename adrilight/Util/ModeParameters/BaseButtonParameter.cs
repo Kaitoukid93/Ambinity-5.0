@@ -1,34 +1,11 @@
-﻿using adrilight.Helpers;
-using adrilight.Settings;
-using adrilight_effect_analyzer.Model;
-using GalaSoft.MvvmLight;
-using LiveCharts;
-using LiveCharts.Defaults;
-using Newtonsoft.Json;
-using System;
-using System.CodeDom;
-using System.Collections.Generic;
+﻿using GalaSoft.MvvmLight;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Windows.Documents;
-using System.Windows.Media;
 
 namespace adrilight.Util.ModeParameters
 {
-    public class ButtonParameter : ViewModelBase, IModeParameter // parameter specific for lighting control
+    public class BaseButtonParameter : ViewModelBase, IModeParameter // parameter specific for lighting control
     {
 
-        public ButtonParameter()
-        {
-
-        }
-        public ButtonParameter(string commandParameter)
-        {
-           
-            Template = ModeParameterTemplateEnum.PushButtonAction;
-            CommandParameter = commandParameter;
-
-        }
         private string _name;
         private string _description;
         private ModeParameterTemplateEnum _template;
@@ -45,6 +22,7 @@ namespace adrilight.Util.ModeParameters
         public ModeParameterEnum ParamType { get => _paramType; set { Set(() => ParamType, ref _paramType, value); } }
         public ObservableCollection<SubParameter> SubParams { get => _subParams; set { Set(() => SubParams, ref _subParams, value); } }
         public bool ShowMore { get => _showMore; set { Set(() => ShowMore, ref _showMore, value); } }
+        public virtual PreviewableContent PreviewContent { get; set; }
         public string Geometry { get; set; }
     }
 }

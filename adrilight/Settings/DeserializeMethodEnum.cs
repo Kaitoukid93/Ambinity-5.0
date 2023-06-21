@@ -16,6 +16,11 @@
         /// this require a root folder and that folder contains many json
         /// </summary>
         /// 
-        MultiJson
+        MultiJson,
+        /// <summary>
+        /// this require a root folder and that folder contains many files
+        /// </summary>
+        /// 
+        Files
     }
 }

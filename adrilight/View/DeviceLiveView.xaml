@@ -100,9 +100,9 @@
                 TranslateOffset="{Binding CurrentLiveViewOffset,Mode=TwoWay}"
                 Scale="{Binding CanvasScale,Mode=TwoWay}"
                 MousePosition="{Binding MousePosition, Mode=OneWayToSource}">
-            <richCanvas:RichItemsControl.CacheMode>
+            <!--<richCanvas:RichItemsControl.CacheMode>
                 <BitmapCache EnableClearType="False" RenderAtScale="1.0" SnapsToDevicePixels="False"/>
-            </richCanvas:RichItemsControl.CacheMode>
+            </richCanvas:RichItemsControl.CacheMode>-->
             <richCanvas:RichItemsControl.SelectionRectangleStyle>
                 <Style TargetType="Rectangle">
                     <Setter Property="Fill" Value="Transparent" />

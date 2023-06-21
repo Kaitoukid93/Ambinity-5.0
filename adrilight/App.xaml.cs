@@ -19,7 +19,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
@@ -68,15 +67,13 @@ namespace adrilight
 
             // inject all, this task may takes long time
             _splashScreen = new SplashScreen();
+            this.MainWindow = _splashScreen;
             _splashScreen.Show();
             _splashScreen.Header.Text = "Adrilight is loading";
             _splashScreen.status.Text = "LOADING KERNEL...";
-            kernel = await Task.Run(() => SetupDependencyInjection(false));
+            kernel = SetupDependencyInjection(false);
             //close splash screen and open dashboard
-            _splashScreen.Close();
-
             this.Resources["Locator"] = new ViewModelLocator(kernel);
-
             _telemetryClient = kernel.Get<TelemetryClient>();
 
             ///set theme and color
@@ -160,7 +157,7 @@ namespace adrilight
             MainViewViewModel = kernel.Get<MainViewViewModel>();
             if (!GeneralSettings.StartMinimized)
                 MainViewViewModel.IsAppActivated = true;
-            MainViewViewModel.AvailableDevices.CollectionChanged += async (s, e) =>
+            MainViewViewModel.AvailableDevices.CollectionChanged += (s, e) =>
             {
                 switch (e.Action)
                 {
@@ -228,6 +225,7 @@ namespace adrilight
             kernel.Bind<ILightingEngine>().To<Rainbow>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
             kernel.Bind<ILightingEngine>().To<Animation>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
             kernel.Bind<ILightingEngine>().To<Music>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
+            kernel.Bind<ILightingEngine>().To<Gifxelation>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
             var availableLightingModes = kernel.GetAll<ILightingEngine>(zone.ZoneUID);
             if (zone.CurrentActiveControlMode == null)
                 zone.CurrentActiveControlMode = zone.AvailableControlMode.FirstOrDefault();
@@ -354,63 +352,6 @@ namespace adrilight
             //serialStream.RefreshTransferState();
         }
 
-        private void ScreenSetupChanged()
-        {
-            foreach (var desktopDuplicatorReader in kernel.GetAll<ILightingEngine>())
-            {
-                desktopDuplicatorReader.Stop();
-            }
-            foreach (var desktopFrame in kernel.GetAll<ICaptureEngine>())
-            {
-                desktopFrame.Stop();
-            }
-
-            //find out what happend
-            if (Screen.AllScreens.Length < kernel.GetAll<ICaptureEngine>().Count())
-            {
-                //screen unpluged
-                foreach (var screen in Screen.AllScreens)
-                {
-                    var desktopFrame = kernel.Get<ICaptureEngine>(screen.DeviceName);
-                    if (desktopFrame != null) // this screen is injected already, simply restart it
-                        desktopFrame.RefreshCapturingState();
-                }
-            }
-            else if (Screen.AllScreens.Length == kernel.GetAll<ICaptureEngine>().Count())
-            {
-                //res change. handled in desktopframe
-                foreach (var desktopFrame in kernel.GetAll<ICaptureEngine>())
-                {
-                    desktopFrame.RefreshCapturingState();
-                }
-            }
-            else
-            {
-                //screen attached
-                foreach (var screen in Screen.AllScreens)
-                {
-                    var desktopFrames = kernel.GetAll<ICaptureEngine>();
-                    foreach (var desktopFrame in desktopFrames)
-                    {
-                        if (desktopFrame.DeviceName == screen.DeviceName)
-                            desktopFrame.RefreshCapturingState();
-                        else
-                        {
-                            kernel.Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("screen", screen.DeviceName);
-                            var newDesktopFrame = kernel.Get<ICaptureEngine>(screen.DeviceName);
-                        }
-                    }
-                }
-            }
-
-            //restart process
-
-            foreach (var desktopDuplicatorReader in kernel.GetAll<ILightingEngine>())
-            {
-                desktopDuplicatorReader.Refresh();
-            }
-        }
-
         private void SetupLoggingForProcessWideEvents()
         {
             AppDomain.CurrentDomain.UnhandledException +=
@@ -437,11 +378,10 @@ namespace adrilight
 
                 _log.Debug("Application exit!");
             };
+            Microsoft.Win32.SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
+            Microsoft.Win32.SystemEvents.DisplaySettingsChanging += SystemEvents_DisplaySettingsChanging;
+            Microsoft.Win32.SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
 
-            SystemEvents.DisplaySettingsChanged += (s, e) =>
-            {
-                ScreenSetupChanged();
-            };
             SystemEvents.PowerModeChanged += (s, e) =>
         {
             _log.Debug("Changing Powermode to {0}", e.Mode);
@@ -478,7 +418,54 @@ namespace adrilight
                 _log.Debug("Stop the serial stream due to power down or log off condition!");
             };
         }
+        static void SystemEvents_UserPreferenceChanged(object sender, Microsoft.Win32.UserPreferenceChangedEventArgs e)
+        {
+            //Do nothing
+        }
 
+        static void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e)
+        {
+            var desktopFrames = kernel.GetAll<ICaptureEngine>().Where(c => c is DesktopFrame);
+            var screenList = Screen.AllScreens.ToList();
+            foreach (var screen in Screen.AllScreens)
+            {
+                //restart old screen
+                if (desktopFrames.Any(p => p.DeviceName == screen.DeviceName))
+                {
+                    var oldScreen = desktopFrames.Where(p => p.DeviceName == screen.DeviceName).FirstOrDefault();
+                    if (oldScreen != null)
+                    {
+                        oldScreen.RefreshCapturingState();
+                        screenList.Remove(screen);
+                    }
+                }
+            }
+            //inject new screen
+            foreach (var newScreen in screenList)
+            {
+                kernel.Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(newScreen.DeviceName).WithConstructorArgument("deviceName", newScreen.DeviceName);
+                var newDesktopFrame = kernel.Get<ICaptureEngine>(newScreen.DeviceName);
+            }
+            //restart process
+            foreach (var desktopDuplicatorReader in kernel.GetAll<ILightingEngine>())
+            {
+                desktopDuplicatorReader.Refresh();
+            }
+        }
+
+        static void SystemEvents_DisplaySettingsChanging(object sender, EventArgs e)
+        {
+            foreach (var desktopFrame in kernel.GetAll<ICaptureEngine>().Where(c => c is DesktopFrame))
+            {
+                desktopFrame.Stop();
+            }
+            foreach (var desktopDuplicatorReader in kernel.GetAll<ILightingEngine>().Where(l => l is DesktopDuplicatorReader))
+            {
+                desktopDuplicatorReader.Stop();
+            }
+
+
+        }
         private void SetupTrackingForProcessWideEvents(TelemetryClient tc)
         {
             if (tc == null)
@@ -509,18 +496,19 @@ namespace adrilight
             _log.Info($"DEBUG logging set up!");
         }
 
-        private IKernel kernel;
+        private static IKernel kernel;
         public static MainViewViewModel MainViewViewModel { get; set; }
 
         private void OpenSettingsWindow(bool isMinimized)
         {
-            var _mainForm = kernel.Get<MainView>();
-
+            var _mainForm = new MainView();
+            this.MainWindow = _mainForm;
             //bring to front?
             if (!isMinimized)
             {
                 _mainForm.Visibility = Visibility.Visible;
                 _mainForm.Show();
+                _splashScreen.Close();
             }
             else
             {

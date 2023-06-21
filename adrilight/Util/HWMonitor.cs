@@ -1,28 +1,16 @@
-﻿using System;
+﻿using adrilight.Settings;
+using adrilight.Util.ModeParameters;
+using adrilight.View;
+using adrilight.ViewModel;
+using GalaSoft.MvvmLight;
+using LibreHardwareMonitor.Hardware;
+using LiveCharts.Defaults;
+using MathNet.Numerics.Statistics;
+using NLog;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
-using System.Windows.Controls;
 using System.Threading;
-using Castle.Core.Logging;
-using NLog;
-using adrilight.ViewModel;
-using System.Diagnostics;
-using adrilight.Spots;
-using LibreHardwareMonitor.Hardware;
-using GalaSoft.MvvmLight;
-using System.Collections.ObjectModel;
-using MathNet.Numerics.Statistics;
-using LiveCharts;
-using LiveCharts.Defaults;
-using LiveCharts.Wpf;
-using System.Windows;
-using adrilight.View;
-using NAudio.SoundFont;
-using adrilight.Settings;
-using adrilight.Util.ModeParameters;
 
 namespace adrilight.Util
 {
@@ -302,31 +290,33 @@ namespace adrilight.Util
                     var medianSpeed = speeds.Median();
                     if (MainViewViewModel.IsSplitLightingWindowOpen && MainViewViewModel.IsAppActivated)
                     {
-                        //foreach (var device in MainViewViewModel.AvailableDevices.Where(d => d.AvailablePWMDevices != null))
-                        //{
-                        //    var pwmOutputs = device.AvailablePWMOutputs.ToList();
-                        //    foreach (var pwmOutput in pwmOutputs)
-                        //    {
-                        //        var zones = pwmOutput.SlaveDevice.ControlableZones.ToList();
-                        //        foreach (var zone in zones)
-                        //        {
-                        //            var fan = zone as FanMotor;
-                        //            var currentControlMode = fan.CurrentActiveControlMode as PWMMode;
-                        //            if (currentControlMode.BasedOn == PWMModeEnum.auto)
-                        //            {
-                        //                fan.LineValues.Add(new ObservableValue(medianSpeed));
-                        //                fan.LineValues.RemoveAt(0);
-                        //                fan.CurrentPWMValue = (int)medianSpeed;
-                        //            }
-                        //            else if (currentControlMode.BasedOn == PWMModeEnum.manual)
-                        //            {
-                        //                fan.LineValues.Add(new ObservableValue((currentControlMode.SpeedParameter as SliderParameter).Value));
-                        //                fan.LineValues.RemoveAt(0);
-                        //                fan.CurrentPWMValue = (currentControlMode.SpeedParameter as SliderParameter).Value;
-                        //            }
-                        //        }
-                        //    }
-                       // }
+                        foreach (var device in MainViewViewModel.AvailableDevices.Where(d => d.AvailablePWMDevices != null))
+                        {
+                            var pwmOutputs = device.AvailablePWMOutputs.ToList();
+                            foreach (var pwmOutput in pwmOutputs)
+                            {
+                                var zones = pwmOutput.SlaveDevice.ControlableZones.ToList();
+                                foreach (var zone in zones)
+                                {
+                                    var fan = zone as FanMotor;
+                                    if (fan.CurrentActiveControlMode == null)
+                                        fan.CurrentActiveControlMode = fan.AvailableControlMode.First();
+                                    var currentControlMode = fan.CurrentActiveControlMode as PWMMode;
+                                    if (currentControlMode.BasedOn == PWMModeEnum.auto)
+                                    {
+                                        fan.LineValues.Add(new ObservableValue(medianSpeed));
+                                        fan.LineValues.RemoveAt(0);
+                                        fan.CurrentPWMValue = (int)medianSpeed;
+                                    }
+                                    else if (currentControlMode.BasedOn == PWMModeEnum.manual)
+                                    {
+                                        fan.LineValues.Add(new ObservableValue((currentControlMode.SpeedParameter as SliderParameter).Value));
+                                        fan.LineValues.RemoveAt(0);
+                                        fan.CurrentPWMValue = (currentControlMode.SpeedParameter as SliderParameter).Value;
+                                    }
+                                }
+                            }
+                        }
 
 
 

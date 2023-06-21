@@ -11,14 +11,11 @@
              xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
              xmlns:converters="clr-namespace:adrilight.Converter"
              mc:Ignorable="d" 
-             xmlns:viewmodel="clr-namespace:adrilight.ViewModel" d:DataContext="{d:DesignInstance Type=viewmodel:MainViewViewModel}"
-             
-        TextElement.FontWeight="Regular"
-        
-        TextOptions.TextFormattingMode="Ideal" 
-        TextOptions.TextRenderingMode="Auto"         
+             xmlns:viewmodel="clr-namespace:adrilight.ViewModel" d:DataContext="{d:DesignInstance Type=viewmodel:MainViewViewModel}"            
+             TextElement.FontWeight="Regular"
+             TextOptions.TextFormattingMode="Ideal" 
+             TextOptions.TextRenderingMode="Auto"         
              Name="alldevice"
-       
              d:DesignHeight="800" d:DesignWidth="800">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -26,21 +23,11 @@
             <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
             <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
             <converters:Inverseboolvisibility x:Key="InverseBoolToVisConverter"/>
-            <SolidColorBrush x:Key="Item.MouseOver.Background" Color="Gold"/>
-            <SolidColorBrush x:Key="Item.MouseOver.Border" Color="BlueViolet" Opacity="25"/>
-            <SolidColorBrush x:Key="Item.SelectedInactive.Background" Color="BlueViolet" Opacity="25"/>
-            <SolidColorBrush x:Key="Item.SelectedInactive.Border" Color="BlueViolet" Opacity="25"/>
-            <SolidColorBrush x:Key="Item.SelectedActive.Background" Color="BlueViolet" Opacity="25"/>
-            <SolidColorBrush x:Key="Item.SelectedActive.Border" Color="BlueViolet" Opacity="25"/>
-            <SolidColorBrush x:Key="primaryBackgroundBrush" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.15"/>
             <DropShadowEffect x:Key="Item.SelectedActive.Border.Shadow" BlurRadius="20"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}"/>
             <DropShadowEffect x:Key="Item.MouseOver.Border.Shadow" BlurRadius="20"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource DarkMaskBrush}}"/>
             <Style x:Key="ListViewContainerStyle" TargetType="{x:Type ListViewItem}">
-
                 <Setter Property="SnapsToDevicePixels" Value="True"/>
                 <Setter Property="Padding" Value="0"/>
-                <!--<Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
-                <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>-->
                 <Setter Property="Background" Value="{DynamicResource MainContentBackgroundBrush}"/>
                 <Setter Property="BorderBrush" Value="Transparent"/>
                 <Setter Property="BorderThickness" Value="4"/>
@@ -51,23 +38,6 @@
                 <Setter Property="VerticalContentAlignment" Value="Stretch"/>
                 <Setter Property="HorizontalAlignment" Value="Stretch"/>
                 <Setter Property="Tag" Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
-                <!--<Setter Property="ContextMenu">
-                    <Setter.Value>
-                        <ContextMenu >
-                            <MenuItem  Header="Share">
-                            </MenuItem>
-                            <MenuItem  Header="Delete" Command="{Binding PlacementTarget.Tag.LaunchDeleteSelectedDeviceWindowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" >
-                                <MenuItem.Icon>
-                                    <Path   Data="{StaticResource delete}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                </MenuItem.Icon>
-                            </MenuItem>
-                        </ContextMenu>
-
-                    </Setter.Value>
-                </Setter>-->
-
-
-
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type ListViewItem}">
@@ -91,10 +61,6 @@
                                         <Condition Property="IsMouseOver" Value="True"/>
                                         <Condition Property="IsSelected" Value="False"/>
                                     </MultiTrigger.Conditions>
-
-                                    <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
-                                    <!--<Setter Property="BorderThickness" TargetName="Bd" Value="4"/>-->
-                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
                                     <Setter Property="Background" TargetName="Bd" Value="{DynamicResource HoverBrush}"/>
                                 </MultiTrigger>
 
@@ -179,7 +145,6 @@
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
-
                 <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
                 <Style.Triggers>
                     <Trigger Property="IsSelected" Value="True">
@@ -234,7 +199,6 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right" Margin="10" Grid.Row="1">
-
                                     <TextBlock TextWrapping="WrapWithOverflow" Margin="0,0,5,0" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding OutputPort}" >
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
@@ -268,37 +232,12 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary
                     Source="ControlStyle.xaml">
-
                 </ResourceDictionary>
-
             </ResourceDictionary.MergedDictionaries>
-
         </ResourceDictionary>
-
     </UserControl.Resources>
     <Grid>
-
-
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="*"/>
-
-        </Grid.RowDefinitions>
-        <Grid  Grid.Row="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-            </Grid.RowDefinitions>
-
-
-
-        </Grid>
-
-
-
-        <Grid Width="auto" x:Name="parrentGrid" Grid.Row="1" >
-
-
+        <Grid x:Name="parrentGrid">
             <hc:RelativePanel  Margin="10">
                 <Grid Margin="0"  x:Name="Header"  hc:RelativePanel.AlignLeftWithPanel="True" hc:RelativePanel.AlignTopWithPanel="True" >
                     <TextBlock
@@ -309,13 +248,8 @@
                     Style="{StaticResource TextBlockSubTitle}"
                     HorizontalAlignment="Left"/>
                 </Grid>
-
-
-
                 <Grid x:Name="AllDevicesPanel" hc:RelativePanel.AlignLeftWithPanel="True"  hc:RelativePanel.Below="{Binding ElementName=Header}">
-
                     <!-- all devices-->
-
                     <ListView  Margin="0" 
                        
                        Name="itm" 
@@ -347,23 +281,12 @@
                                 </Border>
                             </ControlTemplate>
                         </ListView.Template>
-
-
-
-                        <!--<ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>-->
                     </ListView>
-
                 </Grid>
             </hc:RelativePanel>
             <Border Background="{DynamicResource DarkOpacityBrush}" Visibility="{Binding SearchingForDevices,Mode=TwoWay,Converter={StaticResource Boolean2VisibilityConverter}}">
-
             </Border>
             <Grid Visibility="{Binding SearchingForDevices,Mode=TwoWay,Converter={StaticResource Boolean2VisibilityConverter}}">
-
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
@@ -371,9 +294,6 @@
                 <hc:LoadingLine  VerticalAlignment="Bottom" Height="20" Width="100"/>
                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="1" Style="{DynamicResource TextBlockSubTitle}" Text="{Binding DashboardLoadingText,Mode=TwoWay}"/>
             </Grid>
-
         </Grid>
-
     </Grid>
-
 </UserControl>

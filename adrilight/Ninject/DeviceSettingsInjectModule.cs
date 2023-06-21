@@ -31,6 +31,7 @@ namespace adrilight.Ninject
                 }
             else
                 Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(Screen.AllScreens[0].DeviceName).WithConstructorArgument("deviceName", Screen.AllScreens[0].DeviceName);
+
             Bind<ICaptureEngine>().To<AudioFrame>().InSingletonScope();
             Bind<IRainbowTicker>().To<RainbowTicker>().InSingletonScope();
 

@@ -77,9 +77,9 @@
                 Scale="{Binding CanvasScale,Mode=TwoWay}"
                 MaxScale="20"
                 MinScale="0.1">
-                <richCanvas:RichItemsControl.CacheMode>
+                <!--<richCanvas:RichItemsControl.CacheMode>
                     <BitmapCache EnableClearType="False" RenderAtScale="1.0" SnapsToDevicePixels="False"/>
-                </richCanvas:RichItemsControl.CacheMode>
+                </richCanvas:RichItemsControl.CacheMode>-->
                 <richCanvas:RichItemsControl.SelectionRectangleStyle>
                     <Style TargetType="Rectangle">
                         <Setter Property="Fill" Value="Transparent" />

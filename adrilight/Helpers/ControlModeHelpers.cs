@@ -24,6 +24,7 @@ namespace adrilight.Helpers
             zone.AvailableControlMode.Add(MusicReactive);
             zone.AvailableControlMode.Add(StaticColor);
             zone.AvailableControlMode.Add(Animation);
+            zone.AvailableControlMode.Add(Gifxelation);
             return zone;
         }
         public IControlMode ColorPalette {
@@ -52,6 +53,21 @@ namespace adrilight.Helpers
                     Owner = "ambino",
                     Description = "LED chuyển động với màu tùy chọn",
                     Parameters = { GenericBrightnessParameter, ChasingPatterns, GenericColorPaletteAndSolidColorSelectionParameter, GenericSpeedParameter(0, 4, 1) }
+
+                };
+            }
+        }
+        public IControlMode Gifxelation {
+            get
+            {
+                return new LightingMode() {
+                    Name = "Gifxelation",
+                    Geometry = "gifxelation",
+                    BasedOn = LightingModeEnum.Gifxelation,
+                    Creator = "ambino",
+                    Owner = "ambino",
+                    Description = "LED sáng theo ảnh động Gif",
+                    Parameters = { GenericBrightnessParameter, Gifs, GenericSpeedParameter(0, 4, 1), GenericSmoothParameter, GenericLaunchRegionSelectionButtonParameter }
 
                 };
             }
@@ -311,7 +327,7 @@ namespace adrilight.Helpers
         public IModeParameter GenericLaunchRegionSelectionButtonParameter {
             get
             {
-                return new ButtonParameter("screenRegionSelection") {
+                return new CapturingRegionSelectionButtonParameter(new CapturingRegion(0, 0, 1.0, 1.0)) {
 
                     Name = "Cài đặt vị trí",
                     Description = "Mở cửa sổ cài đặt vị trí capture",
@@ -323,7 +339,7 @@ namespace adrilight.Helpers
         public IModeParameter GenericLaunchAudioDeviceSelectionButtonParameter {
             get
             {
-                return new ButtonParameter("audioDevice") {
+                return new AudioDeviceSelectionButtonParameter("audioDevice") {
 
                     Name = "Chọn đầu ra âm thanh",
                     Description = "Đầu ra âm thanh cần capture, thay đổi có ảnh hưởng đế tất cả thiết bị",
@@ -332,34 +348,26 @@ namespace adrilight.Helpers
                 };
             }
         }
-        //public IModeParameter GenericAudioDeviceParameter {
-        //    get
-        //    {
-        //        return new ModeParameter() {
-
-        //            Name = "Audio Device",
-        //            Description = "Chose Audio Device",
-        //            ParamType = ModeParameterEnum.AudioDevice,
-        //            Template = ModeParameterTemplateEnum.ComboboxSelection,
-        //            Value = 0,
-        //        };
-        //    }
-        //}
-        /// <summary>
-        /// Use this for rainbow engine to select chasing pattern from database
-        /// </summary>
         public IModeParameter ChasingPatterns {
             get
             {
                 return new ListSelectionParameter(ModeParameterEnum.ChasingPattern) {
-
                     Name = "Pattern",
                     Description = "The motion to be colored",
                     DataSourceLocaFolderNames = new List<string>() { "ChasingPatterns" },
                 };
             }
         }
-
+        public IModeParameter Gifs {
+            get
+            {
+                return new ListSelectionParameter(ModeParameterEnum.Gifs) {
+                    Name = "Gifs",
+                    Description = "Các ảnh động có thể chọn",
+                    DataSourceLocaFolderNames = new List<string>() { "Gifs" },
+                };
+            }
+        }
         #endregion
     }
 }

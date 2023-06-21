@@ -7,7 +7,6 @@ using adrilight.Util;
 using adrilight.Util.ModeParameters;
 using adrilight.View;
 using adrilight_effect_analyzer.Model;
-using Emgu.CV;
 using FTPServer;
 using HandyControl.Controls;
 using HandyControl.Data;
@@ -23,7 +22,6 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
@@ -43,7 +41,6 @@ using Un4seen.BassWasapi;
 using Bitmap = System.Drawing.Bitmap;
 using Border = adrilight.Settings.Border;
 using Color = System.Windows.Media.Color;
-using ColorConverter = System.Windows.Media.ColorConverter;
 using ColorPalette = adrilight.Util.ColorPalette;
 using Formatting = Newtonsoft.Json.Formatting;
 using Group = adrilight.Settings.Group;
@@ -88,6 +85,7 @@ namespace adrilight.ViewModel
         private string DevicesCollectionFolderPath => Path.Combine(JsonPath, "Devices");
         private string SupportedDeviceCollectionFolderPath => Path.Combine(JsonPath, "SupportedDevices");
         private string ColorsCollectionFolderPath => Path.Combine(JsonPath, "Colors");
+        private string GifsCollectionFolderPath => Path.Combine(JsonPath, "Gifs");
         private string VIDCollectionFolderPath => Path.Combine(JsonPath, "VID");
         private string MIDCollectionFolderPath => Path.Combine(JsonPath, "MID");
         private string ResourceFolderPath => Path.Combine(JsonPath, "Resource");
@@ -577,7 +575,7 @@ namespace adrilight.ViewModel
         public ICommand OpenAvailableUpdateListWindowCommand { get; set; }
         public ICommand OpenExportNewColorEffectCommand { get; set; }
         public ICommand ResetAppCommand { get; set; }
-        public ICommand ResetDefaultAspectRatioCommand { get; set; }
+        public ICommand SaveCurrentSelectedRegionCommand { get; set; }
         public ICommand NextOutputCommand { get; set; }
         public ICommand PreviousOutputCommand { get; set; }
         public ICommand ApplySpotImportDataCommand { get; set; }
@@ -930,147 +928,6 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-
-        private ObservableCollection<string> _caseEffects;
-
-        public ObservableCollection<string> CaseEffects {
-            get { return _caseEffects; }
-
-            set
-            {
-                if (_caseEffects == value) return;
-                _caseEffects = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private ObservableCollection<CollectionItem> _collectionItm;
-
-        public ObservableCollection<CollectionItem> CollectionItems {
-            get { return _collectionItm; }
-
-            set
-            {
-                if (_collectionItm == value) return;
-                _collectionItm = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private ObservableCollection<IGifCard> _availableGifs;
-
-        public ObservableCollection<IGifCard> AvailableGifs {
-            get { return _availableGifs; }
-
-            set
-            {
-                if (_availableGifs == value) return;
-                _availableGifs = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private ObservableCollection<Color> _availableSolidColors;
-
-        public ObservableCollection<Color> AvailableSolidColors {
-            get { return _availableSolidColors; }
-
-            set
-            {
-                if (_availableSolidColors == value) return;
-                _availableSolidColors = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private ObservableCollection<string> _availableLayout;
-
-        public ObservableCollection<string> AvailableLayout {
-            get { return _availableLayout; }
-
-            set
-            {
-                if (_availableLayout == value) return;
-                _availableLayout = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private ObservableCollection<string> _availableRotation;
-
-        public ObservableCollection<string> AvailableRotation {
-            get { return _availableRotation; }
-
-            set
-            {
-                if (_availableRotation == value) return;
-                _availableRotation = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private ObservableCollection<string> _availableMatrixOrientation;
-
-        public ObservableCollection<string> AvailableMatrixOrientation {
-            get { return _availableMatrixOrientation; }
-
-            set
-            {
-                if (_availableMatrixOrientation == value) return;
-                _availableMatrixOrientation = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private ObservableCollection<string> _availableMatrixStartPoint;
-
-        public ObservableCollection<string> AvailableMatrixStartPoint {
-            get { return _availableMatrixStartPoint; }
-
-            set
-            {
-                if (_availableMatrixStartPoint == value) return;
-                _availableMatrixStartPoint = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private IDeviceSpot[] _previewSpots;
-
-        public IDeviceSpot[] PreviewSpots {
-            get => _previewSpots;
-
-            set
-            {
-                _previewSpots = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private ILEDSetup _currentLEDSetup;
-
-        public ILEDSetup CurrentLEDSetup {
-            get => _currentLEDSetup;
-
-            set
-            {
-                _currentLEDSetup = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private WriteableBitmap _shaderBitmap;
-
-        public WriteableBitmap ShaderBitmap {
-            get => _shaderBitmap;
-
-            set
-            {
-                _shaderBitmap = value;
-                RaisePropertyChanged(nameof(ShaderBitmap));
-            }
-        }
-
         private VisualizerDataModel _audioVisualizers;
 
         public VisualizerDataModel AudioVisualizers {
@@ -1143,88 +1000,6 @@ namespace adrilight.ViewModel
                 _toolbarVisible = value;
                 RaisePropertyChanged(nameof(ToolbarVisible));
             }
-        }
-
-        private int _parrentLocation;
-
-        public int ParrentLocation {
-            get => _parrentLocation;
-
-            set
-            {
-                _parrentLocation = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private string _setIDMode;
-
-        public string SetIDMode {
-            get => _setIDMode;
-
-            set
-            {
-                _setIDMode = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private string _pickColorMode;
-
-        public string PickColorMode {
-            get => _pickColorMode;
-
-            set
-            {
-                _pickColorMode = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        public int CurrentSelectedCustomColorIndex {
-            set
-            {
-                if (value >= 0)
-                {
-                    SetCustomColor(value);
-                }
-            }
-        }
-
-        //public int DeviceSpotX {
-        //    get
-        //    {
-        //          CurrentDevice.SpotsX
-        //    }
-        //    set
-        //    {
-        //        if(CurrentDevice.SpotsY)
-        //        CurrentDevice.SpotsX = value;
-        //    }
-
-        //}
-
-        //public int DeviceSpotY {
-        //    get => _deviceSpotY;
-        //    set => _deviceSpotY = value;
-
-        //}
-
-        //public IList<String> AvailableAudioDevice {
-        //    get
-        //    {
-        //        var audioDevices = AudioFrame.AvailableAudioDevice;
-
-        //        return audioDevices;
-
-        //    }
-        //}
-
-        private bool _deviceLightingModeCollection;
-
-        public bool DeviceLightingModeCollection {
-            get { return _deviceLightingModeCollection; }
-            set { _deviceLightingModeCollection = value; }
         }
 
         private ObservableCollection<IDeviceCatergory> _availableDeviceCatergoryToAdd;
@@ -1885,37 +1660,44 @@ namespace adrilight.ViewModel
 
         public void DesktopsPreviewUpdate(ByteFrame frame, int index)
         {
+            if (frame == null)
+                return;
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
-                if (AvailableBitmaps[index] == null)
+                lock (AvailableBitmaps)
                 {
-                    AvailableBitmaps[index].Bitmap = new WriteableBitmap(frame.FrameWidth, frame.FrameHeight, 96, 96, PixelFormats.Bgra32, null);
-                }
-                else if (AvailableBitmaps[index].Bitmap != null && (AvailableBitmaps[index].Bitmap.Width != frame.FrameWidth || AvailableBitmaps[index].Bitmap.Height != frame.FrameHeight))
-                {
-                    AvailableBitmaps[index].Bitmap = new WriteableBitmap(frame.FrameWidth, frame.FrameHeight, 96, 96, PixelFormats.Bgra32, null);
-                }
-                else if (AvailableBitmaps[index].Bitmap != null && AvailableBitmaps[index].Bitmap.Width == frame.FrameWidth && AvailableBitmaps[index].Bitmap.Height == frame.FrameHeight)
-                {
-                    if (frame != null)
+                    if (index >= AvailableBitmaps.Count())
                     {
-                        AvailableBitmaps[index].Bitmap.Lock();
-                        IntPtr pixelAddress = AvailableBitmaps[index].Bitmap.BackBuffer;
-                        Marshal.Copy(frame.Frame, 0, pixelAddress, frame.Frame.Length);
-
-                        AvailableBitmaps[index].Bitmap.AddDirtyRect(new Int32Rect(0, 0, frame.FrameWidth, frame.FrameHeight));
-
-                        AvailableBitmaps[index].Bitmap.Unlock();
-
-                        //ShaderBitmap = MatrixBitmap;
-                        //RaisePropertyChanged(() => DeviceRectWidthMax);
-                        //RaisePropertyChanged(() => DeviceRectHeightMax);
+                        return;
                     }
-                    else
+                    if (AvailableBitmaps[index] == null)
                     {
-                        //notify the UI show error message
+                        AvailableBitmaps[index].Bitmap = new WriteableBitmap(frame.FrameWidth, frame.FrameHeight, 96, 96, PixelFormats.Bgra32, null);
+                    }
+                    else if (AvailableBitmaps[index].Bitmap != null && (AvailableBitmaps[index].Bitmap.Width != frame.FrameWidth || AvailableBitmaps[index].Bitmap.Height != frame.FrameHeight))
+                    {
+                        AvailableBitmaps[index].Bitmap = new WriteableBitmap(frame.FrameWidth, frame.FrameHeight, 96, 96, PixelFormats.Bgra32, null);
+                    }
+                    else if (AvailableBitmaps[index].Bitmap != null && AvailableBitmaps[index].Bitmap.Width == frame.FrameWidth && AvailableBitmaps[index].Bitmap.Height == frame.FrameHeight)
+                    {
+                        if (frame != null)
+                        {
+                            AvailableBitmaps[index].Bitmap.Lock();
+                            IntPtr pixelAddress = AvailableBitmaps[index].Bitmap.BackBuffer;
+                            Marshal.Copy(frame.Frame, 0, pixelAddress, frame.Frame.Length);
+
+                            AvailableBitmaps[index].Bitmap.AddDirtyRect(new Int32Rect(0, 0, frame.FrameWidth, frame.FrameHeight));
+
+                            AvailableBitmaps[index].Bitmap.Unlock();
+
+                        }
+                        else
+                        {
+                            //notify the UI show error message
+                        }
                     }
                 }
+
             });
         }
 
@@ -2050,19 +1832,6 @@ namespace adrilight.ViewModel
             {
                 Set(ref _currentSelectedAutomation, value);
                 // _log.Info($"IsSettingsWindowOpen is now {_isSettingsWindowOpen}");
-            }
-        }
-
-        private ObservableCollection<Color> _currentEditingColors;
-
-        public ObservableCollection<Color> CurrentEditingColors {
-            get { return _currentEditingColors; }
-
-            set
-            {
-                _currentEditingColors = value;
-
-                //SetCurrentDeviceSelectedPalette(value);
             }
         }
 
@@ -2360,54 +2129,6 @@ namespace adrilight.ViewModel
             }
         }
 
-        private int _adjustingRectangleWidth;
-
-        public int AdjustingRectangleWidth {
-            get { return _adjustingRectangleWidth; }
-
-            set
-            {
-                _adjustingRectangleWidth = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private int _adjustingRectangleHeight;
-
-        public int AdjustingRectangleHeight {
-            get { return _adjustingRectangleHeight; }
-
-            set
-            {
-                _adjustingRectangleHeight = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private int _adjustingRectangleTop;
-
-        public int AdjustingRectangleTop {
-            get { return _adjustingRectangleTop; }
-
-            set
-            {
-                _adjustingRectangleTop = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private int _adjustingRectangleLeft;
-
-        public int AdjustingRectangleLeft {
-            get { return _adjustingRectangleLeft; }
-
-            set
-            {
-                _adjustingRectangleLeft = value;
-                RaisePropertyChanged();
-            }
-        }
-
         public bool IsNextable {
             get
             {
@@ -2484,13 +2205,6 @@ namespace adrilight.ViewModel
                 UpgradeIfAvailable(CurrentDevice);
             });
 
-            EditSelectedPaletteCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                EditCurrentPalette(p);
-            });
             ResetAppCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -2608,14 +2322,15 @@ namespace adrilight.ViewModel
                              break;
                      }
                  });
-            OpenExternalWindowsFromModeParameterCommand = new RelayCommand<string>((p) =>
+            OpenExternalWindowsFromModeParameterCommand = new RelayCommand<BaseButtonParameter>((p) =>
             {
                 return true;
             }, (p) =>
             {
-                switch (p)
+                switch (p.CommandParameter)
                 {
                     case "screenRegionSelection":
+                        ClickedRegionButtonParameter = p as CapturingRegionSelectionButtonParameter;
                         OpenRegionSelectionWindow();
                         break;
 
@@ -2640,21 +2355,6 @@ namespace adrilight.ViewModel
                         break;
                 }
             }
-            );
-            EditSelectedPaletteSaveConfirmCommand = new RelayCommand<string>((p) =>
-                 {
-                     return true;
-                 }, (p) =>
-                 {
-                     SaveCurrentEditedPalette(p);
-                 });
-            ApplyCurrentOutputCapturingPositionCommand = new RelayCommand<string>((p) =>
-           {
-               return true;
-           }, (p) =>
-           {
-               // ApplyCurrentOuputCapturingPosition();
-           }
             );
             CreateNewPaletteCommand = new RelayCommand<string>((p) =>
                    {
@@ -3044,22 +2744,6 @@ namespace adrilight.ViewModel
             }
           );
 
-            OpenExportNewColorEffectCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                OpenExportNewEffectWindow();
-            }
-          );
-            OpenFanSpeedPlotWindowsCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                OpenFanSpeedPlotWindows();
-            }
-          );
             OpenAvailableUpdateListWindowCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -3118,15 +2802,6 @@ namespace adrilight.ViewModel
                 Growl.Success("Color code copied to clipboard!");
             }
          );
-            DeleteSelectedSolidColorCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                AvailableSolidColors.Remove(SelectedSolidColor);
-                WriteSolidColorJson();
-            }
-      );
 
             DeleteSelectedPaletteCommand = new RelayCommand<ColorPalette>((p) =>
             {
@@ -3134,21 +2809,6 @@ namespace adrilight.ViewModel
             }, (p) =>
             {
                 //DeleteSelectedPalette(p);
-            });
-            UploadSelectedPaletteCommand = new RelayCommand<ColorPalette>((p) =>
-           {
-               return true;
-           }, (p) =>
-           {
-               //UploadSelectedPalette(p);
-           });
-
-            DeleteSelectedGifCommand = new RelayCommand<IGifCard>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                DeleteSelectedGif(p);
             });
 
             DeleteSelectedAutomationCommand = new RelayCommand<AutomationSettings>((p) =>
@@ -3159,56 +2819,12 @@ namespace adrilight.ViewModel
                 DeleteSelectedAutomation(p);
             });
 
-            SetIncreamentCommandfromZero = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                SetIncreament(0, 1, 0, PreviewSpots.Length - 1);
-            });
-            SetIncreamentCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                SetIncreament(10, 1, 0, PreviewSpots.Length - 1);
-            });
-
             DeleteSelectedDeviceCommand = new RelayCommand<string>((p) =>
             {
                 return true;
             }, (p) =>
             {
                 DeleteSelectedDevice();
-            });
-            DeleteSelectedDevicesCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                DeleteSelectedDevices();
-            });
-
-            ImportedGifFromFileCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                ImportGif();
-            });
-            ExportCurrentSelectedPaletteToFileCommand = new RelayCommand<ColorPalette>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                ExportCurrentSelectedPaletteToFile(p);
-            });
-            ExportPIDCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                //ExportCurrentOutputPID();
             });
             ImportLEDSetupCommand = new RelayCommand<string>((p) =>
             {
@@ -3682,14 +3298,6 @@ namespace adrilight.ViewModel
             {
                 LaunchWBAdjustWindow();
             });
-
-            DeviceRectDropCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                DeviceRectSavePosition();
-            });
             SelectOnlineItemCommand = new RelayCommand<IOnlineItemModel>((p) =>
             {
                 return true;
@@ -3949,20 +3557,13 @@ namespace adrilight.ViewModel
             //        CurrentOutput = CurrentDevice.AvailableOutputs[currentOutputID + 1];
             //    }
             //});
-            //ResetDefaultAspectRatioCommand = new RelayCommand<string>((p) =>
-            //{
-            //    return p != null;
-            //}, (p) =>
-            //{
-            //    double ratio = CurrentOutput.OutputNumLEDX / CurrentOutput.OutputNumLEDY;
-            //    int width = 100;
-            //    int height = (int)(100d / ratio);
-            //    CurrentOutput.SetRectangle(new Rectangle(0, 0, width, height));
-            //    AdjustingRectangleHeight = CurrentOutput.OutputRectangle.Height;
-            //    AdjustingRectangleWidth = CurrentOutput.OutputRectangle.Width;
-            //    AdjustingRectangleTop = CurrentOutput.OutputRectangle.Top;
-            //    AdjustingRectangleLeft = CurrentOutput.OutputRectangle.Left;
-            //});
+            SaveCurrentSelectedRegionCommand = new RelayCommand<string>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                SaveCurrentSelectedRegion();
+            });
             //    PreviousOutputCommand = new RelayCommand<string>((p) =>
             //{
             //    return p != null;
@@ -6474,7 +6075,7 @@ namespace adrilight.ViewModel
                 if (item is LEDSetup)
                 {
                     var zone = item as LEDSetup;
-                    zone.VIDSpace = new Rect(group.Border.Left, group.Border.Top, group.Border.Width, group.Border.Height);
+                    zone.GroupRect = new Rect(group.Border.Left, group.Border.Top, group.Border.Width, group.Border.Height);
                 }
             }
             (group.MaskedControlZone as IDrawable).Left = group.Border.Left;
@@ -7227,49 +6828,96 @@ namespace adrilight.ViewModel
         }
         public bool IsRegionSelectionOpen { get; set; }
         private RegionSelectionWindow regionSelectionView { get; set; }
+        public CapturingRegionSelectionButtonParameter ClickedRegionButtonParameter { get; set; }
+        private double _adjustingRectangleWidth;
+
+        private Border _regionSelectionRect;
+        public Border RegionSelectionRect {
+            get { return _regionSelectionRect; }
+            set
+            {
+                _regionSelectionRect = value;
+                RaisePropertyChanged();
+            }
+        }
+        public WriteableBitmap SelectedBitmap => ClickedRegionButtonParameter.CapturingSourceIndex > 0 ? AvailableBitmaps[ClickedRegionButtonParameter.CapturingSourceIndex].Bitmap : AvailableBitmaps[0].Bitmap;
         private void OpenRegionSelectionWindow()
         {
             //add virtual borders
-            AvailableBitmaps = new ObservableCollection<DesktopFrameCard>();
-            if (GeneralSettings.IsMultipleScreenEnable)
-            {
-                for (int i = 0; i < Screen.AllScreens.Length; i++)
-                {
-                    //ScreenBound screen = new ScreenBound();
-                    //screen.Width = Screen.AllScreens[i].Bounds.Width;
-                    //screen.Height = Screen.AllScreens[i].Bounds.Height;
-                    //screen.Top = Screen.AllScreens[i].Bounds.Top;
-                    //screen.Left = Screen.AllScreens[i].Bounds.Left;
-                    //screen.Index = i;
-                    //screen.ShouldBringIntoView = true;
-                    var source = new WriteableBitmap((int)(Screen.AllScreens[i].Bounds.Width / 8.0), (int)(Screen.AllScreens[i].Bounds.Height / 8.0), 96, 96, PixelFormats.Bgra32, null);
-                    var image = new DesktopFrameCard() {
-                        Bitmap = source,
-                        Name = Screen.AllScreens[i].DeviceName
-
-
-                    };
-                    AvailableBitmaps.Add(image);
-                    //screen.Source = Desktops[i];
-                    //SurfaceEditorItems.Insert(0, screen);
-                }
-            }
-            else
-            {
-                var source = new WriteableBitmap((int)(Screen.AllScreens[0].Bounds.Width / 8.0), (int)(Screen.AllScreens[0].Bounds.Height / 8.0), 96, 96, PixelFormats.Bgra32, null);
-                var image = new DesktopFrameCard() {
-                    Bitmap = source,
-                    Name = Screen.AllScreens[0].DeviceName
-
-
-                };
-                AvailableBitmaps.Add(image);
-            }
+            if (ClickedRegionButtonParameter == null)
+                return;
+            BitmapCollectionInit();
+            var index = ClickedRegionButtonParameter.CapturingSourceIndex > 0 ? ClickedRegionButtonParameter.CapturingSourceIndex : 0;
+            CalculateAdjustingRectangle(AvailableBitmaps[index].Bitmap, ClickedRegionButtonParameter.CapturingRegion);
             regionSelectionView = new RegionSelectionWindow();
             regionSelectionView.Owner = System.Windows.Application.Current.MainWindow;
             regionSelectionView.Closing += (_, __) => IsRegionSelectionOpen = false;
+            regionSelectionView.Show();
             IsRegionSelectionOpen = true;
-            regionSelectionView.ShowDialog();
+        }
+        public void CalculateAdjustingRectangle(WriteableBitmap bitmap, CapturingRegion region)
+        {
+            if (region.ScaleX > 1 || region.ScaleX < 0)
+                region.ScaleX = 0;
+            if (region.ScaleY > 1 || region.ScaleY < 0)
+                region.ScaleY = 0;
+            if (region.ScaleWidth > 1 || region.ScaleWidth < 0)
+                region.ScaleWidth = 1;
+            if (region.ScaleHeight > 1 || region.ScaleHeight < 0)
+                region.ScaleHeight = 1;
+            var left = region.ScaleX * bitmap.Width;
+            var top = region.ScaleY * bitmap.Height;
+            var width = region.ScaleWidth * bitmap.Width;
+            var height = region.ScaleHeight * bitmap.Height;
+            RegionSelectionRect = new Border() {
+                Left = left,
+                Top = top,
+                Width = width,
+                Height = height
+            };
+        }
+        private void SaveCurrentSelectedRegion()
+        {
+            var index = ClickedRegionButtonParameter.CapturingSourceIndex > 0 ? ClickedRegionButtonParameter.CapturingSourceIndex : 0;
+            var bitmap = AvailableBitmaps[index].Bitmap;
+            var newRegion = new CapturingRegion(
+                RegionSelectionRect.Left / bitmap.Width,
+                RegionSelectionRect.Top / bitmap.Height,
+                RegionSelectionRect.Width / bitmap.Width,
+                RegionSelectionRect.Height / bitmap.Height);
+            ClickedRegionButtonParameter.CapturingRegion = newRegion;
+            ClickedRegionButtonParameter.CapturingSourceRect = new Rect(0, 0, bitmap.Width, bitmap.Height);
+            regionSelectionView.Close();
+        }
+        public void BitmapCollectionInit()
+        {
+            AvailableBitmaps = new ObservableCollection<DesktopFrameCard>();
+            lock (AvailableBitmaps)
+            {
+                if (GeneralSettings.IsMultipleScreenEnable)
+                {
+                    for (int i = 0; i < Screen.AllScreens.Length; i++)
+                    {
+
+                        var source = new WriteableBitmap((int)(Screen.AllScreens[i].Bounds.Width / 8.0), (int)(Screen.AllScreens[i].Bounds.Height / 8.0), 96, 96, PixelFormats.Bgra32, null);
+                        var image = new DesktopFrameCard() {
+                            Bitmap = source,
+                            Name = Screen.AllScreens[i].DeviceName
+                        };
+                        AvailableBitmaps.Add(image);
+
+                    }
+                }
+                else
+                {
+                    var source = new WriteableBitmap((int)(Screen.AllScreens[0].Bounds.Width / 8.0), (int)(Screen.AllScreens[0].Bounds.Height / 8.0), 96, 96, PixelFormats.Bgra32, null);
+                    var image = new DesktopFrameCard() {
+                        Bitmap = source,
+                        Name = Screen.AllScreens[0].DeviceName
+                    };
+                    AvailableBitmaps.Add(image);
+                }
+            }
         }
         //private void LaunchPIDEditWindow(IDrawable p)
         //{
@@ -7497,21 +7145,8 @@ namespace adrilight.ViewModel
 
         private void AddNewPaletteToCollection(ColorPalette source)
         {
-            //read current collection
             var currentParam = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Palette).FirstOrDefault() as ListSelectionParameter;
             currentParam.AddItemToCollection(source);
-            //var currentCollectionPath = currentParam.SelectedValueLocalPath.Path;
-            //var currentCollection = currentParam.AvailableValue;
-            //if (currentCollection.Any(p => p.Name == source.Name))
-            //{
-            //    HandyControl.Controls.MessageBox.Show("File đã tồn tại, " + source.Name + "vui lòng chọn tên khác!", "file already exists", MessageBoxButton.OK, MessageBoxImage.Warning);
-            //    return;
-            //}
-            //currentCollection.Insert(0, source);
-            //var collectionFolderPath = Path.Combine(currentCollectionPath, "collection");
-            //WriteSimpleJson(source, Path.Combine(collectionFolderPath, source.Name + ".col"));
-            //currentParam.RefreshCollection();
-            //SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Palette).FirstOrDefault().Value = 0;
             AddNewPaletteDialog?.Close();
         }
 
@@ -8211,54 +7846,6 @@ namespace adrilight.ViewModel
             itemExporter = new OnlineItemExporterView();
             itemExporter.ShowDialog();
         }
-
-        private void ExportCurrentItemToAdrilightStore<T>(T item)
-        {
-            //
-        }
-
-        private void ExportCurrentSelectedPaletteToFile(ColorPalette palette)
-        {
-            //SaveFileDialog Export = new SaveFileDialog();
-            //Export.CreatePrompt = true;
-            //Export.OverwritePrompt = true;
-
-            //Export.Title = "Xuất dữ liệu";
-            //Export.FileName = palette.Name + " Color Palette";
-            //Export.CheckFileExists = false;
-            //Export.CheckPathExists = true;
-            //Export.InitialDirectory =
-            //Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            //Export.RestoreDirectory = true;
-
-            //var paletteJson = JsonConvert.SerializeObject(palette, new JsonSerializerSettings() {
-            //    TypeNameHandling = TypeNameHandling.Auto
-            //});
-
-            //if (Export.ShowDialog() == DialogResult.OK)
-            //{
-            //    //create directory with same name
-            //    var newFolder = Directory.CreateDirectory(Export.FileName);
-            //    var contentFolder = Directory.CreateDirectory(Path.Combine(Export.FileName, "content")).ToString();
-            //    //create main content
-            //    File.WriteAllText(Path.Combine(Export.FileName, "content", palette.Name + ".col"), paletteJson);
-            //    //create info
-            //    var info = new OnlineItemModel() {
-            //        Name = palette.Name,
-            //        Owner = palette.Owner,
-            //        Description = palette.Description,
-            //        Type = "Palette",
-            //        TargetDevices =  newnew DeviceTypeDataEnum("Others", DeviceTypeEnum.Unknown);
-            //    };
-            //    var infoJson = JsonConvert.SerializeObject(info, new JsonSerializerSettings() {
-            //        TypeNameHandling = TypeNameHandling.Auto
-            //    });
-            //    File.WriteAllText(Path.Combine(Export.FileName, "info.json"), infoJson);
-            //    //create image, require user input later thumb.png???
-
-            //}
-        }
-
         private ObservableCollection<ISlaveDevice> _availableARGBSlaveDevices;
 
         public ObservableCollection<ISlaveDevice> AvailableARGBSlaveDevices {
@@ -8298,71 +7885,12 @@ namespace adrilight.ViewModel
             SlaveDeviceSelection.Show();
         }
 
-        //private void CreateNewPalette()
-        //{
-        //    var lastSelectedPaletteIndex = CurrentOutput.OutputSelectedChasingPalette;
-        //    var name = NewPaletteName;
-        //    var owner = NewPaletteOwner;
-        //    var description = NewPaletteDescription;
-        //    var colors = new System.Windows.Media.Color[16];
-        //    int counter = 0;
-        //    foreach (var color in CurrentEditingColors)
-        //    {
-        //        colors[counter++] = color;
-        //    }
-        //    AvailablePallete.Clear();
-        //    foreach (var palette in LoadPaletteIfExists())
-        //    {
-        //        AvailablePallete.Add(palette);
-        //    }
-        //    IColorPalette newpalette = new ColorPalette(name, owner, "RGBPalette16", description, colors);
-        //    AvailablePallete.Add(newpalette);
-
-        //    //WritePaletteCollectionJson();
-        //    var json = JsonConvert.SerializeObject(newpalette, new JsonSerializerSettings() {
-        //        TypeNameHandling = TypeNameHandling.Auto
-        //    });
-        //    File.WriteAllText(Path.Combine(PalettesCollectionFolderPath, newpalette.Name + ".col"), json);
-
-        //}
-
         private void CreateNewAutomation()
         {
             var name = NewAutomationName;
             AutomationSettings newAutomation = new AutomationSettings { Name = name };
-
-            //var doAbsolutelyNothing = new List<IActionSettings>(); // doing nothing to all devices
-            //if (AvailableDevices.Count > 0 && AvailableProfiles.Count > 0)
-            //{
-            //    foreach (var device in AvailableDevices.Where(x => x.IsDummy == false))
-            //    {
-            //        IActionSettings doNothing = new ActionSettings {
-            //            ActionType = "Hành động",
-            //            TargetDeviceUID = device.DeviceUID,
-            //            TargetDeviceName = device.DeviceName,
-            //            TargetDeviceType = device.DeviceType,
-            //            ActionParameter = new ActionParameter { Name = "Biến", Type = "unknown", Value = "none" },
-            //        };
-
-            //        doAbsolutelyNothing.Add(doNothing);
-            //    }
-            //}
-
-            ////newAutomation.Actions = doAbsolutelyNothing;
-            //IActionSettings dummy = new ActionSettings {
-            //    ActionType = "Hành động",
-            //    TargetDeviceUID = device.DeviceUID,
-            //    TargetDeviceName = device.DeviceName,
-            //    TargetDeviceType = device.DeviceType,
-            //    ActionParameter = new ActionParameter { Name = "Biến", Type = "unknown", Value = "none" },
-            //};
             AvailableAutomations.Add(newAutomation);
             WriteAutomationCollectionJson();
-        }
-
-        private void EditCurrentPalette(string param)
-        {
-            OpenEditPaletteDialog(param);
         }
 
         private void Reset()
@@ -8380,8 +7908,6 @@ namespace adrilight.ViewModel
             {
                 File.Delete(JsonGeneralFileNameAndPath);
             }
-            //if (AmbinityClient != null)
-            //    AmbinityClient.Dispose();
             System.Windows.Forms.Application.Restart();
             Process.GetCurrentProcess().Kill();
         }
@@ -8394,102 +7920,6 @@ namespace adrilight.ViewModel
 
         private FTPServerHelpers FTPHlprs { get; set; }
 
-        private void DeleteSelectedGif(IGifCard gif)
-        {
-            if (AvailableGifs.Count == 1)
-            {
-                var result = HandyControl.Controls.MessageBox.Show(new MessageBoxInfo {
-                    Message = " You have nothing left if you delete this lat bit of goodness!!!",
-                    Caption = "Xóa Gif",
-                    Button = MessageBoxButton.OK,
-                    IconBrushKey = ResourceToken.AccentBrush,
-                    IconKey = ResourceToken.WarningGeometry,
-                    StyleKey = "MessageBoxCustom"
-                });
-
-                return;
-            }
-            AvailableGifs.Remove(gif);
-            //CurrentActiveGif = AvailableGifs.Last();
-            WriteGifCollectionJson();
-
-            //AvailableGifs.Clear();
-            //foreach (var palette in LoadPaletteIfExists())
-            //{
-            //    AvailablePallete.Add(palette);
-            //}
-            //CurrentOutput.OutputSelectedChasingPalette = 0;
-            //CurrentActivePalette = AvailablePallete.First();
-        }
-
-        private void SaveCurrentEditedPalette(string param)
-        {
-            ////AvailablePallete[CurrentOutput.OutputSelectedChasingPalette] = CurrentActivePalette;
-            //var lastSelectedPaletteIndex = CurrentOutput.OutputSelectedChasingPalette;
-            //if (param == "save")
-            //{
-            //    //WritePaletteCollectionJson();
-            //}
-
-            ////reload all available palette;
-            //AvailablePallete.Clear();
-
-            //foreach (var palette in LoadPaletteIfExists())
-            //{
-            //    AvailablePallete.Add(palette);
-            //}
-            //CurrentOutput.OutputSelectedChasingPalette = lastSelectedPaletteIndex;
-            ////CurrentActivePalette = AvailablePallete[CurrentOutput.OutputSelectedChasingPalette];
-            ////var result = HandyControl.Controls.MessageBox.Show(new MessageBoxInfo {
-            ////    Message = "Bạn có muốn ghi đè lên dải màu hiện tại?",
-            ////    Caption = "Lưu dải màu",
-            ////    Button = MessageBoxButton.YesNo,
-            ////    IconBrushKey = ResourceToken.AccentBrush,
-            ////    IconKey = ResourceToken.AskGeometry,
-            ////    StyleKey = "MessageBoxCustom"
-            ////});
-            ////if (result == MessageBoxResult.Yes) // overwrite current palette
-            ////{
-            ////    var activePalette = CurrentOutput.OutputCurrentActivePalette;
-            ////    CurrentActivePaletteCard.Thumbnail = activePalette;
-            ////    SetCurrentDeviceSelectedPalette(CurrentActivePaletteCard);
-            ////    WritePaletteCollectionJson();
-            ////    //reload all available palette;
-            ////    AvailablePallete.Clear();
-            ////    foreach (var palette in LoadPaletteIfExists())
-            ////    {
-            ////        AvailablePallete.Add(palette);
-            ////    }
-
-            ////    CurrentCustomZoneColor.Clear();
-            ////    foreach (var color in CurrentOutput.OutputCurrentActivePalette)
-            ////    {
-            ////        CurrentCustomZoneColor.Add(color);
-            ////    }
-            ////    RaisePropertyChanged(nameof(CurrentCustomZoneColor));
-            ////}
-
-            ////else // open create new dialog
-            ////{
-            ////OpenCreateNewDialog();
-            ////}
-        }
-
-        public void OpenEditPaletteDialog(string praram)
-        {
-            var window = new PaletteEditWindow(praram);
-            window.Owner = System.Windows.Application.Current.MainWindow;
-            CurrentEditingColors = new ObservableCollection<Color>();
-            //foreach (var color in CurrentOutput.OutputCurrentActivePalette.Colors)
-            //{
-            //    CurrentEditingColors.Add(color);
-            //}
-            //CurrentCustomZoneColor = palette;
-
-            RaisePropertyChanged(nameof(CurrentEditingColors));
-            window.ShowDialog();
-        }
-
         private AddNewPaletteWindow AddNewPaletteDialog;
 
         public void OpenCreateNewPaletteDialog()
@@ -8497,24 +7927,6 @@ namespace adrilight.ViewModel
             AddNewPaletteDialog = new AddNewPaletteWindow();
             AddNewPaletteDialog.Owner = System.Windows.Application.Current.MainWindow;
             AddNewPaletteDialog.ShowDialog();
-        }
-
-        public void OpenExportNewEffectWindow()
-        {
-            if (AssemblyHelper.CreateInternalInstance($"View.{"ExportNewColorEffectWindow"}") is System.Windows.Window window)
-            {
-                window.Owner = System.Windows.Application.Current.MainWindow;
-                window.ShowDialog();
-            }
-        }
-
-        public void OpenFanSpeedPlotWindows()
-        {
-            if (AssemblyHelper.CreateInternalInstance($"View.{"FanSpeedPlotWindow"}") is System.Windows.Window window)
-            {
-                window.Owner = System.Windows.Application.Current.MainWindow;
-                window.ShowDialog();
-            }
         }
 
         public void OpenAvailableUpdateListWindow()
@@ -8563,78 +7975,6 @@ namespace adrilight.ViewModel
                 OOTBItems.Add(output as OutputSettings);
             }
         }
-
-        //public void SetCurrentDeviceSelectedPalette(IColorPaletteCard palette)
-        //{
-        //    if (palette != null)
-        //    {
-        //        for (var i = 0; i < CurrentOutput.OutputCurrentActivePalette.Length; i++)
-        //        {
-        //            CurrentOutput.OutputCurrentActivePalette[i] = palette.Thumbnail[i];
-
-        //        }
-
-        //        RaisePropertyChanged(nameof(AvailablePallete));
-        //        RaisePropertyChanged(nameof(CurrentOutput.OutputCurrentActivePalette));
-        //        WriteDeviceInfoJson();
-        //    }
-
-        //}
-
-        //public void SnapShot()
-        //{
-        //    int counter = 0;
-        //    byte[] snapshot = new byte[256];
-        //    foreach (IDeviceSpot spot in PreviewSpots)
-        //    {
-        //        snapshot[counter++] = spot.Red;
-        //        snapshot[counter++] = spot.Green;
-        //        snapshot[counter++] = spot.Blue;
-        //        // counter++;
-        //    }
-        //    CurrentOutput.SnapShot = snapshot;
-        //    RaisePropertyChanged(() => CurrentDevice.SnapShot);
-        //}
-        public void SetCustomColor(int index)
-        {
-            //if (CurrentActivePalette == null)
-            //{
-            //    CurrentActivePalette = new ColorPalette();
-            //}
-            //CurrentEditingColors[index] = CurrentPickedColor;
-            //CurrentActivePalette.SetColor(index, CurrentPickedColor);
-            //CurrentOutput.OutputCurrentActivePalette.SetColor(index, CurrentPickedColor);
-
-            //RaisePropertyChanged(nameof(CurrentActivePalette));
-            //RaisePropertyChanged(nameof(CurrentOutput.OutputCurrentActivePalette));
-        }
-
-        public void CurrentSpotSetVIDChanged()
-        {
-            //foreach (var spot in PreviewSpots)
-            //{
-            //    CurrentDevice.VirtualIndex[spot.id] = spot.VID;
-
-            //}
-
-            //WriteDeviceInfoJson();
-        }
-
-        public void DeviceRectSavePosition()
-        {
-            //save current device rect position to json database
-            //CurrentDevice.DeviceRectLeft = DeviceRectX;
-            //CurrentDevice.DeviceRectTop = DeviceRectY;
-            // CurrentDevice.DeviceRectWidth = DeviceRectWidth;
-            //CurrentDevice.DeviceRectHeight = DeviceRectHeight;
-            // CurrentDevice.DeviceScale = DeviceScale;
-            //RaisePropertyChanged(() => CurrentDevice.DeviceRectLeft);
-            //RaisePropertyChanged(() => CurrentDevice.DeviceRectTop);
-            // RaisePropertyChanged(() => CurrentDevice.DeviceRectWidth);
-            // RaisePropertyChanged(() => CurrentDevice.DeviceRectHeight);
-            // RaisePropertyChanged(() => CurrentDevice.DeviceScale);
-        }
-
         private void CreateFWToolsFolderAndFiles()
         {
             if (!Directory.Exists(JsonFWToolsFileNameAndPath))
@@ -8668,7 +8008,26 @@ namespace adrilight.ViewModel
             }
             //deserialize and store colorcollection
         }
-
+        private void CreateGifCollectionFolder()
+        {
+            if (!Directory.Exists(GifsCollectionFolderPath))
+            {
+                Directory.CreateDirectory(GifsCollectionFolderPath);
+                var collectionFolder = Path.Combine(GifsCollectionFolderPath, "collection");
+                Directory.CreateDirectory(collectionFolder);
+                var allResourceNames = ResourceHlprs.GetResourceFileName();
+                foreach (var resourceName in allResourceNames.Where(r => r.EndsWith(".gif")))
+                {
+                    ResourceHlprs.CopyResource(resourceName, Path.Combine(collectionFolder, resourceName.Remove(0, 25)));
+                }
+                var config = new ResourceLoaderConfig(nameof(Gif), DeserializeMethodEnum.Files);
+                var configJson = JsonConvert.SerializeObject(config, new JsonSerializerSettings() {
+                    TypeNameHandling = TypeNameHandling.Auto
+                });
+                File.WriteAllText(Path.Combine(GifsCollectionFolderPath, "config.json"), configJson);
+            }
+            //deserialize and store colorcollection
+        }
         private void CreateVIDCollectionFolder()
         {
             if (!Directory.Exists(VIDCollectionFolderPath))
@@ -8898,111 +8257,6 @@ namespace adrilight.ViewModel
             var requiredFwVersionjson = JsonConvert.SerializeObject(firmwareList, Formatting.Indented);
             File.WriteAllText(JsonFWToolsFWListFileNameAndPath, requiredFwVersionjson);
         }
-
-        private List<IGifCard> LoadGifIfExist()
-        {
-            var loadedGifs = new List<IGifCard>();
-            AvailableGifs = new ObservableCollection<IGifCard>();
-
-            if (Directory.Exists(JsonGifsFileNameAndPath))
-            {
-                //check if gif exist
-                if (File.Exists(JsonGifsCollectionFileNameAndPath))
-                {
-                    var json = File.ReadAllText(JsonGifsCollectionFileNameAndPath);
-
-                    var existedGif = JsonConvert.DeserializeObject<List<GifCard>>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
-                    foreach (var gif in existedGif)
-                    {
-                        loadedGifs.Add(gif);
-                    }
-                }
-            }
-            else
-            {    //create gif dirrectory
-                Directory.CreateDirectory(JsonGifsFileNameAndPath);
-                //coppy embeded gif to adrilight folder in appdata
-
-                ResourceHlprs.CopyResource("adrilight.Gif.Rainbow.gif", Path.Combine(JsonGifsFileNameAndPath, "Rainbow.gif"));
-                ResourceHlprs.CopyResource("adrilight.Gif.BitOcean.gif", Path.Combine(JsonGifsFileNameAndPath, "BitOcean.gif"));
-                ResourceHlprs.CopyResource("adrilight.Gif.DigitalBlue.gif", Path.Combine(JsonGifsFileNameAndPath, "DigitalBlue.gif"));
-                ResourceHlprs.CopyResource("adrilight.Gif.HexWave.gif", Path.Combine(JsonGifsFileNameAndPath, "HexWave.gif"));
-                ResourceHlprs.CopyResource("adrilight.Gif.Hypnotic.gif", Path.Combine(JsonGifsFileNameAndPath, "Hypnotic.gif"));
-                ResourceHlprs.CopyResource("adrilight.Gif.Plasma.gif", Path.Combine(JsonGifsFileNameAndPath, "Plasma.gif"));
-                ResourceHlprs.CopyResource("adrilight.Gif.Blob.gif", Path.Combine(JsonGifsFileNameAndPath, "Blob.gif"));
-
-                return new()
-            {
-            new GifCard()
-            {
-                Name = "Rainbow",
-                Source = Path.Combine(JsonGifsFileNameAndPath,"Rainbow.gif"),
-                Description = "Rainbow Spiral Gif",
-                Owner = "Dribble",
-            },
-              new GifCard()
-            {
-                Name = "BitOcean",
-                Source = Path.Combine(JsonGifsFileNameAndPath,"BitOcean.gif"),
-                Description = "Application Resources",
-                Owner = "GIFER",
-            },
-                 new GifCard()
-            {
-                Name = "DigitalBlue",
-                Source = Path.Combine(JsonGifsFileNameAndPath,"DigitalBlue.gif"),
-                Description = "Application Resources",
-                Owner = "GIFER",
-            },
-                    new GifCard()
-            {
-                Name = "HexWave",
-                Source = Path.Combine(JsonGifsFileNameAndPath,"HexWave.gif"),
-                Description = "Application Resources",
-                Owner = "GIFER",
-            },
-                       new GifCard()
-            {
-                Name = "Hypnotic",
-                Source = Path.Combine(JsonGifsFileNameAndPath,"Hypnotic.gif"),
-                Description ="Application Resources",
-                Owner = "GIFER",
-            },
-                          new GifCard()
-            {
-                Name = "Plasma",
-                Source = Path.Combine(JsonGifsFileNameAndPath,"Plasma.gif"),
-                Description = "Application Resources",
-                Owner = "GIFER",
-            },
-                                         new GifCard()
-            {
-                Name = "Blob",
-                Source = Path.Combine(JsonGifsFileNameAndPath,"Blob.gif"),
-                Description = "Application Resources",
-                Owner = "GIFER",
-            },
-        };
-            }
-            return loadedGifs;
-        }
-
-        public void LoadAvailableLightingMode()
-        {
-            //AvailableLightingMode = new ObservableCollection<ILightingMode>();
-            //var screencapture = new LightingMode { Name = "Screen Capture", Geometry = "ambilight", Description = "Screen sampling to LED" };
-            //var palette = new LightingMode { Name = "Color Palette", Geometry = "colorpalette", Description = "Screen sampling to LED" };
-            //var music = new LightingMode { Name = "Music Reactive", Geometry = "music", Description = "Screen sampling to LED" };
-            //var staticcolor = new LightingMode { Name = "Static Color", Geometry = "static", Description = "Screen sampling to LED" };
-            //var gifxelation = new LightingMode { Name = "Gifxelation", Geometry = "gifxelation", Description = "Screen sampling to LED" };
-            //var composition = new LightingMode { Name = "Composition", Geometry = "gifxelation", Description = "Screen sampling to LED" };
-            //AvailableLightingMode.Add(screencapture);
-            //AvailableLightingMode.Add(palette);
-            //AvailableLightingMode.Add(music);
-            //AvailableLightingMode.Add(staticcolor);
-            //AvailableLightingMode.Add(gifxelation);
-        }
-
         private void LoadAvailableBaudRate()
         {
             AvailableBaudrates = new ObservableCollection<int> {
@@ -9022,60 +8276,6 @@ namespace adrilight.ViewModel
             };
         }
 
-        private void LoadAvailableChasingPatterns()
-        {
-            AvailableMotionDirrection = new List<string>();
-            AvailableMotionDirrection.Add("Normal");
-            AvailableMotionDirrection.Add("Reverse");
-            AvailableMotionSpeed = new List<double>();
-            AvailableMotionSpeed.Add(0.25);
-            AvailableMotionSpeed.Add(0.50);
-            AvailableMotionSpeed.Add(1.00);
-            AvailableMotionSpeed.Add(1.25);
-            AvailableMotionSpeed.Add(1.50);
-            AvailableMotionSpeed.Add(2.00);
-            AvailableMotions = new ObservableCollection<ITimeLineDataItem>();
-            var bouncing = new MotionCard() {
-                Name = "Bouncing",
-                StartFrame = 5,
-                EndFrame = 125,
-                TrimEnd = 0,
-                TrimStart = 0,
-                OriginalDuration = 120,
-                Color = Color.FromRgb(0, 0, 255)
-            };
-            var bouncing2 = new MotionCard() {
-                Name = "Chasing",
-                StartFrame = 20,
-                EndFrame = 300,
-                TrimEnd = 0,
-                TrimStart = 0,
-                OriginalDuration = 280,
-                Color = Color.FromRgb(0, 255, 255)
-            };
-            AvailableMotions.Add(bouncing);
-            AvailableMotions.Add(bouncing2);
-        }
-
-        private void LoadAvailableAnimations()
-        {
-            AvailableGifs = new ObservableCollection<IGifCard>();
-            foreach (var loadedGif in LoadGifIfExist())
-            {
-                AvailableGifs.Add(loadedGif);
-            }
-            WriteGifCollectionJson();
-        }
-
-        private void LoadAvailableSolidColors()
-        {
-            AvailableSolidColors = new ObservableCollection<Color>();
-            foreach (var color in LoadSolidColorIfExists())
-            {
-                AvailableSolidColors.Add(color);
-            }
-        }
-
         private void LoadAvailableProfiles()
         {
             AvailableProfiles = new ObservableCollection<AppProfile>();
@@ -9083,7 +8283,6 @@ namespace adrilight.ViewModel
             {
                 AvailableProfiles.Add(profile);
             }
-            // WriteDeviceProfileCollection();
         }
         private void SFTPInit()
         {
@@ -9124,6 +8323,7 @@ namespace adrilight.ViewModel
             CreatePaletteCollectionFolder();
             CreateResourceCollectionFolder();
             CreateChasingPatternCollectionFolder();
+            CreateGifCollectionFolder();
             CreateVIDCollectionFolder();
             CreateMIDCollectionFolder();
             CreateAudioDevicesCollection();
@@ -9131,13 +8331,8 @@ namespace adrilight.ViewModel
             CreateSupportedDevicesCollectionFolder();
 
             #endregion
-
-            LoadAvailableLightingMode();
-            LoadAvailableAnimations();
             LoadAvailableBaudRate();
-            LoadAvailableChasingPatterns();
             LoadAvailableProfiles();
-            LoadAvailableSolidColors();
         }
         private void CreateResourceCollectionFolder()
         {
@@ -9287,73 +8482,6 @@ namespace adrilight.ViewModel
             return loadedAutomations;
         }
 
-        public Color[] LoadSolidColorIfExists()
-        {
-            if (!File.Exists(JsonSolidColorFileNameAndPath))
-            {
-                Color[] colors =
-            {
-        (Color)ColorConverter.ConvertFromString("Red"),
-        Color.FromArgb(255, 255, 192, 192),
-        Color.FromArgb(255, 255, 224, 192),
-        Color.FromArgb(255, 255, 255, 192),
-        Color.FromArgb(255, 192, 255, 192),
-        Color.FromArgb(255, 192, 255, 255),
-        Color.FromArgb(255, 192, 192, 255),
-        Color.FromArgb(255, 255, 192, 255),
-        Color.FromArgb(255, 224, 224, 224),
-        Color.FromArgb(255, 255, 128, 128),
-        Color.FromArgb(255, 255, 192, 128),
-        Color.FromArgb(255, 255, 255, 128),
-        Color.FromArgb(255, 128, 255, 128),
-        Color.FromArgb(255, 128, 255, 255),
-        Color.FromArgb(255, 128, 128, 255),
-        Color.FromArgb(255, 255, 128, 255),
-        (Color)ColorConverter.ConvertFromString("Silver"),
-        (Color)ColorConverter.ConvertFromString("Red"),
-        Color.FromArgb(255, 255, 128, 0),
-        (Color)ColorConverter.ConvertFromString("Yellow"),
-        (Color)ColorConverter.ConvertFromString("Lime"),
-        (Color)ColorConverter.ConvertFromString("Cyan"),
-        (Color)ColorConverter.ConvertFromString("Blue"),
-        (Color)ColorConverter.ConvertFromString("Fuchsia"),
-        (Color)ColorConverter.ConvertFromString("Gray"),
-        Color.FromArgb(255, 192, 0, 0),
-        Color.FromArgb(255, 192, 64, 0),
-        Color.FromArgb(255, 192, 192, 0),
-        Color.FromArgb(255, 0, 192, 0),
-        Color.FromArgb(255, 0, 192, 192),
-        Color.FromArgb(255, 0, 0, 192),
-        Color.FromArgb(255, 192, 0, 192),
-        Color.FromArgb(255, 64, 64, 64),
-        (Color)ColorConverter.ConvertFromString("Maroon"),
-        Color.FromArgb(255, 128, 64, 0),
-        (Color)ColorConverter.ConvertFromString("Olive"),
-        (Color)ColorConverter.ConvertFromString("Green"),
-        (Color)ColorConverter.ConvertFromString("Teal"),
-        (Color)ColorConverter.ConvertFromString("Navy"),
-        (Color)ColorConverter.ConvertFromString("Purple"),
-        (Color)ColorConverter.ConvertFromString("Black"),
-        Color.FromArgb(255, 64, 0, 0),
-        Color.FromArgb(255, 128, 64, 64),
-        Color.FromArgb(255, 64, 64, 0),
-        Color.FromArgb(255, 0, 64, 0),
-        Color.FromArgb(255, 0, 64, 64),
-        Color.FromArgb(255, 0, 0, 64),
-        Color.FromArgb(255, 64, 0, 64),
-    };
-                return colors;
-                WriteSolidColorJson();
-            }
-            else
-            {
-                var json = File.ReadAllText(JsonSolidColorFileNameAndPath);
-                var existedSolidColor = JsonConvert.DeserializeObject<List<Color>>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
-                Color[] colors = new Color[existedSolidColor.Count];
-                colors = existedSolidColor.ToArray();
-                return colors;
-            }
-        }
 
         public async void ShowAddNewWindow()
         {/*
@@ -9422,95 +8550,6 @@ namespace adrilight.ViewModel
             System.Windows.Forms.Application.Restart();
             Process.GetCurrentProcess().Kill();
         }
-
-        private void DeleteSelectedDevices()
-        {
-            foreach (var device in AvailableDevices.Where(p => p.IsSelected == true).ToList())
-            {
-                SelectedDeviceCount--;
-                AvailableDevices.Remove(device);
-            }
-            ToolbarVisible = false;
-            //WriteDeviceInfoJson();
-        }
-
-        /// <summary>
-        /// Change View
-        /// </summary>
-        /// <param name="menuItem"></param>
-
-        //public void WriteDeviceInfoJson()
-        //{
-        //    var devices = new List<IDeviceSettings>();
-        //    foreach (var item in AvailableDevices)
-        //    {
-        //        if (!item.IsDummy)
-        //            devices.Add(item);
-        //    }
-
-        //    var json = JsonConvert.SerializeObject(devices, new JsonSerializerSettings() {
-        //        TypeNameHandling = TypeNameHandling.Auto
-        //    });
-
-        //    // Set Status to Locked
-        //    _readWriteLock.EnterWriteLock();
-        //    try
-        //    {
-        //        // Append text to the file
-        //        using (StreamWriter sw = new StreamWriter(JsonDeviceFileNameAndPath))
-        //        {
-        //            sw.Write(json);
-        //            sw.Close();
-        //        }
-        //    }
-        //    finally
-        //    {
-        //        // Release lock
-        //        _readWriteLock.ExitWriteLock();
-        //    }
-        //    //Directory.CreateDirectory(JsonPath);
-        //    //await File.WriteAllTextAsync(JsonDeviceFileNameAndPath, json);
-        //}
-
-        ////public void WriteOpenRGBDeviceInfoJson()
-        ////{
-        ////    var devices = new List<Device>();
-        ////    foreach (var item in AvailableOpenRGBDevices)
-        ////    {
-        ////        devices.Add(item);
-        ////    }
-
-        ////    var json = JsonConvert.SerializeObject(devices, new JsonSerializerSettings() {
-        ////        TypeNameHandling = TypeNameHandling.Auto
-        ////    });
-        ////    Directory.CreateDirectory(JsonPath);
-        ////    File.WriteAllText(JsonOpenRGBDevicesFileNameAndPath, json);
-        ////}
-
-        public void WriteGifCollectionJson()
-        {
-            var gifs = new List<IGifCard>();
-            foreach (var gif in AvailableGifs)
-            {
-                gifs.Add(gif);
-            }
-
-            var json = JsonConvert.SerializeObject(gifs, new JsonSerializerSettings() {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
-            Directory.CreateDirectory(JsonPath);
-            File.WriteAllText(JsonGifsCollectionFileNameAndPath, json);
-        }
-
-        public void WriteGenralSettingsJson()
-        {
-            var json = JsonConvert.SerializeObject(GeneralSettings, new JsonSerializerSettings() {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
-            Directory.CreateDirectory(JsonPath);
-            File.WriteAllText(JsonGeneralFileNameAndPath, json);
-        }
-
         public void WriteAutomationCollectionJson()
         {
             var automations = new List<AutomationSettings>();
@@ -9523,265 +8562,6 @@ namespace adrilight.ViewModel
             });
             File.WriteAllText(JsonAutomationFileNameAndPath, json);
         }
-
-        public void WriteSolidColorJson()
-        {
-            var colors = new List<Color>();
-            foreach (var color in AvailableSolidColors)
-            {
-                colors.Add(color);
-            }
-            var json = JsonConvert.SerializeObject(colors, new JsonSerializerSettings() {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
-            Directory.CreateDirectory(JsonPath);
-            File.WriteAllText(JsonSolidColorFileNameAndPath, json);
-        }
-
-        //public void ApplyOutputImportData()
-        //{
-        //    int count = 0;
-
-        //    for (var i = 0; i < currentImportedEffect.OutputLEDSetup.Length; i++)
-        //    {
-        //        foreach (var spot in currentImportedEffect.OutputLEDSetup[i].Spots)
-        //        {
-        //            var targerSpot = CurrentDevice.AvailableOutputs[i].OutputLEDSetup.Spots.Where(item => item.YIndex == spot.YIndex && item.XIndex == spot.XIndex).FirstOrDefault();
-        //            if (targerSpot == null)
-        //            {
-        //                count++;
-        //            }
-        //            else
-        //            {
-        //                if (CurrentDevice.AvailableOutputs[i].OutputIsSelected)
-        //                {
-        //                    targerSpot.SetVID(spot.VID);
-        //                    targerSpot.IsEnabled = spot.IsEnabled;
-        //                }
-        //            }
-        //        }
-        //    }
-
-        //    if (count > 0)
-        //    {
-        //        HandyControl.Controls.MessageBox.Show("Một số LED không thể lấy vị trí do hình dạng LED khác nhau giữa file và thiết bị", "LEDSetup Import", MessageBoxButton.OK, MessageBoxImage.Warning);
-        //    }
-        //    else
-        //    {
-        //        HandyControl.Controls.MessageBox.Show("Import thành công", "Effect Import", MessageBoxButton.OK, MessageBoxImage.Information);
-        //    }
-        //}
-
-        private bool _isRenderingVideo;
-
-        public bool IsRenderingVideo {
-            get { return _isRenderingVideo; }
-
-            set
-            {
-                _isRenderingVideo = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        public void ImportGif()
-        {
-            OpenFileDialog Import = new OpenFileDialog();
-            Import.Title = "Chọn gif file";
-            Import.CheckFileExists = true;
-            Import.CheckPathExists = true;
-            Import.DefaultExt = "gif";
-            Import.Multiselect = false;
-            Import.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.gif;*.tif;...|All files (*.*)|*.*";
-            Import.FilterIndex = 2;
-
-            Import.ShowDialog();
-
-            if (!string.IsNullOrEmpty(Import.FileName) && File.Exists(Import.FileName))
-            {
-                //rendering new video or gif in background thread, turn the is rendering flag on
-                //but what do we do when the resolution changed, because all the devices are now scale based size
-                //simple answer, we make gif frame scale based too,or just using scale of device respect to gif border
-                //but first scale to 100*100 frame size
-                IsRenderingVideo = true;
-                var result = LoadFrameData(Import.FileName, out ByteFrame[] renderedFrame);
-                if (!result)
-                {
-                    //show error message
-                }
-                else
-                {
-                    //save byte frame to disk,get the path and put in to new gifcard model
-                    var renderedFrames = JsonConvert.SerializeObject(renderedFrame, new JsonSerializerSettings() {
-                        TypeNameHandling = TypeNameHandling.Auto
-                    });
-                    var source = Import.FileNames;
-                    var name = System.IO.Path.GetFileNameWithoutExtension(source.FirstOrDefault());
-                    Directory.CreateDirectory(JsonPath);
-                    var path = Path.Combine(JsonPath, name + "rendered");
-                    File.WriteAllText(path, renderedFrames);
-                    var owner = "User";
-                    var description = "User Import";
-                    var importedGif = new GifCard { Name = name, Source = path, Owner = owner, Description = description };
-                    AvailableGifs.Add(importedGif);
-                    WriteGifCollectionJson();
-                    Growl.Success("Animation imported successfully!");
-                }
-            }
-        }
-
-        public bool LoadFrameData(string path, out ByteFrame[] renderedFrames)
-        {
-            renderedFrames = null;
-            var fileType = Path.GetExtension(path);
-            switch (fileType)
-            {
-                case ".gif":
-                    renderedFrames = LoadGifFromDisk(path);
-                    break;
-
-                case ".avi":
-                    renderedFrames = LoadVideoFileFromDisk(path);
-                    break;
-            }
-            return renderedFrames != null;
-        }
-
-        public ByteFrame[] LoadVideoFileFromDisk(string path)
-        {
-            try
-            {
-                VideoCapture capture = new VideoCapture(path);
-                Mat m = new Mat();
-                var totalFrame = (int)capture.GetCaptureProperty(Emgu.CV.CvEnum.CapProp.FrameCount);
-                var renderedFrames = new ByteFrame[totalFrame];
-                for (int i = 0; i < totalFrame; i++)
-                {
-                    //get frame from position
-                    capture.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.PosFrames, i);
-                    capture.Read(m);
-                    var currentFrame = m.ToBitmap();
-                    var resizedBmp = new Bitmap(currentFrame, 100, 100);
-                    var rect = new Rectangle(0, 0, resizedBmp.Width, resizedBmp.Height);
-                    BitmapData bmpData = resizedBmp.LockBits(rect, ImageLockMode.ReadWrite, resizedBmp.PixelFormat);
-
-                    // Get the address of the first line.
-                    IntPtr ptr = bmpData.Scan0;
-                    // Declare an array to hold the bytes of the bitmap.
-                    int bytes = Math.Abs(bmpData.Stride) * resizedBmp.Height;
-                    byte[] rgbValues = new byte[bytes];
-
-                    // Copy the RGB values into the array.
-                    System.Runtime.InteropServices.Marshal.Copy(ptr, rgbValues, 0, bytes);
-                    var frame = new ByteFrame();
-                    frame.Frame = rgbValues;
-                    frame.FrameWidth = resizedBmp.Width;
-                    frame.FrameHeight = resizedBmp.Height;
-
-                    renderedFrames[i] = frame;
-                    resizedBmp.UnlockBits(bmpData);
-                }
-                capture.Dispose();
-                GC.Collect();
-                return renderedFrames;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
-        public ByteFrame[] LoadGifFromDisk(string path)
-        {
-            try
-            {
-                using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
-                {
-                    using (System.Drawing.Image imageToLoad = System.Drawing.Image.FromStream(fs))
-                    {
-                        var frameDim = new FrameDimension(imageToLoad.FrameDimensionsList[0]);
-                        var frameCount = imageToLoad.GetFrameCount(frameDim);
-                        var renderedFrames = new ByteFrame[frameCount];
-                        for (int i = 0; i < frameCount; i++)
-                        {
-                            imageToLoad.SelectActiveFrame(frameDim, i);
-
-                            var resizedBmp = new Bitmap(imageToLoad, 100, 100);
-
-                            var rect = new System.Drawing.Rectangle(0, 0, resizedBmp.Width, resizedBmp.Height);
-                            System.Drawing.Imaging.BitmapData bmpData =
-                                resizedBmp.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite,
-                                resizedBmp.PixelFormat);
-
-                            // Get the address of the first line.
-                            IntPtr ptr = bmpData.Scan0;
-
-                            // Declare an array to hold the bytes of the bitmap.
-                            int bytes = Math.Abs(bmpData.Stride) * resizedBmp.Height;
-                            byte[] rgbValues = new byte[bytes];
-
-                            // Copy the RGB values into the array.
-                            System.Runtime.InteropServices.Marshal.Copy(ptr, rgbValues, 0, bytes);
-                            var frame = new ByteFrame();
-                            frame.Frame = rgbValues;
-                            frame.FrameWidth = resizedBmp.Width;
-                            frame.FrameHeight = resizedBmp.Height;
-
-                            renderedFrames[i] = frame;
-                            resizedBmp.UnlockBits(bmpData);
-                        }
-                        imageToLoad.Dispose();
-                        fs.Close();
-                        GC.Collect();
-
-                        return renderedFrames;
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
-        public void IncreaseVID(IDeviceSpot spot)
-        {
-            spot.VID = 5;
-        }
-
-        //VIDs function
-        public void SetZerotoAll(int number)
-        {
-            foreach (var spot in PreviewSpots)
-            {
-                spot.SetVID(number);
-            }
-            CurrentSpotSetVIDChanged();
-        }
-
-        public void SetIncreament(int startIndex, int spacing, int startPoint, int endPoint)
-        {
-            int counter = startPoint;
-            for (var i = startIndex; i <= startIndex + (endPoint - startPoint) * spacing; i += spacing)
-            {
-                PreviewSpots[counter++].SetVID(i);
-            }
-
-            CurrentSpotSetVIDChanged();
-        }
-
-        //private ObservableCollection<DeviceProfile> ProfileFilter(IDeviceSettings device)
-        //{
-        //    var filteredProfiles = new ObservableCollection<DeviceProfile>();
-        //    foreach (var profile in AvailableProfiles)
-        //    {
-        //        if (profile.DeviceType == device.DeviceType)
-        //        {
-        //            filteredProfiles.Add(profile);
-        //        }
-        //    }
-        //    return filteredProfiles;
-        //}
         private string _currentSelectedOnlineItemType;
 
         public string CurrentSelectedOnlineItemType {

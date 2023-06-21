@@ -81,6 +81,9 @@ namespace adrilight.Util.ModeParameters
                     var config = JsonConvert.DeserializeObject<ResourceLoaderConfig>(configJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
                     string t = config.DataType;
                     var m = config.MethodEnum;
+                    string[] files = new string[1] { string.Empty };
+                    if (Directory.Exists(Path.Combine(path, "collection")))
+                        files = Directory.GetFiles(Path.Combine(path, "collection"));
                     switch (m)
                     {
                         case DeserializeMethodEnum.SingleJson:
@@ -93,7 +96,7 @@ namespace adrilight.Util.ModeParameters
                             }
                             break;
                         case DeserializeMethodEnum.MultiJson:
-                            string[] files = Directory.GetFiles(Path.Combine(path, "collection"));
+
                             switch (t)
                             {
                                 case nameof(ColorPalette):
@@ -152,7 +155,22 @@ namespace adrilight.Util.ModeParameters
                                     break;
                             }
                             break;
-
+                        case DeserializeMethodEnum.Files:
+                            switch (t)
+                            {
+                                case nameof(Gif):
+                                    foreach (var file in files)
+                                    {
+                                        var data = new Gif() {
+                                            Name = Path.GetFileName(file),
+                                            Description = "Ambino Default Gif Collection",
+                                            Path = file
+                                        };
+                                        AvailableValues.Add(data);
+                                    }
+                                    break;
+                            }
+                            break;
 
                     }
 

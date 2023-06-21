@@ -1,22 +1,14 @@
-﻿using OpenRGB;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-using System.Linq;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using Color = System.Windows.Media.Color;
-using adrilight.Util;
+﻿using adrilight.Util;
 using adrilight.ViewModel;
-using System.Threading;
+using Microsoft.Win32;
 using NLog;
-using System.Threading.Tasks;
-using System.Diagnostics;
-using adrilight.Spots;
+using System;
+using System.Collections;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace adrilight
 {
@@ -137,7 +129,25 @@ namespace adrilight
             Ticks.Add(newTick);
             return newTick;
         }
-
+        private static void CheckSystemEventsHandlersForFreeze()
+        {
+            var handlers = typeof(SystemEvents).GetField("_handlers", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
+            var handlersValues = handlers.GetType().GetProperty("Values").GetValue(handlers);
+            foreach (var invokeInfos in (handlersValues as IEnumerable).OfType<object>().ToArray())
+                foreach (var invokeInfo in (invokeInfos as IEnumerable).OfType<object>().ToArray())
+                {
+                    var syncContext = invokeInfo.GetType().GetField("_syncContext", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(invokeInfo);
+                    if (syncContext == null) throw new Exception("syncContext missing");
+                    if (!(syncContext is WindowsFormsSynchronizationContext)) continue;
+                    var threadRef = (WeakReference)syncContext.GetType().GetField("destinationThreadRef", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(syncContext);
+                    if (!threadRef.IsAlive) continue;
+                    var thread = (Thread)threadRef.Target;
+                    if (thread.ManagedThreadId == 1) continue;  // Change here if you have more valid UI threads to ignore
+                    var dlg = (Delegate)invokeInfo.GetType().GetField("_delegate", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(invokeInfo);
+                    MessageBox.Show($"SystemEvents handler '{dlg.Method.DeclaringType}.{dlg.Method.Name}' could freeze app due to wrong thread: "
+                                    + $"{thread.ManagedThreadId},{thread.IsThreadPoolThread},{thread.IsAlive},{thread.Name}");
+                }
+        }
         public void Run(CancellationToken token)
 
         {
@@ -167,7 +177,7 @@ namespace adrilight
                     {
                         foreach (var tick in Ticks)
                         {
-                            if(tick.IsRunning)
+                            if (tick.IsRunning)
                             {
                                 if (tick.CurrentTick < tick.MaxTick - tick.TickSpeed)
                                     tick.CurrentTick += tick.TickSpeed;
@@ -178,7 +188,7 @@ namespace adrilight
                             {
                                 tick.CurrentTick = 0;
                             }
-                         
+
                         }
 
 
@@ -211,7 +221,7 @@ namespace adrilight
 
                         BreathingBrightnessValue = pwm_val / 255d;
                     }
-
+                    //CheckSystemEventsHandlersForFreeze();
                     Thread.Sleep(10);
 
                 }
