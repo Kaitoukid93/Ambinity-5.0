@@ -130,7 +130,7 @@
             </Grid.ColumnDefinitions>
             <!--side panel category selection-->
             <Grid Margin="0,10,0,0">
-                <ListBox SelectedItem="{Binding CurrentSelectedCategory,Mode=TwoWay}" BorderThickness="0" Background="Transparent" ItemsSource="{Binding AvailableStoreCategories}" ItemContainerStyle="{DynamicResource _listBoxControlModeStyle}">
+                <ListBox IsEnabled="{Binding CarouselImageLoading,Converter={StaticResource Boolean2BooleanReConverter}}" SelectedItem="{Binding CurrentSelectedCategory,Mode=TwoWay}" BorderThickness="0" Background="Transparent" ItemsSource="{Binding AvailableStoreCategories}" ItemContainerStyle="{DynamicResource _listBoxControlModeStyle}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Grid>

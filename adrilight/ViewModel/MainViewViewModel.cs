@@ -499,7 +499,8 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-
+        public ICommand StoreSearchCommand { get; set; }
+        public ICommand FilterStoreItemByTargetDeviceTypeCommand { get; set; }
         public ICommand ExportItemForOnlineStoreCommand { get; set; }
         public ICommand GroupSelectedZoneForMaskedControlCommand { get; set; }
         public ICommand UnselectAllLiveiewItemCommand { get; set; }
@@ -3324,7 +3325,27 @@ namespace adrilight.ViewModel
                 return true;
             }, async (p) =>
             {
-                await gotoItemDetails(p);
+                CarouselImageLoading = true;
+                await Task.Run(() => gotoItemDetails(p));
+                CurrentOnlineStoreView = "Details";
+            });
+            FilterStoreItemByTargetDeviceTypeCommand = new RelayCommand<DeviceType>((p) =>
+            {
+                return true;
+            }, async (p) =>
+            {
+                CarouselImageLoading = true;
+                await Task.Run(() => UpdateStoreView(p));
+                CurrentOnlineStoreView = "Collections";
+            });
+            StoreSearchCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, async (p) =>
+            {
+                CarouselImageLoading = true;
+                await Task.Run(() => UpdateStoreView(p));
+                CurrentOnlineStoreView = "Collections";
             });
             SelectCardCommand = new RelayCommand<IDeviceSettings>((p) =>
             {
@@ -4330,7 +4351,7 @@ namespace adrilight.ViewModel
             if (p == null)
                 return;
             CurrentContentForExport = p;
-            CurrentItemForExport = new OnlineItemModel() { Name = "Change Name", Description = "Change Description", Type = p.GetType().Name.ToString(), Owner = "Change Owner" };
+            CurrentItemForExport = new OnlineItemModel() { Name = "Change Name", Description = "Change Description", Type = p.GetType().Name.ToString(), Owner = "Change Owner", Version = "Change version" };
             OnlineItemScreenShotCollection = new ObservableCollection<string>();
             OnlineItemSelectableTargetType = new ObservableCollection<DeviceType>();
             OnlineItemSelectedTargetTypes = new List<DeviceType>();
@@ -4408,16 +4429,26 @@ namespace adrilight.ViewModel
                     case DeserializeMethodEnum.MultiJson:
                         //save to local folder , we only need json config file
                         var data = await FTPHlprs.GetFiles<T>(item.Path + "/content" + "/" + "config.json");
-                        WriteSimpleJson(data, Path.Combine(Path.Combine(ProfileCollectionFolderPath, "collection"), item.Name + extension));
+                        WriteSimpleJson(data, Path.Combine(Path.Combine(collectionPath, "collection"), item.Name + extension));
                         break;
 
                     case DeserializeMethodEnum.FolderStructure:
-                        var localPath = Path.Combine(collectionPath, item.Name);
-                        Directory.CreateDirectory(localPath);
+                        var localFolderPath = Path.Combine(collectionPath, item.Name);
+                        Directory.CreateDirectory(localFolderPath);
                         foreach (var file in listofFiles)
                         {
                             //save to local folder
-                            FTPHlprs.DownloadFile(item.Path + "/content" + "/" + file.Name, localPath + "/" + file.Name);
+                            FTPHlprs.DownloadFile(item.Path + "/content" + "/" + file.Name, localFolderPath + "/" + file.Name);
+                        }
+                        break;
+                    case DeserializeMethodEnum.Files:
+                        var localFilePath = Path.Combine(collectionPath, "collection");
+                        if (!Directory.Exists(localFilePath))
+                            Directory.CreateDirectory(localFilePath);
+                        foreach (var file in listofFiles.Where(f => f.Name != "thumbnail.png"))
+                        {
+                            //save to local folder
+                            FTPHlprs.DownloadFile(item.Path + "/content" + "/" + file.Name, localFilePath + "/" + file.Name);
                         }
                         break;
                 }
@@ -4440,6 +4471,12 @@ namespace adrilight.ViewModel
 
                 case "AppProfile":
                     await SaveItemToLocalCollection<AppProfile>(ProfileCollectionFolderPath, DeserializeMethodEnum.MultiJson, o, ".aap");
+                    break;
+                case "Gif":
+                    await SaveItemToLocalCollection<Gif>(GifsCollectionFolderPath, DeserializeMethodEnum.Files, o, "");
+                    break;
+                case "ChasingPattern":
+                    await SaveItemToLocalCollection<ChasingPattern>(ChasingPatternsCollectionFolderPath, DeserializeMethodEnum.Files, o, "AML");
                     break;
             }
         }
@@ -4469,7 +4506,7 @@ namespace adrilight.ViewModel
                 {
                     CurrentOnlineStoreView = "Collections";
                     CarouselImageLoading = true;
-                    Task.Run(() => UpdateStoreView());
+                    Task.Run(() => UpdateStoreView("all"));
                 }
             }
         }
@@ -4496,57 +4533,47 @@ namespace adrilight.ViewModel
         }
 
         public AmbinoOnlineStoreView StoreWindow { get; set; }
-
-        private void DownloadSelectedPalette(ColorPalette selectedPalette)
-        {
-            //find the palette with the same name
-            //var sameNamePalette = AvailablePallete.Where(p => p.Name == selectedPalette.Name).FirstOrDefault();
-            //if (CheckEqualityObjects(selectedPalette, sameNamePalette))
-            //    HandyControl.Controls.MessageBox.Show("ColorPaletteExisted", "File Existed", MessageBoxButton.OK, MessageBoxImage.Error);
-            //else
-            //{
-            //    AvailablePallete.Add(selectedPalette);
-            //    //save to local disk
-            //    var paletteJson = JsonConvert.SerializeObject(selectedPalette, new JsonSerializerSettings() {
-            //        TypeNameHandling = TypeNameHandling.Auto
-            //    });
-            //    File.WriteAllText(Path.Combine(PalettesCollectionFolderPath, selectedPalette.Name + ".col"), paletteJson);
-
-            //}
-        }
-
-        private async void UpdateStoreView()
+        private async void UpdateStoreView(DeviceType filter)
         {
             switch (CurrentSelectedCategory.Type)
             {
                 case "Palette":
-                    await GetStoreItem(paletteFolderpath);
-                    CarouselImageLoading = false;
+                    await GetStoreItem(paletteFolderpath, filter);
+                    break;
+                case "Pattern":
+                    await GetStoreItem(chasingPatternsFolderPath, filter);
+                    break;
+                case "Gif":
+                    await GetStoreItem(gifxelationsFolderPath, filter);
+                    break;
+                case "SupportedDevice":
+                    await GetStoreItem(SupportedDevicesFolderPath, filter);
+                    break;
+                case "Profiles":
+                    await GetStoreItem(ProfilesFolderPath, filter);
+                    break;
+            }
+        }
+        private async void UpdateStoreView(string filter)
+        {
+            switch (CurrentSelectedCategory.Type)
+            {
+                case "Palette":
+                    await GetStoreItem(paletteFolderpath, filter);
                     break;
 
                 case "Pattern":
-                    await GetStoreItem(chasingPatternsFolderPath);
-                    CarouselImageLoading = false;
+                    await GetStoreItem(chasingPatternsFolderPath, filter);
                     break;
 
-                case "Gifxelation":
-                    await GetStoreItem(gifxelationsFolderPath);
-                    CarouselImageLoading = false;
+                case "Gif":
+                    await GetStoreItem(gifxelationsFolderPath, filter);
                     break;
-
-                case "LEDSetup":
-                    await GetStoreItem(outputLEDSetupsFolderPath);
-                    CarouselImageLoading = false;
-                    break;
-
                 case "SupportedDevice":
-                    await GetStoreItem(SupportedDevicesFolderPath);
-                    CarouselImageLoading = false;
+                    await GetStoreItem(SupportedDevicesFolderPath, filter);
                     break;
-
                 case "Profiles":
-                    await GetStoreItem(ProfilesFolderPath);
-                    CarouselImageLoading = false;
+                    await GetStoreItem(ProfilesFolderPath, filter);
                     break;
             }
         }
@@ -4567,7 +4594,6 @@ namespace adrilight.ViewModel
         private const string paletteFolderpath = "/home/adrilight_enduser/ftp/files/ColorPalettes";
         private const string chasingPatternsFolderPath = "/home/adrilight_enduser/ftp/files/ChasingPatterns";
         private const string gifxelationsFolderPath = "/home/adrilight_enduser/ftp/files/Gifxelations";
-        private const string outputLEDSetupsFolderPath = "/home/adrilight_enduser/ftp/files/OutputLEDSetups";
         private const string SupportedDevicesFolderPath = "/home/adrilight_enduser/ftp/files/SupportedDevices";
         private const string ProfilesFolderPath = "/home/adrilight_enduser/ftp/files/Profiles";
 
@@ -4578,13 +4604,28 @@ namespace adrilight.ViewModel
         private const string thumbResourceFolderPath = "/home/adrilight_enduser/ftp/files/Resources/Thumbs";
 
         #endregion Resource Folder Path
+        public class StringIEqualityComparer : IEqualityComparer<string>
+        {
+            public bool Equals(string x, string y)
+            {
+                return x.Equals(y, StringComparison.OrdinalIgnoreCase);
+            }
 
-        private async Task GetStoreItem(string itemFolderPath)
+            public int GetHashCode(string obj)
+            {
+                return obj.GetHashCode();
+            }
+        }
+        private async Task GetStoreItem(string itemFolderPath, DeviceType filter)
         {
             AvailableOnlineItems = new ObservableCollection<IOnlineItemModel>();
 
             //get carousel image
             //get all available files
+            if (!FTPHlprs.sFTP.IsConnected)
+            {
+                SFTPInit();
+            }
             var listItemAddress = await FTPHlprs.GetAllFilesAddressInFolder(itemFolderPath);
             //display all available files to the view
             if (listItemAddress != null && listItemAddress.Count > 0)
@@ -4601,9 +4642,60 @@ namespace adrilight.ViewModel
                     info.Thumb = thumb;
                     await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
                     {
+                        if (info.TargetDevices != null && info.TargetDevices.Any(t => t.Name == filter.Name))
+                            AvailableOnlineItems.Add(info);
+                    });
+                }
+                if (AvailableOnlineItems.Count == 0)
+                    HandyControl.Controls.MessageBox.Show("Không có Item nào được tìm thấy, Hãy thử chọn mục khác", "No Item Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CarouselImageLoading = false;
+            }
+            else
+            {
+                HandyControl.Controls.MessageBox.Show("Không có item nào cho mục này, vui lòng thử lại sau", "Item notfound", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+        }
+        private async Task GetStoreItem(string itemFolderPath, string filter)
+        {
+            AvailableOnlineItems = new ObservableCollection<IOnlineItemModel>();
+
+            //get carousel image
+            //get all available files
+            if (!FTPHlprs.sFTP.IsConnected)
+            {
+                SFTPInit();
+            }
+            var listItemAddress = await FTPHlprs.GetAllFilesAddressInFolder(itemFolderPath);
+            var filteredItemAddress = new List<string>();
+            //display all available files to the view
+            if (listItemAddress != null && listItemAddress.Count > 0)
+            {
+                if (filter == "all")
+                    filteredItemAddress = listItemAddress;
+                else
+                {
+                    var lowerFilter = filter.ToLower();
+                    filteredItemAddress = listItemAddress.Where(a => a.ToLower().Contains(lowerFilter)).ToList();
+                }
+                foreach (var address in filteredItemAddress)
+                {
+                    //var item = FTPHlprs.GetFiles<T>(address);
+                    var thumbPath = address + "/thumb.png";
+                    var infoPath = address + "/info.json";
+                    var thumb = FTPHlprs.GetThumb(address + "/thumb.png").Result;
+                    var info = FTPHlprs.GetFiles<OnlineItemModel>(infoPath).Result;
+                    info.Path = address;
+
+                    info.Thumb = thumb;
+                    await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                    {
                         AvailableOnlineItems.Add(info);
                     });
                 }
+                if (AvailableOnlineItems.Count == 0)
+                    HandyControl.Controls.MessageBox.Show("Không có Item nào được tìm thấy, Hãy thử chọn mục khác", "No Item Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CarouselImageLoading = false;
             }
             else
             {
@@ -4640,6 +4732,12 @@ namespace adrilight.ViewModel
                     Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
                     Geometry = "chasingPattern"
                 };
+                var gif = new StoreCategory() {
+                    Name = "Gifs",
+                    Type = "Gif",
+                    Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
+                    Geometry = "gifxelation"
+                };
                 var supportedDevices = new StoreCategory() {
                     Name = "Devices",
                     Type = "SupportedDevice",
@@ -4655,8 +4753,10 @@ namespace adrilight.ViewModel
 
                 AvailableStoreCategories.Add(palettes);
                 AvailableStoreCategories.Add(chasingPatterns);
+                AvailableStoreCategories.Add(gif);
                 AvailableStoreCategories.Add(supportedDevices);
                 AvailableStoreCategories.Add(profiles);
+
             }
             if (CurrentSelectedCategory == null)
             {
@@ -8783,7 +8883,6 @@ namespace adrilight.ViewModel
             }
             var description = await FTPHlprs.GetStringContent(descriptionPath);
             item.MarkDownDescription = description;
-            CurrentOnlineStoreView = "Details";
         }
 
         public bool IsLiveViewOpen => SelectedViewPart == SelectableViewParts[1];
@@ -9182,7 +9281,7 @@ namespace adrilight.ViewModel
         {
             CurrentOnlineStoreView = "Collections";
             CarouselImageLoading = true;
-            Task.Run(() => UpdateStoreView());
+            Task.Run(() => UpdateStoreView("all"));
         }
 
         /// <summary>

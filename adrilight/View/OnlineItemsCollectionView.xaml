@@ -74,10 +74,18 @@
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="{x:Type ListViewItem}">
-                                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" Margin="5,10" CornerRadius="7" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
-                                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-
-                                    </Border>
+                                    <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
+                                        <Border x:Name="Bd" 
+                                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                                Margin="5,10" 
+                                                CornerRadius="7" 
+                                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                                Background="{TemplateBinding Background}" 
+                                                Padding="{TemplateBinding Padding}" 
+                                                SnapsToDevicePixels="true">
+                                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                        </Border>
+                                    </hc:TransitioningContentControl>
                                     <ControlTemplate.Triggers>
                                         <MultiTrigger>
                                             <MultiTrigger.Conditions>
@@ -132,7 +140,7 @@
                                 <Border CornerRadius="4" Margin="10">
                                     <Image Source="{Binding Thumb}" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
                                 </Border>
-                               
+
 
                             </Border>
 
@@ -147,9 +155,9 @@
                                                 <RowDefinition Height="auto"/>
                                             </Grid.RowDefinitions>
                                             <Grid  Grid.Row="0">
-                                              
-                                                    <TextBlock Margin="15,0"  VerticalAlignment="Top" HorizontalAlignment="Left" TextWrapping="Wrap" Text="{Binding DataContext.Name,RelativeSource={RelativeSource AncestorType=hc:Card}}" FontWeight="SemiBold" Style="{DynamicResource TextBlockSubTitle}"/>
-                                               
+
+                                                <TextBlock Margin="15,0"  VerticalAlignment="Top" HorizontalAlignment="Left" TextWrapping="Wrap" Text="{Binding DataContext.Name,RelativeSource={RelativeSource AncestorType=hc:Card}}" FontWeight="SemiBold" Style="{DynamicResource TextBlockSubTitle}"/>
+
                                             </Grid>
                                             <!--download button-->
                                             <Grid  Grid.Row="1">
@@ -161,71 +169,13 @@
                                                 </Button>
                                             </Grid>
                                         </Grid>
-                                       
+
 
                                     </Grid>
                                 </DataTemplate>
                             </hc:Card.FooterTemplate>
-
-
                         </hc:Card>
                     </DataTemplate>
-                    <!--<DataTemplate x:Key="_onlineChasingPattern" DataType="{x:Type mt:Motion}">
-                        <hc:Card BorderBrush="Transparent" ToolTip="{Binding Description}" hc:BorderElement.CornerRadius="7" Height="160"  Width="160"  Effect="{StaticResource EffectShadow2}"  Footer="{Binding Name}">
-                            <Border Background="Red"  CornerRadius="7,7,0,0" Style="{StaticResource BorderClip}">
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="MouseLeftButtonDown">
-                                        <i:InvokeCommandAction 
-                                            Command="{Binding Path=DataContext.SelectOnlineItemCommand, RelativeSource={RelativeSource AncestorType=ListView}}" 
-                                            CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}"/>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                                --><!--<ItemsControl ItemsSource="{Binding Frames[0]}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <UniformGrid Columns="16" Rows="1">
-
-                                            </UniformGrid>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border   Background="{Binding ., Converter={StaticResource ColorToBrushConverter}, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>--><!--
-
-                            </Border>
-
-                            <hc:Card.FooterTemplate>
-                                <DataTemplate>
-                                    --><!--Name and description+download--><!--
-                                    <Grid>
-
-
-                                        --><!--Name and description--><!--
-                                        <Grid>
-                                            <StackPanel>
-                                                <TextBlock Margin="12,12" VerticalAlignment="Top" HorizontalAlignment="Left" TextWrapping="Wrap" Text="{Binding DataContext.Name,RelativeSource={RelativeSource AncestorType=hc:Card}}" Style="{DynamicResource TextBlockSubTitleBold}"/>
-                                                <TextBlock HorizontalAlignment="Left" Margin="12,10,10,12" TextWrapping="Wrap" Text="{Binding DataContext.Owner,RelativeSource={RelativeSource AncestorType=hc:Card}}" Style="{DynamicResource TextBlockDefaultSecLight}"/>
-                                            </StackPanel>
-                                        </Grid>
-                                        --><!--download button--><!--
-                                        <Grid>
-                                            <Button Margin="12" HorizontalAlignment="Right" VerticalAlignment="Bottom" Padding="2" Width="40" Height="25" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0" Content="Get" Command="{Binding Path=DataContext.DownloadSelectedChasingPattern, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
-                                                <Button.Background>
-                                                    <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.2"/>
-                                                </Button.Background>
-                                            </Button>
-                                        </Grid>
-
-                                    </Grid>
-                                </DataTemplate>
-                            </hc:Card.FooterTemplate>
-
-
-                        </hc:Card>
-                    </DataTemplate>-->
                 </ResourceDictionary>
 
             </ResourceDictionary.MergedDictionaries>
@@ -246,9 +196,7 @@
             </Grid>
             <!--List of content-->
             <Grid Grid.Row="1">
-
                 <ListView ItemTemplate="{DynamicResource _onlineItemTemplate}" Background="Transparent" BorderThickness="0" ItemsSource="{Binding AvailableOnlineItems}">
-                
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel Orientation="Horizontal"/>
@@ -271,6 +219,7 @@
                     </ListView.Template>
                 </ListView>
                 <hc:LoadingLine HorizontalAlignment="Center" VerticalAlignment="Center" Width="200" Visibility="{Binding CarouselImageLoading,Converter={StaticResource Boolean2VisibilityConverter}}"/>
+                <TextBlock Visibility="{Binding AvailableOnlineItems.Count,Converter={StaticResource Object2VisibilityReConverter}}" Style="{DynamicResource TextBlockDefaultSecLight}" Text="Không có Item nào cho mục này với từ khóa đã chọn"/>
             </Grid>
         </Grid>
     </Grid>
