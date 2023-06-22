@@ -682,7 +682,7 @@ namespace adrilight.ViewModel
         public ICommand LaunchPIDEditWindowCommand { get; set; }
         public ICommand LaunchCompositionEditWindowCommand { get; set; }
         public ICommand EditSelectedPaletteCommand { get; set; }
-        public ICommand AddNewItemToCollectionCommand { get; set; }
+        public ICommand SubParamActionCommand { get; set; }
         public ICommand AddPickedSolidColorCommand { get; set; }
         public ICommand OpenExternalWindowsFromModeParameterCommand { get; set; }
         public ICommand ImportPaletteCardFromFileCommand { get; set; }
@@ -941,7 +941,12 @@ namespace adrilight.ViewModel
             get { return _availableBitmaps; }
             set { _availableBitmaps = value; RaisePropertyChanged(); }
         }
+        private ObservableCollection<GifCard> _availableGifs;
 
+        public ObservableCollection<GifCard> AvailableGifs {
+            get { return _availableGifs; }
+            set { _availableGifs = value; RaisePropertyChanged(); }
+        }
         public WriteableBitmap _greyBitmap;
 
         public WriteableBitmap GreyBitmap {
@@ -1260,7 +1265,7 @@ namespace adrilight.ViewModel
 
         private async Task RegisterDevice(IDeviceSettings device)
         {
-            device.PropertyChanged += (_, __) =>
+            device.PropertyChanged += async (_, __) =>
             {
                 WriteSingleDeviceInfoJson(device);
                 switch (__.PropertyName)
@@ -1268,7 +1273,7 @@ namespace adrilight.ViewModel
                     case nameof(device.CurrentActiveControlerIndex):
                         {
                             //update liveview
-                            GetItemsForLiveView();
+                            await Task.Run(() => GetItemsForLiveView());
                             UpdateLiveView();
                         }
                         break;
@@ -2292,7 +2297,7 @@ namespace adrilight.ViewModel
                     }
                 }
             });
-            AddNewItemToCollectionCommand = new RelayCommand<string>((p) =>
+            SubParamActionCommand = new RelayCommand<string>((p) =>
                  {
                      return true;
                  }, (p) =>
@@ -2312,13 +2317,33 @@ namespace adrilight.ViewModel
                              IdEditMode = IDMode.FID;
                              IsInIDEditStage = true;
                              break;
-
                          case "Add Palette":
                              OpenPaletteEditorWindow(16);
                              break;
 
                          case "Import Palette":
                              ImportPaletteFromFile();
+                             break;
+                         case "Import Gif":
+                             ImportGifFromFile();
+                             break;
+                         case "Import Pattern":
+                             ImportChasingPatternFromFile();
+                             break;
+                         case "Export Palette":
+                             var _paletteControl = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Palette).FirstOrDefault();
+                             var palette = (_paletteControl as ListSelectionParameter).SelectedValue;
+                             ExportItemForOnlineStore(palette);
+                             break;
+                         case "Export Gif":
+                             var _gifControl = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Gifs).FirstOrDefault();
+                             var gif = (_gifControl as ListSelectionParameter).SelectedValue;
+                             ExportItemForOnlineStore(gif);
+                             break;
+                         case "Export Pattern":
+                             var _patternControl = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.ChasingPattern).FirstOrDefault();
+                             var pattern = (_patternControl as ListSelectionParameter).SelectedValue;
+                             ExportItemForOnlineStore(pattern);
                              break;
                      }
                  });
@@ -2331,7 +2356,11 @@ namespace adrilight.ViewModel
                 {
                     case "screenRegionSelection":
                         ClickedRegionButtonParameter = p as CapturingRegionSelectionButtonParameter;
-                        OpenRegionSelectionWindow();
+                        OpenRegionSelectionWindow("screen");
+                        break;
+                    case "gifRegionSelection":
+                        ClickedRegionButtonParameter = p as CapturingRegionSelectionButtonParameter;
+                        OpenRegionSelectionWindow("gif");
                         break;
 
                     case "audioDevice":
@@ -2919,14 +2948,6 @@ namespace adrilight.ViewModel
             {
                 //OpenFFTPickerWindow();
             });
-            LaunchAdrilightStoreItemCeatorWindowCommand = new RelayCommand<object>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                CurrentOnlineItemToExport = p;
-                LaunchAdrilightStoreItemCreatorWindow();
-            });
 
             UnselectAllLiveiewItemCommand = new RelayCommand<string>((p) =>
             {
@@ -3308,7 +3329,7 @@ namespace adrilight.ViewModel
             SelectCardCommand = new RelayCommand<IDeviceSettings>((p) =>
             {
                 return p != null;
-            }, (p) =>
+            }, async (p) =>
             {
                 if (!Keyboard.IsKeyDown(Key.LeftCtrl) && !Keyboard.IsKeyDown(Key.RightCtrl))
                 {
@@ -3327,14 +3348,14 @@ namespace adrilight.ViewModel
                     if (CurrentDevice.IsSizeNeedUserDefine) // this device has default ledsetup so we need to tell user to select the led setup
                     {
                         OOTBStage = 0;
-                        System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                        await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
                         {
                             OpenLEDSteupSelectionWindows();
                         });
                     }
                     else
                     {
-                        GotoChild(p);
+                        await GotoChild(p);
                     }
                 }
                 else if (Keyboard.IsKeyDown(Key.LeftCtrl)) // device is selected with ctrl key, start multiple select
@@ -3562,7 +3583,16 @@ namespace adrilight.ViewModel
                 return p != null;
             }, (p) =>
             {
-                SaveCurrentSelectedRegion();
+                switch (p)
+                {
+                    case "screen":
+                        SaveCurrentSelectedScreenRegion();
+                        break;
+                    case "gif":
+                        SaveCurrentSelectedGifRegion();
+                        break;
+                }
+                ;
             });
             //    PreviousOutputCommand = new RelayCommand<string>((p) =>
             //{
@@ -4204,23 +4234,50 @@ namespace adrilight.ViewModel
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             Export.RestoreDirectory = true;
             string contentjson = "";
+            string version = "1.0.0";
             var content = CurrentContentForExport;
-            contentjson = JsonConvert.SerializeObject(content, new JsonSerializerSettings() {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
+
             if (Export.ShowDialog() == DialogResult.OK)
             {
                 //create directory with same name
                 var newFolder = Directory.CreateDirectory(Export.FileName);
                 var contentFolder = Directory.CreateDirectory(Path.Combine(Export.FileName, "content")).ToString();
                 //create main content
-                File.WriteAllText(Path.Combine(Export.FileName, "content", "config.json"), contentjson);
+                if (content is ColorPalette)
+                {
+                    contentjson = JsonConvert.SerializeObject(content, new JsonSerializerSettings() {
+                        TypeNameHandling = TypeNameHandling.Auto
+                    });
+                    File.WriteAllText(Path.Combine(Export.FileName, "content", "config.json"), contentjson);
+                }
+                else if (content is ChasingPattern)
+                {
+                    var pattern = content as ChasingPattern;
+                    version = pattern.Version;
+                    File.Copy(pattern.Path, Path.Combine(Path.Combine(Export.FileName, "content", pattern.Name)));
+                }
+                else if (content is Gif)
+                {
+                    var gif = content as Gif;
+                    File.Copy(gif.Path, Path.Combine(Path.Combine(Export.FileName, "content", gif.Name)));
+
+                }
+                if (content is ARGBLEDSlaveDevice)
+                {
+                    var device = content as ARGBLEDSlaveDevice;
+                    version = device.Version;
+                    contentjson = JsonConvert.SerializeObject(content, new JsonSerializerSettings() {
+                        TypeNameHandling = TypeNameHandling.Auto
+                    });
+                    File.WriteAllText(Path.Combine(Export.FileName, "content", "config.json"), contentjson);
+                }
                 //create info
                 var info = new OnlineItemModel() {
                     Name = CurrentItemForExport.Name,
                     Owner = CurrentItemForExport.Owner,
                     Description = CurrentItemForExport.Description,
                     Type = CurrentItemForExport.Type,
+                    Version = version,
                     TargetDevices = OnlineItemSelectedTargetTypes.ToList()
                 };
                 var infoJson = JsonConvert.SerializeObject(info, new JsonSerializerSettings() {
@@ -4300,6 +4357,22 @@ namespace adrilight.ViewModel
                 foreach (var deviceProfile in (p as AppProfile).DeviceProfiles)
                 {
                     OnlineItemSelectableTargetType.Add(deviceProfile.DeviceType);
+                }
+            }
+            else if (p.GetType() == typeof(ChasingPattern))
+            {
+                CurrentItemForExport.Name = (p as ChasingPattern).Name;
+                foreach (DeviceTypeEnum type in Enum.GetValues(typeof(DeviceTypeEnum)))
+                {
+                    OnlineItemSelectableTargetType.Add(new DeviceType(type));
+                }
+            }
+            else if (p.GetType() == typeof(Gif))
+            {
+                CurrentItemForExport.Name = (p as Gif).Name;
+                foreach (DeviceTypeEnum type in Enum.GetValues(typeof(DeviceTypeEnum)))
+                {
+                    OnlineItemSelectableTargetType.Add(new DeviceType(type));
                 }
             }
             onlineExportWindow = new OnlineItemExporterView();
@@ -5942,7 +6015,7 @@ namespace adrilight.ViewModel
             IsRegisteringGroup = false;
         }
 
-        private void RegisterGroupItem(List<FanMotor> childItems, ControlZoneGroup group)
+        private async void RegisterGroupItem(List<FanMotor> childItems, ControlZoneGroup group)
         {
             IsRegisteringGroup = true;
             foreach (var item in childItems)
@@ -5951,11 +6024,8 @@ namespace adrilight.ViewModel
                 item.IsSelectable = false;
                 item.IsInControlGroup = true;
                 item.GroupID = group.GroupUID;
+                await Task.Run(() => { item.CurrentActiveControlMode = group.MaskedControlZone.CurrentActiveControlMode; });
             }
-            group.MaskedControlZone.PropertyChanged += (_, __) =>
-            {
-                WriteSingleDeviceInfoJson(CurrentDevice);
-            };
             IsRegisteringGroup = false;
         }
 
@@ -6139,8 +6209,8 @@ namespace adrilight.ViewModel
                 newGroup.Border.IsSelected = true;
                 LiveViewItems.Add(newGroup.Border);
                 LiveViewSelectedItem = newGroup;
-                newGroup.MaskedControlZone.CurrentActiveControlMode = newGroup.MaskedControlZone.AvailableControlMode.First();
                 SelectedControlZone = newGroup.MaskedControlZone;
+                SelectedControlZone.CurrentActiveControlMode = newGroup.MaskedControlZone.AvailableControlMode.First();
                 //set display slave device
                 SelectedSlaveDevice = newGroup.MaskedSlaveDevice;
 
@@ -6461,72 +6531,70 @@ namespace adrilight.ViewModel
         private void GetItemsForLiveView()
         {
             IsInIsolateMode = false;
-            if (LiveViewItems == null)
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
-                LiveViewItems = new ObservableCollection<IDrawable>();
-            }
-            else
-            {
-                LiveViewItems.Clear();
-            }
-            LiveViewSelectedItems = new ObservableCollection<IDrawable>();
-            foreach (var device in CurrentDevice.AvailableLightingDevices)
-            {
-                var lightingDevice = device as ARGBLEDSlaveDevice;
 
-                LiveViewItems.Add(lightingDevice);
-            }
-
-            IDrawable lastSelectedItem = null;
-            foreach (var item in CurrentDevice.CurrentLiveViewZones)
-            {
-                (item as IDrawable).IsSelectable = true;
-                LiveViewItems.Add(item as IDrawable);
-                if ((item as IDrawable).IsSelected)
-                    lastSelectedItem = item as IDrawable;
-            }
-            if (CurrentDevice.ControlZoneGroups != null)
-            {
-                foreach (var group in CurrentDevice.CurrentLiveViewGroup)
+                if (LiveViewItems == null)
                 {
-                    //register group child to masked control
-                    var groupItems = GetGroupChildItems(group, CurrentDevice);
-                    if (GetGroupBorder(groupItems, group) != null)
-                    {
-                        LiveViewItems.Add(group.Border);
-                        if ((group.Border.IsSelected))
-                            lastSelectedItem = group.Border;
-                        //disable selection items in group
-                        foreach (var item in groupItems)
-                        {
-                            (item as IDrawable).IsSelectable = false;
-                        }
-                    }
-                    //switch (group.Type)
-                    //{
-                    //    case ControllerTypeEnum.LightingController:
-                    //        RegisterGroupItem(groupItems.Cast<LEDSetup>().ToList(), group);
-                    //        break;
-                    //    case ControllerTypeEnum.PWMController:
-                    //        RegisterGroupItem(groupItems.Cast<FanMotor>().ToList(), group);
-                    //        break;
-                    //}
+                    LiveViewItems = new ObservableCollection<IDrawable>();
                 }
-            }
-            //reset toolbard width
-            ToolBarWidth = 450;
-            if (IsInIDEditStage)
-            {
-                GetThingsReadyFroIDEdit();
-            }
-            if (lastSelectedItem != null)
-            {
-                SelectLiveViewItemCommand.Execute(lastSelectedItem);
-            }
-            else
-                SelectLiveViewItemCommand.Execute(LiveViewItems.Where(i => i.IsSelectable).First());
+                else
+                {
+                    LiveViewItems.Clear();
+                }
+                LiveViewSelectedItems = new ObservableCollection<IDrawable>();
+                foreach (var device in CurrentDevice.AvailableLightingDevices)
+                {
+                    var lightingDevice = device as ARGBLEDSlaveDevice;
 
-            ShowSelectedItemToolbar = true;
+                    LiveViewItems.Add(lightingDevice);
+                }
+
+                IDrawable lastSelectedItem = null;
+                foreach (var item in CurrentDevice.CurrentLiveViewZones)
+                {
+                    (item as IDrawable).IsSelectable = true;
+                    LiveViewItems.Add(item as IDrawable);
+                    if ((item as IDrawable).IsSelected)
+                        lastSelectedItem = item as IDrawable;
+                }
+                if (CurrentDevice.ControlZoneGroups != null)
+                {
+                    foreach (var group in CurrentDevice.CurrentLiveViewGroup)
+                    {
+                        //register group child to masked control
+                        var groupItems = GetGroupChildItems(group, CurrentDevice);
+                        if (GetGroupBorder(groupItems, group) != null)
+                        {
+                            LiveViewItems.Add(group.Border);
+                            if ((group.Border.IsSelected))
+                                lastSelectedItem = group.Border;
+                            //disable selection items in group
+                            foreach (var item in groupItems)
+                            {
+                                (item as IDrawable).IsSelectable = false;
+                            }
+                        }
+
+                    }
+                }
+                //reset toolbard width
+                ToolBarWidth = 450;
+                if (IsInIDEditStage)
+                {
+                    GetThingsReadyFroIDEdit();
+                }
+                if (lastSelectedItem != null)
+                {
+                    SelectLiveViewItemCommand.Execute(lastSelectedItem);
+                }
+                else
+                    SelectLiveViewItemCommand.Execute(LiveViewItems.Where(i => i.IsSelectable).First());
+
+                ShowSelectedItemToolbar = true;
+            });
+
+
         }
 
         private void GetThingsReadyFroIDEdit()
@@ -6827,7 +6895,7 @@ namespace adrilight.ViewModel
             }
         }
         public bool IsRegionSelectionOpen { get; set; }
-        private RegionSelectionWindow regionSelectionView { get; set; }
+        private HandyControl.Controls.Window regionSelectionView { get; set; }
         public CapturingRegionSelectionButtonParameter ClickedRegionButtonParameter { get; set; }
         private double _adjustingRectangleWidth;
 
@@ -6841,19 +6909,36 @@ namespace adrilight.ViewModel
             }
         }
         public WriteableBitmap SelectedBitmap => ClickedRegionButtonParameter.CapturingSourceIndex > 0 ? AvailableBitmaps[ClickedRegionButtonParameter.CapturingSourceIndex].Bitmap : AvailableBitmaps[0].Bitmap;
-        private void OpenRegionSelectionWindow()
+        private void OpenRegionSelectionWindow(string mode)
         {
-            //add virtual borders
             if (ClickedRegionButtonParameter == null)
                 return;
-            BitmapCollectionInit();
-            var index = ClickedRegionButtonParameter.CapturingSourceIndex > 0 ? ClickedRegionButtonParameter.CapturingSourceIndex : 0;
-            CalculateAdjustingRectangle(AvailableBitmaps[index].Bitmap, ClickedRegionButtonParameter.CapturingRegion);
-            regionSelectionView = new RegionSelectionWindow();
+            switch (mode)
+            {
+                case "screen":
+                    ScreenBitmapCollectionInit();
+                    var index = ClickedRegionButtonParameter.CapturingSourceIndex > 0 ? ClickedRegionButtonParameter.CapturingSourceIndex : 0;
+                    CalculateAdjustingRectangle(AvailableBitmaps[index].Bitmap, ClickedRegionButtonParameter.CapturingRegion);
+                    regionSelectionView = new ScreenRegionSelectionWindow();
+                    IsRegionSelectionOpen = true;
+                    break;
+                case "gif":
+                    GifsCollectionInit();
+                    var _gifControl = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Gifs).FirstOrDefault() as ListSelectionParameter;
+                    var selectedGif = _gifControl.SelectedValue;
+                    ClickedRegionButtonParameter.CapturingSourceIndex = _gifControl.AvailableValues.IndexOf(_gifControl.SelectedValue);
+                    Bitmap img = new Bitmap((selectedGif as Gif).Path);
+                    CalculateAdjustingRectangle(img, ClickedRegionButtonParameter.CapturingRegion);
+                    regionSelectionView = new GifRegionSelectionWindow();
+                    break;
+            }
+
             regionSelectionView.Owner = System.Windows.Application.Current.MainWindow;
             regionSelectionView.Closing += (_, __) => IsRegionSelectionOpen = false;
             regionSelectionView.Show();
-            IsRegionSelectionOpen = true;
+
+
+
         }
         public void CalculateAdjustingRectangle(WriteableBitmap bitmap, CapturingRegion region)
         {
@@ -6876,7 +6961,28 @@ namespace adrilight.ViewModel
                 Height = height
             };
         }
-        private void SaveCurrentSelectedRegion()
+        public void CalculateAdjustingRectangle(Bitmap bitmap, CapturingRegion region)
+        {
+            if (region.ScaleX > 1 || region.ScaleX < 0)
+                region.ScaleX = 0;
+            if (region.ScaleY > 1 || region.ScaleY < 0)
+                region.ScaleY = 0;
+            if (region.ScaleWidth > 1 || region.ScaleWidth < 0)
+                region.ScaleWidth = 1;
+            if (region.ScaleHeight > 1 || region.ScaleHeight < 0)
+                region.ScaleHeight = 1;
+            var left = region.ScaleX * bitmap.Width;
+            var top = region.ScaleY * bitmap.Height;
+            var width = region.ScaleWidth * bitmap.Width;
+            var height = region.ScaleHeight * bitmap.Height;
+            RegionSelectionRect = new Border() {
+                Left = left,
+                Top = top,
+                Width = width,
+                Height = height
+            };
+        }
+        private void SaveCurrentSelectedScreenRegion()
         {
             var index = ClickedRegionButtonParameter.CapturingSourceIndex > 0 ? ClickedRegionButtonParameter.CapturingSourceIndex : 0;
             var bitmap = AvailableBitmaps[index].Bitmap;
@@ -6889,7 +6995,38 @@ namespace adrilight.ViewModel
             ClickedRegionButtonParameter.CapturingSourceRect = new Rect(0, 0, bitmap.Width, bitmap.Height);
             regionSelectionView.Close();
         }
-        public void BitmapCollectionInit()
+        private void SaveCurrentSelectedGifRegion()
+        {
+
+            var _gifControl = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Gifs).FirstOrDefault() as ListSelectionParameter;
+            var selectedGif = _gifControl.SelectedValue;
+            Bitmap bitmap = new Bitmap((selectedGif as Gif).Path);
+            var newRegion = new CapturingRegion(
+                RegionSelectionRect.Left / bitmap.Width,
+                RegionSelectionRect.Top / bitmap.Height,
+                RegionSelectionRect.Width / bitmap.Width,
+                RegionSelectionRect.Height / bitmap.Height);
+            ClickedRegionButtonParameter.CapturingRegion = newRegion;
+            ClickedRegionButtonParameter.CapturingSourceRect = new Rect(0, 0, bitmap.Width / 8, bitmap.Height / 8);
+            regionSelectionView.Close();
+        }
+        public void GifsCollectionInit()
+        {
+            AvailableGifs = new ObservableCollection<GifCard>();
+            var _gifControl = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Gifs).FirstOrDefault() as ListSelectionParameter;
+            foreach (var gif in _gifControl.AvailableValues)
+            {
+                Bitmap bmp = new Bitmap((gif as Gif).Path);
+                AvailableGifs.Add(new GifCard() {
+                    Name = gif.Name,
+                    Width = bmp.Width,
+                    Height = bmp.Height,
+                    Path = (gif as Gif).Path
+                });
+                bmp.Dispose();
+            }
+        }
+        public void ScreenBitmapCollectionInit()
         {
             AvailableBitmaps = new ObservableCollection<DesktopFrameCard>();
             lock (AvailableBitmaps)
@@ -7108,7 +7245,35 @@ namespace adrilight.ViewModel
                 AddNewPaletteToCollection(palette);
             }
         }
+        private void ImportChasingPatternFromFile()
+        {
+            var motion = LocalFileHlprs.OpenImportFileDialog("AML", "AML files (*.AML)|*.Aml|Text files (*.txt)|*.Txt");
 
+            if (motion != null)
+            {
+                var newPattern = new ChasingPattern() {
+                    Path = motion,
+                    Name = Path.GetFileName(motion),
+                    Owner = "User imported Pattern"
+
+                };
+                AddNewChasingPatternToCollection(newPattern);
+            }
+        }
+        private void ImportGifFromFile()
+        {
+            var gif = LocalFileHlprs.OpenImportFileDialog("gif", "gif files (*.gif)|*.Gif|Image files (*.jpg)|*.Jpeg");
+            if (gif != null)
+            {
+                var newGif = new Gif() {
+                    Path = gif,
+                    Name = Path.GetFileName(gif),
+                    Owner = "User imported Gif"
+
+                };
+                AddNewGifToCollection(newGif);
+            }
+        }
         private void OpenPaletteEditorWindow(int numColor)
         {
             ColorList = new ObservableCollection<ColorEditingObject>();
@@ -7135,12 +7300,6 @@ namespace adrilight.ViewModel
             //read current collection '
             var currentParam = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Color).FirstOrDefault() as ListSelectionParameter;
             currentParam.AddItemToCollection(newColor);
-            //var currentCollectionPath = currentParam.SelectedValueLocalPath.Path;
-            //var currentCollection = currentParam.AvailableValue;
-            //currentCollection.Insert(0, newColor);
-            //WriteSimpleJson(currentCollection, Path.Combine(currentCollectionPath, "collection.json"));
-            //currentParam.RefreshCollection();
-            //SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Color).FirstOrDefault().Value = 0;
         }
 
         private void AddNewPaletteToCollection(ColorPalette source)
@@ -7148,6 +7307,16 @@ namespace adrilight.ViewModel
             var currentParam = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Palette).FirstOrDefault() as ListSelectionParameter;
             currentParam.AddItemToCollection(source);
             AddNewPaletteDialog?.Close();
+        }
+        private void AddNewChasingPatternToCollection(ChasingPattern source)
+        {
+            var currentParam = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.ChasingPattern).FirstOrDefault() as ListSelectionParameter;
+            currentParam.AddItemToCollection(source);
+        }
+        private void AddNewGifToCollection(Gif gif)
+        {
+            var currentParam = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Gifs).FirstOrDefault() as ListSelectionParameter;
+            currentParam.AddItemToCollection(gif);
         }
 
         private void WriteSimpleJson(object obj, string path)
@@ -7698,7 +7867,7 @@ namespace adrilight.ViewModel
             OpenSurfaceEditorWindow();
         }
 
-        private void SaveCurrentSurfaceLayout()
+        private async void SaveCurrentSurfaceLayout()
         {
             var screens = SurfaceEditorItems.OfType<IDrawable>().Where(d => d is ScreenBound);
             foreach (var item in SurfaceEditorItems.Where(i => i is ARGBLEDSlaveDevice))
@@ -7708,8 +7877,15 @@ namespace adrilight.ViewModel
 
             if (IsLiveViewOpen)
             {
-                GetItemsForLiveView();
+                await Task.Run(() => GetItemsForLiveView());
                 UpdateLiveView();
+            }
+            else
+            {
+                foreach (var device in AvailableDevices)
+                {
+                    await Task.Run(() => UpdateDeviceGroupLayout(device));
+                }
             }
             surfaceeditorWindow.Close();
             surfaceeditorWindow = null;
@@ -7717,7 +7893,17 @@ namespace adrilight.ViewModel
             SurfaceEditorSelectedItems = null;
             IsRichCanvasWindowOpen = false;
         }
-
+        private void UpdateDeviceGroupLayout(IDeviceSettings device)
+        {
+            if (device.ControlZoneGroups != null)
+            {
+                foreach (var group in device.ControlZoneGroups)
+                {
+                    var groupItems = GetGroupChildItems(group, device);
+                    GetGroupBorder(groupItems, group);
+                }
+            }
+        }
         private void ResetPID()
         {
             CountPID = 0;
@@ -7813,6 +7999,14 @@ namespace adrilight.ViewModel
                     SurfaceEditorItems.Add(slaveDevice as ARGBLEDSlaveDevice);
                 }
             }
+            var border = new ScreenBound() {
+                Width = 2000,
+                Height = 2000,
+                ShouldBringIntoView = true,
+                IsDraggable = false,
+                IsSelectable = false
+            };
+            SurfaceEditorItems.Add(border);
             surfaceeditorWindow = new SurfaceEditorWindow();
             IsRichCanvasWindowOpen = true;
 
@@ -7834,18 +8028,6 @@ namespace adrilight.ViewModel
 
         private OnlineItemExporterView itemExporter { get; set; }
         public object CurrentOnlineItemToExport { get; set; }
-
-        private void LaunchAdrilightStoreItemCreatorWindow()
-        {
-            //set current selected online item
-            CurrentSelectedOnlineItem = new OnlineItemModel() {
-                Name = "Change Name here",
-                Description = "Edit Description here",
-                Owner = "Enter the Name of the owner(ex ambino, corsair)",
-            };
-            itemExporter = new OnlineItemExporterView();
-            itemExporter.ShowDialog();
-        }
         private ObservableCollection<ISlaveDevice> _availableARGBSlaveDevices;
 
         public ObservableCollection<ISlaveDevice> AvailableARGBSlaveDevices {
@@ -7873,9 +8055,17 @@ namespace adrilight.ViewModel
                 if (File.Exists(Path.Combine(deviceFolder, "config.json")))
                 {
                     var json = File.ReadAllText(Path.Combine(deviceFolder, "config.json"));
-                    var existedDevice = JsonConvert.DeserializeObject<ARGBLEDSlaveDevice>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    try
+                    {
+                        var existedDevice = JsonConvert.DeserializeObject<ARGBLEDSlaveDevice>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                        AvailableARGBSlaveDevices.Add(existedDevice);
+                    }
+                    catch (Exception ex)
+                    {
+                        continue;
+                    }
                     // existedDevice.Thumbnail = Path.Combine(deviceFolder, "thumbnail.png");
-                    AvailableARGBSlaveDevices.Add(existedDevice);
+
                 }
             }
 
@@ -8381,7 +8571,7 @@ namespace adrilight.ViewModel
                 {
                     ResourceHlprs.CopyResource(resourceName, Path.Combine(collectionFolder, resourceName.Remove(0, 36)));
                 }
-                var config = new ResourceLoaderConfig(nameof(ChasingPattern), DeserializeMethodEnum.MultiJson);
+                var config = new ResourceLoaderConfig(nameof(ChasingPattern), DeserializeMethodEnum.Files);
                 var configJson = JsonConvert.SerializeObject(config, new JsonSerializerSettings() {
                     TypeNameHandling = TypeNameHandling.Auto
                 });
@@ -8962,11 +9152,11 @@ namespace adrilight.ViewModel
             SelectLiveViewItemCommand.Execute(selectedItems.First());
         }
 
-        public void GotoChild(IDeviceSettings selectedDevice)
+        public async Task GotoChild(IDeviceSettings selectedDevice)
         {
             SelectedViewPart = SelectableViewParts[1];
             CurrentDevice = selectedDevice;
-            GetItemsForLiveView();
+            await Task.Run(() => GetItemsForLiveView());
             UpdateLiveView();
             IsSplitLightingWindowOpen = true;
         }

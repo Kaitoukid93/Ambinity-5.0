@@ -254,7 +254,7 @@
                                                     <TextBlock  Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox}}" />
                                                 </DataTemplate>
                                             </GroupBox.HeaderTemplate>
-                                            <Button Style="{DynamicResource _lowProfileDefaultButton}" Command="{Binding DataContext.AddNewItemToCollectionCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}"
+                                            <Button Style="{DynamicResource _lowProfileDefaultButton}" Command="{Binding DataContext.SubParamActionCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}"
                                                 CommandParameter="{Binding CommandParameter}"
                                                 HorizontalAlignment="Right"
                                                 Content="{Binding CommandParameter}">
@@ -452,9 +452,9 @@
                                                             <ColumnDefinition Width="auto"/>
                                                             <ColumnDefinition Width="*"/>
                                                         </Grid.ColumnDefinitions>
-                                                        <Grid Margin="10,5">
+                                                        <Grid Margin="10,10">
                                                             <StackPanel>
-                                                                <TextBlock HorizontalAlignment="Left" Text="{Binding SourceName}" Style="{DynamicResource TextBlockSubTitleBold}"/>
+                                                                <TextBlock HorizontalAlignment="Left" Text="CAPTURING INFOMATION" Margin="0,10,0,5" FontWeight="SemiBold" Style="{DynamicResource TextBlockDefault}"/>
                                                                 <StackPanel Orientation="Horizontal">
                                                                     <TextBlock HorizontalAlignment="Left" Text="Scaled size : " Style="{DynamicResource TextBlockDefaultSecLight}"/>
                                                                     <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}">
@@ -470,7 +470,7 @@
                                                                     <TextBlock HorizontalAlignment="Left" Text="Capturing region : " Style="{DynamicResource TextBlockDefaultSecLight}"/>
                                                                     <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}">
                                                                         <TextBlock.Text>
-                                                                            <MultiBinding StringFormat="{}[{0:0.##},{1:0.##},{2:0.##},{3:0.##}]">
+                                                                            <MultiBinding StringFormat="{}[{0:0.##}-{1:0.##} | {2:0.##}-{3:0.##}]">
                                                                                 <Binding Path="Region.Left" />
                                                                                 <Binding Path="Region.Top" />
                                                                                 <Binding Path="Region.Width" />
@@ -481,7 +481,7 @@
                                                                 </StackPanel>
                                                             </StackPanel>
                                                         </Grid>
-                                                        <Viewbox HorizontalAlignment="Right" Grid.Column="1" Margin="10">
+                                                        <Viewbox MaxWidth="200" MaxHeight="200" HorizontalAlignment="Right" Grid.Column="1" Margin="10">
                                                             <Border BorderThickness="1" BorderBrush="{DynamicResource SecondaryBorderBrush}">
                                                                 <Canvas Background="{DynamicResource SecondaryRegionBrush}" Width="{Binding Canvas.Width}" Height="{Binding Canvas.Height}">
                                                                     <Rectangle Fill="{DynamicResource primaryBackgroundBrush}" Stroke="{DynamicResource PrimaryBrush}"

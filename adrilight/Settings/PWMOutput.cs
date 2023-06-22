@@ -1,12 +1,6 @@
 ﻿using adrilight.Util;
-using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace adrilight.Settings
 {
@@ -47,7 +41,7 @@ namespace adrilight.Settings
         public ISlaveDevice SlaveDevice { get => _slaveDevice; set { Set(() => SlaveDevice, ref _slaveDevice, value); } }
         public string Geometry { get => _geometry; set { Set(() => Geometry, ref _geometry, value); } }
         public string OutputInterface { get; set; }
-
+        public int DisplayOutputID => OutputID + 1;
         public Rectangle Rectangle { get; set; }
 
 
@@ -56,7 +50,7 @@ namespace adrilight.Settings
         /// shortcuts for setting and getting value
         /// </summary>
         /// <param name="value"></param>
-        public void SetPWM(IControlZone zone,int pwmValue)
+        public void SetPWM(IControlZone zone, int pwmValue)
         {
             var currentPWMMode = zone.CurrentActiveControlMode as PWMMode;
             currentPWMMode.SetPWM(pwmValue);
@@ -66,7 +60,7 @@ namespace adrilight.Settings
         public int GetPWM(IControlZone zone)
         {
             var currentPWMMode = zone.CurrentActiveControlMode as PWMMode;
-           return currentPWMMode.GetPWMValue();
+            return currentPWMMode.GetPWMValue();
         }
         public PWMModeEnum GetCurrentPWMMode(IControlZone zone)
         {

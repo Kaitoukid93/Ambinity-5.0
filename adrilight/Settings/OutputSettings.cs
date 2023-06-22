@@ -1,22 +1,11 @@
 ﻿using adrilight.Settings;
-using adrilight.Spots;
-using adrilight.Util;
 using adrilight.ViewModel;
-using adrilight_effect_analyzer.Model;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using Color = System.Windows.Media.Color;
 
 namespace adrilight
 {
@@ -74,12 +63,12 @@ namespace adrilight
         //private int _outputScreenCaptureWBGreen = 100;
         //private int _outputScreenCaptureWBBlue = 100;
         //private int _outputScreenCapturePositionIndex = 0;
-    
+
         //private int _outputMusicSensitivity = 10;
         //private int _outputMusicVisualizerFreq = 0;
         //private bool _outputIsSystemSync = true;
         //private bool _isBrightnessPopupOpen = false;
- 
+
         //private int _vUOrientation = 0;
         //private int _vUMode = 0;
         //private IGifCard _outputSelectedGif = null;
@@ -102,11 +91,13 @@ namespace adrilight
         //public int VUOrientation { get => _vUOrientation; set { Set(() => VUOrientation, ref _vUOrientation, value); } }
         //[Reflectable]
         //public int OutputGifSpeed { get => _outputGifSpeed; set { Set(() => OutputGifSpeed, ref _outputGifSpeed, value); } }
-       
+
         public string TargetDevice { get => _targetDevice; set { Set(() => TargetDevice, ref _targetDevice, value); } }
         //[Reflectable]
         //public int VUMode { get => _vUMode; set { Set(() => VUMode, ref _vUMode, value); } }
         public int OutputID { get => _outputID; set { Set(() => OutputID, ref _outputID, value); } }
+        [JsonIgnore]
+        public int DisplayOutputID => OutputID + 1;
         public OutputTypeEnum OutputType { get => _outputType; set { Set(() => OutputType, ref _outputType, value); } }
         public string OutputDescription { get => _outputDescription; set { Set(() => OutputDescription, ref _outputDescription, value); } }
         //public bool IsBrightnessPopupOpen { get => _isBrightnessPopupOpen; set { Set(() => IsBrightnessPopupOpen, ref _isBrightnessPopupOpen, value); } }
@@ -122,7 +113,7 @@ namespace adrilight
         public Rectangle Rectangle { get; set; }
         public string OutputUniqueID { get => _outputUniqueID; set { Set(() => OutputUniqueID, ref _outputUniqueID, value); } }
         //[Reflectable]
-       
+
         public bool OutputIsVisible { get => _outputIsVisible; set { Set(() => OutputIsVisible, ref _outputIsVisible, value); } }
         //[Reflectable]
         //public int OutputBrightness { get => _outputBrightness; set { Set(() => OutputBrightness, ref _outputBrightness, value); } }
@@ -134,7 +125,7 @@ namespace adrilight
         //public bool OutputUseLinearLighting { get => _outputUseLinearLighting; set { Set(() => OutputUseLinearLighting, ref _outputUseLinearLighting, value); } }
         //[Reflectable]
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); } }
-     
+
         //[Reflectable]
         //public Color OutputAtmosphereStartColor { get => _outputAtmosphereStartColor; set { Set(() => OutputAtmosphereStartColor, ref _outputAtmosphereStartColor, value); } }
         //[Reflectable]
@@ -154,7 +145,7 @@ namespace adrilight
         //[Reflectable]
         //public int OutputSelectedMusicPalette { get => _outputSelectedMusicPalette; set { Set(() => OutputSelectedMusicPalette, ref _outputSelectedMusicPalette, value); } }
         //[Reflectable]
-       
+
         //[Reflectable]
         //public int OutputSelectedAudioDevice { get => _outputSelectedAudioDevice; set { Set(() => OutputSelectedAudioDevice, ref _outputSelectedAudioDevice, value); } } 
         //[Reflectable]
@@ -185,7 +176,7 @@ namespace adrilight
         //[Reflectable]
         //public IColorPalette OutputCurrentActivePalette { get => _outputCurrentActivePalette; set { Set(() => OutputCurrentActivePalette, ref _outputCurrentActivePalette, value); } }
         //[Reflectable]
-      
+
         //public bool IsInSpotEditWizard { get => _isInSpotEditWizard; set { Set(() => IsInSpotEditWizard, ref _isInSpotEditWizard, value); } }
         //[Reflectable]
         public string Geometry { get => _geometry; set { Set(() => Geometry, ref _geometry, value); } }
@@ -212,14 +203,14 @@ namespace adrilight
 
 
 
-        
+
         //public List<ILightingMode> AvailableLightingMode { get => _availableLightingMode; set { Set(() => AvailableLightingMode, ref _availableLightingMode, value); } }
         //public ILightingMode CurrentActiveLightingMode => AvailableLightingMode[CurrentActiveLightingModeIndex];
         //public int CurrentActiveLightingModeIndex { get => _currentActiveLightingModeIndex; set { Set(() => CurrentActiveLightingModeIndex, ref _currentActiveLightingModeIndex, value); } }
 
-     
-       
-     
+
+
+
         public string OutputInterface { get; set; }
         public ISlaveDevice SlaveDevice { get => _slaveDevice; set { Set(() => SlaveDevice, ref _slaveDevice, value); } }
 
@@ -286,7 +277,7 @@ namespace adrilight
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
-        public Rect GetRect => new Rect(Left, Top, Width,   Height);
+        public Rect GetRect => new Rect(Left, Top, Width, Height);
         protected virtual void OnLeftChanged(double delta) { }
 
         protected virtual void OnTopChanged(double delta) { }
@@ -369,7 +360,8 @@ namespace adrilight
             //return speed;
             return 0;
         }
-        public int GetCurrentSpeedMode() {
+        public int GetCurrentSpeedMode()
+        {
             //SpeedModeEnum speedMode = SpeedModeEnum.manual;
             //var speedControl = ControlableProperties.Where(c => c.Type == OutputControlablePropertyEnum.Speed).FirstOrDefault();  
             //if (speedControl != null)
@@ -377,7 +369,7 @@ namespace adrilight
             //    var currentSpeedMode = speedControl.CurrentActiveControlMode as SpeedMode;
             //    speedMode = currentSpeedMode.SpeedType;
             //}
-            return 0 ;
+            return 0;
         }
 
         public bool SetScale(double scaleX, double scaleY, bool keepOrigin) => throw new NotImplementedException();

@@ -1,4 +1,4 @@
-﻿<hc:Window x:Class="adrilight.View.RegionSelectionWindow"
+﻿<hc:Window x:Class="adrilight.View.ScreenRegionSelectionWindow"
            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -243,7 +243,7 @@
                     <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="10,10,10,10">
                     </hc:Divider>
                     <StackPanel Orientation="Vertical">
-                        <TextBlock TextWrapping="Wrap" MaxWidth="240" Text="Nếu bạn không thấy màn hình của mình hiển thị ở đây, hoặc không hiển thị nội dung, hãy chắc chắn rằng bạn đã cho phép capture nhiều màn hình trong cài đặt"/>
+                        <TextBlock TextWrapping="Wrap" MaxWidth="240" Text="Nếu bạn không thấy màn hình của mình hiển thị ở đây, hoặc không hiển thị nội dung, hãy chắc chắn rằng bạn đã cho phép capture [nhiều màn hình] trong [cài đặt]"/>
                         <Button Command="{Binding OpenAppSettingsWindowCommand}" Padding="0" Background="Transparent" BorderThickness="0">
                             <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="Mở cài đặt App"/>
                         </Button>
@@ -289,7 +289,7 @@
             <StackPanel HorizontalAlignment="Right" Grid.Column="2" Orientation="Horizontal">
 
                 <Button Click="Button_Click_Cancel"  Margin="15" Content="Cancel"  Style="{DynamicResource ButtonPrimary}" Background="Transparent" />
-                <Button Command="{Binding SaveCurrentSelectedRegionCommand}" CommandParameter="apply" Margin="15" Content="Done"  Style="{DynamicResource ButtonPrimary}"/>
+                <Button Command="{Binding SaveCurrentSelectedRegionCommand}" CommandParameter="screen" Margin="15" Content="Done"  Style="{DynamicResource ButtonPrimary}"/>
             </StackPanel>
         </Grid>
     </Grid>

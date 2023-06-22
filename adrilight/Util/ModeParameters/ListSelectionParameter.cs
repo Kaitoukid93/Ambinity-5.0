@@ -140,19 +140,7 @@ namespace adrilight.Util.ModeParameters
                                         }
                                     }
                                     break;
-                                case nameof(ChasingPattern):
-                                    foreach (var file in files)
-                                    {
-                                        var data = new ChasingPattern() {
-                                            Name = Path.GetFileName(file),
-                                            Description = "xxx",
-                                            Type = ChasingPatternTypeEnum.BlacknWhite,
-                                            Path = file
 
-                                        };
-                                        AvailableValues.Add(data);
-                                    }
-                                    break;
                             }
                             break;
                         case DeserializeMethodEnum.Files:
@@ -165,6 +153,19 @@ namespace adrilight.Util.ModeParameters
                                             Name = Path.GetFileName(file),
                                             Description = "Ambino Default Gif Collection",
                                             Path = file
+                                        };
+                                        AvailableValues.Add(data);
+                                    }
+                                    break;
+                                case nameof(ChasingPattern):
+                                    foreach (var file in files)
+                                    {
+                                        var data = new ChasingPattern() {
+                                            Name = Path.GetFileName(file),
+                                            Description = "xxx",
+                                            Type = ChasingPatternTypeEnum.BlacknWhite,
+                                            Path = file
+
                                         };
                                         AvailableValues.Add(data);
                                     }
@@ -204,6 +205,7 @@ namespace adrilight.Util.ModeParameters
                 var config = JsonConvert.DeserializeObject<ResourceLoaderConfig>(configJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
                 string t = config.DataType;
                 var m = config.MethodEnum;
+                var collectionFolderPath = Path.Combine(path, "collection");
                 switch (m)
                 {
                     case DeserializeMethodEnum.SingleJson:
@@ -211,9 +213,22 @@ namespace adrilight.Util.ModeParameters
                         //SelectedValueIndex = 0;
                         break;
                     case DeserializeMethodEnum.MultiJson:
-
-                        var collectionFolderPath = Path.Combine(path, "collection");
-                        JsonHelpers.WriteSimpleJson(item, Path.Combine(collectionFolderPath, item.Name + ".col"));
+                        if (item is ColorPalette)
+                        {
+                            JsonHelpers.WriteSimpleJson(item, Path.Combine(collectionFolderPath, item.Name + ".col"));
+                        }
+                        break;
+                    case DeserializeMethodEnum.Files:
+                        if (item is Gif)
+                        {
+                            var gif = item as Gif;
+                            File.Copy(gif.Path, Path.Combine(collectionFolderPath, item.Name));
+                        }
+                        else if (item is ChasingPattern)
+                        {
+                            var pattern = item as ChasingPattern;
+                            File.Copy(pattern.Path, Path.Combine(collectionFolderPath, item.Name));
+                        }
                         break;
                 }
             }

@@ -1,16 +1,10 @@
-﻿using adrilight_effect_analyzer.Model;
-using GalaSoft.MvvmLight;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using GalaSoft.MvvmLight;
 
 namespace adrilight.Util
 {
-    public  class ChasingPattern:ViewModelBase, IParameterValue
+    public class ChasingPattern : ViewModelBase, IParameterValue
     {
-      
+
         public ChasingPattern()
         {
 
@@ -22,6 +16,8 @@ namespace adrilight.Util
         public string Description { get; set; }
         public string Path { get; set; }
         public Tick Tick { get => _tick; set { Set(() => Tick, ref _tick, value); } }
-    } 
+        private string _version = "1.0.0";
+        public string Version { get => _version; set { Set(() => Version, ref _version, value); } }
+    }
 }
 

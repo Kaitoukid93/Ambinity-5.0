@@ -1,28 +1,23 @@
 ﻿using adrilight.Spots;
-using adrilight.Util;
 using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Input;
-using Rectangle = System.Drawing.Rectangle;
 namespace adrilight.Settings
 {
-    internal class PWMMotorSlaveDevice : ViewModelBase,ISlaveDevice, IDrawable
+    internal class PWMMotorSlaveDevice : ViewModelBase, ISlaveDevice, IDrawable
     {
         private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
         private string SupportedSlaveDeviceFolderPath => Path.Combine(JsonPath, "SupportedDevices");
         private string deviceDirectory => Directory.Exists(Path.Combine(SupportedSlaveDeviceFolderPath, Name)) ? Path.Combine(SupportedSlaveDeviceFolderPath, Name) : Path.Combine(SupportedSlaveDeviceFolderPath, "GenericDevice");
         public string Name { get; set; }
         public string Owner { get; set; }
+
         public int ParrentID { get; set; }
         [JsonIgnore]
         public string Thumbnail => Path.Combine(deviceDirectory, "thumbnail.png");
@@ -70,6 +65,8 @@ namespace adrilight.Settings
         private double _scaleHeight = 1;
         private double _actualWidth;
         private double _actualHeight;
+        private string _version = "1.0.0";
+        public string Version { get => _version; set { Set(() => Version, ref _version, value); } }
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
         public double CenterX => Width / 2 + Left;
@@ -136,7 +133,7 @@ namespace adrilight.Settings
         private void OnPositionUpdate()
         {
             //update all child motor
-            if(ControlableZones!=null)
+            if (ControlableZones != null)
             {
                 foreach (var zone in ControlableZones)
                 {
@@ -147,7 +144,7 @@ namespace adrilight.Settings
                     motor.Height = Height;
                 }
             }
-         
+
         }
         public Rect GetDeviceRectBound(IControlZone[] zones)
         {
@@ -184,10 +181,10 @@ namespace adrilight.Settings
                 }
             }
             return true;
-            
+
         }
-     
-      
+
+
         protected virtual void OnLeftChanged(double delta) { }
 
         protected virtual void OnTopChanged(double delta) { }

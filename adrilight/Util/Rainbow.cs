@@ -257,7 +257,7 @@ namespace adrilight
             OnSelectedPaletteChanged(_colorControl.SelectedValue);
             if (_vidDataControl.SelectedValue == null)
             {
-                _vidDataControl.SelectedValue = _vidDataControl.AvailableValues.First();
+                _vidDataControl.SelectedValue = _vidDataControl.AvailableValues.Last();
             }
             OnSelectedVIDDataChanged(_vidDataControl.SelectedValue);
             OnVIDIntensityValueChanged(_vidDataControl.SubParams[0].Value);

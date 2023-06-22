@@ -45,28 +45,15 @@ namespace adrilight
         private IGeneralSettings GeneralSettings { get; }
 
         private double _rainbowStartIndex;
-        private double _musicStartIndex;
-        private double _breathingBrightnessValue;
-        private int _frameIndex;
         public double RainbowStartIndex {
             get { return _rainbowStartIndex; }
             set { _rainbowStartIndex = value; }
         }
-        public int FrameIndex {
-            get { return _frameIndex; }
-            set { _frameIndex = value; }
-        }
-
-        public double MusicStartIndex {
-            get { return _musicStartIndex; }
-            set { _musicStartIndex = value; }
-        }
-
+        private double _breathingBrightnessValue;
         public double BreathingBrightnessValue {
             get { return _breathingBrightnessValue; }
             set { _breathingBrightnessValue = value; }
         }
-
         public bool IsRunning { get; private set; } = false;
         private CancellationTokenSource _cancellationTokenSource;
 
@@ -75,9 +62,6 @@ namespace adrilight
             switch (e.PropertyName)
             {
                 case nameof(GeneralSettings.SystemRainbowSpeed):
-
-
-
                     RefreshColorState();
                     break;
             }
@@ -98,8 +82,6 @@ namespace adrilight
             var isRunning = _cancellationTokenSource != null && IsRunning; // Check if sync mode is enabled
 
             var shouldBeRunning = true;
-
-
             if (isRunning && !shouldBeRunning)
             {
                 //stop it!
@@ -152,27 +134,18 @@ namespace adrilight
 
         {
             var rainbowMaxTick = GeneralSettings.SystemRainbowMaxTick;
-            var musicMaxTick = GeneralSettings.SystemMusicMaxTick;
-
-
             if (IsRunning) throw new Exception(" Rainbow Ticker is already running!");
 
             IsRunning = true;
-
             _log.Debug("Started Rainbow Ticker.");
-
-
             try
             {
-
 
                 float gamma = 0.14f; // affects the width of peak (more or less darkness)
                 float beta = 0.5f; // shifts the gaussian to be symmetric
                 float ii = 0f;
                 while (!token.IsCancellationRequested)
                 {
-
-
                     lock (Lock)
                     {
                         foreach (var tick in Ticks)
@@ -190,10 +163,6 @@ namespace adrilight
                             }
 
                         }
-
-
-
-
                         //rainbow and music ticker//
                         double rainbowSpeed = GeneralSettings.SystemRainbowSpeed / 5d;
                         RainbowStartIndex -= rainbowSpeed;
@@ -201,19 +170,7 @@ namespace adrilight
                         {
                             RainbowStartIndex = rainbowMaxTick;
                         }
-                        FrameIndex += 1;
-                        if (FrameIndex >= rainbowMaxTick)
-                        {
-                            FrameIndex = 0;
-                        }
-                        double musicSpeed = GeneralSettings.SystemMusicSpeed / 5d;
-                        MusicStartIndex += musicSpeed;
-                        if (MusicStartIndex > musicMaxTick)
-                        {
-                            MusicStartIndex = 0;
-                        }
 
-                        //static breathing ticker
                         float smoothness_pts = 2000 - (float)GeneralSettings.BreathingSpeed;
                         double pwm_val = 255.0 * (Math.Exp(-(Math.Pow(((ii++ / smoothness_pts) - beta) / gamma, 2.0)) / 2.0));
                         if (ii > smoothness_pts)
@@ -221,7 +178,6 @@ namespace adrilight
 
                         BreathingBrightnessValue = pwm_val / 255d;
                     }
-                    //CheckSystemEventsHandlersForFreeze();
                     Thread.Sleep(10);
 
                 }

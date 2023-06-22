@@ -117,8 +117,11 @@ namespace adrilight
             var zoneLeft = CurrentZone.GetRect.Left - zoneParrent.Left;
             var zoneTop = CurrentZone.GetRect.Top - zoneParrent.Top;
             var zoneRegion = new CapturingRegion(zoneLeft / zoneParrent.Width, zoneTop / zoneParrent.Height, CurrentZone.Width / zoneParrent.Width, CurrentZone.Height / zoneParrent.Height);
-
-            _currentCapturingRegion = new Rectangle((int)(zoneRegion.ScaleX * width + left), (int)(zoneRegion.ScaleY * height + top), (int)(zoneRegion.ScaleWidth * width), (int)(zoneRegion.ScaleHeight * height));
+            var regionLeft = Math.Max((int)(zoneRegion.ScaleX * width + left), 0);
+            var regionTop = Math.Max((int)(zoneRegion.ScaleY * height + top), 0);
+            var regionWidth = Math.Max((int)(zoneRegion.ScaleWidth * width), 1);
+            var regionHeight = Math.Max((int)(zoneRegion.ScaleHeight * height), 1);
+            _currentCapturingRegion = new Rectangle(regionLeft, regionTop, regionWidth, regionHeight);
         }
         private void OnCapturingSourceChanged(int sourceIndex)
         {
@@ -183,10 +186,10 @@ namespace adrilight
             //}
             var isRunning = _cancellationTokenSource != null;
 
-            var currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
+            _currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
 
             var shouldBeRunning =
-                currentLightingMode.BasedOn == LightingModeEnum.ScreenCapturing &&
+                _currentLightingMode.BasedOn == LightingModeEnum.ScreenCapturing &&
                 //this zone has to be enable, this could be done by stop setting the spots, but the this thread still alive, so...
                 CurrentZone.IsEnabled == true &&
                 //stop this engine when any surface or editor open because this could cause capturing fail
@@ -210,8 +213,6 @@ namespace adrilight
             {
                 //start it
                 //get current lighting mode confirm that based on desktop duplicator reader engine
-
-                _currentLightingMode = currentLightingMode;
                 Init();
                 _log.Debug("starting the capturing");
                 _cancellationTokenSource = new CancellationTokenSource();

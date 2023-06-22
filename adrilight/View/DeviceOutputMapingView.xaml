@@ -427,7 +427,7 @@
                                         <ColumnDefinition Width="auto"/>
                                     </Grid.ColumnDefinitions>
                                     <Border Padding="0" BorderBrush="{DynamicResource SecondaryBorderBrush}" BorderThickness="2" VerticalAlignment="Top" Margin="5" CornerRadius="2" Width="32" Height="32" HorizontalAlignment="Left" Background="Transparent">
-                                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Style="{DynamicResource TextBlockSubTitle}" FontWeight="SemiBold"  Text="{Binding OutputID}"/>
+                                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Style="{DynamicResource TextBlockSubTitle}" FontWeight="SemiBold"  Text="{Binding DisplayOutputID}"/>
                                     </Border>
                                     
                                     <StackPanel Grid.Column="1" Margin="5" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right">

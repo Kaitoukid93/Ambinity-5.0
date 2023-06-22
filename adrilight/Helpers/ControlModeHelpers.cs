@@ -37,7 +37,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Sáng theo dải màu với chuyển động tùy chọn",
-                    Parameters = { GenericBrightnessParameter, GenericColorPaletteSelectionParameter, GenericVIDSelectParameter, GenericSpeedParameter(0, 20, 5), IsSystemSync }
+                    Parameters = { GenericBrightnessParameter, GenericColorPaletteSelectionParameter, GenericVIDSelectParameter, GenericSpeedParameter(0, 100, 20), IsSystemSync }
 
                 };
             }
@@ -67,7 +67,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "LED sáng theo ảnh động Gif",
-                    Parameters = { GenericBrightnessParameter, Gifs, GenericSpeedParameter(0, 4, 1), GenericSmoothParameter, GenericLaunchRegionSelectionButtonParameter }
+                    Parameters = { GenericBrightnessParameter, Gifs, GenericSpeedParameter(0, 4, 1), GenericSmoothParameter, GenericLaunchGifRegionSelectionButtonParameter }
 
                 };
             }
@@ -82,7 +82,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Sáng theo màn hình với vị trí cài sẵn",
-                    Parameters = { GenericBrightnessParameter, GenericSmoothParameter, UseLinearLighting, GenericLaunchRegionSelectionButtonParameter }
+                    Parameters = { GenericBrightnessParameter, GenericSmoothParameter, UseLinearLighting, GenericLaunchScreenRegionSelectionButtonParameter }
 
                 };
             }
@@ -184,7 +184,7 @@ namespace adrilight.Helpers
                     Name = "System Sync",
                     Description = "Đồng bộ với tốc độ hệ thống",
                     SubParams = new ObservableCollection<SubParameter>() {
-                        new SubParameter("System Speed",ModeParameterTemplateEnum.ValueSlider,"Speed","Speed",5,20,0){
+                        new SubParameter("System Speed",ModeParameterTemplateEnum.ValueSlider,"Speed","Speed",20,100,0){
                             Description = "Tốc độ này sẽ kéo theo toàn bộ các vùng đã bật System Sync"
                         }
 
@@ -225,7 +225,7 @@ namespace adrilight.Helpers
                     Description = "Chọn chiều chạy của hiệu ứng",
                     DataSourceLocaFolderNames = new List<string>() { "VID" },
                     SubParams = new ObservableCollection<SubParameter>() {
-                        new SubParameter("Intensity",ModeParameterTemplateEnum.ValueSlider,"intensity","intensity",5,100,0), // only show in system generated mode, act as virtual brush intensity
+                        new SubParameter("Intensity",ModeParameterTemplateEnum.ValueSlider,"intensity","intensity",48,100,0), // only show in system generated mode, act as virtual brush intensity
                         new SubParameter("Vẽ chiều chạy mới",ModeParameterTemplateEnum.PushButtonAction,"Add VID","Add",0,0,0), //only show in custom mode
                     }
 
@@ -275,7 +275,7 @@ namespace adrilight.Helpers
                     DataSourceLocaFolderNames = new List<string>() { "ColorPalettes" },
                     SubParams = new ObservableCollection<SubParameter>() {
                         new SubParameter("Custom Palette",ModeParameterTemplateEnum.PushButtonAction,"Add Palette","Add",0,0,0),
-                        new SubParameter("Import Palette",ModeParameterTemplateEnum.PushButtonAction,"Import Palette","Import",0,0,0)
+                         new SubParameter("Export Palette",ModeParameterTemplateEnum.PushButtonAction,"Export Palette","Export",0,0,0)
                     }
 
                 };
@@ -324,10 +324,22 @@ namespace adrilight.Helpers
                 };
             }
         }
-        public IModeParameter GenericLaunchRegionSelectionButtonParameter {
+        public IModeParameter GenericLaunchScreenRegionSelectionButtonParameter {
             get
             {
-                return new CapturingRegionSelectionButtonParameter(new CapturingRegion(0, 0, 1.0, 1.0)) {
+                return new CapturingRegionSelectionButtonParameter(new CapturingRegion(0, 0, 1.0, 1.0), "screenRegionSelection") {
+
+                    Name = "Cài đặt vị trí",
+                    Description = "Mở cửa sổ cài đặt vị trí capture",
+                    Geometry = "position"
+
+                };
+            }
+        }
+        public IModeParameter GenericLaunchGifRegionSelectionButtonParameter {
+            get
+            {
+                return new CapturingRegionSelectionButtonParameter(new CapturingRegion(0, 0, 1.0, 1.0), "gifRegionSelection") {
 
                     Name = "Cài đặt vị trí",
                     Description = "Mở cửa sổ cài đặt vị trí capture",
@@ -355,6 +367,10 @@ namespace adrilight.Helpers
                     Name = "Pattern",
                     Description = "The motion to be colored",
                     DataSourceLocaFolderNames = new List<string>() { "ChasingPatterns" },
+                    SubParams = new ObservableCollection<SubParameter>() {
+                         new SubParameter("Import Pattern",ModeParameterTemplateEnum.PushButtonAction,"Import Pattern","Import",0,0,0),
+                         new SubParameter("Export Pattern",ModeParameterTemplateEnum.PushButtonAction,"Export Pattern","Export",0,0,0)
+                    }
                 };
             }
         }
@@ -365,6 +381,10 @@ namespace adrilight.Helpers
                     Name = "Gifs",
                     Description = "Các ảnh động có thể chọn",
                     DataSourceLocaFolderNames = new List<string>() { "Gifs" },
+                    SubParams = new ObservableCollection<SubParameter>() {
+                         new SubParameter("Import Gif",ModeParameterTemplateEnum.PushButtonAction,"Import Gif","Import",0,0,0),
+                         new SubParameter("Export Gif",ModeParameterTemplateEnum.PushButtonAction,"Export Gif","Export",0,0,0)
+                    }
                 };
             }
         }

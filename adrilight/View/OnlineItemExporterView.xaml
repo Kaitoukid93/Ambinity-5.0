@@ -93,6 +93,9 @@
                                         <TextBox HorizontalAlignment="Left" Margin="10,0,0,0" Text="{Binding CurrentItemForExport.Owner}" Style="{DynamicResource TextBox.Small}"  Foreground="{DynamicResource PrimaryBrush}"/>
                                     </Grid>
                                     <Grid>
+                                        <TextBox HorizontalAlignment="Left" Margin="10,0,0,0" Text="{Binding CurrentItemForExport.Version}" Style="{DynamicResource TextBox.Small}"  Foreground="{DynamicResource PrimaryBrush}"/>
+                                    </Grid>
+                                    <Grid>
                                         <StackPanel Margin="10,0" Orientation="Horizontal">
                                             <!--<Grid ToolTip="Số lượt download" VerticalAlignment="Center" HorizontalAlignment="Center">
                                                 <Grid.RowDefinitions>

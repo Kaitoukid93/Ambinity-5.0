@@ -10,9 +10,9 @@ namespace adrilight.View
     /// <summary>
     /// Interaction logic for PaletteEditWindow.xaml
     /// </summary>
-    public partial class RegionSelectionWindow
+    public partial class ScreenRegionSelectionWindow
     {
-        public RegionSelectionWindow()
+        public ScreenRegionSelectionWindow()
         {
             InitializeComponent();
 

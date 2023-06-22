@@ -197,6 +197,7 @@
     <Compile Include="DesktopDuplication\CaptureHelper.cs" />
     <Compile Include="DesktopDuplication\CompositionHelper.cs" />
     <Compile Include="DesktopDuplication\DesktopDuplicator.cs" />
+    <Compile Include="Settings\GifCard.cs" />
     <Compile Include="Util\Gifxelation.cs" />
     <Compile Include="DesktopDuplication\DesktopDuplicatorReader.cs" />
     <Compile Include="DesktopDuplication\Direct3D11Helper.cs" />
@@ -336,7 +337,7 @@
     <Compile Include="Util\StoreCategory.cs" />
     <Compile Include="Util\MotionLayer.cs" />
     <Compile Include="Util\MotionCard.cs" />
-    <Compile Include="Util\GifCard.cs" />
+    <Compile Include="Util\Gif.cs" />
     <Compile Include="Util\GradientColor.cs" />
     <Compile Include="Util\ColorsDataModel\ColorCard.cs" />
     <Compile Include="Util\HotKeyManager.cs" />
@@ -411,7 +412,8 @@
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\VisualProperties.cs" />
-    <Compile Include="View\RegionSelectionWindow.xaml.cs" />
+    <Compile Include="View\GifRegionSelectionWindow.xaml.cs" />
+    <Compile Include="View\ScreenRegionSelectionWindow.xaml.cs" />
     <Compile Include="View\AudioDeviceSelectionWindow.xaml.cs" />
     <Compile Include="View\PIDQuickEditNonClientAreaContent.xaml.cs" />
     <Compile Include="View\ZoneVisualizer.cs" />
@@ -518,7 +520,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\RegionSelectionWindow.xaml">
+    <Page Include="View\GifRegionSelectionWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ScreenRegionSelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

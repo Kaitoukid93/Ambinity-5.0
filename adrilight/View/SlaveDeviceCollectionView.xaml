@@ -254,19 +254,7 @@
     </Window.Resources>
 
     <Grid Margin="10,0,10,10">
-        <Grid Width="500" Height="500">
-            <Grid.Style>
-                <Style TargetType="Grid">
-                    <Setter Property="Visibility" Value="Collapsed"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding AvailableARGBSlaveDevices.Count}" Value="0">
-                            <Setter Property="Visibility" Value="Visible"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Grid.Style>
-            <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}" Text="Hiện không có sẵn bất kỳ thiết bị nào, Vào Adrilight store để tải về"/>
-        </Grid>
+       
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
@@ -304,6 +292,25 @@
                 </ListView>
                 <hc:LoadingLine HorizontalAlignment="Center" VerticalAlignment="Center" Width="200" Visibility="{Binding CarouselImageLoading,Converter={StaticResource Boolean2VisibilityConverter}}"/>
             </Grid>
+        </Grid>
+        <Grid Width="500" Height="500">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding AvailableARGBSlaveDevices.Count}" Value="0">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}" Text="Hiện không có sẵn bất kỳ thiết bị nào tương thích, Vào Adrilight store để tải về"/>
+                <Button Command="{Binding OpenAmbinoStoreWindowCommand}" Padding="0" Background="Transparent" BorderThickness="0">
+                    <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="Truy cập Adrilight Store"/>
+                </Button>
+            </StackPanel>
+
         </Grid>
     </Grid>
 </hc:Window>

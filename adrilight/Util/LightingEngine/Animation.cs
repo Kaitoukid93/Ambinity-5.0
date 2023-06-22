@@ -261,8 +261,13 @@ namespace adrilight
             int frameCount = 0;
             lock (_lock)
             {
+                if (_motion == null)
+                {
+                    return;
+                }
                 _resizedFrames = new Frame[_motion.Frames.Length];
                 UpdateTick(CurrentZone.IsInControlGroup);
+
                 foreach (var frame in _motion.Frames)
                 {
                     //scale each frame
@@ -398,6 +403,8 @@ namespace adrilight
                 int updateIntervalCounter = 0;
                 while (!token.IsCancellationRequested)
                 {
+                    if (_resizedFrames == null)
+                        continue;
                     var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
                     bool shouldSetColor = !MainViewViewModel.IsRichCanvasWindowOpen;
                     NextTick();
@@ -635,6 +642,7 @@ namespace adrilight
             catch (Exception ex)
             {
                 HandyControl.Controls.MessageBox.Show("Corrupted or incompatible data File!!!", "LEDSetup Import", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
             }
 
             return motion;

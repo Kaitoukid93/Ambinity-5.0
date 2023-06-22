@@ -1,14 +1,7 @@
-﻿using adrilight.Settings;
-using adrilight.Util;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace adrilight.Helpers
@@ -23,7 +16,7 @@ namespace adrilight.Helpers
         /// import file from disk
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        public T OpenImportFileDialog<T>(string ext,string filter)
+        public T OpenImportFileDialog<T>(string ext, string filter)
         {
             OpenFileDialog Import = new OpenFileDialog();
             Import.Title = "Chọn file";
@@ -40,7 +33,7 @@ namespace adrilight.Helpers
 
                 try
                 {
-                     item = JsonConvert.DeserializeObject<T>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    item = JsonConvert.DeserializeObject<T>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
                     return item;
                 }
                 catch (Exception)
@@ -51,6 +44,21 @@ namespace adrilight.Helpers
             }
             return default(T);
         }
-
+        public string OpenImportFileDialog(string ext, string filter)
+        {
+            OpenFileDialog Import = new OpenFileDialog();
+            Import.Title = "Chọn file";
+            Import.CheckFileExists = true;
+            Import.CheckPathExists = true;
+            Import.DefaultExt = ext;
+            Import.Filter = filter;
+            Import.FilterIndex = 1;
+            Import.ShowDialog();
+            if (!string.IsNullOrEmpty(Import.FileName) && File.Exists(Import.FileName))
+            {
+                return Import.FileName;
+            }
+            return null;
+        }
     }
 }

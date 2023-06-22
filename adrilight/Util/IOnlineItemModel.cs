@@ -1,13 +1,6 @@
 ﻿using adrilight.Settings;
-using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Documents;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace adrilight.Util
@@ -24,6 +17,7 @@ namespace adrilight.Util
         string MarkDownDescription { get; set; }
         List<DeviceType> TargetDevices { get; set; }
         bool IsLocalExisted { get; set; }
+        string Version { get; set; }
 
     }
 }

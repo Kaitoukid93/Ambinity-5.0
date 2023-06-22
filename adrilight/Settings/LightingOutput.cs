@@ -1,12 +1,6 @@
 ﻿using adrilight.Util;
-using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace adrilight.Settings
 {
@@ -50,7 +44,7 @@ namespace adrilight.Settings
         public string Geometry { get => _geometry; set { Set(() => Geometry, ref _geometry, value); } }
         public string OutputInterface { get; set; }
         public Rectangle Rectangle { get; set; }
-
+        public int DisplayOutputID => OutputID + 1;
 
 
 
@@ -73,6 +67,6 @@ namespace adrilight.Settings
         {
             return (zone.CurrentActiveControlMode as LightingMode).BasedOn;
         }
-      
+
     }
 }

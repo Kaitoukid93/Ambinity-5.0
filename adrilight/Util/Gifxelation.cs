@@ -16,6 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Color = System.Windows.Media.Color;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace adrilight
 {
@@ -116,19 +117,83 @@ namespace adrilight
             var zoneLeft = CurrentZone.GetRect.Left - zoneParrent.Left;
             var zoneTop = CurrentZone.GetRect.Top - zoneParrent.Top;
             var zoneRegion = new CapturingRegion(zoneLeft / zoneParrent.Width, zoneTop / zoneParrent.Height, CurrentZone.Width / zoneParrent.Width, CurrentZone.Height / zoneParrent.Height);
-
-            _currentCapturingRegion = new Rectangle((int)(zoneRegion.ScaleX * width + left), (int)(zoneRegion.ScaleY * height + top), (int)(zoneRegion.ScaleWidth * width), (int)(zoneRegion.ScaleHeight * height));
+            var regionLeft = Math.Max((int)(zoneRegion.ScaleX * width + left), 0);
+            var regionTop = Math.Max((int)(zoneRegion.ScaleY * height + top), 0);
+            var regionWidth = Math.Max((int)(zoneRegion.ScaleWidth * width), 1);
+            var regionHeight = Math.Max((int)(zoneRegion.ScaleHeight * height), 1);
+            _currentCapturingRegion = new Rectangle(regionLeft, regionTop, regionWidth, regionHeight);
         }
         private async Task OnSelectedGifChanged(IParameterValue value)
         {
             //set palette
+            if (value == null)
+                return;
             var gif = value as Gif;
-            bool result = await Task.Run(() => LoadGifFromDisk(gif.Path));
-            if (!result)
+            var result = await Task.Run(() => LoadGifFromDisk(gif.Path));
+            if (result == null)
             {
                 HandyControl.Controls.MessageBox.Show("File GIF bị lỗi", "Gif error", MessageBoxButton.OK, MessageBoxImage.Error);
-                LoadedGifImage = null;
+                return;
             }
+            lock (_lock)
+            {
+                LoadedGifImage = result;
+                UpdateTick(CurrentZone.IsInControlGroup);
+            }
+        }
+        private void GetTick(bool isInControlGroup)
+        {
+            if (isInControlGroup)
+            {
+                //check if tick exist in rainbowticker
+                lock (RainbowTicker.Lock)
+                {
+                    var frameTick = RainbowTicker.Ticks.Where(t => t.TickUID == CurrentZone.GroupID && t.TickType == TickEnum.FrameTick).FirstOrDefault();
+                    if (frameTick == null)
+                    {
+                        //create new tick
+                        var maxTick = LoadedGifImage != null ? LoadedGifImage.Length : 1024;
+                        frameTick = RainbowTicker.MakeNewTick(maxTick, _speed, CurrentZone.GroupID, TickEnum.FrameTick);
+                        frameTick.IsRunning = true;
+                    }
+                    _tick = frameTick;
+                }
+
+            }
+            else
+            {
+                var frameTick = new Tick() {
+                    MaxTick = LoadedGifImage != null ? LoadedGifImage.Length : 1024,
+                    TickSpeed = _speed,
+                    IsRunning = true
+                };
+
+                _tick = frameTick;
+            }
+        }
+        private void UpdateTick(bool isInControlGroup)
+        {
+            if (isInControlGroup)
+            {
+                lock (RainbowTicker.Lock)
+                {
+                    _tick.MaxTick = LoadedGifImage != null ? LoadedGifImage.Length : 1024;
+                    _tick.TickSpeed = _speed;
+                    _tick.CurrentTick = 0;
+                }
+            }
+            else
+            {
+                _tick.MaxTick = LoadedGifImage != null ? LoadedGifImage.Length : 1024;
+                _tick.TickSpeed = _speed;
+                _tick.CurrentTick = 0;
+            }
+            // _pattern.Tick = _ticks[0];
+        }
+        private void OnSpeedChanged(int value)
+        {
+            _speed = value;
+            UpdateTick(CurrentZone.IsInControlGroup);
         }
         #endregion
         /// <summary>
@@ -141,9 +206,13 @@ namespace adrilight
         private double _brightness;
         private int _smoothFactor;
         private int _frameRate = 60;
+        private Tick _tick;
+        private int _speed;
+        private object _lock = new object();
         private Rectangle _currentCapturingRegion;
 
         private SliderParameter _brightnessControl;
+        private SliderParameter _speedControl;
         private SliderParameter _smoothingControl;
         private CapturingRegionSelectionButtonParameter _regionControl;
         private ListSelectionParameter _gifControl;
@@ -155,10 +224,10 @@ namespace adrilight
             }
             var isRunning = _cancellationTokenSource != null;
 
-            var currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
-
+            _currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
+            GetTick(CurrentZone.IsInControlGroup);
             var shouldBeRunning =
-                currentLightingMode.BasedOn == LightingModeEnum.Gifxelation &&
+                _currentLightingMode.BasedOn == LightingModeEnum.Gifxelation &&
                 //this zone has to be enable, this could be done by stop setting the spots, but the this thread still alive, so...
                 CurrentZone.IsEnabled == true &&
                 //stop this engine when any surface or editor open because this could cause capturing fail
@@ -177,8 +246,6 @@ namespace adrilight
             {
                 //start it
                 //get current lighting mode confirm that based on desktop duplicator reader engine
-
-                _currentLightingMode = currentLightingMode;
                 Init();
                 _log.Debug("starting the capturing");
                 _cancellationTokenSource = new CancellationTokenSource();
@@ -213,6 +280,8 @@ namespace adrilight
         public async void Init()
         {
             //get dependency properties from current lighting mode(based on screencapturing)
+            _speedControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Speed).FirstOrDefault() as SliderParameter;
+            _speedControl.PropertyChanged += (_, __) => OnSpeedChanged(_speedControl.Value);
             _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
             _brightnessControl.PropertyChanged += (_, __) => OnBrightnessPropertyChanged(_brightnessControl.Value);
             _gifControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Gifs).FirstOrDefault() as ListSelectionParameter;
@@ -226,6 +295,9 @@ namespace adrilight
                     case nameof(_regionControl.CapturingRegion):
                         OnCapturingRegionChanged(_regionControl.CapturingRegion);
                         break;
+                    case nameof(_regionControl.CapturingSourceIndex):
+                        _gifControl.SelectedValue = _gifControl.AvailableValues[_regionControl.CapturingSourceIndex];
+                        break;
                 }
             };
             _gifControl.PropertyChanged += async (_, __) =>
@@ -234,6 +306,7 @@ namespace adrilight
                 {
                     case nameof(_gifControl.SelectedValue):
                         await OnSelectedGifChanged(_gifControl.SelectedValue);
+                        OnCapturingRegionChanged(_regionControl.CapturingRegion);
                         break;
                 }
             };
@@ -245,6 +318,7 @@ namespace adrilight
             await OnSelectedGifChanged(_gifControl.SelectedValue);
             OnBrightnessPropertyChanged(_brightnessControl.Value);
             OnSmoothingPropertyChanged(_smoothingControl.Value);
+            OnSpeedChanged(_speedControl.Value);
 
         }
         public void Run(CancellationToken token)
@@ -254,22 +328,18 @@ namespace adrilight
             Bitmap image = null;
             BitmapData bitmapData = new BitmapData();
             IsRunning = true;
-            int _gifFrameIndex = 0;
             try
             {
                 int updateIntervalCounter = 0;
+
                 while (!token.IsCancellationRequested)
                 {
                     //this indicator that user is opening this device and we need raise event when color update on each spot
                     if (LoadedGifImage == null)
                         continue;
-                    if (_gifFrameIndex >= LoadedGifImage.Length - 1)
-                        _gifFrameIndex = 0;
-                    else
-                        _gifFrameIndex++;
                     var frameTime = Stopwatch.StartNew();
                     bool isPreviewRunning = MainViewViewModel.IsRegionSelectionOpen;
-                    var newImage = _retryPolicy.Execute(() => GetNextFrame(image, _gifFrameIndex, isPreviewRunning));
+                    var newImage = _retryPolicy.Execute(() => GetNextFrame(image, (int)_tick.CurrentTick, isPreviewRunning));
                     TraceFrameDetails(newImage);
                     if (newImage == null)
                     {
@@ -299,7 +369,7 @@ namespace adrilight
                         continue;
                     }
 
-
+                    NextTick();
                     lock (CurrentZone.Lock)
                     {
 
@@ -369,39 +439,13 @@ namespace adrilight
             //stop ticking color if zone color source is solid or color use is static
             if (!CurrentZone.IsInControlGroup)
             {
-                if (_ticks[0].CurrentTick < _ticks[0].MaxTick - _ticks[0].TickSpeed)
-                    _ticks[0].CurrentTick += _ticks[0].TickSpeed;
+                if (_tick.CurrentTick < _tick.MaxTick - _tick.TickSpeed)
+                    _tick.CurrentTick += _tick.TickSpeed;
                 else
                 {
-                    _ticks[0].CurrentTick = 0;
-                }
-                if (!_shouldBeMoving)
-                {
-                    _ticks[1].CurrentTick = 0;
-                }
-                else
-                {
-                    if (_ticks[1].CurrentTick < _ticks[1].MaxTick - _ticks[1].TickSpeed)
-                        _ticks[1].CurrentTick += _ticks[1].TickSpeed;
-                    else
-                    {
-                        _ticks[1].CurrentTick = 0;
-                    }
-                }
-
-            }
-            else
-            {
-                if (!_shouldBeMoving)
-                {
-                    _ticks[1].IsRunning = false;
-                }
-                else
-                {
-                    _ticks[1].IsRunning = true;
+                    _tick.CurrentTick = 0;
                 }
             }
-
         }
         private int? _lastObservedHeight;
         private int? _lastObservedWidth;
@@ -428,8 +472,10 @@ namespace adrilight
                 _lastObservedHeight = image.Height;
             }
         }
-        public bool LoadGifFromDisk(string path)
+        public ByteFrame[] LoadGifFromDisk(string path)
         {
+            if (path == null || !File.Exists(path))
+                return null;
             try
             {
                 using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
@@ -438,12 +484,12 @@ namespace adrilight
                     {
                         var frameDim = new FrameDimension(imageToLoad.FrameDimensionsList[0]);
                         var frameCount = imageToLoad.GetFrameCount(frameDim);
-                        LoadedGifImage = new ByteFrame[frameCount];
+                        var gifFrames = new ByteFrame[frameCount];
                         for (int i = 0; i < frameCount; i++)
                         {
                             imageToLoad.SelectActiveFrame(frameDim, i);
 
-                            var resizedBmp = new Bitmap(imageToLoad, 240, 135);
+                            var resizedBmp = new Bitmap(imageToLoad, (int)imageToLoad.Width / 8, (int)imageToLoad.Height / 8);
 
                             var rect = new System.Drawing.Rectangle(0, 0, resizedBmp.Width, resizedBmp.Height);
                             System.Drawing.Imaging.BitmapData bmpData =
@@ -465,7 +511,7 @@ namespace adrilight
                             frame.FrameHeight = resizedBmp.Height;
 
 
-                            LoadedGifImage[i] = frame;
+                            gifFrames[i] = frame;
                             resizedBmp.UnlockBits(bmpData);
 
                         }
@@ -473,7 +519,7 @@ namespace adrilight
                         fs.Close();
                         GC.Collect();
 
-                        return true;
+                        return gifFrames;
                     }
 
                 }
@@ -481,7 +527,7 @@ namespace adrilight
             }
             catch (Exception)
             {
-                return false;
+                return null;
             }
         }
         private void ApplyColorCorrections(float r, float g, float b, out byte finalR, out byte finalG, out byte finalB, bool useLinearLighting, byte saturationTreshold

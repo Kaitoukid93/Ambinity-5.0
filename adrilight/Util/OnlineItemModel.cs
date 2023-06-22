@@ -1,18 +1,11 @@
 ﻿using adrilight.Settings;
 using GalaSoft.MvvmLight;
-using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Documents;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace adrilight.Util
 {
-    internal class OnlineItemModel : ViewModelBase,IOnlineItemModel // this for displaying on the store
+    internal class OnlineItemModel : ViewModelBase, IOnlineItemModel // this for displaying on the store
     {
 
         public OnlineItemModel()
@@ -29,7 +22,7 @@ namespace adrilight.Util
         public List<BitmapImage> Screenshots { get; set; }
         public string MarkDownDescription { get; set; }
         public List<DeviceType> TargetDevices { get; set; }
-        public bool IsLocalExisted { get; set;}
-
+        public bool IsLocalExisted { get; set; }
+        public string Version { get; set; }
     }
 }
