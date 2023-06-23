@@ -3,9 +3,11 @@ using adrilight.Spots;
 using adrilight.Util;
 using adrilight.Util.ModeParameters;
 using adrilight.ViewModel;
+using MoreLinq;
 using NLog;
 using Polly;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -71,6 +73,18 @@ namespace adrilight
         /// <param name="sender"></param>
         /// <param name="e"></param>
         #region PropertyChanged events
+        private void EnableChanged(bool value)
+        {
+            _isEnable = value;
+            if (value)
+            {
+                _currentLightingMode.Parameters.Except(new List<IModeParameter>() { _enableControl }).ForEach(p => p.IsEnabled = true);
+            }
+            else
+            {
+                _currentLightingMode.Parameters.Except(new List<IModeParameter>() { _enableControl }).ForEach(p => p.IsEnabled = false);
+            }
+        }
         private void PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
@@ -204,6 +218,7 @@ namespace adrilight
         private Thread _workerThread;
         private LightingMode _currentLightingMode;
         private double _brightness;
+        private bool _isEnable;
         private int _smoothFactor;
         private int _frameRate = 60;
         private Tick _tick;
@@ -216,6 +231,7 @@ namespace adrilight
         private SliderParameter _smoothingControl;
         private CapturingRegionSelectionButtonParameter _regionControl;
         private ListSelectionParameter _gifControl;
+        private ToggleParameter _enableControl;
         public void Refresh()
         {
             if (CurrentZone.CurrentActiveControlMode == null)
@@ -280,6 +296,8 @@ namespace adrilight
         public async void Init()
         {
             //get dependency properties from current lighting mode(based on screencapturing)
+            _enableControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.IsEnabled).FirstOrDefault() as ToggleParameter;
+            _enableControl.PropertyChanged += (_, __) => EnableChanged(_enableControl.Value == 1 ? true : false);
             _speedControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Speed).FirstOrDefault() as SliderParameter;
             _speedControl.PropertyChanged += (_, __) => OnSpeedChanged(_speedControl.Value);
             _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
@@ -315,6 +333,7 @@ namespace adrilight
             {
                 _gifControl.SelectedValue = _gifControl.AvailableValues.First();
             }
+            EnableChanged(_enableControl.Value == 1 ? true : false);
             await OnSelectedGifChanged(_gifControl.SelectedValue);
             OnBrightnessPropertyChanged(_brightnessControl.Value);
             OnSmoothingPropertyChanged(_smoothingControl.Value);
@@ -409,7 +428,12 @@ namespace adrilight
                              spot.Red,
                              spot.Green,
                              spot.Blue);
-                            spot.SetColor((byte)(RealfinalR * _brightness), (byte)(RealfinalG * _brightness), (byte)(RealfinalB * _brightness), false);
+                            if (_isEnable)
+                                spot.SetColor((byte)(RealfinalR * _brightness), (byte)(RealfinalG * _brightness), (byte)(RealfinalB * _brightness), false);
+                            else
+                            {
+                                spot.SetColor(0, 0, 0, false);
+                            }
 
                         }
 

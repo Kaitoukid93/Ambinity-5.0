@@ -45,12 +45,15 @@ namespace adrilight
         IOutputSettings[] AvailableLightingOutputs { get; }
         IOutputSettings[] AvailablePWMOutputs { get; }
         ISlaveDevice[] AvailablePWMDevices { get; }
+        void DeviceEnableChanged();
         void UpdateChildSize();
         void HandleResolutionChange(double scaleX, double scaleY);
         void BrightnessUp(int value);
         void BrightnessDown(int value);
         void SpeedUp(int value);
         void SpeedDown(int value);
-        void ActivateProfile(IDeviceSettings profile);
+        void TurnOffLED();
+        void TurnOnLED();
+        void ToggleOnOffLED();
     }
 }

@@ -1,11 +1,8 @@
 ﻿using adrilight.Util.ModeParameters;
 using GalaSoft.MvvmLight;
-using Newtonsoft.Json.Linq;
-using System;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace adrilight.Util
 {
@@ -59,5 +56,9 @@ namespace adrilight.Util
                 speed = (int)speedParam.Value;
             return speed;
         }
+        [JsonIgnore]
+        public int MaxSpeed => (Parameters.Where(p => p.ParamType == ModeParameterEnum.Speed).FirstOrDefault() as SliderParameter).MaxValue;
+        [JsonIgnore]
+        public int MinSpeed => (Parameters.Where(p => p.ParamType == ModeParameterEnum.Speed).FirstOrDefault() as SliderParameter).MinValue;
     }
 }

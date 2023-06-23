@@ -108,6 +108,24 @@ namespace adrilight.Settings
         public Rect GetRect => new Rect(Left, Top, Width, Height);
         public string Type { get; set; }
         private DrawableHelpers DrawableHlprs;
+        public void SpeedUp(int value)
+        {
+            foreach (var zone in ControlableZones)
+            {
+                var pwmZone = zone as FanMotor;
+                if (!pwmZone.IsInControlGroup)
+                    pwmZone.SpeedUp(value);
+            }
+        }
+        public void SpeedDown(int value)
+        {
+            foreach (var zone in ControlableZones)
+            {
+                var pwmZone = zone as FanMotor;
+                if (!pwmZone.IsInControlGroup)
+                    pwmZone.SpeedDown(value);
+            }
+        }
         public void RotateLEDSetup(double angleInDegrees)
         {
 

@@ -1,5 +1,4 @@
-﻿using adrilight.Util;
-using GalaSoft.MvvmLight;
+﻿using GalaSoft.MvvmLight;
 using System.Drawing;
 
 namespace adrilight.Settings
@@ -45,28 +44,5 @@ namespace adrilight.Settings
         public string OutputInterface { get; set; }
         public Rectangle Rectangle { get; set; }
         public int DisplayOutputID => OutputID + 1;
-
-
-
-        /// <summary>
-        /// shortcuts for setting and getting value
-        /// </summary>
-        /// <param name="value"></param>
-        public void SetBrightness(IControlZone zone, int value)
-        {
-            var currentLightingMode = zone.CurrentActiveControlMode as LightingMode;
-            currentLightingMode.SetBrightness(value);
-        }
-        public int GetBrightness(IControlZone zone)
-        {
-            var currentLightingMode = zone.CurrentActiveControlMode as LightingMode;
-            return currentLightingMode.GetBrightness();
-
-        }
-        public LightingModeEnum GetCurrentActiveLightingMode(IControlZone zone)
-        {
-            return (zone.CurrentActiveControlMode as LightingMode).BasedOn;
-        }
-
     }
 }

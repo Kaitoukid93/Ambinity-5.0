@@ -171,6 +171,7 @@ namespace adrilight
                             kernel.Bind<IDeviceSettings>().ToConstant(device).Named(iD);
                             //now inject
                             InjectingDevice(kernel, device);
+                            device.DeviceEnableChanged();
                             //since openRGBStream is single instance, we need to manually add device then refresh
                         }
 

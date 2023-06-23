@@ -154,7 +154,40 @@ namespace adrilight.Settings
             return DrawableHlprs.GetBound(listDrawable);
         }
 
+        public void SpeedUp(int value)
+        {
+            var currentSpeedMode = CurrentActiveControlMode as PWMMode;
+            if (currentSpeedMode != null && currentSpeedMode.BasedOn == PWMModeEnum.manual)
+            {
+                var currentPWM = currentSpeedMode.GetPWMValue();
+                if (currentPWM + value <= currentSpeedMode.MaxSpeed)
+                {
+                    currentSpeedMode.SetPWM(currentPWM + value);
+                }
+                else
+                {
+                    currentSpeedMode.SetPWM(currentSpeedMode.MaxSpeed);
+                }
 
+            }
+        }
+        public void SpeedDown(int value)
+        {
+            var currentSpeedMode = CurrentActiveControlMode as PWMMode;
+            if (currentSpeedMode != null && currentSpeedMode.BasedOn == PWMModeEnum.manual)
+            {
+                var currentPWM = currentSpeedMode.GetPWMValue();
+                if (currentPWM - value >= currentSpeedMode.MinSpeed)
+                {
+                    currentSpeedMode.SetPWM(currentPWM - value);
+                }
+                else
+                {
+                    currentSpeedMode.SetPWM(currentSpeedMode.MinSpeed);
+                }
+
+            }
+        }
 
 
         public bool SetScale(double scaleX, double scaleY, bool keepOrigin)

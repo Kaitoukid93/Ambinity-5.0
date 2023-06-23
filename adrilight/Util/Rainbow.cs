@@ -87,18 +87,30 @@ namespace adrilight
         private SliderParameter _speedControl;
         private ToggleParameter _systemSyncControl;
         private ListSelectionParameter _vidDataControl;
-
+        private ToggleParameter _enableControl;
 
         private Color[] _colorBank;
         private bool _isSystemSync;
         private double _brightness;
+        private bool _isEnable;
         private double _speed;
         private int _vidIntensity;
         private int _frameRate = 60;
 
 
         #region Properties changed event handler 
-
+        private void EnableChanged(bool value)
+        {
+            _isEnable = value;
+            if (value)
+            {
+                _currentLightingMode.Parameters.Except(new List<IModeParameter>() { _enableControl }).ForEach(p => p.IsEnabled = true);
+            }
+            else
+            {
+                _currentLightingMode.Parameters.Except(new List<IModeParameter>() { _enableControl }).ForEach(p => p.IsEnabled = false);
+            }
+        }
         private void OnSystemSpeedChanged(int value)
         {
             if (_systemSyncControl != null)
@@ -218,6 +230,8 @@ namespace adrilight
         public void Init()
         {
             #region registering params
+            _enableControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.IsEnabled).FirstOrDefault() as ToggleParameter;
+            _enableControl.PropertyChanged += (_, __) => EnableChanged(_enableControl.Value == 1 ? true : false);
             _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Palette).FirstOrDefault() as ListSelectionParameter;
             _vidDataControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.VID).FirstOrDefault() as ListSelectionParameter;
             _speedControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Speed).FirstOrDefault() as SliderParameter;
@@ -259,6 +273,7 @@ namespace adrilight
             {
                 _vidDataControl.SelectedValue = _vidDataControl.AvailableValues.Last();
             }
+            EnableChanged(_enableControl.Value == 1 ? true : false);
             OnSelectedVIDDataChanged(_vidDataControl.SelectedValue);
             OnVIDIntensityValueChanged(_vidDataControl.SubParams[0].Value);
             OnBrightnessValueChanged(_brightnessControl.Value);
@@ -277,7 +292,6 @@ namespace adrilight
                 while (!token.IsCancellationRequested)
                 {
                     var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
-                    bool shouldSetColor = !MainViewViewModel.IsRichCanvasWindowOpen;
                     StartIndex -= _speed;
                     if (StartIndex < 0)
                     {
@@ -301,17 +315,14 @@ namespace adrilight
                             int position = 0;
                             position = Convert.ToInt32(Math.Floor(StartIndex + spot.VID));
                             position %= _colorBank.Length;
-                            if (spot.HasVID)
+                            if (spot.HasVID && _isEnable)
                             {
                                 ApplySmoothing((float)_brightness * _colorBank[position].R, (float)_brightness * _colorBank[position].G, (float)_brightness * _colorBank[position].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
-                                if (shouldSetColor)
-                                    spot.SetColor(FinalR, FinalG, FinalB, false);
+                                spot.SetColor(FinalR, FinalG, FinalB, false);
                             }
-
                             else
                             {
-                                if (shouldSetColor)
-                                    spot.SetColor(0, 0, 0, false);
+                                spot.SetColor(0, 0, 0, false);
                             }
                         }
 

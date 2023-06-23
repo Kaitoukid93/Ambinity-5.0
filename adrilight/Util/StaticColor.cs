@@ -87,15 +87,29 @@ namespace adrilight
         private ListSelectionParameter _colorControl;
         private ToggleParameter _breathingControl;
         private SliderParameter _brightnessControl;
+        private ToggleParameter _enableControl;
 
         private ColorCard _color;
         private bool _isSystemSync;
         private bool _isBreathing;
+        private bool _isEnable;
         private double _brightness;
         private int _breathingSpeed;
         private Color[] _colors;
         private int _frameRate = 60;
         #region Properties changed event handler 
+        private void EnableChanged(bool value)
+        {
+            _isEnable = value;
+            if (value)
+            {
+                _currentLightingMode.Parameters.Except(new List<IModeParameter>() { _enableControl }).ForEach(p => p.IsEnabled = true);
+            }
+            else
+            {
+                _currentLightingMode.Parameters.Except(new List<IModeParameter>() { _enableControl }).ForEach(p => p.IsEnabled = false);
+            }
+        }
         private void OnSystemBreathingSpeedChanged(int value)
         {
             if (_breathingControl != null)
@@ -212,6 +226,8 @@ namespace adrilight
         public void Init()
         {
             #region registering params
+            _enableControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.IsEnabled).FirstOrDefault() as ToggleParameter;
+            _enableControl.PropertyChanged += (_, __) => EnableChanged(_enableControl.Value == 1 ? true : false);
             _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Color).FirstOrDefault() as ListSelectionParameter;
             _colorControl.PropertyChanged += (_, __) =>
             {
@@ -236,6 +252,7 @@ namespace adrilight
             {
                 _colorControl.SelectedValue = _colorControl.AvailableValues.First();
             }
+            EnableChanged(_enableControl.Value == 1 ? true : false);
             OnIsBreathingValueChanged(_breathingControl.Value == 1 ? true : false);
             OnSystemSyncValueChanged(_breathingControl.SubParams[2].Value == 1 ? true : false);
             OnSelectedColorValueChanged(_colorControl.SelectedValue);
@@ -255,7 +272,7 @@ namespace adrilight
                 while (!token.IsCancellationRequested)
                 {
                     var startIndex = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
-                    bool shouldSetColor = !MainViewViewModel.IsRichCanvasWindowOpen;
+
                     if (_isBreathing)
                     {
                         if (_isSystemSync)
@@ -289,8 +306,12 @@ namespace adrilight
                                 index = 0;
                             }
                             ApplySmoothing(_colors[index].R, _colors[index].G, _colors[index].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
-                            if (shouldSetColor)
+                            if (_isEnable)
                                 spot.SetColor((byte)(_brightness * FinalR), (byte)(_brightness * FinalG), (byte)(_brightness * FinalB), false);
+                            else
+                            {
+                                spot.SetColor(0, 0, 0, false);
+                            }
                         }
 
                     }

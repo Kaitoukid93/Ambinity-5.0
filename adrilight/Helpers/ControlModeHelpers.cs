@@ -37,7 +37,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Sáng theo dải màu với chuyển động tùy chọn",
-                    Parameters = { GenericBrightnessParameter, GenericColorPaletteSelectionParameter, GenericVIDSelectParameter, GenericSpeedParameter(0, 100, 20), IsSystemSync }
+                    Parameters = { IsEnabled, GenericBrightnessParameter, GenericColorPaletteSelectionParameter, GenericVIDSelectParameter, GenericSpeedParameter(0, 100, 20), IsSystemSync }
 
                 };
             }
@@ -52,7 +52,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "LED chuyển động với màu tùy chọn",
-                    Parameters = { GenericBrightnessParameter, ChasingPatterns, GenericColorPaletteAndSolidColorSelectionParameter, GenericSpeedParameter(0, 4, 1) }
+                    Parameters = { IsEnabled, GenericBrightnessParameter, ChasingPatterns, GenericColorPaletteAndSolidColorSelectionParameter, GenericSpeedParameter(0, 4, 1) }
 
                 };
             }
@@ -67,7 +67,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "LED sáng theo ảnh động Gif",
-                    Parameters = { GenericBrightnessParameter, Gifs, GenericSpeedParameter(0, 4, 1), GenericSmoothParameter, GenericLaunchGifRegionSelectionButtonParameter }
+                    Parameters = { IsEnabled, GenericBrightnessParameter, Gifs, GenericSpeedParameter(0, 4, 1), GenericSmoothParameter, GenericLaunchGifRegionSelectionButtonParameter }
 
                 };
             }
@@ -82,7 +82,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Sáng theo màn hình với vị trí cài sẵn",
-                    Parameters = { GenericBrightnessParameter, GenericSmoothParameter, UseLinearLighting, GenericLaunchScreenRegionSelectionButtonParameter }
+                    Parameters = { IsEnabled, GenericBrightnessParameter, GenericSmoothParameter, UseLinearLighting, GenericLaunchScreenRegionSelectionButtonParameter }
 
                 };
             }
@@ -100,7 +100,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Màu LED chuyển động theo nhạc",
-                    Parameters = { GenericBrightnessParameter, GenericColorPaletteAndSolidColorSelectionParameter, GenericMIDSelectParameter, GenericLaunchAudioDeviceSelectionButtonParameter }
+                    Parameters = { IsEnabled, GenericBrightnessParameter, GenericColorPaletteAndSolidColorSelectionParameter, GenericMIDSelectParameter, GenericLaunchAudioDeviceSelectionButtonParameter }
 
                 };
             }
@@ -115,7 +115,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "Tất cả LED sáng cùng một màu",
-                    Parameters = { GenericBrightnessParameter, GenericColorSelectionParameter, Breathing }
+                    Parameters = { IsEnabled, GenericBrightnessParameter, GenericColorSelectionParameter, Breathing }
                 };
             }
         }
@@ -213,6 +213,16 @@ namespace adrilight.Helpers
 
 
 
+                };
+            }
+        }
+        public IModeParameter IsEnabled {
+            get
+            {
+                return new ToggleParameter(1, ModeParameterEnum.IsEnabled) {
+
+                    Name = "Enable",
+                    Description = "Bật hoặc tắt chế độ này",
                 };
             }
         }

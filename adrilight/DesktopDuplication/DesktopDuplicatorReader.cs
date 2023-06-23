@@ -3,9 +3,11 @@ using adrilight.Spots;
 using adrilight.Util;
 using adrilight.Util.ModeParameters;
 using adrilight.ViewModel;
+using MoreLinq;
 using NLog;
 using Polly;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -84,6 +86,18 @@ namespace adrilight
 
             }
         }
+        private void EnableChanged(bool value)
+        {
+            _isEnable = value;
+            if (value)
+            {
+                _currentLightingMode.Parameters.Except(new List<IModeParameter>() { _enableControl }).ForEach(p => p.IsEnabled = true);
+            }
+            else
+            {
+                _currentLightingMode.Parameters.Except(new List<IModeParameter>() { _enableControl }).ForEach(p => p.IsEnabled = false);
+            }
+        }
         private void OnBrightnessPropertyChanged(int value)
         {
             _brightness = value / 100d;
@@ -139,6 +153,7 @@ namespace adrilight
         private LightingMode _currentLightingMode;
         private int? _currentScreenIndex;
         private bool _useLinearLighting;
+        private bool _isEnable;
         private double _brightness;
         private int _smoothFactor;
         private int _frameRate = 60;
@@ -147,6 +162,7 @@ namespace adrilight
         private SliderParameter _brightnessControl;
         private SliderParameter _smoothingControl;
         private ToggleParameter _useLinearLightingControl;
+        private ToggleParameter _enableControl;
         private CapturingRegionSelectionButtonParameter _regionControl;
         public void Refresh()
         {
@@ -154,36 +170,6 @@ namespace adrilight
             {
                 return;
             }
-            ////find out which screen this zone belongs to
-            //var actualLeft = CurrentZone.Left + CurrentZone.OffsetX;
-            //var actualTop = CurrentZone.Top + CurrentZone.OffsetY;
-            //var width = CurrentZone.Width;
-            //var height = CurrentZone.Height;
-            //_currentScreenIndex = null;
-            //foreach (var screen in Screen.AllScreens)
-            //{
-            //    var screenRect = new Rectangle(
-            //        (int)screen.Bounds.Left,
-            //        (int)screen.Bounds.Top,
-            //        (int)screen.Bounds.Width,
-            //        (int)screen.Bounds.Height);
-            //    var zoneRect = new Rectangle(
-            //        (int)actualLeft,
-            //        (int)actualTop,
-            //        (int)width,
-            //        (int)height);
-            //    if (Rectangle.Intersect(screenRect, zoneRect).Equals(zoneRect))
-            //        _currentScreenIndex = Array.IndexOf(Screen.AllScreens, screen);
-
-            //}
-            //if (_currentScreenIndex == null)
-            //{
-            //    CurrentZone.ZoneWarningText = "Vị trí của Zone nằm ngoài ranh giới màn hình!";
-            //}
-            //else
-            //{
-            //    CurrentZone.ZoneWarningText = string.Empty;
-            //}
             var isRunning = _cancellationTokenSource != null;
 
             _currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
@@ -247,6 +233,9 @@ namespace adrilight
         public void Init()
         {
             //get dependency properties from current lighting mode(based on screencapturing)
+
+            _enableControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.IsEnabled).FirstOrDefault() as ToggleParameter;
+            _enableControl.PropertyChanged += (_, __) => EnableChanged(_enableControl.Value == 1 ? true : false);
             _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
             _brightnessControl.PropertyChanged += (_, __) => OnBrightnessPropertyChanged(_brightnessControl.Value);
             _smoothingControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Smoothing).FirstOrDefault() as SliderParameter;
@@ -367,7 +356,12 @@ namespace adrilight
                              spot.Red,
                              spot.Green,
                              spot.Blue);
-                            spot.SetColor((byte)(RealfinalR * _brightness), (byte)(RealfinalG * _brightness), (byte)(RealfinalB * _brightness), false);
+                            if (_isEnable)
+                                spot.SetColor((byte)(RealfinalR * _brightness), (byte)(RealfinalG * _brightness), (byte)(RealfinalB * _brightness), false);
+                            else
+                            {
+                                spot.SetColor(0, 0, 0, false);
+                            }
 
                         }
 

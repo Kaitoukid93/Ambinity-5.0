@@ -1,5 +1,6 @@
 ﻿using adrilight.Settings;
 using GalaSoft.MvvmLight;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Windows.Media.Imaging;
 
@@ -12,7 +13,7 @@ namespace adrilight.Util
         {
 
         }
-
+        private bool _isDownloading = false;
         public string Name { get; set; }
         public string Owner { get; set; } // the name of creator
         public string Type { get; set; } // ledsetup or color palette
@@ -24,5 +25,7 @@ namespace adrilight.Util
         public List<DeviceType> TargetDevices { get; set; }
         public bool IsLocalExisted { get; set; }
         public string Version { get; set; }
+        [JsonIgnore]
+        public bool IsDownloading { get => _isDownloading; set { Set(() => IsDownloading, ref _isDownloading, value); } }
     }
 }

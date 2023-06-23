@@ -165,11 +165,15 @@
                             </Grid>
                             <!--downloadbutton-->
                             <Grid Grid.Column="2">
-                                <Button Margin="20" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="2" Width="150" Height="30" Foreground="{DynamicResource ReverseTextBrush}" BorderThickness="0" Content="Download" Command="{Binding DownloadCurrentItemCommand}" CommandParameter="{Binding CurrentSelectedOnlineItem}">
-                                    <Button.Background>
-                                        <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="1"/>
-                                    </Button.Background>
-                                </Button>
+                                <StackPanel Orientation="Horizontal">
+                                    <hc:CircleProgressBar HorizontalAlignment="Right" VerticalAlignment="Top" IsIndeterminate="True" Visibility="{Binding CurrentSelectedOnlineItem.IsDownloading,Converter={StaticResource Boolean2VisibilityConverter}}" Padding="2" Margin="0,20" Height="30" Width="30" Value="{Binding Path=DataContext.CurrentDownloadProgress, RelativeSource={RelativeSource AncestorType=ListView}}" Maximum="{Binding Path=DataContext.CurrentItemSize, RelativeSource={RelativeSource AncestorType=ListView}}" FontSize="10"/>
+                                    <Button Margin="20" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="2" Width="150" Height="30" Foreground="{DynamicResource ReverseTextBrush}" BorderThickness="0" Content="Download" Command="{Binding DownloadCurrentItemCommand}" CommandParameter="{Binding CurrentSelectedOnlineItem}">
+                                        <Button.Background>
+                                            <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="1"/>
+                                        </Button.Background>
+                                    </Button>
+                                </StackPanel>
+                               
                             </Grid>
                         </Grid>
 

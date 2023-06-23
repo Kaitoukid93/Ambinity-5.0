@@ -79,10 +79,12 @@ namespace adrilight
         private ListSelectionParameter _colorControl;
         private SliderParameter _brightnessControl;
         private ListSelectionParameter _midDataControl;
+        private ToggleParameter _enableControl;
 
         private Color[] _colorBank;
         private double _brightness;
         private int _speed;
+        private bool _isEnable;
         private double _paletteSpeed;
         private colorUseEnum _colorUse = colorUseEnum.MovingPalette;
         private int _paletteIntensity = 10;
@@ -95,6 +97,18 @@ namespace adrilight
         private enum colorUseEnum { StaticPalette, MovingPalette, CyclicPalette };
 
         #region Properties changed event handler 
+        private void EnableChanged(bool value)
+        {
+            _isEnable = value;
+            if (value)
+            {
+                _currentLightingMode.Parameters.Except(new List<IModeParameter>() { _enableControl }).ForEach(p => p.IsEnabled = true);
+            }
+            else
+            {
+                _currentLightingMode.Parameters.Except(new List<IModeParameter>() { _enableControl }).ForEach(p => p.IsEnabled = false);
+            }
+        }
         private void OnSelectedMIDDataChanged(IParameterValue value)
         {
             var mid = value as MIDDataModel;
@@ -313,6 +327,8 @@ namespace adrilight
         public void Init()
         {
             #region registering params
+            _enableControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.IsEnabled).FirstOrDefault() as ToggleParameter;
+            _enableControl.PropertyChanged += (_, __) => EnableChanged(_enableControl.Value == 1 ? true : false);
             _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.MixedColor).FirstOrDefault() as ListSelectionParameter;
             _colorControl.PropertyChanged += (_, __) =>
             {
@@ -353,6 +369,7 @@ namespace adrilight
             {
                 _midDataControl.SelectedValue = _midDataControl.AvailableValues.First();
             }
+            EnableChanged(_enableControl.Value == 1 ? true : false);
             OnSelectedMIDDataChanged(_midDataControl.SelectedValue);
             OnColorUsePropertyChanged(_colorControl.SubParams[0].Value);
             OnPaletteIntensityPropertyChanged(_colorControl.SubParams[2].Value);
@@ -374,7 +391,6 @@ namespace adrilight
                 while (!token.IsCancellationRequested)
                 {
                     var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
-                    bool shouldSetColor = !MainViewViewModel.IsRichCanvasWindowOpen;
                     NextTick();
                     var ledCount = CurrentZone.Spots.Count();
                     var offset = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
@@ -396,8 +412,12 @@ namespace adrilight
                                 columnIndex = 0;
                             var brightness = (float)_brightness * (currentFrame[translatedIndex] / 255f);
                             ApplySmoothing(brightness * _colorBank[position].R, brightness * _colorBank[position].G, brightness * _colorBank[position].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
-                            if (shouldSetColor)
+                            if (_isEnable)
                                 spot.SetColor(FinalR, FinalG, FinalB, false);
+                            else
+                            {
+                                spot.SetColor(0, 0, 0, false);
+                            }
 
                         }
 

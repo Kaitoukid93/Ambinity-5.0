@@ -10,7 +10,6 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Windows;
 
@@ -66,7 +65,6 @@ namespace adrilight
         public string HardwareVersion { get => _hardwareVersion; set { Set(() => HardwareVersion, ref _hardwareVersion, value); } }
         public string ProductionDate { get => _productionDate; set { Set(() => ProductionDate, ref _productionDate, value); } }
         public bool IsVisible { get => _isVisible; set { Set(() => IsVisible, ref _isVisible, value); } }
-        public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); DeviceEnableChanged(); } }
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); } }
         public string OutputPort { get => _outputPort; set { Set(() => OutputPort, ref _outputPort, value); } }
         [JsonIgnore]
@@ -97,6 +95,7 @@ namespace adrilight
         public IOutputSettings[] AvailablePWMOutputs => GetOutput(ControllerTypeEnum.PWMController);
         [JsonIgnore]
         public ISlaveDevice[] AvailablePWMDevices => GetSlaveDevices(ControllerTypeEnum.PWMController);
+        public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); DeviceEnableChanged(); } }
         private ISlaveDevice[] GetSlaveDevices(ControllerTypeEnum type)
         {
             var slaveDevices = new List<ISlaveDevice>();
@@ -199,29 +198,7 @@ namespace adrilight
                 }
             }
         }
-        private void DeviceEnableChanged()
-        {
 
-
-            //if (AvailableOutputs != null)
-            //{
-
-            //    if (AvailableOutputs.Length == 1)
-            //    {
-            //        AvailableOutputs[0].OutputIsEnabled = IsEnabled;
-            //    }
-            //    else
-            //    {
-            //        foreach (var output in AvailableOutputs)
-            //        {
-            //            output.OutputParrentIsEnable = IsEnabled;
-
-            //        }
-            //    }
-            //}
-
-
-        }
 
         private DrawableHelpers DrawableHlprs;
 
@@ -240,55 +217,150 @@ namespace adrilight
         public void BrightnessUp(int value)
         {
 
-            //foreach (var output  in AvailableOutputs)//possible replace with method from IOutputSettings
-            //  {
-            //  var currentBrightness = (output as OutputSettings).GetBrightness();
-            //  var nextBrightness = currentBrightness + value;
-            //  if(nextBrightness<100)
-            //      (output as OutputSettings).SetBrightness(nextBrightness);
-            //  else
-            //  {
-            //      (output as OutputSettings).SetBrightness(100);
-            //  }
-            //  }
+            foreach (var device in AvailableLightingDevices)//possible replace with method from IOutputSettings
+            {
+                var lightingDevice = device as ARGBLEDSlaveDevice;
+                lightingDevice.BrightnessUp(value);
+            }
+            if (ControlZoneGroups != null)
+            {
+                foreach (var group in ControlZoneGroups)
+                {
+                    var lightingZone = group.MaskedControlZone as LEDSetup;
+                    if (lightingZone != null)
+                    {
+                        lightingZone.BrightnessUp(value);
+                    }
+                }
+            }
 
-        }
-        public void SpeedUp(int value)
-        {
-
-            //if (DeviceSpeed < 255)
-            //    DeviceSpeed += value;
-            //if (DeviceSpeed > 255)
-            //    DeviceSpeed = 255;
-
-        }
-        public void SpeedDown(int value)
-        {
-
-            //if (DeviceSpeed >20)
-            //    DeviceSpeed -= value;
-            //if (DeviceSpeed < 20)
-            //    DeviceSpeed = 20;
 
         }
         public void BrightnessDown(int value)
         {
 
+            foreach (var device in AvailableLightingDevices)//possible replace with method from IOutputSettings
+            {
+                var lightingDevice = device as ARGBLEDSlaveDevice;
+                lightingDevice.BrightnessDown(value);
+            }
+            if (ControlZoneGroups != null)
+            {
+                foreach (var group in ControlZoneGroups)
+                {
+                    var lightingZone = group.MaskedControlZone as LEDSetup;
+                    if (lightingZone != null)
+                    {
+                        lightingZone.BrightnessDown(value);
+                    }
+                }
+            }
 
-            //foreach (var output in AvailableOutputs)//possible replace with method from IOutputSettings
-            //{
-            //    var currentBrightness = (output as OutputSettings).GetBrightness();
-            //    var nextBrightness = currentBrightness - value;
-            //    if (nextBrightness > 0)
-            //        (output as OutputSettings).SetBrightness(nextBrightness);
-            //    else
-            //    {
-            //        (output as OutputSettings).SetBrightness(0);
-            //    }
-            //}
 
         }
+        public void SpeedUp(int value)
+        {
 
+            foreach (var device in AvailablePWMDevices)//possible replace with method from IOutputSettings
+            {
+                var pwmDevice = device as PWMMotorSlaveDevice;
+                pwmDevice.SpeedUp(value);
+            }
+            if (ControlZoneGroups != null)
+            {
+                foreach (var group in ControlZoneGroups)
+                {
+                    var pwmZone = group.MaskedControlZone as FanMotor;
+                    if (pwmZone != null)
+                    {
+                        pwmZone.SpeedUp(value);
+                    }
+                }
+            }
+
+        }
+        public void SpeedDown(int value)
+        {
+
+            foreach (var device in AvailablePWMDevices)//possible replace with method from IOutputSettings
+            {
+                var pwmDevice = device as PWMMotorSlaveDevice;
+                pwmDevice.SpeedDown(value);
+            }
+            if (ControlZoneGroups != null)
+            {
+                foreach (var group in ControlZoneGroups)
+                {
+                    var pwmZone = group.MaskedControlZone as FanMotor;
+                    if (pwmZone != null)
+                    {
+                        pwmZone.SpeedDown(value);
+                    }
+                }
+            }
+
+
+        }
+        public void TurnOffLED()
+        {
+            if (AvailableLightingDevices == null)
+                return;
+            foreach (var device in AvailableLightingDevices)//possible replace with method from IOutputSettings
+            {
+                var lightingDevice = device as ARGBLEDSlaveDevice;
+                lightingDevice.TurnOffLED();
+            }
+            if (ControlZoneGroups != null)
+            {
+                foreach (var group in ControlZoneGroups)
+                {
+                    var lightingZone = group.MaskedControlZone as LEDSetup;
+                    if (lightingZone != null)
+                    {
+                        lightingZone.TurnOffLED();
+                    }
+                }
+            }
+
+        }
+        public void TurnOnLED()
+        {
+            if (AvailableLightingDevices == null)
+                return;
+            foreach (var device in AvailableLightingDevices)//possible replace with method from IOutputSettings
+            {
+                var lightingDevice = device as ARGBLEDSlaveDevice;
+                lightingDevice.TurnOnLED();
+            }
+            if (ControlZoneGroups != null)
+            {
+                foreach (var group in ControlZoneGroups)
+                {
+                    var lightingZone = group.MaskedControlZone as LEDSetup;
+                    if (lightingZone != null)
+                    {
+                        lightingZone.TurnOnLED();
+                    }
+                }
+            }
+        }
+        public void DeviceEnableChanged()
+        {
+            if (IsEnabled)
+                TurnOnLED();
+            else
+            {
+                TurnOffLED();
+            }
+        }
+        public void ToggleOnOffLED()
+        {
+            if (IsEnabled)
+                IsEnabled = false;
+            else
+                IsEnabled = true;
+        }
+        #region Graphic Related Method
         public void UpdateChildSize()
         {
             foreach (var controller in AvailableControllers)
@@ -310,36 +382,7 @@ namespace adrilight
                 }
             }
         }
-        public void ActivateProfile(IDeviceSettings device)
-        {
-            int slaveDeviceCounter = 0;
-            foreach (var slaveDevice in AvailableLightingDevices)
-            {
-                int ledZoneCounter = 0;
-                var slaveDeviceProfileData = device.AvailableLightingDevices[slaveDeviceCounter] as ARGBLEDSlaveDevice;
-                foreach (PropertyInfo property in slaveDevice.GetType().GetProperties())
-                {
-
-                    if (property.CanWrite && !Attribute.IsDefined(property, typeof(ProfileIgnoreAttribute)))
-                        property.SetValue(slaveDevice, property.GetValue(slaveDeviceProfileData, null), null);
-                }
-                foreach (var zone in slaveDevice.ControlableZones)
-                {
-                    var ledZone = zone as LEDSetup;
-                    var zoneProfileData = slaveDeviceProfileData.ControlableZones[ledZoneCounter] as LEDSetup;
-                    foreach (PropertyInfo property in ledZone.GetType().GetProperties())
-                    {
-
-                        // if (Attribute.IsDefined(property, typeof(ReflectableAttribute)))
-                        if (property.CanWrite)
-                            property.SetValue(ledZone, property.GetValue(zoneProfileData, null), null);
-                    }
-                    ledZoneCounter++;
-                }
-                slaveDeviceCounter++;
-            }
-
-        }
+        #endregion
         public void RefreshFirmwareVersion()
         {
 

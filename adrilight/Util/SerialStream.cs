@@ -318,8 +318,6 @@ namespace adrilight
                 var ledZone = zone as LEDSetup;
                 lock (ledZone.Lock)
                 {
-                    var isEnabled = ledZone.IsEnabled;
-                    var parrentIsEnabled = DeviceSettings.IsEnabled;
                     if (ledZone.Spots.Count == 0)//this could be PID has removed all items add 1 dummy
                     {
                         outputStream[counter++] = 0; // blue
@@ -331,15 +329,6 @@ namespace adrilight
                         switch (DeviceSettings.DeviceState)
                         {
                             case DeviceStateEnum.Normal: // get data from ledsetup
-                                if (!DeviceSettings.IsEnabled || !ledZone.IsEnabled)
-                                {
-
-                                    ledZone.DimLED(0.9f);
-
-                                }
-
-
-
                                 foreach (DeviceSpot spot in ledZone.Spots)
                                 {
                                     if (spot.IsEnabled)
@@ -442,8 +431,6 @@ namespace adrilight
                 var ledZone = zone as LEDSetup;
                 lock (ledZone.Lock)
                 {
-                    var isEnabled = ledZone.IsEnabled;
-                    var parrentIsEnabled = DeviceSettings.IsEnabled;
                     if (ledZone.Spots.Count == 0)//this could be PID has removed all items add 1 dummy
                     {
                         outputStream[counter++] = 0; // blue
@@ -455,14 +442,6 @@ namespace adrilight
                         switch (DeviceSettings.DeviceState)
                         {
                             case DeviceStateEnum.Normal: // get data from ledsetup
-                                if (!DeviceSettings.IsEnabled || !ledZone.IsEnabled)
-                                {
-
-                                    ledZone.DimLED(0.9f);
-
-                                }
-
-
                                 foreach (DeviceSpot spot in ledZone.Spots)
                                 {
                                     if (spot.IsEnabled)

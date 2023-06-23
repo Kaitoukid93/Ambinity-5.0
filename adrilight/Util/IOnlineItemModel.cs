@@ -18,6 +18,7 @@ namespace adrilight.Util
         List<DeviceType> TargetDevices { get; set; }
         bool IsLocalExisted { get; set; }
         string Version { get; set; }
+        bool IsDownloading { get; set; }
 
     }
 }

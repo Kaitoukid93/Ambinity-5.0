@@ -90,11 +90,14 @@ namespace adrilight
         private ListSelectionParameter _chasingPatternControl;
         private SliderParameter _brightnessControl;
         private SliderParameter _speedControl;
+        private ToggleParameter _enableControl;
+
         private Color[] _colorBank;
         private double _brightness;
         private int _speed;
         private double _paletteSpeed;
         private Motion _motion;
+        private bool _isEnable;
         private Frame[] _resizedFrames;
         private colorUseEnum _colorUse = colorUseEnum.MovingPalette;
         private int _paletteIntensity = 10;
@@ -106,7 +109,18 @@ namespace adrilight
         private enum colorUseEnum { StaticPalette, MovingPalette, CyclicPalette };
 
         #region Properties changed event handler 
-
+        private void EnableChanged(bool value)
+        {
+            _isEnable = value;
+            if (value)
+            {
+                _currentLightingMode.Parameters.Except(new List<IModeParameter>() { _enableControl }).ForEach(p => p.IsEnabled = true);
+            }
+            else
+            {
+                _currentLightingMode.Parameters.Except(new List<IModeParameter>() { _enableControl }).ForEach(p => p.IsEnabled = false);
+            }
+        }
         private void OnSelectedPaletteChanged(IParameterValue value)
         {
 
@@ -344,6 +358,8 @@ namespace adrilight
         public void Init()
         {
             #region registering params
+            _enableControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.IsEnabled).FirstOrDefault() as ToggleParameter;
+            _enableControl.PropertyChanged += (_, __) => EnableChanged(_enableControl.Value == 1 ? true : false);
             _speedControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Speed).FirstOrDefault() as SliderParameter;
             _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.MixedColor).FirstOrDefault() as ListSelectionParameter;
             _colorControl.PropertyChanged += (_, __) =>
@@ -384,6 +400,7 @@ namespace adrilight
             {
                 _chasingPatternControl.SelectedValue = _chasingPatternControl.AvailableValues.First();
             }
+            EnableChanged(_enableControl.Value == 1 ? true : false);
             OnSelectedChasingPatternChanged(_chasingPatternControl.SelectedValue);
             OnColorUsePropertyChanged(_colorControl.SubParams[0].Value);
             OnPaletteIntensityPropertyChanged(_colorControl.SubParams[2].Value);
@@ -406,7 +423,6 @@ namespace adrilight
                     if (_resizedFrames == null)
                         continue;
                     var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
-                    bool shouldSetColor = !MainViewViewModel.IsRichCanvasWindowOpen;
                     NextTick();
                     lock (CurrentZone.Lock)
                     {
@@ -424,8 +440,12 @@ namespace adrilight
                                 }
                                 float brightness = ((_resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData[index]) * (float)_brightness) / 255;
                                 ApplySmoothing(brightness * _colorBank[position].R, brightness * _colorBank[position].G, brightness * _colorBank[position].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
-                                if (shouldSetColor)
+                                if (_isEnable)
                                     spot.SetColor(FinalR, FinalG, FinalB, false);
+                                else
+                                {
+                                    spot.SetColor(0, 0, 0, false);
+                                }
                             }
                         }
 

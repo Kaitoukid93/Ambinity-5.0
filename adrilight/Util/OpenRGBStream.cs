@@ -1,17 +1,11 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO.Ports;
-using System.Threading;
-using NLog;
-using System.Buffers;
-using adrilight.Util;
-using System.Linq;
-using Newtonsoft.Json;
-using System.Windows;
+﻿using adrilight.Settings;
 using adrilight.Spots;
+using adrilight.Util;
+using NLog;
+using System;
 using System.Collections.Generic;
-using adrilight.Settings;
-using Renci.SshNet.Messages;
+using System.Diagnostics;
+using System.Threading;
 
 namespace adrilight
 {
@@ -87,11 +81,11 @@ namespace adrilight
                             Start();
                         }
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         Debug.Write(ex);
                     }
-  
+
                 }
                 else
                 {
@@ -170,20 +164,11 @@ namespace adrilight
                 var currentZone = zone as LEDSetup;
                 lock (currentZone.Lock)
                 {
-                    var isEnabled = currentZone.IsEnabled;
-                    var parrentIsEnabled = DeviceSettings.IsEnabled;
                     var allBlack = true;
                     //}
                     switch (DeviceSettings.DeviceState)
                     {
                         case DeviceStateEnum.Normal: // get data from ledsetup
-                            if (!DeviceSettings.IsEnabled || !currentZone.IsEnabled)
-                            {
-
-                                currentZone.DimLED(0.9f);
-
-                            }
-
                             foreach (DeviceSpot spot in currentZone.Spots)
                             {
 
@@ -315,9 +300,9 @@ namespace adrilight
                         {
                             foreach (var color in outputColor)
                             {
-                                    deviceColors.Add(color == null ? new OpenRGB.NET.Models.Color(0, 0, 0) : color);
+                                deviceColors.Add(color == null ? new OpenRGB.NET.Models.Color(0, 0, 0) : color);
                             }
-                               
+
                         }
 
 

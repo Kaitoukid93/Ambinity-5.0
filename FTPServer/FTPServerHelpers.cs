@@ -43,7 +43,7 @@ namespace FTPServer
                 return null;
             }
         }
-        public async Task<String> GetFileByName(string fileName,string folderPath)
+        public async Task<String> GetFileByName(string fileName, string folderPath)
         {
             var listFilesAddress = new List<String>();
 
@@ -52,7 +52,7 @@ namespace FTPServer
                 var files = sFTP.ListDirectory(folderPath);
 
                 var file = files.Where(i => i.Name == fileName).FirstOrDefault();
-                   
+
                 return await Task.FromResult(folderPath + "/" + file.Name);
 
             }
@@ -107,21 +107,34 @@ namespace FTPServer
                 return null;
             }
         }
-        public void DownloadFile(string remotePath, string localPath)  // this method get all file from dropbox adrilight App folder to temp folder
+        public SftpFileAttributes GetFileAttributes(string remotePath)
+        {
+            SftpFileAttributes attrs = sFTP.GetAttributes(remotePath);
+            return attrs;
+        }
+        public SftpFile GetFileOrFoldername(string remotePath)
+        {
+            return sFTP.Get(remotePath);
+        }
+        public void DownloadFile(string remotePath, string localPath, Action<ulong> donwloadCallback)  // this method get all file from dropbox adrilight App folder to temp folder
         {
 
             try
             {
                 using (var s = File.Create(localPath))
                 {
-                    sFTP.DownloadFile(remotePath, s);
+                    sFTP.DownloadFile(remotePath, s, donwloadCallback);
                 }
 
             }
-            catch (Exception exception)
+            catch (System.IO.IOException)
             {
-                // Log error
-                //throw;
+
+
+            }
+            catch (Exception ex)
+            {
+
             }
 
         }

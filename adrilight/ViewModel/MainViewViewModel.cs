@@ -1548,7 +1548,7 @@ namespace adrilight.ViewModel
                         var thumbPath = await FTPHlprs.GetFileByName(device.DeviceName + ".png", thumbResourceFolderPath);
                         if (thumbPath != null)
                         {
-                            FTPHlprs.DownloadFile(thumbPath, Path.Combine(ResourceFolderPath, device.DeviceName + "_thumb.png"));
+                            FTPHlprs.DownloadFile(thumbPath, Path.Combine(ResourceFolderPath, device.DeviceName + "_thumb.png"), DownloadProgresBar);
                         }
                         lock (AvailableDeviceLock)
                         {
@@ -3243,20 +3243,7 @@ namespace adrilight.ViewModel
             {
                 OpenAmbinoStoreWindow();
             });
-            DownloadSelectedPaletteCommand = new RelayCommand<IOnlineItemModel>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                //DonwloadSelectedItem(p);
-            });
-            DownloadSelectedChasingPattern = new RelayCommand<Motion>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                // DownloadSelectedPalette(p);
-            });
+
             SetCurrentActionTypeForSelectedActionCommand = new RelayCommand<ActionType>((p) =>
             {
                 return true;
@@ -3344,7 +3331,7 @@ namespace adrilight.ViewModel
             }, async (p) =>
             {
                 CarouselImageLoading = true;
-                await Task.Run(() => UpdateStoreView(p));
+                await Task.Run(() => UpdateStoreView(p, "all"));
                 CurrentOnlineStoreView = "Collections";
             });
             SelectCardCommand = new RelayCommand<IDeviceSettings>((p) =>
@@ -3376,7 +3363,7 @@ namespace adrilight.ViewModel
                     }
                     else
                     {
-                        await GotoChild(p);
+                        GotoChild(p);
                     }
                 }
                 else if (Keyboard.IsKeyDown(Key.LeftCtrl)) // device is selected with ctrl key, start multiple select
@@ -3452,7 +3439,7 @@ namespace adrilight.ViewModel
             FinishOOTBCommand = new RelayCommand<string>((p) =>
                         {
                             return p != null;
-                        }, (p) =>
+                        }, async (p) =>
                         {
                             CurrentDevice.IsSizeNeedUserDefine = false;
                             GotoChild(CurrentDevice);
@@ -3470,7 +3457,7 @@ namespace adrilight.ViewModel
             SkipOOTBCommand = new RelayCommand<string>((p) =>
             {
                 return p != null;
-            }, (p) =>
+            }, async (p) =>
             {
                 OOTBItems.Clear();
                 OOTBSelectedItems.Clear();
@@ -3574,31 +3561,7 @@ namespace adrilight.ViewModel
             {
                 ResetPID();
             });
-            //NextOutputCommand = new RelayCommand<string>((p) =>
-            //{
-            //    return p != null;
-            //}, (p) =>
-            //{
-            //    foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-            //    {
-            //        if (spot.BorderThickness != 0.0)
-            //        {
-            //            spot.BorderThickness = 0.0;
-            //        }
-            //    }
-            //    int currentOutputID = CurrentOutput.OutputID;
-            //    if (currentOutputID + 1 == CurrentDevice.AvailableOutputs.Count())
-            //    {
-            //        currentOutputID = 0;
-            //        CurrentOutput = CurrentDevice.AvailableOutputs[currentOutputID];
-            //        CurrentDevice.SelectedOutput = currentOutputID;
-            //    }
-            //    else
-            //    {
-            //        CurrentDevice.SelectedOutput = currentOutputID + 1;
-            //        CurrentOutput = CurrentDevice.AvailableOutputs[currentOutputID + 1];
-            //    }
-            //});
+
             SaveCurrentSelectedRegionCommand = new RelayCommand<string>((p) =>
             {
                 return p != null;
@@ -3615,156 +3578,6 @@ namespace adrilight.ViewModel
                 }
                 ;
             });
-            //    PreviousOutputCommand = new RelayCommand<string>((p) =>
-            //{
-            //    return p != null;
-            //}, (p) =>
-            //{
-            //    foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-            //    {
-            //        if (spot.BorderThickness != 0.0)
-            //        {
-            //            spot.BorderThickness = 0.0;
-            //        }
-            //    }
-            //    int currentOutputID = CurrentOutput.OutputID;
-            //    if (currentOutputID == 0)
-            //    {
-            //        currentOutputID = CurrentDevice.AvailableOutputs.Count();
-            //    }
-            //    CurrentOutput = CurrentDevice.AvailableOutputs[currentOutputID - 1];
-            //    CurrentDevice.SelectedOutput = currentOutputID - 1;
-            //});
-
-            //    ResetCountCommand = new RelayCommand<string>((p) =>
-            //{
-            //    return p != null;
-            //}, (p) =>
-            //{
-            //    switch (CurrentIDType)
-            //    {
-            //        case "VID":
-            //            foreach (var device in AvailableDevices.Where(d => !d.IsDummy))
-            //            {
-            //                foreach (var output in device.AvailableOutputs)
-            //                {
-            //                    foreach (var spot in output.OutputLEDSetup.Spots)
-            //                    {
-            //                        spot.SetVID(0);
-            //                        spot.IsEnabled = false;
-            //                    }
-            //                }
-            //            }
-            //            break;
-            //        case "FID":
-            //            foreach (var device in AvailableDevices.Where(d => !d.IsDummy))
-            //            {
-            //                foreach (var output in device.AvailableOutputs)
-            //                {
-            //                    foreach (var spot in output.OutputLEDSetup.Spots)
-            //                    {
-            //                        spot.SetMID(0);
-            //                        spot.IsEnabled = false;
-            //                    }
-            //                }
-            //            }
-            //            break;
-            //        case "CID":
-            //            foreach (var device in AvailableDevices.Where(d => !d.IsDummy))
-            //            {
-            //                foreach (var output in device.AvailableOutputs)
-            //                {
-            //                    foreach (var spot in output.OutputLEDSetup.Spots)
-            //                    {
-            //                        spot.SetCID(0);
-            //                        spot.IsEnabled = false;
-            //                    }
-            //                }
-            //            }
-            //            break;
-            //    }
-            //});
-            //SetCurrentSelectedVID = new RelayCommand<string>((p) =>
-            //{
-            //    return p != null;
-            //}, (p) =>
-            //{
-            //    if (p != "")
-            //        ProcessSelectedSpots(p);
-            //});
-            //SetSelectedSpotCIDCommand = newba RelayCommand<string>((p) =>
-            //{
-            //    return p != null;
-            //}, (p) =>
-            //{
-            //    if (p != "")
-            //        ProcessSelectedSpots(p);
-            //});
-            //SetSelectedSpotIDLeftToRightCommand = new RelayCommand<string>((p) =>
-            //{
-            //    return p != null;
-            //}, (p) =>
-            //{
-            //    // if (p != "")
-            //    // ProcessSelectedSpotsID(p);
-            //});
-
-            //SetCurrentSelectedVIDRange = new RelayCommand<string>((p) =>
-            //{
-            //    return p != null;
-            //}, (p) =>
-            //{
-            //    ProcessSelectedSpotsWithRange(RangeMinValue, RangeMaxValue);
-            //});
-            //SetPIDNeutral = new RelayCommand<string>((p) =>
-            //{
-            //    return p != null;
-            //}, (p) =>
-            //{
-            //    MaxLEDCount = ActivatedSpots.Count;
-            //    foreach (var spot in ActivatedSpots)
-            //    {
-            //        spot.SetColor(0, 0, 0, true);
-            //        spot.SetIDVissible(false);
-            //    }
-            //    foreach (var spot in ActivatedSpots)
-            //    {
-            //        spot.SetColor(100, 27, 0, true);
-            //        spot.SetID(ActivatedSpots.Count() - MaxLEDCount--);
-            //        spot.SetIDVissible(true);
-            //    }
-            //});
-            //SetPIDReverseNeutral = new RelayCommand<string>((p) =>
-            //{
-            //    return p != null;
-            //}, (p) =>
-            //{
-            //    MaxLEDCount = ActivatedSpots.Count;
-            //    foreach (var spot in ActivatedSpots)
-            //    {
-            //        spot.SetColor(0, 0, 0, true);
-            //        spot.SetIDVissible(false);
-            //    }
-            //    foreach (var spot in ActivatedSpots)
-            //    {
-            //        spot.SetColor(100, 27, 0, true);
-            //        spot.SetID(MaxLEDCount--);
-            //        spot.SetIDVissible(true);
-            //    }
-            //});
-            //ResetMaxCountCommand = new RelayCommand<string>((p) =>
-            //{
-            //    return p != null;
-            //}, (p) =>
-            //{
-            //    MaxLEDCount = ActivatedSpots.Count;
-            //    foreach (var spot in ActivatedSpots)
-            //    {
-            //        spot.SetColor(0, 0, 0, true);
-            //        spot.SetIDVissible(false);
-            //    }
-            //});
-
             SetZoneColorCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -3823,66 +3636,6 @@ namespace adrilight.ViewModel
             GeneralSettings.IsInBetaChanel = true;
         }
 
-        //private static object _syncRoot = new object();
-
-        //private async void ScanSerialDevice()
-        //{
-        //    ISerialDeviceDetection detector = new SerialDeviceDetection();
-        //    var tokenSource = new CancellationTokenSource();
-        //    CancellationToken token = tokenSource.Token;
-
-        //    var jobTask = Task.Run(() =>
-        //    {
-        //        // Organize critical sections around logical serial port operations somehow.
-        //        lock (_syncRoot)
-        //        {
-        //            return detector.DetectedDevices;
-        //        }
-        //    });
-        //    if (jobTask != await Task.WhenAny(jobTask, Task.Delay(Timeout.Infinite, token)))
-        //    {
-        //        // Timeout;
-        //        return;
-        //    }
-        //    var newDevices = await jobTask;
-        //    if (newDevices.Count == 0)
-        //    {
-        //        HandyControl.Controls.MessageBox.Show("Unable to detect any supported device, try adding manually", "No Compatible Device Found", MessageBoxButton.OK, MessageBoxImage.Warning);
-        //    }
-        //    else
-        //    {
-        //        foreach (var device in newDevices)
-        //        {
-        //            Debug.WriteLine("Name: " + device.DeviceName);
-        //            Debug.WriteLine("ID: " + device.DeviceSerial);
-        //            Debug.WriteLine("Firmware Version: " + device.FirmwareVersion);
-        //            Debug.WriteLine("---------------");
-        //        }
-        //        AvailableSerialDevices = new ObservableCollection<IDeviceSettings>();
-        //        foreach (var device in newDevices)
-        //        {
-        //            AvailableSerialDevices.Add(device);
-        //        }
-        //        tokenSource.Cancel();
-        //    }
-        //}
-
-        //private void OpenFFTPickerWindow()
-        //{
-        //    if (AssemblyHelper.CreateInternalInstance($"View.{"MIDEditWindow"}") is System.Windows.Window window)
-        //    {
-        //        VisualizerFFT = new VisualizerProgressBar[CurrentOutput.OutputLEDSetup.Spots.Count];
-        //        for (int i = 0; i < VisualizerFFT.Length; i++)
-        //        {
-        //            VisualizerFFT[i] = new VisualizerProgressBar(0.0f, Color.FromRgb(0, 0, 0));
-        //        }
-
-        //        IsVisualizerWindowOpen = true;
-        //        window.Owner = System.Windows.Application.Current.MainWindow;
-        //        window.ShowDialog();
-        //    }
-        //}
-
         private void OpenActionsManagerWindow(AutomationSettings selectedautomation)
         {
             if (AssemblyHelper.CreateInternalInstance($"View.{"ActionManagerWindow"}") is System.Windows.Window window)
@@ -3894,6 +3647,7 @@ namespace adrilight.ViewModel
                 AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Giảm", Description = "Giảm giá trị của một thuộc tính", Geometry = "apply", Type = "Decrease", LinkText = "Của thiết bị", IsValueDisplayed = false, IsTargetDeviceDisplayed = true });
                 AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Bật", Description = "Bật một tính năng", Geometry = "apply", Type = "On", LinkText = "Của thiết bị", IsValueDisplayed = false, IsTargetDeviceDisplayed = true });
                 AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Tắt", Description = "Tắt một tính năng", Geometry = "apply", Type = "Off", LinkText = "Của thiết bị", IsValueDisplayed = false, IsTargetDeviceDisplayed = true });
+                AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Bật-Tắt", Description = "Chuyển đổi trạng thái Bật Tắt", Geometry = "apply", Type = "On/Off", LinkText = "Của thiết bị", IsValueDisplayed = false, IsTargetDeviceDisplayed = true });
                 AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Chuyển", Description = "Chuyển đổi đồng thời kích hoạt một tính năng", Geometry = "apply", Type = "Change", LinkText = "Của thiết bị", ToResultText = "thành", IsValueDisplayed = true, IsTargetDeviceDisplayed = true });
                 window.Owner = System.Windows.Application.Current.MainWindow;
                 window.ShowDialog();
@@ -4059,7 +3813,8 @@ namespace adrilight.ViewModel
                     AutomationParamList = new ObservableCollection<object>();
                     foreach (var profile in AvailableProfiles)
                     {
-                        AutomationParamList.Add(new ActionParameter { Geometry = profile.Geometry, Name = profile.Name, Type = "profile", Value = profile.Name });
+                        if (profile != null)
+                            AutomationParamList.Add(new ActionParameter { Geometry = profile.Geometry, Name = profile.Name, Type = "profile", Value = profile.Name });
                     }
                     break;
 
@@ -4092,7 +3847,12 @@ namespace adrilight.ViewModel
                     AutomationParamList = new ObservableCollection<object>();
                     AutomationParamList.Add(GetAutoMationParam("state", "on"));
                     break;
-
+                case "On/Off":
+                    if (targetDevice == null)
+                        return;
+                    AutomationParamList = new ObservableCollection<object>();
+                    AutomationParamList.Add(GetAutoMationParam("state", "on"));
+                    break;
                 case "Change":
                     if (targetDevice == null)
                         return;
@@ -4157,7 +3917,10 @@ namespace adrilight.ViewModel
                     linkTxt = "Của thiết bị";
                     resultTxt = "";
                     break;
-
+                case "On/Off":
+                    linkTxt = "Của thiết bị";
+                    resultTxt = "";
+                    break;
                 case "Change":
                     linkTxt = "Của thiết bị";
                     resultTxt = "thành";
@@ -4211,6 +3974,7 @@ namespace adrilight.ViewModel
             CurrentSelectedAction.ActionParameter.Value = color;
             RaisePropertyChanged(nameof(CurrentSelectedAction.ActionParameter.Value));
         }
+
 
         #region Online Item Exporter
 
@@ -4403,9 +4167,33 @@ namespace adrilight.ViewModel
         #endregion Online Item Exporter
 
         #region Online Item downloader
+        private int _currentDownloadProgress;
+        public int CurrentDownloadProgress {
+            get { return _currentDownloadProgress; }
+            set
+            {
+                _currentDownloadProgress = value;
+                RaisePropertyChanged();
+            }
+        }
+        private int _currentItemSize;
+        public int CurrentItemSize {
+            get { return _currentItemSize; }
+            set
+            {
+                _currentItemSize = value;
+                RaisePropertyChanged();
+            }
+        }
+        private void DownloadProgresBar(ulong uploaded)
+        {
+            // Update progress bar on foreground thread
+            CurrentDownloadProgress = (int)uploaded;
+        }
 
         private async Task SaveItemToLocalCollection<T>(string collectionPath, DeserializeMethodEnum mode, IOnlineItemModel item, string extension)
         {
+            item.IsDownloading = true;
             if (!Directory.Exists(collectionPath))
                 Directory.CreateDirectory(collectionPath);
             //check for duplicate item
@@ -4438,7 +4226,10 @@ namespace adrilight.ViewModel
                         foreach (var file in listofFiles)
                         {
                             //save to local folder
-                            FTPHlprs.DownloadFile(item.Path + "/content" + "/" + file.Name, localFolderPath + "/" + file.Name);
+                            var remotePath = item.Path + "/content" + "/" + file.Name;
+                            var itemSize = FTPHlprs.GetFileAttributes(remotePath).Size;
+                            CurrentItemSize = (int)itemSize;
+                            FTPHlprs.DownloadFile(remotePath, localFolderPath + "/" + file.Name, DownloadProgresBar);
                         }
                         break;
                     case DeserializeMethodEnum.Files:
@@ -4448,11 +4239,16 @@ namespace adrilight.ViewModel
                         foreach (var file in listofFiles.Where(f => f.Name != "thumbnail.png"))
                         {
                             //save to local folder
-                            FTPHlprs.DownloadFile(item.Path + "/content" + "/" + file.Name, localFilePath + "/" + file.Name);
+                            var remotePath = item.Path + "/content" + "/" + file.Name;
+                            var itemSize = FTPHlprs.GetFileAttributes(remotePath).Size;
+                            CurrentItemSize = (int)itemSize;
+                            FTPHlprs.DownloadFile(remotePath, localFilePath + "/" + file.Name, DownloadProgresBar);
                         }
                         break;
                 }
             }
+            await Task.Delay(1000);
+            item.IsDownloading = false;
         }
 
         private async Task DownloadCurrentOnlineItem(IOnlineItemModel o)
@@ -4506,7 +4302,7 @@ namespace adrilight.ViewModel
                 {
                     CurrentOnlineStoreView = "Collections";
                     CarouselImageLoading = true;
-                    Task.Run(() => UpdateStoreView("all"));
+                    Task.Run(() => UpdateStoreView("all", "selectedCatergory"));
                 }
             }
         }
@@ -4554,28 +4350,41 @@ namespace adrilight.ViewModel
                     break;
             }
         }
-        private async void UpdateStoreView(string filter)
+        private async void UpdateStoreView(string filter, string mode)
         {
-            switch (CurrentSelectedCategory.Type)
+            if (mode == "all")
             {
-                case "Palette":
-                    await GetStoreItem(paletteFolderpath, filter);
-                    break;
-
-                case "Pattern":
-                    await GetStoreItem(chasingPatternsFolderPath, filter);
-                    break;
-
-                case "Gif":
-                    await GetStoreItem(gifxelationsFolderPath, filter);
-                    break;
-                case "SupportedDevice":
-                    await GetStoreItem(SupportedDevicesFolderPath, filter);
-                    break;
-                case "Profiles":
-                    await GetStoreItem(ProfilesFolderPath, filter);
-                    break;
+                AvailableOnlineItems = new ObservableCollection<IOnlineItemModel>();
+                await GetStoreItem(paletteFolderpath, filter, mode);
+                await GetStoreItem(chasingPatternsFolderPath, filter, mode);
+                await GetStoreItem(gifxelationsFolderPath, filter, mode);
+                await GetStoreItem(SupportedDevicesFolderPath, filter, mode);
+                await GetStoreItem(ProfilesFolderPath, filter, mode);
             }
+            else if (mode == "selectedCatergory")
+            {
+                switch (CurrentSelectedCategory.Type)
+                {
+                    case "Palette":
+                        await GetStoreItem(paletteFolderpath, filter, mode);
+                        break;
+
+                    case "Pattern":
+                        await GetStoreItem(chasingPatternsFolderPath, filter, mode);
+                        break;
+
+                    case "Gif":
+                        await GetStoreItem(gifxelationsFolderPath, filter, mode);
+                        break;
+                    case "SupportedDevice":
+                        await GetStoreItem(SupportedDevicesFolderPath, filter, mode);
+                        break;
+                    case "Profiles":
+                        await GetStoreItem(ProfilesFolderPath, filter, mode);
+                        break;
+                }
+            }
+
         }
 
         private bool CheckEqualityObjects(object object1, object object2)
@@ -4656,10 +4465,10 @@ namespace adrilight.ViewModel
                 return;
             }
         }
-        private async Task GetStoreItem(string itemFolderPath, string filter)
+        private async Task GetStoreItem(string itemFolderPath, string filter, string mode)
         {
-            AvailableOnlineItems = new ObservableCollection<IOnlineItemModel>();
-
+            if (mode == "selectedCatergory")
+                AvailableOnlineItems = new ObservableCollection<IOnlineItemModel>();
             //get carousel image
             //get all available files
             if (!FTPHlprs.sFTP.IsConnected)
@@ -4676,7 +4485,14 @@ namespace adrilight.ViewModel
                 else
                 {
                     var lowerFilter = filter.ToLower();
-                    filteredItemAddress = listItemAddress.Where(a => a.ToLower().Contains(lowerFilter)).ToList();
+                    foreach (var address in listItemAddress)
+                    {
+                        var itemName = FTPHlprs.GetFileOrFoldername(address).Name;
+                        if (itemName.ToLower().Contains(lowerFilter))
+                        {
+                            filteredItemAddress.Add(address);
+                        }
+                    }
                 }
                 foreach (var address in filteredItemAddress)
                 {
@@ -4693,8 +4509,8 @@ namespace adrilight.ViewModel
                         AvailableOnlineItems.Add(info);
                     });
                 }
-                if (AvailableOnlineItems.Count == 0)
-                    HandyControl.Controls.MessageBox.Show("Không có Item nào được tìm thấy, Hãy thử chọn mục khác", "No Item Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+                //if (AvailableOnlineItems.Count == 0)
+                //    HandyControl.Controls.MessageBox.Show("Không có Item nào được tìm thấy, Hãy thử chọn mục khác", "No Item Found", MessageBoxButton.OK, MessageBoxImage.Warning);
                 CarouselImageLoading = false;
             }
             else
@@ -5264,7 +5080,7 @@ namespace adrilight.ViewModel
                 if (targetDevice == null)
                 {
                     HandyControl.Controls.MessageBox.Show(action.TargetDeviceName + " Không thể thiết lập automation, thiết bị đã bị xóa hoặc thay đổi UID!!!", "Device is not available", MessageBoxButton.OK, MessageBoxImage.Error);
-                    actions.Remove(action);
+                    //actions.Remove(action);
                     WriteAutomationCollectionJson();
                     return;
                 }
@@ -5311,13 +5127,15 @@ namespace adrilight.ViewModel
 
                     case "Off":
                         // just turn off all leds for now
-                        targetDevice.IsEnabled = false;
+                        targetDevice.TurnOffLED();
                         break;
 
                     case "On":
-                        targetDevice.IsEnabled = true;
+                        targetDevice.TurnOnLED();
                         break;
-
+                    case "On/Off":
+                        targetDevice.ToggleOnOffLED();
+                        break;
                     case "Change":
                         //just change solid color and activate static mode
                         switch (action.ActionParameter.Type)
@@ -8883,6 +8701,7 @@ namespace adrilight.ViewModel
             }
             var description = await FTPHlprs.GetStringContent(descriptionPath);
             item.MarkDownDescription = description;
+            CarouselImageLoading = false;
         }
 
         public bool IsLiveViewOpen => SelectedViewPart == SelectableViewParts[1];
@@ -9281,7 +9100,7 @@ namespace adrilight.ViewModel
         {
             CurrentOnlineStoreView = "Collections";
             CarouselImageLoading = true;
-            Task.Run(() => UpdateStoreView("all"));
+            Task.Run(() => UpdateStoreView("all", "selectedCatergory"));
         }
 
         /// <summary>

@@ -51,5 +51,6 @@
         Smoothing,
         CapturingRegion,
         Gifs,
+        IsEnabled
     }
 }

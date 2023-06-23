@@ -123,7 +123,45 @@ namespace adrilight.Settings
         public DeviceType TargetDeviceType { get; set; }
 
         private DrawableHelpers DrawableHlprs = new DrawableHelpers();
-
+        #region Lighting Related Method
+        public void BrightnessUp(int value)
+        {
+            foreach (var zone in ControlableZones)
+            {
+                var ledZone = zone as LEDSetup;
+                if (!ledZone.IsInControlGroup)
+                    ledZone.BrightnessUp(value);
+            }
+        }
+        public void BrightnessDown(int value)
+        {
+            foreach (var zone in ControlableZones)
+            {
+                var ledZone = zone as LEDSetup;
+                if (!ledZone.IsInControlGroup)
+                    ledZone.BrightnessUp(value);
+            }
+        }
+        public void TurnOffLED()
+        {
+            foreach (var zone in ControlableZones)
+            {
+                var ledZone = zone as LEDSetup;
+                if (!ledZone.IsInControlGroup)
+                    ledZone.TurnOffLED();
+            }
+        }
+        public void TurnOnLED()
+        {
+            foreach (var zone in ControlableZones)
+            {
+                var ledZone = zone as LEDSetup;
+                if (!ledZone.IsInControlGroup)
+                    ledZone.TurnOnLED();
+            }
+        }
+        #endregion
+        #region Graphic Related Method
         private int GetLEDsCount()
         {
             int ledCount = 0;
@@ -303,29 +341,12 @@ namespace adrilight.Settings
             }
             return true;
         }
-
+        #endregion
         /// <summary>
         /// tell zones to update size and position after system or local change of resolution
         /// </summary>
         /// <param name="scaleX"></param>
         /// <param name="scaleY"></param>
-
-        private void MoveChildX(double delta)
-        {
-            foreach (var ledZone in ControlableZones)
-            {
-                (ledZone as LEDSetup).Left += delta;
-            }
-        }
-
-        private void MoveChildY(double delta)
-        {
-            foreach (var ledZone in ControlableZones)
-            {
-                (ledZone as LEDSetup).Top += delta;
-            }
-        }
-
         protected virtual void OnLeftChanged(double delta)
         { }
 

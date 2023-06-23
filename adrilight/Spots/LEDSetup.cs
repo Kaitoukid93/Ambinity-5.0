@@ -166,6 +166,8 @@ namespace adrilight
         public Rect GetRect => new Rect(Left + OffsetX, Top + OffsetY, Width, Height);
         public string Type { get; set; }
         private DrawableHelpers DrawableHlprs = new DrawableHelpers();
+        #region Lighting Related Method
+
         public List<ColorCard> GetStaticColorDataSource()
         {
             var colors = new List<ColorCard>();
@@ -173,6 +175,58 @@ namespace adrilight
             (staticColorControlMode.ColorParameter as ListSelectionParameter).AvailableValues.ForEach(c => colors.Add(c as ColorCard));
             return colors;
         }
+        public void BrightnessUp(int value)
+        {
+            var currentLightingMode = CurrentActiveControlMode as LightingMode;
+            if (currentLightingMode != null)
+            {
+                var currentBrightness = currentLightingMode.GetBrightness();
+                if (currentBrightness + value <= currentLightingMode.MaxBrightness)
+                {
+                    currentLightingMode.SetBrightness(currentBrightness + value);
+                }
+                else
+                {
+                    currentLightingMode.SetBrightness(currentLightingMode.MaxBrightness);
+                }
+
+            }
+        }
+        public void BrightnessDown(int value)
+        {
+            var currentLightingMode = CurrentActiveControlMode as LightingMode;
+            if (currentLightingMode != null)
+            {
+                var currentBrightness = currentLightingMode.GetBrightness();
+                if (currentBrightness - value >= currentLightingMode.MinBrightness)
+                {
+                    currentLightingMode.SetBrightness(currentBrightness - value);
+                }
+                else
+                {
+                    currentLightingMode.SetBrightness(currentLightingMode.MinBrightness);
+                }
+
+            }
+        }
+        public void TurnOffLED()
+        {
+            var currentLightingMode = CurrentActiveControlMode as LightingMode;
+            if (currentLightingMode != null)
+            {
+                currentLightingMode.Disable();
+            }
+        }
+        public void TurnOnLED()
+        {
+            var currentLightingMode = CurrentActiveControlMode as LightingMode;
+            if (currentLightingMode != null)
+            {
+                currentLightingMode.Enable();
+            }
+        }
+        #endregion
+        #region Graphic Related Method
         public void ResetVIDStage()
         {
             foreach (var spot in Spots)
@@ -195,36 +249,6 @@ namespace adrilight
 
 
         }
-        public void UpdateView()
-        {
-            foreach (var spot in Spots)
-            {
-                spot.UpdateView();
-            }
-        }
-        /// <summary>
-        /// Rotates one point around another
-        /// </summary>
-        /// <param name="pointToRotate">The point to rotate.</param>
-        /// <param name="centerPoint">The center point of rotation.</param>
-        /// <param name="angleInDegrees">The rotation angle in degrees.</param>
-        /// <returns>Rotated point</returns>
-        private static Point RotatePoint(Point pointToRotate, Point centerPoint, double angleInDegrees)
-        {
-            double angleInRadians = angleInDegrees * (Math.PI / 180);
-            double cosTheta = Math.Cos(angleInRadians);
-            double sinTheta = Math.Sin(angleInRadians);
-            return new Point {
-                X =
-
-                    (cosTheta * (pointToRotate.X - centerPoint.X) -
-                    sinTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.X),
-                Y =
-
-                    (sinTheta * (pointToRotate.X - centerPoint.X) +
-                    cosTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.Y)
-            };
-        }
         private static Point ReflectPointVertical(Point pointToReflect, double center)
         {
             double distance = pointToReflect.X - center;
@@ -246,7 +270,6 @@ namespace adrilight
                 (spot as IDrawable).Top -= newBound.Top;
             }
         }
-
         private Geometry ScaleGeometry(Geometry inputGeometry, double scaleX, double scaleY)
         {
             //rotate the geometry
@@ -274,12 +297,6 @@ namespace adrilight
             Top = newBound.Top;
             Width = newBound.Width;
             Height = newBound.Height;
-        }
-        public void ReorderSpots()
-        {
-            var reorderedSpots = Spots.OrderBy(o => o.Index).ToList();
-            Spots.Clear();
-            reorderedSpots.ForEach(s => Spots.Add(s));
         }
         public Rect GetDeviceRectBound(List<IDeviceSpot> spots)
         {
@@ -319,8 +336,6 @@ namespace adrilight
 
             return true;
         }
-
-
         public void FillSpotsColor(Color color)
         {
             foreach (var spot in Spots)
@@ -344,7 +359,7 @@ namespace adrilight
                 spot.Index = spot.BackupID;
             }
         }
-
+        #endregion
         protected virtual void OnLeftChanged(double delta) { }
 
         protected virtual void OnTopChanged(double delta) { }

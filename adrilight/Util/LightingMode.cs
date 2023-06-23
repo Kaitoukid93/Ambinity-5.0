@@ -1,13 +1,8 @@
 ﻿using adrilight.Util.ModeParameters;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
 
 namespace adrilight.Util
 {
@@ -48,9 +43,18 @@ namespace adrilight.Util
         public string Geometry { get; set; }
         [JsonIgnore]
         public IModeParameter ColorParameter => Parameters.Where(p => p.ParamType == ModeParameterEnum.Color).FirstOrDefault();
-        internal int GetBrightness()
+        public void Disable()
         {
-
+            var disableEnableParam = Parameters.Where(p => p.ParamType == ModeParameterEnum.IsEnabled).FirstOrDefault() as ToggleParameter;
+            disableEnableParam.Value = 0;
+        }
+        public void Enable()
+        {
+            var disableEnableParam = Parameters.Where(p => p.ParamType == ModeParameterEnum.IsEnabled).FirstOrDefault() as ToggleParameter;
+            disableEnableParam.Value = 1;
+        }
+        public int GetBrightness()
+        {
             var brightnessParam = Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
             int brightness = 0;
             if (brightnessParam != null) { }
@@ -58,12 +62,14 @@ namespace adrilight.Util
             return brightness;
 
         }
-
-        internal void SetBrightness(int value)
+        public void SetBrightness(int value)
         {
             var brightnessParam = Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
             brightnessParam.Value = value;
         }
-
+        [JsonIgnore]
+        public int MaxBrightness => (Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter).MaxValue;
+        [JsonIgnore]
+        public int MinBrightness => (Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter).MinValue;
     }
 }

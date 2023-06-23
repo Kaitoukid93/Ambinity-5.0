@@ -354,14 +354,11 @@
                             </hc:TransitioningContentControl>
                         </Grid>
                     </DataTemplate>
-
                     <DataTemplate  x:Key="_toggleParamTemplate"  DataType="{x:Type parameters:ToggleParameter}">
                         <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
-                            <Border Effect="{DynamicResource EffectShadow1}" Margin="0,0,0,5" Padding="10" CornerRadius="4" Background="{DynamicResource MainContentBackgroundBrush}">
-
-                                <Grid>
+                            <Grid ToolTip="{Binding Description}" Visibility="{Binding IsEnabled,Converter={StaticResource Boolean2VisibilityConverter}}">
+                                <Border Effect="{DynamicResource EffectShadow1}" Margin="0,0,0,5" Padding="10" CornerRadius="4" Background="{DynamicResource MainContentBackgroundBrush}">
                                     <StackPanel>
-
                                         <Grid>
                                             <GroupBox VerticalAlignment="Stretch" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                                                 <GroupBox.HeaderTemplate>
@@ -413,136 +410,139 @@
                                             </ItemsControl>
                                         </Grid>
                                     </StackPanel>
-                                </Grid>
-                            </Border>
+                                </Border>
+                            </Grid>
                         </hc:TransitioningContentControl>
                     </DataTemplate>
                     <DataTemplate  x:Key="_buttonParamTemplate"  DataType="{x:Type parameters:BaseButtonParameter}">
                         <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
-                            <StackPanel>
-                                <Border Effect="{DynamicResource EffectShadow1}" Margin="0,0,0,5" Padding="0" CornerRadius="4" Background="{DynamicResource MainContentBackgroundBrush}">
-                                    <Button Command="{Binding DataContext.OpenExternalWindowsFromModeParameterCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}" CommandParameter="{Binding .}"  HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" hc:BorderElement.CornerRadius="7" Margin="0" hc:BackgroundSwitchElement.MouseHoverBackground="{DynamicResource ButtonHoverBrush}" hc:BackgroundSwitchElement.MouseDownBackground="{DynamicResource SecondaryRegionBrush}" Style="{DynamicResource ButtonCustom}" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                                        <Grid Margin="10">
-                                            <GroupBox VerticalAlignment="Stretch" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
-                                                <GroupBox.HeaderTemplate>
-                                                    <DataTemplate>
-                                                        <StackPanel>
-                                                            <TextBlock  FontWeight="SemiBold" Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox},Converter={StaticResource toUpperValueConverter}}" />
-                                                            <TextBlock Margin="0,5,0,0" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="{Binding DataContext.Description, RelativeSource={RelativeSource AncestorType=GroupBox}}" />
-                                                        </StackPanel>
-                                                    </DataTemplate>
-                                                </GroupBox.HeaderTemplate>
-                                                <Grid>
-                                                    <Path HorizontalAlignment="Right" Stretch="Uniform" Margin="5" Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
+                            <Grid ToolTip="{Binding Description}" Visibility="{Binding IsEnabled,Converter={StaticResource Boolean2VisibilityConverter}}">
+                                <StackPanel>
+                                    <Border Effect="{DynamicResource EffectShadow1}" Margin="0,0,0,5" Padding="0" CornerRadius="4" Background="{DynamicResource MainContentBackgroundBrush}">
+                                        <Button Command="{Binding DataContext.OpenExternalWindowsFromModeParameterCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}" CommandParameter="{Binding .}"  HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" hc:BorderElement.CornerRadius="7" Margin="0" hc:BackgroundSwitchElement.MouseHoverBackground="{DynamicResource ButtonHoverBrush}" hc:BackgroundSwitchElement.MouseDownBackground="{DynamicResource SecondaryRegionBrush}" Style="{DynamicResource ButtonCustom}" Padding="0" BorderThickness="0" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                            <Grid Margin="10">
+                                                <GroupBox VerticalAlignment="Stretch" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                                                    <GroupBox.HeaderTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel>
+                                                                <TextBlock  FontWeight="SemiBold" Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox},Converter={StaticResource toUpperValueConverter}}" />
+                                                                <TextBlock Margin="0,5,0,0" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="{Binding DataContext.Description, RelativeSource={RelativeSource AncestorType=GroupBox}}" />
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </GroupBox.HeaderTemplate>
+                                                    <Grid>
+                                                        <Path HorizontalAlignment="Right" Stretch="Uniform" Margin="5" Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
                                                           Width="18"
                                                           Height="18"
                                                           Fill="{DynamicResource PrimaryTextBrush}" />
-                                                </Grid>
-                                            </GroupBox>
-                                        </Grid>
-                                    </Button>
-                                </Border>
-                                <Border Effect="{DynamicResource EffectShadow1}" Margin="0,1,0,5" Background="{DynamicResource MainContentBackgroundBrush}" VerticalAlignment="Top"   CornerRadius="4,4,4,4">
-                                    <Grid>
-                                        <ContentControl Content="{Binding PreviewContent}">
-                                            <ContentControl.Resources>
-                                                <DataTemplate DataType="{x:Type parameters:CapturingRegionPreview}">
-                                                    <Grid>
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="auto"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <Grid Margin="10,10">
-                                                            <StackPanel>
-                                                                <TextBlock HorizontalAlignment="Left" Text="CAPTURING INFOMATION" Margin="0,10,0,5" FontWeight="SemiBold" Style="{DynamicResource TextBlockDefault}"/>
-                                                                <StackPanel Orientation="Horizontal">
-                                                                    <TextBlock HorizontalAlignment="Left" Text="Scaled size : " Style="{DynamicResource TextBlockDefaultSecLight}"/>
-                                                                    <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}">
-                                                                        <TextBlock.Text>
-                                                                            <MultiBinding StringFormat="{}{0}*{1}">
-                                                                                <Binding Path="Canvas.Width" />
-                                                                                <Binding Path="Canvas.Height" />
-                                                                            </MultiBinding>
-                                                                        </TextBlock.Text>
-                                                                    </TextBlock>
+                                                    </Grid>
+                                                </GroupBox>
+                                            </Grid>
+                                        </Button>
+                                    </Border>
+                                    <Border Effect="{DynamicResource EffectShadow1}" Margin="0,1,0,5" Background="{DynamicResource MainContentBackgroundBrush}" VerticalAlignment="Top"   CornerRadius="4,4,4,4">
+                                        <Grid>
+                                            <ContentControl Content="{Binding PreviewContent}">
+                                                <ContentControl.Resources>
+                                                    <DataTemplate DataType="{x:Type parameters:CapturingRegionPreview}">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="auto"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <Grid Margin="10,10">
+                                                                <StackPanel>
+                                                                    <TextBlock HorizontalAlignment="Left" Text="CAPTURING INFOMATION" Margin="0,10,0,5" FontWeight="SemiBold" Style="{DynamicResource TextBlockDefault}"/>
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <TextBlock HorizontalAlignment="Left" Text="Scaled size : " Style="{DynamicResource TextBlockDefaultSecLight}"/>
+                                                                        <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}">
+                                                                            <TextBlock.Text>
+                                                                                <MultiBinding StringFormat="{}{0}*{1}">
+                                                                                    <Binding Path="Canvas.Width" />
+                                                                                    <Binding Path="Canvas.Height" />
+                                                                                </MultiBinding>
+                                                                            </TextBlock.Text>
+                                                                        </TextBlock>
+                                                                    </StackPanel>
+                                                                    <StackPanel Orientation="Vertical">
+                                                                        <TextBlock HorizontalAlignment="Left" Text="Capturing region : " Style="{DynamicResource TextBlockDefaultSecLight}"/>
+                                                                        <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}">
+                                                                            <TextBlock.Text>
+                                                                                <MultiBinding StringFormat="{}[{0:0.##}-{1:0.##} | {2:0.##}-{3:0.##}]">
+                                                                                    <Binding Path="Region.Left" />
+                                                                                    <Binding Path="Region.Top" />
+                                                                                    <Binding Path="Region.Width" />
+                                                                                    <Binding Path="Region.Height" />
+                                                                                </MultiBinding>
+                                                                            </TextBlock.Text>
+                                                                        </TextBlock>
+                                                                    </StackPanel>
                                                                 </StackPanel>
-                                                                <StackPanel Orientation="Vertical">
-                                                                    <TextBlock HorizontalAlignment="Left" Text="Capturing region : " Style="{DynamicResource TextBlockDefaultSecLight}"/>
-                                                                    <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}">
-                                                                        <TextBlock.Text>
-                                                                            <MultiBinding StringFormat="{}[{0:0.##}-{1:0.##} | {2:0.##}-{3:0.##}]">
-                                                                                <Binding Path="Region.Left" />
-                                                                                <Binding Path="Region.Top" />
-                                                                                <Binding Path="Region.Width" />
-                                                                                <Binding Path="Region.Height" />
-                                                                            </MultiBinding>
-                                                                        </TextBlock.Text>
-                                                                    </TextBlock>
-                                                                </StackPanel>
-                                                            </StackPanel>
-                                                        </Grid>
-                                                        <Viewbox MaxWidth="200" MaxHeight="200" HorizontalAlignment="Right" Grid.Column="1" Margin="10">
-                                                            <Border BorderThickness="1" BorderBrush="{DynamicResource SecondaryBorderBrush}">
-                                                                <Canvas Background="{DynamicResource SecondaryRegionBrush}" Width="{Binding Canvas.Width}" Height="{Binding Canvas.Height}">
-                                                                    <Rectangle Fill="{DynamicResource primaryBackgroundBrush}" Stroke="{DynamicResource PrimaryBrush}"
+                                                            </Grid>
+                                                            <Viewbox MaxWidth="200" MaxHeight="200" HorizontalAlignment="Right" Grid.Column="1" Margin="10">
+                                                                <Border BorderThickness="1" BorderBrush="{DynamicResource SecondaryBorderBrush}">
+                                                                    <Canvas Background="{DynamicResource SecondaryRegionBrush}" Width="{Binding Canvas.Width}" Height="{Binding Canvas.Height}">
+                                                                        <Rectangle Fill="{DynamicResource primaryBackgroundBrush}" Stroke="{DynamicResource PrimaryBrush}"
                                                                 Canvas.Left="{Binding Region.Left}" 
                                                                 Canvas.Top="{Binding Region.Top}" 
                                                                 Width="{Binding Region.Width}" 
                                                                 Height="{Binding Region.Height}">
-                                                                    </Rectangle>
-                                                                </Canvas>
-                                                            </Border>
-                                                        </Viewbox>
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </ContentControl.Resources>
-                                        </ContentControl>
-                                    </Grid>
-                                </Border>
-                            </StackPanel>
+                                                                        </Rectangle>
+                                                                    </Canvas>
+                                                                </Border>
+                                                            </Viewbox>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ContentControl.Resources>
+                                            </ContentControl>
+                                        </Grid>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
                         </hc:TransitioningContentControl>
                     </DataTemplate>
                     <DataTemplate x:Key="_sliderParamTemplate"  DataType="{x:Type parameters:SliderParameter}">
                         <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
-
-                            <Border Effect="{DynamicResource EffectShadow1}" Margin="0,0,0,5" Padding="10" CornerRadius="4" Background="{DynamicResource MainContentBackgroundBrush}">
-                                <Grid ToolTip="{Binding Description}" IsEnabled="{Binding IsEnabled,Mode=TwoWay}">
-                                    <StackPanel>
-                                        <Grid>
-                                            <GroupBox VerticalAlignment="Stretch" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
-                                                <GroupBox.HeaderTemplate>
-                                                    <DataTemplate>
-                                                        <StackPanel>
-                                                            <TextBlock  FontWeight="SemiBold" Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox},Converter={StaticResource toUpperValueConverter}}" />
-                                                            <TextBlock Margin="0,5,0,0" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="{Binding DataContext.Description, RelativeSource={RelativeSource AncestorType=GroupBox}}" />
-                                                        </StackPanel>
-                                                    </DataTemplate>
-                                                </GroupBox.HeaderTemplate>
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*" />
-                                                        <ColumnDefinition Width="auto" />
-                                                    </Grid.ColumnDefinitions>
-                                                    <Path HorizontalAlignment="Right" Stretch="Uniform" Margin="5" Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
+                            <Grid ToolTip="{Binding Description}" Visibility="{Binding IsEnabled,Converter={StaticResource Boolean2VisibilityConverter}}">
+                                <Border Effect="{DynamicResource EffectShadow1}" Margin="0,0,0,5" Padding="10" CornerRadius="4" Background="{DynamicResource MainContentBackgroundBrush}">
+                                    <Grid ToolTip="{Binding Description}" IsEnabled="{Binding IsEnabled,Mode=TwoWay}">
+                                        <StackPanel>
+                                            <Grid>
+                                                <GroupBox VerticalAlignment="Stretch" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                                                    <GroupBox.HeaderTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel>
+                                                                <TextBlock  FontWeight="SemiBold" Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox},Converter={StaticResource toUpperValueConverter}}" />
+                                                                <TextBlock Margin="0,5,0,0" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="{Binding DataContext.Description, RelativeSource={RelativeSource AncestorType=GroupBox}}" />
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </GroupBox.HeaderTemplate>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Path HorizontalAlignment="Right" Stretch="Uniform" Margin="5" Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
                                                           Width="18"
                                                           Height="18"
                                                           Fill="{DynamicResource PrimaryTextBrush}" />
-                                                    <hc:PreviewSlider Grid.Column="1" Margin="0,0,5,0" HorizontalAlignment="Right" Width="200" Minimum="{Binding MinValue}" Maximum="{Binding MaxValue}" Value="{Binding Value}">
-                                                        <hc:PreviewSlider.PreviewContent>
-                                                            <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0" />
-                                                        </hc:PreviewSlider.PreviewContent>
-                                                    </hc:PreviewSlider>
-                                                </Grid>
-                                            </GroupBox>
-                                        </Grid>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
+                                                        <hc:PreviewSlider Grid.Column="1" Margin="0,0,5,0" HorizontalAlignment="Right" Width="200" Minimum="{Binding MinValue}" Maximum="{Binding MaxValue}" Value="{Binding Value}">
+                                                            <hc:PreviewSlider.PreviewContent>
+                                                                <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0" />
+                                                            </hc:PreviewSlider.PreviewContent>
+                                                        </hc:PreviewSlider>
+                                                    </Grid>
+                                                </GroupBox>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </Grid>
                         </hc:TransitioningContentControl>
                     </DataTemplate>
                     <DataTemplate  x:Key="_listSelectionParamTemplate"  DataType="{x:Type parameters:ListSelectionParameter}">
                         <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
-                            <Grid>
+                            <Grid ToolTip="{Binding Description}" Visibility="{Binding IsEnabled,Converter={StaticResource Boolean2VisibilityConverter}}">
                                 <StackPanel>
                                     <Border MouseDown="GroupBox_MouseDown" Effect="{DynamicResource EffectShadow1}" VerticalAlignment="Top">
                                         <Border.Style>
@@ -851,27 +851,17 @@
                 <StackPanel>
                     <!--info zone-->
                     <Border  Effect="{DynamicResource EffectShadow1}" Margin="0,0,0,5" Padding="10" CornerRadius="4" Background="{DynamicResource MainContentBackgroundBrush}">
-
                         <StackPanel>
-
-                            <!--<Grid>
-                                <local:SlaveDeviceInfoView>
-                                </local:SlaveDeviceInfoView>
-                            </Grid>-->
-
-                            <!--<hc:Divider  LineStroke="{StaticResource RegionBrush}" Margin="-10,10">
-                            </hc:Divider>-->
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="{Binding SelectedControlZone.Name}" FontWeight="SemiBold" Style="{DynamicResource TextBlockDefaultPrimary}" />
-                                <Button Grid.Column="1" HorizontalAlignment="Right" Command="{Binding OpenAdvanceSettingWindowCommand}" CommandParameter="advance" Margin="0,0,5,0" ToolTip="Advance Settings" hc:IconElement.Geometry="{DynamicResource ConfigGeometry}" />
+                                <!--<Button Grid.Column="1" HorizontalAlignment="Right" Command="{Binding OpenAdvanceSettingWindowCommand}" CommandParameter="advance" Margin="0,0,5,0" ToolTip="Advance Settings" hc:IconElement.Geometry="{DynamicResource ConfigGeometry}" />-->
                             </Grid>
                             <Grid Height="5">
                             </Grid>
-
                             <Grid Name="AvailableControlMode">
                                 <GroupBox  Style="{StaticResource GroupBoxOriginal}"  hc:TitleElement.TitlePlacement="Left">
                                     <GroupBox.HeaderTemplate>
@@ -947,17 +937,13 @@
                         </StackPanel>
                     </Border>
                     <Grid>
-
-
                         <ItemsControl x:Name="paramList" Margin="0,0,0,0" ItemsSource="{Binding SelectedControlZone.CurrentActiveControlMode.Parameters,Mode=TwoWay,IsAsync=True}">
-
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <VirtualizingStackPanel IsVirtualizing="True"
                               VirtualizationMode="Recycling" />
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
-
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <ContentControl Content="{Binding}">
@@ -992,7 +978,6 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                         <Border Background="{DynamicResource DarkOpacityBrush}" Visibility="{Binding IsLoadingControlMode,Mode=TwoWay,Converter={StaticResource Boolean2VisibilityConverter}}">
-
                         </Border>
                         <Grid Visibility="{Binding IsLoadingControlMode,Mode=TwoWay,Converter={StaticResource Boolean2VisibilityConverter}}">
                             <hc:LoadingLine  VerticalAlignment="Center" Height="20" Width="100"/>
