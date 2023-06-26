@@ -1,4 +1,6 @@
 ﻿using adrilight.Spots;
+using adrilight.Util;
+using adrilight.Util.ModeParameters;
 using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
@@ -9,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using Point = System.Windows.Point;
 
 namespace adrilight.Settings
@@ -25,10 +28,16 @@ namespace adrilight.Settings
         public string Owner { get; set; }
         public string Vendor { get; set; }
         public int ParrentID { get; set; }
+        private RGBLEDOrderEnum _rgbLEDOrder = RGBLEDOrderEnum.RGB;
+        public RGBLEDOrderEnum RGBLEDOrder {
+            get => _rgbLEDOrder;
+            set { Set(() => RGBLEDOrder, ref _rgbLEDOrder, value); }
+        }
 
         [JsonIgnore]
         public string Thumbnail => Path.Combine(deviceDirectory, "thumbnail.png");
-
+        [JsonIgnore]
+        public string ThumbnailWithColor => Path.Combine(deviceDirectory, "colored_thumbnail.png");
         public SlaveDeviceTypeEnum DeviceType { get; set; }
         public DeviceTypeEnum DesiredParrent { get; set; }
         public string Description { get; set; }
@@ -75,6 +84,9 @@ namespace adrilight.Settings
         private bool _isDeleteable;
         private bool _isResizeable;
         private double _scale = 1.0;
+        private int _whiteBalanceRed = 100;
+        private int _whiteBalanceGreen = 100;
+        private int _whiteBalanceBlue = 100;
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
 
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
@@ -82,7 +94,9 @@ namespace adrilight.Settings
         public double CenterX => Width / 2 + Left;
 
         public double CenterY => Height / 2 + Top;
-
+        public int WhiteBalanceRed { get => _whiteBalanceRed; set { Set(() => WhiteBalanceRed, ref _whiteBalanceRed, value); } }
+        public int WhiteBalanceGreen { get => _whiteBalanceGreen; set { Set(() => WhiteBalanceGreen, ref _whiteBalanceGreen, value); } }
+        public int WhiteBalanceBlue { get => _whiteBalanceBlue; set { Set(() => WhiteBalanceBlue, ref _whiteBalanceBlue, value); } }
         public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
 
         public double Top { get => _top; set { Set(() => Top, ref _top, value); UpdateChildOffSet(); } }
@@ -121,7 +135,16 @@ namespace adrilight.Settings
         private string _version = "1.0.0";
         public string Version { get => _version; set { Set(() => Version, ref _version, value); } }
         public DeviceType TargetDeviceType { get; set; }
-
+        public void SetPreviewColor(Color color)
+        {
+            foreach (var zone in ControlableZones)
+            {
+                foreach (var spot in (zone as LEDSetup).Spots)
+                {
+                    spot.SetColor(color.R, color.G, color.B, true);
+                }
+            }
+        }
         private DrawableHelpers DrawableHlprs = new DrawableHelpers();
         #region Lighting Related Method
         public void BrightnessUp(int value)
@@ -139,7 +162,7 @@ namespace adrilight.Settings
             {
                 var ledZone = zone as LEDSetup;
                 if (!ledZone.IsInControlGroup)
-                    ledZone.BrightnessUp(value);
+                    ledZone.BrightnessDown(value);
             }
         }
         public void TurnOffLED()
@@ -158,6 +181,40 @@ namespace adrilight.Settings
                 var ledZone = zone as LEDSetup;
                 if (!ledZone.IsInControlGroup)
                     ledZone.TurnOnLED();
+            }
+        }
+        public void SetStaticColor(ColorCard colors)
+        {
+            foreach (var zone in ControlableZones)
+            {
+                var ledZone = zone as LEDSetup;
+                if (!ledZone.IsInControlGroup)
+                {
+                    //find static color mode
+                    var staticColorMode = ledZone.AvailableControlMode.Where(m => (m as LightingMode).BasedOn == LightingModeEnum.StaticColor).FirstOrDefault() as LightingMode;
+                    if (staticColorMode == null)
+                        continue;
+                    staticColorMode.Enable();
+                    (staticColorMode.ColorParameter as ListSelectionParameter).SelectedValue = colors;
+                    ledZone.CurrentActiveControlMode = staticColorMode;
+                }
+
+            }
+        }
+        public void SetModeByEnumValue(LightingModeEnum value)
+        {
+            foreach (var zone in ControlableZones)
+            {
+                var ledZone = zone as LEDSetup;
+                if (!ledZone.IsInControlGroup)
+                {
+                    //find static color mode
+                    var targetMode = ledZone.AvailableControlMode.Where(m => (m as LightingMode).BasedOn == (LightingModeEnum)value).FirstOrDefault() as LightingMode;
+                    if (targetMode == null)
+                        continue;
+                    ledZone.CurrentActiveControlMode = targetMode;
+                }
+
             }
         }
         #endregion

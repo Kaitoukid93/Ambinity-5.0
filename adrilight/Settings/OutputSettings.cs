@@ -29,7 +29,7 @@ namespace adrilight
         //private byte _outputSaturationThreshold;
         //private bool _outputUseLinearLighting = true;
         private bool _outputIsSelected = false;
-        private bool _isEnabled;
+        private bool _isEnabled = true;
         private ISlaveDevice _slaveDevice;
 
         //private Color _outputAtmosphereStartColor;

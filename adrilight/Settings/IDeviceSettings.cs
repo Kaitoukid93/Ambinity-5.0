@@ -1,4 +1,5 @@
 ﻿using adrilight.Settings;
+using adrilight.Util;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -55,5 +56,7 @@ namespace adrilight
         void TurnOffLED();
         void TurnOnLED();
         void ToggleOnOffLED();
+        void SetStaticColor(ColorCard colors);
+        void SetModeByEnumValue(LightingModeEnum value);
     }
 }

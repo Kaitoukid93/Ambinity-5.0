@@ -1,5 +1,6 @@
 ﻿using adrilight.Ninject;
 using adrilight.Settings;
+using adrilight.Settings.Automation;
 using adrilight.Util;
 using adrilight.View;
 using adrilight.ViewModel;
@@ -19,9 +20,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
+using Un4seen.Bass;
 using SplashScreen = adrilight.View.SplashScreen;
 
 namespace adrilight
@@ -51,6 +54,7 @@ namespace adrilight
                 return;
             }
             /////////
+            BassNet.Registration("saorihara93@gmail.com", "2X2831021152222");
             SetupDebugLogging();
             SetupLoggingForProcessWideEvents();
 
@@ -62,7 +66,10 @@ namespace adrilight
 
             //set style and color of the default theme
             ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
-            ThemeManager.Current.AccentColor = System.Windows.Media.Brushes.BlueViolet;
+            var settingsManager = new UserSettingsManager();
+            var generalSettings = settingsManager.LoadIfExists() ?? settingsManager.MigrateOrDefault();
+            var accentColor = generalSettings.AccentColor;
+            ThemeManager.Current.AccentColor = new SolidColorBrush(accentColor);
             //_splashScreen.WindowState = WindowState.Normal;
 
             // inject all, this task may takes long time
@@ -71,23 +78,11 @@ namespace adrilight
             _splashScreen.Show();
             _splashScreen.Header.Text = "Adrilight is loading";
             _splashScreen.status.Text = "LOADING KERNEL...";
-            kernel = SetupDependencyInjection(false);
+            kernel = await Task.Run(() => SetupDependencyInjection(false));
             //close splash screen and open dashboard
             this.Resources["Locator"] = new ViewModelLocator(kernel);
             _telemetryClient = kernel.Get<TelemetryClient>();
 
-            ///set theme and color
-            if (GeneralSettings.ThemeIndex == 1)
-            {
-                ThemeManager.Current.ApplicationTheme = ApplicationTheme.Light;
-            }
-            else
-            {
-                ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
-            }
-
-            var accentColor = GeneralSettings.AccentColor;
-            ThemeManager.Current.AccentColor = new SolidColorBrush(accentColor);
 
             // show main window
             OpenSettingsWindow(GeneralSettings.StartMinimized);
@@ -361,19 +356,32 @@ namespace adrilight
             DispatcherUnhandledException += (sender, args) => ApplicationWideException(sender, args.Exception, "DispatcherUnhandledException");
             Exit += (s, e) =>
             {
+                //execute any automation
                 var devices = kernel.GetAll<IDeviceSettings>();
+                foreach (var device in devices)
+                {
+                    // device.DeviceState = DeviceStateEnum.Sleep;
+                    Thread.Sleep(10);
+                    //device.IsTransferActive = false;
+                    MainViewViewModel.WriteSingleDeviceInfoJson(device);
+                }
+                foreach (var automation in MainViewViewModel.AvailableAutomations)
+                {
+                    if (automation.Condition is SystemEventTriggerCondition)
+                    {
+                        var condition = automation.Condition as SystemEventTriggerCondition;
+                        if (condition.Event == SystemEventEnum.Shutdown)
+                        {
+                            MainViewViewModel.ExecuteAutomationActions(automation.Actions);
+                        }
+                    }
+                }
+
                 var hwMonitor = kernel.GetAll<IHWMonitor>().FirstOrDefault();
                 var ambinityClient = kernel.GetAll<IAmbinityClient>().FirstOrDefault();
                 var deviceDiscovery = kernel.GetAll<IDeviceDiscovery>().FirstOrDefault();
                 deviceDiscovery.Stop();
                 GeneralSettings.IsOpenRGBEnabled = false;
-                foreach (var device in devices)
-                {
-                    device.DeviceState = DeviceStateEnum.Sleep;
-                    Thread.Sleep(10);
-                    //device.IsTransferActive = false;
-                    MainViewViewModel.WriteSingleDeviceInfoJson(device);
-                }
                 hwMonitor.Dispose();
                 ambinityClient.Dispose();
 
@@ -399,11 +407,7 @@ namespace adrilight
             }
             else if (e.Mode == PowerModes.Suspend)
             {
-                var devices = kernel.GetAll<IDeviceSettings>();
-                foreach (var device in devices)
-                {
-                    device.DeviceState = DeviceStateEnum.Sleep;
-                }
+
                 _log.Debug("Stop the serial stream due to sleep condition!");
             }
         };
@@ -412,8 +416,21 @@ namespace adrilight
                 var devices = kernel.GetAll<IDeviceSettings>();
                 foreach (var device in devices)
                 {
-                    device.DeviceState = DeviceStateEnum.Sleep;
-                    Thread.Sleep(1000);
+                    // device.DeviceState = DeviceStateEnum.Sleep;
+                    Thread.Sleep(10);
+                    //device.IsTransferActive = false;
+                    MainViewViewModel.WriteSingleDeviceInfoJson(device);
+                }
+                foreach (var automation in MainViewViewModel.AvailableAutomations)
+                {
+                    if (automation.Condition is SystemEventTriggerCondition)
+                    {
+                        var condition = automation.Condition as SystemEventTriggerCondition;
+                        if (condition.Event == SystemEventEnum.Shutdown)
+                        {
+                            MainViewViewModel.ExecuteAutomationActions(automation.Actions);
+                        }
+                    }
                 }
 
                 _log.Debug("Stop the serial stream due to power down or log off condition!");

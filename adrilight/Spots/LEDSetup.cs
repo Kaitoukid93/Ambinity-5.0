@@ -1,5 +1,4 @@
 ﻿using adrilight.Helpers;
-using adrilight.Settings;
 using adrilight.Spots;
 using adrilight.Util;
 using adrilight.Util.ModeParameters;
@@ -125,8 +124,6 @@ namespace adrilight
         private bool _isDeleteable;
         private bool _isResizeable;
         private string _zoneWarningText = string.Empty;
-        private RGBLEDOrderEnum _rgbLEDOrder = RGBLEDOrderEnum.RGB;
-        public RGBLEDOrderEnum RGBLEDOrder { get => _rgbLEDOrder; set { Set(() => RGBLEDOrder, ref _rgbLEDOrder, value); } }
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
         public double CenterX => Width / 2 + Left;
@@ -172,6 +169,7 @@ namespace adrilight
         {
             var colors = new List<ColorCard>();
             var staticColorControlMode = AvailableControlMode.Where(m => (m as LightingMode).BasedOn == LightingModeEnum.StaticColor).FirstOrDefault() as LightingMode;
+            (staticColorControlMode.ColorParameter as ListSelectionParameter).LoadAvailableValues();
             (staticColorControlMode.ColorParameter as ListSelectionParameter).AvailableValues.ForEach(c => colors.Add(c as ColorCard));
             return colors;
         }

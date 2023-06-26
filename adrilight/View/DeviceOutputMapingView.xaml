@@ -420,7 +420,7 @@
                                     <RowDefinition Height="auto"/>
                                 </Grid.RowDefinitions>
                                 <TextBlock Grid.Row="2" Margin="10" Style="{DynamicResource TextBlockSubTitle}" FontWeight="SemiBold" Text="{Binding SlaveDevice.Name}"/>
-                                <Image Grid.Row="1" Margin="10" Source="{Binding SlaveDevice.Thumbnail}" RenderOptions.BitmapScalingMode="Fant" Stretch="Uniform"/>
+                                <Image Grid.Row="1" Margin="10" Source="{Binding SlaveDevice.ThumbnailWithColor}" RenderOptions.BitmapScalingMode="Fant" Stretch="Uniform"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>

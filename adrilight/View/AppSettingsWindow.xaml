@@ -743,9 +743,9 @@
 
 
                     </Grid>
-                    <Grid Name="Reset">
+                    <!--<Grid Name="Reset">
                         <Button Margin="5" Style="{StaticResource ButtonDanger}" Command="{Binding ResetAppCommand}" Content="Đặt lại Ứng dụng"/>
-                    </Grid>
+                    </Grid>-->
 
 
 

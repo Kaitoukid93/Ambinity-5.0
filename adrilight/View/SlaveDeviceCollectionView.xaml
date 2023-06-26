@@ -132,7 +132,7 @@
                             </i:Interaction.Triggers>-->
                             <Border Margin="10"  CornerRadius="7,7,7,7" Style="{StaticResource BorderClip}">
                                 <Border CornerRadius="4" Margin="10">
-                                    <Image Source="{Binding Thumbnail}" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
+                                    <Image Source="{Binding ThumbnailWithColor}" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
                                 </Border>
 
 
@@ -162,7 +162,7 @@
                                                             <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.2"/>
                                                         </Button.Background>
                                                     </Button>
-                                                    <Button Margin="5,10,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="25" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0" Content="Chọn tất" Command="{Binding Path=DataContext.SelectSlaveDeviceForCurrentOutputCommand, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
+                                                    <Button Margin="5,10,10,10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="25" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0" Content="Chọn tất" Command="{Binding Path=DataContext.SelectSlaveDeviceForAllOutputCommand, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
                                                         <Button.Background>
                                                             <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.2"/>
                                                         </Button.Background>

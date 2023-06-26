@@ -159,6 +159,7 @@ namespace adrilight
             var currentDevice = device as ARGBLEDSlaveDevice;
             int ledCount = currentDevice.LEDCount;
             OpenRGB.NET.Models.Color[] outputColor = new OpenRGB.NET.Models.Color[ledCount];
+            var RGBOrder = currentDevice.RGBLEDOrder;
             foreach (var zone in currentDevice.ControlableZones)
             {
                 var currentZone = zone as LEDSetup;
@@ -171,13 +172,21 @@ namespace adrilight
                         case DeviceStateEnum.Normal: // get data from ledsetup
                             foreach (DeviceSpot spot in currentZone.Spots)
                             {
+                                if (spot.IsEnabled)
+                                {
 
-                                var RGBOrder = currentZone.RGBLEDOrder;
-                                var reOrderedColor = ReOrderSpotColor(RGBOrder, spot.Red, spot.Green, spot.Blue);
-                                outputColor[spot.Index] = new OpenRGB.NET.Models.Color(reOrderedColor[0], reOrderedColor[1], reOrderedColor[2]);
+                                    ApplyColorWhitebalance(spot.Red, spot.Green, spot.Blue,
+                                      currentDevice.WhiteBalanceRed, currentDevice.WhiteBalanceGreen, currentDevice.WhiteBalanceBlue,
+                                      out byte FinalR, out byte FinalG, out byte FinalB);
+                                    var reOrderedColor = ReOrderSpotColor(RGBOrder, FinalR, FinalG, FinalB);
+                                    //get data
+                                    outputColor[spot.Index] = new OpenRGB.NET.Models.Color(reOrderedColor[0], reOrderedColor[1], reOrderedColor[2]);
+                                    // aliveSpotCounter++;
+                                }
                                 allBlack = allBlack && spot.Red == 0 && spot.Green == 0 && spot.Blue == 0;
 
                             }
+
                             break;
                         case DeviceStateEnum.Sleep: // send black frame data
                             foreach (DeviceSpot spot in currentZone.Spots)
@@ -223,7 +232,13 @@ namespace adrilight
 
 
         }
+        private void ApplyColorWhitebalance(byte r, byte g, byte b, int whiteBalanceRed, int whiteBalanceGreen, int whiteBalanceBlue, out byte finalR, out byte finalG, out byte finalB)
+        {
 
+            finalR = (byte)(r * whiteBalanceRed / 100);
+            finalG = (byte)(g * whiteBalanceGreen / 100);
+            finalB = (byte)(b * whiteBalanceBlue / 100);
+        }
         private byte[] ReOrderSpotColor(RGBLEDOrderEnum order, byte r, byte g, byte b)
         {
             byte[] reOrderedColor = new byte[3];

@@ -390,6 +390,11 @@ namespace adrilight
                 int updateIntervalCounter = 0;
                 while (!token.IsCancellationRequested)
                 {
+                    if (MainViewViewModel.IsRichCanvasWindowOpen)
+                    {
+                        Thread.Sleep(100);
+                        continue;
+                    }
                     var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
                     NextTick();
                     var ledCount = CurrentZone.Spots.Count();
@@ -658,43 +663,6 @@ namespace adrilight
             return brightnessMap;
 
         }
-        private void ApplyColorCorrections(float r, float g, float b, out byte finalR, out byte finalG, out byte finalB, bool useLinearLighting, byte saturationTreshold
-         , byte lastColorR, byte lastColorG, byte lastColorB)
-        {
-            if (lastColorR == 0 && lastColorG == 0 && lastColorB == 0)
-            {
-                //if the color was black the last time, we increase the saturationThreshold to make flickering more unlikely
-                saturationTreshold += 2;
-            }
-            if (r <= saturationTreshold && g <= saturationTreshold && b <= saturationTreshold)
-            {
-                //black
-                finalR = finalG = finalB = 0;
-                return;
-            }
-
-            //"white" on wall was 66,68,77 without white balance
-            //white balance
-            //todo: introduce settings for white balance adjustments
-            r *= 100 / 100f;
-            g *= 100 / 100f;
-            b *= 100 / 100f;
-
-            if (!useLinearLighting)
-            {
-                //apply non linear LED fading ( http://www.mikrocontroller.net/articles/LED-Fading )
-                finalR = FadeNonLinear(r);
-                finalG = FadeNonLinear(g);
-                finalB = FadeNonLinear(b);
-            }
-            else
-            {
-                //output
-                finalR = (byte)r;
-                finalG = (byte)g;
-                finalB = (byte)b;
-            }
-        }
         private void ApplySmoothing(float r, float g, float b, out byte semifinalR, out byte semifinalG, out byte semifinalB,
            byte lastColorR, byte lastColorG, byte lastColorB)
         {
@@ -722,7 +690,7 @@ namespace adrilight
         public void Stop()
         {
             _log.Debug("Stop called.");
-            CurrentZone.FillSpotsColor(Color.FromRgb(0, 0, 0));
+            //CurrentZone.FillSpotsColor(Color.FromRgb(0, 0, 0));
             if (_workerThread == null) return;
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource = null;

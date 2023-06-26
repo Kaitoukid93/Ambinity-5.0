@@ -292,9 +292,16 @@ namespace adrilight
         {
             byte[] outputStream;
             var currentLightingDevice = _lightingDevices[id]; // need to implement device number mismatch
-            var currentPWMDevice = _pwmDevices[id];
+            var currentPWMDevice = new PWMMotorSlaveDevice();
+            FanMotor fan = null;
+            if (id < _pwmDevices.Length)
+            {
+                currentPWMDevice = _pwmDevices[id];
+                fan = currentPWMDevice.ControlableZones[0] as FanMotor;
+            }
+
             int counter = _messagePreamble.Length;
-            var fan = currentPWMDevice.ControlableZones[0] as FanMotor;
+
             const int colorsPerLed = 3;
             const int hilocheckLength = 3;
             const int extraHeader = 3;
@@ -309,10 +316,11 @@ namespace adrilight
             outputStream[counter++] = lo;
             outputStream[counter++] = chk;
             outputStream[counter++] = (byte)id;
-            outputStream[counter++] = (byte)fan.CurrentPWMValue;
+            outputStream[counter++] = fan != null ? (byte)(fan.CurrentPWMValue * 255 / 100) : (byte)200;
             outputStream[counter++] = 0;
             var allBlack = true;
             int aliveSpotCounter = 0;
+            var rgbOrder = currentLightingDevice.RGBLEDOrder;
             foreach (var zone in currentLightingDevice.ControlableZones)
             {
                 var ledZone = zone as LEDSetup;
@@ -333,8 +341,10 @@ namespace adrilight
                                 {
                                     if (spot.IsEnabled)
                                     {
-                                        var rgbOrder = ledZone.RGBLEDOrder;
-                                        var reOrderedColor = ReOrderSpotColor(rgbOrder, spot.Red, spot.Green, spot.Blue);
+                                        ApplyColorWhitebalance(spot.Red, spot.Green, spot.Blue,
+                                         currentLightingDevice.WhiteBalanceRed, currentLightingDevice.WhiteBalanceGreen, currentLightingDevice.WhiteBalanceBlue,
+                                         out byte FinalR, out byte FinalG, out byte FinalB);
+                                        var reOrderedColor = ReOrderSpotColor(rgbOrder, FinalR, FinalG, FinalB);
                                         //get data
                                         outputStream[counter + spot.Index * 3 + 0] = reOrderedColor[0]; // blue
                                         outputStream[counter + spot.Index * 3 + 1] = reOrderedColor[1]; // green
@@ -426,6 +436,7 @@ namespace adrilight
             outputStream[counter++] = 0;
             var allBlack = true;
             int aliveSpotCounter = 0;
+            var rgbOrder = currentLightingDevice.RGBLEDOrder;
             foreach (var zone in currentLightingDevice.ControlableZones)
             {
                 var ledZone = zone as LEDSetup;
@@ -446,26 +457,19 @@ namespace adrilight
                                 {
                                     if (spot.IsEnabled)
                                     {
-                                        var rgbOrder = ledZone.RGBLEDOrder;
-                                        var reOrderedColor = ReOrderSpotColor(rgbOrder, spot.Red, spot.Green, spot.Blue);
+                                        ApplyColorWhitebalance(spot.Red, spot.Green, spot.Blue,
+                                         currentLightingDevice.WhiteBalanceRed, currentLightingDevice.WhiteBalanceGreen, currentLightingDevice.WhiteBalanceBlue,
+                                         out byte FinalR, out byte FinalG, out byte FinalB);
+                                        var reOrderedColor = ReOrderSpotColor(rgbOrder, FinalR, FinalG, FinalB);
                                         //get data
                                         outputStream[counter + spot.Index * 3 + 0] = reOrderedColor[0]; // blue
                                         outputStream[counter + spot.Index * 3 + 1] = reOrderedColor[1]; // green
                                         outputStream[counter + spot.Index * 3 + 2] = reOrderedColor[2]; // red
                                         aliveSpotCounter++;
                                     }
-
-
-
                                     allBlack = allBlack && spot.Red == 0 && spot.Green == 0 && spot.Blue == 0;
 
                                 }
-                                //fill the rest of outputStream zero
-                                for (int i = counter + aliveSpotCounter * 3; i < bufferLength; i++)
-                                {
-                                    outputStream[i] = 0;
-                                }
-
                                 break;
                             case DeviceStateEnum.Sleep: // send black frame data
                                 foreach (DeviceSpot spot in ledZone.Spots)
@@ -520,7 +524,13 @@ namespace adrilight
             return (outputStream, bufferLength);
         }
 
+        private void ApplyColorWhitebalance(byte r, byte g, byte b, int whiteBalanceRed, int whiteBalanceGreen, int whiteBalanceBlue, out byte finalR, out byte finalG, out byte finalB)
+        {
 
+            finalR = (byte)(r * whiteBalanceRed / 100);
+            finalG = (byte)(g * whiteBalanceGreen / 100);
+            finalB = (byte)(b * whiteBalanceBlue / 100);
+        }
 
 
 

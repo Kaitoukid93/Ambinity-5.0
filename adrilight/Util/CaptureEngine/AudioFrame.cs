@@ -1,22 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Media;
-using Color = System.Windows.Media.Color;
-using adrilight.Util;
-using System.Threading;
-using NLog;
-using Un4seen.BassWasapi;
-using Un4seen.Bass;
-using System.Windows;
-using System.Diagnostics;
-using adrilight.Spots;
+﻿using adrilight.DesktopDuplication;
 using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
-using adrilight.View;
-using System.Threading.Tasks;
-using SharpDX.DXGI;
-using adrilight.DesktopDuplication;
+using NLog;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using Un4seen.Bass;
+using Un4seen.BassWasapi;
 
 namespace adrilight
 {
@@ -34,7 +24,6 @@ namespace adrilight
             GeneralSettings = generalSettings ?? throw new ArgumentException(nameof(generalSettings));
             GeneralSettings.PropertyChanged += PropertyChanged;
             MainViewModel = mainViewModel ?? throw new ArgumentException(nameof(mainViewModel));
-            BassNet.Registration("saorihara93@gmail.com", "2X2831021152222");
             _process = new WASAPIPROC(Process);
             _fft = new float[1024];
             RefreshCapturingState();
@@ -62,10 +51,6 @@ namespace adrilight
         public string DeviceName { get; set; }
         #endregion
 
-         
-        #region properties changed event
-
-        #endregion
         private void PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
@@ -130,13 +115,13 @@ namespace adrilight
                 StartBassWasapi();
                 while (!token.IsCancellationRequested)
                 {
-                    var isPreviewWindowOpen = MainViewModel.IsInIDEditStage && MainViewModel.IdEditMode == MainViewViewModel.IDMode.FID|| MainViewModel.IsAudioSelectionOpen;
+                    var isPreviewWindowOpen = MainViewModel.IsInIDEditStage && MainViewModel.IdEditMode == MainViewViewModel.IDMode.FID || MainViewModel.IsAudioSelectionOpen;
                     GetCurrentFFTFrame(32);
-                    lock(Lock)
+                    lock (Lock)
                     {
                         Frame.Frame = _lastSpectrumData;
                     }
-                    
+
                     if (isPreviewWindowOpen)
                     {
                         lock (MainViewModel.AudioUpdateLock)

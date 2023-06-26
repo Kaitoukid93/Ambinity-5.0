@@ -11,13 +11,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using Color = System.Windows.Media.Color;
 using Rectangle = System.Drawing.Rectangle;
 
 namespace adrilight
@@ -137,21 +135,30 @@ namespace adrilight
             var regionHeight = Math.Max((int)(zoneRegion.ScaleHeight * height), 1);
             _currentCapturingRegion = new Rectangle(regionLeft, regionTop, regionWidth, regionHeight);
         }
-        private async Task OnSelectedGifChanged(IParameterValue value)
+        private void OnSelectedGifChanged(IParameterValue value)
         {
             //set palette
+
             if (value == null)
                 return;
             var gif = value as Gif;
-            var result = await Task.Run(() => LoadGifFromDisk(gif.Path));
-            if (result == null)
+            lock (gif.Lock)
+            {
+                if (gif.Frames == null)
+                {
+                    gif.LoadGifFromDisk(gif.Path);
+                }
+            }
+
+
+            if (gif.Frames == null)
             {
                 HandyControl.Controls.MessageBox.Show("File GIF bị lỗi", "Gif error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
             lock (_lock)
             {
-                LoadedGifImage = result;
+                LoadedGifImage = gif.Frames;
                 UpdateTick(CurrentZone.IsInControlGroup);
             }
         }
@@ -323,7 +330,7 @@ namespace adrilight
                 switch (__.PropertyName)
                 {
                     case nameof(_gifControl.SelectedValue):
-                        await OnSelectedGifChanged(_gifControl.SelectedValue);
+                        await Task.Run(() => OnSelectedGifChanged(_gifControl.SelectedValue));
                         OnCapturingRegionChanged(_regionControl.CapturingRegion);
                         break;
                 }
@@ -334,7 +341,7 @@ namespace adrilight
                 _gifControl.SelectedValue = _gifControl.AvailableValues.First();
             }
             EnableChanged(_enableControl.Value == 1 ? true : false);
-            await OnSelectedGifChanged(_gifControl.SelectedValue);
+            await Task.Run(() => OnSelectedGifChanged(_gifControl.SelectedValue));
             OnBrightnessPropertyChanged(_brightnessControl.Value);
             OnSmoothingPropertyChanged(_smoothingControl.Value);
             OnSpeedChanged(_speedControl.Value);
@@ -353,6 +360,11 @@ namespace adrilight
 
                 while (!token.IsCancellationRequested)
                 {
+                    if (MainViewViewModel.IsRichCanvasWindowOpen)
+                    {
+                        Thread.Sleep(100);
+                        continue;
+                    }
                     //this indicator that user is opening this device and we need raise event when color update on each spot
                     if (LoadedGifImage == null)
                         continue;
@@ -413,10 +425,9 @@ namespace adrilight
 
                             var countInverse = 1f / count;
 
-                            ApplyColorCorrections(sumR * countInverse, sumG * countInverse, sumB * countInverse
-                                , out byte finalR, out byte finalG, out byte finalB, true
-                                , 10, spot.Red, spot.Green, spot.Blue);
-
+                            var finalR = (byte)(sumR * countInverse);
+                            var finalG = (byte)(sumG * countInverse);
+                            var finalB = (byte)(sumB * countInverse);
                             var spotColor = new OpenRGB.NET.Models.Color(finalR, finalG, finalB);
                             ApplySmoothing(
                                 spotColor.R,
@@ -496,101 +507,64 @@ namespace adrilight
                 _lastObservedHeight = image.Height;
             }
         }
-        public ByteFrame[] LoadGifFromDisk(string path)
-        {
-            if (path == null || !File.Exists(path))
-                return null;
-            try
-            {
-                using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
-                {
-                    using (System.Drawing.Image imageToLoad = System.Drawing.Image.FromStream(fs))
-                    {
-                        var frameDim = new FrameDimension(imageToLoad.FrameDimensionsList[0]);
-                        var frameCount = imageToLoad.GetFrameCount(frameDim);
-                        var gifFrames = new ByteFrame[frameCount];
-                        for (int i = 0; i < frameCount; i++)
-                        {
-                            imageToLoad.SelectActiveFrame(frameDim, i);
+        //public ByteFrame[] LoadGifFromDisk(string path)
+        //{
+        //    if (path == null || !File.Exists(path))
+        //        return null;
+        //    try
+        //    {
+        //        using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+        //        {
+        //            using (System.Drawing.Image imageToLoad = System.Drawing.Image.FromStream(fs))
+        //            {
+        //                var frameDim = new FrameDimension(imageToLoad.FrameDimensionsList[0]);
+        //                var frameCount = imageToLoad.GetFrameCount(frameDim);
+        //                var gifFrames = new ByteFrame[frameCount];
+        //                for (int i = 0; i < frameCount; i++)
+        //                {
+        //                    imageToLoad.SelectActiveFrame(frameDim, i);
 
-                            var resizedBmp = new Bitmap(imageToLoad, (int)imageToLoad.Width / 8, (int)imageToLoad.Height / 8);
+        //                    var resizedBmp = new Bitmap(imageToLoad, (int)imageToLoad.Width / 8, (int)imageToLoad.Height / 8);
 
-                            var rect = new System.Drawing.Rectangle(0, 0, resizedBmp.Width, resizedBmp.Height);
-                            System.Drawing.Imaging.BitmapData bmpData =
-                                resizedBmp.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite,
-                                resizedBmp.PixelFormat);
+        //                    var rect = new System.Drawing.Rectangle(0, 0, resizedBmp.Width, resizedBmp.Height);
+        //                    System.Drawing.Imaging.BitmapData bmpData =
+        //                        resizedBmp.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite,
+        //                        resizedBmp.PixelFormat);
 
-                            // Get the address of the first line.
-                            IntPtr ptr = bmpData.Scan0;
+        //                    // Get the address of the first line.
+        //                    IntPtr ptr = bmpData.Scan0;
 
-                            // Declare an array to hold the bytes of the bitmap.
-                            int bytes = Math.Abs(bmpData.Stride) * resizedBmp.Height;
-                            byte[] rgbValues = new byte[bytes];
+        //                    // Declare an array to hold the bytes of the bitmap.
+        //                    int bytes = Math.Abs(bmpData.Stride) * resizedBmp.Height;
+        //                    byte[] rgbValues = new byte[bytes];
 
-                            // Copy the RGB values into the array.
-                            System.Runtime.InteropServices.Marshal.Copy(ptr, rgbValues, 0, bytes);
-                            var frame = new ByteFrame();
-                            frame.Frame = rgbValues;
-                            frame.FrameWidth = resizedBmp.Width;
-                            frame.FrameHeight = resizedBmp.Height;
+        //                    // Copy the RGB values into the array.
+        //                    System.Runtime.InteropServices.Marshal.Copy(ptr, rgbValues, 0, bytes);
+        //                    var frame = new ByteFrame();
+        //                    frame.Frame = rgbValues;
+        //                    frame.FrameWidth = resizedBmp.Width;
+        //                    frame.FrameHeight = resizedBmp.Height;
 
 
-                            gifFrames[i] = frame;
-                            resizedBmp.UnlockBits(bmpData);
+        //                    gifFrames[i] = frame;
+        //                    resizedBmp.UnlockBits(bmpData);
 
-                        }
-                        imageToLoad.Dispose();
-                        fs.Close();
-                        GC.Collect();
+        //                }
+        //                imageToLoad.Dispose();
+        //                fs.Close();
+        //                GC.Collect();
 
-                        return gifFrames;
-                    }
+        //                return gifFrames;
+        //            }
 
-                }
+        //        }
 
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-        private void ApplyColorCorrections(float r, float g, float b, out byte finalR, out byte finalG, out byte finalB, bool useLinearLighting, byte saturationTreshold
-         , byte lastColorR, byte lastColorG, byte lastColorB)
-        {
-            if (lastColorR == 0 && lastColorG == 0 && lastColorB == 0)
-            {
-                //if the color was black the last time, we increase the saturationThreshold to make flickering more unlikely
-                saturationTreshold += 2;
-            }
-            if (r <= saturationTreshold && g <= saturationTreshold && b <= saturationTreshold)
-            {
-                //black
-                finalR = finalG = finalB = 0;
-                return;
-            }
-
-            //"white" on wall was 66,68,77 without white balance
-            //white balance
-            //todo: introduce settings for white balance adjustments
-            r *= 100 / 100f;
-            g *= 100 / 100f;
-            b *= 100 / 100f;
-
-            if (!useLinearLighting)
-            {
-                //apply non linear LED fading ( http://www.mikrocontroller.net/articles/LED-Fading )
-                finalR = FadeNonLinear(r);
-                finalG = FadeNonLinear(g);
-                finalB = FadeNonLinear(b);
-            }
-            else
-            {
-                //output
-                finalR = (byte)r;
-                finalG = (byte)g;
-                finalB = (byte)b;
-            }
-        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return null;
+        //    }
+        //}
         private void ApplySmoothing(float r, float g, float b, out byte semifinalR, out byte semifinalG, out byte semifinalB,
            byte lastColorR, byte lastColorG, byte lastColorB)
         {
@@ -619,41 +593,47 @@ namespace adrilight
             try
             {
                 // get current working bitmap at frameIndex
-                Bitmap CurrentGifImage;
-                if (LoadedGifImage == null)
+                lock (_lock)
                 {
-                    return null;
-                }
-                var currentFrame = LoadedGifImage[frameIndex];
-                if (isPreviewRunning)
-                {
-                    // MainViewViewModel.DesktopsPreviewUpdate(currentFrame);
-                }
-                if (currentFrame == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    if (ReusableBitmap != null && ReusableBitmap.Width == currentFrame.FrameWidth && ReusableBitmap.Height == currentFrame.FrameHeight)
+                    if (frameIndex >= LoadedGifImage.Length)
+                        return null;
+                    Bitmap CurrentGifImage;
+                    if (LoadedGifImage == null)
                     {
-                        CurrentGifImage = ReusableBitmap;
+                        return null;
+                    }
+                    var currentFrame = LoadedGifImage[frameIndex];
+                    if (isPreviewRunning)
+                    {
+                        // MainViewViewModel.DesktopsPreviewUpdate(currentFrame);
+                    }
+                    if (currentFrame == null)
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        if (ReusableBitmap != null && ReusableBitmap.Width == currentFrame.FrameWidth && ReusableBitmap.Height == currentFrame.FrameHeight)
+                        {
+                            CurrentGifImage = ReusableBitmap;
 
+                        }
+                        else if (ReusableBitmap != null && (ReusableBitmap.Width != currentFrame.FrameWidth || ReusableBitmap.Height != currentFrame.FrameHeight))
+                        {
+                            CurrentGifImage = new Bitmap(currentFrame.FrameWidth, currentFrame.FrameHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+                        }
+                        else //this is when app start
+                        {
+                            CurrentGifImage = new Bitmap(currentFrame.FrameWidth, currentFrame.FrameHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+                        }
+                        var GifImageBitmapData = CurrentGifImage.LockBits(new Rectangle(0, 0, currentFrame.FrameWidth, currentFrame.FrameHeight), ImageLockMode.WriteOnly, CurrentGifImage.PixelFormat);
+                        IntPtr pixelAddress = GifImageBitmapData.Scan0;
+                        Marshal.Copy(currentFrame.Frame, 0, pixelAddress, currentFrame.Frame.Length);
+                        CurrentGifImage.UnlockBits(GifImageBitmapData);
+                        return CurrentGifImage;
                     }
-                    else if (ReusableBitmap != null && (ReusableBitmap.Width != currentFrame.FrameWidth || ReusableBitmap.Height != currentFrame.FrameHeight))
-                    {
-                        CurrentGifImage = new Bitmap(currentFrame.FrameWidth, currentFrame.FrameHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-                    }
-                    else //this is when app start
-                    {
-                        CurrentGifImage = new Bitmap(currentFrame.FrameWidth, currentFrame.FrameHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-                    }
-                    var GifImageBitmapData = CurrentGifImage.LockBits(new Rectangle(0, 0, currentFrame.FrameWidth, currentFrame.FrameHeight), ImageLockMode.WriteOnly, CurrentGifImage.PixelFormat);
-                    IntPtr pixelAddress = GifImageBitmapData.Scan0;
-                    Marshal.Copy(currentFrame.Frame, 0, pixelAddress, currentFrame.Frame.Length);
-                    CurrentGifImage.UnlockBits(GifImageBitmapData);
-                    return CurrentGifImage;
                 }
+
             }
             catch (Exception ex)
             {
@@ -666,7 +646,7 @@ namespace adrilight
         public void Stop()
         {
             _log.Debug("Stop called.");
-            CurrentZone.FillSpotsColor(Color.FromRgb(0, 0, 0));
+            //CurrentZone.FillSpotsColor(Color.FromRgb(0, 0, 0));
             if (_workerThread == null) return;
 
             _cancellationTokenSource?.Cancel();

@@ -73,6 +73,7 @@ namespace adrilight.DesktopDuplication
         {
             session.StartCapture();
             session.IsBorderRequired = false;
+            session.IsCursorCaptureEnabled = false;
         }
 
         public ICompositionSurface CreateSurface(Compositor compositor)

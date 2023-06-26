@@ -8,34 +8,34 @@
         /// <summary>
         ///     this LightingMode require screen capture engine
         /// </summary>
-        ScreenCapturing,
+        ScreenCapturing = 1,
 
         /// <summary>
         ///     this LightingMode require Rainbow engine
         /// </summary>
-        Rainbow,
+        Rainbow = 2,
 
         /// <summary>
         ///     this LightingMode require Static Color engine
         /// </summary>
-        StaticColor,
+        StaticColor = 3,
 
         /// <summary>
         ///     this LightingMode require Animation engine
         /// </summary>
-        Animation,
+        Animation = 4,
         /// <summary>
         ///     this LightingMode require Music Color engine
         /// </summary>
-        MusicCapturing,
+        MusicCapturing = 5,
         /// <summary>
         ///     this LightingMode require Gixelation Color engine
         /// </summary>
-        Gifxelation,
+        Gifxelation = 6,
         /// <summary>
         ///     this LightingMode Require Custom engine
         /// </summary>
-        Custom,
+        Custom = 7,
 
     }
 }

@@ -167,17 +167,15 @@ namespace adrilight.ViewModel
             }
         }
 
-        public List<string> AvailableRGBOrders {
+        public List<RGBLEDOrderEnum> AvailableRGBOrders {
             get
             {
-                return new List<string>() {
-                    "RGB",
-                    "RBG",
-                    "GRB",
-                    "GBR",
-                    "BGR",
-                    "BRG"
-                };
+                var list = new List<RGBLEDOrderEnum>();
+                foreach (RGBLEDOrderEnum type in Enum.GetValues(typeof(RGBLEDOrderEnum)))
+                {
+                    list.Add(type);
+                }
+                return list;
             }
         }
 
@@ -499,6 +497,7 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        public ICommand OpenOOTBCommand { get; set; }
         public ICommand StoreSearchCommand { get; set; }
         public ICommand FilterStoreItemByTargetDeviceTypeCommand { get; set; }
         public ICommand ExportItemForOnlineStoreCommand { get; set; }
@@ -519,11 +518,13 @@ namespace adrilight.ViewModel
         public ICommand DownloadCurrentItemCommand { get; set; }
         public ICommand CompositionNextFrameCommand { get; set; }
         public ICommand SelectSlaveDeviceForCurrentOutputCommand { get; set; }
+        public ICommand SelectSlaveDeviceForAllOutputCommand { get; set; }
         public ICommand OpenSlaveDeviceSelectorCommand { get; set; }
         public ICommand SelectPIDCanvasItemCommand { get; set; }
         public ICommand SelectLiveViewItemCommand { get; set; }
         public ICommand ChangeSelectedControlZoneActiveControlModeCommand { get; set; }
         public ICommand SelectSurfaceEditorItemCommand { get; set; }
+        public ICommand SetSelectedSurfaceEditorDevicePreviewColorCommand { get; set; }
         public ICommand ApplySelectedItemsScaleCommand { get; set; }
         public ICommand ApplySelectedItemsRotationCommand { get; set; }
         public ICommand RestoreSelectedSurfaceDeviceSizeAndRotationCommand { get; set; }
@@ -1086,17 +1087,6 @@ namespace adrilight.ViewModel
 
             #endregion registering General settings
 
-            #region load Automation
-
-            AvailableAutomations = new ObservableCollection<AutomationSettings>();
-            foreach (var automation in LoadAutomationIfExist())
-            {
-                AvailableAutomations.Add(automation);
-            }
-            WriteAutomationCollectionJson();
-
-            #endregion load Automation
-
             #region Create Resource and Collections Folder
 
             CreateFWToolsFolderAndFiles();
@@ -1266,15 +1256,25 @@ namespace adrilight.ViewModel
 
         private async Task RegisterDevice(IDeviceSettings device)
         {
+            //add device to default shutdown automation
+            var shutdownAutomation = AvailableAutomations.Where(a => (a.Condition as SystemEventTriggerCondition).Event == SystemEventEnum.Shutdown).FirstOrDefault();
+            if (!shutdownAutomation.Actions.Any(a => a.TargetDeviceUID == device.DeviceUID))
+            {
+                var newDeviceShutdownAction = ObjectHelpers.Clone<ActionSettings>(shutdownAutomation.Actions[0]);
+                newDeviceShutdownAction.TargetDeviceName = device.DeviceName;
+                newDeviceShutdownAction.TargetDeviceUID = device.DeviceUID;
+                shutdownAutomation.Actions.Add(newDeviceShutdownAction);
+            }
+
             device.PropertyChanged += async (_, __) =>
             {
-                WriteSingleDeviceInfoJson(device);
+                //WriteSingleDeviceInfoJson(device);
                 switch (__.PropertyName)
                 {
                     case nameof(device.CurrentActiveControlerIndex):
                         {
                             //update liveview
-                            await Task.Run(() => GetItemsForLiveView());
+                            GetItemsForLiveView();
                             UpdateLiveView();
                         }
                         break;
@@ -1311,12 +1311,12 @@ namespace adrilight.ViewModel
         {
             output.PropertyChanged += (_, __) =>
             {
-                WriteSingleOutputInfoJson(output, device);
+                // WriteSingleOutputInfoJson(output, device);
 
                 switch (__.PropertyName)
                 {
                     case nameof(output.SlaveDevice): // in case slave device changed to completely new one
-                        WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
+                                                     // WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
                         RegisterSlaveDevice(output.SlaveDevice, output, device);
                         break;
                 }
@@ -1328,7 +1328,6 @@ namespace adrilight.ViewModel
         {
             slaveDevice.PropertyChanged += (_, __) =>
             {
-                WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
                 //this master change in position reflect other output type of the device
                 if (output.OutputType == OutputTypeEnum.ARGBLEDOutput)
                 {
@@ -1362,22 +1361,21 @@ namespace adrilight.ViewModel
 
         private void RegisterZone(IControlZone zone, ISlaveDevice slaveDevice, IOutputSettings output, IDeviceSettings device)
         {
-            zone.PropertyChanged += (_, __) => WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
-            foreach (var mode in zone.AvailableControlMode)
-            {
-                mode.PropertyChanged += (_, __) => WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
-                foreach (var param in mode.Parameters)
-                {
-                    param.PropertyChanged += (_, __) => WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
-                    if (param.SubParams != null)
-                    {
-                        foreach (var subParam in param.SubParams)
-                        {
-                            subParam.PropertyChanged += (_, __) => WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
-                        }
-                    }
-                }
-            }
+            //foreach (var mode in zone.AvailableControlMode)
+            //{
+            //    mode.PropertyChanged += (_, __) => WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
+            //    foreach (var param in mode.Parameters)
+            //    {
+            //        param.PropertyChanged += (_, __) => WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
+            //        if (param.SubParams != null)
+            //        {
+            //            foreach (var subParam in param.SubParams)
+            //            {
+            //                subParam.PropertyChanged += (_, __) => WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
+            //            }
+            //        }
+            //    }
+            //}
         }
 
         #endregion component register
@@ -1393,6 +1391,15 @@ namespace adrilight.ViewModel
 
         public void WriteSingleDeviceInfoJson(IDeviceSettings device)
         {
+            foreach (var controller in device.AvailableControllers)
+            {
+                foreach (var output in controller.Outputs)
+                {
+                    WriteSingleOutputInfoJson(output, device);
+                    WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
+
+                }
+            }
             var directory = Path.Combine(DevicesCollectionFolderPath, device.DeviceName + "-" + device.DeviceUID);
             var fileToWrite = Path.Combine(directory, "config.json");
             var json = JsonConvert.SerializeObject(device, new JsonSerializerSettings() {
@@ -3069,6 +3076,35 @@ namespace adrilight.ViewModel
 
 
             });
+            SetSelectedSurfaceEditorDevicePreviewColorCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                if (SurfaceEditorSelectedDevice != null)
+                {
+                    var color = new Color();
+                    switch (p)
+                    {
+                        case "red":
+                            color = Color.FromRgb(255, 0, 0);
+                            break;
+                        case "green":
+                            color = Color.FromRgb(0, 255, 0);
+                            break;
+                        case "blue":
+                            color = Color.FromRgb(0, 0, 255);
+                            break;
+                        case "white":
+                            color = Color.FromRgb(255, 255, 255);
+                            break;
+                    }
+                    CurrentPreviewColor = color;
+                    SurfaceEditorSelectedDevice.SetPreviewColor(CurrentPreviewColor);
+                }
+
+
+            });
             ApplySelectedItemsScaleCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -3129,6 +3165,27 @@ namespace adrilight.ViewModel
                 CurrentSelectedOutputMap.SlaveDevice = p;
                 SlaveDeviceSelection.Close();
             });
+            SelectSlaveDeviceForAllOutputCommand = new RelayCommand<ARGBLEDSlaveDevice>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                //change uid to prevent injection conflict
+                foreach (var output in CurrentDevice.AvailableLightingOutputs)
+                {
+                    var cloneDevice = ObjectHelpers.Clone<ARGBLEDSlaveDevice>(p);
+                    foreach (var zone in cloneDevice.ControlableZones)
+                    {
+                        zone.ZoneUID = Guid.NewGuid().ToString();
+                        if (CtrlHlprs == null)
+                            CtrlHlprs = new ControlModeHelpers();
+                        CtrlHlprs.MakeZoneControlable(zone);
+                    }
+                    cloneDevice.ParrentID = output.OutputID;
+                    output.SlaveDevice = cloneDevice;
+                }
+                SlaveDeviceSelection.Close();
+            });
             OpenSlaveDeviceSelectorCommand = new RelayCommand<IDrawable>((p) =>
             {
                 return true;
@@ -3182,16 +3239,17 @@ namespace adrilight.ViewModel
             OpenActionsManagerWindowCommand = new RelayCommand<AutomationSettings>((p) =>
             {
                 return true;
-            }, (p) =>
+            }, async (p) =>
             {
-                OpenActionsManagerWindow(p);
+                if (!p.IsLocked)
+                    await Task.Run(() => OpenActionsManagerWindow(p));
             });
-            OpenHotKeySelectionWindowCommand = new RelayCommand<AutomationSettings>((p) =>
+            OpenHotKeySelectionWindowCommand = new RelayCommand<string>((p) =>
             {
                 return true;
             }, (p) =>
             {
-                OpenHotKeySelectionWindow(p);
+                OpenHotKeySelectionWindow();
             });
             OpenTargetDeviceSelectionWindowCommand = new RelayCommand<ActionSettings>((p) =>
             {
@@ -3258,12 +3316,12 @@ namespace adrilight.ViewModel
             {
                 AddSelectedActionTypeToList(p);
             });
-            ExecuteAutomationFromManagerCommand = new RelayCommand<ObservableCollection<ActionSettings>>((p) =>
+            ExecuteAutomationFromManagerCommand = new RelayCommand<AutomationSettings>((p) =>
             {
                 return true;
             }, (p) =>
             {
-                ExecuteAutomationActions(p);
+                ExecuteAutomationActions(p.Actions);
             });
             DeleteSelectedActionFromListCommand = new RelayCommand<ActionSettings>((p) =>
             {
@@ -3333,6 +3391,14 @@ namespace adrilight.ViewModel
                 CarouselImageLoading = true;
                 await Task.Run(() => UpdateStoreView(p, "all"));
                 CurrentOnlineStoreView = "Collections";
+            });
+            OpenOOTBCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                OOTBStage = 0;
+                OpenLEDSteupSelectionWindows();
             });
             SelectCardCommand = new RelayCommand<IDeviceSettings>((p) =>
             {
@@ -3425,6 +3491,7 @@ namespace adrilight.ViewModel
                     OOTBStage++;
                 if (OOTBStage == 2)
                 {
+                    IsRichCanvasWindowOpen = true;
                     GetItemsReadyForOOTBQuickSurfaceEditor();
                 }
             });
@@ -3439,9 +3506,10 @@ namespace adrilight.ViewModel
             FinishOOTBCommand = new RelayCommand<string>((p) =>
                         {
                             return p != null;
-                        }, async (p) =>
+                        }, (p) =>
                         {
                             CurrentDevice.IsSizeNeedUserDefine = false;
+                            IsRichCanvasWindowOpen = false;
                             GotoChild(CurrentDevice);
                             OOTBWindows.Close();
                         });
@@ -3457,7 +3525,7 @@ namespace adrilight.ViewModel
             SkipOOTBCommand = new RelayCommand<string>((p) =>
             {
                 return p != null;
-            }, async (p) =>
+            }, (p) =>
             {
                 OOTBItems.Clear();
                 OOTBSelectedItems.Clear();
@@ -3635,13 +3703,24 @@ namespace adrilight.ViewModel
         {
             GeneralSettings.IsInBetaChanel = true;
         }
-
+        private ObservableCollection<ITriggerCondition> _availableExecuteCondition;
+        public ObservableCollection<ITriggerCondition> AvailableExecuteCondition {
+            get { return _availableExecuteCondition; }
+            set
+            {
+                _availableExecuteCondition = value;
+                RaisePropertyChanged();
+            }
+        }
+        private ActionManagerWindow actionManagerWindow { get; set; }
         private void OpenActionsManagerWindow(AutomationSettings selectedautomation)
         {
-            if (AssemblyHelper.CreateInternalInstance($"View.{"ActionManagerWindow"}") is System.Windows.Window window)
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
+
                 CurrentSelectedAutomation = selectedautomation;
                 AvailableActionsforCurrentDevice = new ObservableCollection<ActionType>();
+                //init action
                 AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Kích hoạt", Description = "Kích hoạt một Profile có sẵn", Geometry = "apply", Type = "Activate", LinkText = "", IsValueDisplayed = false, IsTargetDeviceDisplayed = false });
                 AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Tăng", Description = "Tăng giá trị của một thuộc tính", Geometry = "apply", Type = "Increase", LinkText = "Của thiết bị", IsValueDisplayed = false, IsTargetDeviceDisplayed = true });
                 AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Giảm", Description = "Giảm giá trị của một thuộc tính", Geometry = "apply", Type = "Decrease", LinkText = "Của thiết bị", IsValueDisplayed = false, IsTargetDeviceDisplayed = true });
@@ -3649,27 +3728,30 @@ namespace adrilight.ViewModel
                 AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Tắt", Description = "Tắt một tính năng", Geometry = "apply", Type = "Off", LinkText = "Của thiết bị", IsValueDisplayed = false, IsTargetDeviceDisplayed = true });
                 AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Bật-Tắt", Description = "Chuyển đổi trạng thái Bật Tắt", Geometry = "apply", Type = "On/Off", LinkText = "Của thiết bị", IsValueDisplayed = false, IsTargetDeviceDisplayed = true });
                 AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Chuyển", Description = "Chuyển đổi đồng thời kích hoạt một tính năng", Geometry = "apply", Type = "Change", LinkText = "Của thiết bị", ToResultText = "thành", IsValueDisplayed = true, IsTargetDeviceDisplayed = true });
-                window.Owner = System.Windows.Application.Current.MainWindow;
-                window.ShowDialog();
-            }
+                //init trigger condition
+                AvailableExecuteCondition = new ObservableCollection<ITriggerCondition>();
+                var hotkeyCondition = new HotkeyTriggerCondition("Hotkey", "Sử dụng tổ hợp phím tắt để kích hoạt chuỗi hành động này", null, null);
+                var systemShutdownCondition = new SystemEventTriggerCondition("Khi tắt máy hoặc thoát App ", "Kích hoạt chuỗi hành động khi máy tính Shutdown", SystemEventEnum.Shutdown);
+                //var systemSleepCondition = new SystemEventTriggerCondition("Khi sleep", "Kích hoạt chuỗi hành động khi máy tính Sleep", SystemEventEnum.Sleep);
+                //var appExitCondition = new SystemEventTriggerCondition("Khi thoát App", "Kích hoạt chuỗi hành động khi thoát App", SystemEventEnum.AppExit);
+                //var timeStampCondition = new SystemEventTriggerCondition("Mốc thời gian", "Thực hiện chuỗi hành động khi đồng hồ điểm giờ nhất định", SystemEventEnum.TimeStamp);
+                AvailableExecuteCondition.Add(hotkeyCondition);
+                AvailableExecuteCondition.Add(systemShutdownCondition);
+                actionManagerWindow = new ActionManagerWindow();
+                actionManagerWindow.Owner = automationManagerWindow;
+                actionManagerWindow.ShowDialog();
+
+
+            });
+
         }
 
-        private void OpenHotKeySelectionWindow(AutomationSettings selectedautomation)
+        private void OpenHotKeySelectionWindow()
         {
             if (AssemblyHelper.CreateInternalInstance($"View.{"HotKeySelectionWindow"}") is System.Windows.Window window)
             {
-                CurrentSelectedAutomation = selectedautomation;
-                RaisePropertyChanged(nameof(CurrentSelectedAutomation));
                 CurrentSelectedShortKeys = new ObservableCollection<KeyModel>();
                 CurrentSelectedModifiers = new ObservableCollection<string>();
-
-                //CurrentSelectedShortKeys.Add(KeyInterop.KeyFromVirtualKey(CurrentSelectedAutomation.Condition).ToString());
-
-                //foreach (var modifier in CurrentSelectedAutomation.Modifiers)
-                //{
-                //    CurrentSelectedModifiers.Add(modifier.Name);
-                //}
-
                 window.Owner = System.Windows.Application.Current.MainWindow;
                 window.ShowDialog();
             }
@@ -4055,6 +4137,10 @@ namespace adrilight.ViewModel
                         TypeNameHandling = TypeNameHandling.Auto
                     });
                     File.WriteAllText(Path.Combine(Export.FileName, "content", "config.json"), contentjson);
+                    if (File.Exists(device.Thumbnail))
+                        File.Copy(device.Thumbnail, Path.Combine(Export.FileName, "content", "thumbnail.png"));
+                    //coppy thumb with color
+                    File.Copy(OnlineItemAvatar, Path.Combine(Export.FileName, "content", "colored_thumbnail.png"));
                 }
                 //create info
                 var info = new OnlineItemModel() {
@@ -4073,7 +4159,6 @@ namespace adrilight.ViewModel
                 //coppy image data
                 File.Copy(OnlineItemAvatar, Path.Combine(Export.FileName, "thumb.png"));
                 //copy thumbnail also
-                File.Copy(OnlineItemAvatar, Path.Combine(Export.FileName, "content", "thumbnail.png"));
                 Directory.CreateDirectory(Path.Combine(Export.FileName, "screenshots"));
                 int count = 0;
                 foreach (var file in OnlineItemScreenShotCollection)
@@ -4580,14 +4665,13 @@ namespace adrilight.ViewModel
             }
             AvailableCarouselImage = new ObservableCollection<BitmapImage>();
         }
-
+        private AutomationManagerWindow automationManagerWindow { get; set; }
         private void OpenAutomationManagerWindow()
         {
-            if (AssemblyHelper.CreateInternalInstance($"View.{"AutomationManagerWindow"}") is System.Windows.Window window)
-            {
-                window.Owner = System.Windows.Application.Current.MainWindow;
-                window.ShowDialog();
-            }
+            automationManagerWindow = new AutomationManagerWindow();
+            automationManagerWindow.Owner = System.Windows.Application.Current.MainWindow;
+            automationManagerWindow.ShowDialog();
+
         }
 
         private void OpenOutputDataImportSelection()
@@ -4722,6 +4806,8 @@ namespace adrilight.ViewModel
         public void DeleteAttachedProfile(AppProfile profile)
         {
             //check if profile is in used
+            if (profile == null)
+                return;
             if (profile.IsActivated)
             {
                 HandyControl.Controls.MessageBox.Show(profile.Name + " Không thể xóa, profile này đang được sử dụng!!!", "Profile is in used", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -4755,6 +4841,8 @@ namespace adrilight.ViewModel
 
         public void ActivateSelectedProfile(AppProfile profile)
         {
+            if (profile == null)
+                return;
             //construct devices from profile data
             //check if any connected device has same type and hardware version
             List<IDeviceSettings> compatibleDevices = new List<IDeviceSettings>();
@@ -4933,21 +5021,16 @@ namespace adrilight.ViewModel
 
         private void SaveCurrentSelectedAutomationShortkey()
         {
-            var modifiers = CurrentSelectedModifiers.ToArray();
+            var modifiers = CurrentSelectedModifiers;
             var key = CurrentSelectedShortKeys.ToArray();
-            CurrentSelectedAutomation.Modifiers = new ObservableCollection<NonInvasiveKeyboardHookLibrary.ModifierKeys>();
+            var modifiersKey = new ObservableCollection<NonInvasiveKeyboardHookLibrary.ModifierKeys>();
             foreach (var modifier in modifiers)
             {
-                CurrentSelectedAutomation.Modifiers.Add(ConvertStringtoModifier(modifier));
+                modifiersKey.Add(ConvertStringtoModifier(modifier));
             }
-            RaisePropertyChanged(nameof(CurrentSelectedAutomation.Modifiers));
-            CurrentSelectedAutomation.StandardKey = key[0];
+            var condition = new HotkeyTriggerCondition("HotKey", "Hotkey", modifiersKey, key[0]);
+            CurrentSelectedAutomation.Condition = condition;
             WriteAutomationCollectionJson();
-            //AvailableAutomations = new ObservableCollection<IAutomationSettings>();
-            //foreach (var automation in LoadAutomationIfExist())
-            //{
-            //    AvailableAutomations.Add(automation);
-            //}
             if (GeneralSettings.HotkeyEnable)
             {
                 Unregister();
@@ -5002,10 +5085,15 @@ namespace adrilight.ViewModel
             //_identifiers = new List<Guid?>();
             foreach (var automation in AvailableAutomations.Where(x => x.IsEnabled == true))
             {
+                if (automation.Condition is not HotkeyTriggerCondition)
+                    continue;
+                var condition = automation.Condition as HotkeyTriggerCondition;
+                if (condition == null)
+                    continue;
                 var modifierkeys = new List<NonInvasiveKeyboardHookLibrary.ModifierKeys>();
-                if (automation.Modifiers != null)
+                if (condition.Modifiers != null)
                 {
-                    foreach (var modifier in automation.Modifiers)
+                    foreach (var modifier in condition.Modifiers)
                     {
                         modifierkeys.Add(modifier);
                     }
@@ -5016,7 +5104,7 @@ namespace adrilight.ViewModel
                     switch (modifierkeys.Count)
                     {
                         case 0:
-                            KeyboardHookManagerSingleton.Instance.RegisterHotkey(automation.StandardKey.KeyCode, () =>
+                            KeyboardHookManagerSingleton.Instance.RegisterHotkey(condition.StandardKey.KeyCode, () =>
                             {
                                 Task.Run(() =>
                                    {
@@ -5031,7 +5119,7 @@ namespace adrilight.ViewModel
                             break;
 
                         case 1:
-                            KeyboardHookManagerSingleton.Instance.RegisterHotkey(modifierkeys.First(), automation.StandardKey.KeyCode, () =>
+                            KeyboardHookManagerSingleton.Instance.RegisterHotkey(modifierkeys.First(), condition.StandardKey.KeyCode, () =>
                             {
                                 Task.Run(() =>
                                 {
@@ -5045,7 +5133,7 @@ namespace adrilight.ViewModel
                             break;
 
                         default:
-                            KeyboardHookManagerSingleton.Instance.RegisterHotkey(modifierkeys.ToArray(), automation.StandardKey.KeyCode, () =>
+                            KeyboardHookManagerSingleton.Instance.RegisterHotkey(modifierkeys.ToArray(), condition.StandardKey.KeyCode, () =>
                             {
                                 Task.Run(() =>
                                 {
@@ -5070,7 +5158,7 @@ namespace adrilight.ViewModel
             }
         }
 
-        private void ExecuteAutomationActions(ObservableCollection<ActionSettings> actions)
+        public void ExecuteAutomationActions(ObservableCollection<ActionSettings> actions)
         {
             if (actions == null)
                 return;
@@ -5079,10 +5167,10 @@ namespace adrilight.ViewModel
                 var targetDevice = AvailableDevices.Where(x => x.DeviceUID == action.TargetDeviceUID).FirstOrDefault();
                 if (targetDevice == null)
                 {
-                    HandyControl.Controls.MessageBox.Show(action.TargetDeviceName + " Không thể thiết lập automation, thiết bị đã bị xóa hoặc thay đổi UID!!!", "Device is not available", MessageBoxButton.OK, MessageBoxImage.Error);
-                    //actions.Remove(action);
+                    //HandyControl.Controls.MessageBox.Show(action.TargetDeviceName + " Không thể thiết lập automation, thiết bị đã bị xóa hoặc thay đổi UID!!!", "Device is not available", MessageBoxButton.OK, MessageBoxImage.Error);
+                    // actions.Remove(action);
                     WriteAutomationCollectionJson();
-                    return;
+                    continue;
                 }
                 switch (action.ActionType.Type)
                 {
@@ -5131,7 +5219,8 @@ namespace adrilight.ViewModel
                         break;
 
                     case "On":
-                        targetDevice.TurnOnLED();
+                        //targetDevice.IsEnabled = true;
+                        targetDevice.TurnOffLED();
                         break;
                     case "On/Off":
                         targetDevice.ToggleOnOffLED();
@@ -5141,12 +5230,11 @@ namespace adrilight.ViewModel
                         switch (action.ActionParameter.Type)
                         {
                             case "color":
-                                //foreach (var output in targetDevice.AvailableOutputs)
-                                //{
-                                //    //output.OutputStaticColor = (Color)ColorConverter.ConvertFromString((string)action.ActionParameter.Value);
-                                //    //output.OutputSelectedMode = 3;
-                                //}
-
+                                targetDevice.SetStaticColor(action.ActionParameter.Value as ColorCard);
+                                break;
+                            case "mode":
+                                LightingModeEnum value = (LightingModeEnum)Enum.Parse(typeof(LightingModeEnum), action.ActionParameter.Value.ToString());
+                                targetDevice.SetModeByEnumValue(value);
                                 break;
                         }
 
@@ -6118,10 +6206,10 @@ namespace adrilight.ViewModel
                         //Thumbnail = Path.Combine(ResourceFolderPath, "Group_thumb.png")
                     };
                 }
-                newGroup.MaskedControlZone.PropertyChanged += (_, __) =>
-                {
-                    WriteSingleDeviceInfoJson(CurrentDevice);
-                };
+                //newGroup.MaskedControlZone.PropertyChanged += (_, __) =>
+                //{
+                //    WriteSingleDeviceInfoJson(CurrentDevice);
+                //};
                 //add group border
                 GetGroupBorder(selectedItems, newGroup);
                 newGroup.Border.IsSelected = true;
@@ -6230,6 +6318,8 @@ namespace adrilight.ViewModel
         private void UpdateLiveView()
         {
             if (!IsLiveViewOpen)
+                return;
+            if (LiveViewItems.Count <= 0)
                 return;
             //simple just set the scale
             //CurrentDevice.UpdateChildSize();
@@ -6412,105 +6502,103 @@ namespace adrilight.ViewModel
             OOTBQUickSurfaceEditorItems = new ObservableCollection<IDrawable>();
             OOTBQUickSurfaceEditorSelectedItems = new ObservableCollection<IDrawable>();
             //add child
-            foreach (var item in CurrentDevice.AvailableLightingDevices)
+            foreach (var output in CurrentDevice.AvailableLightingOutputs.Where(o => o.IsEnabled))
             {
-                var device = item as ARGBLEDSlaveDevice;
+                var device = output.SlaveDevice as ARGBLEDSlaveDevice;
                 device.IsSelected = true;
                 OOTBQUickSurfaceEditorItems.Add(device);
             }
             //spread items
-            SpreadItemHorizontal(OOTBQUickSurfaceEditorItems, 0);
+            if (OOTBQUickSurfaceEditorItems.Count <= 0)
+            {
+                HandyControl.Controls.MessageBox.Show("Bạn phải Enable ít nhất một output!!!", "No output", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            SpreadItemVertical(OOTBQUickSurfaceEditorItems, 0);
             foreach (var item in OOTBQUickSurfaceEditorItems)
             {
                 item.IsSelected = false;
             }
-            //add screen border
-            ScreenBound screen = new ScreenBound();
-            if (GeneralSettings.IsMultipleScreenEnable)
-            {
-                for (int i = 0; i < Screen.AllScreens.Length; i++)
-                {
-                    screen = new ScreenBound();
-                    screen.Width = Screen.AllScreens[i].Bounds.Width;
-                    screen.Height = Screen.AllScreens[i].Bounds.Height;
-                    screen.Top = Screen.AllScreens[i].Bounds.Top;
-                    screen.Left = Screen.AllScreens[i].Bounds.Left;
-                    screen.Index = i;
-                    OOTBQUickSurfaceEditorItems.Insert(0, screen);
-                }
-            }
-            else
-            {
-                screen = new ScreenBound();
-                OOTBQUickSurfaceEditorItems.Insert(0, screen);
-            }
+            //add surface border
+            var border = new ScreenBound() {
+                Width = 2000,
+                Height = 2000,
+                ShouldBringIntoView = true,
+                IsDraggable = false,
+                IsSelectable = false
+            };
+            OOTBQUickSurfaceEditorItems.Insert(0, border);
         }
 
         private void GetItemsForLiveView()
         {
             IsInIsolateMode = false;
-            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            if (LiveViewItems == null)
             {
+                LiveViewItems = new ObservableCollection<IDrawable>();
+            }
+            else
+            {
+                LiveViewItems.Clear();
+            }
+            LiveViewSelectedItems = new ObservableCollection<IDrawable>();
+            foreach (var output in CurrentDevice.AvailableLightingOutputs.Where(o => o.IsEnabled))
+            {
+                var lightingDevice = output.SlaveDevice as ARGBLEDSlaveDevice;
 
-                if (LiveViewItems == null)
-                {
-                    LiveViewItems = new ObservableCollection<IDrawable>();
-                }
-                else
-                {
-                    LiveViewItems.Clear();
-                }
-                LiveViewSelectedItems = new ObservableCollection<IDrawable>();
-                foreach (var device in CurrentDevice.AvailableLightingDevices)
-                {
-                    var lightingDevice = device as ARGBLEDSlaveDevice;
+                LiveViewItems.Add(lightingDevice);
+            }
 
-                    LiveViewItems.Add(lightingDevice);
-                }
-
-                IDrawable lastSelectedItem = null;
-                foreach (var item in CurrentDevice.CurrentLiveViewZones)
+            IDrawable lastSelectedItem = null;
+            foreach (var item in CurrentDevice.CurrentLiveViewZones)
+            {
+                (item as IDrawable).IsSelectable = true;
+                LiveViewItems.Add(item as IDrawable);
+                if ((item as IDrawable).IsSelected)
+                    lastSelectedItem = item as IDrawable;
+            }
+            if (CurrentDevice.ControlZoneGroups != null)
+            {
+                foreach (var group in CurrentDevice.CurrentLiveViewGroup)
                 {
-                    (item as IDrawable).IsSelectable = true;
-                    LiveViewItems.Add(item as IDrawable);
-                    if ((item as IDrawable).IsSelected)
-                        lastSelectedItem = item as IDrawable;
-                }
-                if (CurrentDevice.ControlZoneGroups != null)
-                {
-                    foreach (var group in CurrentDevice.CurrentLiveViewGroup)
+                    //register group child to masked control
+                    var groupItems = GetGroupChildItems(group, CurrentDevice);
+                    if (GetGroupBorder(groupItems, group) != null)
                     {
-                        //register group child to masked control
-                        var groupItems = GetGroupChildItems(group, CurrentDevice);
-                        if (GetGroupBorder(groupItems, group) != null)
+                        LiveViewItems.Add(group.Border);
+                        if ((group.Border.IsSelected))
+                            lastSelectedItem = group.Border;
+                        //disable selection items in group
+                        foreach (var item in groupItems)
                         {
-                            LiveViewItems.Add(group.Border);
-                            if ((group.Border.IsSelected))
-                                lastSelectedItem = group.Border;
-                            //disable selection items in group
-                            foreach (var item in groupItems)
-                            {
-                                (item as IDrawable).IsSelectable = false;
-                            }
+                            (item as IDrawable).IsSelectable = false;
                         }
-
                     }
-                }
-                //reset toolbard width
-                ToolBarWidth = 450;
-                if (IsInIDEditStage)
-                {
-                    GetThingsReadyFroIDEdit();
-                }
-                if (lastSelectedItem != null)
-                {
-                    SelectLiveViewItemCommand.Execute(lastSelectedItem);
-                }
-                else
-                    SelectLiveViewItemCommand.Execute(LiveViewItems.Where(i => i.IsSelectable).First());
 
-                ShowSelectedItemToolbar = true;
-            });
+                }
+            }
+            //reset toolbard width
+            ToolBarWidth = 450;
+            if (IsInIDEditStage)
+            {
+                GetThingsReadyFroIDEdit();
+            }
+            if (lastSelectedItem != null)
+            {
+                SelectLiveViewItemCommand.Execute(lastSelectedItem);
+            }
+            else
+            {
+                if (LiveViewItems.Count >= 1)
+                {
+                    SelectLiveViewItemCommand.Execute(LiveViewItems.Where(i => i.IsSelectable).First());
+                }
+            }
+
+
+            ShowSelectedItemToolbar = true;
+
 
 
         }
@@ -6934,14 +7022,23 @@ namespace adrilight.ViewModel
             var _gifControl = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Gifs).FirstOrDefault() as ListSelectionParameter;
             foreach (var gif in _gifControl.AvailableValues)
             {
-                Bitmap bmp = new Bitmap((gif as Gif).Path);
-                AvailableGifs.Add(new GifCard() {
-                    Name = gif.Name,
-                    Width = bmp.Width,
-                    Height = bmp.Height,
-                    Path = (gif as Gif).Path
-                });
-                bmp.Dispose();
+                try
+                {
+                    Bitmap bmp = new Bitmap((gif as Gif).Path);
+                    AvailableGifs.Add(new GifCard() {
+                        Name = gif.Name,
+                        Width = bmp.Width,
+                        Height = bmp.Height,
+                        Path = (gif as Gif).Path
+                    });
+                    bmp.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    //gif problem
+
+                }
+
             }
         }
         public void ScreenBitmapCollectionInit()
@@ -7795,7 +7892,7 @@ namespace adrilight.ViewModel
 
             if (IsLiveViewOpen)
             {
-                await Task.Run(() => GetItemsForLiveView());
+                GetItemsForLiveView();
                 UpdateLiveView();
             }
             else
@@ -7898,7 +7995,15 @@ namespace adrilight.ViewModel
             }
         }
         private ARGBLEDSlaveDevice _surfaceEditorSelectedDevice;
-
+        private Color _currentPreviewColor = Color.FromRgb(255, 255, 255);
+        public Color CurrentPreviewColor {
+            get { return _currentPreviewColor; }
+            set
+            {
+                _currentPreviewColor = value;
+                RaisePropertyChanged();
+            }
+        }
         public ARGBLEDSlaveDevice SurfaceEditorSelectedDevice { get { return _surfaceEditorSelectedDevice; } set { _surfaceEditorSelectedDevice = value; RaisePropertyChanged(); } }
 
         private double _selectedItemScaleValue;
@@ -7911,11 +8016,11 @@ namespace adrilight.ViewModel
             SurfaceEditorSelectedItems = new ObservableCollection<IDrawable>();
             foreach (var device in AvailableDevices)
             {
-                var slaveDevices = device.AvailableLightingDevices;
-                foreach (var slaveDevice in slaveDevices)
+                foreach (var output in device.AvailableLightingOutputs.Where(o => o.IsEnabled))
                 {
-                    SurfaceEditorItems.Add(slaveDevice as ARGBLEDSlaveDevice);
+                    SurfaceEditorItems.Add(output.SlaveDevice as ARGBLEDSlaveDevice);
                 }
+
             }
             var border = new ScreenBound() {
                 Width = 2000,
@@ -8022,6 +8127,8 @@ namespace adrilight.ViewModel
 
         private void DeleteSelectedAutomation(AutomationSettings automation)
         {
+            if (automation.IsLocked)
+                return;
             AvailableAutomations.Remove(automation);
             WriteAutomationCollectionJson();
         }
@@ -8437,10 +8544,19 @@ namespace adrilight.ViewModel
             CreateAudioDevicesCollection();
             CreateProfileCollectionFolder();
             CreateSupportedDevicesCollectionFolder();
-
             #endregion
             LoadAvailableBaudRate();
             LoadAvailableProfiles();
+            LoadAvailableAutomations();
+        }
+        private void LoadAvailableAutomations()
+        {
+            AvailableAutomations = new ObservableCollection<AutomationSettings>();
+            foreach (var automation in LoadAutomationIfExist())
+            {
+                AvailableAutomations.Add(automation);
+            }
+            WriteAutomationCollectionJson();
         }
         private void CreateResourceCollectionFolder()
         {
@@ -8576,6 +8692,10 @@ namespace adrilight.ViewModel
         public List<AutomationSettings> LoadAutomationIfExist()
         {
             var loadedAutomations = new List<AutomationSettings>();
+            if (!File.Exists(JsonAutomationFileNameAndPath))
+            {
+                ResourceHlprs.CopyResource("adrilight.Resources.Automations.DefaultAutomations.json", JsonAutomationFileNameAndPath);
+            }
             if (File.Exists(JsonAutomationFileNameAndPath))
             {
                 var json = File.ReadAllText(JsonAutomationFileNameAndPath);
@@ -9070,11 +9190,11 @@ namespace adrilight.ViewModel
             SelectLiveViewItemCommand.Execute(selectedItems.First());
         }
 
-        public async Task GotoChild(IDeviceSettings selectedDevice)
+        public void GotoChild(IDeviceSettings selectedDevice)
         {
             SelectedViewPart = SelectableViewParts[1];
             CurrentDevice = selectedDevice;
-            await Task.Run(() => GetItemsForLiveView());
+            GetItemsForLiveView();
             UpdateLiveView();
             IsSplitLightingWindowOpen = true;
         }

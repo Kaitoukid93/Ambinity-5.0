@@ -1,5 +1,7 @@
 ﻿using adrilight.Settings;
 using adrilight.Spots;
+using adrilight.Util;
+using adrilight.Util.ModeParameters;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
 using System;
@@ -131,7 +133,7 @@ namespace adrilight
         private ObservableCollection<IControlZone> GetControlZones(IDeviceController controller)
         {
             ObservableCollection<IControlZone> zones = new ObservableCollection<IControlZone>();
-            foreach (var output in controller.Outputs)
+            foreach (var output in controller.Outputs.Where(o => o.IsEnabled))
             {
                 foreach (var zone in output.SlaveDevice.ControlableZones)
                 {
@@ -359,6 +361,82 @@ namespace adrilight
                 IsEnabled = false;
             else
                 IsEnabled = true;
+        }
+        public void SetStaticColor(ColorCard colors)
+        {
+            foreach (var device in AvailableLightingDevices)//possible replace with method from IOutputSettings
+            {
+                var lightingDevice = device as ARGBLEDSlaveDevice;
+                lightingDevice.SetStaticColor(colors);
+            }
+            if (ControlZoneGroups != null)
+            {
+                foreach (var group in ControlZoneGroups)
+                {
+                    var lightingZone = group.MaskedControlZone as LEDSetup;
+                    if (lightingZone != null)
+                    {
+                        var staticColorMode = lightingZone.AvailableControlMode.Where(m => (m as LightingMode).BasedOn == LightingModeEnum.StaticColor).FirstOrDefault() as LightingMode;
+                        if (staticColorMode == null)
+                            continue;
+                        staticColorMode.Enable();
+                        (staticColorMode.ColorParameter as ListSelectionParameter).SelectedValue = colors;
+                        lightingZone.CurrentActiveControlMode = staticColorMode;
+                        var zones = GetGroupChildItems(group);
+                        if (zones != null)
+                        {
+                            foreach (var zone in zones)
+                            {
+                                var ledZone = zone as LEDSetup;
+                                ledZone.CurrentActiveControlMode = staticColorMode;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        private List<IControlZone> GetGroupChildItems(ControlZoneGroup group)
+        {
+            List<IControlZone> childItems = new List<IControlZone>();
+            foreach (var zone in AvailableControlZones)
+            {
+                if (zone.GroupID == group.GroupUID)
+                {
+                    childItems.Add(zone);
+                }
+            }
+            return childItems;
+        }
+        public void SetModeByEnumValue(LightingModeEnum value)
+        {
+            foreach (var device in AvailableLightingDevices)//possible replace with method from IOutputSettings
+            {
+                var lightingDevice = device as ARGBLEDSlaveDevice;
+                lightingDevice.SetModeByEnumValue(value);
+            }
+            if (ControlZoneGroups != null)
+            {
+                foreach (var group in ControlZoneGroups)
+                {
+                    var lightingZone = group.MaskedControlZone as LEDSetup;
+                    if (lightingZone != null)
+                    {
+                        var targetMode = lightingZone.AvailableControlMode.Where(m => (m as LightingMode).BasedOn == (LightingModeEnum)value).FirstOrDefault() as LightingMode;
+                        if (targetMode == null)
+                            continue;
+                        lightingZone.CurrentActiveControlMode = targetMode;
+                        var zones = GetGroupChildItems(group);
+                        if (zones != null)
+                        {
+                            foreach (var zone in zones)
+                            {
+                                var ledZone = zone as LEDSetup;
+                                ledZone.CurrentActiveControlMode = targetMode;
+                            }
+                        }
+                    }
+                }
+            }
         }
         #region Graphic Related Method
         public void UpdateChildSize()

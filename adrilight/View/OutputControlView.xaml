@@ -103,7 +103,7 @@
                                             </MultiTrigger.Conditions>
 
                                             <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}" />-->
-                                            <Setter Property="Background" TargetName="_Border" Value="{DynamicResource primaryBackgroundBrush }" />
+                                            <Setter Property="Background" TargetName="_Border" Value="{DynamicResource ButtonHoverBrush }" />
                                         </MultiTrigger>
 
                                         <MultiTrigger>
@@ -112,7 +112,7 @@
                                                 <Condition Property="IsSelected" Value="True" />
                                             </MultiTrigger.Conditions>
 
-                                            <Setter Property="Background" TargetName="_Border" Value="{DynamicResource primaryBackgroundBrush }" />
+                                            <Setter Property="Background" TargetName="_Border" Value="{DynamicResource ButtonHoverBrush }" />
                                             <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}" />-->
                                         </MultiTrigger>
                                         <MultiTrigger>
@@ -916,12 +916,18 @@
                                                                             </Grid.ColumnDefinitions>
                                                                             <Path HorizontalAlignment="Left"
                                                                                       Stretch="Uniform"
-                                                                                      Margin="5"
+                                                                                      Margin="10"
                                                                                       Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
                                                                                       Width="25"
                                                                                       Height="25"
                                                                                       Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" />
-                                                                            <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,5,0" Grid.Column="1" Text="{Binding Name}" Style="{DynamicResource TextBlockDefault}" />
+                                                                            <StackPanel Grid.Column="1">
+                                                                                <TextBlock HorizontalAlignment="Left" Margin="5,10,10,2" Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" Style="{DynamicResource TextBlockDefault}" />
+                                                                                <TextBlock HorizontalAlignment="Left" Margin="5,0,10,10" Text="{Binding Description}" FontSize="13" Style="{DynamicResource TextBlockDefaultSecLight}"/>
+                                                                            </StackPanel>
+                                                                                        
+                                                                            
+                                                                            
                                                                         </Grid>
                                                                     </DataTemplate>
                                                                 </ListBox.ItemTemplate>

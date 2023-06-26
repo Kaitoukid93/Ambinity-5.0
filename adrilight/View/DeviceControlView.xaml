@@ -501,14 +501,17 @@
                 </Border>
                 <StackPanel Margin="20,5" Grid.Column="1">
 
-                    <TextBlock  Text="{Binding CurrentDevice.DeviceName}"
+                    <TextBlock HorizontalAlignment="Left"  Text="{Binding CurrentDevice.DeviceName}"
                                                                 FlowDirection="RightToLeft"
                                                                 FontWeight="SemiBold"
                                                                 Style="{StaticResource TextBlockTitle}" />
 
                     <Grid>
-                        <StackPanel>
-                            <TextBlock HorizontalAlignment="Left" Text="{Binding CurrentDevice.HardwareVersion}" Style="{DynamicResource TextBlockDefaultPrimary}" />
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Margin="0,2,5,2" HorizontalAlignment="Left" Text="{Binding CurrentDevice.HardwareVersion}" Style="{DynamicResource TextBlockDefaultSecLight}" />
+                            <Button Command="{Binding OpenOOTBCommand}" Padding="0" Background="Transparent" BorderThickness="0">
+                                <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="Chạy lại Device Setup"/>
+                            </Button>
                         </StackPanel>
                     </Grid>
                 </StackPanel>

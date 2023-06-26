@@ -26,7 +26,7 @@ namespace adrilight.Util
 
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
-
+            MainViewViewModel.AvailableDevices.CollectionChanged += (_, __) => DeviceCollectionChanged();
             RefreshHWState();
             _log.Info($"Hardware Monitor Created");
 
@@ -36,6 +36,13 @@ namespace adrilight.Util
 
 
         private LibreHardwareMonitor.Hardware.Computer computer { get; set; }
+        private void DeviceCollectionChanged()
+        {
+            lock (availableFan)
+            {
+                availableFan = GetAvailableFans();
+            }
+        }
         private void PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             //switch (e.PropertyName)
@@ -60,6 +67,7 @@ namespace adrilight.Util
         private MainViewViewModel MainViewViewModel { get; }
         private Computer displayHWInfo { get; set; }
         private double _lastLecture;
+        private List<FanMotor> availableFan { get; set; }
         public bool IsRunning { get; private set; } = false;
         private CancellationTokenSource _cancellationTokenSource;
         private void RefreshHWState()
@@ -89,7 +97,24 @@ namespace adrilight.Util
                 thread.Start();
             }
         }
-
+        private List<FanMotor> GetAvailableFans()
+        {
+            var availableFan = new List<FanMotor>();
+            foreach (var device in MainViewViewModel.AvailableDevices.Where(d => d.AvailablePWMDevices != null))
+            {
+                var pwmOutputs = device.AvailablePWMOutputs.ToList();
+                foreach (var pwmOutput in pwmOutputs)
+                {
+                    var zones = pwmOutput.SlaveDevice.ControlableZones.ToList();
+                    foreach (var zone in zones)
+                    {
+                        var fan = zone as FanMotor;
+                        availableFan.Add(fan);
+                    }
+                }
+            }
+            return availableFan;
+        }
 
         public void Run(CancellationToken token)//static color creator
         {
@@ -106,7 +131,7 @@ namespace adrilight.Util
 
             try
             {
-
+                availableFan = GetAvailableFans();
                 thisComputer = new Computer();
                 thisComputer.Processor = new List<IHardware>(); // init cpu list
                 thisComputer.MotherBoard = new List<IHardware>(); // init mb list
@@ -146,7 +171,6 @@ namespace adrilight.Util
                             }
                         }
 
-
                     }
                     else
                     {
@@ -162,9 +186,6 @@ namespace adrilight.Util
                                 {
                                     // Enable OpenRGB
                                     GeneralSettings.IsOpenRGBEnabled = true;
-
-
-
                                 }
                                 if (dialog.askagaincheckbox.IsChecked == true)
                                 {
@@ -196,9 +217,6 @@ namespace adrilight.Util
                             {
                                 // Enable OpenRGB
                                 GeneralSettings.IsOpenRGBEnabled = true;
-
-
-
                             }
                             if (dialog.askagaincheckbox.IsChecked == true)
                             {
@@ -228,9 +246,6 @@ namespace adrilight.Util
                             {
                                 // Enable OpenRGB
                                 GeneralSettings.IsOpenRGBEnabled = true;
-
-
-
                             }
                             if (dialog.askagaincheckbox.IsChecked == true)
                             {
@@ -243,16 +258,6 @@ namespace adrilight.Util
 
                         });
                     }
-
-                    //foreach (var device in MainViewViewModel.AvailableDevices.Where(x => x.DeviceType == ))
-                    //{
-                    //    //find speed control and set
-                    //    //foreach (var output in device.AvailableOutputs)
-                    //    //{
-                    //    //    (output as OutputSettings).SetSpeed(200);
-                    //    //}
-
-                    //}
                 }
 
                 while (!token.IsCancellationRequested)
@@ -272,8 +277,6 @@ namespace adrilight.Util
 
                         }
                     }
-
-
                     //get median fan control speed value
                     List<double> speeds = new List<double>();
                     if (fanControlSensors.Count > 0)
@@ -288,83 +291,37 @@ namespace adrilight.Util
                         speeds.Add(80d);
                     }
                     var medianSpeed = speeds.Median();
-                    if (MainViewViewModel.IsSplitLightingWindowOpen && MainViewViewModel.IsAppActivated)
+
+                    lock (availableFan)
                     {
-                        foreach (var device in MainViewViewModel.AvailableDevices.Where(d => d.AvailablePWMDevices != null))
+                        foreach (var fan in availableFan)
                         {
-                            var pwmOutputs = device.AvailablePWMOutputs.ToList();
-                            foreach (var pwmOutput in pwmOutputs)
+                            if (fan.CurrentActiveControlMode == null)
+                                fan.CurrentActiveControlMode = fan.AvailableControlMode.First();
+                            var currentControlMode = fan.CurrentActiveControlMode as PWMMode;
+                            int currentSpeed = 80;
+                            if (currentControlMode.BasedOn == PWMModeEnum.auto)
                             {
-                                var zones = pwmOutput.SlaveDevice.ControlableZones.ToList();
-                                foreach (var zone in zones)
-                                {
-                                    var fan = zone as FanMotor;
-                                    if (fan.CurrentActiveControlMode == null)
-                                        fan.CurrentActiveControlMode = fan.AvailableControlMode.First();
-                                    var currentControlMode = fan.CurrentActiveControlMode as PWMMode;
-                                    if (currentControlMode.BasedOn == PWMModeEnum.auto)
-                                    {
-                                        fan.LineValues.Add(new ObservableValue(medianSpeed));
-                                        fan.LineValues.RemoveAt(0);
-                                        fan.CurrentPWMValue = (int)medianSpeed;
-                                    }
-                                    else if (currentControlMode.BasedOn == PWMModeEnum.manual)
-                                    {
-                                        fan.LineValues.Add(new ObservableValue((currentControlMode.SpeedParameter as SliderParameter).Value));
-                                        fan.LineValues.RemoveAt(0);
-                                        fan.CurrentPWMValue = (currentControlMode.SpeedParameter as SliderParameter).Value;
-                                    }
-                                }
+                                currentSpeed = (int)medianSpeed;
                             }
-                        }
-
-
-
-                    }
-                    // decide if it's necessary to update to the fan
-                    //formular is if the fan speed changed more than 5% compare to last fan speed, apply the change
-
-                    //it's time to tell the fan to update the speed
-                    /*
-                    foreach (var device in MainViewViewModel.AvailableDevices.Where(x => x.DeviceType == "ABFANHUB"))
-                    {
-                        foreach (var output in device.AvailableOutputs)
-                        {
-                            var currentOutput = output as OutputSettings;
-                            if (Math.Abs((int)(medianSpeed * 255 / 100) - currentOutput.GetSpeed()) > 15)
+                            else if (currentControlMode.BasedOn == PWMModeEnum.manual)
                             {
-
-                                if (currentOutput.GetCurrentSpeedMode() == SpeedModeEnum.auto)
-                                {
-                                    var value = ((int)medianSpeed * 255) / 100;
-                                    currentOutput.SetSpeed(value);
-                                }
-                                   
+                                currentSpeed = (currentControlMode.SpeedParameter as SliderParameter).Value;
                             }
-
+                            if (MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated)
+                            {
+                                fan.LineValues.Add(new ObservableValue(currentSpeed));
+                                fan.LineValues.RemoveAt(0);
+                            }
+                            fan.CurrentPWMValue = currentSpeed;
                         }
                     }
-                    */
-
-
-
-
 
 
                     computer.Accept(updateVisitor);
-
-
-
                     Thread.Sleep(1000);
                 }
-
-
             }
-
-
-
-
-
             catch (OperationCanceledException)
             {
                 _log.Debug("OperationCanceledException catched. returning.");

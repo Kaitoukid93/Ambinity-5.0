@@ -7,6 +7,7 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
+           x:Name="window"
            xmlns:local ="clr-namespace:adrilight"
            xmlns:helpers="clr-namespace:adrilight.Helpers"
            xmlns:view ="clr-namespace:adrilight.View"
@@ -196,6 +197,7 @@
             </DataTemplate>
             <DataTemplate x:Key="_quickSurfaceEditorView">
                 <Grid>
+                    <TextBlock VerticalAlignment="Bottom" Text="Nhấn giữ ctrl và kéo thả để di chuyển nhiều thiết bị. Để chọn nhiều thiết bị, quét hoặc nhấn ctrl rồi click lần lượt vào các thiết bị cần chọn" Style="{DynamicResource TextBlockDefaultWarning}"/>
                     <richCanvas:RichItemsControl Width="1000" Height="1000"
                 ItemsSource="{Binding OOTBQUickSurfaceEditorItems}"
                 GridStyle="{StaticResource GridStyle}"
@@ -324,8 +326,8 @@
                             <DataTemplate DataType="{x:Type settings:Border}">
                                 <Grid>
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Margin="20,10,5,5" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Screen" Style="{DynamicResource TextBlockLarge}"/>
-                                        <TextBlock Margin="5,10" HorizontalAlignment="Left" VerticalAlignment="Top" Text="at" Style="{DynamicResource TextBlockLarge}"/>
+                                        <TextBlock Margin="20,10,5,5" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Border" Style="{DynamicResource TextBlockLarge}"/>
+                                        <TextBlock Margin="5,10" HorizontalAlignment="Left" VerticalAlignment="Top" Text="size" Style="{DynamicResource TextBlockLarge}"/>
                                         <TextBlock Margin="5,10" HorizontalAlignment="Left" VerticalAlignment="Top"  Style="{DynamicResource TextBlockLarge}">
                                             <TextBlock.Text>
                                                 <MultiBinding StringFormat="{}{0} x {1}">
@@ -351,8 +353,8 @@
                             <DataTemplate DataType="{x:Type settings:ScreenBound}">
                                 <Grid>
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Margin="20,10,5,5" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Screen" Style="{DynamicResource TextBlockLarge}"/>
-                                        <TextBlock Margin="5,10" HorizontalAlignment="Left" VerticalAlignment="Top" Text="at" Style="{DynamicResource TextBlockLarge}"/>
+                                        <TextBlock Margin="20,10,5,5" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Border" Style="{DynamicResource TextBlockLarge}"/>
+                                        <TextBlock Margin="5,10" HorizontalAlignment="Left" VerticalAlignment="Top" Text="size" Style="{DynamicResource TextBlockLarge}"/>
                                         <TextBlock Margin="5,10" HorizontalAlignment="Left" VerticalAlignment="Top"  Style="{DynamicResource TextBlockLarge}">
                                             <TextBlock.Text>
                                                 <MultiBinding StringFormat="{}{0} x {1}">
@@ -448,25 +450,25 @@
                                                 </MenuItem.Icon>
                                             </MenuItem>-->
                                                     <MenuItem Header="Căn lề trái"
-                                          Command="{Binding AglignSelectedItemstoLeftCommand}" CommandParameter="{Binding CurrentDevice.AvailableLightingDevices}" >
+                                          Command="{Binding AglignSelectedItemstoLeftCommand}" CommandParameter="{Binding OOTBQUickSurfaceEditorItems}" >
                                                         <MenuItem.Icon>
                                                             <Path Data="{StaticResource leftAglign}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                         </MenuItem.Icon>
                                                     </MenuItem>
                                                     <MenuItem Header="Căn lề trên"
-                                          Command="{Binding AglignSelectedItemstoTopCommand}" CommandParameter="{Binding CurrentDevice.AvailableLightingDevices}" >
+                                          Command="{Binding AglignSelectedItemstoTopCommand}" CommandParameter="{Binding OOTBQUickSurfaceEditorItems}" >
                                                         <MenuItem.Icon>
                                                             <Path Data="{StaticResource topAglign}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                         </MenuItem.Icon>
                                                     </MenuItem>
                                                     <MenuItem Header="Xếp ngang"
-                                          Command="{Binding SpreadItemRightHorizontalCommand}" CommandParameter="{Binding CurrentDevice.AvailableLightingDevices}" >
+                                          Command="{Binding SpreadItemRightHorizontalCommand}" CommandParameter="{Binding OOTBQUickSurfaceEditorItems}" >
                                                         <MenuItem.Icon>
                                                             <Path Data="{StaticResource ledstrip}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                         </MenuItem.Icon>
                                                     </MenuItem>
                                                     <MenuItem Header="Xếp dọc"
-                                          Command="{Binding SpreadItemDownVerticalCommand}" CommandParameter="{Binding CurrentDevice.AvailableLightingDevices}" >
+                                          Command="{Binding SpreadItemDownVerticalCommand}" CommandParameter="{Binding OOTBQUickSurfaceEditorItems}" >
                                                         <MenuItem.Icon>
                                                             <Path Data="{StaticResource ledStripVertical}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                         </MenuItem.Icon>
@@ -474,7 +476,7 @@
                                                     <Separator Margin="10,5">
                                                     </Separator>
                                                     <MenuItem Header="Khóa"
-                                          Command="{Binding LockSelectedItemCommand}" CommandParameter="{Binding CurrentDevice.AvailableLightingDevices}" >
+                                          Command="{Binding LockSelectedItemCommand}" CommandParameter="{Binding OOTBQUickSurfaceEditorItems}" >
                                                         <MenuItem.Icon>
                                                             <Path Data="{StaticResource lock}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
                                                         </MenuItem.Icon>

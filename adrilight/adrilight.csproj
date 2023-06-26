@@ -197,6 +197,11 @@
     <Compile Include="DesktopDuplication\CaptureHelper.cs" />
     <Compile Include="DesktopDuplication\CompositionHelper.cs" />
     <Compile Include="DesktopDuplication\DesktopDuplicator.cs" />
+    <Compile Include="Settings\Automation\ExecuteConditionEnum.cs" />
+    <Compile Include="Settings\Automation\SystemEventEnum.cs" />
+    <Compile Include="Settings\Automation\SystemEventTriggerCondition.cs" />
+    <Compile Include="Settings\Automation\HotkeyTriggerCondition.cs" />
+    <Compile Include="Settings\Automation\TriggerCondition.cs" />
     <Compile Include="Settings\GifCard.cs" />
     <Compile Include="Util\Gifxelation.cs" />
     <Compile Include="DesktopDuplication\DesktopDuplicatorReader.cs" />
@@ -1042,6 +1047,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\Colors\ColorCollection.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Automations\DefaultAutomations.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
