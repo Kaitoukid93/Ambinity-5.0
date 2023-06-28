@@ -75,7 +75,7 @@
                 SelectedItems="{Binding CanvasSelectedItems}"
                 Scale="{Binding CanvasScale,Mode=TwoWay}"
                 MaxScale="100.0"
-                MinScale="0.05"
+                MinScale="0.1"
                 UseLayoutRounding="False"
                 MousePosition="{Binding MousePosition, Mode=OneWayToSource}">
                     <richCanvas:RichItemsControl.SelectionRectangleStyle>
@@ -168,13 +168,13 @@
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate DataType="{x:Type spot:DeviceSpot}">
                                                             <Path RenderTransformOrigin="0.5,0.5" Data="{Binding Geometry,Mode=TwoWay}"
-                                                                  Stretch="Uniform"
-                                                                  StrokeThickness="{Binding DataContext.SelectionRectangleStrokeThickness,RelativeSource={RelativeSource AncestorType={x:Type view2:DeviceLayoutCreatorView}}}"
+                                                                  Stretch="Fill"
+                                                                  StrokeThickness="0.5"
                                                                   ToolTip="{Binding Index}"                              
                                                                   Width="{Binding Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
                                                                   Height="{Binding Height,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
                                                                 <Path.Stroke>
-                                                                    <SolidColorBrush Color="White"  />
+                                                                    <SolidColorBrush Color="Blue"  />
                                                                 </Path.Stroke>
                                                                 <Path.Fill>
                                                                     <SolidColorBrush Color="{Binding OnDemandColor}" Opacity="0.5" />
@@ -264,13 +264,13 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate DataType="{x:Type spot:DeviceSpot}">
                                             <Path ToolTip="{Binding Index}" RenderTransformOrigin="0.5,0.5" Data="{Binding Geometry,Mode=TwoWay}"
-                                                Stretch="Uniform"
+                                                Stretch="Fill"
                                                 StrokeLineJoin="Round"
-                                                StrokeThickness="{Binding DataContext.SelectionRectangleStrokeThickness,RelativeSource={RelativeSource AncestorType={x:Type view2:DeviceLayoutCreatorView}}}"
+                                                StrokeThickness="0.5"
                                                 Width="{Binding Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
                                                 Height="{Binding Height,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
                                                 <Path.Stroke>
-                                                    <SolidColorBrush Color="White"  />
+                                                    <SolidColorBrush Color="Blue"  />
                                                 </Path.Stroke>
                                                 <Path.Fill>
                                                     <SolidColorBrush Color="{Binding OnDemandColor}" Opacity="0.25" />
@@ -332,11 +332,11 @@
                                     </Border>
                                 </Grid.ToolTip>
                                 <Path Width="{Binding Width}" 
-                                      StrokeThickness="{Binding DataContext.SelectionRectangleStrokeThickness,RelativeSource={RelativeSource AncestorType={x:Type view2:DeviceLayoutCreatorView}}}" 
+                                      StrokeThickness="1" 
                                       Height="{Binding Height}" 
                                       StrokeLineJoin="Round"
                                       RenderTransformOrigin="0.5,0.5" Data="{Binding Geometry,Mode=TwoWay}" 
-                                      Stretch="Uniform">
+                                      Stretch="Fill">
 
                                     <Path.Stroke>
                                         <SolidColorBrush Color="White"  />

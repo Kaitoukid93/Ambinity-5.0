@@ -225,12 +225,15 @@ namespace adrilight.Util
 
                             break;
                         case "Ambino EDGE":// General Ambino Edge USB Device
-                            //newDevice = availableDefaultDevice.AmbinoEDGE1M2;
-                            //newDevice.DeviceName = "Ambino EDGE";
-                            //newDevice.DeviceConnectionType = "wired";
-                            //newDevice.DeviceType = new DeviceType("Ambino EDGE",DeviceTypeEnum.AmbinoEDGE);
-                            //newDevice.OutputPort = device;
-                            //newDevice.IsSizeNeedUserDefine = true;
+                            newDevice = new SlaveDeviceHelpers().DefaultCreatedAmbinoDevice(
+                             new DeviceType(DeviceTypeEnum.AmbinoEDGE),
+                             newDevice.DeviceName,
+                             device,
+                             false,
+                             true,
+                             1);
+                            newDevice.DashboardWidth = 230;
+                            newDevice.DashboardHeight = 270;
 
                             break;
                         case "Ambino FanHub":
@@ -245,11 +248,15 @@ namespace adrilight.Util
                             newDevice.DashboardHeight = 270;
                             break;
                         case "Ambino HubV2":
-                            //newDevice = availableDefaultDevice.ambinoHUBV2;
-                            //newDevice.DeviceType = DeviceTypeEnum.AmbinoHUBV2;
-                            //newDevice.DeviceConnectionType = "wired";
-                            //newDevice.OutputPort = device;
-                            //newDevice.IsSizeNeedUserDefine = true;
+                            newDevice = new SlaveDeviceHelpers().DefaultCreatedAmbinoDevice(
+                             new DeviceType(DeviceTypeEnum.AmbinoHUBV2),
+                          newDevice.DeviceName,
+                             device,
+                             false,
+                             true,
+                             7);
+                            newDevice.DashboardWidth = 320;
+                            newDevice.DashboardHeight = 270;
                             break;
                         case "Ambino HubV3":
                             newDevice = new SlaveDeviceHelpers().DefaultCreatedAmbinoDevice(

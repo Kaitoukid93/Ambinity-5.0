@@ -1547,7 +1547,7 @@ namespace adrilight.ViewModel
                     foreach (var device in newDevices)
                     {
                         device.IsTransferActive = true;
-                        if (device.DeviceType.Type == DeviceTypeEnum.AmbinoBasic)
+                        if (device.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
                         {
                             GeneralSettings.IsOpenRGBEnabled = true;
                         }
@@ -1606,7 +1606,7 @@ namespace adrilight.ViewModel
                         {
                             //try to poke it
                             oldDevice.IsTransferActive = true;
-                            if (oldDevice.DeviceType.Type == DeviceTypeEnum.AmbinoBasic)
+                            if (oldDevice.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
                             {
                                 GeneralSettings.IsOpenRGBEnabled = true;
                             }
@@ -3157,9 +3157,13 @@ namespace adrilight.ViewModel
                 foreach (var zone in p.ControlableZones)
                 {
                     zone.ZoneUID = Guid.NewGuid().ToString();
-                    if (CtrlHlprs == null)
-                        CtrlHlprs = new ControlModeHelpers();
-                    CtrlHlprs.MakeZoneControlable(zone);
+                    if (zone.AvailableControlMode == null)
+                    {
+                        if (CtrlHlprs == null)
+                            CtrlHlprs = new ControlModeHelpers();
+                        CtrlHlprs.MakeZoneControlable(zone);
+                    }
+
                 }
                 p.ParrentID = CurrentSelectedOutputMap.OutputID;
                 CurrentSelectedOutputMap.SlaveDevice = p;
@@ -3177,9 +3181,12 @@ namespace adrilight.ViewModel
                     foreach (var zone in cloneDevice.ControlableZones)
                     {
                         zone.ZoneUID = Guid.NewGuid().ToString();
-                        if (CtrlHlprs == null)
-                            CtrlHlprs = new ControlModeHelpers();
-                        CtrlHlprs.MakeZoneControlable(zone);
+                        if (zone.AvailableControlMode == null)
+                        {
+                            if (CtrlHlprs == null)
+                                CtrlHlprs = new ControlModeHelpers();
+                            CtrlHlprs.MakeZoneControlable(zone);
+                        }
                     }
                     cloneDevice.ParrentID = output.OutputID;
                     output.SlaveDevice = cloneDevice;
@@ -4140,7 +4147,8 @@ namespace adrilight.ViewModel
                     if (File.Exists(device.Thumbnail))
                         File.Copy(device.Thumbnail, Path.Combine(Export.FileName, "content", "thumbnail.png"));
                     //coppy thumb with color
-                    File.Copy(OnlineItemAvatar, Path.Combine(Export.FileName, "content", "colored_thumbnail.png"));
+                    if (OnlineItemAvatar != null && OnlineItemAvatar != string.Empty)
+                        File.Copy(OnlineItemAvatar, Path.Combine(Export.FileName, "content", "colored_thumbnail.png"));
                 }
                 //create info
                 var info = new OnlineItemModel() {
@@ -4157,7 +4165,8 @@ namespace adrilight.ViewModel
                 File.WriteAllText(Path.Combine(Export.FileName, "info.json"), infoJson);
                 File.WriteAllText(Path.Combine(Export.FileName, "description.md"), OnlineItemMarkdownDescription);
                 //coppy image data
-                File.Copy(OnlineItemAvatar, Path.Combine(Export.FileName, "thumb.png"));
+                if (OnlineItemAvatar != null && OnlineItemAvatar != string.Empty)
+                    File.Copy(OnlineItemAvatar, Path.Combine(Export.FileName, "thumb.png"));
                 //copy thumbnail also
                 Directory.CreateDirectory(Path.Combine(Export.FileName, "screenshots"));
                 int count = 0;
@@ -4547,6 +4556,7 @@ namespace adrilight.ViewModel
             else
             {
                 HandyControl.Controls.MessageBox.Show("Không có item nào cho mục này, vui lòng thử lại sau", "Item notfound", MessageBoxButton.OK, MessageBoxImage.Error);
+                CarouselImageLoading = false;
                 return;
             }
         }
@@ -4582,17 +4592,26 @@ namespace adrilight.ViewModel
                 foreach (var address in filteredItemAddress)
                 {
                     //var item = FTPHlprs.GetFiles<T>(address);
-                    var thumbPath = address + "/thumb.png";
-                    var infoPath = address + "/info.json";
-                    var thumb = FTPHlprs.GetThumb(address + "/thumb.png").Result;
-                    var info = FTPHlprs.GetFiles<OnlineItemModel>(infoPath).Result;
-                    info.Path = address;
-
-                    info.Thumb = thumb;
-                    await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                    try
                     {
-                        AvailableOnlineItems.Add(info);
-                    });
+                        var thumbPath = address + "/thumb.png";
+                        var infoPath = address + "/info.json";
+                        var thumb = FTPHlprs.GetThumb(address + "/thumb.png").Result;
+                        var info = FTPHlprs.GetFiles<OnlineItemModel>(infoPath).Result;
+                        info.Path = address;
+
+                        info.Thumb = thumb;
+                        await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                        {
+                            AvailableOnlineItems.Add(info);
+                        });
+
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+
                 }
                 //if (AvailableOnlineItems.Count == 0)
                 //    HandyControl.Controls.MessageBox.Show("Không có Item nào được tìm thấy, Hãy thử chọn mục khác", "No Item Found", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -4601,6 +4620,7 @@ namespace adrilight.ViewModel
             else
             {
                 HandyControl.Controls.MessageBox.Show("Không có item nào cho mục này, vui lòng thử lại sau", "Item notfound", MessageBoxButton.OK, MessageBoxImage.Error);
+                CarouselImageLoading = false;
                 return;
             }
         }
@@ -4987,11 +5007,11 @@ namespace adrilight.ViewModel
         private void SaveAllAutomation()
         {
             WriteAutomationCollectionJson();
-            AvailableAutomations = new ObservableCollection<AutomationSettings>();
-            foreach (var automation in LoadAutomationIfExist())
-            {
-                AvailableAutomations.Add(automation);
-            }
+            //AvailableAutomations = new ObservableCollection<AutomationSettings>();
+            //foreach (var automation in LoadAutomationIfExist())
+            //{
+            //    AvailableAutomations.Add(automation);
+            //}
             if (GeneralSettings.HotkeyEnable)
             {
                 Unregister();
@@ -5149,7 +5169,8 @@ namespace adrilight.ViewModel
                 {
                     HandyControl.Controls.MessageBox.Show(automation.Name + " Hotkey is being used by another automation!!!", "HotKey Already Registered", MessageBoxButton.OK, MessageBoxImage.Error);
                     //disable automation
-                    automation.IsEnabled = false;
+                    automation.Condition = null;
+                    // automation.IsEnabled = false;
                     WriteAutomationCollectionJson();
                 }
                 catch (Exception ex)
@@ -5347,9 +5368,10 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        public bool FrimwareUpgradeIsInProgress { get; set; }
         private async Task UpgradeIfAvailable(IDeviceSettings device)
         {
-            GeneralSettings.FrimwareUpgradeIsInProgress = true;
+            FrimwareUpgradeIsInProgress = true;
             if (device.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV2)
             {
                 MessageBoxResult result = HandyControl.Controls.MessageBox.Show("HUBV2 cần sử dụng FlyMCU để nạp firmware, nhấn [OK] để vào chế độ DFU", "External Software Required", MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -5439,7 +5461,7 @@ namespace adrilight.ViewModel
                                 await Task.Run(() => UpgradeSelectedDeviceFirmware(device, fwOutputLocation));
                                 IsDownloadingFirmware = false;
                             }
-                            GeneralSettings.FrimwareUpgradeIsInProgress = false;
+                            FrimwareUpgradeIsInProgress = false;
                         }
                     }
                 }
@@ -5525,7 +5547,7 @@ namespace adrilight.ViewModel
 
                 HandyControl.Controls.MessageBox.Show("Update firmware thành công - Phiên bản : " + CurrentDevice.FirmwareVersion, "Firmware uploading", MessageBoxButton.OK, MessageBoxImage.Information);
                 ReloadDeviceLoadingVissible = false;
-                GeneralSettings.FrimwareUpgradeIsInProgress = false;
+                FrimwareUpgradeIsInProgress = false;
             }
         }
 

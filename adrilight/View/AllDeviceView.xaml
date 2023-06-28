@@ -177,7 +177,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Margin="20,10" HorizontalAlignment="Left" Text="{Binding DeviceName}" 
+                                <TextBlock Margin="20,10,0,20" HorizontalAlignment="Left" Text="{Binding DeviceName}" 
                                                    FontWeight="SemiBold"
                                                    Style="{StaticResource TextBlockTitle}"/>
                                 <ToggleButton Grid.Column="1"

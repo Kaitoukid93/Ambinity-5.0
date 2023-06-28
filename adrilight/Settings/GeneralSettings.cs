@@ -1,13 +1,7 @@
 ﻿using adrilight.Settings;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
 using Color = System.Windows.Media.Color;
 
 namespace adrilight
@@ -36,7 +30,6 @@ namespace adrilight
         private bool _hotkeyEnable = true;
         private bool _driverRequested = true;
         private int _systemMusicSpeed = 3;
-        private bool _firmwareUpgradeIsInProgress = false;
         private bool _updaterAskAgain = true;
         private bool _audioDeviceAskAgain = true;
         private bool _isMultipleScreenEnable = true;
@@ -64,7 +57,6 @@ namespace adrilight
         public bool HWMonitorAskAgain { get => _hwMonitorAskAgain; set { Set(() => HWMonitorAskAgain, ref _hwMonitorAskAgain, value); } }
         public bool HotkeyEnable { get => _hotkeyEnable; set { Set(() => HotkeyEnable, ref _hotkeyEnable, value); } }
         public bool Autostart { get => _autostart; set { Set(() => Autostart, ref _autostart, value); } }
-        public bool FrimwareUpgradeIsInProgress { get => _firmwareUpgradeIsInProgress; set { Set(() => FrimwareUpgradeIsInProgress, ref _firmwareUpgradeIsInProgress, value); } }
         public Color AccentColor { get => _accentColor; set { Set(() => AccentColor, ref _accentColor, value); } }
         [JsonIgnore]
         public bool IsOpenRGBEnabled { get => _isOpenRGBEnabled; set { Set(() => IsOpenRGBEnabled, ref _isOpenRGBEnabled, value); } }

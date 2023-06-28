@@ -3,21 +3,14 @@ using adrilight.Resources;
 using adrilight.Settings;
 using adrilight.Util;
 using adrilight.ViewModel;
-using Newtonsoft.Json;
 using NLog;
-using Semver;
-using SharpDX.DXGI;
-using Squirrel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 
 namespace adrilight
 {
@@ -73,7 +66,7 @@ namespace adrilight
             {
                 try
                 {
-                    if (Settings.DeviceDiscoveryMode == 0 && !Settings.FrimwareUpgradeIsInProgress && enable)
+                    if (Settings.DeviceDiscoveryMode == 0 && !MainViewViewModel.FrimwareUpgradeIsInProgress && enable)
                     {
                         // openRGB device scan only run once at startup
                         var openRGBDevices = (new List<IDeviceSettings>(), new List<string>());
@@ -163,11 +156,11 @@ namespace adrilight
                 }
 
             }
-            if(newDevicesDetected.Count > 0|| oldDeviceReconnected.Count>0)
+            if (newDevicesDetected.Count > 0 || oldDeviceReconnected.Count > 0)
             {
                 _openRGBIsInit = true;
             }
-            
+
             return await Task.FromResult((newDevicesDetected, oldDeviceReconnected));
         }
         private static object _syncRoot = new object();
