@@ -113,6 +113,10 @@ namespace adrilight
         }
         private void OnCapturingRegionChanged(CapturingRegion region)
         {
+            if (DesktopFrame[(int)_currentScreenIndex].Frame == null || DesktopFrame[(int)_currentScreenIndex].Frame.FrameWidth == 0 || DesktopFrame[(int)_currentScreenIndex].Frame.FrameHeight == 0)
+                _log.Error("DesktopFrame is null");
+            return;
+
             var left = region.ScaleX * DesktopFrame[(int)_currentScreenIndex].Frame.FrameWidth;
             var top = region.ScaleY * DesktopFrame[(int)_currentScreenIndex].Frame.FrameHeight;
             var width = region.ScaleWidth * DesktopFrame[(int)_currentScreenIndex].Frame.FrameWidth;
@@ -462,8 +466,7 @@ namespace adrilight
                 {
                     CurrentFrame = currentDesktop.Frame;
 
-
-                    if (CurrentFrame.Frame == null)
+                    if (CurrentFrame == null || CurrentFrame.FrameWidth == 0 || CurrentFrame.FrameHeight == 0)
                     {
                         return null;
                     }
@@ -495,7 +498,7 @@ namespace adrilight
             {
                 if (ex.Message != "_outputDuplication is null" && ex.Message != "Access Lost, resolution might be changed" && ex.Message != "Invalid call, might be retrying" && ex.Message != "Failed to release frame.")
                 {
-                    _log.Error(ex, "GetNextFrame() failed.");
+                    _log.Error(ex.Message, "GetNextFrame() failed.");
 
                     // throw;
                 }

@@ -196,7 +196,6 @@
     <Compile Include="DesktopDuplication\BasicCapture.cs" />
     <Compile Include="DesktopDuplication\CaptureHelper.cs" />
     <Compile Include="DesktopDuplication\CompositionHelper.cs" />
-    <Compile Include="DesktopDuplication\DesktopDuplicator.cs" />
     <Compile Include="Settings\Automation\ExecuteConditionEnum.cs" />
     <Compile Include="Settings\Automation\SystemEventEnum.cs" />
     <Compile Include="Settings\Automation\SystemEventTriggerCondition.cs" />
