@@ -1085,14 +1085,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\CodeProjectTimelineDemo\gong-wpf-dragdrop\GongSolutions.Wpf.DragDrop\GongSolutions.Wpf.DragDrop.csproj">
-      <Project>{0c6674cc-6d49-414a-9b41-d4e175028ffb}</Project>
-      <Name>GongSolutions.Wpf.DragDrop</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\CodeProjectTimelineDemo\TimeLineTool\TimeLineTool.csproj">
-      <Project>{7439A26A-46E1-42A0-9D58-2E38289675F6}</Project>
-      <Name>TimeLineTool</Name>
-    </ProjectReference>
     <ProjectReference Include="..\adrilight_effect_analyzer\adrilight_effect_analyzer.csproj">
       <Project>{8966a6b0-cec4-4337-a5be-af363303e02a}</Project>
       <Name>adrilight_effect_analyzer</Name>
@@ -1100,6 +1092,14 @@
     <ProjectReference Include="..\FTPServer\FTPServer.csproj">
       <Project>{5B8BF436-7610-4335-80EB-809A7E7A655F}</Project>
       <Name>FTPServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\gong-wpf-dragdrop\GongSolutions.Wpf.DragDrop\GongSolutions.Wpf.DragDrop.csproj">
+      <Project>{0c6674cc-6d49-414a-9b41-d4e175028ffb}</Project>
+      <Name>GongSolutions.Wpf.DragDrop</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TimeLineTool\TimeLineTool.csproj">
+      <Project>{7439a26a-46e1-42a0-9d58-2e38289675f6}</Project>
+      <Name>TimeLineTool</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
