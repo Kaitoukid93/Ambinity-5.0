@@ -98,15 +98,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CSCore" Version="1.2.1.2" />
-    <PackageReference Include="Emgu.CV">
-      <Version>4.4.0.4099</Version>
-    </PackageReference>
-    <PackageReference Include="Emgu.CV.Bitmap">
-      <Version>4.4.0.4099</Version>
-    </PackageReference>
-    <PackageReference Include="Emgu.CV.runtime.windows">
-      <Version>4.4.0.4099</Version>
-    </PackageReference>
     <PackageReference Include="Expression.Blend.Sdk" Version="1.0.2" />
     <PackageReference Include="HandyControls">
       <Version>3.4.5</Version>
