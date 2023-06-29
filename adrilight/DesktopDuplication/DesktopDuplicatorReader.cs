@@ -29,10 +29,7 @@ namespace adrilight
             )
         {
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
-            if (generalSettings.DesktopCaptureAPI == DesktopCaptureAPIEnum.WindowsGraphicCapture)
-                DesktopFrame = desktopFrame.Where(d => d is DesktopFrame).ToArray() ?? throw new ArgumentNullException(nameof(desktopFrame));
-            else
-                DesktopFrame = desktopFrame.Where(d => d is DesktopFrameDXGI).ToArray() ?? throw new ArgumentNullException(nameof(desktopFrame));
+            DesktopFrame = desktopFrame.Where(d => d is DesktopFrame || d is DesktopFrameDXGI).ToArray() ?? throw new ArgumentNullException(nameof(desktopFrame));
             CurrentZone = zone as LEDSetup ?? throw new ArgumentNullException(nameof(zone));
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             _retryPolicy = Policy.Handle<Exception>().WaitAndRetryForever(ProvideDelayDuration);

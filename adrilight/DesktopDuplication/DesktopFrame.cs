@@ -28,26 +28,9 @@ namespace adrilight
             MainViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             _retryPolicy = Policy.Handle<Exception>()
                 .WaitAndRetryForever(ProvideDelayDuration);
-            UserSettings.PropertyChanged += PropertyChanged;
             RefreshCapturingState();
             _log.Info($"DesktopDuplicatorReader created.");
         }
-
-        private void PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-
-
-                case nameof(MainViewModel.IsSplitLightingWindowOpen):
-
-                    RefreshCapturingState();
-                    break;
-
-
-            }
-        }
-
         #region private field
         private Thread _workerThread;
         private CancellationTokenSource _cancellationTokenSource;
@@ -93,13 +76,9 @@ namespace adrilight
                     Name = "DesktopDuplicatorReader"
                 };
                 _workerThread.Start();
-
-
             }
 
         }
-
-
         private bool CheckRectangle(Rect parrentRect, Rect childRect)
         {
             if (Rect.Intersect(parrentRect, childRect).Equals(childRect))
@@ -132,16 +111,10 @@ namespace adrilight
         }
         public async void Run(CancellationToken token)
         {
-            //if (IsRunning) throw new Exception(nameof(DesktopDuplicatorReader) + " is already running!");
-
             IsRunning = true;
             NeededRefreshing = false;
             _log.Debug("Started Reading of First Desktop Frame.");
-            //byte[] image = null;
-            Rect frameSize = new Rect();
             Frame = new ByteFrame();
-
-
             try
             {
 
@@ -160,9 +133,6 @@ namespace adrilight
                     {
                         MainViewModel.DesktopsPreviewUpdate(Frame, _currentScreenIdex);
                     }
-
-
-                    //    // image.UnlockBits(bitmapData);
                     int minFrameTimeInMs = 1000 / 30;
                     var elapsedMs = (int)frameTime.ElapsedMilliseconds;
                     if (elapsedMs < minFrameTimeInMs)
@@ -226,9 +196,6 @@ namespace adrilight
             }
 
         }
-
-
-
         private int? _lastObservedHeight;
         private int? _lastObservedWidth;
 

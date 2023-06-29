@@ -1,7 +1,5 @@
-﻿using adrilight.Settings;
-using GalaSoft.MvvmLight;
+﻿using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 using Color = System.Windows.Media.Color;
 
 namespace adrilight
@@ -22,7 +20,7 @@ namespace adrilight
         private bool _startMinimized = false;
         private bool _notificationEnabled = true;
         private int _selectedAudioDevice = 0;
-        private Color _accentColor = Color.FromArgb(255, 138, 43, 226);
+        private Color _accentColor = Color.FromArgb(255, 185, 130, 251);
         private int _deviceDiscoveryMode = 0;
         private bool _openRGBAskAgain = true;
         private bool _hwMonitorAskAgain = true;
@@ -34,13 +32,10 @@ namespace adrilight
         private bool _audioDeviceAskAgain = true;
         private bool _isMultipleScreenEnable = true;
         private int _startupDelaySecond = 0;
-        private DesktopCaptureAPIEnum _desktopCaptureAPI = DesktopCaptureAPIEnum.WindowsGraphicCapture;
-        private List<DesktopScreen> _screens;
         public GeneralSettings()
         {
 
         }
-        public List<DesktopScreen> Screens { get => _screens; set { Set(() => Screens, ref _screens, value); } }
         public int StartupDelaySecond { get => _startupDelaySecond; set { Set(() => StartupDelaySecond, ref _startupDelaySecond, value); } }
         public bool IsMultipleScreenEnable { get => _isMultipleScreenEnable; set { Set(() => IsMultipleScreenEnable, ref _isMultipleScreenEnable, value); } }
         public int SelectedAudioDevice { get => _selectedAudioDevice; set { Set(() => SelectedAudioDevice, ref _selectedAudioDevice, value); } }
@@ -69,6 +64,5 @@ namespace adrilight
         public int SystemMusicSpeed { get => _systemMusicSpeed; set { Set(() => SystemMusicSpeed, ref _systemMusicSpeed, value); } }
         public bool IsProfileLoading { get => _isProfileLoading; set { Set(() => IsProfileLoading, ref _isProfileLoading, value); } }
         public bool IsInBetaChanel { get => _isInBetaChanel; set { Set(() => IsInBetaChanel, ref _isInBetaChanel, value); } }
-        public DesktopCaptureAPIEnum DesktopCaptureAPI { get => _desktopCaptureAPI; set { Set(() => DesktopCaptureAPI, ref _desktopCaptureAPI, value); } }
     }
 }

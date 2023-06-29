@@ -160,9 +160,8 @@ namespace adrilight.DesktopDuplication
                 }
                 catch (Exception ex)
                 {
-                    //something wrong with output device
-                    // throw new Exception("device error");
-                    return false;
+                    throw new Exception("_stagingTextureProblem");
+
                 }
 
             }
@@ -219,7 +218,7 @@ namespace adrilight.DesktopDuplication
 
             catch (Exception ex)
             {
-                return false;
+                throw new Exception("_smallerTextureProblem");
             }
             try
             {
@@ -243,6 +242,8 @@ namespace adrilight.DesktopDuplication
             }
             catch (Exception ex)
             {
+                _outputDuplication?.Dispose();
+
                 return false;
             }
 

@@ -10,7 +10,6 @@ using System.Reflection;
 using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
-using System.Windows.Input;
 
 namespace adrilight.View
 {
@@ -34,19 +33,9 @@ namespace adrilight.View
             var view = DataContext as MainViewViewModel;
             if (view.GeneralSettings.HotkeyEnable)
             {
-
                 KeyboardHookManagerSingleton.Instance.Start();
                 view.Register();
             }
-            if (view != null)
-            {
-
-
-                view.IsSplitLightingWindowOpen = true;
-                //view.IsSplitLightingWindowOpen = true;
-            }
-
-
         }
         private void Observe()
         {
@@ -185,25 +174,13 @@ namespace adrilight.View
         protected override void OnContentRendered(EventArgs e)
         {
             base.OnContentRendered(e);
-
-
             NonClientAreaContent = new NonClientAreaContent();
 
         }
-
-        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            // this.DragMove();
-        }
-
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             var vm = DataContext as MainViewViewModel;
-            if (vm != null)
-            {
-                vm.IsSplitLightingWindowOpen = false;
-                vm.IsRichCanvasWindowOpen = false;
-            }
+            vm.BackToDashboard();
             e.Cancel = true;
             // Hide Window instead
             this.Visibility = Visibility.Collapsed;
@@ -218,9 +195,6 @@ namespace adrilight.View
         private void OpenDashboard(object sender, RoutedEventArgs e)
         {
             this.Visibility = Visibility.Visible;
-            var vm = DataContext as MainViewViewModel;
-            vm.IsSplitLightingWindowOpen = true;
-
         }
     }
 }

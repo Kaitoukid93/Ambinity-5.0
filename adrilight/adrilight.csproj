@@ -194,7 +194,6 @@
     <Compile Include="Settings\Automation\SystemEventTriggerCondition.cs" />
     <Compile Include="Settings\Automation\HotkeyTriggerCondition.cs" />
     <Compile Include="Settings\Automation\TriggerCondition.cs" />
-    <Compile Include="Settings\DesktopCaptureAPIEnum.cs" />
     <Compile Include="Settings\GifCard.cs" />
     <Compile Include="Util\Gifxelation.cs" />
     <Compile Include="DesktopDuplication\DesktopDuplicatorReader.cs" />

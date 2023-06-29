@@ -548,37 +548,6 @@
                     <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                     </hc:Divider>
-                    <Grid Name="captureEngine">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="auto"/>
-                            <RowDefinition Height="auto"/>
-                        </Grid.RowDefinitions>
-                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="200" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
-                            <GroupBox.HeaderTemplate>
-                                <DataTemplate>
-                                    <TextBlock FontWeight="SemiBold" Text="CAPTURE METHOD"/>
-                                </DataTemplate>
-                            </GroupBox.HeaderTemplate>
-
-                            <Grid  HorizontalAlignment="Right" >
-
-                                <ComboBox Width="110" Margin="0,0,5,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Right"   SelectedIndex="{Binding GeneralSettings.DesktopCaptureAPI}"   Style="{StaticResource ComboBoxBaseStyle}">
-                                    <ComboBoxItem>
-                                        Windows Graphic Capture(WGC)
-                                    </ComboBoxItem>
-                                    <ComboBoxItem>
-                                        DXGI DesktopDuplication
-                                    </ComboBoxItem>
-                                </ComboBox>
-                            </Grid>
-
-
-                        </GroupBox>
-                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Chọn phương pháp capture màn hình nếu gặp lỗi"/>
-                    </Grid>
-                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
-
-                    </hc:Divider>
                     <Grid Name="Update">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"/>
@@ -755,7 +724,7 @@
                                       Height="100" 
                                       Fill="{DynamicResource PrimaryTextBrush}"/>
                                 <TextBlock Margin="0,20,0,5" Style="{DynamicResource TextBlockLargeBold}" Text="Ambinity 5.0.7"></TextBlock>
-                                <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Release date : 29/6/2023"></TextBlock>
+                                <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Release date : 30/6/2023"></TextBlock>
                                 <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Credit :"></TextBlock>
                                 <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="fabsenet for DesktopDuplicator"></TextBlock>
                                 <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="HandyControl for awesome UI"></TextBlock>

@@ -2,6 +2,7 @@
 using adrilight.Util;
 using adrilight.View;
 using adrilight.ViewModel;
+using Microsoft.Win32;
 using Ninject.Modules;
 using System.Windows.Forms;
 
@@ -13,6 +14,8 @@ namespace adrilight.Ninject
         {
             var settingsManager = new UserSettingsManager();
             var generalSettings = settingsManager.LoadIfExists() ?? settingsManager.MigrateOrDefault();
+            string HKLMWinNTCurrent = @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion";
+            string osBuild = Registry.GetValue(HKLMWinNTCurrent, "CurrentBuildNumber", "").ToString();
             //var existedDevices = settingsManager.LoadDeviceIfExists();
             Bind<IGeneralSettings>().ToConstant(generalSettings);
             Bind<MainViewViewModel>().ToSelf().InSingletonScope();
@@ -27,19 +30,19 @@ namespace adrilight.Ninject
             if (generalSettings.IsMultipleScreenEnable)
                 foreach (var screen in Screen.AllScreens)
                 {
-                    if (generalSettings.DesktopCaptureAPI == DesktopCaptureAPIEnum.WindowsGraphicCapture)
-                    {
-                        Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("deviceName", screen.DeviceName);
-                    }
-                    else
-                    {
-                        Bind<ICaptureEngine>().To<DesktopFrameDXGI>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("deviceName", screen.DeviceName);
-                    }
+                    //if (osBuild == "22000" || osBuild == "22621")
+                    //{
+                    //    Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("deviceName", screen.DeviceName);
+                    //}
+                    //else
+                    //{
+                    Bind<ICaptureEngine>().To<DesktopFrameDXGI>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("deviceName", screen.DeviceName);
+                    //}
 
                 }
             else
             {
-                if (generalSettings.DesktopCaptureAPI == DesktopCaptureAPIEnum.WindowsGraphicCapture)
+                if (osBuild == "22000" || osBuild == "22621")
                 {
                     Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(Screen.AllScreens[0].DeviceName).WithConstructorArgument("deviceName", Screen.AllScreens[0].DeviceName);
                 }

@@ -400,10 +400,10 @@ namespace adrilight
                 var devices = kernel.GetAll<IDeviceSettings>();
                 foreach (var device in devices)
                 {
-                    device.DeviceState = DeviceStateEnum.Normal;
+                    device.TurnOnLED();
+                    Thread.Sleep(10);
                 }
-
-                _log.Debug("Restart the serial stream after sleep!");
+                _log.Debug("System resume!");
                 var desktopFrames = kernel.GetAll<ICaptureEngine>().Where(c => c is DesktopFrame);
                 if (desktopFrames != null)
                 {
@@ -413,12 +413,17 @@ namespace adrilight
                         await desktopFrame.StartHmonCapture();
                     }
                 }
-
             }
             else if (e.Mode == PowerModes.Suspend)
             {
+                var devices = kernel.GetAll<IDeviceSettings>();
 
-                _log.Debug("Stop the serial stream due to sleep condition!");
+                foreach (var device in devices)
+                {
+                    device.TurnOffLED();
+                    Thread.Sleep(10);
+                }
+                _log.Debug("System suspended!");
             }
         };
             SystemEvents.SessionEnding += (s, e) =>
@@ -536,12 +541,13 @@ namespace adrilight
             {
                 _mainForm.Visibility = Visibility.Visible;
                 _mainForm.Show();
-                _splashScreen.Close();
+
             }
             else
             {
                 //_mainForm.Visibility = Visibility.Collapsed;
             }
+            _splashScreen.Close();
         }
 
         //private void MainForm_FormClosed(object sender, EventArgs e)

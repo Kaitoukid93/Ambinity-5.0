@@ -1820,19 +1820,6 @@ namespace adrilight.ViewModel
             {
                 Set(ref _isRichCanvasWindowOpen, value);
                 RaisePropertyChanged();
-                // _log.Info($"IsSettingsWindowOpen is now {_isSettingsWindowOpen}");
-            }
-        }
-
-        private bool _isSplitLightingWindowOpen;
-
-        public bool IsSplitLightingWindowOpen {
-            get => _isSplitLightingWindowOpen;
-
-            set
-            {
-                Set(ref _isSplitLightingWindowOpen, value);
-                // _log.Info($"IsSettingsWindowOpen is now {_isSettingsWindowOpen}");
             }
         }
 
@@ -1844,7 +1831,7 @@ namespace adrilight.ViewModel
             set
             {
                 Set(ref _currentSelectedAutomation, value);
-                // _log.Info($"IsSettingsWindowOpen is now {_isSettingsWindowOpen}");
+
             }
         }
 
@@ -9218,7 +9205,6 @@ namespace adrilight.ViewModel
             CurrentDevice = selectedDevice;
             GetItemsForLiveView();
             UpdateLiveView();
-            IsSplitLightingWindowOpen = true;
         }
 
         public IList<ISelectableViewPart> SelectableViewParts { get; }
