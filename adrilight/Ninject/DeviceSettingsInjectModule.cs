@@ -27,10 +27,28 @@ namespace adrilight.Ninject
             if (generalSettings.IsMultipleScreenEnable)
                 foreach (var screen in Screen.AllScreens)
                 {
-                    Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("deviceName", screen.DeviceName);
+                    if (generalSettings.DesktopCaptureAPI == DesktopCaptureAPIEnum.WindowsGraphicCapture)
+                    {
+                        Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("deviceName", screen.DeviceName);
+                    }
+                    else
+                    {
+                        Bind<ICaptureEngine>().To<DesktopFrameDXGI>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("deviceName", screen.DeviceName);
+                    }
+
                 }
             else
-                Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(Screen.AllScreens[0].DeviceName).WithConstructorArgument("deviceName", Screen.AllScreens[0].DeviceName);
+            {
+                if (generalSettings.DesktopCaptureAPI == DesktopCaptureAPIEnum.WindowsGraphicCapture)
+                {
+                    Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(Screen.AllScreens[0].DeviceName).WithConstructorArgument("deviceName", Screen.AllScreens[0].DeviceName);
+                }
+                else
+                {
+                    Bind<ICaptureEngine>().To<DesktopFrameDXGI>().InSingletonScope().Named(Screen.AllScreens[0].DeviceName).WithConstructorArgument("deviceName", Screen.AllScreens[0].DeviceName);
+                }
+            }
+
 
             Bind<ICaptureEngine>().To<AudioFrame>().InSingletonScope();
             Bind<IRainbowTicker>().To<RainbowTicker>().InSingletonScope();

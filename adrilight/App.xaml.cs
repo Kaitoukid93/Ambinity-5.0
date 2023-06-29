@@ -391,7 +391,7 @@ namespace adrilight
             Microsoft.Win32.SystemEvents.DisplaySettingsChanging += SystemEvents_DisplaySettingsChanging;
             Microsoft.Win32.SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
 
-            SystemEvents.PowerModeChanged += (s, e) =>
+            SystemEvents.PowerModeChanged += async (s, e) =>
         {
             _log.Debug("Changing Powermode to {0}", e.Mode);
             if (e.Mode == PowerModes.Resume)
@@ -404,6 +404,16 @@ namespace adrilight
                 }
 
                 _log.Debug("Restart the serial stream after sleep!");
+                var desktopFrames = kernel.GetAll<ICaptureEngine>().Where(c => c is DesktopFrame);
+                if (desktopFrames != null)
+                {
+                    foreach (var engine in desktopFrames)
+                    {
+                        var desktopFrame = engine as DesktopFrame;
+                        await desktopFrame.StartHmonCapture();
+                    }
+                }
+
             }
             else if (e.Mode == PowerModes.Suspend)
             {
@@ -443,7 +453,7 @@ namespace adrilight
 
         static void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e)
         {
-            var desktopFrames = kernel.GetAll<ICaptureEngine>().Where(c => c is DesktopFrame);
+            var desktopFrames = kernel.GetAll<ICaptureEngine>().Where(c => c is DesktopFrame || c is DesktopFrameDXGI);
             var screenList = Screen.AllScreens.ToList();
             foreach (var screen in Screen.AllScreens)
             {

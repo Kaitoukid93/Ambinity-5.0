@@ -35,6 +35,7 @@ namespace adrilight
         int SystemMusicMaxTick { get; set; }
         List<DesktopScreen> Screens { get; set; }
         int BreathingSpeed { get; set; }
+        DesktopCaptureAPIEnum DesktopCaptureAPI { get; set; }
 
 
     }

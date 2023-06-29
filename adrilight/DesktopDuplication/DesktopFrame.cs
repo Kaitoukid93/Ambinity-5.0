@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using Windows.Graphics.Capture;
@@ -129,7 +130,7 @@ namespace adrilight
             }
             return TimeSpan.FromMilliseconds(1000);
         }
-        public void Run(CancellationToken token)
+        public async void Run(CancellationToken token)
         {
             //if (IsRunning) throw new Exception(nameof(DesktopDuplicatorReader) + " is already running!");
 
@@ -146,10 +147,8 @@ namespace adrilight
 
                 device = Direct3D11Helper.CreateDevice();
                 BitmapData bitmapData = new BitmapData();
-                MonitorInfo monitor = (from m in MonitorEnumerationHelper.GetMonitors()
-                                       where m.DeviceName == DeviceName
-                                       select m).First();
-                StartHmonCapture(monitor.Hmon);
+
+                await StartHmonCapture();
                 while (!token.IsCancellationRequested)
                 {
                     var frameTime = Stopwatch.StartNew();
@@ -202,21 +201,24 @@ namespace adrilight
 
         }
 
-        private void StartHmonCapture(IntPtr hmon)
+        public async Task StartHmonCapture()
         {
-            GraphicsCaptureItem item = CaptureHelper.CreateItemForMonitor(hmon);
+            MonitorInfo monitor = (from m in MonitorEnumerationHelper.GetMonitors()
+                                   where m.DeviceName == DeviceName
+                                   select m).First();
+            GraphicsCaptureItem item = CaptureHelper.CreateItemForMonitor(monitor.Hmon);
             if (item != null)
             {
-                StartCaptureFromItem(item);
+                await StartCaptureFromItem(item);
             }
         }
-        public void StartCaptureFromItem(GraphicsCaptureItem item)
+        public async Task StartCaptureFromItem(GraphicsCaptureItem item)
         {
             try
             {
                 StopCapture();
                 capture = new BasicCapture(device, item);
-                capture.StartCapture();
+                await capture.StartCapture();
             }
             catch (Exception ex)
             {

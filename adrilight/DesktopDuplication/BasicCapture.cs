@@ -3,6 +3,7 @@ using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using System;
 using System.Drawing.Imaging;
+using System.Threading.Tasks;
 using Windows.Graphics;
 using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
@@ -71,11 +72,12 @@ namespace adrilight.DesktopDuplication
             d3dDevice?.Dispose();
         }
 
-        public void StartCapture()
+        public async Task StartCapture()
         {
-            session.StartCapture();
+            await GraphicsCaptureAccess.RequestAccessAsync(GraphicsCaptureAccessKind.Borderless);
             session.IsBorderRequired = false;
             session.IsCursorCaptureEnabled = false;
+            session.StartCapture();
         }
 
         public ICompositionSurface CreateSurface(Compositor compositor)

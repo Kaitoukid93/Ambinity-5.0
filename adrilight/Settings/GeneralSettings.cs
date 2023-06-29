@@ -34,6 +34,7 @@ namespace adrilight
         private bool _audioDeviceAskAgain = true;
         private bool _isMultipleScreenEnable = true;
         private int _startupDelaySecond = 0;
+        private DesktopCaptureAPIEnum _desktopCaptureAPI = DesktopCaptureAPIEnum.WindowsGraphicCapture;
         private List<DesktopScreen> _screens;
         public GeneralSettings()
         {
@@ -68,5 +69,6 @@ namespace adrilight
         public int SystemMusicSpeed { get => _systemMusicSpeed; set { Set(() => SystemMusicSpeed, ref _systemMusicSpeed, value); } }
         public bool IsProfileLoading { get => _isProfileLoading; set { Set(() => IsProfileLoading, ref _isProfileLoading, value); } }
         public bool IsInBetaChanel { get => _isInBetaChanel; set { Set(() => IsInBetaChanel, ref _isInBetaChanel, value); } }
+        public DesktopCaptureAPIEnum DesktopCaptureAPI { get => _desktopCaptureAPI; set { Set(() => DesktopCaptureAPI, ref _desktopCaptureAPI, value); } }
     }
 }
