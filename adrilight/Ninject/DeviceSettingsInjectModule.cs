@@ -30,14 +30,14 @@ namespace adrilight.Ninject
             if (generalSettings.IsMultipleScreenEnable)
                 foreach (var screen in Screen.AllScreens)
                 {
-                    //if (osBuild == "22000" || osBuild == "22621")
-                    //{
-                    //    Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("deviceName", screen.DeviceName);
-                    //}
-                    //else
-                    //{
-                    Bind<ICaptureEngine>().To<DesktopFrameDXGI>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("deviceName", screen.DeviceName);
-                    //}
+                    if (osBuild == "22000" || osBuild == "22621")
+                    {
+                        Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("deviceName", screen.DeviceName);
+                    }
+                    else
+                    {
+                        Bind<ICaptureEngine>().To<DesktopFrameDXGI>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("deviceName", screen.DeviceName);
+                    }
 
                 }
             else
