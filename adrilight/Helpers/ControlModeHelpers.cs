@@ -52,8 +52,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "LED chuyển động với màu tùy chọn",
-                    Parameters = { IsEnabled, GenericBrightnessParameter, ChasingPatterns, GenericColorPaletteAndSolidColorSelectionParameter, GenericSpeedParameter(0, 4, 1) }
-
+                    Parameters = { IsEnabled, GenericBrightnessParameter, ChasingPatterns, GenericColorPaletteAndSolidColorSelectionParameter, GenericSpeedParameter(0, 20, 10) }
                 };
             }
         }
@@ -67,8 +66,7 @@ namespace adrilight.Helpers
                     Creator = "ambino",
                     Owner = "ambino",
                     Description = "LED sáng theo ảnh động Gif",
-                    Parameters = { IsEnabled, GenericBrightnessParameter, Gifs, GenericSpeedParameter(0, 4, 1), GenericSmoothParameter, GenericLaunchGifRegionSelectionButtonParameter }
-
+                    Parameters = { IsEnabled, GenericBrightnessParameter, Gifs, GenericSpeedParameter(0, 10, 1), GenericSmoothParameter, GenericLaunchGifRegionSelectionButtonParameter }
                 };
             }
         }

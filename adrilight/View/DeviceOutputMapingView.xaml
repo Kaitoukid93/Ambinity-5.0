@@ -412,7 +412,18 @@
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Grid>
-                        <Border CornerRadius="4" Margin="5" Background="{DynamicResource MainContentBackgroundBrush}">
+
+                        <Border x:Name="border" CornerRadius="4" Margin="5">
+                            <Border.Style>
+                                <Style>
+                                    <Setter Property="Border.Background" Value="{DynamicResource MainContentBackgroundBrush}"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="Border.IsMouseOver" Value="True">
+                                            <Setter Property="Border.Background" Value="{DynamicResource HoverBrush}" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="auto"/>
@@ -429,17 +440,31 @@
                                     <Border Padding="0" BorderBrush="{DynamicResource SecondaryBorderBrush}" BorderThickness="2" VerticalAlignment="Top" Margin="5" CornerRadius="2" Width="32" Height="32" HorizontalAlignment="Left" Background="Transparent">
                                         <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Style="{DynamicResource TextBlockSubTitle}" FontWeight="SemiBold"  Text="{Binding DisplayOutputID}"/>
                                     </Border>
-                                    
+
                                     <StackPanel Grid.Column="1" Margin="5" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right">
-                                        <Button ToolTip="Chọn thiết bị cắm vào" Command="{Binding DataContext.OpenSlaveDeviceSelectorCommand,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceOutputMapingView}}}" CommandParameter="{Binding .}" Margin="5"  Width="20" Background="Transparent" Height="20" Style="{DynamicResource _defaultIconButtonSmall}" hc:IconElement.Geometry="{DynamicResource edit}"/>
+                                        <!--<Button ToolTip="Chọn thiết bị cắm vào" Command="{Binding DataContext.OpenSlaveDeviceSelectorCommand,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceOutputMapingView}}}" CommandParameter="{Binding .}" Margin="5"  Width="20" Background="Transparent" Height="20" Style="{DynamicResource _defaultIconButtonSmall}" hc:IconElement.Geometry="{DynamicResource edit}"/>-->
                                         <ToggleButton ToolTip="Tắt nút này nếu bạn không cắm gì cả" IsChecked="{Binding IsEnabled}" Style="{DynamicResource ToggleButtonSwitchSmallerElipse}"/>
                                     </StackPanel>
                                 </Grid>
-                              
+                                <Button Grid.Row="1" Command="{Binding DataContext.OpenSlaveDeviceSelectorCommand,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceOutputMapingView}}}" CommandParameter="{Binding .}" Padding="0" Background="Transparent" BorderThickness="0">
+                                    <TextBlock Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource TextBlockDefaultPrimary}">
+                                                <Setter Property="Text" Value=" "/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Border,AncestorLevel=2}, Path=IsMouseOver}" Value="True">
+                                                        <Setter Property="Text" Value="Chọn thiết bị khác" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Button>
                                
                             </Grid>
+                            
+
                         </Border>
-                      
                     </Grid>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

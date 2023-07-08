@@ -4,6 +4,7 @@ using adrilight.View;
 using adrilight.ViewModel;
 using Microsoft.Win32;
 using Ninject.Modules;
+using Serilog;
 using System.Windows.Forms;
 
 namespace adrilight.Ninject
@@ -16,15 +17,14 @@ namespace adrilight.Ninject
             var generalSettings = settingsManager.LoadIfExists() ?? settingsManager.MigrateOrDefault();
             string HKLMWinNTCurrent = @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion";
             string osBuild = Registry.GetValue(HKLMWinNTCurrent, "CurrentBuildNumber", "").ToString();
-            //var existedDevices = settingsManager.LoadDeviceIfExists();
             Bind<IGeneralSettings>().ToConstant(generalSettings);
             Bind<MainViewViewModel>().ToSelf().InSingletonScope();
             Bind<MainView>().ToSelf().InSingletonScope();
             Bind<IAmbinityClient>().To<AmbinityClient>().InSingletonScope();
-            Bind<ISerialDeviceDetection>().To<SerialDeviceDetection>().InSingletonScope();
-            Bind<IHWMonitor>().To<HWMonitor>().InSingletonScope();
+            Bind<SerialDeviceDetection>().ToSelf().InSingletonScope();
+            Bind<HWMonitor>().ToSelf().InSingletonScope();
             Bind<IContext>().To<WpfContext>().InSingletonScope();
-            Bind<IDeviceDiscovery>().To<DeviceDiscovery>().InSingletonScope();
+            Bind<DeviceDiscovery>().ToSelf().InSingletonScope();
 
 
             if (generalSettings.IsMultipleScreenEnable)
@@ -32,10 +32,12 @@ namespace adrilight.Ninject
                 {
                     if (osBuild == "22000" || osBuild == "22621")
                     {
+                        Log.Information("This is Windows 11 Machine, Injecting WCG", osBuild);
                         Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("deviceName", screen.DeviceName);
                     }
                     else
                     {
+                        Log.Information("This is Windows 10 Machine, Injecting DXGI", osBuild);
                         Bind<ICaptureEngine>().To<DesktopFrameDXGI>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("deviceName", screen.DeviceName);
                     }
 
@@ -44,17 +46,17 @@ namespace adrilight.Ninject
             {
                 if (osBuild == "22000" || osBuild == "22621")
                 {
+                    Log.Information("This is Windows 11 Machine, Injecting WCG", osBuild);
                     Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(Screen.AllScreens[0].DeviceName).WithConstructorArgument("deviceName", Screen.AllScreens[0].DeviceName);
                 }
                 else
                 {
+                    Log.Information("This is Windows 10 Machine, Injecting DXGI", osBuild);
                     Bind<ICaptureEngine>().To<DesktopFrameDXGI>().InSingletonScope().Named(Screen.AllScreens[0].DeviceName).WithConstructorArgument("deviceName", Screen.AllScreens[0].DeviceName);
                 }
             }
-
-
             Bind<ICaptureEngine>().To<AudioFrame>().InSingletonScope();
-            Bind<IRainbowTicker>().To<RainbowTicker>().InSingletonScope();
+            Bind<RainbowTicker>().ToSelf().InSingletonScope();
 
         }
 

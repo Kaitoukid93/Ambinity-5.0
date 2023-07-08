@@ -130,7 +130,6 @@ namespace FTPServer
             catch (System.IO.IOException)
             {
 
-
             }
             catch (Exception ex)
             {

@@ -15,6 +15,8 @@ using MoreLinq;
 using MoreLinq.Extensions;
 using Newtonsoft.Json;
 using Renci.SshNet;
+using Renci.SshNet.Common;
+using Serilog;
 using Squirrel;
 using System;
 using System.Collections.Generic;
@@ -42,6 +44,7 @@ using Bitmap = System.Drawing.Bitmap;
 using Border = adrilight.Settings.Border;
 using Color = System.Windows.Media.Color;
 using ColorPalette = adrilight.Util.ColorPalette;
+using File = System.IO.File;
 using Formatting = Newtonsoft.Json.Formatting;
 using Group = adrilight.Settings.Group;
 using IComputer = adrilight.Util.IComputer;
@@ -528,14 +531,10 @@ namespace adrilight.ViewModel
         public ICommand ApplySelectedItemsScaleCommand { get; set; }
         public ICommand ApplySelectedItemsRotationCommand { get; set; }
         public ICommand RestoreSelectedSurfaceDeviceSizeAndRotationCommand { get; set; }
-        public ICommand LaunchAdrilightStoreItemCeatorWindowCommand { get; set; }
-        public ICommand DownloadSelectedChasingPattern { get; set; }
-        public ICommand DownloadSelectedPaletteCommand { get; set; }
         public ICommand CutSelectedMotionCommand { get; set; }
         public ICommand ToggleCompositionPlayingStateCommand { get; set; }
         public ICommand CompositionFrameStartOverCommand { get; set; }
         public ICommand CompositionPreviousFrameCommand { get; set; }
-        public ICommand OpenRectangleScaleCommand { get; set; }
         public ICommand SetSelectedMotionCommand { get; set; }
         public ICommand OpenAvailableLedSetupForCurrentDeviceWindowCommand { get; set; }
         public ICommand NextOOTBCommand { get; set; }
@@ -547,7 +546,6 @@ namespace adrilight.ViewModel
         public ICommand SurfaceEditorWindowClosingCommand { get; set; }
         public ICommand ClearPIDCanvasCommand { get; set; }
         public ICommand DeleteSelectedItemsCommand { get; set; }
-        public ICommand OpenRectangleRotateCommand { get; set; }
         public ICommand AddItemsToPIDCanvasCommand { get; set; }
         public ICommand AddImageToPIDCanvasCommand { get; set; }
         public ICommand AddSpotGeometryCommand { get; set; }
@@ -566,51 +564,30 @@ namespace adrilight.ViewModel
         public ICommand SpreadItemUpVerticalCommand { get; set; }
         public ICommand SpreadItemDownVerticalCommand { get; set; }
         public ICommand AglignSelectedItemstoTopCommand { get; set; }
-        public ICommand ExportCurrentColorEffectCommand { get; set; }
         public ICommand AddSelectedItemToGroupCommand { get; set; }
         public ICommand ExitCurrentRunningAppCommand { get; set; }
         public ICommand ExecuteAutomationFromManagerCommand { get; set; }
         public ICommand UpdateAppCommand { get; set; }
         public ICommand OpenLEDSteupSelectionWindowsCommand { get; set; }
-        public ICommand SetCurrentSelectedOutputForCurrentSelectedOutputCommand { get; set; }
-        public ICommand OpenFanSpeedPlotWindowsCommand { get; set; }
         public ICommand OpenAvailableUpdateListWindowCommand { get; set; }
-        public ICommand OpenExportNewColorEffectCommand { get; set; }
         public ICommand ResetAppCommand { get; set; }
         public ICommand SaveCurrentSelectedRegionCommand { get; set; }
-        public ICommand NextOutputCommand { get; set; }
-        public ICommand PreviousOutputCommand { get; set; }
         public ICommand ApplySpotImportDataCommand { get; set; }
         public ICommand ApplyOutputImportDataCommand { get; set; }
         public ICommand OpenSpotMapWindowCommand { get; set; }
         public ICommand OpenAboutWindowCommand { get; set; }
         public ICommand OpenSurfaceEditorWindowCommand { get; set; }
-        public ICommand OpenPasswordDialogCommand { get; set; }
         public ICommand OpenAppSettingsWindowCommand { get; set; }
-        public ICommand SetAllDeviceSelectedGradientColorCommand { get; set; }
-        public ICommand SetAllOutputRectangleSizeCommand { get; set; }
+        public ICommand OpenDebugWindowCommand { get; set; }
+        public ICommand OpenLogFolderCommand { get; set; }
         public ICommand SelecFirmwareForCurrentDeviceCommand { get; set; }
         public ICommand SetCurrentLEDSetupSentryColorCommand { get; set; }
-        public ICommand DeleteSelectedGradientCommand { get; set; }
         public ICommand SetAllOutputSelectedGradientColorCommand { get; set; }
         public ICommand UpdateCurrentSelectedDeviceFirmwareCommand { get; set; }
-        public ICommand ZerolAllCommand { get; set; }
-        public ICommand SetActivePaletteAllOutputsCommand { get; set; }
-        public ICommand SetAllOutputSelectedModeCommand { get; set; }
         public ICommand SetAllOutputSelectedSolidColorCommand { get; set; }
-        public ICommand SetAllDeviceSelectedSolidColorCommand { get; set; }
-        public ICommand SetAllDeviceSelectedModeCommand { get; set; }
-        public ICommand SetAllOutputSelectedGifCommand { get; set; }
-        public ICommand SetAllDeviceSelectedGifCommand { get; set; }
-        public ICommand SetActivePaletteAllDevicesCommand { get; set; }
-        public ICommand ShowBrightnessAdjustmentPopupCommand { get; set; }
-        public ICommand SendCurrentDeviceSpeedCommand { get; set; }
         public ICommand LaunchDeleteSelectedDeviceWindowCommand { get; set; }
         public ICommand DeleteSelectedDeviceCommand { get; set; }
-        public ICommand DeleteSelectedDevicesCommand { get; set; }
         public ICommand OpenFFTPickerWindowCommand { get; set; }
-        public ICommand ScanSerialDeviceCommand { get; set; }
-        public ICommand ScanOpenRGBDeviceCommand { get; set; }
         public ICommand SaveAllAutomationCommand { get; set; }
         public ICommand SaveCurrentSelectedAutomationShortkeyCommand { get; set; }
         public ICommand CloseIDSetupCommand { get; set; }
@@ -624,7 +601,6 @@ namespace adrilight.ViewModel
         public ICommand OpenTargetParamSelectionWindowCommand { get; set; }
         public ICommand OpenTargetActionSelectionWindowCommand { get; set; }
         public ICommand OpenAutomationValuePickerWindowCommand { get; set; }
-        public ICommand OpenActionsEditWindowCommand { get; set; }
         public ICommand OpenAutomationManagerWindowCommand { get; set; }
         public ICommand OpenAmbinoStoreWindowCommand { get; set; }
         public ICommand SetCurrentActionTypeForSelectedActionCommand { get; set; }
@@ -632,24 +608,15 @@ namespace adrilight.ViewModel
         public ICommand SetCurrentActionParamForSelectedActionCommand { get; set; }
         public ICommand SetCurrentSelectedActionTypeColorValueCommand { get; set; }
         public ICommand OpenHardwareMonitorWindowCommand { get; set; }
-        public ICommand SaveCurrentSelectedAutomationCommand { get; set; }
-
+        public ICommand RefreshCurrentCollectionCommand { get; set; }
         public ICommand CoppyColorCodeCommand { get; set; }
-        public ICommand DeleteSelectedSolidColorCommand { get; set; }
         public ICommand DeleteSelectedAutomationCommand { get; set; }
-        public ICommand AddNewGradientCommand { get; set; }
-        public ICommand SaveNewGradientCommand { get; set; }
-        public ICommand ApplyCurrentOutputCapturingPositionCommand { get; set; }
         public ICommand LaunchWBAdjustWindowCommand { get; set; }
-        public ICommand ExportCurrentProfileCommand { get; set; }
         public ICommand ImportProfileCommand { get; set; }
-        public ICommand SaveCurrentProfileCommand { get; set; }
         public ICommand ActivateSelectedProfileCommmand { get; set; }
         public ICommand DeleteAttachedProfileCommand { get; set; }
-        public ICommand SaveCurrentSelectedActionCommand { get; set; }
         public ICommand CreateNewProfileCommand { get; set; }
         public ICommand OpenProfileCreateCommand { get; set; }
-        public ICommand ExportPIDCommand { get; set; }
         public ICommand ImportLEDSetupCommand { get; set; }
         public ICommand UnZoneItemsCommand { get; set; }
         public ICommand RenameZoneCommand { get; set; }
@@ -660,60 +627,23 @@ namespace adrilight.ViewModel
         public ICommand SetSelectedItemScaleFactorCommand { get; set; }
         public ICommand SetSelectedItemRotateFactorCommand { get; set; }
         public ICommand OpenAdvanceSettingWindowCommand { get; set; }
-        public ICommand CancelEditWizardCommand { get; set; }
         public ICommand ShowNameEditWindow { get; set; }
-        public ICommand SetBorderSpotActiveCommand { get; set; }
         public ICommand SaveNewUserEditLEDSetup { get; set; }
-        public ICommand ResetCountCommand { get; set; }
         public ICommand SetSpotPIDCommand { get; set; }
         public ICommand SetSpotVIDCommand { get; set; }
         public ICommand SetZoneMIDCommand { get; set; }
         public ICommand ResetSpotIDCommand { get; set; }
-        public ICommand SetSelectedSpotCIDCommand { get; set; }
-        public ICommand ResetMaxCountCommand { get; set; }
-        public ICommand SetPIDNeutral { get; set; }
-        public ICommand SetCurrentSelectedVID { get; set; }
-        public ICommand SetCurrentSelectedVIDRange { get; set; }
-        public ICommand SetPIDReverseNeutral { get; set; }
-        public ICommand JumpToNextWizardStateCommand { get; set; }
-        public ICommand JumpToNextAddDeviceWizardStateCommand { get; set; }
-        public ICommand AddCurrentSelectedDeviceToDashboard { get; set; }
         public ICommand BackToPreviousAddDeviceWizardStateCommand { get; set; }
-        public ICommand BackToPreviousWizardStateCommand { get; set; }
-        public ICommand LaunchPositionEditWindowCommand { get; set; }
-        public ICommand LaunchPIDEditWindowCommand { get; set; }
         public ICommand LaunchCompositionEditWindowCommand { get; set; }
-        public ICommand EditSelectedPaletteCommand { get; set; }
         public ICommand SubParamActionCommand { get; set; }
         public ICommand AddPickedSolidColorCommand { get; set; }
         public ICommand OpenExternalWindowsFromModeParameterCommand { get; set; }
-        public ICommand ImportPaletteCardFromFileCommand { get; set; }
-        public ICommand ImportedGifFromFileCommand { get; set; }
-        public ICommand ExportCurrentSelectedPaletteToFileCommand { get; set; }
-        public ICommand EditSelectedPaletteSaveConfirmCommand { get; set; }
         public ICommand DeleteSelectedPaletteCommand { get; set; }
-        public ICommand UploadSelectedPaletteCommand { get; set; }
-        public ICommand DeleteSelectedGifCommand { get; set; }
         public ICommand CreateNewPaletteCommand { get; set; }
-        public ICommand RequestingBetaChanelCommand { get; set; }
         public ICommand CreateNewAutomationCommand { get; set; }
-        public ICommand SetIncreamentCommand { get; set; }
-        public ICommand SetIncreamentCommandfromZero { get; set; }
-        public ICommand UserInputIncreamentCommand { get; set; }
-
-        public ICommand ImportEffectCommand { get; set; }
-        public ICommand ChangeCurrentDeviceSelectedPalette { get; set; }
-        public ICommand SelectMenuItem { get; set; }
         public ICommand BackCommand { get; set; }
         public ICommand BackToCollectionViewCommand { get; set; }
-        public ICommand DeviceRectDropCommand { get; set; }
-        public ICommand DeleteCommand { get; set; }
-        public ICommand SetCustomColorCommand { get; set; }
-        public ICommand AdjustPositionCommand { get; set; }
         public ICommand SnapshotCommand { get; set; }
-
-        public ICommand SetSpotActiveCommand { get; set; }
-        public ICommand SetAllSpotActiveCommand { get; set; }
         public ICommand SetZoneColorCommand { get; set; }
         public ICommand GetZoneColorCommand { get; set; }
 
@@ -853,7 +783,17 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        private ObservableCollection<AppUser> _availableAppUser;
 
+        public ObservableCollection<AppUser> AvailableAppUser {
+            get { return _availableAppUser; }
+
+            set
+            {
+                _availableAppUser = value;
+                RaisePropertyChanged();
+            }
+        }
         private IComputer _thisComputer;
 
         public IComputer ThisComputer {
@@ -1069,10 +1009,10 @@ namespace adrilight.ViewModel
                 {
                     case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
                         var newDevices = e.NewItems;
-                        // create new IDeviceSettings with new Name
-                        //Get ID:
+
                         foreach (IDeviceSettings device in newDevices)
                         {
+                            Log.Information("Adding device to Dashboard", device.DeviceName);
                             await RegisterDevice(device);
                         }
                         break;
@@ -1135,11 +1075,7 @@ namespace adrilight.ViewModel
             }
             var directory = Path.Combine(DevicesCollectionFolderPath, device.DeviceName + "-" + device.DeviceUID);
             Directory.CreateDirectory(directory);
-            // write thumbnail
-            //if this device is ambino legacy, search resource fo the thumbnail
-            var thumbnailResourcePath = "adrilight.Resources.Thumbnails." + device.DeviceType.Type.ToString() + "_thumb.png";
-            ResourceHlprs.CopyResource(thumbnailResourcePath, Path.Combine(directory, "thumbnail.png"));
-            //write output info
+
             var lightingOutputDirectory = Path.Combine(directory, "LightingOutputs"); //contains lighting controller info
             foreach (var output in device.AvailableLightingOutputs)
             {
@@ -1147,18 +1083,8 @@ namespace adrilight.ViewModel
                 Directory.CreateDirectory(outputDirectory);
                 //write output infojson
                 WriteSingleOutputInfoJson(output, device);
-
-                //write slave device config
                 var slaveDeviceDirectory = Path.Combine(outputDirectory, "AttachedDevice");
                 Directory.CreateDirectory(slaveDeviceDirectory);
-                //write slave device thumb as undefined device
-                if (device.IsSizeNeedUserDefine)
-                {
-                    var undefinedThumbnailResourcePath = "adrilight.Resources.Thumbnails.Undefined_thumb.png";
-                    ResourceHlprs.CopyResource(undefinedThumbnailResourcePath, Path.Combine(slaveDeviceDirectory, "thumbnail.png"));
-                    //output.SlaveDevice.Thumbnail = Path.Combine(slaveDeviceDirectory, "thumbnail.png");
-                }
-
                 WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
             }
             var pwmController = device.AvailableControllers.Where(c => c.Type == ControllerTypeEnum.PWMController).FirstOrDefault();
@@ -1175,20 +1101,13 @@ namespace adrilight.ViewModel
                     //write slave device config
                     var slaveDeviceDirectory = Path.Combine(outputDirectory, "AttachedDevice");
                     Directory.CreateDirectory(slaveDeviceDirectory);
-                    //write slave device thumb as undefined device
-                    if (device.IsSizeNeedUserDefine)
-                    {
-                        var undefinedThumbnailResourcePath = "adrilight.Resources.Thumbnails.Undefined_thumb.png";
-                        ResourceHlprs.CopyResource(undefinedThumbnailResourcePath, Path.Combine(slaveDeviceDirectory, "thumbnail.png"));
-                        //output.SlaveDevice.Thumbnail = Path.Combine(slaveDeviceDirectory, "thumbnail.png");
-                    }
-
                     WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
                 }
             }
 
             // finally write infojson
             WriteSingleDeviceInfoJson(device);
+            Log.Information("Device information saved!", device.DeviceName);
         }
 
         #region component register
@@ -1223,7 +1142,14 @@ namespace adrilight.ViewModel
                             StartUpManager.RemoveApplicationFromTaskScheduler("Ambinity Service");
                         }
                         break;
+                    case nameof(generalSettings.CurrentAppUser):
+                        if (FTPHlprs != null && FTPHlprs.sFTP.IsConnected)
+                        {
+                            FTPHlprs.sFTP.Disconnect();
+                            FTPHlprs = null;
 
+                        }
+                        break;
                     case nameof(generalSettings.StartupDelaySecond):
                         if (generalSettings.Autostart)
                         {
@@ -1552,6 +1478,23 @@ namespace adrilight.ViewModel
                             GeneralSettings.IsOpenRGBEnabled = true;
                         }
                         WriteDeviceInfo(device);
+                        if (FTPHlprs == null)
+                        {
+                            SFTPInit(GeneralSettings.CurrentAppUser);
+                            SFTPConnect();
+                        }
+                        if (!FTPHlprs.sFTP.IsConnected)
+                        {
+                            try
+                            {
+                                SFTPConnect();
+                            }
+                            catch (Exception ex)
+                            {
+                                CarouselImageLoading = false;
+                                return;
+                            }
+                        }
                         var thumbPath = await FTPHlprs.GetFileByName(device.DeviceName + ".png", thumbResourceFolderPath);
                         if (thumbPath != null)
                         {
@@ -1580,7 +1523,6 @@ namespace adrilight.ViewModel
                                 //open device setup wizard
                             }
                         }
-
                         _isDeviceDiscoveryInit = true;
                     }
 
@@ -2226,13 +2168,6 @@ namespace adrilight.ViewModel
             {
                 OpenSurfaceEditorWindow();
             });
-            OpenPasswordDialogCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                OpenPasswordDialog();
-            });
 
             OpenAddNewAutomationCommand = new RelayCommand<string>((p) =>
             {
@@ -2247,6 +2182,22 @@ namespace adrilight.ViewModel
             }, (p) =>
             {
                 OpenAppSettingsWindow();
+            });
+            OpenDebugWindowCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                OpenDebugWindow();
+            });
+
+            OpenLogFolderCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                var logPath = Path.Combine(JsonPath, "Logs");
+                Process.Start("explorer.exe", logPath);
             });
             SaveAllAutomationCommand = new RelayCommand<string>((p) =>
             {
@@ -2291,6 +2242,14 @@ namespace adrilight.ViewModel
                         (item as LEDSetup).ResetVIDStage();
                     }
                 }
+            });
+            RefreshCurrentCollectionCommand = new RelayCommand<IModeParameter>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                var listParam = p as ListSelectionParameter;
+                listParam.LoadAvailableValues();
             });
             SubParamActionCommand = new RelayCommand<string>((p) =>
                  {
@@ -2395,23 +2354,7 @@ namespace adrilight.ViewModel
                        }
                        AddNewPaletteToCollection(newPalette);
                    });
-            RequestingBetaChanelCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                if (p == "@mb1n0b3t@")
-                    TurnOnBetaChanel();
-                else if (p == "abort")
-                {
-                    GeneralSettings.IsInBetaChanel = false;
-                }
-                else
-                {
-                    HandyControl.Controls.MessageBox.Show("Wrong Password", "Authentication", MessageBoxButton.OK, MessageBoxImage.Error);
-                    GeneralSettings.IsInBetaChanel = false;
-                }
-            });
+
             CreateNewAutomationCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -3150,7 +3093,6 @@ namespace adrilight.ViewModel
                             CtrlHlprs = new ControlModeHelpers();
                         CtrlHlprs.MakeZoneControlable(zone);
                     }
-
                 }
                 p.ParrentID = CurrentSelectedOutputMap.OutputID;
                 CurrentSelectedOutputMap.SlaveDevice = p;
@@ -3682,15 +3624,6 @@ namespace adrilight.ViewModel
             });
 
             #endregion Command setup
-        }
-
-        private void OpenPasswordDialog()
-        {
-            if (AssemblyHelper.CreateInternalInstance($"View.{"PasswordDialog"}") is System.Windows.Window window)
-            {
-                window.Owner = System.Windows.Application.Current.MainWindow;
-                window.ShowDialog();
-            }
         }
 
         private void TurnOnBetaChanel()
@@ -4330,6 +4263,7 @@ namespace adrilight.ViewModel
             }
             await Task.Delay(1000);
             item.IsDownloading = false;
+            item.IsLocalExisted = true;
         }
 
         private async Task DownloadCurrentOnlineItem(IOnlineItemModel o)
@@ -4415,57 +4349,61 @@ namespace adrilight.ViewModel
             switch (CurrentSelectedCategory.Type)
             {
                 case "Palette":
-                    await GetStoreItem(paletteFolderpath, filter);
+                    await GetStoreItem(paletteFolderpath, Path.Combine(PalettesCollectionFolderPath, "collection"), filter);
                     break;
                 case "Pattern":
-                    await GetStoreItem(chasingPatternsFolderPath, filter);
+                    await GetStoreItem(chasingPatternsFolderPath, Path.Combine(ChasingPatternsCollectionFolderPath, "collection"), filter);
                     break;
                 case "Gif":
-                    await GetStoreItem(gifxelationsFolderPath, filter);
+                    await GetStoreItem(gifxelationsFolderPath, Path.Combine(GifsCollectionFolderPath, "collection"), filter);
                     break;
                 case "SupportedDevice":
-                    await GetStoreItem(SupportedDevicesFolderPath, filter);
+                    await GetStoreItem(SupportedDevicesFolderPath, SupportedDeviceCollectionFolderPath, filter);
                     break;
                 case "Profiles":
-                    await GetStoreItem(ProfilesFolderPath, filter);
+                    await GetStoreItem(ProfilesFolderPath, Path.Combine(ProfileCollectionFolderPath, "collection"), filter);
                     break;
             }
+            if (AvailableOnlineItems.Count == 0)
+                HandyControl.Controls.MessageBox.Show("Không có Item nào được tìm thấy, Hãy thử chọn mục khác", "No Item Found", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         private async void UpdateStoreView(string filter, string mode)
         {
             if (mode == "all")
             {
                 AvailableOnlineItems = new ObservableCollection<IOnlineItemModel>();
-                await GetStoreItem(paletteFolderpath, filter, mode);
-                await GetStoreItem(chasingPatternsFolderPath, filter, mode);
-                await GetStoreItem(gifxelationsFolderPath, filter, mode);
-                await GetStoreItem(SupportedDevicesFolderPath, filter, mode);
-                await GetStoreItem(ProfilesFolderPath, filter, mode);
+                await GetStoreItem(paletteFolderpath, Path.Combine(PalettesCollectionFolderPath, "collection"), filter, mode);
+                await GetStoreItem(chasingPatternsFolderPath, Path.Combine(ChasingPatternsCollectionFolderPath, "collection"), filter, mode);
+                await GetStoreItem(gifxelationsFolderPath, Path.Combine(GifsCollectionFolderPath, "collection"), filter, mode);
+                await GetStoreItem(SupportedDevicesFolderPath, SupportedDeviceCollectionFolderPath, filter, mode);
+                await GetStoreItem(ProfilesFolderPath, Path.Combine(ProfileCollectionFolderPath, "collection"), filter, mode);
             }
             else if (mode == "selectedCatergory")
             {
                 switch (CurrentSelectedCategory.Type)
                 {
                     case "Palette":
-                        await GetStoreItem(paletteFolderpath, filter, mode);
+                        await GetStoreItem(paletteFolderpath, Path.Combine(PalettesCollectionFolderPath, "collection"), filter, mode);
                         break;
 
                     case "Pattern":
-                        await GetStoreItem(chasingPatternsFolderPath, filter, mode);
+                        await GetStoreItem(chasingPatternsFolderPath, Path.Combine(ChasingPatternsCollectionFolderPath, "collection"), filter, mode);
                         break;
 
                     case "Gif":
-                        await GetStoreItem(gifxelationsFolderPath, filter, mode);
+                        await GetStoreItem(gifxelationsFolderPath, Path.Combine(GifsCollectionFolderPath, "collection"), filter, mode);
                         break;
                     case "SupportedDevice":
-                        await GetStoreItem(SupportedDevicesFolderPath, filter, mode);
+                        await GetStoreItem(SupportedDevicesFolderPath, SupportedDeviceCollectionFolderPath, filter, mode);
                         break;
                     case "Profiles":
-                        await GetStoreItem(ProfilesFolderPath, filter, mode);
+                        await GetStoreItem(ProfilesFolderPath, Path.Combine(ProfileCollectionFolderPath, "collection"), filter, mode);
                         break;
                 }
-            }
 
+            }
+            if (AvailableOnlineItems.Count == 0)
+                HandyControl.Controls.MessageBox.Show("Không có item nào cho mục này, vui lòng thử lại sau", "Item notfound", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private bool CheckEqualityObjects(object object1, object object2)
@@ -4481,18 +4419,15 @@ namespace adrilight.ViewModel
 
         #region Store Folder Path
 
-        private const string paletteFolderpath = "/home/adrilight_enduser/ftp/files/ColorPalettes";
-        private const string chasingPatternsFolderPath = "/home/adrilight_enduser/ftp/files/ChasingPatterns";
-        private const string gifxelationsFolderPath = "/home/adrilight_enduser/ftp/files/Gifxelations";
-        private const string SupportedDevicesFolderPath = "/home/adrilight_enduser/ftp/files/SupportedDevices";
-        private const string ProfilesFolderPath = "/home/adrilight_enduser/ftp/files/Profiles";
-
+        private string paletteFolderpath = "/home/adrilight_enduser/ftp/files/ColorPalettes";
+        private string chasingPatternsFolderPath = "/home/adrilight_enduser/ftp/files/ChasingPatterns";
+        private string gifxelationsFolderPath = "/home/adrilight_enduser/ftp/files/Gifxelations";
+        private string SupportedDevicesFolderPath = "/home/adrilight_enduser/ftp/files/SupportedDevices";
+        private string ProfilesFolderPath = "/home/adrilight_enduser/ftp/files/Profiles";
+        private string thumbResourceFolderPath = "/home/adrilight_enduser/ftp/files/Resources/Thumbs";
         #endregion Store Folder Path
 
         #region Resource Folder Path
-
-        private const string thumbResourceFolderPath = "/home/adrilight_enduser/ftp/files/Resources/Thumbs";
-
         #endregion Resource Folder Path
         public class StringIEqualityComparer : IEqualityComparer<string>
         {
@@ -4506,16 +4441,31 @@ namespace adrilight.ViewModel
                 return obj.GetHashCode();
             }
         }
-        private async Task GetStoreItem(string itemFolderPath, DeviceType filter)
+        private async Task GetStoreItem(string itemFolderPath, string itemLocalFolderPath, DeviceType filter)
         {
             AvailableOnlineItems = new ObservableCollection<IOnlineItemModel>();
 
             //get carousel image
             //get all available files
+            if (FTPHlprs == null)
+            {
+                SFTPInit(GeneralSettings.CurrentAppUser);
+                SFTPConnect();
+            }
             if (!FTPHlprs.sFTP.IsConnected)
             {
-                SFTPInit();
+                try
+                {
+                    SFTPConnect();
+                }
+                catch (Exception ex)
+                {
+                    CarouselImageLoading = false;
+                    return;
+                }
+
             }
+
             var listItemAddress = await FTPHlprs.GetAllFilesAddressInFolder(itemFolderPath);
             //display all available files to the view
             if (listItemAddress != null && listItemAddress.Count > 0)
@@ -4527,8 +4477,18 @@ namespace adrilight.ViewModel
                     var infoPath = address + "/info.json";
                     var thumb = FTPHlprs.GetThumb(address + "/thumb.png").Result;
                     var info = FTPHlprs.GetFiles<OnlineItemModel>(infoPath).Result;
-                    info.Path = address;
+                    if (Directory.Exists(itemLocalFolderPath))
+                    {
+                        //check for duplicate item
+                        string[] subdirs = Directory.GetDirectories(itemLocalFolderPath)
+                                         .Select(Path.GetFileNameWithoutExtension)
+                                         .ToArray();
+                        var sameNameItem = subdirs.Where(p => p == info.Name).FirstOrDefault();
+                        if (sameNameItem != null)
+                            info.IsLocalExisted = true;
+                    }
 
+                    info.Path = address;
                     info.Thumb = thumb;
                     await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
                     {
@@ -4536,27 +4496,42 @@ namespace adrilight.ViewModel
                             AvailableOnlineItems.Add(info);
                     });
                 }
-                if (AvailableOnlineItems.Count == 0)
-                    HandyControl.Controls.MessageBox.Show("Không có Item nào được tìm thấy, Hãy thử chọn mục khác", "No Item Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+
                 CarouselImageLoading = false;
             }
             else
             {
-                HandyControl.Controls.MessageBox.Show("Không có item nào cho mục này, vui lòng thử lại sau", "Item notfound", MessageBoxButton.OK, MessageBoxImage.Error);
+
                 CarouselImageLoading = false;
                 return;
             }
         }
-        private async Task GetStoreItem(string itemFolderPath, string filter, string mode)
+        private async Task GetStoreItem(string itemFolderPath, string itemLocalFolderPath, string filter, string mode)
         {
             if (mode == "selectedCatergory")
                 AvailableOnlineItems = new ObservableCollection<IOnlineItemModel>();
             //get carousel image
             //get all available files
+            if (FTPHlprs == null)
+            {
+                SFTPInit(GeneralSettings.CurrentAppUser);
+
+            }
+
             if (!FTPHlprs.sFTP.IsConnected)
             {
-                SFTPInit();
+                try
+                {
+                    SFTPConnect();
+                }
+                catch (Exception ex)
+                {
+                    CarouselImageLoading = false;
+                    return;
+                }
+
             }
+
             var listItemAddress = await FTPHlprs.GetAllFilesAddressInFolder(itemFolderPath);
             var filteredItemAddress = new List<string>();
             //display all available files to the view
@@ -4585,8 +4560,25 @@ namespace adrilight.ViewModel
                         var infoPath = address + "/info.json";
                         var thumb = FTPHlprs.GetThumb(address + "/thumb.png").Result;
                         var info = FTPHlprs.GetFiles<OnlineItemModel>(infoPath).Result;
+                        if (Directory.Exists(itemLocalFolderPath))
+                        {
+                            //check for duplicate item
+                            string[] subdirs = Directory.GetDirectories(itemLocalFolderPath)
+                                             .Select(Path.GetFileName)
+                                             .ToArray();
+                            string[] subFiles = Directory.GetFiles(itemLocalFolderPath)
+                                             .Select(Path.GetFileName)
+                                             .ToArray();
+                            string[] subFilesWoExtension = Directory.GetFiles(itemLocalFolderPath)
+                                             .Select(Path.GetFileNameWithoutExtension)
+                                             .ToArray();
+                            var sameNameItem = subFiles.Where(p => p == info.Name).FirstOrDefault();
+                            var samenameFolder = subdirs.Where(p => p == info.Name).FirstOrDefault();
+                            var sameNameWoExtionsion = subFilesWoExtension.Where(p => p == info.Name).FirstOrDefault();
+                            if (sameNameItem != null || samenameFolder != null || sameNameWoExtionsion != null)
+                                info.IsLocalExisted = true;
+                        }
                         info.Path = address;
-
                         info.Thumb = thumb;
                         await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
                         {
@@ -4606,7 +4598,7 @@ namespace adrilight.ViewModel
             }
             else
             {
-                HandyControl.Controls.MessageBox.Show("Không có item nào cho mục này, vui lòng thử lại sau", "Item notfound", MessageBoxButton.OK, MessageBoxImage.Error);
+                //HandyControl.Controls.MessageBox.Show("Không có item nào cho mục này, vui lòng thử lại sau", "Item notfound", MessageBoxButton.OK, MessageBoxImage.Error);
                 CarouselImageLoading = false;
                 return;
             }
@@ -4719,7 +4711,14 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-
+        private void OpenDebugWindow()
+        {
+            if (AssemblyHelper.CreateInternalInstance($"View.{"DebugWindow"}") is System.Windows.Window window)
+            {
+                window.Owner = System.Windows.Application.Current.MainWindow;
+                window.Show();
+            }
+        }
         private void OpenAppSettingsWindow()
         {
             if (AssemblyHelper.CreateInternalInstance($"View.{"AppSettingsWindow"}") is System.Windows.Window window)
@@ -4759,43 +4758,13 @@ namespace adrilight.ViewModel
 
         private void ImportProfile()
         {
-            OpenFileDialog Import = new OpenFileDialog();
-            Import.Title = "Chọn Profile";
-            Import.CheckFileExists = true;
-            Import.CheckPathExists = true;
-            Import.DefaultExt = "Pro";
-            Import.Filter = "Text files (*.Pro)|*.Pro";
-            Import.FilterIndex = 2;
-
-            Import.ShowDialog();
-
-            if (!string.IsNullOrEmpty(Import.FileName) && File.Exists(Import.FileName))
+            var profile = LocalFileHlprs.OpenImportFileDialog<AppProfile>("aap", "aap files (*.aap)|*.Aap|Text files (*.txt)|*.Txt");
+            if (profile != null)
             {
-                var json = File.ReadAllText(Import.FileName);
-
-                var existedprofile = JsonConvert.DeserializeObject<DeviceProfile>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
-
-                //ignore existed UID for posibility of conflicting with old UID
-                if (existedprofile != null)
-                {
-                    try
-                    {
-                        existedprofile.ProfileUID = Guid.NewGuid().ToString();
-                        //AvailableProfiles.Add(existedprofile);
-                        RaisePropertyChanged(nameof(AvailableProfiles));
-                        // WriteDeviceProfileCollection();
-                        AvailableProfilesForCurrentDevice.Clear();
-                    }
-                    catch (Exception ex)
-                    {
-                        HandyControl.Controls.MessageBox.Show("Profile Corrupted or incompatible!!", "File Corrupted", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-                else
-                {
-                    HandyControl.Controls.MessageBox.Show("Profile Corrupted", "File Corrupted", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                AvailableProfiles.Add(profile);
+                WriteSimpleJson(profile, Path.Combine(Path.Combine(ProfileCollectionFolderPath, "collection"), profile.Name + ".aap")); // .aap stands for adrilight application profile ...
             }
+
         }
 
         public void SaveCurrentProfile(string profileUID)
@@ -6172,11 +6141,11 @@ namespace adrilight.ViewModel
 
         private async Task AddZoneToGroup()
         {
-            if (!File.Exists(Path.Combine(ResourceFolderPath, "Group_thumb.png")))
-            {
-                Directory.CreateDirectory(ResourceFolderPath);
-                ResourceHlprs.CopyResource("adrilight.Resources.Thumbnails.Group_thumb.png", Path.Combine(ResourceFolderPath, "Group_thumb.png"));
-            }
+            //if (!File.Exists(Path.Combine(ResourceFolderPath, "Group_thumb.png")))
+            //{
+            //    Directory.CreateDirectory(ResourceFolderPath);
+            //    ResourceHlprs.CopyResource("adrilight.Resources.Thumbnails.Group_thumb.png", Path.Combine(ResourceFolderPath, "Group_thumb.png"));
+            //}
             if (CurrentDevice.ControlZoneGroups == null)
             {
                 CurrentDevice.ControlZoneGroups = new ObservableCollection<ControlZoneGroup>();
@@ -6342,6 +6311,7 @@ namespace adrilight.ViewModel
             var currentHeight = liveViewItemsBound.Height * CanvasScale;
             //set current device offset
             CurrentLiveViewOffset = new Point(0 - liveViewItemsBound.Left * CanvasScale + (CurrentLiveViewWidth - currentWidth) / 2, 0 - liveViewItemsBound.Top * CanvasScale + (CurrentLiveViewHeight - currentHeight) / 2);
+            Log.Information("Live View Updated");
         }
 
         private bool _showSelectedItemToolbar;
@@ -7266,7 +7236,12 @@ namespace adrilight.ViewModel
             var palette = LocalFileHlprs.OpenImportFileDialog<ColorPalette>("col", "col files (*.col)|*.Col|Text files (*.txt)|*.Txt");
             if (palette != null)
             {
-                AddNewPaletteToCollection(palette);
+                ColorList = new ObservableCollection<ColorEditingObject>();
+                foreach (var color in palette.Colors)
+                {
+                    var editingColor = new ColorEditingObject(color);
+                    ColorList.Add(editingColor);
+                }
             }
         }
         private void ImportChasingPatternFromFile()
@@ -8508,21 +8483,65 @@ namespace adrilight.ViewModel
                 AvailableProfiles.Add(profile);
             }
         }
-        private void SFTPInit()
+        private PasswordDialog pwDialog { get; set; }
+        private void SFTPInit(AppUser user)
+        {
+            if (user == null)
+                return;
+
+            if (FTPHlprs != null && FTPHlprs.sFTP.IsConnected)
+            {
+                FTPHlprs.sFTP.Disconnect();
+            }
+            string host = @"103.148.57.184";
+            string userName = user.LoginName;
+            string password = user.LoginPassword;
+            FTPHlprs = new FTPServerHelpers();
+            FTPHlprs.sFTP = new SftpClient(host, 1512, userName, password);
+            paletteFolderpath = "/home/" + GeneralSettings.CurrentAppUser.DataBaseUserName + "/ftp/files/ColorPalettes";
+            chasingPatternsFolderPath = "/home/" + GeneralSettings.CurrentAppUser.DataBaseUserName + "/ftp/files/ChasingPatterns";
+            gifxelationsFolderPath = "/home/" + GeneralSettings.CurrentAppUser.DataBaseUserName + "/ftp/files/Gifxelations";
+            SupportedDevicesFolderPath = "/home/" + GeneralSettings.CurrentAppUser.DataBaseUserName + "/ftp/files/SupportedDevices";
+            ProfilesFolderPath = "/home/" + GeneralSettings.CurrentAppUser.DataBaseUserName + "/ftp/files/Profiles";
+            thumbResourceFolderPath = "/home/" + GeneralSettings.CurrentAppUser.DataBaseUserName + "/ftp/files/Resources/Thumbs";
+
+
+        }
+        private string _developerPassword;
+        public string DeveloperPassword {
+            get
+            {
+                return _developerPassword;
+            }
+            set
+            {
+                _developerPassword = value;
+                RaisePropertyChanged();
+            }
+        }
+        private void SFTPConnect()
         {
             if (FTPHlprs == null)
-            {
-                string host = @"103.148.57.184";
-                string userName = "adrilight_publicuser";
-                string password = @"@drilightPublic";
-                FTPHlprs = new FTPServerHelpers();
-                FTPHlprs.sFTP = new SftpClient(host, 1512, userName, password);
-            }
+                return;
             if (!FTPHlprs.sFTP.IsConnected)
             {
                 try
                 {
                     FTPHlprs.sFTP.Connect();
+                }
+                catch (SshAuthenticationException ex)
+                {
+                    System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                    {
+                        pwDialog = new PasswordDialog();
+                        var result = pwDialog.ShowDialog();
+                        if (result != null && result.Value)
+                        {
+                            GeneralSettings.CurrentAppUser.LoginPassword = pwDialog.UnsafePassword;
+                            SFTPInit(GeneralSettings.CurrentAppUser);
+                        }
+                    });
+
                 }
                 catch (Exception ex)
                 {
@@ -8538,7 +8557,9 @@ namespace adrilight.ViewModel
                 ResourceHlprs = new ResourceHelpers();
             if (LocalFileHlprs == null)
                 LocalFileHlprs = new LocalFileHelpers();
-            Task.Run(() => SFTPInit());
+            //create Public user
+            LoadAvailableAppUser();
+            //Task.Run(() => SFTPInit(GeneralSettings.CurrentAppUser));
             if (GeneralSettings.DeviceDiscoveryMode == 0)
                 SearchingForDevices = true;
 
@@ -8557,6 +8578,28 @@ namespace adrilight.ViewModel
             LoadAvailableBaudRate();
             LoadAvailableProfiles();
             LoadAvailableAutomations();
+        }
+        private void LoadAvailableAppUser()
+        {
+            AvailableAppUser = new ObservableCollection<AppUser>();
+            string public_User_DisplayName = "Public User";
+            string public_User_LoginName = "adrilight_publicuser";
+            string public_User_Name = "adrilight_enduser";
+            string public_User_PassWord = "@drilightPublic";
+            var public_User_Geometry = Geometry.Parse("M340.769 341.93C340.339 377.59 315.859 404.13 280.389 408.04C279.507 408.217 278.64 408.468 277.799 408.79H62.9991C58.3591 407.79 53.6491 407.12 49.0891 405.79C19.9991 397.63 1.54915 375.17 0.269149 344.59C-1.06085 312.99 2.40915 281.86 14.4091 252.27C22.1591 233.18 33.4092 216.65 52.2892 206.57C63.6947 200.41 76.51 197.332 89.4692 197.64C93.5892 197.73 97.9192 199.81 101.679 201.85C107.739 205.15 113.359 209.24 119.239 212.85C153.432 233.956 187.619 233.93 221.799 212.77C226.539 209.83 231.389 207 235.799 203.66C243.979 197.53 252.979 196.76 262.689 198.19C289.209 202.09 307.929 216.61 320.559 239.78C331.869 260.49 336.999 283 339.199 306.1C340.372 318.006 340.896 329.967 340.769 341.93ZM168.139 197C222.309 196.85 266.769 152.16 266.399 98.2998C266.069 43.4698 221.899 -0.400216 167.399 -0.000215969C141.305 0.126814 116.327 10.6011 97.9461 29.1239C79.5657 47.6468 69.2847 72.7051 69.3592 98.7998C69.3892 152.52 113.999 197.16 168.139 197Z");
+            var public_User = new AppUser(public_User_DisplayName, public_User_LoginName, public_User_Name, public_User_PassWord, public_User_Geometry);
+            string developer_User_DisplayName = "Developer User";
+            string developer_User_LoginName = "adrilight_developeruser";
+            string developer_User_UserName = "adrilight_developeruser";
+            string developer_User_PassWord = "@12345";
+            var developer_User_Geometry = Geometry.Parse("M124.8 0C100.115 7.92343e-08 75.9836 7.32023 55.4585 21.035C34.9334 34.7497 18.9362 54.243 9.48993 77.0496C0.0436497 99.8562 -2.42742 124.952 2.38921 149.163C7.20584 173.374 19.0938 195.613 36.5498 213.068C54.0058 230.522 76.2458 242.408 100.457 247.223C124.669 252.038 149.764 249.565 172.57 240.117C195.376 230.668 214.868 214.67 228.581 194.143C242.294 173.617 249.612 149.486 249.61 124.8C249.608 91.7001 236.457 59.9567 213.051 36.5525C189.645 13.1482 157.9 -1.06243e-07 124.8 0ZM82.5003 162C82.283 163.745 81.5704 165.391 80.4468 166.743C79.3232 168.095 77.8357 169.097 76.1603 169.63C74.5014 170.308 72.679 170.48 70.9226 170.124C69.1663 169.768 67.5545 168.9 66.2903 167.63C54.197 155.63 42.167 143.58 30.2003 131.48C28.9703 130.24 28.3903 128.36 27.5103 126.78V122.98C28.3703 120.1 30.3203 117.98 32.4103 115.98C43.5903 104.813 54.7403 93.6433 65.8603 82.47C67.0717 81.1537 68.6333 80.21 70.3619 79.7495C72.0905 79.289 73.9146 79.3308 75.6203 79.87C77.3558 80.3104 78.9249 81.2482 80.1347 82.5682C81.3445 83.8881 82.1424 85.5328 82.4303 87.3C82.7777 88.9512 82.6832 90.6649 82.1565 92.2679C81.6297 93.8709 80.6894 95.3066 79.4303 96.43C70.477 105.357 61.517 114.307 52.5503 123.28C52.0703 123.76 51.6103 124.28 51.0703 124.84C51.6003 125.41 52.0703 125.91 52.5503 126.4C61.4503 135.307 70.3603 144.21 79.2803 153.11C81.7903 155.59 83.0903 158.5 82.5003 162ZM162.69 64.34C158.33 74.1 153.91 83.83 149.53 93.57C134.684 126.563 119.85 159.563 105.03 192.57C103.14 196.77 100.23 199.3 96.5903 199.4C88.3903 199.4 83.9003 192.17 86.8803 185.4C90.9803 176.15 95.1703 166.95 99.3303 157.72C114.404 124.22 129.48 90.7167 144.56 57.21C146.98 51.84 151.22 49.36 156.09 50.46C162.26 51.88 165.37 58.34 162.69 64.35V64.34ZM183.54 170.62C182.644 171.582 181.562 172.352 180.36 172.883C179.158 173.414 177.86 173.696 176.546 173.71C175.231 173.725 173.927 173.473 172.713 172.969C171.499 172.465 170.4 171.72 169.483 170.779C168.565 169.838 167.848 168.72 167.376 167.493C166.903 166.267 166.684 164.957 166.732 163.644C166.781 162.33 167.095 161.04 167.657 159.852C168.219 158.663 169.016 157.601 170 156.73C179.007 147.65 188.054 138.603 197.14 129.59C197.58 129.14 198.14 128.79 198.81 128.22C192.88 122.31 187.23 116.68 181.59 111.04C177.65 107.1 173.67 103.2 169.78 99.2C168.375 97.8044 167.44 96.0063 167.103 94.0549C166.766 92.1036 167.045 90.0958 167.9 88.31C168.707 86.59 169.997 85.1423 171.613 84.1442C173.229 83.146 175.101 82.6407 177 82.69C179.435 82.7522 181.75 83.7559 183.46 85.49C195.39 97.39 207.33 109.26 219.18 121.24C220.121 122.128 220.869 123.2 221.377 124.389C221.886 125.578 222.145 126.859 222.137 128.152C222.13 129.446 221.856 130.724 221.334 131.907C220.811 133.09 220.051 134.153 219.1 135.03C207.307 146.937 195.454 158.803 183.54 170.63V170.62Z");
+            var developer_User = new AppUser(developer_User_DisplayName, developer_User_LoginName, developer_User_UserName, developer_User_PassWord, developer_User_Geometry);
+            AvailableAppUser.Add(public_User);
+            AvailableAppUser.Add(developer_User);
+            if (GeneralSettings.CurrentAppUser == null)
+            {
+                GeneralSettings.CurrentAppUser = AvailableAppUser.First();
+            }
         }
         private void LoadAvailableAutomations()
         {
@@ -8629,10 +8672,10 @@ namespace adrilight.ViewModel
             {
                 Directory.CreateDirectory(SupportedDeviceCollectionFolderPath);
                 //create generic device
-                var undefinedThumbnailResourcePath = "adrilight.Resources.Thumbnails.Undefined_thumb.png";
-                var genericDeviceDirectory = Path.Combine(SupportedDeviceCollectionFolderPath, "GenericDevice");
-                Directory.CreateDirectory(genericDeviceDirectory);
-                ResourceHlprs.CopyResource(undefinedThumbnailResourcePath, Path.Combine(genericDeviceDirectory, "thumbnail.png"));
+                //var undefinedThumbnailResourcePath = "adrilight.Resources.Thumbnails.Undefined_thumb.png";
+                //var genericDeviceDirectory = Path.Combine(SupportedDeviceCollectionFolderPath, "GenericDevice");
+                //Directory.CreateDirectory(genericDeviceDirectory);
+                //ResourceHlprs.CopyResource(undefinedThumbnailResourcePath, Path.Combine(genericDeviceDirectory, "thumbnail.png"));
             }
         }
 
@@ -9202,6 +9245,7 @@ namespace adrilight.ViewModel
         public void GotoChild(IDeviceSettings selectedDevice)
         {
             SelectedViewPart = SelectableViewParts[1];
+            Log.Information("Navigating to Device Control");
             CurrentDevice = selectedDevice;
             GetItemsForLiveView();
             UpdateLiveView();
@@ -9222,11 +9266,13 @@ namespace adrilight.ViewModel
         public void BackToDashboard()
         {
             SelectedViewPart = SelectableViewParts[0];
+            Log.Information("Navigating to Dashboard");
         }
 
         public void BackToCollectionView()
         {
             CurrentOnlineStoreView = "Collections";
+            Log.Information("Navigating to Store Collection View");
             CarouselImageLoading = true;
             Task.Run(() => UpdateStoreView("all", "selectedCatergory"));
         }

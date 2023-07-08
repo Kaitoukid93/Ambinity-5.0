@@ -1,7 +1,7 @@
 ﻿using adrilight.Util;
 using adrilight.ViewModel;
 using Microsoft.Win32;
-using NLog;
+using Serilog;
 using System;
 using System.Collections;
 using System.Collections.ObjectModel;
@@ -12,11 +12,8 @@ using System.Windows.Forms;
 
 namespace adrilight
 {
-    internal class RainbowTicker : IRainbowTicker
+    internal class RainbowTicker
     {
-
-
-        private readonly NLog.ILogger _log = LogManager.GetCurrentClassLogger();
 
         public RainbowTicker(IDeviceSettings[] allDeviceSettings, IGeneralSettings generalSettings, MainViewViewModel mainViewViewModel)
         {
@@ -33,12 +30,8 @@ namespace adrilight
             Ticks = new ObservableCollection<Tick>();
             RefreshColorState();
 
-            _log.Info($"RainbowColor Created");
-
         }
-        //Dependency Injection//
-        // private IDeviceSettings DeviceSettings { get; }
-        // private IDeviceSettings ParrentDevice { get; }
+
         private MainViewViewModel MainViewViewModel { get; }
         private IDeviceSettings[] AllDeviceSettings { get; }
 
@@ -66,15 +59,6 @@ namespace adrilight
                     break;
             }
         }
-        //private void ParrentPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        //{
-        //    switch (e.PropertyName)
-        //    {
-        //        case nameof(ParrentDevice.SyncOn):
-        //            RefreshColorState();
-        //            break;
-        //    }
-        //}
 
         private void RefreshColorState()
         {
@@ -85,14 +69,14 @@ namespace adrilight
             if (isRunning && !shouldBeRunning)
             {
                 //stop it!
-                _log.Debug("stopping the Rainbow Ticker");
+                Log.Information("stopping the Rainbow Ticker");
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource = null;
             }
             else if (!isRunning && shouldBeRunning)
             {
                 //start it
-                _log.Debug("starting the Rainbow Ticker");
+                Log.Information("starting the Rainbow Ticker");
                 _cancellationTokenSource = new CancellationTokenSource();
                 var thread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
@@ -137,7 +121,7 @@ namespace adrilight
             if (IsRunning) throw new Exception(" Rainbow Ticker is already running!");
 
             IsRunning = true;
-            _log.Debug("Started Rainbow Ticker.");
+            Log.Information("Rainbow Ticker is Running");
             try
             {
 
@@ -153,7 +137,7 @@ namespace adrilight
                             if (tick.IsRunning)
                             {
                                 if (tick.CurrentTick < tick.MaxTick - tick.TickSpeed)
-                                    tick.CurrentTick += tick.TickSpeed;
+                                    tick.CurrentTick += tick.TickSpeed / tick.TickRate;
                                 else
                                     tick.CurrentTick = 0;
                             }
@@ -172,10 +156,10 @@ namespace adrilight
                         }
 
                         float smoothness_pts = 2000 - (float)GeneralSettings.BreathingSpeed;
-                        double pwm_val = 255.0 * (Math.Exp(-(Math.Pow(((ii++ / smoothness_pts) - beta) / gamma, 2.0)) / 2.0));
+                        //double pwm_val = 255.0 * Math.Sqrt(1.0 - Math.Pow(Math.Abs((2.0 * (ii++ / smoothness_pts)) - 1.0), 2.0));
+                        double pwm_val = 255.0 * (1.0 - Math.Abs((2.0 * (ii++ / smoothness_pts)) - 1.0));
                         if (ii > smoothness_pts)
                             ii = 0f;
-
                         BreathingBrightnessValue = pwm_val / 255d;
                     }
                     Thread.Sleep(10);
@@ -184,13 +168,13 @@ namespace adrilight
             }
             catch (OperationCanceledException)
             {
-                _log.Debug("OperationCanceledException catched. returning.");
+                Log.Error("OperationCanceledException catched. returning.");
 
 
             }
             catch (Exception ex)
             {
-                _log.Debug(ex, "Exception catched.");
+                Log.Error(ex, "Rainbow Ticker");
 
                 //allow the system some time to recover
                 Thread.Sleep(500);
@@ -198,14 +182,9 @@ namespace adrilight
             finally
             {
 
-                _log.Debug("Stopped Rainbow Ticking.");
+                Log.Information("Stopped Rainbow Ticking.");
                 IsRunning = false;
             }
-
-
         }
-
-
-
     }
 }

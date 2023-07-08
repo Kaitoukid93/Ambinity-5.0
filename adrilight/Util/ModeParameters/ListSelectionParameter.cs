@@ -194,7 +194,6 @@ namespace adrilight.Util.ModeParameters
                     return;
                 }
             }
-
             AvailableValues.Insert(0, item);
             var dataSourceLocalFolderName = DataSourceLocaFolderNames[SelectedDataSourceIndex];
             var path = Path.Combine(appFolder, dataSourceLocalFolderName);

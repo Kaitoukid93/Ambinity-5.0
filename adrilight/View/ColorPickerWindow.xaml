@@ -227,6 +227,26 @@
                                         </hc:Divider>
 
                                         <TextBlock Margin="10,5" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultWarning}" Grid.Row="1" Text="Click vào từng ô màu rồi chọn màu ở bảng màu phía bên tay phải, nhấn Ctrl + Click để chọn nhiều ô màu và chỉnh màu cùng lúc"/>
+                                        <StackPanel>
+                                            <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10,0,10">
+
+                                            </hc:Divider>
+                                            <Grid>
+                                                <GroupBox Margin="10,0,0,0" VerticalAlignment="Stretch" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                                                    <GroupBox.HeaderTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock  FontWeight="SemiBold" Text="Nhập file màu"/>
+                                                        </DataTemplate>
+                                                    </GroupBox.HeaderTemplate>
+                                                    <Button Style="{DynamicResource _lowProfileDefaultButton}" Command="{Binding SubParamActionCommand}"
+                                                CommandParameter="Import Palette"
+                                                HorizontalAlignment="Right"
+                                                Content="Import">
+                                                    </Button>
+                                                </GroupBox>
+                                            </Grid>
+                                            <TextBlock Margin="10,5" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Nhập file màu dạng .txt hoặc .col"/>
+                                        </StackPanel>
                                     </StackPanel>
                                 </Grid>
                             </StackPanel>

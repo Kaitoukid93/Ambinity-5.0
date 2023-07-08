@@ -2,10 +2,11 @@
 using adrilight.Settings;
 using adrilight.Spots;
 using Microsoft.Win32;
+using Serilog;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO.Ports;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -13,7 +14,7 @@ using System.Windows;
 
 namespace adrilight.Util
 {
-    internal class SerialDeviceDetection : ISerialDeviceDetection
+    internal class SerialDeviceDetection
     {
 
 
@@ -26,6 +27,7 @@ namespace adrilight.Util
         public SerialDeviceDetection(List<IDeviceSettings> existedSerialDevice)
         {
             ExistedSerialDevice = existedSerialDevice;
+            Log.Information("SerialDetection");
         }
 
 
@@ -41,57 +43,18 @@ namespace adrilight.Util
                 {
                     if (CH55X.Contains(s) || CH340.Contains(s))
                     {
-                        //if (!ExistedSerialDevice.Any(p => p.OutputPort == s)) // if this comport is not used by any of the existed serial device
-                        //{
                         counter++;
                         devices.Add(s);
-                        //}
-
-
                     }
-
-
                 }
             }
             else
             {
-                Console.WriteLine("Không tìm thấy thiết bị nào của Ambino, hãy thêm thiết bị theo cách thủ công");
-                // return null;
+                Log.Warning("No Compatible Device Detected");
             }
             return devices;
         }
 
-
-
-        //static async Task SearchingForDevice(CancellationToken cancellationToken)
-        //{
-        //    var jobTask = Task.Run(() => {
-        //        // Organize critical sections around logical serial port operations somehow.
-        //        lock (_syncRoot)
-        //        {
-        //            return RequestDeviceInformation();
-        //        }
-        //    });
-        //    if (jobTask != await Task.WhenAny(jobTask, Task.Delay(Timeout.Infinite, cancellationToken)))
-        //    {
-        //        // Timeout;
-        //        return;
-        //    }
-        //    var newDevices = await jobTask;
-        //    foreach(var device in newDevices)
-        //    {
-        //        Console.WriteLine("Name: " + device.DeviceName);
-        //        Console.WriteLine("ID: " + device.DeviceSerial);
-        //        Console.WriteLine("Firmware Version: " + device.FirmwareVersion);
-        //        Console.WriteLine();
-        //        Console.WriteLine();
-        //        Console.WriteLine();
-        //    }
-
-
-
-        //    // Process response.
-        //}
         public static ResourceHelpers ResourceHlprs { get; private set; }
         public List<IDeviceSettings> DetectedDevices {
             get
@@ -116,7 +79,8 @@ namespace adrilight.Util
 
             foreach (var device in ValidDevice())
             {
-
+                if (ExistedSerialDevice.Any(d => d.OutputPort == device && d.IsTransferActive))
+                    continue;
                 bool isValid = true;
                 var _serialPort = new SerialPort(device, 1000000);
                 _serialPort.DtrEnable = true;
@@ -126,10 +90,10 @@ namespace adrilight.Util
                 {
                     _serialPort.Open();
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    Log.Error(ex, "AcessDenied");
                     continue;
-
                 }
 
                 //write request info command
@@ -143,8 +107,6 @@ namespace adrilight.Util
                 IDeviceSettings newDevice = new DeviceSettings();
                 while (offset < 3)
                 {
-
-
                     try
                     {
                         byte header = (byte)_serialPort.ReadByte();
@@ -175,7 +137,7 @@ namespace adrilight.Util
                             isValid = false;
                             break;
                         }
-                        Debug.WriteLine("no respond, retrying...");
+                        Log.Warning(device, "no respond, retrying...");
                     }
 
 
@@ -310,6 +272,7 @@ namespace adrilight.Util
                     }
                     catch (TimeoutException)
                     {
+                        Log.Information(newDevice.DeviceName, "Unknown Firmware Version");
                         newDevice.HardwareVersion = "unknown";
                     }
 

@@ -6,7 +6,7 @@ using GalaSoft.MvvmLight;
 using LibreHardwareMonitor.Hardware;
 using LiveCharts.Defaults;
 using MathNet.Numerics.Statistics;
-using NLog;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,12 +14,8 @@ using System.Threading;
 
 namespace adrilight.Util
 {
-    internal class HWMonitor : ViewModelBase, IHWMonitor
+    internal class HWMonitor : ViewModelBase
     {
-
-
-        private readonly NLog.ILogger _log = LogManager.GetCurrentClassLogger();
-
 
         public HWMonitor(IGeneralSettings generalSettings, MainViewViewModel mainViewViewModel)
         {
@@ -28,13 +24,9 @@ namespace adrilight.Util
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
             MainViewViewModel.AvailableDevices.CollectionChanged += (_, __) => DeviceCollectionChanged();
             RefreshHWState();
-            _log.Info($"Hardware Monitor Created");
 
         }
         IComputer thisComputer { get; set; }
-
-
-
         private LibreHardwareMonitor.Hardware.Computer computer { get; set; }
         private void DeviceCollectionChanged()
         {
@@ -42,22 +34,6 @@ namespace adrilight.Util
             {
                 availableFan = GetAvailableFans();
             }
-        }
-        private void PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            //switch (e.PropertyName)
-            //{
-            //    case nameof(OutputSettings.OutputIsEnabled):
-            //    case nameof(OutputSettings.OutputSelectedMode):
-
-            //        RefreshColorState();
-            //        break;
-            //    case nameof(OutputSettings.OutputStaticColor):
-            //    case nameof(OutputSettings.OutputSelectedGradient):
-            //        SolidColorChanged();
-            //        break;
-
-            //}
         }
 
         //DependencyInjection//
@@ -77,7 +53,7 @@ namespace adrilight.Util
             if (isRunning && !shouldBeRunning)
             {
                 //stop it!
-                _log.Debug("stopping the HWMonitor");
+                Log.Information("stopping the HWMonitor");
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource = null;
             }
@@ -87,7 +63,7 @@ namespace adrilight.Util
             {
                 //start it
                 Init();
-                _log.Debug("starting the HWMonitor");
+                Log.Information("Starting the HWMonitor");
                 _cancellationTokenSource = new CancellationTokenSource();
                 var thread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
@@ -118,16 +94,9 @@ namespace adrilight.Util
 
         public void Run(CancellationToken token)//static color creator
         {
-
-            if (IsRunning) throw new Exception(" HWMonitor is already running!");
-
             IsRunning = true;
 
-            _log.Debug("Started HW Monitor.");
-
-
-            //init new hardware and sensor for dispayHWInfo
-
+            Log.Information("HWMonitor is Running");
 
             try
             {
@@ -152,6 +121,7 @@ namespace adrilight.Util
                         thisComputer.Ram.Add(hardware);
                     if (hardware.HardwareType == HardwareType.GpuNvidia || hardware.HardwareType == HardwareType.GpuAmd)
                         thisComputer.GraphicCard.Add(hardware);
+                    Log.Information(hardware.HardwareType.ToString() + " " + hardware.Name);
                 }
                 //add all fancontrol sensor to the list
 
@@ -164,10 +134,12 @@ namespace adrilight.Util
                             if (sensor.SensorType == SensorType.Control)//speed control sensors
                             {
                                 fanControlSensors.Add(sensor);
+                                Log.Information(sensor.SensorType.ToString() + " " + sensor.Name);
                             }
                             if (sensor.SensorType == SensorType.Fan) // fan speed sensors
                             {
                                 fanSpeedSensors.Add(sensor);
+                                Log.Information(sensor.SensorType.ToString() + " " + sensor.Name);
                             }
                         }
 
@@ -322,15 +294,15 @@ namespace adrilight.Util
                     Thread.Sleep(1000);
                 }
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
-                _log.Debug("OperationCanceledException catched. returning.");
+                Log.Error(ex, "OperationCanceledException catched");
 
                 return;
             }
             catch (Exception ex)
             {
-                _log.Debug(ex, "Exception catched.");
+                Log.Error(ex, "Exception catched.");
 
                 Thread.Sleep(500);
             }
@@ -338,7 +310,7 @@ namespace adrilight.Util
             {
 
                 computer.Close();
-                _log.Debug("Stopped HW Monitoring!!!");
+                Log.Information("Stopped HW Monitoring!!!");
                 IsRunning = false;
             }
 

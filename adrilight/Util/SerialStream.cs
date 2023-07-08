@@ -1,8 +1,7 @@
 ﻿using adrilight.Settings;
 using adrilight.Spots;
 using adrilight.Util;
-using Newtonsoft.Json;
-using NLog;
+using Serilog;
 using System;
 using System.Buffers;
 using System.IO.Ports;
@@ -16,9 +15,6 @@ namespace adrilight
 
         SerialStream : IDisposable, ISerialStream
     {
-
-
-        private ILogger _log = LogManager.GetCurrentClassLogger();
 
         public SerialStream(IDeviceSettings deviceSettings, IGeneralSettings generalSettings)
         {
@@ -44,75 +40,10 @@ namespace adrilight
             DeviceSettings.DeviceState = DeviceStateEnum.Normal;
             _hasPWMCOntroller = DeviceSettings.AvailablePWMOutputs != null && DeviceSettings.AvailablePWMOutputs.Count() > 0;
             RefreshTransferState();
-
-            _log.Info($"SerialStream created.");
-
-
         }
         //Dependency Injection//
         private IDeviceSettings DeviceSettings { get; set; }
         private IGeneralSettings GeneralSettings { get; set; }
-
-
-
-        // private IDeviceSpotSet[] DeviceSpotSets { get; set; }
-        private bool CheckSerialPort(string serialport)
-        {
-
-            var available = true;
-            int TestbaudRate = 1000000;
-
-            if (serialport != null)
-            {
-                if (serialport == "Không có")
-                {
-                    // System.Windows.MessageBox.Show("Serial Port " + serialport + " is just for testing effects, not the real device, please note");
-                    available = true;
-                    return available;
-
-                }
-                var serialPorttest = (ISerialPortWrapper)new WrappedSerialPort(new SerialPort(serialport, TestbaudRate));
-
-                //Open the serial port
-
-                try
-                {
-                    serialPorttest.Open();
-
-                }
-
-                catch (Exception)
-                {
-
-                    // BlockedComport.Add(serialport);
-                    _log.Debug("Serial Port " + serialport + " access denied, added to Blacklist");
-                    // HandyControl.Controls.MessageBox.Show("Serial Port " + serialport + " is in use or unavailable, Please chose another COM Port", "Serial Port", MessageBoxButton.OK, MessageBoxImage.Error);
-                    available = false;
-
-                    //_log.Debug(ex, "Exception catched.");
-                    //to be safe, we reset the serial port
-                    //  MessageBox.Show("Serial Port " + UserSettings.ComPort + " is in use or unavailable, Please chose another COM Port");
-
-
-
-
-                    //allow the system some time to recover
-
-                    // Dispose();
-                }
-                serialPorttest.Close();
-
-            }
-
-            else
-            {
-                available = false;
-            }
-
-            return available;
-
-
-        }
         #region PropertyChanged events
         private void UserSettings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -169,7 +100,7 @@ namespace adrilight
                 if (IsValid())
                 {
                     //start it
-                    _log.Debug("starting the serial stream for device Name : " + DeviceSettings.DeviceName);
+                    Log.Information("starting the serial stream for device Name : " + DeviceSettings.DeviceName);
                     Start();
                 }
                 else
@@ -181,7 +112,7 @@ namespace adrilight
             else if (!DeviceSettings.IsTransferActive && IsRunning) // user requesting for stop transfer state, this is due to changing comport or user intend to stop the serial stream.
             {
                 //stop it
-                _log.Debug("stopping the serial stream");
+                Log.Information("stopping the serial stream");
                 Stop();
                 Thread.Sleep(500);
             }
@@ -203,7 +134,7 @@ namespace adrilight
 
         public void Start()
         {
-            _log.Debug("Start called.");
+            Log.Information("Start called for SerialStream");
             if (_workerThread != null) return;
 
             _cancellationTokenSource = new CancellationTokenSource();
@@ -221,7 +152,7 @@ namespace adrilight
 
         public void Stop()
         {
-            _log.Debug("Stop called.");
+            Log.Information("Stop called for Serial Stream");
             if (_workerThread == null) return;
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource = null;
@@ -582,15 +513,12 @@ namespace adrilight
 
             if (String.IsNullOrEmpty(DeviceSettings.OutputPort))
             {
-                _log.Warn("Cannot start the serial sending because the comport is not selected.");
+                Log.Warning("Cannot start the serial sending because the comport is not selected.");
                 return;
             }
 
             frameCounter = 0;
             blackFrameCounter = 0;
-
-            //retry after exceptions...
-            bool isDisconnectedMessage = false;
             while (!cancellationToken.IsCancellationRequested)
             {
                 try
@@ -609,19 +537,11 @@ namespace adrilight
                             openedComPort = DeviceSettings.OutputPort;
 
                         }
-                        //after this we know the device is successfully open the first time or reconnected, we reset the  message show flag
-                        isDisconnectedMessage = false;
                         //send frame data
                         for (int i = 0; i < _lightingDevices.Length; i++)
                         {
                             var (outputBuffer, streamLength) = _hasPWMCOntroller ? GetOutputStreamWithPWM(i) : GetOutputStream(i);
                             serialPort.Write(outputBuffer, 0, streamLength);
-                            if (++frameCounter == 1024 && blackFrameCounter > 1000)
-                            {
-                                //there is maybe something wrong here because most frames where black. report it once per run only
-                                var settingsJson = JsonConvert.SerializeObject(DeviceSettings, Formatting.None);
-                                _log.Info($"Sent {frameCounter} frames already. {blackFrameCounter} were completely black. Settings= {settingsJson}");
-                            }
                             ArrayPool<byte>.Shared.Return(outputBuffer);
 
                             //ws2812b LEDs need 30 µs = 0.030 ms for each led to set its color so there is a lower minimum to the allowed refresh rate
@@ -641,29 +561,13 @@ namespace adrilight
                 }
                 catch (OperationCanceledException)
                 {
-                    _log.Debug("OperationCanceledException catched. returning.");
+                    Log.Error("OperationCanceledException catched. returning.");
 
                     return;
                 }
                 catch (Exception ex)
                 {
-
-
-
-                    _log.Debug(ex, "Exception catched.");
-                    //to be safe, we reset the serial port
-                    //if (!isDisconnectedMessage)
-                    //{
-                    //    var result = HandyControl.Controls.MessageBox.Show("USB của " + DeviceSettings.DeviceName + " Đã ngắt kết nối!!!. Kiểm tra lại kết nối", "Mất kết nối", MessageBoxButton.OK, MessageBoxImage.Warning);
-
-                    //    if (result == MessageBoxResult.OK)//stop showing message
-                    //    {
-
-                    //        isDisconnectedMessage = true;
-                    //    }
-                    //}
-
-
+                    Log.Error(ex, serialPort.SerialPort.PortName);
 
                     if (serialPort != null && serialPort.IsOpen)
                     {
@@ -679,7 +583,7 @@ namespace adrilight
                     {
                         serialPort.Close();
                         serialPort.Dispose();
-                        _log.Debug("SerialPort Disposed!");
+                        Log.Information("SerialPort Disposed!");
                     }
 
 

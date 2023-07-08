@@ -1,7 +1,8 @@
-﻿<Grid x:Class="adrilight.View.SurfaceEditorNonClientAreaContent"
+﻿<Grid x:Class="adrilight.View.DebugNonClientAreaContent"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      Height="42"
+      Height="50"
+      xmlns:converters="clr-namespace:adrilight.Converter"
       DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
       xmlns:hc="https://handyorg.github.io/handycontrol">
     <Grid.Resources>
@@ -11,9 +12,9 @@
                     Source="ControlStyle.xaml">
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
-            </ResourceDictionary>
-            </Grid.Resources>
-            <Grid.ColumnDefinitions>
+        </ResourceDictionary>
+    </Grid.Resources>
+    <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
     </Grid.ColumnDefinitions>
@@ -48,15 +49,12 @@
                 </Button>
                 </hc:TransitioningContentControl>
             </Grid>-->
-            <Path HorizontalAlignment="left"  Stretch="Uniform" Margin="5,5,10,0" Data="{DynamicResource position}" 
+            <Path HorizontalAlignment="left"  Stretch="Uniform" Margin="5,5,10,0" Data="{DynamicResource debug}" 
                                       Width="20" 
                                       Height="20" 
                                       Fill="{StaticResource PrimaryTextBrush}"/>
-            <TextBlock Margin="5,5,0,0" VerticalAlignment="Center" Text="Adrilight  |  Surface Editor"/>
+            <TextBlock Margin="5,5,0,0" VerticalAlignment="Center" Text="Adrilight  |  Debug"/>
         </StackPanel>
-    
-    </Grid>
-   
-    
 
+    </Grid>
 </Grid>

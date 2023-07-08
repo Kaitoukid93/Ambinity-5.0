@@ -2,8 +2,8 @@
 using adrilight.Spots;
 using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
-using NLog;
 using Polly;
+using Serilog;
 using System;
 using System.Diagnostics;
 using System.Drawing.Imaging;
@@ -19,8 +19,6 @@ namespace adrilight
 {
     internal class DesktopFrame : ViewModelBase, ICaptureEngine
     {
-        private readonly ILogger _log = LogManager.GetCurrentClassLogger();
-
         public DesktopFrame(IGeneralSettings userSettings, MainViewViewModel mainViewViewModel, string deviceName)
         {
             UserSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
@@ -29,7 +27,6 @@ namespace adrilight
             _retryPolicy = Policy.Handle<Exception>()
                 .WaitAndRetryForever(ProvideDelayDuration);
             RefreshCapturingState();
-            _log.Info($"DesktopDuplicatorReader created.");
         }
         #region private field
         private Thread _workerThread;
@@ -58,7 +55,7 @@ namespace adrilight
             if (isRunning && !shouldBeRunning)
             {
                 //stop it!
-                _log.Debug("stopping the capturing");
+                Log.Information("stopping the capturing");
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource = null;
 
@@ -68,12 +65,12 @@ namespace adrilight
             else if (!isRunning && shouldBeRunning)
             {
                 //start it
-                _log.Debug("starting the capturing for First Desktop Frame");
+                Log.Information("starting WCG for: " + DeviceName);
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
                     Priority = ThreadPriority.BelowNormal,
-                    Name = "DesktopDuplicatorReader"
+                    Name = "WCG"
                 };
                 _workerThread.Start();
             }
@@ -113,7 +110,7 @@ namespace adrilight
         {
             IsRunning = true;
             NeededRefreshing = false;
-            _log.Debug("Started Reading of First Desktop Frame.");
+            Log.Information("WCG is running for :" + DeviceName);
             Frame = new ByteFrame();
             try
             {
@@ -143,24 +140,13 @@ namespace adrilight
             }
             catch (Exception ex)
             {
-
+                Log.Error(ex, this.ToString());
             }
-
-            //finally
-            //{
-            //    //image?.Dispose();
-            //    _desktopDuplicator?.Dispose();
-            //    _desktopDuplicator = null;
-            //    _log.Debug("Stopped Desktop Duplication Reader.");
-            //    IsRunning = false;
-            //    capture?.Dispose();
-            //    GC.Collect();
-            //}
         }
 
         public void Stop()
         {
-            _log.Debug("Stop called for" + DeviceName);
+            Log.Error("Stop called for WCG: " + DeviceName);
             if (_workerThread == null) return;
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource = null;
@@ -192,7 +178,7 @@ namespace adrilight
             }
             catch (Exception ex)
             {
-
+                Log.Error(ex, "HmonCapture");
             }
 
         }
@@ -202,7 +188,7 @@ namespace adrilight
         public void StopCapture()
         {
             capture?.Dispose();
-
+            Log.Information("HmonCapture Dispose", DeviceName);
         }
 
 

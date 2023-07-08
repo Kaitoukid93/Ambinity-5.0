@@ -2,7 +2,7 @@
 using adrilight.Util.ModeParameters;
 using adrilight.ViewModel;
 using MoreLinq;
-using NLog;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,14 +14,12 @@ namespace adrilight
 {
     internal class Music : ILightingEngine
     {
-        private readonly ILogger _log = LogManager.GetCurrentClassLogger();
-
         public Music(
             IGeneralSettings generalSettings,
             MainViewViewModel mainViewViewModel,
             ICaptureEngine[] audioFrame,
             IControlZone zone,
-            IRainbowTicker rainbowTicker
+            RainbowTicker rainbowTicker
             )
         {
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
@@ -32,8 +30,6 @@ namespace adrilight
             GeneralSettings.PropertyChanged += PropertyChanged;
             CurrentZone.PropertyChanged += PropertyChanged;
             MainViewViewModel.PropertyChanged += PropertyChanged;
-            // Refresh();
-            _log.Info($"DesktopDuplicatorReader created.");
         }
 
         /// <summary>
@@ -43,7 +39,7 @@ namespace adrilight
         public bool IsRunning { get; private set; }
         private LEDSetup CurrentZone { get; }
         private MainViewViewModel MainViewViewModel { get; }
-        private IRainbowTicker RainbowTicker { get; }
+        private RainbowTicker RainbowTicker { get; }
         private ICaptureEngine AudioFrame { get; set; }
 
         public LightingModeEnum Type { get; } = LightingModeEnum.MusicCapturing;
@@ -298,7 +294,7 @@ namespace adrilight
             if (isRunning && !shouldBeRunning)
             {
                 //stop it!
-                _log.Debug("stopping the Animation Engine");
+                Log.Information("Stop Music Engine due to Mode changing");
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource = null;
 
@@ -308,7 +304,7 @@ namespace adrilight
             {
                 //start it
                 Init();
-                _log.Debug("starting the Static Color Engine");
+                Log.Information("starting the Music Engine");
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
@@ -381,9 +377,8 @@ namespace adrilight
         public void Run(CancellationToken token)
         {
 
-            _log.Debug("Started Animation engine.");
             IsRunning = true;
-
+            Log.Information("Music Engine is running.");
             try
             {
 
@@ -432,9 +427,13 @@ namespace adrilight
                     updateIntervalCounter++;
                 }
             }
+            catch (Exception ex)
+            {
+                Log.Error(ex, this.ToString());
+            }
             finally
             {
-                _log.Debug("Stopped the Animation Engine");
+                Log.Information("Stopped the Music Engine");
                 IsRunning = false;
                 GC.Collect();
             }
@@ -689,7 +688,7 @@ namespace adrilight
 
         public void Stop()
         {
-            _log.Debug("Stop called.");
+            Log.Information("Stop called for Music engine");
             //CurrentZone.FillSpotsColor(Color.FromRgb(0, 0, 0));
             if (_workerThread == null) return;
             _cancellationTokenSource?.Cancel();

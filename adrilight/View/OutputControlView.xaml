@@ -670,7 +670,12 @@
                                             <Border Effect="{DynamicResource EffectShadow1}" Margin="0,1,0,5" Background="{DynamicResource MainContentBackgroundBrush}" VerticalAlignment="Top"   CornerRadius="0,0,4,4">
                                                 <Grid>
                                                     <StackPanel>
-                                                        <hc:ComboBox BorderThickness="0" Height="32" ItemContainerStyle="{DynamicResource _ComboboxItemStyle}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,10,0,5" SelectedIndex="{Binding SelectedDataSourceIndex,Mode=TwoWay}" ItemsSource="{Binding DataSourceLocaFolderNames}">
+                                                        <Grid>
+                                                            
+                                                       
+
+                                                            <Button Margin="15,15,15,5" HorizontalAlignment="Right" CommandParameter="{Binding .}" Command="{Binding DataContext.RefreshCurrentCollectionCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}" Style="{DynamicResource _mediumProfileDefaultButton}" Content="refresh"/>
+                                                            <hc:ComboBox BorderThickness="0" Height="32" ItemContainerStyle="{DynamicResource _ComboboxItemStyle}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15,15,15,5" SelectedIndex="{Binding SelectedDataSourceIndex,Mode=TwoWay}" ItemsSource="{Binding DataSourceLocaFolderNames}">
                                                             <hc:ComboBox.Style>
                                                                 <Style TargetType="hc:ComboBox" BasedOn="{StaticResource ComboBoxBaseStyle}">
                                                                     <Setter Property="Visibility" Value="Visible" />
@@ -687,9 +692,10 @@
                                                                 </DataTemplate>
                                                             </hc:ComboBox.ItemTemplate>
                                                         </hc:ComboBox>
+                                                        </Grid>
                                                         <Grid Margin="10,0,15,0" Visibility="{Binding ShowMore,Converter={StaticResource Boolean2VisibilityConverter}}">
                                                             <Border Margin="0,0"  HorizontalAlignment="Right" Background="Transparent" BorderBrush="{StaticResource BorderBrush}" CornerRadius="7" BorderThickness="0">
-                                                                <ListBox hc:ScrollViewerAttach.IsDisabled="True" ItemsSource="{Binding AvailableValues,IsAsync=True}" SelectedItem="{Binding SelectedValue}"
+                                                                <ListBox ItemsSource="{Binding AvailableValues,IsAsync=True}" SelectedItem="{Binding SelectedValue}"
                                                          ItemContainerStyle="{StaticResource _listBoxColorSelectionStyle}"
                                                          Background="Transparent"
                                                          BorderThickness="0"

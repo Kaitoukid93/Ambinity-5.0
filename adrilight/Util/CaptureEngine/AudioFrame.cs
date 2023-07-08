@@ -1,7 +1,7 @@
 ﻿using adrilight.DesktopDuplication;
 using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
-using NLog;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -12,12 +12,6 @@ namespace adrilight
 {
     internal class AudioFrame : ViewModelBase, IDisposable, ICaptureEngine
     {
-
-
-
-
-        private readonly NLog.ILogger _log = LogManager.GetCurrentClassLogger();
-
         public AudioFrame(IGeneralSettings generalSettings, MainViewViewModel mainViewModel)
         {
 
@@ -70,7 +64,7 @@ namespace adrilight
             if (isRunning && !shouldBeRunning)
             {
                 //stop it!
-                _log.Debug("stopping the Audio Frame");
+                Log.Information("stopping the Audio Frame");
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource = null;
                 // Free();
@@ -79,7 +73,7 @@ namespace adrilight
             else if (!isRunning && shouldBeRunning)
             {
                 //start it
-                _log.Debug("starting the Audio Frame");
+                Log.Information("starting the Audio Frame");
                 _cancellationTokenSource = new CancellationTokenSource();
                 var thread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
@@ -106,7 +100,7 @@ namespace adrilight
 
             IsRunning = true;
 
-            _log.Debug("Started Audio Frame.");
+            Log.Information("Started Audio Frame.");
             Frame = new ByteFrame();
             try
             {
@@ -136,13 +130,13 @@ namespace adrilight
 
             catch (OperationCanceledException)
             {
-                _log.Debug("OperationCanceledException catched. returning.");
+                Log.Error("OperationCanceledException catched. returning.");
 
                 // return;
             }
             catch (Exception ex)
             {
-                _log.Debug(ex, "Exception catched.");
+                Log.Error(ex, "Exception catched.");
 
                 //allow the system some time to recover
                 Thread.Sleep(500);
@@ -150,7 +144,7 @@ namespace adrilight
             finally
             {
 
-                _log.Debug("Stopped AudioFrame.");
+                Log.Information("Stopped AudioFrame.");
                 IsRunning = false;
             }
 
@@ -301,7 +295,7 @@ namespace adrilight
 
         public void Stop()
         {
-            _log.Debug("Stop called for audio frame");
+            Log.Information("Stop called for audio frame");
             if (_workerThread == null) return;
             Free();
             _cancellationTokenSource?.Cancel();

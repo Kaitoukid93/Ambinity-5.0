@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using adrilight.Settings;
+using System.ComponentModel;
 using Color = System.Windows.Media.Color;
 
 namespace adrilight
@@ -32,7 +33,7 @@ namespace adrilight
         int SystemMusicSpeed { get; set; }
         int SystemMusicMaxTick { get; set; }
         int BreathingSpeed { get; set; }
-
+        AppUser CurrentAppUser { get; set; }
 
     }
 }

@@ -13,6 +13,6 @@
     <dependencies />
   </metadata>
   <files>
-    <file src="bin\Release\" target="lib\net5\" exclude="*.pdb;Launcher.exe;createdump.exe;*.nupkg;*.vshost.*"/>
+    <file src="bin\Release\" target="lib\net472\" exclude="*.pdb;*.nupkg;*.vshost.*"/>
   </files>
 </package>

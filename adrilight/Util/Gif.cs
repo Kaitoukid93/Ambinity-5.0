@@ -1,5 +1,6 @@
 ﻿using adrilight.DesktopDuplication;
 using GalaSoft.MvvmLight;
+using Newtonsoft.Json;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -23,6 +24,7 @@ namespace adrilight.Util
         public string Type { get; set; }
         public string Description { get; set; }
         public string Path { get; set; }
+        [JsonIgnore]
         public ByteFrame[] Frames { get; set; }
         public object Lock { get; } = new object();
         public void LoadGifFromDisk(string path)

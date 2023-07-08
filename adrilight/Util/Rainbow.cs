@@ -2,7 +2,7 @@
 using adrilight.Util.ModeParameters;
 using adrilight.ViewModel;
 using MoreLinq;
-using NLog;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,13 +15,12 @@ namespace adrilight
 {
     internal class Rainbow : ILightingEngine
     {
-        private readonly ILogger _log = LogManager.GetCurrentClassLogger();
 
         public Rainbow(
             IGeneralSettings generalSettings,
             MainViewViewModel mainViewViewModel,
             IControlZone zone,
-            IRainbowTicker rainbowTicker
+            RainbowTicker rainbowTicker
             )
         {
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
@@ -31,8 +30,6 @@ namespace adrilight
             GeneralSettings.PropertyChanged += PropertyChanged;
             CurrentZone.PropertyChanged += PropertyChanged;
             MainViewViewModel.PropertyChanged += PropertyChanged;
-            // Refresh();
-            _log.Info($"DesktopDuplicatorReader created.");
         }
 
         /// <summary>
@@ -42,7 +39,7 @@ namespace adrilight
         public bool IsRunning { get; private set; }
         private LEDSetup CurrentZone { get; }
         private MainViewViewModel MainViewViewModel { get; }
-        private IRainbowTicker RainbowTicker { get; }
+        private RainbowTicker RainbowTicker { get; }
         public LightingModeEnum Type { get; } = LightingModeEnum.Rainbow;
         /// <summary>
         /// property changed event catching
@@ -77,11 +74,7 @@ namespace adrilight
 
         private CancellationTokenSource _cancellationTokenSource;
         private Thread _workerThread;
-
-
         private LightingMode _currentLightingMode;
-
-
         private ListSelectionParameter _colorControl;
         private SliderParameter _brightnessControl;
         private SliderParameter _speedControl;
@@ -201,7 +194,7 @@ namespace adrilight
             if (isRunning && !shouldBeRunning)
             {
                 //stop it!
-                _log.Debug("stopping the Rainbow Engine");
+                Log.Information("stopping the Rainbow Engine");
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource = null;
 
@@ -211,7 +204,7 @@ namespace adrilight
             {
                 //start it
                 Init();
-                _log.Debug("starting the Static Color Engine");
+                Log.Information("starting the Static Color Engine");
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
@@ -283,7 +276,7 @@ namespace adrilight
         public void Run(CancellationToken token)
         {
 
-            _log.Debug("Started Rainbow engine.");
+            Log.Information("Rainbow Engine Is Running");
             IsRunning = true;
             try
             {
@@ -338,10 +331,14 @@ namespace adrilight
                     Thread.Sleep(sleepTime);
                 }
             }
+            catch (Exception ex)
+            {
+                Log.Error(ex, this.ToString());
+            }
             finally
             {
 
-                _log.Debug("Stopped the Rainbow Engine");
+                Log.Information("Stopped the Rainbow Engine");
                 IsRunning = false;
                 GC.Collect();
             }
@@ -593,7 +590,7 @@ namespace adrilight
 
         public void Stop()
         {
-            _log.Debug("Stop called.");
+            Log.Information("Stop called for Rainbow Engine");
             //CurrentZone.FillSpotsColor(Color.FromRgb(0, 0, 0));
             if (_workerThread == null) return;
             _cancellationTokenSource?.Cancel();

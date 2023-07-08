@@ -52,7 +52,7 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{StaticResource PrimaryTextBrush}"/>
-            <TextBlock Margin="5,5,0,0" VerticalAlignment="Center" Text="LED Setup"/>
+            <TextBlock Margin="5,5,0,0" VerticalAlignment="Center" Text="Adrilight  |  Quick Setup"/>
         </StackPanel>
     
     </Grid>

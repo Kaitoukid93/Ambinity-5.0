@@ -14,6 +14,7 @@ namespace adrilight.Util
 
         }
         private bool _isDownloading = false;
+        private bool _isLocalExisted = false;
         public string Name { get; set; }
         public string Owner { get; set; } // the name of creator
         public string Type { get; set; } // ledsetup or color palette
@@ -23,7 +24,8 @@ namespace adrilight.Util
         public List<BitmapImage> Screenshots { get; set; }
         public string MarkDownDescription { get; set; }
         public List<DeviceType> TargetDevices { get; set; }
-        public bool IsLocalExisted { get; set; }
+        [JsonIgnore]
+        public bool IsLocalExisted { get => _isLocalExisted; set { Set(() => IsLocalExisted, ref _isLocalExisted, value); } }
         public string Version { get; set; }
         [JsonIgnore]
         public bool IsDownloading { get => _isDownloading; set { Set(() => IsDownloading, ref _isDownloading, value); } }

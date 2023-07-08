@@ -3,7 +3,7 @@ using adrilight.Resources;
 using adrilight.Settings;
 using adrilight.Util;
 using adrilight.ViewModel;
-using NLog;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,9 +14,8 @@ using System.Threading.Tasks;
 
 namespace adrilight
 {
-    internal class DeviceDiscovery : IDeviceDiscovery
+    internal class DeviceDiscovery
     {
-        private readonly ILogger _log = LogManager.GetCurrentClassLogger();
         private bool _openRGBIsInit = false;
         public DeviceDiscovery(IGeneralSettings settings, IContext context, IAmbinityClient ambinityClient, MainViewViewModel mainViewViewModel)
         {
@@ -24,8 +23,15 @@ namespace adrilight
             Context = context ?? throw new ArgumentNullException(nameof(context));
             AmbinityClient = ambinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
+            MainViewViewModel.AvailableDevices.CollectionChanged += (_, __) => DeviceCollectionChanged();
+            SerialDeviceDetector = new SerialDeviceDetection(MainViewViewModel.AvailableDevices.Where(p => p.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.Wired).ToList());
             StartThread();
 
+        }
+
+        private void DeviceCollectionChanged()
+        {
+            SerialDeviceDetector = new SerialDeviceDetection(MainViewViewModel.AvailableDevices.Where(p => p.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.Wired).ToList());
         }
         private Thread _workerThread;
         private CancellationTokenSource _cancellationTokenSource;
@@ -90,7 +96,7 @@ namespace adrilight
                 }
                 catch (Exception ex)
                 {
-                    _log.Error(ex, $"error when scanning devices : {ex.GetType().FullName}: {ex.Message}");
+                    Log.Error(ex, $"error when scanning devices : {ex.GetType().FullName}: {ex.Message}");
                 }
 
                 //check once a second for updates
@@ -149,6 +155,7 @@ namespace adrilight
                     }
                     catch (Exception ex)
                     {
+                        Log.Error(ex, "Parameter is Incorrect for OpenRGB Device");
                         //something error with one or more parametters
                         continue;
                     }
@@ -166,7 +173,7 @@ namespace adrilight
         private static object _syncRoot = new object();
         public void Stop()
         {
-            _log.Debug("Stop called.");
+            Log.Information("Stop called for Device Discovery");
             if (_workerThread == null) return;
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource = null;
@@ -175,21 +182,18 @@ namespace adrilight
             _workerThread?.Join();
             _workerThread = null;
         }
-
+        SerialDeviceDetection SerialDeviceDetector { get; set; }
         private async Task<(List<IDeviceSettings>, List<string>)> ScanSerialDevice()
         {
             var newDevicesDetected = new List<IDeviceSettings>();
             var oldDeviceReconnected = new List<string>();
             _isSerialScanCompelete = false;
-            ISerialDeviceDetection detector = new SerialDeviceDetection(MainViewViewModel.AvailableDevices.Where(p => p.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.Wired).ToList());
-
-
             var jobTask = Task.Run(() =>
             {
                 // Organize critical sections around logical serial port operations somehow.
                 lock (_syncRoot)
                 {
-                    return detector.DetectedDevices;
+                    return SerialDeviceDetector.DetectedDevices;
                 }
             });
             if (jobTask != await Task.WhenAny(jobTask, Task.Delay(Timeout.Infinite, token)))

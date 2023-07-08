@@ -4,7 +4,7 @@ using adrilight.ViewModel;
 using adrilight_effect_analyzer.Model;
 using MoreLinq;
 using Newtonsoft.Json;
-using NLog;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,13 +18,13 @@ namespace adrilight
 {
     internal class Animation : ILightingEngine
     {
-        private readonly ILogger _log = LogManager.GetCurrentClassLogger();
+
 
         public Animation(
             IGeneralSettings generalSettings,
             MainViewViewModel mainViewViewModel,
             IControlZone zone,
-            IRainbowTicker rainbowTicker
+            RainbowTicker rainbowTicker
             )
         {
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
@@ -34,8 +34,7 @@ namespace adrilight
             GeneralSettings.PropertyChanged += PropertyChanged;
             CurrentZone.PropertyChanged += PropertyChanged;
             MainViewViewModel.PropertyChanged += PropertyChanged;
-            // Refresh();
-            _log.Info($"DesktopDuplicatorReader created.");
+
         }
 
         /// <summary>
@@ -45,7 +44,7 @@ namespace adrilight
         public bool IsRunning { get; private set; }
         private LEDSetup CurrentZone { get; }
         private MainViewViewModel MainViewViewModel { get; }
-        private IRainbowTicker RainbowTicker { get; }
+        private RainbowTicker RainbowTicker { get; }
         public LightingModeEnum Type { get; } = LightingModeEnum.Animation;
         /// <summary>
         /// property changed event catching
@@ -63,18 +62,6 @@ namespace adrilight
                     if (isRunning || (CurrentZone.CurrentActiveControlMode as LightingMode).BasedOn == Type)
                         Refresh();
                     break;
-                    //case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
-                    //    //case nameof(MainViewViewModel.IsRegisteringGroup):
-                    //    //case nameof(_colorControl):
-                    //    Refresh();
-                    // break;
-                    //case nameof(GeneralSettings.SystemRainbowSpeed):
-                    //    OnSystemRainbowSpeedChanged(GeneralSettings.SystemRainbowSpeed);
-                    //    break;
-                    //case nameof(GeneralSettings.SystemPlaybackSpeed):
-                    //    OnSystemPlaybackSpeedValueChange(GeneralSettings.BreathingSpeed);
-                    //    break;
-                    //    break;
             }
         }
 
@@ -209,6 +196,7 @@ namespace adrilight
                         //create new tick
                         var maxTick = _resizedFrames != null ? _resizedFrames.Length : 1024;
                         frameTick = RainbowTicker.MakeNewTick(maxTick, _speed, CurrentZone.GroupID, TickEnum.FrameTick);
+                        frameTick.TickRate = 10;
                         frameTick.IsRunning = true;
                     }
                     if (colorTick == null)
@@ -230,6 +218,7 @@ namespace adrilight
                     TickSpeed = _speed,
                     IsRunning = true
                 };
+                frameTick.TickRate = 10;
                 var colorTick = new Tick() {
                     MaxTick = _colorBank != null ? _colorBank.Length : 1024,
                     TickSpeed = _paletteSpeed / 5d
@@ -329,7 +318,7 @@ namespace adrilight
             if (isRunning && !shouldBeRunning)
             {
                 //stop it!
-                _log.Debug("stopping the Animation Engine");
+                Log.Information("stopping the Animation Engine");
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource = null;
 
@@ -339,7 +328,7 @@ namespace adrilight
             {
                 //start it
                 Init();
-                _log.Debug("starting the Static Color Engine");
+                Log.Information("starting the Animation Color Engine");
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
@@ -361,6 +350,7 @@ namespace adrilight
             _enableControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.IsEnabled).FirstOrDefault() as ToggleParameter;
             _enableControl.PropertyChanged += (_, __) => EnableChanged(_enableControl.Value == 1 ? true : false);
             _speedControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Speed).FirstOrDefault() as SliderParameter;
+            _speedControl.MaxValue = 20;
             _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.MixedColor).FirstOrDefault() as ListSelectionParameter;
             _colorControl.PropertyChanged += (_, __) =>
             {
@@ -410,10 +400,8 @@ namespace adrilight
         }
         public void Run(CancellationToken token)
         {
-
-            _log.Debug("Started Animation engine.");
             IsRunning = true;
-
+            Log.Information("Animation engine is running");
             try
             {
 
@@ -460,9 +448,13 @@ namespace adrilight
                     updateIntervalCounter++;
                 }
             }
+            catch (Exception ex)
+            {
+                Log.Error(ex, this.ToString());
+            }
             finally
             {
-                _log.Debug("Stopped the Animation Engine");
+                Log.Information("Stopped the Animation Engine");
                 IsRunning = false;
                 GC.Collect();
             }
@@ -473,7 +465,7 @@ namespace adrilight
             if (!CurrentZone.IsInControlGroup)
             {
                 if (_ticks[0].CurrentTick < _ticks[0].MaxTick - _ticks[0].TickSpeed)
-                    _ticks[0].CurrentTick += _ticks[0].TickSpeed;
+                    _ticks[0].CurrentTick += _ticks[0].TickSpeed / _ticks[0].TickRate;
                 else
                 {
                     _ticks[0].CurrentTick = 0;
@@ -630,7 +622,8 @@ namespace adrilight
             }
             catch (Exception ex)
             {
-                HandyControl.Controls.MessageBox.Show("Corrupted or incompatible data File!!!", "LEDSetup Import", MessageBoxButton.OK, MessageBoxImage.Error);
+                Log.Error(ex, "Read Motion From Disk");
+                HandyControl.Controls.MessageBox.Show("Corrupted or incompatible data File!!!", "Animation Import", MessageBoxButton.OK, MessageBoxImage.Error);
                 return null;
             }
 
@@ -638,7 +631,7 @@ namespace adrilight
         }
         public void Stop()
         {
-            _log.Debug("Stop called.");
+            Log.Information("Stop called for Animation Engine");
             //CurrentZone.FillSpotsColor(Color.FromRgb(0, 0, 0));
             if (_workerThread == null) return;
             _cancellationTokenSource?.Cancel();

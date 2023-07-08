@@ -2,7 +2,7 @@
 using adrilight.Util.ModeParameters;
 using adrilight.ViewModel;
 using MoreLinq;
-using NLog;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,13 +13,12 @@ namespace adrilight
 {
     internal class StaticColor : ILightingEngine
     {
-        private readonly ILogger _log = LogManager.GetCurrentClassLogger();
 
         public StaticColor(
             IGeneralSettings generalSettings,
             MainViewViewModel mainViewViewModel,
             IControlZone zone,
-            IRainbowTicker rainbowTicker
+            RainbowTicker rainbowTicker
             )
         {
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
@@ -29,8 +28,6 @@ namespace adrilight
             GeneralSettings.PropertyChanged += PropertyChanged;
             CurrentZone.PropertyChanged += PropertyChanged;
             MainViewViewModel.PropertyChanged += PropertyChanged;
-            // Refresh();
-            _log.Info($"DesktopDuplicatorReader created.");
         }
 
         /// <summary>
@@ -40,7 +37,7 @@ namespace adrilight
         public bool IsRunning { get; private set; }
         private LEDSetup CurrentZone { get; }
         private MainViewViewModel MainViewViewModel { get; }
-        private IRainbowTicker RainbowTicker { get; }
+        private RainbowTicker RainbowTicker { get; }
         public LightingModeEnum Type { get; } = LightingModeEnum.StaticColor;
         /// <summary>
         /// breathing constant value
@@ -198,7 +195,7 @@ namespace adrilight
             if (isRunning && !shouldBeRunning)
             {
                 //stop it!
-                _log.Debug("stopping the Static Color Engine");
+                Log.Information("stopping the Static Color Engine");
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource = null;
 
@@ -208,7 +205,7 @@ namespace adrilight
             {
                 //start it
                 Init();
-                _log.Debug("starting the Static Color Engine");
+                Log.Information("starting the Static Color Engine");
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
@@ -261,10 +258,8 @@ namespace adrilight
         }
         public void Run(CancellationToken token)
         {
-
-            _log.Debug("Started Static Color.");
-
             IsRunning = true;
+            Log.Information("Static Color Engine Is Running");
             int updateIntervalCounter = 0;
             try
             {
@@ -288,7 +283,7 @@ namespace adrilight
                         else
                         {
                             float smoothness_pts = (float)_breathingSpeed;
-                            double pwm_val = 255.0 * (Math.Exp(-(Math.Pow(((ii++ / smoothness_pts) - beta) / gamma, 2.0)) / 2.0));
+                            double pwm_val = 255.0 * (1.0 - Math.Abs((2.0 * (ii++ / smoothness_pts)) - 1.0));
                             if (ii > smoothness_pts)
                                 ii = 0f;
 
@@ -327,10 +322,14 @@ namespace adrilight
                     updateIntervalCounter++;
                 }
             }
+            catch (Exception ex)
+            {
+                Log.Error(ex, this.ToString());
+            }
             finally
             {
 
-                _log.Debug("Stopped the Static Color Engine");
+                Log.Information("Stopped the Static Color Engine");
                 IsRunning = false;
                 GC.Collect();
             }
@@ -403,7 +402,7 @@ namespace adrilight
 
         public void Stop()
         {
-            _log.Debug("Stop called.");
+            Log.Information("Stop called for Static Color Engine");
             //CurrentZone.FillSpotsColor(Color.FromRgb(0, 0, 0));
             if (_workerThread == null) return;
             _cancellationTokenSource?.Cancel();

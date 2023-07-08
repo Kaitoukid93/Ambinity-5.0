@@ -4,8 +4,8 @@ using adrilight.Util;
 using adrilight.Util.ModeParameters;
 using adrilight.ViewModel;
 using MoreLinq;
-using NLog;
 using Polly;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,8 +20,6 @@ namespace adrilight
 {
     internal class DesktopDuplicatorReader : ILightingEngine
     {
-        private readonly ILogger _log = LogManager.GetCurrentClassLogger();
-
         public DesktopDuplicatorReader(IGeneralSettings generalSettings,
             ICaptureEngine[] desktopFrame,
              MainViewViewModel mainViewViewModel,
@@ -34,15 +32,10 @@ namespace adrilight
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             _retryPolicy = Policy.Handle<Exception>().WaitAndRetryForever(ProvideDelayDuration);
 
-
             GeneralSettings.PropertyChanged += PropertyChanged;
             CurrentZone.PropertyChanged += PropertyChanged;
             MainViewViewModel.PropertyChanged += PropertyChanged;
 
-
-            // Refresh();
-
-            _log.Info($"DesktopDuplicatorReader created.");
         }
 
 
@@ -115,7 +108,7 @@ namespace adrilight
         {
             if (DesktopFrame[(int)_currentScreenIndex].Frame == null || DesktopFrame[(int)_currentScreenIndex].Frame.FrameWidth == 0 || DesktopFrame[(int)_currentScreenIndex].Frame.FrameHeight == 0)
             {
-                _log.Error("DesktopFrame is null");
+                Log.Error("DesktopFrame is null");
                 return;
             }
 
@@ -195,7 +188,7 @@ namespace adrilight
             if (isRunning && !shouldBeRunning)
             {
                 //stop it!
-                _log.Debug("stopping the capturing");
+                Log.Information("Stop the capturing due to mode changing");
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource = null;
 
@@ -206,7 +199,7 @@ namespace adrilight
                 //start it
                 //get current lighting mode confirm that based on desktop duplicator reader engine
                 Init();
-                _log.Debug("starting the capturing");
+                Log.Information("starting the capturing");
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
@@ -272,7 +265,7 @@ namespace adrilight
         public void Run(CancellationToken token)
         {
 
-            _log.Debug("Started Desktop Duplication Reader.");
+            Log.Information("Desktop Duplicator Reader is Running");
             Bitmap image = null;
             BitmapData bitmapData = new BitmapData();
             IsRunning = true;
@@ -395,11 +388,15 @@ namespace adrilight
                     updateIntervalCounter++;
                 }
             }
+            catch (Exception ex)
+            {
+                Log.Error(ex, this.ToString());
+            }
             finally
             {
                 image?.Dispose();
 
-                _log.Debug("Stopped Desktop Duplication Reader.");
+                Log.Information("Stopped Desktop Duplication Reader.");
                 IsRunning = false;
                 GC.Collect();
             }
@@ -420,7 +417,7 @@ namespace adrilight
                 if (_lastObservedHeight != null && _lastObservedWidth != null
                     && (_lastObservedHeight != image.Height || _lastObservedWidth != image.Width))
                 {
-                    _log.Debug("The frame size changed from {0}x{1} to {2}x{3}"
+                    Log.Information("The desktop size changed from {0}x{1} to {2}x{3}"
                         , _lastObservedWidth, _lastObservedHeight
                         , image.Width, image.Height);
 
@@ -501,22 +498,22 @@ namespace adrilight
             {
                 if (ex.Message != "_outputDuplication is null" && ex.Message != "Access Lost, resolution might be changed" && ex.Message != "Invalid call, might be retrying" && ex.Message != "Failed to release frame.")
                 {
-                    _log.Error(ex.Message, "GetNextFrame() failed.");
+                    Log.Error(ex.Message, "GetNextFrame() failed.");
 
                     // throw;
                 }
                 else if (ex.Message == "Access Lost, resolution might be changed")
                 {
-                    _log.Error(ex, "Access Lost, retrying");
+                    Log.Error(ex, "Access Lost, retrying");
 
                 }
                 else if (ex.Message == "Invalid call, might be retrying")
                 {
-                    _log.Error(ex, "Invalid Call Lost, retrying");
+                    Log.Error(ex, "Invalid Call Lost, retrying");
                 }
                 else if (ex.Message == "Failed to release frame.")
                 {
-                    _log.Error(ex, "Failed to release frame.");
+                    Log.Error(ex, "Failed to release frame.");
                 }
                 else
                 {
@@ -530,7 +527,7 @@ namespace adrilight
 
         public void Stop()
         {
-            _log.Debug("Stop called.");
+            Log.Information("Stop called for Desktop Duplicator Reader");
             //CurrentZone.FillSpotsColor(Color.FromRgb(0, 0, 0));
             if (_workerThread == null) return;
 

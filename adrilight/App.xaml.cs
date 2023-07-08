@@ -7,15 +7,13 @@ using adrilight.ViewModel;
 using HandyControl.Themes;
 using HandyControl.Tools.Extension;
 using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Win32;
 using Ninject;
 using Ninject.Extensions.Conventions;
-using NLog;
-using NLog.Config;
-using NLog.Targets;
+using Serilog;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -37,10 +35,9 @@ namespace adrilight
 
     public sealed partial class App : System.Windows.Application
     {
-        private static readonly ILogger _log = LogManager.GetCurrentClassLogger();
         private static System.Threading.Mutex _mutex = null;
         private static Mutex _adrilightMutex;
-
+        private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
         protected override async void OnStartup(StartupEventArgs startupEvent)
         {
             //check if this app is already open in the background
@@ -60,7 +57,7 @@ namespace adrilight
 
             base.OnStartup(startupEvent);
 
-            _log.Debug($"adrilight {VersionNumber}: Main() started.");
+            Log.Information($"adrilight {VersionNumber}: Main() started.");
 
             //show splash screen here to display wtfever you are loading
 
@@ -96,7 +93,7 @@ namespace adrilight
             base.OnExit(e);
             _adrilightMutex?.Dispose();
 
-            LogManager.Shutdown();
+            Log.CloseAndFlush();
         }
 
         protected void CloseMutexHandler(object sender, EventArgs startupEvent)
@@ -105,24 +102,6 @@ namespace adrilight
         }
 
         private TelemetryClient _telemetryClient;
-
-        private static TelemetryClient SetupApplicationInsights(IDeviceSettings settings)
-        {
-            const string ik = "65086b50-8c52-4b13-9b05-92fbe69c7a52";
-            TelemetryConfiguration.Active.InstrumentationKey = ik;
-            var tc = new TelemetryClient {
-                InstrumentationKey = ik
-            };
-
-            tc.Context.User.Id = "1234";//settings.InstallationId.ToString();
-            tc.Context.Session.Id = Guid.NewGuid().ToString();
-            tc.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
-
-            GlobalDiagnosticsContext.Set("user_id", tc.Context.User.Id);
-            GlobalDiagnosticsContext.Set("session_id", tc.Context.Session.Id);
-            return tc;
-        }
-
         private static View.SplashScreen _splashScreen;
 
         internal static IKernel SetupDependencyInjection(bool isInDesignMode)
@@ -137,8 +116,8 @@ namespace adrilight
             .InheritedFrom<ISelectableViewPart>()
             .BindAllInterfaces());
             var captureEngines = kernel.GetAll<ICaptureEngine>();
-            var rainbowTicker = kernel.Get<IRainbowTicker>();
-            var hwMonitor = kernel.Get<IHWMonitor>();
+            var rainbowTicker = kernel.Get<RainbowTicker>();
+            var hwMonitor = kernel.Get<HWMonitor>();
 
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
@@ -169,7 +148,6 @@ namespace adrilight
                             device.DeviceEnableChanged();
                             //since openRGBStream is single instance, we need to manually add device then refresh
                         }
-
                         break;
 
                     case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
@@ -195,7 +173,7 @@ namespace adrilight
                     }
                 }
             }
-            var deviceDiscovery = kernel.Get<IDeviceDiscovery>();
+            var deviceDiscovery = kernel.Get<DeviceDiscovery>();
             return kernel;
         }
 
@@ -351,8 +329,7 @@ namespace adrilight
         private void SetupLoggingForProcessWideEvents()
         {
             AppDomain.CurrentDomain.UnhandledException +=
-    (sender, args) => ApplicationWideException(sender, args.ExceptionObject as Exception, "CurrentDomain.UnhandledException");
-
+            (sender, args) => ApplicationWideException(sender, args.ExceptionObject as Exception, "CurrentDomain.UnhandledException");
             DispatcherUnhandledException += (sender, args) => ApplicationWideException(sender, args.Exception, "DispatcherUnhandledException");
             Exit += (s, e) =>
             {
@@ -377,55 +354,55 @@ namespace adrilight
                     }
                 }
 
-                var hwMonitor = kernel.GetAll<IHWMonitor>().FirstOrDefault();
+                var hwMonitor = kernel.GetAll<HWMonitor>().FirstOrDefault();
                 var ambinityClient = kernel.GetAll<IAmbinityClient>().FirstOrDefault();
-                var deviceDiscovery = kernel.GetAll<IDeviceDiscovery>().FirstOrDefault();
+                var deviceDiscovery = kernel.GetAll<DeviceDiscovery>().FirstOrDefault();
                 deviceDiscovery.Stop();
                 GeneralSettings.IsOpenRGBEnabled = false;
                 hwMonitor.Dispose();
                 ambinityClient.Dispose();
 
-                _log.Debug("Application exit!");
+                Log.Information("Application exit!");
             };
             Microsoft.Win32.SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
             Microsoft.Win32.SystemEvents.DisplaySettingsChanging += SystemEvents_DisplaySettingsChanging;
             Microsoft.Win32.SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
 
             SystemEvents.PowerModeChanged += async (s, e) =>
-        {
-            _log.Debug("Changing Powermode to {0}", e.Mode);
-            if (e.Mode == PowerModes.Resume)
-            {
-                GC.Collect();
-                var devices = kernel.GetAll<IDeviceSettings>();
-                foreach (var device in devices)
-                {
-                    device.TurnOnLED();
-                    Thread.Sleep(10);
-                }
-                _log.Debug("System resume!");
-                var desktopFrames = kernel.GetAll<ICaptureEngine>().Where(c => c is DesktopFrame);
-                if (desktopFrames != null)
-                {
-                    foreach (var engine in desktopFrames)
-                    {
-                        var desktopFrame = engine as DesktopFrame;
-                        await desktopFrame.StartHmonCapture();
-                    }
-                }
-            }
-            else if (e.Mode == PowerModes.Suspend)
-            {
-                var devices = kernel.GetAll<IDeviceSettings>();
+           {
+               Log.Information("Changing Powermode to {0}", e.Mode);
+               if (e.Mode == PowerModes.Resume)
+               {
+                   GC.Collect();
+                   var devices = kernel.GetAll<IDeviceSettings>();
+                   foreach (var device in devices)
+                   {
+                       device.TurnOnLED();
+                       Thread.Sleep(10);
+                   }
+                   Log.Information("System resume!");
+                   var desktopFrames = kernel.GetAll<ICaptureEngine>().Where(c => c is DesktopFrame);
+                   if (desktopFrames != null)
+                   {
+                       foreach (var engine in desktopFrames)
+                       {
+                           var desktopFrame = engine as DesktopFrame;
+                           await desktopFrame.StartHmonCapture();
+                       }
+                   }
+               }
+               else if (e.Mode == PowerModes.Suspend)
+               {
+                   var devices = kernel.GetAll<IDeviceSettings>();
 
-                foreach (var device in devices)
-                {
-                    device.TurnOffLED();
-                    Thread.Sleep(10);
-                }
-                _log.Debug("System suspended!");
-            }
-        };
+                   foreach (var device in devices)
+                   {
+                       device.TurnOffLED();
+                       Thread.Sleep(10);
+                   }
+                   Log.Information("System suspended!");
+               }
+           };
             SystemEvents.SessionEnding += (s, e) =>
             {
                 var devices = kernel.GetAll<IDeviceSettings>();
@@ -448,7 +425,7 @@ namespace adrilight
                     }
                 }
 
-                _log.Debug("Stop the serial stream due to power down or log off condition!");
+                Log.Information("Stop the serial stream due to power down or log off condition!");
             };
         }
         static void SystemEvents_UserPreferenceChanged(object sender, Microsoft.Win32.UserPreferenceChangedEventArgs e)
@@ -515,18 +492,15 @@ namespace adrilight
             SystemEvents.PowerModeChanged += (s, e) => tc.TrackEvent("PowerModeChanged", new Dictionary<string, string> { { "Mode", e.Mode.ToString() } });
             tc.TrackEvent("AppStart");
         }
-
-        [System.Diagnostics.Conditional("DEBUG")]
         private void SetupDebugLogging()
         {
-            var config = new LoggingConfiguration();
-            var debuggerTarget = new DebuggerTarget() { Layout = "${processtime} ${message:exceptionSeparator=\n\t:withException=true}" };
-            config.AddTarget("debugger", debuggerTarget);
-            config.LoggingRules.Add(new LoggingRule("*", LogLevel.Debug, debuggerTarget));
+            var logPath = Path.Combine(JsonPath, "Logs");
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .WriteTo.RollingFile(Path.Combine(logPath, "adrilight-{Date}.txt"), retainedFileCountLimit: 10, shared: true, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+                .CreateLogger();
 
-            LogManager.Configuration = config;
-
-            _log.Info($"DEBUG logging set up!");
+            Log.Information($"DEBUG logging set up!");
         }
 
         private static IKernel kernel;
@@ -541,23 +515,15 @@ namespace adrilight
             {
                 _mainForm.Visibility = Visibility.Visible;
                 _mainForm.Show();
+                Log.Information("Open Dashboard");
 
             }
             else
             {
-                //_mainForm.Visibility = Visibility.Collapsed;
+                Log.Information("Windows Start Minimized");
             }
             _splashScreen.Close();
         }
-
-        //private void MainForm_FormClosed(object sender, EventArgs e)
-        //{
-        //    if (_mainForm == null) return;
-
-        //    //deregister to avoid memory leak
-        //    _mainForm.Closed -= MainForm_FormClosed;
-        //    _mainForm = null;
-        //}
 
         public static string VersionNumber { get; } = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
 
@@ -565,7 +531,7 @@ namespace adrilight
 
         private void ApplicationWideException(object sender, Exception ex, string eventSource)
         {
-            _log.Fatal(ex, $"ApplicationWideException from sender={sender}, adrilight version={VersionNumber}, eventSource={eventSource}");
+            Log.Fatal(ex, $"ApplicationWideException from sender={sender}, adrilight version={VersionNumber}, eventSource={eventSource}");
 
             var sb = new StringBuilder();
             sb.AppendLine($"Sender: {sender}");

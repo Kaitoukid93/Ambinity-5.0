@@ -1,17 +1,11 @@
 ﻿
 using adrilight.Settings;
 using Newtonsoft.Json;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Caching;
-using System.Xml.Linq;
-using System.Xml.XPath;
 
 namespace adrilight
 {
@@ -21,7 +15,7 @@ namespace adrilight
 
         private string JsonFileNameAndPath => Path.Combine(JsonPath, "adrilight-settings.json");
         private string DevicesCollectionFolderPath => Path.Combine(JsonPath, "Devices");
-     
+
 
         private void SaveSettings(IGeneralSettings generalSettings)
         {
@@ -29,7 +23,7 @@ namespace adrilight
             Directory.CreateDirectory(JsonPath);
             File.WriteAllText(JsonFileNameAndPath, json);
         }
-       
+
 
         public IGeneralSettings LoadIfExists()
         {
@@ -44,7 +38,7 @@ namespace adrilight
                 HandleAutostart(generalSettings);
                 return generalSettings;
             }
-           catch(JsonReaderException)
+            catch (JsonReaderException)
             {
                 return null;
             }
@@ -52,34 +46,40 @@ namespace adrilight
 
         public List<DeviceSettings> LoadDeviceIfExists()
         {
-            var devices  = new List<DeviceSettings>();
+            var devices = new List<DeviceSettings>();
             if (!Directory.Exists(DevicesCollectionFolderPath)) return null; // no device has been added
 
-            foreach(var folder in Directory.GetDirectories(DevicesCollectionFolderPath))
+            foreach (var folder in Directory.GetDirectories(DevicesCollectionFolderPath))
             {
-                var json = File.ReadAllText(Path.Combine(folder,"config.json"));
-                var device = JsonConvert.DeserializeObject<DeviceSettings>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
-                device.AvailableControllers = new List<Settings.IDeviceController>();
-                //read slave device info
-                //check if this device contains lighting controller
-                var lightingoutputDir = Path.Combine(Path.Combine(folder, "LightingOutputs"));
-                var pwmoutputDir = Path.Combine(Path.Combine(folder, "PWMOutputs"));
-                DeserializeChild<ARGBLEDSlaveDevice>(lightingoutputDir, device,OutputTypeEnum.ARGBLEDOutput);
-                DeserializeChild<PWMMotorSlaveDevice>(pwmoutputDir, device, OutputTypeEnum.PWMOutput);
-
-
-                devices.Add(device);
+                try
+                {
+                    var json = File.ReadAllText(Path.Combine(folder, "config.json"));
+                    var device = JsonConvert.DeserializeObject<DeviceSettings>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    device.AvailableControllers = new List<Settings.IDeviceController>();
+                    //read slave device info
+                    //check if this device contains lighting controller
+                    var lightingoutputDir = Path.Combine(Path.Combine(folder, "LightingOutputs"));
+                    var pwmoutputDir = Path.Combine(Path.Combine(folder, "PWMOutputs"));
+                    DeserializeChild<ARGBLEDSlaveDevice>(lightingoutputDir, device, OutputTypeEnum.ARGBLEDOutput);
+                    DeserializeChild<PWMMotorSlaveDevice>(pwmoutputDir, device, OutputTypeEnum.PWMOutput);
+                    devices.Add(device);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, folder);
+                    continue;
+                }
             }
             return devices;
         }
-        private void DeserializeChild<T>(string outputDir, IDeviceSettings device , OutputTypeEnum outputType)
+        private void DeserializeChild<T>(string outputDir, IDeviceSettings device, OutputTypeEnum outputType)
         {
             if (Directory.Exists(outputDir))
             {
                 //add controller to this device
 
                 var controller = new DeviceController();
-                switch(outputType)
+                switch (outputType)
                 {
                     case (OutputTypeEnum.PWMOutput):
                         controller.Geometry = "fanSpeedController";
@@ -92,7 +92,7 @@ namespace adrilight
                         controller.Type = ControllerTypeEnum.LightingController;
                         break;
                 }
-               
+
 
                 foreach (var subfolder in Directory.GetDirectories(outputDir)) // each subfolder contains 1 slave device
                 {
@@ -111,7 +111,7 @@ namespace adrilight
                             //(slaveDevice as ISlaveDevice).Thumbnail = Path.Combine(Directory.GetDirectories(subfolder).FirstOrDefault(), "thumbnail.png");
                         }
                     }
-                    
+
 
                     output.SlaveDevice = slaveDevice as ISlaveDevice;
                     controller.Outputs.Add(output);
@@ -133,11 +133,11 @@ namespace adrilight
             {
                 StartUpManager.RemoveApplicationFromTaskScheduler("Ambinity Service");
             }
-          
+
         }
         public IGeneralSettings MigrateOrDefault()
         {
-           
+
             var generalSettings = new GeneralSettings();
             generalSettings.PropertyChanged += (_, __) => SaveSettings(generalSettings);
             var legacyPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight");
@@ -153,47 +153,5 @@ namespace adrilight
             HandleAutostart(generalSettings);
             return generalSettings;
         }
-
-    
-
-        //private void ReadAndApply<T>(XDocument xdoc, IUserSettings settings, string settingName, Expression<Func<IUserSettings, T>> targetProperty)
-        //{
-        //    var content = xdoc.XPathSelectElement($"//setting[@name='{settingName}']/value");
-        //    if (content == null) return;
-
-
-        //    var text = content.Value;
-        //    var propertyExpression = (MemberExpression)targetProperty.Body;
-        //    var member = (PropertyInfo)propertyExpression.Member;
-
-        //    object targetValue;
-
-        //    if (typeof(T) == typeof(int))
-        //    {
-        //        //int
-        //        targetValue = Convert.ToInt32(text);
-        //    }
-        //    else if (typeof(T) == typeof(byte))
-        //    {
-        //        //byte
-        //        targetValue = Convert.ToByte(text);
-        //    }
-        //    else if (typeof(T) == typeof(bool))
-        //    {
-        //        //bool
-        //        targetValue = Convert.ToBoolean(text);
-        //    }
-        //    else if (typeof(T) == typeof(string))
-        //    {
-        //        //string
-        //        targetValue = text;
-        //    }
-        //    else
-        //    {
-        //        throw new NotImplementedException($"converting to {typeof(T).FullName} is not implemented");
-        //    }
-
-        //    member.SetValue(settings, targetValue);
-        //}
     }
 }

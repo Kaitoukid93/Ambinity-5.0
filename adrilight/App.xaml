@@ -7,7 +7,6 @@
     xmlns:langs="clr-namespace:HandyControl.Properties.Langs;assembly=HandyControl">
     <Application.Resources>
         <ResourceDictionary>
-
             <vm:ViewModelLocator x:Key="Locator" d:IsDataSource="True" xmlns:vm="clr-namespace:adrilight.ViewModel" />
             <Style x:Key="MessageBoxCustom" TargetType="hc:MessageBox" BasedOn="{StaticResource {x:Type hc:MessageBox}}">
                 <Setter Property="NonClientAreaBackground" Value="#262e2f"/>

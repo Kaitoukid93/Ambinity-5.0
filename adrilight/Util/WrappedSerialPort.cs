@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO.Ports;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace adrilight.Util
 {
@@ -25,7 +21,7 @@ namespace adrilight.Util
         public void Write(byte[] outputBuffer, int v, int streamLength) => SerialPort.Write(outputBuffer, v, streamLength);
         public void Print(string outputBuffer) => SerialPort.Write(outputBuffer);
         public void Read(byte[] inputBuffer, int v, int streamLength) => SerialPort.Read(inputBuffer, v, streamLength);
-        
+
 
         public int ReadByte()
 
@@ -34,9 +30,7 @@ namespace adrilight.Util
             return touchvalue;
         }
         public int BytesToRead => SerialPort.BytesToRead;
-
         public void Dispose() => SerialPort.Dispose();
-        public void Zoe() => SerialPort.RtsEnable = true;
-       
+
     }
 }

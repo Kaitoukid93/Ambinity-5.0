@@ -72,6 +72,17 @@
                     Style="{DynamicResource ButtonDashed}"/>
             <Button Grid.Column="1" 
                     Padding="0" 
+                    Command="{Binding OpenDebugWindowCommand}"
+                    Name="ButtonDebug" 
+                    hc:IconElement.Width="20" 
+                    hc:IconElement.Height="20" 
+                    Margin="10,5,10,5" 
+                    BorderThickness="0"
+                    ToolTip="Cài đặt chung"
+                    Style="{DynamicResource ButtonDashed}"
+                    hc:IconElement.Geometry="{DynamicResource debug}"/>
+            <Button Grid.Column="1" 
+                    Padding="0" 
                     Command="{Binding OpenAppSettingsWindowCommand}"
                     Name="ButtonConfig" 
                     hc:IconElement.Width="18" 
@@ -86,7 +97,6 @@
                     <hc:TransitioningContentControl Effect="{StaticResource EffectShadow3}" TransitionMode="Top2Bottom">
                         <Border  Margin="15,0,15,15" Background="{DynamicResource MainContentBackgroundBrush}" CornerRadius="4" BorderThickness="1">
                             <StackPanel>
-
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -101,8 +111,6 @@
 
                                 </hc:Divider>
                                 <StackPanel>
-
-
                                     <ListView IsSynchronizedWithCurrentItem="False"
                                                  ItemContainerStyle="{StaticResource _listBoxGeneralModeSelectionStyle}"  
                                                  Background="Transparent"
@@ -157,10 +165,14 @@
                                         </Style>
                                     </TextBlock.Style>
                                 </TextBlock>
-                                <Button Command="{Binding OpenProfileCreateCommand}" Padding="0" Background="Transparent" BorderThickness="0">
+                                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                                    <Button Command="{Binding OpenProfileCreateCommand}" Padding="0" Background="Transparent" BorderThickness="0">
                                     <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="Create New Profile"/>
                                 </Button>
-
+                                    <Button Command="{Binding ImportProfileCommand}" Padding="0" Background="Transparent" BorderThickness="0">
+                                        <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="Import Profile"/>
+                                    </Button>
+                                </StackPanel>
                             </StackPanel>
 
                         </Border>

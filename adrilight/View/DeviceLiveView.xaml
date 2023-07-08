@@ -468,9 +468,6 @@
 
                     <Setter Property="ShouldBringIntoView"
                             Value="False" />
-
-                    <Setter Property="Scale"
-                            Value="{Binding Scale, Mode=TwoWay}" />
                     <Setter Property="Cursor"
                             Value="Arrow" />
                     <Style.Triggers>

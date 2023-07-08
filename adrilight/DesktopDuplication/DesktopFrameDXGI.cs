@@ -2,8 +2,8 @@
 using adrilight.Spots;
 using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
-using NLog;
 using Polly;
+using Serilog;
 using System;
 using System.Diagnostics;
 using System.Drawing.Imaging;
@@ -16,8 +16,6 @@ namespace adrilight
 {
     internal class DesktopFrameDXGI : ViewModelBase, ICaptureEngine
     {
-        private readonly ILogger _log = LogManager.GetCurrentClassLogger();
-
         public DesktopFrameDXGI(IGeneralSettings userSettings, MainViewViewModel mainViewViewModel, string deviceName)
         {
             UserSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
@@ -26,7 +24,6 @@ namespace adrilight
             _retryPolicy = Policy.Handle<Exception>()
                 .WaitAndRetryForever(ProvideDelayDuration);
             RefreshCapturingState();
-            _log.Info($"DesktopDuplicatorReader created.");
         }
 
         #region private field
@@ -50,7 +47,7 @@ namespace adrilight
             if (isRunning && !shouldBeRunning)
             {
                 //stop it!
-                _log.Debug("stopping the capturing");
+                Log.Information("stopping the capturing");
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource = null;
 
@@ -58,7 +55,7 @@ namespace adrilight
             else if (!isRunning && shouldBeRunning)
             {
                 //start it
-                _log.Debug("starting the capturing for First Desktop Frame");
+                Log.Information("starting the DXGI Capturing for: " + DeviceName);
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
@@ -103,7 +100,7 @@ namespace adrilight
         public void Run(CancellationToken token)
         {
             IsRunning = true;
-            _log.Debug("Started Reading of First Desktop Frame.");
+            Log.Information("DXGI is running", DeviceName);
             Frame = new ByteFrame();
             try
             {
@@ -137,7 +134,7 @@ namespace adrilight
             }
             catch (Exception ex)
             {
-
+                Log.Error(ex, this.ToString());
             }
 
             finally
@@ -145,7 +142,7 @@ namespace adrilight
                 //image?.Dispose();
                 _desktopDuplicator?.Dispose();
                 _desktopDuplicator = null;
-                _log.Debug("Stopped Desktop Duplication Reader.");
+                Log.Information("Stopped DXGI", DeviceName);
                 IsRunning = false;
                 GC.Collect();
             }
@@ -154,7 +151,7 @@ namespace adrilight
 
         public void Stop()
         {
-            _log.Debug("Stop called for First Desktop Frame");
+            Log.Information("Stop called DXGI", DeviceName);
             if (_workerThread == null) return;
             _desktopDuplicator?.Dispose();
             _desktopDuplicator = null;
@@ -189,22 +186,22 @@ namespace adrilight
             {
                 if (ex.Message != "_outputDuplication is null" && ex.Message != "Access Lost, resolution might be changed" && ex.Message != "Invalid call, might be retrying" && ex.Message != "Failed to release frame.")
                 {
-                    _log.Error(ex, "GetNextFrame() failed.");
+                    Log.Error(ex, "GetNextFrame() failed.");
 
                     // throw;
                 }
                 else if (ex.Message == "Access Lost, resolution might be changed")
                 {
-                    _log.Error(ex, "Access Lost, retrying");
+                    Log.Error(ex, "Access Lost, retrying");
 
                 }
                 else if (ex.Message == "Invalid call, might be retrying")
                 {
-                    _log.Error(ex, "Invalid Call Lost, retrying");
+                    Log.Error(ex, "Invalid Call Lost, retrying");
                 }
                 else if (ex.Message == "Failed to release frame.")
                 {
-                    _log.Error(ex, "Failed to release frame.");
+                    Log.Error(ex, "Failed to release frame.");
                 }
 
                 else

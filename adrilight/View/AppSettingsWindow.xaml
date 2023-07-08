@@ -715,7 +715,6 @@
                             <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
                         <TextBlock  VerticalAlignment="Top" Margin="20,0,20,20" Text="About" Style="{StaticResource TextBlockLarge}">
-
                         </TextBlock>
                         <Grid Grid.Row="1">
                             <StackPanel>
@@ -724,7 +723,7 @@
                                       Height="100" 
                                       Fill="{DynamicResource PrimaryTextBrush}"/>
                                 <TextBlock Margin="0,20,0,5" Style="{DynamicResource TextBlockLargeBold}" Text="Ambinity 5.0.7"></TextBlock>
-                                <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Release date : 30/6/2023"></TextBlock>
+                                <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Release date : 7_2/7/2023"></TextBlock>
                                 <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Credit :"></TextBlock>
                                 <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="fabsenet for DesktopDuplicator"></TextBlock>
                                 <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="HandyControl for awesome UI"></TextBlock>
@@ -737,11 +736,7 @@
                                 <hc:LoadingLine Foreground="{DynamicResource PrimaryBrush}" Margin="5" Height="10" Visibility="{Binding IsCheckingForUpdate,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolToVisibilityConvert}}"/>
                                 <TextBlock Margin="0,0,0,20" TextAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultDanger}" Text="{Binding UpdateErrorMessage}" Visibility="{Binding UpdateButtonEnable,Converter={StaticResource boolToVisibilityConvert}}"/>
                             </StackPanel>
-
                         </Grid>
-
-
-
                     </Grid>
                     <!--<Grid Name="Reset">
                         <Button Margin="5" Style="{StaticResource ButtonDanger}" Command="{Binding ResetAppCommand}" Content="Đặt lại Ứng dụng"/>

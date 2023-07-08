@@ -1,17 +1,5 @@
-﻿using adrilight.Helpers;
-using adrilight.Settings;
-using adrilight_effect_analyzer.Model;
-using GalaSoft.MvvmLight;
-using LiveCharts;
-using LiveCharts.Defaults;
-using Newtonsoft.Json;
-using System;
-using System.CodeDom;
-using System.Collections.Generic;
+﻿using GalaSoft.MvvmLight;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Windows.Documents;
-using System.Windows.Media;
 
 namespace adrilight.Util.ModeParameters
 {

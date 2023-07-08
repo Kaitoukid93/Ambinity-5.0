@@ -1,4 +1,5 @@
-﻿using NLog;
+﻿
+using Serilog;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using System;
@@ -15,7 +16,6 @@ namespace adrilight.DesktopDuplication
 {
     public class BasicCapture : IDisposable
     {
-        private readonly ILogger _log = LogManager.GetCurrentClassLogger();
         private GraphicsCaptureItem item;
         private Direct3D11CaptureFramePool framePool;
         private GraphicsCaptureSession session;
@@ -107,7 +107,7 @@ namespace adrilight.DesktopDuplication
                 }
                 catch (Exception ex)
                 {
-                    _log.Error("Staging Texture", ex.Message);
+                    Log.Error(ex, "Staging Texture");
                     return;
                 }
 
@@ -134,7 +134,7 @@ namespace adrilight.DesktopDuplication
 
             catch (Exception ex)
             {
-                _log.Error("SmallerTexture Texture", ex.Message);
+                Log.Error(ex, "SmallerTexture Texture");
                 return;
             }
 
@@ -184,7 +184,7 @@ namespace adrilight.DesktopDuplication
             }
             catch (Exception ex)
             {
-                _log.Error("Staging Texture", ex.Message);
+                Log.Error(ex, "Staging Texture");
                 return null;
             }
             var frame = new ByteFrame() {

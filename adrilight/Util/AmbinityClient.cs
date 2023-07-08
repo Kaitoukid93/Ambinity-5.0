@@ -1,8 +1,8 @@
 ﻿using adrilight.ViewModel;
-using NLog;
 using OpenRGB.NET;
 using OpenRGB.NET.Models;
 using Polly;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,7 +16,6 @@ namespace adrilight
     internal sealed class
         AmbinityClient : IDisposable, IAmbinityClient
     {
-        private ILogger _log = LogManager.GetCurrentClassLogger();
         private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
         private string ORGBJsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "OpenRGB\\");
         private string ORGBPath => Path.Combine(JsonPath, "ORGB\\");
@@ -32,7 +31,6 @@ namespace adrilight
            .WaitAndRetryAsync(10, _ => TimeSpan.FromSeconds(1));
             GeneralSettings.PropertyChanged += UserSettings_PropertyChangedAsync;
             //RefreshTransferState();
-            _log.Info($"SerialStream created.");
         }
         //Dependency Injection//
         private IGeneralSettings GeneralSettings { get; }
@@ -101,11 +99,7 @@ namespace adrilight
                 }
                 catch (Exception ex)
                 {
-                    //if (ex.Message == "ORGB busy")
-                    //{
-                    //    // no device available
-                    //    HandyControl.Controls.MessageBox.Show("Không có thiết bị bên thứ ba nào được tìm thấy");
-                    //}
+                    Log.Error(ex, "OpenRGB External Exception");
                 }
             }
 
@@ -208,7 +202,7 @@ namespace adrilight
                         }
                         index++;
 
-                        _log.Info($"Device found : " + device.Name.ToString() + "At index: " + index);
+                        Log.Information($"Device found : " + device.Name.ToString() + "At index: " + index);
                     }
                     return await Task.FromResult(true);
                 }

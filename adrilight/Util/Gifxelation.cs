@@ -4,8 +4,8 @@ using adrilight.Util;
 using adrilight.Util.ModeParameters;
 using adrilight.ViewModel;
 using MoreLinq;
-using NLog;
 using Polly;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,14 +22,14 @@ namespace adrilight
 {
     internal class Gifxelation : ILightingEngine
     {
-        private readonly ILogger _log = LogManager.GetCurrentClassLogger();
+
         public static Bitmap WorkingBitmap { get; set; }
         public static Bitmap LoadedStillBitmap { get; set; }
         public ByteFrame[] LoadedGifImage { get; set; }
         public Gifxelation(IGeneralSettings generalSettings,
              MainViewViewModel mainViewViewModel,
              IControlZone zone,
-             IRainbowTicker rainbowTicker
+             RainbowTicker rainbowTicker
             )
         {
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
@@ -42,11 +42,6 @@ namespace adrilight
             GeneralSettings.PropertyChanged += PropertyChanged;
             CurrentZone.PropertyChanged += PropertyChanged;
             MainViewViewModel.PropertyChanged += PropertyChanged;
-
-
-            // Refresh();
-
-            _log.Info($"DesktopDuplicatorReader created.");
         }
 
 
@@ -60,7 +55,7 @@ namespace adrilight
         private ICaptureEngine[] DesktopFrame { get; }
         public bool IsRunning { get; private set; }
         private LEDSetup CurrentZone { get; }
-        private IRainbowTicker RainbowTicker { get; }
+        private RainbowTicker RainbowTicker { get; }
         private MainViewViewModel MainViewViewModel { get; }
         public LightingModeEnum Type { get; } = LightingModeEnum.Gifxelation;
 
@@ -175,6 +170,7 @@ namespace adrilight
                         //create new tick
                         var maxTick = LoadedGifImage != null ? LoadedGifImage.Length : 1024;
                         frameTick = RainbowTicker.MakeNewTick(maxTick, _speed, CurrentZone.GroupID, TickEnum.FrameTick);
+                        frameTick.TickRate = 20;
                         frameTick.IsRunning = true;
                     }
                     _tick = frameTick;
@@ -188,7 +184,7 @@ namespace adrilight
                     TickSpeed = _speed,
                     IsRunning = true
                 };
-
+                frameTick.TickRate = 20;
                 _tick = frameTick;
             }
         }
@@ -259,7 +255,7 @@ namespace adrilight
             if (isRunning && !shouldBeRunning)
             {
                 //stop it!
-                _log.Debug("stopping the capturing");
+                Log.Information("Stop Gifxelation due to Mode Changing");
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource = null;
 
@@ -270,7 +266,7 @@ namespace adrilight
                 //start it
                 //get current lighting mode confirm that based on desktop duplicator reader engine
                 Init();
-                _log.Debug("starting the capturing");
+                Log.Information("Starting the Gifxelation Engine");
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
@@ -306,6 +302,7 @@ namespace adrilight
             _enableControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.IsEnabled).FirstOrDefault() as ToggleParameter;
             _enableControl.PropertyChanged += (_, __) => EnableChanged(_enableControl.Value == 1 ? true : false);
             _speedControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Speed).FirstOrDefault() as SliderParameter;
+            _speedControl.MaxValue = 10;
             _speedControl.PropertyChanged += (_, __) => OnSpeedChanged(_speedControl.Value);
             _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
             _brightnessControl.PropertyChanged += (_, __) => OnBrightnessPropertyChanged(_brightnessControl.Value);
@@ -349,11 +346,10 @@ namespace adrilight
         }
         public void Run(CancellationToken token)
         {
-
-            _log.Debug("Started Desktop Duplication Reader.");
             Bitmap image = null;
             BitmapData bitmapData = new BitmapData();
             IsRunning = true;
+            Log.Information("Gifxelation is running");
             try
             {
                 int updateIntervalCounter = 0;
@@ -399,7 +395,6 @@ namespace adrilight
                         image = null;
                         continue;
                     }
-
                     NextTick();
                     lock (CurrentZone.Lock)
                     {
@@ -460,11 +455,15 @@ namespace adrilight
                     updateIntervalCounter++;
                 }
             }
+            catch (Exception ex)
+            {
+                Log.Error(ex, this.ToString());
+            }
             finally
             {
                 image?.Dispose();
 
-                _log.Debug("Stopped Desktop Duplication Reader.");
+                Log.Information("Stopped Gifxelation Engine");
                 IsRunning = false;
                 GC.Collect();
             }
@@ -475,7 +474,7 @@ namespace adrilight
             if (!CurrentZone.IsInControlGroup)
             {
                 if (_tick.CurrentTick < _tick.MaxTick - _tick.TickSpeed)
-                    _tick.CurrentTick += _tick.TickSpeed;
+                    _tick.CurrentTick += _tick.TickSpeed / _tick.TickRate;
                 else
                 {
                     _tick.CurrentTick = 0;
@@ -498,7 +497,7 @@ namespace adrilight
                 if (_lastObservedHeight != null && _lastObservedWidth != null
                     && (_lastObservedHeight != image.Height || _lastObservedWidth != image.Width))
                 {
-                    _log.Debug("The frame size changed from {0}x{1} to {2}x{3}"
+                    Log.Information("The gif size changed from {0}x{1} to {2}x{3}"
                         , _lastObservedWidth, _lastObservedHeight
                         , image.Width, image.Height);
 
@@ -507,64 +506,6 @@ namespace adrilight
                 _lastObservedHeight = image.Height;
             }
         }
-        //public ByteFrame[] LoadGifFromDisk(string path)
-        //{
-        //    if (path == null || !File.Exists(path))
-        //        return null;
-        //    try
-        //    {
-        //        using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
-        //        {
-        //            using (System.Drawing.Image imageToLoad = System.Drawing.Image.FromStream(fs))
-        //            {
-        //                var frameDim = new FrameDimension(imageToLoad.FrameDimensionsList[0]);
-        //                var frameCount = imageToLoad.GetFrameCount(frameDim);
-        //                var gifFrames = new ByteFrame[frameCount];
-        //                for (int i = 0; i < frameCount; i++)
-        //                {
-        //                    imageToLoad.SelectActiveFrame(frameDim, i);
-
-        //                    var resizedBmp = new Bitmap(imageToLoad, (int)imageToLoad.Width / 8, (int)imageToLoad.Height / 8);
-
-        //                    var rect = new System.Drawing.Rectangle(0, 0, resizedBmp.Width, resizedBmp.Height);
-        //                    System.Drawing.Imaging.BitmapData bmpData =
-        //                        resizedBmp.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadWrite,
-        //                        resizedBmp.PixelFormat);
-
-        //                    // Get the address of the first line.
-        //                    IntPtr ptr = bmpData.Scan0;
-
-        //                    // Declare an array to hold the bytes of the bitmap.
-        //                    int bytes = Math.Abs(bmpData.Stride) * resizedBmp.Height;
-        //                    byte[] rgbValues = new byte[bytes];
-
-        //                    // Copy the RGB values into the array.
-        //                    System.Runtime.InteropServices.Marshal.Copy(ptr, rgbValues, 0, bytes);
-        //                    var frame = new ByteFrame();
-        //                    frame.Frame = rgbValues;
-        //                    frame.FrameWidth = resizedBmp.Width;
-        //                    frame.FrameHeight = resizedBmp.Height;
-
-
-        //                    gifFrames[i] = frame;
-        //                    resizedBmp.UnlockBits(bmpData);
-
-        //                }
-        //                imageToLoad.Dispose();
-        //                fs.Close();
-        //                GC.Collect();
-
-        //                return gifFrames;
-        //            }
-
-        //        }
-
-        //    }
-        //    catch (Exception)
-        //    {
-        //        return null;
-        //    }
-        //}
         private void ApplySmoothing(float r, float g, float b, out byte semifinalR, out byte semifinalG, out byte semifinalB,
            byte lastColorR, byte lastColorG, byte lastColorB)
         {
@@ -645,7 +586,7 @@ namespace adrilight
 
         public void Stop()
         {
-            _log.Debug("Stop called.");
+            Log.Information("Stop called for Gifxelation Engine");
             //CurrentZone.FillSpotsColor(Color.FromRgb(0, 0, 0));
             if (_workerThread == null) return;
 

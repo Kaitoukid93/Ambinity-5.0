@@ -1,19 +1,4 @@
-﻿using HandyControl.Data;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using adrilight.ViewModel;
+﻿using System.Windows;
 
 namespace adrilight.View
 {
@@ -26,19 +11,18 @@ namespace adrilight.View
         {
             InitializeComponent();
         }
+        public string UnsafePassword { get; set; }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Request_Click(object sender, RoutedEventArgs e)
         {
+            DialogResult = true;
+            UnsafePassword = pw.Password;
             this.Close();
         }
 
-        private void requestButton_Click(object sender, RoutedEventArgs e)
+        private void Cancel_Click(object sender, RoutedEventArgs e)
         {
-            var vm = this.DataContext as MainViewViewModel;
-                if ( vm.RequestingBetaChanelCommand.CanExecute(pw.Password))
-            {
-                vm.RequestingBetaChanelCommand.Execute(pw.Password);
-            }
+            DialogResult = false;
             this.Close();
         }
     }

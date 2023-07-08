@@ -1,14 +1,9 @@
 ﻿using adrilight.Resources;
 using adrilight.View;
-using Newtonsoft.Json;
-using NLog;
-using Semver;
+using Serilog;
 using Squirrel;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,10 +13,9 @@ namespace adrilight.Util
 {
     class AdrilightUpdater
     {
-        private readonly ILogger _log = LogManager.GetCurrentClassLogger();
         private const string ADRILIGHT_RELEASES = "https://github.com/Kaitoukid93/Ambinity_Developer_Release";
 
-        public AdrilightUpdater(IGeneralSettings settings, IAmbinityClient ambinityClient, IContext context, IHWMonitor hWmonitor)
+        public AdrilightUpdater(IGeneralSettings settings, IAmbinityClient ambinityClient, IContext context, HWMonitor hWmonitor)
         {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
             Context = context ?? throw new ArgumentNullException(nameof(context));
@@ -45,7 +39,7 @@ namespace adrilight.Util
 
         public IGeneralSettings Settings { get; }
         public IAmbinityClient AmbinityClient { get; }
-        public IHWMonitor HWMonitor { get; }
+        public HWMonitor HWMonitor { get; }
         public IContext Context { get; }
 
         private async Task StartSquirrel()
@@ -90,8 +84,8 @@ namespace adrilight.Util
                                 _splashScreen.Show();
 
                             });
-                           
-                           
+
+
                             // this.logger.Info("Downloading updates");
                             var releaseEntry = await mgr.Result.UpdateApp();
 
@@ -124,7 +118,7 @@ namespace adrilight.Util
                 }
                 catch (Exception ex)
                 {
-                    _log.Error(ex, $"error when update checking: {ex.GetType().FullName}: {ex.Message}");
+                    Log.Error(ex, $"error when update checking: {ex.GetType().FullName}: {ex.Message}");
                 }
 
                 //check once a day for updates

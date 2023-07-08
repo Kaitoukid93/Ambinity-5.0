@@ -162,12 +162,56 @@
                                             <!--download button-->
                                             <Grid  Grid.Row="1">
                                                 <TextBlock HorizontalAlignment="Left" Margin="10" VerticalAlignment="Bottom" TextWrapping="Wrap" Text="{Binding DataContext.Owner,RelativeSource={RelativeSource AncestorType=hc:Card}}" Style="{DynamicResource TextBlockDefaultSecLight}"/>
-                                                <Button Visibility="{Binding DataContext.IsDownloading,RelativeSource={RelativeSource AncestorType=hc:Card},Converter={StaticResource Boolean2VisibilityReConverter}}" Margin="10" HorizontalAlignment="Right" VerticalAlignment="Bottom" Padding="2" Width="40" Height="25" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0" Content="Get" Command="{Binding Path=DataContext.DownloadCurrentItemCommand, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
-                                                    <Button.Background>
-                                                        <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.2"/>
-                                                    </Button.Background>
-                                                </Button>
-                                                <hc:CircleProgressBar ShowText="False" Visibility="{Binding DataContext.IsDownloading,RelativeSource={RelativeSource AncestorType=hc:Card},Converter={StaticResource Boolean2VisibilityConverter}}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Padding="2" Margin="10" Height="25" Width="25" Value="{Binding Path=DataContext.CurrentDownloadProgress, RelativeSource={RelativeSource AncestorType=ListView}}" Maximum="{Binding Path=DataContext.CurrentItemSize, RelativeSource={RelativeSource AncestorType=ListView}}" FontSize="10"/>
+                                                <Grid Visibility="{Binding DataContext.IsLocalExisted,RelativeSource={RelativeSource AncestorType=hc:Card},Converter={StaticResource Boolean2VisibilityReConverter},Mode=TwoWay}">
+                                                    <Button 
+                                                    Visibility="{Binding DataContext.IsDownloading,RelativeSource={RelativeSource AncestorType=hc:Card},Converter={StaticResource Boolean2VisibilityReConverter}}"
+                                                    Margin="10" 
+                                                    HorizontalAlignment="Right" 
+                                                    VerticalAlignment="Bottom" 
+                                                    Padding="2" 
+                                                    Width="40" Height="25" 
+                                                    Foreground="{DynamicResource PrimaryBrush}" 
+                                                    BorderThickness="0" 
+                                                    Content="Get" 
+                                                    Command="{Binding Path=DataContext.DownloadCurrentItemCommand, RelativeSource={RelativeSource AncestorType=ListView}}" 
+                                                    CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
+                                                        <Button.Background>
+                                                            <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.2"/>
+                                                        </Button.Background>
+                                                    </Button>
+                                                    <hc:CircleProgressBar 
+                                                    ShowText="False" 
+                                                    Visibility="{Binding DataContext.IsDownloading,RelativeSource={RelativeSource AncestorType=hc:Card},Converter={StaticResource Boolean2VisibilityConverter},Mode=TwoWay}" 
+                                                    HorizontalAlignment="Right" 
+                                                    VerticalAlignment="Bottom" 
+                                                    Padding="2"
+                                                    Margin="10"
+                                                    Height="25"
+                                                    Width="25"
+                                                    Value="{Binding Path=DataContext.CurrentDownloadProgress, RelativeSource={RelativeSource AncestorType=ListView}}" 
+                                                    Maximum="{Binding Path=DataContext.CurrentItemSize, RelativeSource={RelativeSource AncestorType=ListView}}" 
+                                                    FontSize="10"/>
+                                                </Grid>
+                                                <Grid Visibility="{Binding DataContext.IsLocalExisted,RelativeSource={RelativeSource AncestorType=hc:Card},Converter={StaticResource Boolean2VisibilityConverter},Mode=TwoWay}">
+                                                    <Button 
+                                                    Visibility="{Binding DataContext.IsDownloading,RelativeSource={RelativeSource AncestorType=hc:Card},Converter={StaticResource Boolean2VisibilityReConverter}}"
+                                                    Margin="10" 
+                                                    HorizontalAlignment="Right" 
+                                                    VerticalAlignment="Bottom" 
+                                                    Padding="5" 
+                                                    Width="25" Height="25" 
+                                                    BorderThickness="0" 
+                                                     hc:BorderElement.Circular="True"
+                                                    hc:IconElement.Geometry="{DynamicResource apply}"
+                                                    Style="{DynamicResource ButtonIconCircular}"
+                                                    Foreground="{DynamicResource SuccessBrush}"
+                                                    CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
+                                                        <Button.Background>
+                                                            <SolidColorBrush Color ="Green" Opacity="0.3"/>
+                                                        </Button.Background>
+                                                    </Button>
+                                                    
+                                                </Grid>
                                             </Grid>
                                         </Grid>
 
