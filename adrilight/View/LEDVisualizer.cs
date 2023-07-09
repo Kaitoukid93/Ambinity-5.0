@@ -34,7 +34,7 @@ namespace adrilight.View
             byte r = Spot.Red;
             byte g = Spot.Green;
             byte b = Spot.Blue;
-            _fillBrush.Color = Color.FromArgb(100, r, g, b);
+            _fillBrush.Color = Color.FromArgb(160, r, g, b);
             _penBrush.Color = Color.FromArgb(255, r, g, b);
 
             // Render the LED geometry

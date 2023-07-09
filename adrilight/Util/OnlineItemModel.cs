@@ -6,7 +6,7 @@ using System.Windows.Media.Imaging;
 
 namespace adrilight.Util
 {
-    internal class OnlineItemModel : ViewModelBase, IOnlineItemModel // this for displaying on the store
+    public class OnlineItemModel : ViewModelBase // this for displaying on the store
     {
 
         public OnlineItemModel()
@@ -15,6 +15,7 @@ namespace adrilight.Util
         }
         private bool _isDownloading = false;
         private bool _isLocalExisted = false;
+        private bool _isUpgradeAvailable = false;
         public string Name { get; set; }
         public string Owner { get; set; } // the name of creator
         public string Type { get; set; } // ledsetup or color palette
@@ -26,6 +27,8 @@ namespace adrilight.Util
         public List<DeviceType> TargetDevices { get; set; }
         [JsonIgnore]
         public bool IsLocalExisted { get => _isLocalExisted; set { Set(() => IsLocalExisted, ref _isLocalExisted, value); } }
+        [JsonIgnore]
+        public bool IsUpgradeAvailable { get => _isUpgradeAvailable; set { Set(() => IsUpgradeAvailable, ref _isUpgradeAvailable, value); } }
         public string Version { get; set; }
         [JsonIgnore]
         public bool IsDownloading { get => _isDownloading; set { Set(() => IsDownloading, ref _isDownloading, value); } }

@@ -179,7 +179,8 @@
                                                             <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.2"/>
                                                         </Button.Background>
                                                     </Button>
-                                                    <hc:CircleProgressBar 
+                                                </Grid>
+                                                <hc:CircleProgressBar 
                                                     ShowText="False" 
                                                     Visibility="{Binding DataContext.IsDownloading,RelativeSource={RelativeSource AncestorType=hc:Card},Converter={StaticResource Boolean2VisibilityConverter},Mode=TwoWay}" 
                                                     HorizontalAlignment="Right" 
@@ -191,10 +192,8 @@
                                                     Value="{Binding Path=DataContext.CurrentDownloadProgress, RelativeSource={RelativeSource AncestorType=ListView}}" 
                                                     Maximum="{Binding Path=DataContext.CurrentItemSize, RelativeSource={RelativeSource AncestorType=ListView}}" 
                                                     FontSize="10"/>
-                                                </Grid>
                                                 <Grid Visibility="{Binding DataContext.IsLocalExisted,RelativeSource={RelativeSource AncestorType=hc:Card},Converter={StaticResource Boolean2VisibilityConverter},Mode=TwoWay}">
-                                                    <Button 
-                                                    Visibility="{Binding DataContext.IsDownloading,RelativeSource={RelativeSource AncestorType=hc:Card},Converter={StaticResource Boolean2VisibilityReConverter}}"
+                                                    <Button
                                                     Margin="10" 
                                                     HorizontalAlignment="Right" 
                                                     VerticalAlignment="Bottom" 
@@ -203,14 +202,54 @@
                                                     BorderThickness="0" 
                                                      hc:BorderElement.Circular="True"
                                                     hc:IconElement.Geometry="{DynamicResource apply}"
-                                                    Style="{DynamicResource ButtonIconCircular}"
-                                                    Foreground="{DynamicResource SuccessBrush}"
+                                                    Foreground="{DynamicResource SuccessBrush}">
+                                                        <Button.Background>
+                                                            <SolidColorBrush Color ="{DynamicResource SuccessColor}" Opacity="0.3"/>
+                                                        </Button.Background>
+                                                        <Button.Style>
+                                                            <Style TargetType="Button" BasedOn="{StaticResource ButtonIconCircular}">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                <Style.Triggers>
+                                                                    <MultiDataTrigger>
+                                                                        <MultiDataTrigger.Conditions>
+                                                                            <Condition Binding="{Binding DataContext.IsDownloading,RelativeSource={RelativeSource AncestorType=hc:Card}}" Value="False" />
+                                                                            <Condition Binding="{Binding DataContext.IsUpgradeAvailable,RelativeSource={RelativeSource AncestorType=hc:Card}}" Value="False" />
+                                                                        </MultiDataTrigger.Conditions>
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </MultiDataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Button.Style>
+                                                    </Button>
+                                                    <Button 
+                                                    Margin="10" 
+                                                    HorizontalAlignment="Right" 
+                                                    VerticalAlignment="Bottom" 
+                                                    Padding="2" 
+                                                    Width="50" Height="25" 
+                                                    BorderThickness="0" 
+                                                    Content="Update"
+                                                    Foreground="{DynamicResource InfoBrush}"
+                                                    Command="{Binding Path=DataContext.DownloadCurrentItemCommand, RelativeSource={RelativeSource AncestorType=ListView}}" 
                                                     CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
                                                         <Button.Background>
-                                                            <SolidColorBrush Color ="Green" Opacity="0.3"/>
+                                                            <SolidColorBrush Color ="{DynamicResource InfoColor}" Opacity="0.3"/>
                                                         </Button.Background>
+                                                        <Button.Style>
+                                                            <Style TargetType="Button" BasedOn="{StaticResource _mediumProfileDefaultButton}">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                <Style.Triggers>
+                                                                    <MultiDataTrigger>
+                                                                        <MultiDataTrigger.Conditions>
+                                                                            <Condition Binding="{Binding DataContext.IsDownloading,RelativeSource={RelativeSource AncestorType=hc:Card}}" Value="False" />
+                                                                            <Condition Binding="{Binding DataContext.IsUpgradeAvailable,RelativeSource={RelativeSource AncestorType=hc:Card}}" Value="True" />
+                                                                        </MultiDataTrigger.Conditions>
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </MultiDataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Button.Style>
                                                     </Button>
-                                                    
                                                 </Grid>
                                             </Grid>
                                         </Grid>
@@ -232,15 +271,21 @@
 
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
             <!--Store Carousel in the future-->
-            <Grid>
-
+            <Grid Visibility="{Binding PaginationEnable,Converter={StaticResource Boolean2VisibilityConverter}}" Grid.Row="1">
+                <hc:Pagination IsEnabled="{Binding CarouselImageLoading,Converter={StaticResource Boolean2BooleanReConverter}}" Margin="10" IsJumpEnabled="False" MaxPageCount="{Binding MaxPaginationPageCount}" PageIndex="{Binding StorePageIndex}">
+                    <hc:Interaction.Triggers>
+                        <hc:EventTrigger EventName="PageUpdated">
+                            <hc:EventToCommand Command="{Binding StorePageUpdatedCmd}" PassEventArgsToCommand="True" />
+                        </hc:EventTrigger>
+                    </hc:Interaction.Triggers>
+                </hc:Pagination>
             </Grid>
             <!--List of content-->
-            <Grid Grid.Row="1">
+            <Grid Grid.Row="0">
                 <ListView ItemTemplate="{DynamicResource _onlineItemTemplate}" Background="Transparent" BorderThickness="0" ItemsSource="{Binding AvailableOnlineItems}">
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -249,7 +294,6 @@
                     </ListView.ItemsPanel>
                     <ListView.ItemContainerStyle>
                         <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource ListViewContainerStyle}">
-                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
                         </Style>
                     </ListView.ItemContainerStyle>
                     <ListView.Template>
@@ -264,7 +308,22 @@
                     </ListView.Template>
                 </ListView>
                 <hc:LoadingLine HorizontalAlignment="Center" VerticalAlignment="Center" Width="200" Visibility="{Binding CarouselImageLoading,Converter={StaticResource Boolean2VisibilityConverter}}"/>
-                <TextBlock Visibility="{Binding AvailableOnlineItems.Count,Converter={StaticResource Object2VisibilityReConverter}}" Style="{DynamicResource TextBlockDefaultSecLight}" Text="Không có Item nào cho mục này với từ khóa đã chọn"/>
+                <TextBlock FontSize="14" Text="{Binding NoItemText}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource TextBlockDefaultSecLight}">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding AvailableOnlineItems.Count}" Value="0" />
+                                        <Condition Binding="{Binding CarouselImageLoading}" Value="False" />
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
             </Grid>
         </Grid>
     </Grid>

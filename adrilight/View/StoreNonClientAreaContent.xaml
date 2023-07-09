@@ -77,7 +77,7 @@
                             </Grid>
                         </Grid>
 
-                        <hc:Divider LineStroke="{StaticResource RegionBrush}" Margin="-10,2">
+                        <hc:Divider LineStroke="{StaticResource RegionBrush}" Margin="0,2">
 
                         </hc:Divider>
                         <StackPanel>

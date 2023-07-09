@@ -318,7 +318,6 @@
     <Compile Include="Util\ChasingPatternTypeEnum.cs" />
     <Compile Include="Util\ColorEditingObject.cs" />
     <Compile Include="Util\ColumnDataModel.cs" />
-    <Compile Include="Util\IOnlineItemModel.cs" />
     <Compile Include="Util\ILightingEngine.cs" />
     <Compile Include="Util\IParameterValue.cs" />
     <Compile Include="Util\LightingModeEnum.cs" />

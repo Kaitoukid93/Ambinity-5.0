@@ -56,7 +56,7 @@
                 </hc:Divider>
             </StackPanel>
         </Grid>
-        <RichTextBox BorderThickness="0" Grid.Row="1"
+        <RichTextBox IsReadOnly="True" BorderThickness="0" Grid.Row="1"
       x:Name="MyRichTextBox"
       Background="{DynamicResource DarkOpacityBrush}"
       Foreground="LightGray"
