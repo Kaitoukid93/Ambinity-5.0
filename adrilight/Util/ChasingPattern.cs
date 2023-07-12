@@ -1,4 +1,5 @@
 ﻿using GalaSoft.MvvmLight;
+using Newtonsoft.Json;
 
 namespace adrilight.Util
 {
@@ -14,10 +15,11 @@ namespace adrilight.Util
         public string Owner { get; set; }
         public ChasingPatternTypeEnum Type { get; set; }
         public string Description { get; set; }
-        public string Path { get; set; }
         public Tick Tick { get => _tick; set { Set(() => Tick, ref _tick, value); } }
-        private string _version = "1.0.0";
-        public string Version { get => _version; set { Set(() => Version, ref _version, value); } }
+        private bool _isChecked = false;
+        [JsonIgnore]
+        public bool IsChecked { get => _isChecked; set { Set(() => IsChecked, ref _isChecked, value); } }
+        public string LocalPath { get; set; }
     }
 }
 

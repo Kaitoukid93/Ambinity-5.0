@@ -361,7 +361,12 @@ namespace adrilight
                 GeneralSettings.IsOpenRGBEnabled = false;
                 hwMonitor.Dispose();
                 ambinityClient.Dispose();
-
+                foreach (var file in MainViewViewModel.FilesQToRemove)
+                {
+                    if (File.Exists(file))
+                        File.Delete(file);
+                    Log.Information("Delete File :" + file);
+                }
                 Log.Information("Application exit!");
             };
             Microsoft.Win32.SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;

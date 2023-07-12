@@ -611,6 +611,7 @@ namespace adrilight.ViewModel
         public ICommand SetCurrentSelectedActionTypeColorValueCommand { get; set; }
         public ICommand OpenHardwareMonitorWindowCommand { get; set; }
         public ICommand RefreshCurrentCollectionCommand { get; set; }
+        public ICommand DeleteSelectedItemFromCurrentCollectionCommand { get; set; }
         public ICommand CoppyColorCodeCommand { get; set; }
         public ICommand DeleteSelectedAutomationCommand { get; set; }
         public ICommand LaunchWBAdjustWindowCommand { get; set; }
@@ -2254,6 +2255,26 @@ namespace adrilight.ViewModel
                 var listParam = p as ListSelectionParameter;
                 listParam.LoadAvailableValues();
             });
+
+            DeleteSelectedItemFromCurrentCollectionCommand = new RelayCommand<IModeParameter>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                var listParam = p as ListSelectionParameter;
+                int removeFileCount = 0;
+                int totalFileCount = listParam.AvailableValues.Count;
+                var itemsToRemove = listParam.AvailableValues.Where(i => i.IsChecked).ToList();
+                foreach (var item in itemsToRemove)
+                {
+                    if (removeFileCount == totalFileCount - 1)
+                        return;
+                    FilesQToRemove.Add(item.LocalPath);
+                    listParam.DeletedSelectedItem(item);
+                    removeFileCount++;
+                }
+
+            });
             SubParamActionCommand = new RelayCommand<string>((p) =>
                  {
                      return true;
@@ -2330,13 +2351,13 @@ namespace adrilight.ViewModel
                 return true;
             }, (p) =>
             {
-                switch (ColorList.Count)
+                switch (ColorPickerMode)
                 {
-                    case 2:
+                    case "color":
                         AddNewColorToCollection();
                         break;
 
-                    case 16:
+                    case "palette":
                         OpenCreateNewPaletteDialog();
                         break;
                 }
@@ -2347,11 +2368,11 @@ namespace adrilight.ViewModel
                        return true;
                    }, (p) =>
                    {
-                       var newPalette = new ColorPalette(16);
+                       var newPalette = new ColorPalette(CurrentPaletteNumColor);
                        newPalette.Name = NewPaletteName;
                        newPalette.Description = NewPaletteDescription;
                        newPalette.Owner = NewPaletteOwner;
-                       for (int i = 0; i < 16; i++)
+                       for (int i = 0; i < CurrentPaletteNumColor; i++)
                        {
                            newPalette.Colors[i] = ColorList[i].Color;
                        }
@@ -2919,7 +2940,6 @@ namespace adrilight.ViewModel
                     SurfaceEditorSelectedDevice = null;
                 }
             });
-
             LiveViewMouseButtonUpCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -4057,13 +4077,12 @@ namespace adrilight.ViewModel
                 else if (content is ChasingPattern)
                 {
                     var pattern = content as ChasingPattern;
-                    version = pattern.Version;
-                    File.Copy(pattern.Path, Path.Combine(Path.Combine(Export.FileName, "content", pattern.Name)));
+                    File.Copy(pattern.LocalPath, Path.Combine(Path.Combine(Export.FileName, "content", pattern.Name)));
                 }
                 else if (content is Gif)
                 {
                     var gif = content as Gif;
-                    File.Copy(gif.Path, Path.Combine(Path.Combine(Export.FileName, "content", gif.Name)));
+                    File.Copy(gif.LocalPath, Path.Combine(Path.Combine(Export.FileName, "content", gif.Name)));
 
                 }
                 if (content is ARGBLEDSlaveDevice)
@@ -4605,6 +4624,8 @@ namespace adrilight.ViewModel
             }
 
             var listItemAddress = await FTPHlprs.GetAllFilesAddressInFolder(itemFolderPath);
+            if (listItemAddress == null)
+                return;
             MaxPaginationPageCount = listItemAddress.Count / 12 + 1;
             var filteredItemAddress = new List<string>();
             var currentPageListItemAddress = new List<string>();
@@ -6325,14 +6346,9 @@ namespace adrilight.ViewModel
                         Name = "Union Device",
                         Description = "Thiết bị đại diện cho " + newGroup.Name,
                         Owner = "System",
-                        //Thumbnail = Path.Combine(ResourceFolderPath, "Group_thumb.png")
                     };
                 }
-                //newGroup.MaskedControlZone.PropertyChanged += (_, __) =>
-                //{
-                //    WriteSingleDeviceInfoJson(CurrentDevice);
-                //};
-                //add group border
+
                 GetGroupBorder(selectedItems, newGroup);
                 newGroup.Border.IsSelected = true;
                 LiveViewItems.Add(newGroup.Border);
@@ -6683,13 +6699,15 @@ namespace adrilight.ViewModel
             }
             if (CurrentDevice.ControlZoneGroups != null)
             {
+                var groupList = new List<ControlZoneGroup>();
                 foreach (var group in CurrentDevice.CurrentLiveViewGroup)
                 {
                     //register group child to masked control
+                    //check group size and arrange
                     var groupItems = GetGroupChildItems(group, CurrentDevice);
                     if (GetGroupBorder(groupItems, group) != null)
                     {
-                        LiveViewItems.Add(group.Border);
+
                         if ((group.Border.IsSelected))
                             lastSelectedItem = group.Border;
                         //disable selection items in group
@@ -6698,7 +6716,12 @@ namespace adrilight.ViewModel
                             (item as IDrawable).IsSelectable = false;
                         }
                     }
-
+                    groupList.Add(group);
+                }
+                var orderedGroups = groupList.OrderBy(o => o.Border.Width * o.Border.Height).ToList();
+                foreach (var group in orderedGroups)
+                {
+                    LiveViewItems.Insert(0, group.Border);
                 }
             }
             //reset toolbard width
@@ -7056,7 +7079,7 @@ namespace adrilight.ViewModel
                     var _gifControl = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Gifs).FirstOrDefault() as ListSelectionParameter;
                     var selectedGif = _gifControl.SelectedValue;
                     ClickedRegionButtonParameter.CapturingSourceIndex = _gifControl.AvailableValues.IndexOf(_gifControl.SelectedValue);
-                    Bitmap img = new Bitmap((selectedGif as Gif).Path);
+                    Bitmap img = new Bitmap((selectedGif as Gif).LocalPath);
                     CalculateAdjustingRectangle(img, ClickedRegionButtonParameter.CapturingRegion);
                     regionSelectionView = new GifRegionSelectionWindow();
                     break;
@@ -7129,7 +7152,7 @@ namespace adrilight.ViewModel
 
             var _gifControl = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Gifs).FirstOrDefault() as ListSelectionParameter;
             var selectedGif = _gifControl.SelectedValue;
-            Bitmap bitmap = new Bitmap((selectedGif as Gif).Path);
+            Bitmap bitmap = new Bitmap((selectedGif as Gif).LocalPath);
             var newRegion = new CapturingRegion(
                 RegionSelectionRect.Left / bitmap.Width,
                 RegionSelectionRect.Top / bitmap.Height,
@@ -7147,12 +7170,12 @@ namespace adrilight.ViewModel
             {
                 try
                 {
-                    Bitmap bmp = new Bitmap((gif as Gif).Path);
+                    Bitmap bmp = new Bitmap((gif as Gif).LocalPath);
                     AvailableGifs.Add(new GifCard() {
                         Name = gif.Name,
                         Width = bmp.Width,
                         Height = bmp.Height,
-                        Path = (gif as Gif).Path
+                        Path = (gif as Gif).LocalPath
                     });
                     bmp.Dispose();
                 }
@@ -7357,6 +7380,7 @@ namespace adrilight.ViewModel
 
         private void OpenColorPickerWindow(int numColor)
         {
+            ColorPickerMode = "color";
             ColorList = new ObservableCollection<ColorEditingObject>();
             var currentColorControl = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Color).FirstOrDefault() as ListSelectionParameter;
             var currentSelectedColorCard = currentColorControl.SelectedValue as ColorCard;
@@ -7395,7 +7419,7 @@ namespace adrilight.ViewModel
             if (motion != null)
             {
                 var newPattern = new ChasingPattern() {
-                    Path = motion,
+                    LocalPath = motion,
                     Name = Path.GetFileName(motion),
                     Owner = "User imported Pattern"
 
@@ -7409,7 +7433,7 @@ namespace adrilight.ViewModel
             if (gif != null)
             {
                 var newGif = new Gif() {
-                    Path = gif,
+                    LocalPath = gif,
                     Name = Path.GetFileName(gif),
                     Owner = "User imported Gif"
 
@@ -7417,12 +7441,50 @@ namespace adrilight.ViewModel
                 AddNewGifToCollection(newGif);
             }
         }
+        private int _currentPaletteNumColor = 16;
+        public int CurrentPaletteNumColor {
+            get
+            {
+                return _currentPaletteNumColor;
+
+            }
+            set
+            {
+                if (value >= 4 && value <= 128)
+                {
+                    ColorList = new ObservableCollection<ColorEditingObject>();
+                    for (int i = 0; i < value; i++)
+                    {
+                        ColorList.Add(new ColorEditingObject() { Color = Color.FromRgb(0, 0, 0) });
+                    }
+                    _currentPaletteNumColor = value;
+                    RaisePropertyChanged();
+                }
+
+            }
+        }
+        private string _colorPickerMode;
+        public string ColorPickerMode {
+            get
+            {
+                return _colorPickerMode;
+
+            }
+            set
+            {
+                _colorPickerMode = value;
+                RaisePropertyChanged();
+            }
+        }
         private void OpenPaletteEditorWindow(int numColor)
         {
+
+            ColorPickerMode = "palette";
             ColorList = new ObservableCollection<ColorEditingObject>();
             ColorListBoxSelectionMode = SelectionMode.Extended;
             var currentColorControl = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Palette).FirstOrDefault() as ListSelectionParameter;
             var currentSelectedPalette = currentColorControl.SelectedValue as ColorPalette;
+            CurrentPaletteNumColor = currentSelectedPalette.Colors.Count();
             foreach (var color in currentSelectedPalette.Colors)
             {
                 ColorList.Add(new ColorEditingObject() { Color = color });
@@ -8723,7 +8785,9 @@ namespace adrilight.ViewModel
             LoadAvailableBaudRate();
             LoadAvailableProfiles();
             LoadAvailableAutomations();
+            FilesQToRemove = new ObservableCollection<string>();
         }
+        public ObservableCollection<string> FilesQToRemove;
         private void LoadAvailableAppUser()
         {
             AvailableAppUser = new ObservableCollection<AppUser>();

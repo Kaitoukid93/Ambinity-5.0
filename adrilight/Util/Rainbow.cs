@@ -130,8 +130,10 @@ namespace adrilight
         private void OnSelectedPaletteChanged(IParameterValue value)
         {
             //set palette
+            if (value == null)
+                return;
             var palette = value as ColorPalette;
-            _colorBank = GetColorGradientfromPaletteWithFixedColorPerGap(palette.Colors, 64).ToArray();
+            _colorBank = GetColorGradientfromPaletteWithFixedColorPerGap(palette.Colors).ToArray();
         }
         private void OnSelectedVIDDataChanged(IParameterValue value)
         {
@@ -549,17 +551,17 @@ namespace adrilight
 
         }
 
-        public static IEnumerable<Color> GetColorGradientfromPaletteWithFixedColorPerGap(Color[] colorCollection, int colorPerGap)
+        public static IEnumerable<Color> GetColorGradientfromPaletteWithFixedColorPerGap(Color[] colorCollection)
         {
             var colors = new List<Color>();
-
+            var colorPerGap = (int)(1024 / colorCollection.Length);
 
             for (int i = 0; i < colorCollection.Length - 1; i++)
             {
                 var gradient = GetColorGradient(colorCollection[i], colorCollection[i + 1], colorPerGap);
                 colors = colors.Concat(gradient).ToList();
             }
-            var lastGradient = GetColorGradient(colorCollection[15], colorCollection[0], colorPerGap);
+            var lastGradient = GetColorGradient(colorCollection[colorCollection.Length - 1], colorCollection[0], colorPerGap);
             colors = colors.Concat(lastGradient).ToList();
             return colors;
 

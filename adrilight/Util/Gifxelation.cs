@@ -141,7 +141,7 @@ namespace adrilight
             {
                 if (gif.Frames == null)
                 {
-                    gif.LoadGifFromDisk(gif.Path);
+                    gif.LoadGifFromDisk(gif.LocalPath);
                 }
             }
 

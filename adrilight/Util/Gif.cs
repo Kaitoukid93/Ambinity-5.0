@@ -13,7 +13,7 @@ namespace adrilight.Util
 
         public Gif(string path)
         {
-            Path = path;
+            LocalPath = path;
         }
         public Gif()
         {
@@ -23,9 +23,12 @@ namespace adrilight.Util
         public string Owner { get; set; }
         public string Type { get; set; }
         public string Description { get; set; }
-        public string Path { get; set; }
         [JsonIgnore]
         public ByteFrame[] Frames { get; set; }
+        private bool _isChecked = false;
+        [JsonIgnore]
+        public bool IsChecked { get => _isChecked; set { Set(() => IsChecked, ref _isChecked, value); } }
+        public string LocalPath { get; set; }
         public object Lock { get; } = new object();
         public void LoadGifFromDisk(string path)
         {

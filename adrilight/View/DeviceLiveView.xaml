@@ -28,6 +28,7 @@
                     <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
                     <converters:CommandToListConverter x:Key="CommandsToListConverter" />
                     <converters:StaticResourceConverter x:Key="staticResourceConverter" />
+                    <SolidColorBrush x:Key="primaryBackgroundBrush" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.15" />
                     <DropShadowEffect x:Key="Item.SelectedActive.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" />
                     <DropShadowEffect x:Key="Item.MouseOver.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource DarkMaskBrush}}" />
                     <hc:Boolean2BooleanReConverter x:Key="booltoVreconv" />

@@ -257,9 +257,11 @@ namespace adrilight
         private void OnSelectedChasingPatternChanged(IParameterValue value)
         {
             //resize motion here
+            if (value == null)
+                return;
             _frameIndex = 0;
             var pattern = value as ChasingPattern;
-            _motion = ReadMotionFromDisk(pattern.Path);
+            _motion = ReadMotionFromDisk(pattern.LocalPath);
             var numLED = CurrentZone.Spots.Count();
             int frameCount = 0;
             lock (_lock)

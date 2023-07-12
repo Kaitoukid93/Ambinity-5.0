@@ -1,11 +1,7 @@
 ﻿using GalaSoft.MvvmLight;
+using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace adrilight.Util
 {
@@ -36,6 +32,11 @@ namespace adrilight.Util
         public string Type { get; set; }
         public string GUID { get; set; }
         public string Description { get; set; }
+        private bool _isChecked = false;
+        [JsonIgnore]
+        public bool IsChecked { get => _isChecked; set { Set(() => IsChecked, ref _isChecked, value); } }
+        [JsonIgnore]
+        public string LocalPath { get; set; }
         public void SetColor(int index, Color color)
         {
             Colors[index] = color;

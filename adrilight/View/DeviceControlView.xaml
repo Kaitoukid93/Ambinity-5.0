@@ -6,6 +6,9 @@
              xmlns:converters="clr-namespace:adrilight.Converter"
              xmlns:hlprs="clr-namespace:adrilight.Helpers"
              xmlns:local="clr-namespace:adrilight.View"
+             xmlns:app ="clr-namespace:adrilight"
+                 xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:settings ="clr-namespace:adrilight.Settings"
              xmlns:viewmodel="clr-namespace:adrilight.ViewModel"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              mc:Ignorable="d"
@@ -22,6 +25,7 @@
                     <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
+            
             <SolidColorBrush x:Key="primaryBackgroundBrush" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.15" />
             <DropShadowEffect x:Key="Item.SelectedActive.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" />
             <DropShadowEffect x:Key="Item.MouseOver.Border.Shadow" BlurRadius="10"   RenderingBias ="Quality" ShadowDepth ="1" Color ="{Binding Color, Source={StaticResource DarkMaskBrush}}" />
@@ -649,6 +653,7 @@
                         <ColumnDefinition Width="auto" />
                         <ColumnDefinition Width="auto" />
                         <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="auto" />
                     </Grid.ColumnDefinitions>
                     <Grid Grid.Column="0">
                         <Border Effect="{DynamicResource EffectShadow1}" CornerRadius="4" VerticalAlignment="Top" Height="auto" Margin="10,6,0,10" Background="Transparent">
@@ -744,6 +749,60 @@
                             </local:DeviceLiveView>
                         </Border>
                     </Grid>
+                    <!--Zones layer view-->
+                    <!--<Grid Grid.Column="3">
+                        <Border Margin="10,10,15,10" Height="200" VerticalAlignment="Top" Background="{DynamicResource MainContentBackgroundBrush}" Width="200" CornerRadius="4">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <TextBlock Margin="10" FontWeight="SemiBold" Text="DEVICES AND GROUPS"/>
+                                </Grid>
+                                <Grid Grid.Row="1">
+                                    <ListBox BorderThickness="0" Margin="5" ItemsSource="{Binding LiveViewItems}">
+                                        <ListBox.ItemContainerStyle>
+                                            <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource ListBoxItemBaseStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DataType.Name}" Value="ARGBLEDSlaveDevice">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsSelectable}" Value="False">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ListBox.ItemContainerStyle>
+                                        <ListBox.Resources>
+                                            <DataTemplate DataType="{x:Type app:LEDSetup}">
+                                                <Grid>
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                                                            <i:InvokeCommandAction CommandParameter="{Binding .}" Command="{Binding DataContext.SelectLiveViewItemCommand,RelativeSource={RelativeSource AncestorType={x:Type local:DeviceControlView}}}"/>
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                    <TextBlock Text="{Binding DataType.Name}"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                            <DataTemplate DataType="{x:Type settings:Border}">
+                                                <Grid>
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                                                            <i:InvokeCommandAction CommandParameter="{Binding .}" Command="{Binding DataContext.SelectLiveViewItemCommand,RelativeSource={RelativeSource AncestorType={x:Type local:DeviceControlView}}}"/>
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                    <TextBlock Text="{Binding Name}"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListBox.Resources>
+
+                                    </ListBox>
+                                </Grid>
+                            </Grid>
+                            
+                        </Border>
+                    </Grid>-->
                 </Grid>
             </GroupBox>
         </Grid>

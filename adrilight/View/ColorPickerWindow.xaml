@@ -12,10 +12,11 @@
            Background="{DynamicResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
-           ResizeMode="NoResize"
-           Title="Chose Colors" 
+           Title="Chose Colors"
+           MinWidth="1600"
            SizeToContent="WidthAndHeight"
-           WindowStartupLocation="CenterOwner" 
+           ResizeMode="CanResize"
+           WindowStartupLocation="CenterScreen" 
            >
 
     <Window.Resources>
@@ -38,18 +39,18 @@
                     </DataTemplate>
                     <DataTemplate x:Key="paletteTemplate">
                         <Grid>
-                            <Border Effect="{DynamicResource EffectShadow1}" Width="648" Padding="5" Height="100"  CornerRadius="2" Background="{DynamicResource SecondaryRegionBrush}">
-                                <ItemsControl  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding ColorList}">
+                            <Border Effect="{DynamicResource EffectShadow1}" Padding="5" Height="100"  CornerRadius="2" Background="{DynamicResource SecondaryRegionBrush}">
+                                <ItemsControl ItemsSource="{Binding ColorList}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <UniformGrid Rows="1" Columns="16">
+                                            <UniformGrid Rows="1" Columns="{Binding DataContext.CurrentPaletteNumColor,RelativeSource={RelativeSource AncestorType={x:Type view:ColorPickerWindow}},Mode=TwoWay,UpdateSourceTrigger=LostFocus}">
 
                                             </UniformGrid>
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border  Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"   Margin="0,0,0,0" HorizontalAlignment="Stretch" Height="92"/>
+                                            <Border  Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Height="92"/>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
@@ -125,7 +126,7 @@
         <hc:TransitioningContentControl Margin="10" TransitionMode="Left2RightWithFade">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <Grid>
@@ -137,10 +138,10 @@
                                         <ContentControl.Style>
                                             <Style TargetType="{x:Type ContentControl}">
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding ColorList.Count}" Value="2">
+                                                    <DataTrigger Binding="{Binding ColorPickerMode}" Value="color">
                                                         <Setter Property="ContentTemplate" Value="{DynamicResource gradientTemplate}" />
                                                     </DataTrigger>
-                                                    <DataTrigger Binding="{Binding ColorList.Count}" Value="16">
+                                                    <DataTrigger Binding="{Binding ColorPickerMode}" Value="palette">
                                                         <Setter Property="ContentTemplate" Value="{DynamicResource paletteTemplate}" />
                                                     </DataTrigger>
 
@@ -167,14 +168,14 @@
                                         </ListBox.ItemContainerStyle>
                                         <ListBox.ItemsPanel>
                                             <ItemsPanelTemplate>
-                                                <UniformGrid Rows="1" Columns="{Binding ColorList.Count}">
+                                                <UniformGrid Rows="1" Columns="{Binding CurrentPaletteNumColor}">
 
                                                 </UniformGrid>
                                             </ItemsPanelTemplate>
                                         </ListBox.ItemsPanel>
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
-                                                <Border CornerRadius="4" HorizontalAlignment="Stretch" Margin="0" Background="{Binding Color,Converter={StaticResource ColorToBrushConverter},Mode=TwoWay}"  Height="40">
+                                                <Border MinWidth="5" CornerRadius="2" HorizontalAlignment="Stretch" Margin="0" Background="{Binding Color,Converter={StaticResource ColorToBrushConverter},Mode=TwoWay}"  Height="40">
 
                                                 </Border>
                                             </DataTemplate>
@@ -186,7 +187,7 @@
                                         <Style TargetType="Grid">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding ColorList.Count}" Value="2">
+                                                <DataTrigger Binding="{Binding ColorPickerMode}" Value="color">
                                                     <Setter Property="Visibility" Value="Visible"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -215,7 +216,7 @@
                                         <Style TargetType="Grid">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding ColorList.Count}" Value="16">
+                                                <DataTrigger Binding="{Binding ColorPickerMode}" Value="palette">
                                                     <Setter Property="Visibility" Value="Visible"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -246,6 +247,25 @@
                                                 </GroupBox>
                                             </Grid>
                                             <TextBlock Margin="10,5" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Nhập file màu dạng .txt hoặc .col"/>
+                                            <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10,0,10">
+
+                                            </hc:Divider>
+                                            <Grid>
+                                                <GroupBox Margin="10,0,0,0" VerticalAlignment="Stretch" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                                                    <GroupBox.HeaderTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock  FontWeight="SemiBold" Text="Số lượng màu"/>
+                                                        </DataTemplate>
+                                                    </GroupBox.HeaderTemplate>
+                                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                                                        <hc:NumericUpDown Value="{Binding CurrentPaletteNumColor}" x:Name="colorNum" VerticalAlignment="Center" HorizontalAlignment="Right" Maximum="128" Minimum="4">
+
+                                                        </hc:NumericUpDown>
+                                                    </StackPanel>
+                                                   
+                                                </GroupBox>
+                                            </Grid>
+                                            <TextBlock Margin="10,5" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Nhập số lượng màu bạn muốn điều chỉnh"/>
                                         </StackPanel>
                                     </StackPanel>
                                 </Grid>

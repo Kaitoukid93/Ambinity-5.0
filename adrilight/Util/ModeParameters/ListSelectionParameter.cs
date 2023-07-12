@@ -30,6 +30,7 @@ namespace adrilight.Util.ModeParameters
         private int _minValue;
         private int _maxValue;
         private bool _showMore;
+        private bool _showDeleteButton;
         private IParameterValue _selectedValue;
         private ObservableCollection<IParameterValue> _availableValues;
         private ObservableCollection<SubParameter> _subParams;
@@ -52,6 +53,7 @@ namespace adrilight.Util.ModeParameters
         /// </summary>
         public int MinValue { get => _minValue; set { Set(() => MinValue, ref _minValue, value); } }
         public int MaxValue { get => _maxValue; set { Set(() => MaxValue, ref _maxValue, value); } }
+        public bool ShowDeleteButton { get => _showDeleteButton; set { Set(() => ShowDeleteButton, ref _showDeleteButton, value); } }
         public bool ShowMore { get => _showMore; set { Set(() => ShowMore, ref _showMore, value); } }
         public void RefreshCollection()
         {
@@ -63,8 +65,15 @@ namespace adrilight.Util.ModeParameters
             { AvailableValues.Clear(); });
 
         }
+        public void DeletedSelectedItem(IParameterValue item)
+        {
+            ShowDeleteButton = false;
+            AvailableValues.Remove(item);
+            //LoadAvailableValues();
+        }
         public void LoadAvailableValues()
         {
+            ShowDeleteButton = false;
             if (SelectedDataSourceIndex < 0 || SelectedDataSourceIndex > DataSourceLocaFolderNames.Count - 1)
             {
                 SelectedDataSourceIndex = 0;
@@ -104,8 +113,17 @@ namespace adrilight.Util.ModeParameters
                                     {
                                         using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                                         {
-
-                                            AvailableValues.Add(DeserializeFromStream<ColorPalette>(stream));
+                                            var colorPalette = DeserializeFromStream<ColorPalette>(stream);
+                                            colorPalette.LocalPath = file;
+                                            colorPalette.PropertyChanged += (_, __) =>
+                                            {
+                                                if (__.PropertyName == nameof(colorPalette.IsChecked))
+                                                {
+                                                    //show deletebutton
+                                                    ShowDeleteButton = AvailableValues.Where(c => (c as ColorPalette).IsChecked).Count() > 0 ? true : false;
+                                                }
+                                            };
+                                            AvailableValues.Add(colorPalette);
                                         }
 
                                     }
@@ -115,8 +133,17 @@ namespace adrilight.Util.ModeParameters
                                     {
                                         using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                                         {
-
-                                            AvailableValues.Add(DeserializeFromStream<VIDDataModel>(stream));
+                                            var vidData = DeserializeFromStream<VIDDataModel>(stream);
+                                            vidData.LocalPath = file;
+                                            vidData.PropertyChanged += (_, __) =>
+                                            {
+                                                if (__.PropertyName == nameof(vidData.IsChecked))
+                                                {
+                                                    //show deletebutton
+                                                    ShowDeleteButton = AvailableValues.Where(c => c.IsChecked).Count() > 0 ? true : false;
+                                                }
+                                            };
+                                            AvailableValues.Add(vidData);
                                         }
                                     }
                                     break;
@@ -125,8 +152,17 @@ namespace adrilight.Util.ModeParameters
                                     {
                                         using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                                         {
-
-                                            AvailableValues.Add(DeserializeFromStream<MIDDataModel>(stream));
+                                            var midData = DeserializeFromStream<MIDDataModel>(stream);
+                                            midData.LocalPath = file;
+                                            midData.PropertyChanged += (_, __) =>
+                                            {
+                                                if (__.PropertyName == nameof(midData.IsChecked))
+                                                {
+                                                    //show deletebutton
+                                                    ShowDeleteButton = AvailableValues.Where(c => c.IsChecked).Count() > 0 ? true : false;
+                                                }
+                                            };
+                                            AvailableValues.Add(midData);
                                         }
                                     }
                                     break;
@@ -135,8 +171,17 @@ namespace adrilight.Util.ModeParameters
                                     {
                                         using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                                         {
-
-                                            AvailableValues.Add(DeserializeFromStream<DancingModeParameterValue>(stream));
+                                            var dcData = DeserializeFromStream<DancingModeParameterValue>(stream);
+                                            dcData.LocalPath = file;
+                                            dcData.PropertyChanged += (_, __) =>
+                                            {
+                                                if (__.PropertyName == nameof(dcData.IsChecked))
+                                                {
+                                                    //show deletebutton
+                                                    ShowDeleteButton = AvailableValues.Where(c => c.IsChecked).Count() > 0 ? true : false;
+                                                }
+                                            };
+                                            AvailableValues.Add(dcData);
                                         }
                                     }
                                     break;
@@ -152,7 +197,15 @@ namespace adrilight.Util.ModeParameters
                                         var data = new Gif() {
                                             Name = Path.GetFileName(file),
                                             Description = "Ambino Default Gif Collection",
-                                            Path = file
+                                            LocalPath = file
+                                        };
+                                        data.PropertyChanged += (_, __) =>
+                                        {
+                                            if (__.PropertyName == nameof(data.IsChecked))
+                                            {
+                                                //show deletebutton
+                                                ShowDeleteButton = AvailableValues.Where(c => c.IsChecked).Count() > 0 ? true : false;
+                                            }
                                         };
                                         AvailableValues.Add(data);
                                     }
@@ -164,8 +217,16 @@ namespace adrilight.Util.ModeParameters
                                             Name = Path.GetFileName(file),
                                             Description = "xxx",
                                             Type = ChasingPatternTypeEnum.BlacknWhite,
-                                            Path = file
+                                            LocalPath = file
 
+                                        };
+                                        data.PropertyChanged += (_, __) =>
+                                        {
+                                            if (__.PropertyName == nameof(data.IsChecked))
+                                            {
+                                                //show deletebutton
+                                                ShowDeleteButton = AvailableValues.Where(c => c.IsChecked).Count() > 0 ? true : false;
+                                            }
                                         };
                                         AvailableValues.Add(data);
                                     }
@@ -221,12 +282,12 @@ namespace adrilight.Util.ModeParameters
                         if (item is Gif)
                         {
                             var gif = item as Gif;
-                            File.Copy(gif.Path, Path.Combine(collectionFolderPath, item.Name));
+                            File.Copy(gif.LocalPath, Path.Combine(collectionFolderPath, item.Name));
                         }
                         else if (item is ChasingPattern)
                         {
                             var pattern = item as ChasingPattern;
-                            File.Copy(pattern.Path, Path.Combine(collectionFolderPath, item.Name));
+                            File.Copy(pattern.LocalPath, Path.Combine(collectionFolderPath, item.Name));
                         }
                         break;
                 }

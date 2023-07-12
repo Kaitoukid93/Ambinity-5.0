@@ -588,17 +588,17 @@
                                                     <ContentControl.Resources>
                                                         <DataTemplate DataType="{x:Type ut:ColorPalette}">
                                                             <Grid>
-                                                                <Border Effect="{DynamicResource EffectShadow1}" Width="168" Padding="5" Height="40"  CornerRadius="2" Background="{DynamicResource SecondaryRegionBrush}">
+                                                                <Border Effect="{DynamicResource EffectShadow1}" Padding="5" Height="40" Width="200"  CornerRadius="2" Background="{DynamicResource SecondaryRegionBrush}">
                                                                     <ItemsControl  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Colors}">
                                                                         <ItemsControl.ItemsPanel>
                                                                             <ItemsPanelTemplate>
-                                                                                <UniformGrid Rows="1" Columns="16">
+                                                                                <UniformGrid Rows="1" Columns="{Binding Colors.Count}">
                                                                                 </UniformGrid>
                                                                             </ItemsPanelTemplate>
                                                                         </ItemsControl.ItemsPanel>
                                                                         <ItemsControl.ItemTemplate>
                                                                             <DataTemplate>
-                                                                                <Border  Background="{Binding ., Converter={StaticResource ColorToBrushConverter}}"   Margin="0,0,0,0" HorizontalAlignment="Stretch" Height="32" />
+                                                                                <Border  Background="{Binding ., Converter={StaticResource ColorToBrushConverter}}" Height="32" />
                                                                             </DataTemplate>
                                                                         </ItemsControl.ItemTemplate>
                                                                     </ItemsControl>
@@ -671,10 +671,13 @@
                                                 <Grid>
                                                     <StackPanel>
                                                         <Grid>
-                                                            
-                                                       
 
-                                                            <Button Margin="15,15,15,5" HorizontalAlignment="Right" CommandParameter="{Binding .}" Command="{Binding DataContext.RefreshCurrentCollectionCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}" Style="{DynamicResource _mediumProfileDefaultButton}" Content="refresh"/>
+
+                                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                                                <Button ToolTip="Delete selected items" Command="{Binding DataContext.DeleteSelectedItemFromCurrentCollectionCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}" hc:IconElement.Geometry="{DynamicResource delete}" Visibility="{Binding ShowDeleteButton,Converter={StaticResource Boolean2VisibilityConverter}}" Margin="15,15,0,5" CommandParameter="{Binding .}" Style="{DynamicResource _defaultIconButton}" Content="Delete items"/>
+                                                                <Button Margin="15,15,15,5" CommandParameter="{Binding .}" Command="{Binding DataContext.RefreshCurrentCollectionCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}" Style="{DynamicResource _mediumProfileDefaultButton}" Content="Refresh"/>
+                                                            </StackPanel>
+                                                           
                                                             <hc:ComboBox BorderThickness="0" Height="32" ItemContainerStyle="{DynamicResource _ComboboxItemStyle}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15,15,15,5" SelectedIndex="{Binding SelectedDataSourceIndex,Mode=TwoWay}" ItemsSource="{Binding DataSourceLocaFolderNames}">
                                                             <hc:ComboBox.Style>
                                                                 <Style TargetType="hc:ComboBox" BasedOn="{StaticResource ComboBoxBaseStyle}">
@@ -694,7 +697,7 @@
                                                         </hc:ComboBox>
                                                         </Grid>
                                                         <Grid Margin="10,0,15,0" Visibility="{Binding ShowMore,Converter={StaticResource Boolean2VisibilityConverter}}">
-                                                            <Border Margin="0,0"  HorizontalAlignment="Right" Background="Transparent" BorderBrush="{StaticResource BorderBrush}" CornerRadius="7" BorderThickness="0">
+                                                            <Border Margin="0,0"  HorizontalAlignment="Stretch" Background="Transparent" BorderBrush="{StaticResource BorderBrush}" CornerRadius="7" BorderThickness="0">
                                                                 <ListBox ItemsSource="{Binding AvailableValues,IsAsync=True}" SelectedItem="{Binding SelectedValue}"
                                                          ItemContainerStyle="{StaticResource _listBoxColorSelectionStyle}"
                                                          Background="Transparent"
@@ -715,6 +718,7 @@
                                                                         </DataTemplate>
                                                                         <DataTemplate DataType="{x:Type ut:ColorCard}">
                                                                             <Grid>
+                                                                                
                                                                                 <Border CornerRadius="2" Width="48" Height="48">
                                                                                     <Border.Background>
                                                                                         <LinearGradientBrush StartPoint="0,1" EndPoint = "1,0">
@@ -733,6 +737,21 @@
                                                                                         </TextBlock>
                                                                                     </Border.ToolTip>
                                                                                 </Border>
+                                                                                <!--<CheckBox IsChecked="{Binding IsChecked}" Margin="2" Background="{DynamicResource PrimaryBrush}" BorderThickness="0" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                                                                    <CheckBox.Style>
+                                                                                        <Style TargetType="CheckBox" BasedOn="{StaticResource CheckBoxBaseStyle}">
+                                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                            <Style.Triggers>
+                                                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid,AncestorLevel=1}, Path=IsMouseOver}" Value="True">
+                                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                                </DataTrigger>
+                                                                                                <DataTrigger Binding="{Binding IsChecked}" Value="True">
+                                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                                </DataTrigger>
+                                                                                            </Style.Triggers>
+                                                                                        </Style>
+                                                                                    </CheckBox.Style>
+                                                                                </CheckBox>-->
                                                                             </Grid>
                                                                         </DataTemplate>
                                                                         <DataTemplate DataType="{x:Type ut:VIDDataModel}">
@@ -740,6 +759,21 @@
                                                                                 <Border Effect="{DynamicResource EffectShadow1}" Background="{DynamicResource SecondaryRegionBrush}" ToolTip="{Binding Description}" CornerRadius="2">
                                                                                     <TextBlock Margin="5" Style="{DynamicResource TextBlockDefault}" Text="{Binding Name}" />
                                                                                 </Border>
+                                                                                <!--<CheckBox IsChecked="{Binding IsChecked}" Margin="2" Background="{DynamicResource PrimaryBrush}" BorderThickness="0" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                                                                    <CheckBox.Style>
+                                                                                        <Style TargetType="CheckBox" BasedOn="{StaticResource CheckBoxBaseStyle}">
+                                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                            <Style.Triggers>
+                                                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid,AncestorLevel=1}, Path=IsMouseOver}" Value="True">
+                                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                                </DataTrigger>
+                                                                                                <DataTrigger Binding="{Binding IsChecked}" Value="True">
+                                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                                </DataTrigger>
+                                                                                            </Style.Triggers>
+                                                                                        </Style>
+                                                                                    </CheckBox.Style>
+                                                                                </CheckBox>-->
                                                                             </Grid>
                                                                         </DataTemplate>
                                                                         <DataTemplate DataType="{x:Type ut:MIDDataModel}">
@@ -747,33 +781,80 @@
                                                                                 <Border Effect="{DynamicResource EffectShadow1}" Background="{DynamicResource SecondaryRegionBrush}" ToolTip="{Binding Description}" CornerRadius="2">
                                                                                     <TextBlock Margin="5" Style="{DynamicResource TextBlockDefault}" Text="{Binding Name}" />
                                                                                 </Border>
+                                                                                <CheckBox IsChecked="{Binding IsChecked}" Margin="2" Background="{DynamicResource PrimaryBrush}" BorderThickness="0" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                                                                    <CheckBox.Style>
+                                                                                        <Style TargetType="CheckBox" BasedOn="{StaticResource CheckBoxBaseStyle}">
+                                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                            <Style.Triggers>
+                                                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid,AncestorLevel=1}, Path=IsMouseOver}" Value="True">
+                                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                                </DataTrigger>
+                                                                                                <DataTrigger Binding="{Binding IsChecked}" Value="True">
+                                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                                </DataTrigger>
+                                                                                            </Style.Triggers>
+                                                                                        </Style>
+                                                                                    </CheckBox.Style>
+                                                                                </CheckBox>
                                                                             </Grid>
                                                                         </DataTemplate>
                                                                         <DataTemplate DataType="{x:Type ut:ColorPalette}">
                                                                             <Grid>
-
-                                                                                <Border Effect="{DynamicResource EffectShadow1}" ToolTip="{Binding Name}" CornerRadius="2,2,2,2" Style="{StaticResource BorderClip}">
-                                                                                    <ItemsControl ItemsSource="{Binding Colors}">
+                                                                                <Border Width="120" Effect="{DynamicResource EffectShadow1}" ToolTip="{Binding Name}" CornerRadius="2,2,2,2" Style="{StaticResource BorderClip}">
+                                                                                    <Grid>
+                                                                                        <ItemsControl ItemsSource="{Binding Colors}">
                                                                                         <ItemsControl.ItemsPanel>
                                                                                             <ItemsPanelTemplate>
-                                                                                                <StackPanel Orientation="Horizontal">
-                                                                                                </StackPanel>
+                                                                                                <UniformGrid Rows="1" Columns="{Binding Colors.Count}">
+                                                                                                </UniformGrid>
                                                                                             </ItemsPanelTemplate>
                                                                                         </ItemsControl.ItemsPanel>
                                                                                         <ItemsControl.ItemTemplate>
                                                                                             <DataTemplate>
-                                                                                                <Rectangle  Fill="{Binding ., Converter={StaticResource ColorToBrushConverter}, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"   Margin="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" Width="11" Height="30" />
+                                                                                                <Border  Background="{Binding ., Converter={StaticResource ColorToBrushConverter}}" MinWidth="2" Margin="0,0,0,0" HorizontalAlignment="Stretch" Height="32" >
+                                                                                                </Border>
                                                                                             </DataTemplate>
                                                                                         </ItemsControl.ItemTemplate>
                                                                                     </ItemsControl>
+                                                                                        <CheckBox IsChecked="{Binding IsChecked}" Margin="2" Background="{DynamicResource PrimaryBrush}" BorderThickness="0" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                                                                            <CheckBox.Style>
+                                                                                                <Style TargetType="CheckBox" BasedOn="{StaticResource CheckBoxBaseStyle}">
+                                                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                                    <Style.Triggers>
+                                                                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Border,AncestorLevel=2}, Path=IsMouseOver}" Value="True">
+                                                                                                            <Setter Property="Visibility" Value="Visible" />
+                                                                                                        </DataTrigger>
+                                                                                                        <DataTrigger Binding="{Binding IsChecked}" Value="True">
+                                                                                                            <Setter Property="Visibility" Value="Visible" />
+                                                                                                        </DataTrigger>
+                                                                                                    </Style.Triggers>
+                                                                                                </Style>
+                                                                                            </CheckBox.Style>
+                                                                                        </CheckBox>
+                                                                                    </Grid>
                                                                                 </Border>
                                                                             </Grid>
                                                                         </DataTemplate>
                                                                         <DataTemplate DataType="{x:Type ut:Gif}">
                                                                             <Grid>
                                                                                 <Border Width="86" Height="86" Effect="{DynamicResource EffectShadow1}" ToolTip="{Binding Name}" CornerRadius="2,2,2,2" Style="{StaticResource BorderClip}">
-                                                                                    <Image Stretch="Uniform" Source="{Binding Path}"/>
+                                                                                    <Image Stretch="Uniform" Source="{Binding LocalPath}"/>
                                                                                 </Border>
+                                                                                <!--<CheckBox IsChecked="{Binding IsChecked}" Margin="2" Background="{DynamicResource PrimaryBrush}" BorderThickness="0" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                                                                    <CheckBox.Style>
+                                                                                        <Style TargetType="CheckBox" BasedOn="{StaticResource CheckBoxBaseStyle}">
+                                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                            <Style.Triggers>
+                                                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid,AncestorLevel=1}, Path=IsMouseOver}" Value="True">
+                                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                                </DataTrigger>
+                                                                                                <DataTrigger Binding="{Binding IsChecked}" Value="True">
+                                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                                </DataTrigger>
+                                                                                            </Style.Triggers>
+                                                                                        </Style>
+                                                                                    </CheckBox.Style>
+                                                                                </CheckBox>-->
                                                                             </Grid>
                                                                         </DataTemplate>
                                                                         <DataTemplate DataType="{x:Type ut:ChasingPattern}">
@@ -781,6 +862,21 @@
                                                                                 <Border Effect="{DynamicResource EffectShadow1}" Background="{DynamicResource SecondaryRegionBrush}" ToolTip="{Binding Description}" CornerRadius="2">
                                                                                     <TextBlock Margin="5" Style="{DynamicResource TextBlockDefault}" Text="{Binding Name}" />
                                                                                 </Border>
+                                                                                <CheckBox IsChecked="{Binding IsChecked}" Margin="2" Background="{DynamicResource PrimaryBrush}" BorderThickness="0" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                                                                    <CheckBox.Style>
+                                                                                        <Style TargetType="CheckBox" BasedOn="{StaticResource CheckBoxBaseStyle}">
+                                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                            <Style.Triggers>
+                                                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid,AncestorLevel=1}, Path=IsMouseOver}" Value="True">
+                                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                                </DataTrigger>
+                                                                                                <DataTrigger Binding="{Binding IsChecked}" Value="True">
+                                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                                </DataTrigger>
+                                                                                            </Style.Triggers>
+                                                                                        </Style>
+                                                                                    </CheckBox.Style>
+                                                                                </CheckBox>
                                                                             </Grid>
                                                                         </DataTemplate>
                                                                     </ListBox.Resources>

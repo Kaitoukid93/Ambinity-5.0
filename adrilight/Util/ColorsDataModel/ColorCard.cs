@@ -1,13 +1,6 @@
 ﻿using GalaSoft.MvvmLight;
-using System;
-using System.Collections.Generic;
-using System.Windows.Media;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 using Newtonsoft.Json;
-using HandyControl.Tools.Extension;
+using System.Windows.Media;
 
 namespace adrilight.Util
 {
@@ -25,7 +18,11 @@ namespace adrilight.Util
 
         }
 
-
+        private bool _isChecked = false;
+        [JsonIgnore]
+        public bool IsChecked { get => _isChecked; set { Set(() => IsChecked, ref _isChecked, value); } }
+        [JsonIgnore]
+        public string LocalPath { get; set; }
         public Color StartColor { get; set; }
         public Color StopColor { get; set; }
         [JsonIgnore]

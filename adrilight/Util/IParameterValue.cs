@@ -6,6 +6,7 @@ namespace adrilight.Util
     {
         string Name { get; }
         string Description { get; }
-
+        bool IsChecked { get; set; }
+        string LocalPath { get; set; }
     }
 }
