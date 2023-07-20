@@ -137,7 +137,8 @@ namespace adrilight
         }
         private void OnSelectedVIDDataChanged(IParameterValue value)
         {
-
+            if (value == null)
+                return;
             var vid = value as VIDDataModel;
             if (vid.ExecutionType == VIDType.PositonGeneratedID)
             {

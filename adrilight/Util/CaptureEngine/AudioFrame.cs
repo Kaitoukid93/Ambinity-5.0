@@ -26,6 +26,8 @@ namespace adrilight
         #region private field
         private int _deviceIndex;
         private Thread _workerThread;
+        private int _lastlevel;             //last output level
+        private int _hanctr;                //last output level counter
         private CancellationTokenSource _cancellationTokenSource;
         public static float[] _fft;
         private byte[] _lastSpectrumData;
@@ -110,11 +112,15 @@ namespace adrilight
                 while (!token.IsCancellationRequested)
                 {
                     var isPreviewWindowOpen = MainViewModel.IsInIDEditStage && MainViewModel.IdEditMode == MainViewViewModel.IDMode.FID || MainViewModel.IsAudioSelectionOpen;
-                    GetCurrentFFTFrame(32);
-                    lock (Lock)
+                    bool result = GetCurrentFFTFrame(32);
+                    if (result)
                     {
-                        Frame.Frame = _lastSpectrumData;
+                        lock (Lock)
+                        {
+                            Frame.Frame = _lastSpectrumData;
+                        }
                     }
+
 
                     if (isPreviewWindowOpen)
                     {
@@ -124,7 +130,7 @@ namespace adrilight
                         }
 
                     }
-                    Thread.Sleep(10); // take 100 sample per second
+                    Thread.Sleep(25); // take 100 sample per second
                 }
             }
 
@@ -153,11 +159,11 @@ namespace adrilight
         }
 
 
-        private byte[] GetCurrentFFTFrame(int numFreq)
+        private bool GetCurrentFFTFrame(int numFreq)
         {
             List<byte> spectrumdata = new List<byte>();
             int ret = BassWasapi.BASS_WASAPI_GetData(_fft, (int)BASSData.BASS_DATA_FFT2048);// get channel fft data
-            if (ret < -1) return null;
+            if (ret < 0) return false;
             int x, y;
             int b0 = 0;
             //computes the spectrum data, the code is taken from a bass_wasapi sample.
@@ -190,11 +196,22 @@ namespace adrilight
                 if (spectrumdata[i] < _lastSpectrumData[i])
                 {
                     _lastSpectrumData[i] -= (byte)(_speed2 * (_lastSpectrumData[i] - spectrumdata[i]));
-
-
                 }
             }
-            return _lastSpectrumData;
+            int level = BassWasapi.BASS_WASAPI_GetLevel();
+            if (level == _lastlevel && level != 0) _hanctr++;
+            _lastlevel = level;
+            //Required, because some programs hang the output. If the output hangs for a 75ms
+            //this piece of code re initializes the output
+            //so it doesn't make a gliched sound for long.
+            if (_hanctr > 3)
+            {
+                _hanctr = 0;
+                Free();
+                Bass.BASS_Init(0, 44100, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero);
+                StartBassWasapi();
+            }
+            return true;
 
 
         }

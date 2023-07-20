@@ -72,14 +72,18 @@ namespace adrilight.DesktopDuplication
             d3dDevice?.Dispose();
         }
 
-        public async Task StartCapture()
+        public void StartCaptureWithBorder()
+        {
+            session.IsCursorCaptureEnabled = false;
+            session.StartCapture();
+        }
+        public async Task StartCaptureBorderless()
         {
             await GraphicsCaptureAccess.RequestAccessAsync(GraphicsCaptureAccessKind.Borderless);
             session.IsBorderRequired = false;
             session.IsCursorCaptureEnabled = false;
             session.StartCapture();
         }
-
         public ICompositionSurface CreateSurface(Compositor compositor)
         {
             return compositor.CreateCompositionSurfaceForSwapChain(swapChain);

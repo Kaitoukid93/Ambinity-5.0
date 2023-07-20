@@ -141,19 +141,19 @@ namespace FTPServer
         BitmapImage StreamToImageSource(Stream stream)
         {
             var memory = new MemoryStream();
+            BitmapImage bitmapimage = new BitmapImage();
             stream.CopyTo(memory);
             using (memory)
             {
                 memory.Position = 0;
-                BitmapImage bitmapimage = new BitmapImage();
                 bitmapimage.BeginInit();
+                bitmapimage.DecodePixelWidth = 200;
                 bitmapimage.StreamSource = memory;
                 bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
                 bitmapimage.EndInit();
-                bitmapimage.Freeze();
-
-                return bitmapimage;
             }
+            bitmapimage.Freeze();
+            return bitmapimage;
         }
 
         public async Task<T> GetFiles<T>(string filePath) //only use for text format

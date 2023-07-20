@@ -22,6 +22,7 @@ namespace adrilight.Util
         private static byte[] expectedValidHeader = { 15, 12, 93 };
         private static byte[] unexpectedValidHeader = { (byte)'A', (byte)'b', (byte)'n' };
         private static CancellationToken cancellationtoken;
+        private static bool isNoRespondingMessageShowed = false;
         private static List<IDeviceSettings> ExistedSerialDevice { get; set; }
 
         public SerialDeviceDetection(List<IDeviceSettings> existedSerialDevice)
@@ -132,12 +133,16 @@ namespace adrilight.Util
                         retryCount++;
                         if (retryCount == 3)
                         {
-                            Console.WriteLine("timeout waiting for respond on serialport " + _serialPort.PortName);
-                            HandyControl.Controls.MessageBox.Show("Device at " + _serialPort.PortName + "is not responding, try adding it manually", "Device is not responding", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            Log.Warning("timeout waiting for respond on serialport " + _serialPort.PortName);
+                            if (!isNoRespondingMessageShowed)
+                            {
+                                isNoRespondingMessageShowed = true;
+                                HandyControl.Controls.MessageBox.Show("Device at " + _serialPort.PortName + " is not responding, try adding it manually", "Device is not responding", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            }
+
                             isValid = false;
                             break;
                         }
-                        Log.Warning(device, "no respond, retrying...");
                     }
 
 

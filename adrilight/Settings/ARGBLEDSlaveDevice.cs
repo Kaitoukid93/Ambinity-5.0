@@ -37,7 +37,7 @@ namespace adrilight.Settings
         [JsonIgnore]
         public string Thumbnail => Path.Combine(deviceDirectory, "thumbnail.png");
         [JsonIgnore]
-        public string ThumbnailWithColor => Path.Combine(deviceDirectory, "colored_thumbnail.png");
+        public string ThumbnailWithColor => File.Exists(Path.Combine(deviceDirectory, "colored_thumbnail.png")) ? Path.Combine(deviceDirectory, "colored_thumbnail.png") : Path.Combine(deviceDirectory, "thumbnail.png");
         public SlaveDeviceTypeEnum DeviceType { get; set; }
         public DeviceTypeEnum DesiredParrent { get; set; }
         public string Description { get; set; }

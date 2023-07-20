@@ -4,14 +4,13 @@
            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:hc="https://handyorg.github.io/handycontrol"
-           xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight.Converter"
            mc:Ignorable="d"
-           xmlns:ut ="clr-namespace:adrilight.Util"
-             xmlns:settings ="clr-namespace:adrilight.Settings"
-           xmlns:mt ="clr-namespace:adrilight_effect_analyzer.Model;assembly=adrilight_effect_analyzer"
+           xmlns:settings ="clr-namespace:adrilight.Settings"
            Background="{StaticResource RegionBrush}"
-           SizeToContent="WidthAndHeight"
+           Height="920" 
+           Width="1000" 
+           MinWidth="500"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}">
 
@@ -76,10 +75,18 @@
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="{x:Type ListViewItem}">
-                                    <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" Margin="5,10" CornerRadius="10" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
-                                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-
-                                    </Border>
+                                    <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
+                                        <Border x:Name="Bd" 
+                                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                                Margin="5,10" 
+                                                CornerRadius="7" 
+                                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                                Background="{TemplateBinding Background}" 
+                                                Padding="{TemplateBinding Padding}" 
+                                                SnapsToDevicePixels="true">
+                                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                        </Border>
+                                    </hc:TransitioningContentControl>
                                     <ControlTemplate.Triggers>
                                         <MultiTrigger>
                                             <MultiTrigger.Conditions>
@@ -132,7 +139,12 @@
                             </i:Interaction.Triggers>-->
                             <Border Margin="10"  CornerRadius="7,7,7,7" Style="{StaticResource BorderClip}">
                                 <Border CornerRadius="4" Margin="10">
-                                    <Image Source="{Binding ThumbnailWithColor}" RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform"/>
+                                    <Image RenderOptions.BitmapScalingMode="HighQuality" Stretch="Uniform">
+                                        <Image.Source>
+                                            <BitmapImage CacheOption="OnLoad" DecodePixelWidth="200" UriSource="{Binding ThumbnailWithColor}">
+                                            </BitmapImage>
+                                        </Image.Source>
+                                    </Image>
                                 </Border>
 
 
@@ -178,7 +190,7 @@
                                                         </Button.Style>
                                                     </Button>
                                                 </StackPanel>
-                                               
+
                                             </Grid>
                                         </Grid>
 
@@ -200,7 +212,8 @@
                                             CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}"/>
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
-                                --><!--<ItemsControl ItemsSource="{Binding Frames[0]}">
+                                -->
+                    <!--<ItemsControl ItemsSource="{Binding Frames[0]}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <UniformGrid Columns="16" Rows="1">
@@ -213,24 +226,31 @@
                                             <Border   Background="{Binding ., Converter={StaticResource ColorToBrushConverter}, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
-                                </ItemsControl>--><!--
+                                </ItemsControl>-->
+                    <!--
 
                             </Border>
 
                             <hc:Card.FooterTemplate>
                                 <DataTemplate>
-                                    --><!--Name and description+download--><!--
+                                    -->
+                    <!--Name and description+download-->
+                    <!--
                                     <Grid>
 
 
-                                        --><!--Name and description--><!--
+                                        -->
+                    <!--Name and description-->
+                    <!--
                                         <Grid>
                                             <StackPanel>
                                                 <TextBlock Margin="12,12" VerticalAlignment="Top" HorizontalAlignment="Left" TextWrapping="Wrap" Text="{Binding DataContext.Name,RelativeSource={RelativeSource AncestorType=hc:Card}}" Style="{DynamicResource TextBlockSubTitleBold}"/>
                                                 <TextBlock HorizontalAlignment="Left" Margin="12,10,10,12" TextWrapping="Wrap" Text="{Binding DataContext.Owner,RelativeSource={RelativeSource AncestorType=hc:Card}}" Style="{DynamicResource TextBlockDefaultSecLight}"/>
                                             </StackPanel>
                                         </Grid>
-                                        --><!--download button--><!--
+                                        -->
+                    <!--download button-->
+                    <!--
                                         <Grid>
                                             <Button Margin="12" HorizontalAlignment="Right" VerticalAlignment="Bottom" Padding="2" Width="40" Height="25" Foreground="{DynamicResource PrimaryBrush}" BorderThickness="0" Content="Get" Command="{Binding Path=DataContext.DownloadSelectedChasingPattern, RelativeSource={RelativeSource AncestorType=ListView}}" CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
                                                 <Button.Background>
@@ -254,46 +274,38 @@
     </Window.Resources>
 
     <Grid Margin="10,0,10,10">
-       
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
         <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <!--Store Carousel in the future-->
-            <Grid>
 
-            </Grid>
-            <!--List of content-->
-            <Grid Grid.Row="1">
+            <ListView ItemTemplate="{DynamicResource _slaveDeviceItemTemplate}" Background="Transparent" BorderThickness="0" ItemsSource="{Binding AvailableARGBSlaveDevices}">
 
-                <ListView ItemTemplate="{DynamicResource _slaveDeviceItemTemplate}" Background="Transparent" BorderThickness="0" ItemsSource="{Binding AvailableARGBSlaveDevices}">
-                
-                    <ListView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ListView.ItemsPanel>
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource ListViewContainerStyle}">
-                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                    <ListView.Template>
-                        <ControlTemplate TargetType="{x:Type ItemsControl}">
-                            <Border Margin="0" 
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource ListViewContainerStyle}">
+                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.Template>
+                    <ControlTemplate TargetType="{x:Type ItemsControl}">
+                        <Border Margin="0" 
                             SnapsToDevicePixels="False">
-                                <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled">
-                                    <ItemsPresenter />
-                                </hc:ScrollViewer>
-                            </Border>
-                        </ControlTemplate>
-                    </ListView.Template>
-                </ListView>
-                <hc:LoadingLine HorizontalAlignment="Center" VerticalAlignment="Center" Width="200" Visibility="{Binding CarouselImageLoading,Converter={StaticResource Boolean2VisibilityConverter}}"/>
-            </Grid>
+                            <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                                <ItemsPresenter />
+                            </hc:ScrollViewer>
+                        </Border>
+                    </ControlTemplate>
+                </ListView.Template>
+            </ListView>
+            <hc:LoadingLine HorizontalAlignment="Center" VerticalAlignment="Center" Width="200" Visibility="{Binding IsSlaveDeviceCollectionLoading,Converter={StaticResource Boolean2VisibilityConverter}}"/>
         </Grid>
-        <Grid Width="500" Height="500">
+        <Grid Grid.Row="1">
             <Grid.Style>
                 <Style TargetType="Grid">
                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -306,11 +318,35 @@
             </Grid.Style>
             <StackPanel VerticalAlignment="Center">
                 <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}" Text="Hiện không có sẵn bất kỳ thiết bị nào tương thích, Vào Adrilight store để tải về"/>
-                <Button Command="{Binding OpenAmbinoStoreWindowCommand}" Padding="0" Background="Transparent" BorderThickness="0">
+                <Button Command="{Binding OpenAmbinoStoreWindowCommand}" CommandParameter="SupportedDevice" Padding="0" Background="Transparent" BorderThickness="0">
                     <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="Truy cập Adrilight Store"/>
+                </Button>
+                <Button Margin="10" Style="{DynamicResource _mediumProfileDefaultButton}" HorizontalAlignment="Center"  Content="Refresh" Command="{Binding RefreshLocalSlaveDeviceCollectionCommand}" CommandParameter="SupportedDevice" BorderThickness="0">
+
                 </Button>
             </StackPanel>
 
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding AvailableARGBSlaveDevices.Count}" Value="0">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}" Text="Nếu bạn không thấy thiết bị nào phù hợp hãy truy cập Adrilight Store để tải về"/>
+                <Button Command="{Binding OpenAmbinoStoreWindowCommand}" CommandParameter="SupportedDevice" Padding="0" Background="Transparent" BorderThickness="0">
+                    <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="Truy cập Adrilight Store"/>
+                </Button>
+                <Button Margin="10" Style="{DynamicResource _mediumProfileDefaultButton}" HorizontalAlignment="Center"  Content="Refresh" Command="{Binding RefreshLocalSlaveDeviceCollectionCommand}" CommandParameter="SupportedDevice" BorderThickness="0">
+                   
+                </Button>
+            </StackPanel>
         </Grid>
     </Grid>
 </hc:Window>

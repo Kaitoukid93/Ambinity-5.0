@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
+using Windows.Foundation.Metadata;
 using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX.Direct3D11;
 
@@ -174,7 +175,18 @@ namespace adrilight
             {
                 StopCapture();
                 capture = new BasicCapture(device, item);
-                await capture.StartCapture();
+                if (ApiInformation.IsPropertyPresent(typeof(GraphicsCaptureSession).FullName, nameof(GraphicsCaptureSession.IsBorderRequired)))
+                {
+                    await capture.StartCaptureBorderless();
+                    Log.Information("This Version of Windows is able to disable the anoying yellow border. Thanks God");
+                }
+                else
+                {
+                    capture.StartCaptureWithBorder();
+                    Log.Information("This Version of Windows does not let you turn off the stupid yellow border, just f*king live with it");
+                }
+
+
             }
             catch (Exception ex)
             {

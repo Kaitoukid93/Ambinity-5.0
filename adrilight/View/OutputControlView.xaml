@@ -674,8 +674,20 @@
 
 
                                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                                                <Button ToolTip="Delete selected items" Command="{Binding DataContext.DeleteSelectedItemFromCurrentCollectionCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}" hc:IconElement.Geometry="{DynamicResource delete}" Visibility="{Binding ShowDeleteButton,Converter={StaticResource Boolean2VisibilityConverter}}" Margin="15,15,0,5" CommandParameter="{Binding .}" Style="{DynamicResource _defaultIconButton}" Content="Delete items"/>
+                                                                <Button ToolTip="Delete selected items" Command="{Binding DataContext.DeleteSelectedItemFromCurrentCollectionCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}" hc:IconElement.Geometry="{DynamicResource delete}" Visibility="{Binding ShowDeleteButton,Converter={StaticResource Boolean2VisibilityConverter}}" Margin="15,15,0,5" CommandParameter="{Binding .}" Foreground="{DynamicResource DangerBrush}" Style="{DynamicResource _defaultIconButton}" Content="Delete items"/>
                                                                 <Button Margin="15,15,15,5" CommandParameter="{Binding .}" Command="{Binding DataContext.RefreshCurrentCollectionCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}" Style="{DynamicResource _mediumProfileDefaultButton}" Content="Refresh"/>
+                                                                <Button Margin="0,15,15,5" CommandParameter="{Binding OnlineCatergory}" Command="{Binding DataContext.OpenAmbinoStoreWindowCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}" Content="Tải thêm">
+                                                                    <Button.Style>
+                                                                        <Style TargetType="Button" BasedOn="{StaticResource _mediumProfileDefaultButton}">
+                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding OnlineCatergory}" Value="{x:Null}">
+                                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </Button.Style>
+                                                                </Button>
                                                             </StackPanel>
                                                            
                                                             <hc:ComboBox BorderThickness="0" Height="32" ItemContainerStyle="{DynamicResource _ComboboxItemStyle}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15,15,15,5" SelectedIndex="{Binding SelectedDataSourceIndex,Mode=TwoWay}" ItemsSource="{Binding DataSourceLocaFolderNames}">

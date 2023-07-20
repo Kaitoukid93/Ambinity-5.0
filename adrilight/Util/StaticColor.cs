@@ -134,6 +134,8 @@ namespace adrilight
         }
         private void OnSelectedColorValueChanged(IParameterValue value)
         {
+            if (value == null)
+                return;
             var colorCard = value as ColorCard;
             int numColors;
             if (CurrentZone.Spots.Count < 2)

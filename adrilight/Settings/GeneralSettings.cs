@@ -34,6 +34,7 @@ namespace adrilight
         private bool _isMultipleScreenEnable = true;
         private int _startupDelaySecond = 0;
         private AppUser _currentAppUser;
+        private int _screenCapturingMethod = 0;
         public GeneralSettings()
         {
 
@@ -67,5 +68,7 @@ namespace adrilight
         public bool IsProfileLoading { get => _isProfileLoading; set { Set(() => IsProfileLoading, ref _isProfileLoading, value); } }
         public bool IsInBetaChanel { get => _isInBetaChanel; set { Set(() => IsInBetaChanel, ref _isInBetaChanel, value); } }
         public AppUser CurrentAppUser { get => _currentAppUser; set { Set(() => CurrentAppUser, ref _currentAppUser, value); } }
+        public int ScreenCapturingMethod { get => _screenCapturingMethod; set { Set(() => ScreenCapturingMethod, ref _screenCapturingMethod, value); } }
+
     }
 }

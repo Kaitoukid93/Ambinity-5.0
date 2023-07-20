@@ -525,6 +525,41 @@
                         </GroupBox>
                         <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Tắt tùy chọn này nếu bạn không muốn đồng bộ các thiết bị OpenRGB"/>
                     </Grid>
+                  
+                    <Grid Name="CapturingMethod">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="200" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                            <GroupBox.HeaderTemplate>
+                                <DataTemplate>
+                                    <TextBlock FontWeight="SemiBold" Text="CAPTURING API"/>
+                                </DataTemplate>
+                            </GroupBox.HeaderTemplate>
+
+                            <Grid  HorizontalAlignment="Right" >
+
+                                <ComboBox Width="110" Margin="0,0,5,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Right"   SelectedIndex="{Binding GeneralSettings.ScreenCapturingMethod}"   Style="{StaticResource ComboBoxBaseStyle}">
+                                    <ComboBoxItem>
+                                        Automatic
+                                    </ComboBoxItem>
+                                    <ComboBoxItem>
+                                        DXGI
+                                    </ComboBoxItem>
+                                    <ComboBoxItem>
+                                        WGC(Windows10 1903 and up)
+                                    </ComboBoxItem>
+                                </ComboBox>
+                            </Grid>
+
+
+                        </GroupBox>
+                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" MaxWidth="400" TextWrapping="Wrap" Text="Thay đổi phương pháp capture màn hình nếu chế độ sáng theo màn hình không hoạt động, sau đó khởi động lại App"/>
+                    </Grid>
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
+
+                    </hc:Divider>
                     <Grid Visibility="Visible" Name="MultipleScreen">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"/>
@@ -723,7 +758,7 @@
                                       Height="100" 
                                       Fill="{DynamicResource PrimaryTextBrush}"/>
                                 <TextBlock Margin="0,20,0,5" Style="{DynamicResource TextBlockLargeBold}" Text="Ambinity 5.0.7"></TextBlock>
-                                <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Release date : 12/7/2023"></TextBlock>
+                                <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Release date : 18/7/2023"></TextBlock>
                                 <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Credit :"></TextBlock>
                                 <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="fabsenet for DesktopDuplicator"></TextBlock>
                                 <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="HandyControl for awesome UI"></TextBlock>

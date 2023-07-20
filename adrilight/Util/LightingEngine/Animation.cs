@@ -111,7 +111,8 @@ namespace adrilight
         private void OnSelectedPaletteChanged(IParameterValue value)
         {
 
-
+            if (value == null)
+                return;
             if (_colorControl.SelectedValue is ColorPalette)
             {
                 //show sub params

@@ -107,6 +107,8 @@ namespace adrilight
         }
         private void OnSelectedMIDDataChanged(IParameterValue value)
         {
+            if (value == null)
+                return;
             var mid = value as MIDDataModel;
             if (mid.ExecutionType == VIDType.PositonGeneratedID)
             {
@@ -141,7 +143,8 @@ namespace adrilight
         }
         private void OnSelectedPaletteChanged(IParameterValue value)
         {
-
+            if (value == null)
+                return;
             if (value is ColorPalette)
             {
                 //show sub params

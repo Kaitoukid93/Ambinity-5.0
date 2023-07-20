@@ -55,6 +55,8 @@ namespace adrilight.Util.ModeParameters
         public int MaxValue { get => _maxValue; set { Set(() => MaxValue, ref _maxValue, value); } }
         public bool ShowDeleteButton { get => _showDeleteButton; set { Set(() => ShowDeleteButton, ref _showDeleteButton, value); } }
         public bool ShowMore { get => _showMore; set { Set(() => ShowMore, ref _showMore, value); } }
+        [JsonIgnore]
+        public string OnlineCatergory { get; set; }
         public void RefreshCollection()
         {
             RaisePropertyChanged(nameof(AvailableValues));
@@ -109,6 +111,7 @@ namespace adrilight.Util.ModeParameters
                             switch (t)
                             {
                                 case nameof(ColorPalette):
+                                    OnlineCatergory = "Palette";
                                     foreach (var file in files)
                                     {
                                         using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -192,6 +195,7 @@ namespace adrilight.Util.ModeParameters
                             switch (t)
                             {
                                 case nameof(Gif):
+                                    OnlineCatergory = "Gif";
                                     foreach (var file in files)
                                     {
                                         var data = new Gif() {
@@ -211,6 +215,7 @@ namespace adrilight.Util.ModeParameters
                                     }
                                     break;
                                 case nameof(ChasingPattern):
+                                    OnlineCatergory = "Pattern";
                                     foreach (var file in files)
                                     {
                                         var data = new ChasingPattern() {

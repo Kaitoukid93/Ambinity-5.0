@@ -611,6 +611,7 @@ namespace adrilight.ViewModel
         public ICommand SetCurrentSelectedActionTypeColorValueCommand { get; set; }
         public ICommand OpenHardwareMonitorWindowCommand { get; set; }
         public ICommand RefreshCurrentCollectionCommand { get; set; }
+        public ICommand RefreshLocalSlaveDeviceCollectionCommand { get; set; }
         public ICommand DeleteSelectedItemFromCurrentCollectionCommand { get; set; }
         public ICommand CoppyColorCodeCommand { get; set; }
         public ICommand DeleteSelectedAutomationCommand { get; set; }
@@ -2255,7 +2256,13 @@ namespace adrilight.ViewModel
                 var listParam = p as ListSelectionParameter;
                 listParam.LoadAvailableValues();
             });
-
+            RefreshLocalSlaveDeviceCollectionCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                RefreshLocalSlaveDeviceCollection();
+            });
             DeleteSelectedItemFromCurrentCollectionCommand = new RelayCommand<IModeParameter>((p) =>
             {
                 return true;
@@ -3258,7 +3265,7 @@ namespace adrilight.ViewModel
                 return true;
             }, (p) =>
             {
-                OpenAmbinoStoreWindow();
+                OpenAmbinoStoreWindow(p);
             });
 
             SetCurrentActionTypeForSelectedActionCommand = new RelayCommand<ActionType>((p) =>
@@ -4778,7 +4785,7 @@ namespace adrilight.ViewModel
             set { _currentOnlineStoreView = value; RaisePropertyChanged(); }
         }
 
-        private void OpenAmbinoStoreWindow()
+        private void OpenAmbinoStoreWindow(string catergory)
         {
             CurrentOnlineStoreView = "Collections";
             StoreWindow = new AmbinoOnlineStoreView();
@@ -4826,7 +4833,7 @@ namespace adrilight.ViewModel
                 AvailableStoreCategories.Add(profiles);
 
             }
-            CurrentSelectedCategory = AvailableStoreCategories.First();
+            CurrentSelectedCategory = AvailableStoreCategories.Where(c => c.Type == catergory).FirstOrDefault();
             AvailableCarouselImage = new ObservableCollection<BitmapImage>();
         }
         private AutomationManagerWindow automationManagerWindow { get; set; }
@@ -6715,8 +6722,9 @@ namespace adrilight.ViewModel
                         {
                             (item as IDrawable).IsSelectable = false;
                         }
+                        groupList.Add(group);
                     }
-                    groupList.Add(group);
+
                 }
                 var orderedGroups = groupList.OrderBy(o => o.Border.Width * o.Border.Height).ToList();
                 foreach (var group in orderedGroups)
@@ -8260,9 +8268,40 @@ namespace adrilight.ViewModel
         {
             //get items ready
             //load local folder
-            CurrentSelectedOutputMap = o;
-            string[] existedSlaveDeviceFolder = Directory.GetDirectories(SupportedDeviceCollectionFolderPath);
             AvailableARGBSlaveDevices = new ObservableCollection<ISlaveDevice>();
+            CurrentSelectedOutputMap = o;
+            SlaveDeviceSelection = new SlaveDeviceCollectionView();
+            SlaveDeviceSelection.Owner = OOTBWindows;
+            SlaveDeviceSelection.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            SlaveDeviceSelection.Show(); //open
+
+            Task.Run(() => LoadLocalExistedSlaveDevice());
+
+
+        }
+        private void RefreshLocalSlaveDeviceCollection()
+        {
+            AvailableARGBSlaveDevices = new ObservableCollection<ISlaveDevice>();
+            Task.Run(() => LoadLocalExistedSlaveDevice());
+        }
+        private bool _isSlaveDeviceCollectionLoading;
+        public bool IsSlaveDeviceCollectionLoading {
+            get
+            {
+                return _isSlaveDeviceCollectionLoading;
+            }
+            set
+            {
+                _isSlaveDeviceCollectionLoading = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private async void LoadLocalExistedSlaveDevice()
+        {
+            IsSlaveDeviceCollectionLoading = true;
+            string[] existedSlaveDeviceFolder = Directory.GetDirectories(SupportedDeviceCollectionFolderPath);
+
             foreach (var deviceFolder in existedSlaveDeviceFolder)
             {
                 if (File.Exists(Path.Combine(deviceFolder, "config.json")))
@@ -8271,7 +8310,12 @@ namespace adrilight.ViewModel
                     try
                     {
                         var existedDevice = JsonConvert.DeserializeObject<ARGBLEDSlaveDevice>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
-                        AvailableARGBSlaveDevices.Add(existedDevice);
+                        await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                        {
+                            if (existedDevice != null)
+                                AvailableARGBSlaveDevices.Add(existedDevice);
+                        });
+
                     }
                     catch (Exception ex)
                     {
@@ -8281,13 +8325,8 @@ namespace adrilight.ViewModel
 
                 }
             }
-
-            //open dialog
-            SlaveDeviceSelection = new SlaveDeviceCollectionView();
-            SlaveDeviceSelection.Owner = OOTBWindows;
-            SlaveDeviceSelection.Show();
+            IsSlaveDeviceCollectionLoading = false;
         }
-
         private void CreateNewAutomation()
         {
             var name = NewAutomationName;
