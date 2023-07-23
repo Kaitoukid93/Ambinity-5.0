@@ -287,13 +287,26 @@
             </hc:RelativePanel>
             <Border Background="{DynamicResource DarkOpacityBrush}" Visibility="{Binding SearchingForDevices,Mode=TwoWay,Converter={StaticResource Boolean2VisibilityConverter}}">
             </Border>
-            <Grid Visibility="{Binding SearchingForDevices,Mode=TwoWay,Converter={StaticResource Boolean2VisibilityConverter}}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <hc:LoadingLine  VerticalAlignment="Bottom" Height="20" Width="100"/>
-                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="1" Style="{DynamicResource TextBlockSubTitle}" Text="{Binding DashboardLoadingText,Mode=TwoWay}"/>
+            <Grid>
+
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding AvailableDevices.Count}" Value="0">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <StackPanel VerticalAlignment="Center">
+                    <Path HorizontalAlignment="Center" VerticalAlignment="Bottom" Data="{StaticResource noDevice}" Margin="20" Width="55" Fill="#707070" Stretch="Uniform" />
+                    <TextBlock VerticalAlignment="Center" FontSize="15" HorizontalAlignment="Center" Grid.Row="1" Style="{DynamicResource TextBlockDefaultSecLight}" Text="Không tìm thấy thiết bị nào được hỗ trợ, mở cài đặt để thêm thiết bị theo cách thủ công"/>
+                    <Button FontSize="15" Command="{Binding OpenAppSettingsWindowCommand}" CommandParameter="openAppSettings" Padding="0" Background="Transparent" BorderThickness="0">
+                        <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="Mở cài đặt App"/>
+                    </Button>
+                </StackPanel>
+                
             </Grid>
         </Grid>
     </Grid>

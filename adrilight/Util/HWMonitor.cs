@@ -255,7 +255,9 @@ namespace adrilight.Util
                     {
                         foreach (var sensor in fanControlSensors)
                         {
-                            speeds.Add((double)sensor.Value);
+                            if (sensor.Value.HasValue)
+                                speeds.Add((double)sensor.Value);
+
                         }
                     }
                     else

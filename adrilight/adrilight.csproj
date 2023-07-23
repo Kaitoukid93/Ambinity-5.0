@@ -104,6 +104,9 @@
     </PackageReference>
     <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.2" />
     <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
+    <PackageReference Include="LoadingIndicators.WPF">
+      <Version>0.0.1</Version>
+    </PackageReference>
     <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
     <PackageReference Include="MdXaml">
       <Version>1.17.0</Version>
@@ -425,6 +428,7 @@
     <Compile Include="View\AudioDeviceSelectionWindow.xaml.cs" />
     <Compile Include="View\PIDQuickEditNonClientAreaContent.xaml.cs" />
     <Compile Include="View\DebugNonClientAreaContent.xaml.cs" />
+    <Compile Include="View\DeviceSearchingScreen.xaml.cs" />
     <Compile Include="View\ZoneVisualizer.cs" />
     <Compile Include="View\SurfaceEditorNonClientAreaContent.xaml.cs" />
     <Compile Include="View\StoreNonClientAreaContent.xaml.cs" />
@@ -554,6 +558,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\DebugNonClientAreaContent.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\DeviceSearchingScreen.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

@@ -1,8 +1,10 @@
-﻿using Microsoft.Win32;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Windows;
+using System.Windows.Forms;
+using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
+using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
 
 namespace adrilight.Helpers
 {
@@ -43,6 +45,35 @@ namespace adrilight.Helpers
                 }
             }
             return default(T);
+        }
+        public void OpenExportFileDialog(object content, string ext, string filter, string name)
+        {
+            SaveFileDialog Export = new SaveFileDialog();
+            Export.CreatePrompt = true;
+            Export.OverwritePrompt = true;
+            Export.Title = "Xuất dữ liệu";
+            Export.CheckFileExists = false;
+            Export.CheckPathExists = true;
+            Export.DefaultExt = ext;
+            Export.FileName = name;
+            Export.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            Export.RestoreDirectory = true;
+
+            if (Export.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    var contentjson = JsonConvert.SerializeObject(content, new JsonSerializerSettings() {
+                        TypeNameHandling = TypeNameHandling.Auto
+                    });
+                    File.WriteAllText(Export.FileName, contentjson);
+                }
+                catch (Exception)
+                {
+                    //log
+                }
+            }
+
         }
         public string OpenImportFileDialog(string ext, string filter)
         {

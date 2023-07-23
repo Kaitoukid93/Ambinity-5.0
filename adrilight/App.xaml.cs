@@ -103,6 +103,7 @@ namespace adrilight
 
         private TelemetryClient _telemetryClient;
         private static View.SplashScreen _splashScreen;
+        private static View.DeviceSearchingScreen _searchingForDeviceScreen;
 
         internal static IKernel SetupDependencyInjection(bool isInDesignMode)
         {
@@ -521,7 +522,6 @@ namespace adrilight
                 _mainForm.Visibility = Visibility.Visible;
                 _mainForm.Show();
                 Log.Information("Open Dashboard");
-
             }
             else
             {

@@ -7,7 +7,6 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -72,6 +71,13 @@ namespace adrilight
             {
                 try
                 {
+                    //show searching screen
+                    //if (!MainViewViewModel.IsDeviceDiscoveryInit)
+                    //{
+                    //    MainViewViewModel.ShowSearchingScreen();
+                    //    MainViewViewModel.SetSearchingScreenHeaderText("Searching for devices...", true);
+                    //    MainViewViewModel.SetSearchingScreenProgressText("Scanning...");
+                    //}
                     if (Settings.DeviceDiscoveryMode == 0 && !MainViewViewModel.FrimwareUpgradeIsInProgress && enable)
                     {
                         // openRGB device scan only run once at startup
@@ -88,8 +94,11 @@ namespace adrilight
                         serialDevices.Item1.ForEach(d => newDevices.Add(d));
                         openRGBDevices.Item2.ForEach(d => oldDevicesReconnected.Add(d));
                         serialDevices.Item2.ForEach(d => oldDevicesReconnected.Add(d));
-
-                        await MainViewViewModel.FoundNewDevice(newDevices);
+                        if (newDevices.Count > 0)
+                        {
+                            MainViewViewModel.ShowSearchingScreen();
+                        }
+                        await Task.Run(() => MainViewViewModel.FoundNewDevice(newDevices));
                         MainViewViewModel.OldDeviceReconnected(oldDevicesReconnected);
                     }
 
@@ -213,17 +222,21 @@ namespace adrilight
             {
                 foreach (var device in newDevices)
                 {
-                    Debug.WriteLine("Name: " + device.DeviceName);
-                    Debug.WriteLine("ID: " + device.DeviceSerial);
-                    Debug.WriteLine("Firmware Version: " + device.FirmwareVersion);
-                    Debug.WriteLine("---------------");
+                    Log.Information("SerialDeviceDetection Found New Device");
+                    Log.Information("Name: " + device.DeviceName);
+                    Log.Information("ID: " + device.DeviceSerial);
+                    Log.Information("Firmware Version: " + device.FirmwareVersion);
+                    Log.Information("---------------");
                     if (MainViewViewModel.AvailableDevices.Any(p => p.OutputPort == device.OutputPort)) // this device match an old device that existed 
                     {
+                        // MainViewViewModel.SetSearchingScreenProgressText("Device reconnected: " + device.DeviceName + ". Address: " + device.OutputPort);
+                        Log.Information("Device: " + device.DeviceName + " is existed at: " + device.OutputPort);
                         oldDeviceReconnected.Add(device.OutputPort);
-
                     }
                     else
                     {
+                        // MainViewViewModel.SetSearchingScreenProgressText("Found new device: " + device.DeviceName + ". Address: " + device.OutputPort);
+                        Log.Information("Device: " + device.DeviceName + " is a new device at: " + device.OutputPort);
                         newDevicesDetected.Add(device);
                     }
                 }

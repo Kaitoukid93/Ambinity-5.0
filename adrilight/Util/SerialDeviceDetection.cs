@@ -98,7 +98,16 @@ namespace adrilight.Util
                 }
 
                 //write request info command
-                _serialPort.Write(requestCommand, 0, 3);
+                try
+                {
+                    _serialPort.Write(requestCommand, 0, 3);
+                }
+
+                catch (System.IO.IOException ex)// retry until received valid header
+                {
+                    Log.Warning("This Device seems to have Ambino PID/VID but not an USB device " + _serialPort.PortName);
+                    break;
+                }
                 int retryCount = 0;
                 int offset = 0;
                 int idLength = 0; // Expected response length of valid deviceID 
@@ -120,8 +129,8 @@ namespace adrilight.Util
                             offset++;
                             if (offset == 3)
                             {
-                                Console.WriteLine("Old Ambino Device at" + _serialPort.PortName);
-                                HandyControl.Controls.MessageBox.Show("Thiết bị ở " + _serialPort.PortName + " đang chạy firmware cũ, vui lòng cập nhật firmware để sử dụng ổn định hơn", "Old Device detected", MessageBoxButton.OK, MessageBoxImage.Warning);
+                                Log.Information("Old Ambino Device at" + _serialPort.PortName);
+                                //HandyControl.Controls.MessageBox.Show("Thiết bị ở " + _serialPort.PortName + " đang chạy firmware cũ, vui lòng cập nhật firmware để sử dụng ổn định hơn", "Old Device detected", MessageBoxButton.OK, MessageBoxImage.Warning);
                                 isValid = false;
                                 break;
                             }
@@ -144,7 +153,12 @@ namespace adrilight.Util
                             break;
                         }
                     }
+                    catch (System.IO.IOException ex)// retry until received valid header
+                    {
+                        Log.Warning("This Device seems to have Ambino PID/VID but not an USB device " + _serialPort.PortName);
 
+                        break;
+                    }
 
                 }
                 if (offset == 3) //3 bytes header are valid
@@ -188,8 +202,6 @@ namespace adrilight.Util
                                 1);
                             newDevice.DashboardWidth = 230;
                             newDevice.DashboardHeight = 270;
-
-
                             break;
                         case "Ambino EDGE":// General Ambino Edge USB Device
                             newDevice = new SlaveDeviceHelpers().DefaultCreatedAmbinoDevice(

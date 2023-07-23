@@ -182,7 +182,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Path   Fill="{DynamicResource DangerBrush}" Width="20" Height="20" Margin="10,20" Data="{StaticResource colorchanged}" Stretch="Uniform" />
-                <TextBlock Margin="0,0,0,0" TextWrapping="Wrap" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultDanger}" Grid.Column="1" Text="Để có thể điều chỉnh mục này, vào App Settings và chuyển Tự động dò tìm thiết bị thành Không bao giờ"/>
+                <TextBlock Margin="0,0,0,0" TextWrapping="Wrap" HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultDanger}" Grid.Column="1" Text="Để có thể điều chỉnh mục này, vào App Settings và chuyển Tự động dò tìm thiết bị thành Thủ công"/>
 
 
             </Grid>

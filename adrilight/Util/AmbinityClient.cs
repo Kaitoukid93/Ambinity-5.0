@@ -66,18 +66,18 @@ namespace adrilight
 
             if (!IsInitialized && GeneralSettings.IsOpenRGBEnabled) // Only run OpenRGB Stream if User enable OpenRGB Utilities in General Settings
             {
-                MainViewViewModel.SetDashboardStatusText("Starting OpenRGB service...", true);
+                MainViewViewModel.SetSearchingScreenProgressText("Starting OpenRGB service...");
                 LaunchOpenRGBProcess();
                 await Task.Delay(3000);
                 try
                 {
                     if (Client != null)
                         Client.Dispose();
-                    MainViewViewModel.SetDashboardStatusText("Searching for OpenRGB devices...", true);
+                    MainViewViewModel.SetSearchingScreenProgressText("Searching for OpenRGB devices...");
                     var result = await _retryPolicy.ExecuteAsync(async () => await RefreshOpenRGBDeviceState());
                     if (result)
                     {
-                        MainViewViewModel.SetDashboardStatusText("Done!", false);
+                        MainViewViewModel.SetSearchingScreenProgressText("Done!");
                         IsInitialized = true;
                     }
 

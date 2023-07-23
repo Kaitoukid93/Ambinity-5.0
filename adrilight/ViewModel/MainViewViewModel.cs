@@ -503,6 +503,8 @@ namespace adrilight.ViewModel
         }
         public ICommand OpenOOTBCommand { get; set; }
         public ICommand StoreSearchCommand { get; set; }
+        public ICommand CloseSearchingScreenCommand { get; set; }
+        public ICommand ManuallyAddSelectedDeviceToDashboard { get; set; }
         public ICommand FilterStoreItemByTargetDeviceTypeCommand { get; set; }
         //      public ICommand StorePageUpdatedCmd { get; set; }
         public ICommand ExportItemForOnlineStoreCommand { get; set; }
@@ -953,17 +955,6 @@ namespace adrilight.ViewModel
             }
         }
 
-        private ObservableCollection<IDeviceCatergory> _availableDeviceCatergoryToAdd;
-
-        public ObservableCollection<IDeviceCatergory> AvailableDeviceCatergoryToAdd { get => _availableDeviceCatergoryToAdd; set => Set(ref _availableDeviceCatergoryToAdd, value); }
-        private IDeviceCatergory _currentSelectedCatergoryToAdd;
-
-        public IDeviceCatergory CurrentSelectedCatergoryToAdd { get => _currentSelectedCatergoryToAdd; set => Set(ref _currentSelectedCatergoryToAdd, value); }
-
-        private IDeviceSettings _currentSelectedDeviceToAdd;
-
-        public IDeviceSettings CurrentSelectedDeviceToAdd { get => _currentSelectedDeviceToAdd; set => Set(ref _currentSelectedDeviceToAdd, value); }
-
         public ResourceHelpers ResourceHlprs { get; private set; }
         public LocalFileHelpers LocalFileHlprs { get; private set; }
         public IGeneralSettings GeneralSettings { get; }
@@ -1016,8 +1007,25 @@ namespace adrilight.ViewModel
 
                         foreach (IDeviceSettings device in newDevices)
                         {
-                            Log.Information("Adding device to Dashboard", device.DeviceName);
-                            await RegisterDevice(device);
+                            Log.Information("Adding device to Dashboard...", device.DeviceName);
+                            SetSearchingScreenProgressText("Adding device to Dashboard...");
+                            SetSearchingScreenHeaderText("Adding Device", true);
+                            await Task.Run(() => RegisterDevice(device));
+                            string finalInfo = "";
+                            finalInfo += "Device: ";
+                            finalInfo += Environment.NewLine;
+                            finalInfo += "Name: " + device.DeviceName;
+                            finalInfo += Environment.NewLine;
+                            finalInfo += "ID: " + device.DeviceSerial;
+                            finalInfo += Environment.NewLine;
+                            finalInfo += "Firmware: " + device.FirmwareVersion;
+                            finalInfo += Environment.NewLine;
+                            finalInfo += "Hardware: " + device.HardwareVersion;
+                            finalInfo += Environment.NewLine;
+                            finalInfo += "Enjoy!";
+                            SetSearchingScreenProgressText(finalInfo);
+                            SetSearchingScreenHeaderText("Done!", false);
+
                         }
                         break;
                 }
@@ -1444,96 +1452,247 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        private DeviceSearchingScreen _searchingForDeviceScreen { get; set; }
+        public void ShowSearchingScreen()
+        {
+            SearchingForDevices = false;
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                _searchingForDeviceScreen = new DeviceSearchingScreen();
+                _searchingForDeviceScreen.DataContext = this;
+                _searchingForDeviceScreen.Owner = System.Windows.Application.Current.MainWindow;
+                _searchingForDeviceScreen.Show();
+            });
 
-        public void SetDashboardStatusText(string text, bool isLoading)
+        }
+        public void CloseSearchingScreen()
         {
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
-                DashboardLoadingText = text;
+                if (_searchingForDeviceScreen != null)
+                {
+                    _searchingForDeviceScreen.Close();
+                }
+
+            });
+
+        }
+        private ObservableCollection<IDeviceSettings> _availableDefaultDevices;
+        public ObservableCollection<IDeviceSettings> AvailableDefaultDevices {
+            get
+            {
+                return _availableDefaultDevices;
+            }
+            set
+            {
+                _availableDefaultDevices = value;
+                RaisePropertyChanged();
+            }
+        }
+        private void GetAvailableDefaultDevice()
+        {
+            var ambinoBasic = new SlaveDeviceHelpers().DefaultCreatedAmbinoDevice(
+                new DeviceType(DeviceTypeEnum.AmbinoBasic),
+                "Ambino Basic",
+                "Không có",
+                false,
+                true,
+                1);
+            ambinoBasic.DashboardWidth = 230;
+            ambinoBasic.DashboardHeight = 270;
+            ambinoBasic.HardwareVersion = "unknown";
+            ambinoBasic.FirmwareVersion = "unknown";
+            ambinoBasic.DeviceSerial = "unknown";
+            var ambinoEdge = new SlaveDeviceHelpers().DefaultCreatedAmbinoDevice(
+             new DeviceType(DeviceTypeEnum.AmbinoEDGE),
+             "Ambino EDGE",
+             "Không có",
+             false,
+             true,
+             1);
+            ambinoEdge.DashboardWidth = 230;
+            ambinoEdge.DashboardHeight = 270;
+            ambinoEdge.HardwareVersion = "unknown";
+            ambinoEdge.FirmwareVersion = "unknown";
+            ambinoEdge.DeviceSerial = "unknown";
+            var ambinoFanhub = new SlaveDeviceHelpers().DefaultCreatedAmbinoDevice(
+               new DeviceType(DeviceTypeEnum.AmbinoFanHub),
+            "Ambino FanHub",
+               "Không có",
+               true,
+               true,
+               10);
+            ambinoFanhub.DashboardWidth = 472;
+            ambinoFanhub.DashboardHeight = 270;
+            ambinoFanhub.HardwareVersion = "unknown";
+            ambinoFanhub.FirmwareVersion = "unknown";
+            ambinoFanhub.DeviceSerial = "unknown";
+
+            var ambinoHUBV2 = new SlaveDeviceHelpers().DefaultCreatedAmbinoDevice(
+             new DeviceType(DeviceTypeEnum.AmbinoHUBV2),
+          "Ambino HubV2",
+             "Không có",
+             false,
+             true,
+             7);
+            ambinoHUBV2.DashboardWidth = 320;
+            ambinoHUBV2.DashboardHeight = 270;
+            ambinoHUBV2.HardwareVersion = "unknown";
+            ambinoHUBV2.FirmwareVersion = "unknown";
+            ambinoHUBV2.DeviceSerial = "unknown";
+            var ambinoHUBV3 = new SlaveDeviceHelpers().DefaultCreatedAmbinoDevice(
+              new DeviceType(DeviceTypeEnum.AmbinoHUBV3),
+           "Ambino HubV3",
+              "Không có",
+              false,
+              true,
+              4);
+            ambinoHUBV3.DashboardWidth = 320;
+            ambinoHUBV3.DashboardHeight = 270;
+            ambinoHUBV3.HardwareVersion = "unknown";
+            ambinoHUBV3.FirmwareVersion = "unknown";
+            ambinoHUBV3.DeviceSerial = "unknown";
+            AvailableDefaultDevices.Add(ambinoBasic);
+            AvailableDefaultDevices.Add(ambinoEdge);
+            AvailableDefaultDevices.Add(ambinoFanhub);
+            AvailableDefaultDevices.Add(ambinoHUBV2);
+            AvailableDefaultDevices.Add(ambinoHUBV3);
+        }
+        public void LoadAvailableDefaultDevices()
+        {
+            AvailableDefaultDevices = new ObservableCollection<IDeviceSettings>();
+            GetAvailableDefaultDevice();
+
+        }
+        public void SetSearchingScreenHeaderText(string text, bool isLoading)
+        {
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                DeviceSearchingHeaderText = text;
                 SearchingForDevices = isLoading;
             });
         }
+        public void SetSearchingScreenProgressText(string text)
+        {
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                DeviceSearchingProgressText = text;
 
-        private string _dashboardLoadingText = "Searching for supported device...";
+            });
+        }
+        private string _deviceSearchingHeaderText = "";
 
-        public string DashboardLoadingText {
-            get { return _dashboardLoadingText; }
+        public string DeviceSearchingHeaderText {
+            get { return _deviceSearchingHeaderText; }
 
             set
             {
-                _dashboardLoadingText = value;
+                _deviceSearchingHeaderText = value;
+                RaisePropertyChanged();
+            }
+        }
+        private string _deviceSearchingProgressText = "";
+
+        public string DeviceSearchingProgressText {
+            get { return _deviceSearchingProgressText; }
+
+            set
+            {
+                _deviceSearchingProgressText = value;
                 RaisePropertyChanged();
             }
         }
         private int _noDeviceDetectedCounter;
         private bool _isDeviceDiscoveryInit;
+        public bool IsDeviceDiscoveryInit {
+            get
+            {
+                return _isDeviceDiscoveryInit;
+            }
+            set
+            {
+                _isDeviceDiscoveryInit = value;
+                RaisePropertyChanged();
+            }
+        }
+
         public async Task FoundNewDevice(List<IDeviceSettings> newDevices)
         {
             if (IsLoadingProfile)
                 return;
-            await System.Windows.Application.Current.Dispatcher.BeginInvoke(async () =>
+            //if (FTPHlprs == null)
+            //{
+            //    SFTPInit(GeneralSettings.CurrentAppUser);
+            //    SFTPConnect();
+            //}
+            //if (!FTPHlprs.sFTP.IsConnected)
+            //{
+            //    try
+            //    {
+            //        SFTPConnect();
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        CarouselImageLoading = false;
+            //        return;
+            //    }
+            //}
+
+            if (newDevices != null && newDevices.Count > 0)
             {
-                if (newDevices != null && newDevices.Count > 0)
+                IsDeviceDiscoveryInit = false;
+                foreach (var device in newDevices)
                 {
-                    foreach (var device in newDevices)
+                    SetSearchingScreenHeaderText("New device found: " + device.DeviceName, true);
+                    device.IsTransferActive = true;
+                    if (device.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
                     {
-                        device.IsTransferActive = true;
-                        if (device.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
-                        {
-                            GeneralSettings.IsOpenRGBEnabled = true;
-                        }
-                        WriteDeviceInfo(device);
-                        if (FTPHlprs == null)
-                        {
-                            SFTPInit(GeneralSettings.CurrentAppUser);
-                            SFTPConnect();
-                        }
-                        if (!FTPHlprs.sFTP.IsConnected)
-                        {
-                            try
-                            {
-                                SFTPConnect();
-                            }
-                            catch (Exception ex)
-                            {
-                                CarouselImageLoading = false;
-                                return;
-                            }
-                        }
-                        var thumbPath = await FTPHlprs.GetFileByName(device.DeviceName + ".png", thumbResourceFolderPath);
-                        if (thumbPath != null)
-                        {
-                            FTPHlprs.DownloadFile(thumbPath, Path.Combine(ResourceFolderPath, device.DeviceName + "_thumb.png"), DownloadProgresBar);
-                        }
-                        lock (AvailableDeviceLock)
+                        GeneralSettings.IsOpenRGBEnabled = true;
+                    }
+                    SetSearchingScreenProgressText("Writing device information...");
+                    await Task.Delay(TimeSpan.FromSeconds(2));
+                    WriteDeviceInfo(device);
+
+                    //var thumbPath = await FTPHlprs.GetFileByName(device.DeviceName + ".png", thumbResourceFolderPath);
+                    //if (thumbPath != null)
+                    //{
+                    //    SetSearchingScreenProgressText("Downloading device information");
+                    //    FTPHlprs.DownloadFile(thumbPath, Path.Combine(ResourceFolderPath, device.DeviceName + "_thumb.png"), DownloadProgresBar);
+                    //}
+                    lock (AvailableDeviceLock)
+                    {
+                        System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
                         {
                             AvailableDevices.Insert(0, device);
-                        }
+                        });
                     }
-                    SearchingForDevices = false;
-                    _isDeviceDiscoveryInit = true;
+                    await Task.Delay(TimeSpan.FromSeconds(2));
                 }
-                else
+                SearchingForDevices = false;
+                IsDeviceDiscoveryInit = true;
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            }
+            else
+            {
+                if (_noDeviceDetectedCounter < 3)
+                    _noDeviceDetectedCounter++;
+                if (_noDeviceDetectedCounter >= 3)
                 {
-                    if (_noDeviceDetectedCounter < 10)
-                        _noDeviceDetectedCounter++;
-                    if (_noDeviceDetectedCounter >= 10)
-                    {
-                        SearchingForDevices = false;
-                        if (!_isDeviceDiscoveryInit)
-                        {
-                            var result = HandyControl.Controls.MessageBox.Show("Không phát hiện ra thiết bị nào được hỗ trợ", "No device detected", MessageBoxButton.YesNo, MessageBoxImage.Error);
-                            if (result == MessageBoxResult.Yes)//stop showing message
-                            {
-                                //open device setup wizard
-                            }
-                        }
-                        _isDeviceDiscoveryInit = true;
-                    }
-
-
+                    SearchingForDevices = false;
+                    //if (!IsDeviceDiscoveryInit)
+                    //{
+                    //    var result = HandyControl.Controls.MessageBox.Show("Không phát hiện ra thiết bị nào được hỗ trợ", "No device detected", MessageBoxButton.OK, MessageBoxImage.Error);
+                    //    if (result == MessageBoxResult.Yes)//stop showing message
+                    //    {
+                    //        //open device setup wizard
+                    //    }
+                    //}
+                    IsDeviceDiscoveryInit = true;
+                    //CloseSearchingScreen();
                 }
-            });
+
+
+            }
         }
 
         public void OldDeviceReconnected(List<string> oldDevices)
@@ -1557,13 +1716,15 @@ namespace adrilight.ViewModel
                             {
                                 GeneralSettings.IsOpenRGBEnabled = true;
                             }
+                            //Thread.Sleep(500);
+                            SetSearchingScreenProgressText("Connected: " + oldDevice.OutputPort);
                         }
 
                         WriteSingleDeviceInfoJson(oldDevice);
                     }
 
                     SearchingForDevices = false;
-                    _isDeviceDiscoveryInit = true;
+                    IsDeviceDiscoveryInit = true;
                 }
             });
         }
@@ -3644,7 +3805,25 @@ namespace adrilight.ViewModel
             {
                 ShowAddNewWindow();
             });
-
+            CloseSearchingScreenCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                CloseSearchingScreen();
+            });
+            ManuallyAddSelectedDeviceToDashboard = new RelayCommand<IDeviceSettings>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                if (p == null)
+                    return;
+                p.UpdateChildSize();
+                WriteDeviceInfo(p);
+                AvailableDevices.Add(p);
+                LoadAvailableDefaultDevices();
+            });
             BackCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -4188,11 +4367,9 @@ namespace adrilight.ViewModel
             }
             else if (p.GetType() == typeof(AppProfile))
             {
-                CurrentItemForExport.Name = (p as AppProfile).Name;
-                foreach (var deviceProfile in (p as AppProfile).DeviceProfiles)
-                {
-                    OnlineItemSelectableTargetType.Add(deviceProfile.DeviceType);
-                }
+                var name = (p as AppProfile).Name;
+                LocalFileHlprs.OpenExportFileDialog(p, ".aap", ".aap", name);
+                return;
             }
             else if (p.GetType() == typeof(ChasingPattern))
             {
@@ -4290,7 +4467,7 @@ namespace adrilight.ViewModel
                         break;
                 }
                 //download online details for upgrade purpose
-                await Task.Delay(1000);
+                await Task.Delay(TimeSpan.FromSeconds(1));
                 item.IsDownloading = false;
                 Log.Information("Item Downloaded" + " " + item.Name);
                 item.IsLocalExisted = true;
@@ -4830,7 +5007,7 @@ namespace adrilight.ViewModel
                 AvailableStoreCategories.Add(chasingPatterns);
                 AvailableStoreCategories.Add(gif);
                 AvailableStoreCategories.Add(supportedDevices);
-                AvailableStoreCategories.Add(profiles);
+                // AvailableStoreCategories.Add(profiles);
 
             }
             CurrentSelectedCategory = AvailableStoreCategories.Where(c => c.Type == catergory).FirstOrDefault();
@@ -8796,6 +8973,7 @@ namespace adrilight.ViewModel
                 }
             }
         }
+        private DeviceSearchingScreen searchingDeviceScreen { get; set; }
         public void LoadData()
         {
 
@@ -8806,9 +8984,6 @@ namespace adrilight.ViewModel
             //create Public user
             LoadAvailableAppUser();
             //Task.Run(() => SFTPInit(GeneralSettings.CurrentAppUser));
-            if (GeneralSettings.DeviceDiscoveryMode == 0)
-                SearchingForDevices = true;
-
             #region checking and creating resource folder path if not exist
             CreateColorCollectionFolder();
             CreatePaletteCollectionFolder();
@@ -8820,6 +8995,7 @@ namespace adrilight.ViewModel
             CreateAudioDevicesCollection();
             CreateProfileCollectionFolder();
             CreateSupportedDevicesCollectionFolder();
+            LoadAvailableDefaultDevices();
             #endregion
             LoadAvailableBaudRate();
             LoadAvailableProfiles();

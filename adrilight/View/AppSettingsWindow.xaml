@@ -638,25 +638,73 @@
                         <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="200" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
-                                    <TextBlock FontWeight="SemiBold" Text="TỰ ĐỘNG DÒ TÌM THIẾT BỊ MỚI"/>
+                                    <TextBlock FontWeight="SemiBold" Text="THÊM THIẾT BỊ MỚI"/>
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
                             <Grid  HorizontalAlignment="Right" >
 
-                                <ComboBox Width="110" Margin="0,0,5,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Right"   SelectedIndex="{Binding GeneralSettings.DeviceDiscoveryMode}"   Style="{StaticResource ComboBoxBaseStyle}">
+                                <ComboBox x:Name="addMode" Width="110" Margin="0,0,5,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Right"   SelectedIndex="{Binding GeneralSettings.DeviceDiscoveryMode}"   Style="{StaticResource ComboBoxBaseStyle}">
                                     <ComboBoxItem>
-                                        Luôn luôn
+                                        Tự động
                                     </ComboBoxItem>
                                     <ComboBoxItem>
-                                        Không bao giờ
+                                        Thủ công
                                     </ComboBoxItem>
                                 </ComboBox>
                             </Grid>
 
 
                         </GroupBox>
-                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Chọn &quot;Không bao giờ&quot; nếu bạn muốn bật tắt cổng COM tùy ý"/>
+                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Chọn &quot;Thủ công&quot; nếu bạn muốn thêm thiết bị bằng tay"/>
+                    </Grid>
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="50,10,5,10">
+                        <hc:Divider.Style>
+                            <Style TargetType="hc:Divider">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=addMode,Path=SelectedIndex}" Value="1">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </hc:Divider.Style>
+                    </hc:Divider>
+                    <Grid Margin="50,0,0,0" Name="ManualAdd">
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=addMode,Path=SelectedIndex}" Value="1">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="200" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                            <GroupBox.HeaderTemplate>
+                                <DataTemplate>
+                                    <TextBlock FontWeight="SemiBold" Text="THÊM THỦ CÔNG"/>
+                                </DataTemplate>
+                            </GroupBox.HeaderTemplate>
+
+                            <Grid  HorizontalAlignment="Right" >
+                                <StackPanel Orientation="Horizontal">
+                                    <ComboBox  x:Name="selectedDevice" ItemsSource="{Binding AvailableDefaultDevices}" SelectedIndex="0" DisplayMemberPath="DeviceName" Width="110" Margin="0,0,10,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Right">
+
+                                    </ComboBox>
+                                    <Button Command="{Binding ManuallyAddSelectedDeviceToDashboard}" CommandParameter="{Binding ElementName=selectedDevice,Path=SelectedItem}" Style="{DynamicResource _mediumProfileDefaultButton}" Content="Add"/>
+                                </StackPanel>
+                               
+                            </Grid>
+
+
+                        </GroupBox>
+                      
                     </Grid>
                     <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
@@ -758,7 +806,7 @@
                                       Height="100" 
                                       Fill="{DynamicResource PrimaryTextBrush}"/>
                                 <TextBlock Margin="0,20,0,5" Style="{DynamicResource TextBlockLargeBold}" Text="Ambinity 5.0.7"></TextBlock>
-                                <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Release date : 18/7/2023"></TextBlock>
+                                <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Release date : 21/7/2023"></TextBlock>
                                 <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Credit :"></TextBlock>
                                 <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="fabsenet for DesktopDuplicator"></TextBlock>
                                 <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="HandyControl for awesome UI"></TextBlock>
