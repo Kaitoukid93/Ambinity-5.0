@@ -421,6 +421,7 @@
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\VisualProperties.cs" />
+    <Compile Include="View\ActionManagerWindow.xaml.cs" />
     <Compile Include="View\AutomationNonClientAreaContent.xaml.cs" />
     <Compile Include="View\DebugWindow.xaml.cs" />
     <Compile Include="View\GifRegionSelectionWindow.xaml.cs" />
@@ -442,9 +443,6 @@
     <Compile Include="View\DeviceControlView.xaml.cs" />
     <Compile Include="View\OnlineItemExporterView.xaml.cs" />
     <Compile Include="View\OnlineItemsCollectionView.xaml.cs" />
-    <Compile Include="View\ChasingPatternPreviewZone.xaml.cs" />
-    <Compile Include="View\GifxelationPreviewZone.xaml.cs" />
-    <Compile Include="View\ColorPalettePreviewZone.xaml.cs" />
     <Compile Include="View\OnlineItemDetailView.xaml.cs" />
     <Compile Include="View\AmbinoOnlineStoreView.xaml.cs" />
     <Compile Include="View\MotionCollectionView.xaml.cs" />
@@ -453,7 +451,6 @@
     <Compile Include="View\OOTBWindow.xaml.cs" />
     <Compile Include="View\CompositionEditWindow.xaml.cs" />
     <Compile Include="View\DeviceLiveView.xaml.cs" />
-    <Compile Include="View\FanSpeedChartView.xaml.cs" />
     <Compile Include="View\VIDEditCanvasWindow.xaml.cs" />
     <Compile Include="View\RotateSelectionWindow.xaml.cs" />
     <Compile Include="View\NewItemParametersWindow.xaml.cs" />
@@ -466,51 +463,23 @@
     <Compile Include="View\CommonInfoDialog.xaml.cs" />
     <Compile Include="View\CommonAskingDialog.xaml.cs" />
     <Compile Include="View\UpdateSelectionWindow.xaml.cs" />
-    <Compile Include="View\LEDSetupSelectionWindows.xaml.cs" />
     <Compile Include="View\PasswordDialog.xaml.cs" />
-    <Compile Include="View\AboutAppWindow.xaml.cs" />
-    <Compile Include="View\ActionEditWindow.xaml.cs" />
-    <Compile Include="View\ActionManagerWindow.xaml.cs" />
     <Compile Include="View\AddNewAutomationWindow.xaml.cs" />
-    <Compile Include="View\AddNewDeviceWindow.xaml.cs" />
     <Compile Include="View\AddNewPaletteWindow.xaml.cs" />
     <Compile Include="View\AddNewProfileWindow.xaml.cs" />
     <Compile Include="View\AllDeviceView.xaml.cs" />
     <Compile Include="View\AppSettingsWindow.xaml.cs" />
     <Compile Include="View\AutomationManagerWindow.xaml.cs" />
-    <Compile Include="View\CollectionItem.cs" />
-    <Compile Include="View\ColorPaletteControl.xaml.cs" />
-    <Compile Include="View\ColorPaletteSidePanel.xaml.cs" />
     <Compile Include="View\ColorPickerWindow.xaml.cs" />
-    <Compile Include="View\ComputerHardwareInformationWindow.xaml.cs" />
-    <Compile Include="View\CustomWBWindow.xaml.cs" />
-    <Compile Include="View\DeleteSelectedDeviceWindow.xaml.cs" />
     <Compile Include="View\DeviceConnectionSettingsWindow.xaml.cs" />
     <Compile Include="View\DeviceFirmwareSettingsWindow.xaml.cs" />
-    <Compile Include="View\DeviceLightingControl.xaml.cs" />
-    <Compile Include="View\ExpandedOutputControl.xaml.cs" />
-    <Compile Include="View\ExportNewColorEffectWindow.xaml.cs" />
-    <Compile Include="View\FanSpeedPlotWindow.xaml.cs" />
-    <Compile Include="View\FIDSetupWindow.xaml.cs" />
     <Compile Include="View\FirmwareSelectionWindow.xaml.cs" />
-    <Compile Include="View\GifxelationControl.xaml.cs" />
-    <Compile Include="View\GifxelationSidePanel.xaml.cs" />
-    <Compile Include="View\GradientEditWindow.xaml.cs" />
     <Compile Include="View\GridHelpers.cs" />
-    <Compile Include="View\HardwareCard.xaml.cs" />
     <Compile Include="View\IDSetupWindow.xaml.cs" />
     <Compile Include="View\KeySelectionButton.cs" />
     <Compile Include="View\MainView.xaml.cs" />
-    <Compile Include="View\MotherboardCard.xaml.cs" />
-    <Compile Include="View\MusicControl.xaml.cs" />
-    <Compile Include="View\MusicSidePanel.xaml.cs" />
-    <Compile Include="View\NewAppSettingsView.xaml.cs" />
-    <Compile Include="View\NewDeviceSettingsView.xaml.cs" />
     <Compile Include="View\NonClientAreaContent.xaml.cs" />
     <Compile Include="View\NotifyObject.cs" />
-    <Compile Include="View\OutputAdvanceSettingsWindow.xaml.cs" />
-    <Compile Include="View\OutputDataImportSelection.xaml.cs" />
-    <Compile Include="View\PaletteEditWindow.xaml.cs" />
     <Compile Include="View\RenameItemWindow.xaml.cs" />
     <Compile Include="View\ScreenCapturingControl.xaml.cs" />
     <Compile Include="View\ScreenCapturingSidePanel.xaml.cs" />
@@ -521,7 +490,6 @@
     <Compile Include="View\SpotSetEditing.xaml.cs" />
     <Compile Include="View\StaticColorControl.xaml.cs" />
     <Compile Include="View\StaticColorSidePanel.xaml.cs" />
-    <Compile Include="View\AvailableDevicesToolbar.xaml.cs" />
     <Compile Include="View\UnionOutputControl.xaml.cs" />
     <Compile Include="View\VerticalMenuItem.cs" />
     <ApplicationDefinition Include="App.xaml">
@@ -532,6 +500,10 @@
     <Page Include="Properties\DesignTimeResources.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\ActionManagerWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>XamlIntelliSenseFileGenerator</Generator>
     </Page>
     <Page Include="View\AutomationNonClientAreaContent.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -613,18 +585,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\ChasingPatternPreviewZone.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\GifxelationPreviewZone.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\ColorPalettePreviewZone.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="View\OnlineItemDetailView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -645,19 +605,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\LEDSetupSelectionWindows.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="View\CompositionEditWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\DeviceLiveView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\FanSpeedChartView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -717,23 +669,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\AboutAppWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\ActionEditWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\ActionManagerWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="View\AddNewAutomationWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\AddNewDeviceWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -757,31 +693,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\ColorPaletteControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\ColorPaletteSidePanel.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="View\ColorPickerWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\ComputerHardwareInformationWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="View\ControlStyle.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\CustomWBWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\DeleteSelectedDeviceWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -793,43 +709,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\DeviceLightingControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\ExpandedOutputControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\ExportNewColorEffectWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\FanSpeedPlotWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\FIDSetupWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="View\FirmwareSelectionWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\GifxelationControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\GifxelationSidePanel.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\GradientEditWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\HardwareCard.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -841,39 +721,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\MotherboardCard.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\MusicControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\MusicSidePanel.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\NewAppSettingsView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\NewDeviceSettingsView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="View\NonClientAreaContent.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\OutputAdvanceSettingsWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\OutputDataImportSelection.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\PaletteEditWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -914,10 +762,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\StaticColorSidePanel.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\AvailableDevicesToolbar.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -971,9 +815,6 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="DeviceFirmware\ABR1p.hex">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="DeviceFirmware\ABR2e.hex">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="DeviceFirmware\AER1e.hex">
@@ -1058,6 +899,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="DeviceFirmware\AFR3g.hex">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DeviceFirmware\ABR2e.hex">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">

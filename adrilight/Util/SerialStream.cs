@@ -571,7 +571,15 @@ namespace adrilight
 
                     if (serialPort != null && serialPort.IsOpen)
                     {
-                        serialPort.Close();
+                        try
+                        {
+                            serialPort.Close();
+                        }
+                        catch (Exception ex2)
+                        {
+                            ///
+                        }
+
                     }
                     serialPort?.Dispose();
                     //allow the system some time to recover

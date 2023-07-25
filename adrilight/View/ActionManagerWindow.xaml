@@ -164,17 +164,13 @@
                                 <TextBlock FontWeight="SemiBold" Text="CHUỖI HÀNH ĐỘNG"/>
                             </DataTemplate>
                         </GroupBox.HeaderTemplate>
-                        <ListView MaxHeight="300" Margin="0,10,0,10" HorizontalAlignment="Center"  SelectedItem="{Binding CurrentSelectedAction}" Background="Transparent" BorderThickness="0" ItemsSource="{Binding CurrentSelectedAutomation.Actions}">
+                        <ListView ItemContainerStyle="{DynamicResource ListViewContainerStyle}" MaxHeight="300" Margin="0,10,0,10" HorizontalAlignment="Center"  SelectedItem="{Binding CurrentSelectedAction}" Background="Transparent" BorderThickness="0" ItemsSource="{Binding CurrentSelectedAutomation.Actions}">
                             <ListView.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <WrapPanel Orientation="Horizontal"/>
                                 </ItemsPanelTemplate>
                             </ListView.ItemsPanel>
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource ListViewContainerStyle}">
-                                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-                                </Style>
-                            </ListView.ItemContainerStyle>
+                  
                             <ListView.Template>
                                 <ControlTemplate TargetType="{x:Type ItemsControl}">
                                     <Border Margin="0" 
@@ -312,17 +308,13 @@
                             </DataTemplate>
                         </GroupBox.HeaderTemplate>
 
-                        <ListView MaxHeight="300" Margin="0,10,0,10" HorizontalAlignment="Center" Background="Transparent" BorderThickness="0" ItemsSource="{Binding AvailableActionsforCurrentDevice}">
+                        <ListView ItemContainerStyle="{DynamicResource ListViewContainerStyle}" MaxHeight="300" Margin="0,10,0,10" HorizontalAlignment="Center" Background="Transparent" BorderThickness="0" ItemsSource="{Binding AvailableActionsforCurrentDevice}">
                             <ListView.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <WrapPanel Orientation="Horizontal"/>
                                 </ItemsPanelTemplate>
                             </ListView.ItemsPanel>
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource ListViewContainerStyle}">
-                                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-                                </Style>
-                            </ListView.ItemContainerStyle>
+                   
                             <ListView.Template>
                                 <ControlTemplate TargetType="{x:Type ItemsControl}">
                                     <Border Margin="0" 
@@ -511,8 +503,8 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-            <Button Click="Button_Click" Command="{Binding SaveCurrentSelectedAutomationCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Save"/>
-            <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
+            <Button Click="Button_Click" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
+            <!--<Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>-->
         </Grid>
 
 

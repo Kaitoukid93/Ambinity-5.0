@@ -96,7 +96,27 @@ namespace FTPServer
 
                 using (var remoteFileStream = sFTP.OpenRead(thumbPath))
                 {
-                    thumb = StreamToImageSource(remoteFileStream);
+                    thumb = StreamToImageSource(remoteFileStream, 200);
+                }
+
+                return await Task.FromResult(thumb);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("An exception has been caught " + e.ToString());
+                return null;
+            }
+        }
+
+        public async Task<BitmapImage> GetScreenShot(string thumbPath)  // this method get all file from dropbox adrilight App folder to temp folder
+        {
+            try
+            {
+                var thumb = new BitmapImage();
+
+                using (var remoteFileStream = sFTP.OpenRead(thumbPath))
+                {
+                    thumb = StreamToImageSource(remoteFileStream, 600);
                 }
 
                 return await Task.FromResult(thumb);
@@ -138,7 +158,7 @@ namespace FTPServer
 
         }
 
-        BitmapImage StreamToImageSource(Stream stream)
+        BitmapImage StreamToImageSource(Stream stream, int width)
         {
             var memory = new MemoryStream();
             BitmapImage bitmapimage = new BitmapImage();
@@ -147,7 +167,7 @@ namespace FTPServer
             {
                 memory.Position = 0;
                 bitmapimage.BeginInit();
-                bitmapimage.DecodePixelWidth = 200;
+                bitmapimage.DecodePixelWidth = width;
                 bitmapimage.StreamSource = memory;
                 bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
                 bitmapimage.EndInit();

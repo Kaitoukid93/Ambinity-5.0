@@ -39,15 +39,23 @@ namespace adrilight.Util
             List<string> devices = new List<string>();
             if (CH55X.Count > 0 || CH340.Count > 0)
             {
-                int counter = 0;
-                foreach (String s in SerialPort.GetPortNames())
+                foreach (var port in CH55X)
                 {
-                    if (CH55X.Contains(s) || CH340.Contains(s))
-                    {
-                        counter++;
-                        devices.Add(s);
-                    }
+                    devices.Add(port);
                 }
+                foreach (var port in CH340)
+                {
+                    devices.Add(port);
+                }
+                //int counter = 0;
+                //foreach (String s in SerialPort.GetPortNames())
+                //{
+                //    if (CH55X.Contains(s) || CH340.Contains(s))
+                //    {
+                //        counter++;
+                //        devices.Add(s);
+                //    }
+                //}
             }
             else
             {
@@ -76,8 +84,6 @@ namespace adrilight.Util
             byte[] fw;
             byte[] hw;
             List<IDeviceSettings> newDevices = new List<IDeviceSettings>();
-
-
             foreach (var device in ValidDevice())
             {
                 if (ExistedSerialDevice.Any(d => d.OutputPort == device && d.IsTransferActive))
@@ -97,7 +103,8 @@ namespace adrilight.Util
                     continue;
                 }
 
-                //write request info command
+            //write request info command
+            retry:
                 try
                 {
                     _serialPort.Write(requestCommand, 0, 3);
@@ -129,14 +136,12 @@ namespace adrilight.Util
                             offset++;
                             if (offset == 3)
                             {
-                                Log.Information("Old Ambino Device at" + _serialPort.PortName);
-                                //HandyControl.Controls.MessageBox.Show("Thiết bị ở " + _serialPort.PortName + " đang chạy firmware cũ, vui lòng cập nhật firmware để sử dụng ổn định hơn", "Old Device detected", MessageBoxButton.OK, MessageBoxImage.Warning);
-                                isValid = false;
-                                break;
+                                Log.Information("Old Ambino Device at" + _serialPort.PortName + ". Restarting Firmware Request");
+                                goto retry;
                             }
                         }
                     }
-                    catch (TimeoutException)// retry until received valid header
+                    catch (TimeoutException ex)// retry until received valid header
                     {
                         _serialPort.Write(requestCommand, 0, 3);
                         retryCount++;
@@ -156,7 +161,6 @@ namespace adrilight.Util
                     catch (System.IO.IOException ex)// retry until received valid header
                     {
                         Log.Warning("This Device seems to have Ambino PID/VID but not an USB device " + _serialPort.PortName);
-
                         break;
                     }
 
@@ -174,6 +178,7 @@ namespace adrilight.Util
                     }
 
                 }
+
                 if (offset == 3 + idLength) //3 bytes header are valid
                 {
                     nameLength = (byte)_serialPort.ReadByte();
@@ -294,6 +299,7 @@ namespace adrilight.Util
                     }
 
                 }
+
                 _serialPort.Close();
                 _serialPort.Dispose();
                 if (isValid)
@@ -323,7 +329,9 @@ namespace adrilight.Util
                         {
                             RegistryKey rk5 = rk4.OpenSubKey(s2);
                             RegistryKey rk6 = rk5.OpenSubKey("Device Parameters");
-                            comports.Add((string)rk6.GetValue("PortName"));
+                            string portName = (string)rk6.GetValue("PortName");
+                            if (!String.IsNullOrEmpty(portName) && SerialPort.GetPortNames().Contains(portName))
+                                comports.Add((string)rk6.GetValue("PortName"));
                         }
                     }
                 }

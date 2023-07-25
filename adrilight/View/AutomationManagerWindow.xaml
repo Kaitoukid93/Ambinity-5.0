@@ -108,17 +108,12 @@
             </Grid>
 
             <Grid Grid.Row="1" Margin="5">
-            <ListView x:Name="itm" SelectedItem="{Binding CurrentSelectedAutomation}" Background="Transparent" BorderThickness="0" ItemsSource="{Binding AvailableAutomations}">
+            <ListView ItemContainerStyle="{DynamicResource ListViewContainerStyle}" x:Name="itm" SelectedItem="{Binding CurrentSelectedAutomation}" Background="Transparent" BorderThickness="0" ItemsSource="{Binding AvailableAutomations}">
                 <ListView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel Orientation="Horizontal"/>
                     </ItemsPanelTemplate>
                 </ListView.ItemsPanel>
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource ListViewContainerStyle}">
-                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-                    </Style>
-                </ListView.ItemContainerStyle>
                 <ListView.Template>
                     <ControlTemplate TargetType="{x:Type ItemsControl}">
                         <Border Margin="0" 

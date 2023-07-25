@@ -276,7 +276,7 @@
             </Grid.RowDefinitions>
             <!--Store Carousel in the future-->
             <Grid Visibility="{Binding PaginationEnable,Converter={StaticResource Boolean2VisibilityConverter}}" Grid.Row="1">
-                <hc:Pagination IsEnabled="{Binding CarouselImageLoading,Converter={StaticResource Boolean2BooleanReConverter}}" Margin="10" IsJumpEnabled="False" MaxPageCount="{Binding MaxPaginationPageCount}" PageIndex="{Binding StorePageIndex}">
+                <hc:Pagination IsEnabled="{Binding CarouselImageLoading,Converter={StaticResource Boolean2BooleanReConverter}}" Margin="10" IsJumpEnabled="False" MaxPageCount="{Binding MaxPaginationPageCount}" PageIndex="{Binding StorePageIndex,Mode=TwoWay}">
                     <hc:Interaction.Triggers>
                         <hc:EventTrigger EventName="PageUpdated">
                             <hc:EventToCommand Command="{Binding StorePageUpdatedCmd}" PassEventArgsToCommand="True" />

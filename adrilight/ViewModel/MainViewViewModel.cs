@@ -113,19 +113,6 @@ namespace adrilight.ViewModel
 
         #region property
 
-        private ObservableCollection<VerticalMenuItem> _menuItems;
-
-        public ObservableCollection<VerticalMenuItem> MenuItems {
-            get { return _menuItems; }
-
-            set
-            {
-                if (_menuItems == value) return;
-                _menuItems = value;
-                RaisePropertyChanged();
-            }
-        }
-
         private ObservableCollection<int> _availableBaudrates;
 
         public ObservableCollection<int> AvailableBaudrates {
@@ -153,48 +140,6 @@ namespace adrilight.ViewModel
             {
                 _availableContextMenus = value;
                 RaisePropertyChanged(nameof(AvailableContextMenus));
-            }
-        }
-
-        private List<ActionParameter> _availableParametersforCurrentAction;
-
-        public List<ActionParameter> AvailableParametersforCurrentAction {
-            get
-            {
-                return _availableParametersforCurrentAction;
-            }
-
-            set
-            {
-                _availableParametersforCurrentAction = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        public List<RGBLEDOrderEnum> AvailableRGBOrders {
-            get
-            {
-                var list = new List<RGBLEDOrderEnum>();
-                foreach (RGBLEDOrderEnum type in Enum.GetValues(typeof(RGBLEDOrderEnum)))
-                {
-                    list.Add(type);
-                }
-                return list;
-            }
-        }
-
-        private List<ActionParameter> _allAvailableParametersforCurrentAction;
-
-        public List<ActionParameter> AllAvailableParametersforCurrentAction {
-            get
-            {
-                return _allAvailableParametersforCurrentAction;
-            }
-
-            set
-            {
-                _allAvailableParametersforCurrentAction = value;
-                RaisePropertyChanged();
             }
         }
 
@@ -266,94 +211,7 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-
-        private ActionParameter _selectedParameter;
-
-        public ActionParameter SelectedParameter {
-            get { return _selectedParameter; }
-            set { _selectedParameter = value; RaisePropertyChanged(); }
-        }
-
         private string _selectedActionType;
-
-        private string _buildVersion = "";
-
-        public string BuildVersion {
-            get { return _buildVersion; }
-
-            set
-            {
-                if (_buildVersion == value) return;
-                _buildVersion = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private DateTime? _lastUpdate;
-
-        public DateTime? LastUpdate {
-            get { return _lastUpdate; }
-
-            set
-            {
-                if (_lastUpdate == value) return;
-                _lastUpdate = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private string _author = "";
-
-        public string Author {
-            get { return _author; }
-
-            set
-            {
-                if (_author == value) return;
-                _author = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private string _git = "";
-
-        public string Git {
-            get { return _git; }
-
-            set
-            {
-                if (_git == value) return;
-                _git = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private string _faq = "";
-
-        public string FAQ {
-            get { return _faq; }
-
-            set
-            {
-                if (_faq == value) return;
-                _faq = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private string _appName = "";
-
-        public string AppName {
-            get { return _appName; }
-
-            set
-            {
-                if (_appName == value) return;
-                _appName = value;
-                RaisePropertyChanged();
-            }
-        }
-
         private IDeviceSettings _currentDevice;
 
         public IDeviceSettings CurrentDevice {
@@ -368,145 +226,11 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-
-        private IOutputSettings _currentOutput;
-
-        public IOutputSettings CurrentOutput {
-            get { return _currentOutput; }
-
-            set
-            {
-                _currentOutput = value;
-                CurrentOutput.PropertyChanged += (s, e) =>
-                {
-                    switch (e.PropertyName)
-                    {
-                        //case nameof(CurrentOutput.OutputMusicSensitivity):
-                        //    SensitivityThickness = new Thickness(0, 0, 0, CurrentOutput.OutputMusicSensitivity + 15);
-                        //    RaisePropertyChanged(nameof(SensitivityThickness));
-                        //    break;
-
-                        //case nameof(CurrentOutput.OutputMusicVisualizerFreq):
-                        //    if (CurrentOutput.OutputMusicVisualizerFreq == 0) // bass configuration
-                        //    {
-                        //        foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                        //        {
-                        //            spot.SetMID(20);
-                        //        }
-                        //    }
-                        //    else if (CurrentOutput.OutputMusicVisualizerFreq == 1)// mid configuration
-                        //    {
-                        //        foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                        //        {
-                        //            spot.SetMID(100);
-                        //        }
-                        //    }
-                        //    else if (CurrentOutput.OutputMusicVisualizerFreq == 2)// treble configuration
-                        //    {
-                        //        foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                        //        {
-                        //            spot.SetMID(500);
-                        //        }
-                        //    }
-                        //    else if (CurrentOutput.OutputMusicVisualizerFreq == 3)// Full range configuration
-                        //    {
-                        //        foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                        //        {
-                        //            var mid = (spot.id * 1024 / CurrentOutput.OutputLEDSetup.Spots.Count);
-                        //            spot.SetMID(mid);
-                        //        }
-                        //    }
-                        //    RaisePropertyChanged(nameof(SensitivityThickness));
-                        //    break;
-
-                        //case nameof(CurrentOutput.OutputPaletteChasingPosition):
-                        //    switch (CurrentOutput.OutputPaletteChasingPosition)
-                        //    {
-                        //        case 0:
-                        //            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                        //            {
-                        //                spot.SetStroke(0.5);
-                        //            }
-                        //            SetIDMode = "VID";
-                        //            ProcessSelectedSpotsWithRange(0, 64);
-                        //            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                        //            {
-                        //                spot.SetStroke(0);
-                        //            }
-                        //            break;
-
-                        //        case 1:
-                        //            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                        //            {
-                        //                spot.SetStroke(0.5);
-                        //            }
-                        //            SetIDMode = "VID";
-                        //            ProcessSelectedSpotsWithRange(0, 128);
-                        //            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                        //            {
-                        //                spot.SetStroke(0);
-                        //            }
-                        //            break;
-
-                        //        case 2:
-                        //            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                        //            {
-                        //                spot.SetStroke(0.5);
-                        //            }
-                        //            SetIDMode = "VID";
-                        //            ProcessSelectedSpotsWithRange(0, 256);
-                        //            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                        //            {
-                        //                spot.SetStroke(0);
-                        //            }
-                        //            break;
-
-                        //        case 3:
-                        //            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                        //            {
-                        //                spot.SetStroke(0.5);
-                        //            }
-                        //            SetIDMode = "VID";
-                        //            ProcessSelectedSpotsWithRange(0, 512);
-                        //            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                        //            {
-                        //                spot.SetStroke(0);
-                        //            }
-                        //            break;
-
-                        //        case 4:
-                        //            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                        //            {
-                        //                spot.SetStroke(0.5);
-                        //            }
-                        //            SetIDMode = "VID";
-                        //            ProcessSelectedSpotsWithRange(0, 1024);
-                        //            foreach (var spot in CurrentOutput.OutputLEDSetup.Spots)
-                        //            {
-                        //                spot.SetStroke(0);
-                        //            }
-                        //            break;
-                        //    }
-
-                        //    break;
-
-                        //case nameof(CurrentOutput.OutputIsEnabled):
-                        //    if (CurrentDevice.AvailableOutputs.Length == 1)
-                        //        CurrentDevice.IsEnabled = CurrentOutput.OutputIsEnabled;
-                        //    break;
-                    }
-                    //WriteDeviceInfoJson();
-                };
-
-                RaisePropertyChanged();
-            }
-        }
         public ICommand OpenOOTBCommand { get; set; }
         public ICommand StoreSearchCommand { get; set; }
         public ICommand CloseSearchingScreenCommand { get; set; }
         public ICommand ManuallyAddSelectedDeviceToDashboard { get; set; }
         public ICommand FilterStoreItemByTargetDeviceTypeCommand { get; set; }
-        //      public ICommand StorePageUpdatedCmd { get; set; }
         public ICommand ExportItemForOnlineStoreCommand { get; set; }
         public ICommand GroupSelectedZoneForMaskedControlCommand { get; set; }
         public ICommand UnselectAllLiveiewItemCommand { get; set; }
@@ -540,7 +264,6 @@ namespace adrilight.ViewModel
         public ICommand CompositionFrameStartOverCommand { get; set; }
         public ICommand CompositionPreviousFrameCommand { get; set; }
         public ICommand SetSelectedMotionCommand { get; set; }
-        public ICommand OpenAvailableLedSetupForCurrentDeviceWindowCommand { get; set; }
         public ICommand NextOOTBCommand { get; set; }
         public ICommand OpenTutorialCommand { get; set; }
         public ICommand FinishOOTBCommand { get; set; }
@@ -560,7 +283,6 @@ namespace adrilight.ViewModel
         public ICommand LockSelectedItemCommand { get; set; }
         public ICommand OpenAddNewDrawableItemCommand { get; set; }
         public ICommand UnlockSelectedItemCommand { get; set; }
-        public ICommand SetSelectedItemLiveViewCommand { get; set; }
         public ICommand ResetToDefaultRectangleScaleCommand { get; set; }
         public ICommand AglignSelectedItemstoLeftCommand { get; set; }
         public ICommand SpreadItemLeftHorizontalCommand { get; set; }
@@ -591,7 +313,6 @@ namespace adrilight.ViewModel
         public ICommand SetAllOutputSelectedSolidColorCommand { get; set; }
         public ICommand LaunchDeleteSelectedDeviceWindowCommand { get; set; }
         public ICommand DeleteSelectedDeviceCommand { get; set; }
-        public ICommand OpenFFTPickerWindowCommand { get; set; }
         public ICommand SaveAllAutomationCommand { get; set; }
         public ICommand SaveCurrentSelectedAutomationShortkeyCommand { get; set; }
         public ICommand CloseIDSetupCommand { get; set; }
@@ -650,8 +371,6 @@ namespace adrilight.ViewModel
         public ICommand BackCommand { get; set; }
         public ICommand BackToCollectionViewCommand { get; set; }
         public ICommand SnapshotCommand { get; set; }
-        public ICommand SetZoneColorCommand { get; set; }
-        public ICommand GetZoneColorCommand { get; set; }
 
         #endregion property
 
@@ -1196,15 +915,17 @@ namespace adrilight.ViewModel
         private async Task RegisterDevice(IDeviceSettings device)
         {
             //add device to default shutdown automation
-            var shutdownAutomation = AvailableAutomations.Where(a => (a.Condition as SystemEventTriggerCondition).Event == SystemEventEnum.Shutdown).FirstOrDefault();
-            if (!shutdownAutomation.Actions.Any(a => a.TargetDeviceUID == device.DeviceUID))
-            {
-                var newDeviceShutdownAction = ObjectHelpers.Clone<ActionSettings>(shutdownAutomation.Actions[0]);
-                newDeviceShutdownAction.TargetDeviceName = device.DeviceName;
-                newDeviceShutdownAction.TargetDeviceUID = device.DeviceUID;
-                shutdownAutomation.Actions.Add(newDeviceShutdownAction);
-            }
-
+            var shutdownAutomation = AvailableAutomations.Where(a => (a.Condition is SystemEventTriggerCondition) && (a.Condition as SystemEventTriggerCondition).Event == SystemEventEnum.Shutdown).FirstOrDefault();
+            if (shutdownAutomation == null)
+                goto registering;
+            if (shutdownAutomation.Actions.Count == 0)
+                goto registering;
+            var newDeviceShutdownAction = ObjectHelpers.Clone<ActionSettings>(shutdownAutomation.Actions[0]);
+            shutdownAutomation.Actions.Clear();
+            newDeviceShutdownAction.TargetDeviceName = device.DeviceName;
+            newDeviceShutdownAction.TargetDeviceUID = device.DeviceUID;
+            shutdownAutomation.Actions.Add(newDeviceShutdownAction);
+        registering:
             device.PropertyChanged += async (_, __) =>
             {
                 //WriteSingleDeviceInfoJson(device);
@@ -1271,15 +992,15 @@ namespace adrilight.ViewModel
                 if (output.OutputType == OutputTypeEnum.ARGBLEDOutput)
                 {
                     var ledSlaveDevice = output.SlaveDevice as IDrawable;
-                    if (device.AvailablePWMOutputs.Count() > 0)
+                    switch (__.PropertyName)
                     {
-                        var pwmSlaveDevice = device.AvailablePWMOutputs.Where(o => o.OutputID == output.OutputID).FirstOrDefault().SlaveDevice;
-                        switch (__.PropertyName)
-                        {
-                            case nameof(ledSlaveDevice.Left):
-                            case nameof(ledSlaveDevice.Top):
-                            case nameof(ledSlaveDevice.Width):
-                            case nameof(ledSlaveDevice.Height):
+                        case nameof(ledSlaveDevice.Left):
+                        case nameof(ledSlaveDevice.Top):
+                        case nameof(ledSlaveDevice.Width):
+                        case nameof(ledSlaveDevice.Height):
+                            if (device.AvailablePWMOutputs.Count() > 0)
+                            {
+                                var pwmSlaveDevice = device.AvailablePWMOutputs.Where(o => o.OutputID == output.OutputID).FirstOrDefault().SlaveDevice;
                                 if (pwmSlaveDevice != null)
                                 {
                                     (pwmSlaveDevice as IDrawable).Left = ledSlaveDevice.Left;
@@ -1287,10 +1008,12 @@ namespace adrilight.ViewModel
                                     (pwmSlaveDevice as IDrawable).Width = ledSlaveDevice.Width;
                                     (pwmSlaveDevice as IDrawable).Height = ledSlaveDevice.Height;
                                 }
-                                break;
-                        }
+
+                            }
+                            break;
                     }
                 }
+
             };
             foreach (var zone in output.SlaveDevice.ControlableZones)
             {
@@ -1456,14 +1179,16 @@ namespace adrilight.ViewModel
         public void ShowSearchingScreen()
         {
             SearchingForDevices = false;
-            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            if (_searchingForDeviceScreen == null)
             {
-                _searchingForDeviceScreen = new DeviceSearchingScreen();
-                _searchingForDeviceScreen.DataContext = this;
-                _searchingForDeviceScreen.Owner = System.Windows.Application.Current.MainWindow;
-                _searchingForDeviceScreen.Show();
-            });
-
+                System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                {
+                    _searchingForDeviceScreen = new DeviceSearchingScreen();
+                    _searchingForDeviceScreen.DataContext = this;
+                    _searchingForDeviceScreen.Owner = System.Windows.Application.Current.MainWindow;
+                    _searchingForDeviceScreen.Show();
+                });
+            }
         }
         public void CloseSearchingScreen()
         {
@@ -2633,23 +2358,8 @@ namespace adrilight.ViewModel
             }
 
 );
-            OpenAvailableLedSetupForCurrentDeviceWindowCommand = new RelayCommand<OutputSettings>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                CurrentOutput = p;
-                OpenAvailableLedSetupForCurrentDeviceWindow();
-            }
-          );
-            PIDWindowClosingCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                //CurrentOutput.IsInSpotEditWizard = false;
-            }
-        );
+
+
             SurfaceEditorWindowClosingCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -2659,14 +2369,6 @@ namespace adrilight.ViewModel
             }
     );
 
-            SetSelectedItemLiveViewCommand = new RelayCommand<IOutputSettings>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                CurrentOutput = p;
-            }
-          );
             SetSelectedItemScaleFactorCommand = new RelayCommand<ObservableCollection<IDrawable>>((p) =>
             {
                 return true;
@@ -3064,21 +2766,6 @@ namespace adrilight.ViewModel
                 LaunchCompositionEditWindow();
             });
 
-            LaunchDeleteSelectedDeviceWindowCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                LaunchDeleteSelectedDeviceWindow();
-            });
-            OpenFFTPickerWindowCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                //OpenFFTPickerWindow();
-            });
-
             UnselectAllLiveiewItemCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -3131,19 +2818,6 @@ namespace adrilight.ViewModel
                 }
             });
 
-            //UnselectAllSurfaceEditorItemCommand = new RelayCommand<IDrawable>((p) =>
-            //{
-            //    return true;
-            //}, (p) =>
-            //{
-            //    if (!Keyboard.IsKeyDown(Key.LeftCtrl)) // user is draging or holding ctrl
-            //    {
-            //        foreach (var item in SurfaceEditorItems.Where(i => i != p))
-            //        {
-            //            item.IsSelected = false;
-            //        }
-            //    }
-            //});
             IsolateSelectedItemsCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -3339,30 +3013,8 @@ namespace adrilight.ViewModel
                     }
                 }
 
-                //this selected live view item is an ledsetup, try to find it's parrent and set active
-                // SelectedControlZone = p as IControlZone;
-                //unselected other items
-                //if(p is LEDSetup)
-                //(p as LEDSetup).FillSpotsColor(Color.FromRgb(255, 0, 0));
             });
-            //ShowBrightnessAdjustmentPopupCommand = new RelayCommand<IOutputSettings>((p) =>
-            //{
-            //    return true;
-            //}, (p) =>
-            //{
-            //    p.IsBrightnessPopupOpen = true;
-            //});
-            //SendCurrentDeviceSpeedCommand = new RelayCommand<string>((p) =>
-            //{
-            //    return true;
-            //}, (p) =>
-            //{
-            //    if (CurrentDevice.IsTransferActive)
-            //    {
-            //        CurrentDevice.CurrentState = State.speed;
-            //        IsSpeedSettingUnsetted = false;
-            //    }
-            //});
+
             OpenActionsManagerWindowCommand = new RelayCommand<AutomationSettings>((p) =>
             {
                 return true;
@@ -3510,13 +3162,6 @@ namespace adrilight.ViewModel
                 await Task.Run(() => UpdateStoreView(p));
                 CurrentOnlineStoreView = "Collections";
             });
-            //StorePageUpdatedCmd = new RelayCommand<string>((p) =>
-            //{
-            //    return true;
-            //}, async (p) =>
-            //{
-
-            //});
             StoreSearchCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -3591,31 +3236,6 @@ namespace adrilight.ViewModel
                 }
             });
 
-            SaveNewUserEditLEDSetup = new RelayCommand<string>((p) =>
-                  {
-                      return p != null;
-                  }, (p) =>
-                  {
-                      //WriteDeviceInfoJson();
-                      RaisePropertyChanged(nameof(CurrentOutput));
-                  });
-            //JumpToNextWizardStateCommand = new RelayCommand<string>((p) =>
-            //{
-            //    return p != null;
-            //}, (p) =>
-            //{
-            //    CurrentLEDEditWizardState++;
-
-            //    if (CurrentLEDEditWizardState == 1)
-            //    {
-            //        GrabActivatedSpot();
-            //    }
-            //    else if (CurrentLEDEditWizardState == 2)
-            //    {
-            //        ReorderActivatedSpot();
-            //        //CurrentOutput.IsInSpotEditWizard = false;
-            //    }
-            //});
             NextOOTBCommand = new RelayCommand<string>((p) =>
             {
                 return p != null;
@@ -3725,6 +3345,7 @@ namespace adrilight.ViewModel
                 return p != null;
             }, (p) =>
             {
+                //check for update
                 OpenDeviceFirmwareSettingsWindow();
             });
             OpenAdvanceSettingWindowCommand = new RelayCommand<string>((p) =>
@@ -3779,24 +3400,6 @@ namespace adrilight.ViewModel
                         break;
                 }
                 ;
-            });
-            SetZoneColorCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                //if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
-
-                //    CurrentPickedColor = CurrentDevice.CustomZone[CurrentSelectedCustomColorIndex];
-
-                //else
-                //    SetCustomColor(CurrentSelectedCustomColorIndex);
-            });
-            GetZoneColorCommand = new RelayCommand<System.Windows.Media.Color>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
             });
             ShowAddNewCommand = new RelayCommand<IDeviceSettings>((p) =>
             {
@@ -6866,12 +6469,6 @@ namespace adrilight.ViewModel
                 LiveViewItems.Clear();
             }
             LiveViewSelectedItems = new ObservableCollection<IDrawable>();
-            foreach (var output in CurrentDevice.AvailableLightingOutputs.Where(o => o.IsEnabled))
-            {
-                var lightingDevice = output.SlaveDevice as ARGBLEDSlaveDevice;
-
-                LiveViewItems.Add(lightingDevice);
-            }
 
             IDrawable lastSelectedItem = null;
             foreach (var item in CurrentDevice.CurrentLiveViewZones)
@@ -6908,6 +6505,13 @@ namespace adrilight.ViewModel
                 {
                     LiveViewItems.Insert(0, group.Border);
                 }
+            }
+
+            foreach (var output in CurrentDevice.AvailableLightingOutputs.Where(o => o.IsEnabled))
+            {
+                var lightingDevice = output.SlaveDevice as ARGBLEDSlaveDevice;
+
+                LiveViewItems.Insert(0, lightingDevice);
             }
             //reset toolbard width
             ToolBarWidth = 450;
@@ -7756,25 +7360,6 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged(nameof(CanSelectMultipleItems));
             }
         }
-
-
-
-        private void OpenAvailableLedSetupForCurrentDeviceWindow()
-        {
-            AvailableOutputForSelectedDevice = new List<IOutputSettings>();
-
-            //foreach (var defaultOutput in DefaulOutputCollection.AvailableDefaultOutputsForAmbinoDevices.Where(o => o.TargetDevice == CurrentDevice.DeviceType))
-            //{
-            //    if (defaultOutput.TargetDevice == CurrentDevice.DeviceType)
-            //    {
-            //        AvailableOutputForSelectedDevice.Add(defaultOutput);
-            //    }
-            //}
-            var window = new LEDSetupSelectionWindows();
-            window.Owner = System.Windows.Application.Current.MainWindow;
-            window.ShowDialog();
-        }
-
 
         private double _itemScaleValue = 1.0;
 
@@ -8780,7 +8365,7 @@ namespace adrilight.ViewModel
             };
             var ABR2e = new DeviceFirmware() {
                 Name = "ABR2e.hex",
-                Version = "1.0.6",
+                Version = "1.0.7",
                 TargetHardware = "ABR2e",
                 TargetDeviceType = DeviceTypeEnum.AmbinoBasic,
                 Geometry = "binary",
@@ -9292,7 +8877,7 @@ namespace adrilight.ViewModel
                 return;
             foreach (var screenshotAddress in screenshotsListAddress)
             {
-                var screenshot = FTPHlprs.GetThumb(screenshotAddress).Result;
+                var screenshot = FTPHlprs.GetScreenShot(screenshotAddress).Result;
                 item.Screenshots.Add(screenshot);
             }
             var description = await FTPHlprs.GetStringContent(descriptionPath);
