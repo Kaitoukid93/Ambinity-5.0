@@ -74,7 +74,6 @@ namespace adrilight
         public ObservableCollection<IDeviceSpot> Spots { get => _spots; set { Set(() => Spots, ref _spots, value); } }
         public object Lock { get; } = new object();
         public string Thumbnail { get; set; }
-
         public void DimLED(float dimFactor)
         {
             foreach (var spot in Spots)

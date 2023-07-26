@@ -86,6 +86,10 @@ namespace adrilight
         private SliderParameter _brightnessControl;
         private ToggleParameter _enableControl;
 
+        private enum DimMode { Up, Down };
+        private DimMode _dimMode;
+        private double _dimFactor;
+
         private ColorCard _color;
         private bool _isSystemSync;
         private bool _isBreathing;
@@ -208,6 +212,8 @@ namespace adrilight
                 //start it
                 Init();
                 Log.Information("starting the Static Color Engine");
+                _dimMode = DimMode.Down;
+                _dimFactor = 1.0;
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
@@ -260,6 +266,8 @@ namespace adrilight
         }
         public void Run(CancellationToken token)
         {
+            //wait other thread finishing
+            Thread.Sleep(500);
             IsRunning = true;
             Log.Information("Static Color Engine Is Running");
             int updateIntervalCounter = 0;
@@ -268,6 +276,7 @@ namespace adrilight
 
                 while (!token.IsCancellationRequested)
                 {
+
                     if (MainViewViewModel.IsRichCanvasWindowOpen)
                     {
                         Thread.Sleep(100);
@@ -300,6 +309,7 @@ namespace adrilight
                     }
                     lock (CurrentZone.Lock)
                     {
+                        DimLED();
                         foreach (var spot in CurrentZone.Spots)
                         {
                             var index = spot.Index - startIndex;
@@ -307,9 +317,29 @@ namespace adrilight
                             {
                                 index = 0;
                             }
-                            ApplySmoothing(_colors[index].R, _colors[index].G, _colors[index].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
+                            byte colorR = 0;
+                            byte colorG = 0;
+                            byte colorB = 0;
                             if (_isEnable)
-                                spot.SetColor((byte)(_brightness * FinalR), (byte)(_brightness * FinalG), (byte)(_brightness * FinalB), false);
+                            {
+                                if (_dimMode == DimMode.Down)
+                                {
+                                    //keep same last color
+                                    colorR = spot.Red;
+                                    colorG = spot.Green;
+                                    colorB = spot.Blue;
+                                }
+                                else if (_dimMode == DimMode.Up)
+                                {
+                                    colorR = _colors[index].R;
+                                    colorG = _colors[index].G;
+                                    colorB = _colors[index].B;
+                                }
+                                ApplySmoothing((float)colorR, (float)colorG, (float)colorB, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
+                                var brightness = _brightness * _dimFactor;
+                                spot.SetColor((byte)(brightness * FinalR), (byte)(brightness * FinalG), (byte)(brightness * FinalB), false);
+                            }
+
                             else
                             {
                                 spot.SetColor(0, 0, 0, false);
@@ -337,7 +367,22 @@ namespace adrilight
             }
         }
 
-
+        private void DimLED()
+        {
+            if (_dimMode == DimMode.Down)
+            {
+                if (_dimFactor >= 0.1)
+                    _dimFactor -= 0.1;
+                if (_dimFactor < 0.1)
+                    _dimMode = DimMode.Up;
+            }
+            else if (_dimMode == DimMode.Up)
+            {
+                if (_dimFactor <= 0.99)
+                    _dimFactor += 0.02;
+                //_dimMode = DimMode.Down;
+            }
+        }
         public static List<Color> GetColorGradient(Color from, Color to, int totalNumberOfColors)
         {
             if (totalNumberOfColors < 2)

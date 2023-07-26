@@ -229,6 +229,10 @@ namespace adrilight
         private object _lock = new object();
         private Rectangle _currentCapturingRegion;
 
+        private enum DimMode { Up, Down };
+        private DimMode _dimMode;
+        private double _dimFactor;
+
         private SliderParameter _brightnessControl;
         private SliderParameter _speedControl;
         private SliderParameter _smoothingControl;
@@ -267,6 +271,8 @@ namespace adrilight
                 //get current lighting mode confirm that based on desktop duplicator reader engine
                 Init();
                 Log.Information("Starting the Gifxelation Engine");
+                _dimMode = DimMode.Down;
+                _dimFactor = 1.0;
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
@@ -396,11 +402,10 @@ namespace adrilight
                         continue;
                     }
                     NextTick();
+
                     lock (CurrentZone.Lock)
                     {
-
-
-
+                        DimLED();
                         foreach (var spot in CurrentZone.Spots)
                         {
                             var left = ((spot as DeviceSpot).Left / CurrentZone.Width) * _currentCapturingRegion.Width;
@@ -419,23 +424,41 @@ namespace adrilight
                                 out int sumR, out int sumG, out int sumB, out int count);
 
                             var countInverse = 1f / count;
+                            var r = sumR * countInverse;
+                            var g = sumG * countInverse;
+                            var b = sumB * countInverse;
+                            byte finalR = 0;
+                            byte finalG = 0;
+                            byte finalB = 0;
 
-                            var finalR = (byte)(sumR * countInverse);
-                            var finalG = (byte)(sumG * countInverse);
-                            var finalB = (byte)(sumB * countInverse);
-                            var spotColor = new OpenRGB.NET.Models.Color(finalR, finalG, finalB);
+                            if (_dimMode == DimMode.Down)
+                            {
+                                //keep same last color
+                                finalR = spot.Red;
+                                finalG = spot.Green;
+                                finalB = spot.Blue;
+                            }
+                            else if (_dimMode == DimMode.Up)
+                            {
+                                finalR = (byte)r;
+                                finalG = (byte)g;
+                                finalB = (byte)b;
+                            }
                             ApplySmoothing(
-                                spotColor.R,
-                                spotColor.G,
-                                spotColor.B,
-                                out byte RealfinalR,
-                                out byte RealfinalG,
-                                out byte RealfinalB,
-                             spot.Red,
-                             spot.Green,
-                             spot.Blue);
+                             finalR,
+                             finalG,
+                             finalB,
+                             out byte RealfinalR,
+                             out byte RealfinalG,
+                             out byte RealfinalB,
+                          spot.Red,
+                          spot.Green,
+                          spot.Blue);
                             if (_isEnable)
-                                spot.SetColor((byte)(RealfinalR * _brightness), (byte)(RealfinalG * _brightness), (byte)(RealfinalB * _brightness), false);
+                            {
+                                spot.SetColor((byte)(RealfinalR * _brightness * _dimFactor), (byte)(RealfinalG * _brightness * _dimFactor), (byte)(RealfinalB * _brightness * _dimFactor), false);
+                            }
+
                             else
                             {
                                 spot.SetColor(0, 0, 0, false);
@@ -466,6 +489,22 @@ namespace adrilight
                 Log.Information("Stopped Gifxelation Engine");
                 IsRunning = false;
                 GC.Collect();
+            }
+        }
+        private void DimLED()
+        {
+            if (_dimMode == DimMode.Down)
+            {
+                if (_dimFactor >= 0.02)
+                    _dimFactor -= 0.02;
+                if (_dimFactor < 0.02)
+                    _dimMode = DimMode.Up;
+            }
+            else if (_dimMode == DimMode.Up)
+            {
+                if (_dimFactor <= 0.99)
+                    _dimFactor += 0.01;
+                //_dimMode = DimMode.Down;
             }
         }
         private void NextTick()

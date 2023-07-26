@@ -77,6 +77,10 @@ namespace adrilight
         private ListSelectionParameter _midDataControl;
         private ToggleParameter _enableControl;
 
+        private enum DimMode { Up, Down };
+        private DimMode _dimMode;
+        private double _dimFactor;
+
         private Color[] _colorBank;
         private double _brightness;
         private int _speed;
@@ -308,6 +312,8 @@ namespace adrilight
                 //start it
                 Init();
                 Log.Information("starting the Music Engine");
+                _dimMode = DimMode.Down;
+                _dimFactor = 1.0;
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
@@ -403,6 +409,7 @@ namespace adrilight
                     var currentFrame = BrightnessMapCreator(id, CurrentZone.Spots.Count());
                     lock (CurrentZone.Lock)
                     {
+                        DimLED();
                         foreach (var spot in CurrentZone.Spots)
                         {
                             int position = 0;
@@ -413,10 +420,29 @@ namespace adrilight
                             var columnIndex = spot.MID;
                             if (columnIndex > AudioFrame.Frame.Frame.Length)
                                 columnIndex = 0;
-                            var brightness = (float)_brightness * (currentFrame[translatedIndex] / 255f);
-                            ApplySmoothing(brightness * _colorBank[position].R, brightness * _colorBank[position].G, brightness * _colorBank[position].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
+                            byte colorR = 0;
+                            byte colorG = 0;
+                            byte colorB = 0;
                             if (_isEnable)
+                            {
+                                if (_dimMode == DimMode.Down)
+                                {
+                                    //keep same last color
+                                    colorR = spot.Red;
+                                    colorG = spot.Green;
+                                    colorB = spot.Blue;
+                                }
+                                else if (_dimMode == DimMode.Up)
+                                {
+                                    colorR = _colorBank[position].R;
+                                    colorG = _colorBank[position].G;
+                                    colorB = _colorBank[position].B;
+                                }
+                                var brightness = (float)_brightness * (currentFrame[translatedIndex] / 255f) * (float)_dimFactor;
+                                ApplySmoothing(brightness * colorR, brightness * colorG, brightness * colorB, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
                                 spot.SetColor(FinalR, FinalG, FinalB, false);
+                            }
+
                             else
                             {
                                 spot.SetColor(0, 0, 0, false);
@@ -474,6 +500,22 @@ namespace adrilight
                 }
             }
 
+        }
+        private void DimLED()
+        {
+            if (_dimMode == DimMode.Down)
+            {
+                if (_dimFactor >= 0.02)
+                    _dimFactor -= 0.02;
+                if (_dimFactor < 0.02)
+                    _dimMode = DimMode.Up;
+            }
+            else if (_dimMode == DimMode.Up)
+            {
+                if (_dimFactor <= 0.99)
+                    _dimFactor += 0.01;
+                //_dimMode = DimMode.Down;
+            }
         }
         private void GenerateMID(MIDFrequency frequency)
         {

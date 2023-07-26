@@ -81,7 +81,9 @@ namespace adrilight
         private ToggleParameter _systemSyncControl;
         private ListSelectionParameter _vidDataControl;
         private ToggleParameter _enableControl;
-
+        private enum DimMode { Up, Down };
+        private DimMode _dimMode;
+        private double _dimFactor;
         private Color[] _colorBank;
         private bool _isSystemSync;
         private double _brightness;
@@ -208,6 +210,8 @@ namespace adrilight
                 //start it
                 Init();
                 Log.Information("starting the Static Color Engine");
+                _dimMode = DimMode.Down;
+                _dimFactor = 1.0;
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
@@ -278,7 +282,7 @@ namespace adrilight
         }
         public void Run(CancellationToken token)
         {
-
+            Thread.Sleep(500);
             Log.Information("Rainbow Engine Is Running");
             IsRunning = true;
             try
@@ -309,16 +313,32 @@ namespace adrilight
 
                     lock (CurrentZone.Lock)
                     {
-
-
+                        DimLED();
                         foreach (var spot in CurrentZone.Spots)
                         {
                             int position = 0;
                             position = Convert.ToInt32(Math.Floor(StartIndex + spot.VID));
                             position %= _colorBank.Length;
+                            var brightness = _brightness * _dimFactor;
+                            byte colorR = 0;
+                            byte colorG = 0;
+                            byte colorB = 0;
                             if (spot.HasVID && _isEnable)
                             {
-                                ApplySmoothing((float)_brightness * _colorBank[position].R, (float)_brightness * _colorBank[position].G, (float)_brightness * _colorBank[position].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
+                                if (_dimMode == DimMode.Down)
+                                {
+                                    //keep same last color
+                                    colorR = spot.Red;
+                                    colorG = spot.Green;
+                                    colorB = spot.Blue;
+                                }
+                                else if (_dimMode == DimMode.Up)
+                                {
+                                    colorR = _colorBank[position].R;
+                                    colorG = _colorBank[position].G;
+                                    colorB = _colorBank[position].B;
+                                }
+                                ApplySmoothing((float)brightness * colorR, (float)brightness * colorG, (float)brightness * colorB, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
                                 spot.SetColor(FinalR, FinalG, FinalB, false);
                             }
                             else
@@ -386,6 +406,22 @@ namespace adrilight
             colorList.Insert(0, from);
             return colorList;
 
+        }
+        private void DimLED()
+        {
+            if (_dimMode == DimMode.Down)
+            {
+                if (_dimFactor >= 0.1)
+                    _dimFactor -= 0.1;
+                if (_dimFactor < 0.1)
+                    _dimMode = DimMode.Up;
+            }
+            else if (_dimMode == DimMode.Up)
+            {
+                if (_dimFactor <= 0.99)
+                    _dimFactor += 0.01;
+                //_dimMode = DimMode.Down;
+            }
         }
         private byte[] ResizeFrame(byte[] pixels, int w1, int w2)
         {

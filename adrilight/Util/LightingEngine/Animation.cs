@@ -79,6 +79,10 @@ namespace adrilight
         private SliderParameter _speedControl;
         private ToggleParameter _enableControl;
 
+        private enum DimMode { Up, Down };
+        private DimMode _dimMode;
+        private double _dimFactor;
+
         private Color[] _colorBank;
         private double _brightness;
         private int _speed;
@@ -332,6 +336,8 @@ namespace adrilight
                 //start it
                 Init();
                 Log.Information("starting the Animation Color Engine");
+                _dimMode = DimMode.Down;
+                _dimFactor = 1.0;
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
@@ -422,6 +428,7 @@ namespace adrilight
                     NextTick();
                     lock (CurrentZone.Lock)
                     {
+                        DimLED();
                         foreach (var spot in CurrentZone.Spots)
                         {
                             int position = 0;
@@ -434,10 +441,29 @@ namespace adrilight
                                 {
                                     index = 0;
                                 }
-                                float brightness = ((_resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData[index]) * (float)_brightness) / 255;
-                                ApplySmoothing(brightness * _colorBank[position].R, brightness * _colorBank[position].G, brightness * _colorBank[position].B, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
+                                byte colorR = 0;
+                                byte colorG = 0;
+                                byte colorB = 0;
                                 if (_isEnable)
-                                    spot.SetColor(FinalR, FinalG, FinalB, false);
+                                {
+                                    if (_dimMode == DimMode.Down)
+                                    {
+                                        //keep same last color
+                                        colorR = spot.Red;
+                                        colorG = spot.Green;
+                                        colorB = spot.Blue;
+                                    }
+                                    else if (_dimMode == DimMode.Up)
+                                    {
+                                        colorR = _colorBank[position].R;
+                                        colorG = _colorBank[position].G;
+                                        colorB = _colorBank[position].B;
+                                    }
+                                    float brightness = ((_resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData[index]) * (float)_brightness) / 255;
+                                    ApplySmoothing(brightness * colorR, brightness * colorG, brightness * colorB, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
+                                    spot.SetColor((byte)(FinalR * _dimFactor), (byte)(FinalG * _dimFactor), (byte)(FinalB * _dimFactor), false);
+                                }
+
                                 else
                                 {
                                     spot.SetColor(0, 0, 0, false);
@@ -460,6 +486,22 @@ namespace adrilight
                 Log.Information("Stopped the Animation Engine");
                 IsRunning = false;
                 GC.Collect();
+            }
+        }
+        private void DimLED()
+        {
+            if (_dimMode == DimMode.Down)
+            {
+                if (_dimFactor >= 0.02)
+                    _dimFactor -= 0.02;
+                if (_dimFactor < 0.02)
+                    _dimMode = DimMode.Up;
+            }
+            else if (_dimMode == DimMode.Up)
+            {
+                if (_dimFactor <= 0.99)
+                    _dimFactor += 0.01;
+                //_dimMode = DimMode.Down;
             }
         }
         private void NextTick()

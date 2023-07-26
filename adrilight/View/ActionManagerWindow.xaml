@@ -506,12 +506,6 @@
             <Button Click="Button_Click" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
             <!--<Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>-->
         </Grid>
-
-
-
-
-
-
     </Grid>
 
 </hc:Window>

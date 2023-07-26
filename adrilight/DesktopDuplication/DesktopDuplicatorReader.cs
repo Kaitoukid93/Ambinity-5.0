@@ -156,6 +156,9 @@ namespace adrilight
         private double _brightness;
         private int _smoothFactor;
         private int _frameRate = 60;
+        private enum DimMode { Up, Down };
+        private DimMode _dimMode;
+        private double _dimFactor;
         private Rectangle _currentCapturingRegion;
 
         private SliderParameter _brightnessControl;
@@ -200,6 +203,8 @@ namespace adrilight
                 //get current lighting mode confirm that based on desktop duplicator reader engine
                 Init();
                 Log.Information("starting the capturing");
+                _dimMode = DimMode.Down;
+                _dimFactor = 1.0;
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
@@ -325,7 +330,7 @@ namespace adrilight
                     {
 
 
-
+                        DimLED();
                         foreach (var spot in CurrentZone.Spots)
                         {
                             var left = ((spot as DeviceSpot).Left / CurrentZone.Width) * _currentCapturingRegion.Width;
@@ -347,15 +352,32 @@ namespace adrilight
                             var r = sumR * countInverse;
                             var g = sumG * countInverse;
                             var b = sumB * countInverse;
-                            var finalR = (byte)r;
-                            var finalG = (byte)g;
-                            var finalB = (byte)b;
-                            if (!_useLinearLighting)
+                            byte finalR = 0;
+                            byte finalG = 0;
+                            byte finalB = 0;
+                            if (_dimMode == DimMode.Down)
                             {
-                                finalR = FadeNonLinear(r);
-                                finalG = FadeNonLinear(g);
-                                finalB = FadeNonLinear(b);
+                                //keep same last color
+                                finalR = spot.Red;
+                                finalG = spot.Green;
+                                finalB = spot.Blue;
                             }
+                            else if (_dimMode == DimMode.Up)
+                            {
+                                if (!_useLinearLighting)
+                                {
+                                    finalR = FadeNonLinear(r);
+                                    finalG = FadeNonLinear(g);
+                                    finalB = FadeNonLinear(b);
+                                }
+                                else
+                                {
+                                    finalR = (byte)r;
+                                    finalG = (byte)g;
+                                    finalB = (byte)b;
+                                }
+                            }
+
                             var spotColor = new OpenRGB.NET.Models.Color(finalR, finalG, finalB);
                             ApplySmoothing(
                                 spotColor.R,
@@ -368,7 +390,7 @@ namespace adrilight
                              spot.Green,
                              spot.Blue);
                             if (_isEnable)
-                                spot.SetColor((byte)(RealfinalR * _brightness), (byte)(RealfinalG * _brightness), (byte)(RealfinalB * _brightness), false);
+                                spot.SetColor((byte)(RealfinalR * _brightness * _dimFactor), (byte)(RealfinalG * _brightness * _dimFactor), (byte)(RealfinalB * _brightness * _dimFactor), false);
                             else
                             {
                                 spot.SetColor(0, 0, 0, false);
@@ -403,7 +425,22 @@ namespace adrilight
         }
         private int? _lastObservedHeight;
         private int? _lastObservedWidth;
-
+        private void DimLED()
+        {
+            if (_dimMode == DimMode.Down)
+            {
+                if (_dimFactor >= 0.02)
+                    _dimFactor -= 0.02;
+                if (_dimFactor < 0.02)
+                    _dimMode = DimMode.Up;
+            }
+            else if (_dimMode == DimMode.Up)
+            {
+                if (_dimFactor <= 0.98)
+                    _dimFactor += 0.02;
+                //_dimMode = DimMode.Down;
+            }
+        }
         private void TraceFrameDetails(Bitmap image)
         {
             //there are many frames per second and we need to extract useful information and only log those!
