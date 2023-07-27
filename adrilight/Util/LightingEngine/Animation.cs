@@ -105,10 +105,14 @@ namespace adrilight
             _isEnable = value;
             if (value)
             {
+                _dimMode = DimMode.Up;
+                _dimFactor = 0.00;
                 _currentLightingMode.Parameters.Except(new List<IModeParameter>() { _enableControl }).ForEach(p => p.IsEnabled = true);
             }
             else
             {
+                _dimMode = DimMode.Down;
+                _dimFactor = 1.00;
                 _currentLightingMode.Parameters.Except(new List<IModeParameter>() { _enableControl }).ForEach(p => p.IsEnabled = false);
             }
         }
@@ -326,6 +330,8 @@ namespace adrilight
             {
                 //stop it!
                 Log.Information("stopping the Animation Engine");
+                _dimMode = DimMode.Down;
+                _dimFactor = 1.00;
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource = null;
 
@@ -336,8 +342,8 @@ namespace adrilight
                 //start it
                 Init();
                 Log.Information("starting the Animation Color Engine");
-                _dimMode = DimMode.Down;
-                _dimFactor = 1.0;
+                _dimMode = DimMode.Up;
+                _dimFactor = 0.00;
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
@@ -444,30 +450,26 @@ namespace adrilight
                                 byte colorR = 0;
                                 byte colorG = 0;
                                 byte colorB = 0;
-                                if (_isEnable)
-                                {
-                                    if (_dimMode == DimMode.Down)
-                                    {
-                                        //keep same last color
-                                        colorR = spot.Red;
-                                        colorG = spot.Green;
-                                        colorB = spot.Blue;
-                                    }
-                                    else if (_dimMode == DimMode.Up)
-                                    {
-                                        colorR = _colorBank[position].R;
-                                        colorG = _colorBank[position].G;
-                                        colorB = _colorBank[position].B;
-                                    }
-                                    float brightness = ((_resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData[index]) * (float)_brightness) / 255;
-                                    ApplySmoothing(brightness * colorR, brightness * colorG, brightness * colorB, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
-                                    spot.SetColor((byte)(FinalR * _dimFactor), (byte)(FinalG * _dimFactor), (byte)(FinalB * _dimFactor), false);
-                                }
 
-                                else
+                                if (_dimMode == DimMode.Down)
                                 {
-                                    spot.SetColor(0, 0, 0, false);
+                                    //keep same last color
+                                    colorR = spot.Red;
+                                    colorG = spot.Green;
+                                    colorB = spot.Blue;
                                 }
+                                else if (_dimMode == DimMode.Up)
+                                {
+                                    colorR = _colorBank[position].R;
+                                    colorG = _colorBank[position].G;
+                                    colorB = _colorBank[position].B;
+                                }
+                                float brightness = ((_resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData[index]) * (float)_brightness) / 255;
+                                ApplySmoothing(brightness * colorR, brightness * colorG, brightness * colorB, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
+                                spot.SetColor((byte)(FinalR * _dimFactor), (byte)(FinalG * _dimFactor), (byte)(FinalB * _dimFactor), false);
+
+
+
                             }
                         }
 
@@ -492,10 +494,8 @@ namespace adrilight
         {
             if (_dimMode == DimMode.Down)
             {
-                if (_dimFactor >= 0.02)
-                    _dimFactor -= 0.02;
-                if (_dimFactor < 0.02)
-                    _dimMode = DimMode.Up;
+                if (_dimFactor >= 0.01)
+                    _dimFactor -= 0.01;
             }
             else if (_dimMode == DimMode.Up)
             {

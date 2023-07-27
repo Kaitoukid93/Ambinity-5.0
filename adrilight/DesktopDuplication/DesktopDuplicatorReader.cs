@@ -83,10 +83,14 @@ namespace adrilight
             _isEnable = value;
             if (value)
             {
+                _dimMode = DimMode.Up;
+                _dimFactor = 0.00;
                 _currentLightingMode.Parameters.Except(new List<IModeParameter>() { _enableControl }).ForEach(p => p.IsEnabled = true);
             }
             else
             {
+                _dimMode = DimMode.Down;
+                _dimFactor = 1.00;
                 _currentLightingMode.Parameters.Except(new List<IModeParameter>() { _enableControl }).ForEach(p => p.IsEnabled = false);
             }
         }
@@ -192,6 +196,8 @@ namespace adrilight
             {
                 //stop it!
                 Log.Information("Stop the capturing due to mode changing");
+                _dimMode = DimMode.Down;
+                _dimFactor = 1.00;
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource = null;
 
@@ -203,8 +209,8 @@ namespace adrilight
                 //get current lighting mode confirm that based on desktop duplicator reader engine
                 Init();
                 Log.Information("starting the capturing");
-                _dimMode = DimMode.Down;
-                _dimFactor = 1.0;
+                _dimMode = DimMode.Up;
+                _dimFactor = 0.00;
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,
@@ -380,22 +386,16 @@ namespace adrilight
 
                             var spotColor = new OpenRGB.NET.Models.Color(finalR, finalG, finalB);
                             ApplySmoothing(
-                                spotColor.R,
-                                spotColor.G,
-                                spotColor.B,
+                                (float)(finalR * _brightness * _dimFactor),
+                                 (float)(finalG * _brightness * _dimFactor),
+                                 (float)(finalB * _brightness * _dimFactor),
                                 out byte RealfinalR,
                                 out byte RealfinalG,
                                 out byte RealfinalB,
                              spot.Red,
                              spot.Green,
                              spot.Blue);
-                            if (_isEnable)
-                                spot.SetColor((byte)(RealfinalR * _brightness * _dimFactor), (byte)(RealfinalG * _brightness * _dimFactor), (byte)(RealfinalB * _brightness * _dimFactor), false);
-                            else
-                            {
-                                spot.SetColor(0, 0, 0, false);
-                            }
-
+                            spot.SetColor(RealfinalR, RealfinalG, RealfinalB, false);
                         }
 
                     }
@@ -429,15 +429,13 @@ namespace adrilight
         {
             if (_dimMode == DimMode.Down)
             {
-                if (_dimFactor >= 0.02)
-                    _dimFactor -= 0.02;
-                if (_dimFactor < 0.02)
-                    _dimMode = DimMode.Up;
+                if (_dimFactor >= 0.1)
+                    _dimFactor -= 0.1;
             }
             else if (_dimMode == DimMode.Up)
             {
-                if (_dimFactor <= 0.98)
-                    _dimFactor += 0.02;
+                if (_dimFactor <= 0.99)
+                    _dimFactor += 0.01;
                 //_dimMode = DimMode.Down;
             }
         }
