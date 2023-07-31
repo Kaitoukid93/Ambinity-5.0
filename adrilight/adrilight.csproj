@@ -328,6 +328,7 @@
     <Compile Include="Util\ModeParameterEnum.cs" />
     <Compile Include="Util\ModeParameterTemplateEnum.cs" />
     <Compile Include="Util\ChasingPattern.cs" />
+    <Compile Include="Util\NativeMethods.cs" />
     <Compile Include="Util\OnlineItemModel.cs" />
     <Compile Include="Util\DeviceDiscovery.cs" />
     <Compile Include="Util\Updaters\AdrilightUpdater.cs" />

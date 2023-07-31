@@ -503,8 +503,8 @@ namespace adrilight
         {
             if (_dimMode == DimMode.Down)
             {
-                if (_dimFactor >= 0.01)
-                    _dimFactor -= 0.01;
+                if (_dimFactor >= 0.1)
+                    _dimFactor -= 0.1;
             }
             else if (_dimMode == DimMode.Up)
             {

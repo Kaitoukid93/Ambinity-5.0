@@ -465,9 +465,8 @@ namespace adrilight
                                     colorB = _colorBank[position].B;
                                 }
                                 float brightness = ((_resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData[index]) * (float)_brightness) / 255;
-                                ApplySmoothing(brightness * colorR, brightness * colorG, brightness * colorB, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
-                                spot.SetColor((byte)(FinalR * _dimFactor), (byte)(FinalG * _dimFactor), (byte)(FinalB * _dimFactor), false);
-
+                                ApplySmoothing((float)(brightness * colorR * _dimFactor), (float)(brightness * colorG * _dimFactor), (float)(brightness * colorB * _dimFactor), out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
+                                spot.SetColor(FinalR, FinalG, FinalB, false);
 
 
                             }
