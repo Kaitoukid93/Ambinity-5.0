@@ -135,18 +135,14 @@ namespace adrilight
         public void Start()
         {
             Log.Information("Start called for SerialStream");
-            if (_workerThread != null) return;
-
-            _cancellationTokenSource = new CancellationTokenSource();
             _workerThread = new Thread(DoWork) {
                 Name = "Serial sending",
                 IsBackground = true,
                 Priority = ThreadPriority.BelowNormal
             };
+            _cancellationTokenSource = new CancellationTokenSource();
             WinApi.TimeBeginPeriod(1);
-
             // The call has failed
-
             _workerThread.Start(_cancellationTokenSource.Token);
         }
 
@@ -567,7 +563,7 @@ namespace adrilight
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex, serialPort.SerialPort.PortName);
+                    Log.Error(ex, "Device is removed or malfunction" + serialPort.SerialPort.PortName);
 
                     if (serialPort != null && serialPort.IsOpen)
                     {
@@ -584,6 +580,7 @@ namespace adrilight
                     serialPort?.Dispose();
                     //allow the system some time to recover
                     Thread.Sleep(500);
+                    DeviceSettings.IsTransferActive = false;
                 }
                 finally
                 {

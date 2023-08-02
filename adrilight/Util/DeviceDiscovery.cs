@@ -211,8 +211,8 @@ namespace adrilight
                 _isSerialScanCompelete = true;
 
             }
-            var newDevices = await jobTask;
-            if (newDevices.Count == 0)
+            var devices = await jobTask;
+            if (devices.Item1.Count == 0 && devices.Item2.Count == 0)
             {
                 // HandyControl.Controls.MessageBox.Show("Unable to detect any supported device, try adding manually", "No Compatible Device Found", MessageBoxButton.OK, MessageBoxImage.Warning);
                 _isSerialScanCompelete = true;
@@ -220,31 +220,24 @@ namespace adrilight
             }
             else
             {
-                foreach (var device in newDevices)
+                foreach (var device in devices.Item1)
                 {
                     Log.Information("SerialDeviceDetection Found New Device");
                     Log.Information("Name: " + device.DeviceName);
                     Log.Information("ID: " + device.DeviceSerial);
                     Log.Information("Firmware Version: " + device.FirmwareVersion);
                     Log.Information("---------------");
-                    if (MainViewViewModel.AvailableDevices.Any(p => p.OutputPort == device.OutputPort)) // this device match an old device that existed 
-                    {
-                        // MainViewViewModel.SetSearchingScreenProgressText("Device reconnected: " + device.DeviceName + ". Address: " + device.OutputPort);
-                        Log.Information("Device: " + device.DeviceName + " is existed at: " + device.OutputPort);
-                        oldDeviceReconnected.Add(device.OutputPort);
-                    }
-                    else
-                    {
-                        // MainViewViewModel.SetSearchingScreenProgressText("Found new device: " + device.DeviceName + ". Address: " + device.OutputPort);
-                        Log.Information("Device: " + device.DeviceName + " is a new device at: " + device.OutputPort);
-                        newDevicesDetected.Add(device);
-                    }
+                    // MainViewViewModel.SetSearchingScreenProgressText("Found new device: " + device.DeviceName + ". Address: " + device.OutputPort);
+                    Log.Information("Device: " + device.DeviceName + " is a new device at: " + device.OutputPort);
+                    newDevicesDetected.Add(device);
                 }
-                //AvailableSerialDevices = new ObservableCollection<IDeviceSettings>();
-                //foreach (var device in newDevices)
-                //{
-                //    newDevicesDetected.Add(device);
-                //}
+                foreach (var device in devices.Item2)
+                {
+                    // MainViewViewModel.SetSearchingScreenProgressText("Device reconnected: " + device.DeviceName + ". Address: " + device.OutputPort);
+                    Log.Information("Device: " + device + " is existed at: " + device);
+                    oldDeviceReconnected.Add(device);
+                }
+
                 tokenSource.Cancel();
                 _isSerialScanCompelete = true;
 

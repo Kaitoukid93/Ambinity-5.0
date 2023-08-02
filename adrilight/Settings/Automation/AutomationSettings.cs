@@ -1,5 +1,7 @@
 ﻿using GalaSoft.MvvmLight;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace adrilight.Settings.Automation
 {
@@ -17,5 +19,18 @@ namespace adrilight.Settings.Automation
         public ITriggerCondition Condition { get => _condition; set { Set(() => Condition, ref _condition, value); } }
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); } }
         public bool IsLocked { get => _isLocked; set { Set(() => IsLocked, ref _isLocked, value); } }
+        //this method check if any device removed but action still exist in automation
+        public void UpdateActions(List<IDeviceSettings> devices)
+        {
+            var actionsToRemove = new List<ActionSettings>();
+            foreach (var action in Actions)
+            {
+                if (!devices.Any(d => d.DeviceUID == action.TargetDeviceUID))
+                {
+                    actionsToRemove.Add(action);
+                }
+            }
+            actionsToRemove.ForEach(a => Actions.Remove(a));
+        }
     }
 }

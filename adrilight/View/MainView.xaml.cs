@@ -68,7 +68,7 @@ namespace adrilight.View
                                 if (automation.Condition is SystemEventTriggerCondition)
                                 {
                                     var condition = automation.Condition as SystemEventTriggerCondition;
-                                    if (condition.Event == SystemEventEnum.Shutdown)
+                                    if (condition.Event == SystemEventEnum.MonitorSleep)
                                     {
                                         ViewModel.ExecuteAutomationActions(automation.Actions);
                                     }
@@ -77,6 +77,17 @@ namespace adrilight.View
                             break;
                         case 1:
                             Serilog.Log.Information("Monitor Power On");
+                            foreach (var automation in ViewModel.AvailableAutomations)
+                            {
+                                if (automation.Condition is SystemEventTriggerCondition)
+                                {
+                                    var condition = automation.Condition as SystemEventTriggerCondition;
+                                    if (condition.Event == SystemEventEnum.MonitorWakeup)
+                                    {
+                                        ViewModel.ExecuteAutomationActions(automation.Actions);
+                                    }
+                                }
+                            }
                             break;
                         case 2:
                             Serilog.Log.Information("Monitor Dimmed");

@@ -5,6 +5,7 @@ using Microsoft.Win32;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
@@ -65,13 +66,13 @@ namespace adrilight.Util
         }
 
         public static ResourceHelpers ResourceHlprs { get; private set; }
-        public List<IDeviceSettings> DetectedDevices {
+        public (List<IDeviceSettings>, List<string>) DetectedDevices {
             get
             {
                 return RequestDeviceInformation();
             }
         }
-        static List<IDeviceSettings> RequestDeviceInformation()
+        static (List<IDeviceSettings>, List<string>) RequestDeviceInformation()
         {
 
             if (ResourceHlprs == null)
@@ -84,10 +85,35 @@ namespace adrilight.Util
             byte[] fw;
             byte[] hw;
             List<IDeviceSettings> newDevices = new List<IDeviceSettings>();
+            List<string> existedDevices = new List<string>();
             foreach (var device in ValidDevice())
             {
-                if (ExistedSerialDevice.Any(d => d.OutputPort == device && d.IsTransferActive))
+                if (ExistedSerialDevice.Any(d => d.OutputPort == device))
+                {
+                    var sp = new SerialPort(device, 1000000, Parity.Odd, 8, StopBits.One);
+                    try
+                    {
+                        sp.Open();
+                        Thread.Sleep(500);
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        //Log.Error("device is in use found : " + device);
+                        continue;
+                    }
+                    catch (IOException)
+                    {
+                        Log.Error("Device is disconnected : " + device);
+                        continue;
+                    }
+                    finally
+                    {
+                        sp.Close();
+                    }
+                    existedDevices.Add(device);
                     continue;
+                }
+
                 bool isValid = true;
                 var _serialPort = new SerialPort(device, 1000000);
                 _serialPort.DtrEnable = true;
@@ -99,7 +125,7 @@ namespace adrilight.Util
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex, "AcessDenied");
+                    Log.Error(ex, "AcessDenied" + _serialPort.PortName);
                     continue;
                 }
 
@@ -307,7 +333,7 @@ namespace adrilight.Util
 
             }
 
-            return newDevices;
+            return (newDevices, existedDevices);
 
         }
         static List<string> ComPortNames(String VID, String PID)
@@ -331,16 +357,18 @@ namespace adrilight.Util
                             RegistryKey rk6 = rk5.OpenSubKey("Device Parameters");
                             string portName = (string)rk6.GetValue("PortName");
                             if (!String.IsNullOrEmpty(portName) && SerialPort.GetPortNames().Contains(portName))
+                            {
                                 comports.Add((string)rk6.GetValue("PortName"));
+                            }
                         }
                     }
                 }
+
             }
             return comports;
+
         }
-
     }
-
 }
 //+-------------------------------------------------+--------+----+----+-------+
 //| Ambino Basic CH552P without PowerLED Support    | CH552P | 32 | 14 | ABR1p |

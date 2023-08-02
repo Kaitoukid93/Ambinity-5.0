@@ -911,22 +911,65 @@ namespace adrilight.ViewModel
                 }
             };
         }
+        private void CreateDeviceShutdownAction(IDeviceSettings device)
+        {
+            var shutdownAutomation = AvailableAutomations.Where(a => (a.Condition is SystemEventTriggerCondition) && (a.Condition as SystemEventTriggerCondition).Event == SystemEventEnum.Shutdown).FirstOrDefault();
+            if (shutdownAutomation == null)
+                return;
+            if (shutdownAutomation.Actions.Count == 0)
+                return;
+            if (shutdownAutomation.Actions.Any(a => a.TargetDeviceUID == device.DeviceUID))
+                return;
+            var newDeviceShutdownAction = ObjectHelpers.Clone<ActionSettings>(shutdownAutomation.Actions[0]);
+            shutdownAutomation.UpdateActions(AvailableDevices.ToList());
+            newDeviceShutdownAction.TargetDeviceName = device.DeviceName;
+            newDeviceShutdownAction.TargetDeviceUID = device.DeviceUID;
+            shutdownAutomation.Actions.Add(newDeviceShutdownAction);
+            //lock the automation
+            shutdownAutomation.IsLocked = true;
+        }
+        private void CreateDeviceMonitorSleepAction(IDeviceSettings device)
+        {
+            var monitorSleepAutomation = AvailableAutomations.Where(a => (a.Condition is SystemEventTriggerCondition) && (a.Condition as SystemEventTriggerCondition).Event == SystemEventEnum.MonitorSleep).FirstOrDefault();
+            if (monitorSleepAutomation == null)
+                return;
+            if (monitorSleepAutomation.Actions.Count == 0)
+                return;
+            if (monitorSleepAutomation.Actions.Any(a => a.TargetDeviceUID == device.DeviceUID))
+                return;
+            var newDeviceMonitorSleepAction = ObjectHelpers.Clone<ActionSettings>(monitorSleepAutomation.Actions[0]);
+            monitorSleepAutomation.UpdateActions(AvailableDevices.ToList());
+            newDeviceMonitorSleepAction.TargetDeviceName = device.DeviceName;
+            newDeviceMonitorSleepAction.TargetDeviceUID = device.DeviceUID;
+            monitorSleepAutomation.Actions.Add(newDeviceMonitorSleepAction);
+            //lock the automation
+            monitorSleepAutomation.IsLocked = true;
+        }
+        private void CreateDeviceMonitorWakeupAction(IDeviceSettings device)
+        {
+            var monitorWakeupAutomation = AvailableAutomations.Where(a => (a.Condition is SystemEventTriggerCondition) && (a.Condition as SystemEventTriggerCondition).Event == SystemEventEnum.MonitorWakeup).FirstOrDefault();
+            if (monitorWakeupAutomation == null)
+                return;
+            if (monitorWakeupAutomation.Actions.Count == 0)
+                return;
+            if (monitorWakeupAutomation.Actions.Any(a => a.TargetDeviceUID == device.DeviceUID))
+                return;
+            var newDeviceMonitorWakeupAction = ObjectHelpers.Clone<ActionSettings>(monitorWakeupAutomation.Actions[0]);
+            monitorWakeupAutomation.UpdateActions(AvailableDevices.ToList());
+            newDeviceMonitorWakeupAction.TargetDeviceName = device.DeviceName;
+            newDeviceMonitorWakeupAction.TargetDeviceUID = device.DeviceUID;
+            monitorWakeupAutomation.Actions.Add(newDeviceMonitorWakeupAction);
+            //lock the automation
+            monitorWakeupAutomation.IsLocked = true;
+        }
 
         private async Task RegisterDevice(IDeviceSettings device)
         {
             //add device to default shutdown automation
-            var shutdownAutomation = AvailableAutomations.Where(a => (a.Condition is SystemEventTriggerCondition) && (a.Condition as SystemEventTriggerCondition).Event == SystemEventEnum.Shutdown).FirstOrDefault();
-            if (shutdownAutomation == null)
-                goto registering;
-            if (shutdownAutomation.Actions.Count == 0)
-                goto registering;
-            var newDeviceShutdownAction = ObjectHelpers.Clone<ActionSettings>(shutdownAutomation.Actions[0]);
-            shutdownAutomation.Actions.Clear();
-            newDeviceShutdownAction.TargetDeviceName = device.DeviceName;
-            newDeviceShutdownAction.TargetDeviceUID = device.DeviceUID;
-            shutdownAutomation.Actions.Add(newDeviceShutdownAction);
-        registering:
-            device.PropertyChanged += async (_, __) =>
+            CreateDeviceShutdownAction(device);
+            CreateDeviceMonitorSleepAction(device);
+            CreateDeviceMonitorWakeupAction(device);
+            device.PropertyChanged += (_, __) =>
             {
                 //WriteSingleDeviceInfoJson(device);
                 switch (__.PropertyName)
@@ -1197,6 +1240,7 @@ namespace adrilight.ViewModel
                 if (_searchingForDeviceScreen != null)
                 {
                     _searchingForDeviceScreen.Close();
+                    _searchingForDeviceScreen = null;
                 }
 
             });
@@ -1424,34 +1468,32 @@ namespace adrilight.ViewModel
         {
             if (IsLoadingProfile)
                 return;
-            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+
+            if (oldDevices != null && oldDevices.Count > 0)
             {
-                if (oldDevices != null && oldDevices.Count > 0)
+                foreach (var port in oldDevices)
                 {
-                    foreach (var port in oldDevices)
+                    //set first device found active again since it's recconected
+
+                    var oldDevice = AvailableDevices.Where(p => p.OutputPort == port).FirstOrDefault();
+                    // oldDevice.IsTransferActive = false;
+                    //Thread.Sleep(500);
+                    oldDevice.IsTransferActive = true;
+                    if (oldDevice.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
                     {
-                        //set first device found active again since it's recconected
-
-                        var oldDevice = AvailableDevices.Where(p => p.OutputPort == port).FirstOrDefault();
-                        if (oldDevice.IsTransferActive == false)
-                        {
-                            //try to poke it
-                            oldDevice.IsTransferActive = true;
-                            if (oldDevice.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
-                            {
-                                GeneralSettings.IsOpenRGBEnabled = true;
-                            }
-                            //Thread.Sleep(500);
-                            SetSearchingScreenProgressText("Connected: " + oldDevice.OutputPort);
-                        }
-
-                        WriteSingleDeviceInfoJson(oldDevice);
+                        GeneralSettings.IsOpenRGBEnabled = true;
                     }
+                    //Thread.Sleep(500);
+                    SetSearchingScreenProgressText("Connected: " + oldDevice.OutputPort);
 
-                    SearchingForDevices = false;
-                    IsDeviceDiscoveryInit = true;
+
+                    WriteSingleDeviceInfoJson(oldDevice);
                 }
-            });
+
+                SearchingForDevices = false;
+                IsDeviceDiscoveryInit = true;
+            }
+
         }
 
         public object AudioUpdateLock { get; } = new object();
@@ -3478,11 +3520,15 @@ namespace adrilight.ViewModel
                 AvailableExecuteCondition = new ObservableCollection<ITriggerCondition>();
                 var hotkeyCondition = new HotkeyTriggerCondition("Hotkey", "Sử dụng tổ hợp phím tắt để kích hoạt chuỗi hành động này", null, null);
                 var systemShutdownCondition = new SystemEventTriggerCondition("Khi tắt máy hoặc thoát App ", "Kích hoạt chuỗi hành động khi máy tính Shutdown", SystemEventEnum.Shutdown);
+                var systemMonitorSleepCondition = new SystemEventTriggerCondition("Khi màn hình tắt ", "Kích hoạt chuỗi hành động khi màn hình tắt bởi Windows", SystemEventEnum.MonitorSleep);
+                var systemMonitorWakeupCondition = new SystemEventTriggerCondition("Khi màn hình bật ", "Kích hoạt chuỗi hành động khi màn hình được bật trở lại", SystemEventEnum.MonitorWakeup);
                 //var systemSleepCondition = new SystemEventTriggerCondition("Khi sleep", "Kích hoạt chuỗi hành động khi máy tính Sleep", SystemEventEnum.Sleep);
                 //var appExitCondition = new SystemEventTriggerCondition("Khi thoát App", "Kích hoạt chuỗi hành động khi thoát App", SystemEventEnum.AppExit);
                 //var timeStampCondition = new SystemEventTriggerCondition("Mốc thời gian", "Thực hiện chuỗi hành động khi đồng hồ điểm giờ nhất định", SystemEventEnum.TimeStamp);
                 AvailableExecuteCondition.Add(hotkeyCondition);
                 AvailableExecuteCondition.Add(systemShutdownCondition);
+                AvailableExecuteCondition.Add(systemMonitorSleepCondition);
+                AvailableExecuteCondition.Add(systemMonitorWakeupCondition);
                 actionManagerWindow = new ActionManagerWindow();
                 actionManagerWindow.Owner = automationManagerWindow;
                 actionManagerWindow.ShowDialog();
@@ -5149,7 +5195,7 @@ namespace adrilight.ViewModel
 
                     case "On":
                         //targetDevice.IsEnabled = true;
-                        targetDevice.TurnOffLED();
+                        targetDevice.TurnOnLED();
                         break;
                     case "On/Off":
                         targetDevice.ToggleOnOffLED();

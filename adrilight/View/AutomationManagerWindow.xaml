@@ -127,7 +127,7 @@
 
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Border Height="150" Width="200" CornerRadius="7" Background="Transparent">
+                        <Border Height="150" Width="230" CornerRadius="7" Background="Transparent">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseLeftButtonDown">
                                     <i:InvokeCommandAction 

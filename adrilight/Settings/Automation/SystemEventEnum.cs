@@ -6,6 +6,8 @@
         Sleep,
         TimeStamp,
         AppExit,
-        Volume
+        Volume,
+        MonitorSleep,
+        MonitorWakeup,
     }
 }
