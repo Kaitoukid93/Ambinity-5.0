@@ -4,6 +4,7 @@ using adrilight.Util.ModeParameters;
 using adrilight.ViewModel;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,7 +12,6 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
 using Point = System.Windows.Point;
 
 namespace adrilight.Settings
@@ -135,7 +135,7 @@ namespace adrilight.Settings
         private string _version = "1.0.0";
         public string Version { get => _version; set { Set(() => Version, ref _version, value); } }
         public DeviceType TargetDeviceType { get; set; }
-        public void SetPreviewColor(Color color)
+        public void SetPreviewColor(System.Windows.Media.Color color)
         {
             foreach (var zone in ControlableZones)
             {
@@ -155,6 +155,7 @@ namespace adrilight.Settings
                 if (!ledZone.IsInControlGroup)
                     ledZone.BrightnessUp(value);
             }
+            Log.Information("Brightness Up: " + this.Name);
         }
         public void BrightnessDown(int value)
         {
@@ -164,6 +165,7 @@ namespace adrilight.Settings
                 if (!ledZone.IsInControlGroup)
                     ledZone.BrightnessDown(value);
             }
+            Log.Information("Brightness down: " + this.Name);
         }
         public void TurnOffLED()
         {
@@ -173,6 +175,7 @@ namespace adrilight.Settings
                 if (!ledZone.IsInControlGroup)
                     ledZone.TurnOffLED();
             }
+            Log.Information("Turning off LED: " + this.Name);
         }
         public void TurnOnLED()
         {
@@ -182,6 +185,7 @@ namespace adrilight.Settings
                 if (!ledZone.IsInControlGroup)
                     ledZone.TurnOnLED();
             }
+            Log.Information("Turning on LED: " + this.Name);
         }
         public void SetStaticColor(ColorCard colors)
         {
@@ -200,6 +204,7 @@ namespace adrilight.Settings
                 }
 
             }
+            Log.Information("Set static Color: " + this.Name + "-" + colors.ColorCode);
         }
         public void SetModeByEnumValue(LightingModeEnum value)
         {
@@ -216,6 +221,7 @@ namespace adrilight.Settings
                 }
 
             }
+            Log.Information("Change Lighting mode: " + value + " for " + this.Name);
         }
         #endregion
         #region Graphic Related Method

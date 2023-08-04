@@ -5,6 +5,7 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Windows;
 using Un4seen.Bass;
 using Un4seen.BassWasapi;
 
@@ -20,6 +21,7 @@ namespace adrilight
             MainViewModel = mainViewModel ?? throw new ArgumentException(nameof(mainViewModel));
             _process = new WASAPIPROC(Process);
             _fft = new float[1024];
+            Init();
             RefreshCapturingState();
 
         }
@@ -120,7 +122,11 @@ namespace adrilight
                             Frame.Frame = _lastSpectrumData;
                         }
                     }
-
+                    else
+                    {
+                        var error = Bass.BASS_ErrorGetCode();
+                        Log.Error(error.ToString());
+                    }
 
                     if (isPreviewWindowOpen)
                     {
@@ -240,12 +246,12 @@ namespace adrilight
             var selectedIndex = GeneralSettings.SelectedAudioDevice > 0 ? GeneralSettings.SelectedAudioDevice : 0;
             var selectedAudioDevice = GetAvailableAudioDevices()[selectedIndex];
             _deviceIndex = selectedAudioDevice.Index;
-            Init();
             bool result = BassWasapi.BASS_WASAPI_Init(_deviceIndex, 0, 0, BASSWASAPIInit.BASS_WASAPI_BUFFER, 1f, 0.05f, _process, IntPtr.Zero); // this is the function to init the device according to device index
             if (!result)
             {
                 var error = Bass.BASS_ErrorGetCode();
-                //MessageBox.Show(error.ToString());
+                Log.Error(error.ToString());
+                MessageBox.Show(error.ToString());
             }
             else
             {

@@ -251,7 +251,7 @@
                                                         </hc:ComboBox>
                                                         <Grid Margin="10,0,15,0" Visibility="{Binding ShowMore,Converter={StaticResource Boolean2VisibilityConverter}}">
                                                             <Border Margin="0,0"  HorizontalAlignment="Right" Background="Transparent" BorderBrush="{StaticResource BorderBrush}" CornerRadius="7" BorderThickness="0">
-                                                                <ListBox hc:ScrollViewerAttach.IsDisabled="True" ItemsSource="{Binding AvailableValues,Mode=OneWay}" SelectedItem="{Binding SelectedValue,Mode=TwoWay}"
+                                                                <ListBox ItemsSource="{Binding AvailableValues,Mode=OneWay}" SelectedItem="{Binding SelectedValue,Mode=TwoWay}"
                                                          ItemContainerStyle="{StaticResource _listBoxColorSelectionStyle}"
                                                          Background="Transparent"
                                                          BorderThickness="0"
@@ -658,6 +658,29 @@
                         </GroupBox>
                         <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Chọn &quot;Thủ công&quot; nếu bạn muốn thêm thiết bị bằng tay"/>
                     </Grid>
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
+
+                    </hc:Divider>
+                    <Grid Name="powerLimit">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="200" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                            <GroupBox.HeaderTemplate>
+                                <DataTemplate>
+                                    <TextBlock FontWeight="SemiBold" Text="GIỚI HẠN DÒNG ĐIỆN"/>
+                                </DataTemplate>
+                            </GroupBox.HeaderTemplate>
+
+                            <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding GeneralSettings.IsPowerLimitEnabled}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
+
+                            </ToggleButton>
+
+
+                        </GroupBox>
+                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Giới hạn dòng điện thiêu thụ theo chuẩn thiết bị của Ambino"/>
+                    </Grid>
                     <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="50,10,5,10">
                         <hc:Divider.Style>
                             <Style TargetType="hc:Divider">
@@ -806,7 +829,7 @@
                                       Height="100" 
                                       Fill="{DynamicResource PrimaryTextBrush}"/>
                                 <TextBlock Margin="0,20,0,5" Style="{DynamicResource TextBlockLargeBold}" Text="Ambinity 5.0.7"></TextBlock>
-                                <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Release date : 24/7/2023"></TextBlock>
+                                <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Release date : 4/8/2023_a"></TextBlock>
                                 <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Credit :"></TextBlock>
                                 <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="fabsenet for DesktopDuplicator"></TextBlock>
                                 <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="HandyControl for awesome UI"></TextBlock>

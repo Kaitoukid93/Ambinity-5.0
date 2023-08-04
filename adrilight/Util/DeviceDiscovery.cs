@@ -234,7 +234,7 @@ namespace adrilight
                 foreach (var device in devices.Item2)
                 {
                     // MainViewViewModel.SetSearchingScreenProgressText("Device reconnected: " + device.DeviceName + ". Address: " + device.OutputPort);
-                    Log.Information("Device: " + device + " is existed at: " + device);
+                    Log.Information(device + " is connected");
                     oldDeviceReconnected.Add(device);
                 }
 

@@ -30,10 +30,14 @@ namespace adrilight.Util
         private LibreHardwareMonitor.Hardware.Computer computer { get; set; }
         private void DeviceCollectionChanged()
         {
-            lock (availableFan)
+            if (availableFan != null)
             {
-                availableFan = GetAvailableFans();
+                lock (availableFan)
+                {
+                    availableFan = GetAvailableFans();
+                }
             }
+
         }
 
         //DependencyInjection//

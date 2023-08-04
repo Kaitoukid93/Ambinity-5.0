@@ -35,6 +35,8 @@ namespace adrilight
         private int _startupDelaySecond = 0;
         private AppUser _currentAppUser;
         private int _screenCapturingMethod = 0;
+        private bool _isBlackBarDetectionEnabled = true;
+        private bool _isPowerLimitEnabled = true;
         public GeneralSettings()
         {
 
@@ -56,6 +58,8 @@ namespace adrilight
         public bool HWMonitorAskAgain { get => _hwMonitorAskAgain; set { Set(() => HWMonitorAskAgain, ref _hwMonitorAskAgain, value); } }
         public bool HotkeyEnable { get => _hotkeyEnable; set { Set(() => HotkeyEnable, ref _hotkeyEnable, value); } }
         public bool Autostart { get => _autostart; set { Set(() => Autostart, ref _autostart, value); } }
+        public bool IsBlackBarDetectionEnabled { get => _isBlackBarDetectionEnabled; set { Set(() => IsBlackBarDetectionEnabled, ref _isBlackBarDetectionEnabled, value); } }
+        public bool IsPowerLimitEnabled { get => _isPowerLimitEnabled; set { Set(() => IsPowerLimitEnabled, ref _isPowerLimitEnabled, value); } }
         public Color AccentColor { get => _accentColor; set { Set(() => AccentColor, ref _accentColor, value); } }
         [JsonIgnore]
         public bool IsOpenRGBEnabled { get => _isOpenRGBEnabled; set { Set(() => IsOpenRGBEnabled, ref _isOpenRGBEnabled, value); } }

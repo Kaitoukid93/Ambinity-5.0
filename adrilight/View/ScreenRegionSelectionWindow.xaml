@@ -252,6 +252,9 @@
                 </StackPanel>
             </Grid>
             <Grid Margin="10" Grid.Column="1">
+                <StackPanel>
+                    
+               
                 <GroupBox hc:TitleElement.TitleWidth="150" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Top">
                     <GroupBox.HeaderTemplate>
                         <DataTemplate>
@@ -278,6 +281,24 @@
                         </Viewbox>
                     </Border>
                 </GroupBox>
+                    <StackPanel>
+                        <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}" Margin="10,10,10,10">
+
+                        </hc:Divider>
+                        <Grid>
+                            <GroupBox Margin="10,0,10,0" VerticalAlignment="Stretch" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                                <GroupBox.HeaderTemplate>
+                                    <DataTemplate>
+                                        <TextBlock  FontWeight="SemiBold" Text="BLACK BAR DETECTION"/>
+                                    </DataTemplate>
+                                </GroupBox.HeaderTemplate>
+                                <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding GeneralSettings.IsBlackBarDetectionEnabled,Mode=TwoWay}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
+                                </ToggleButton>
+                            </GroupBox>
+                        </Grid>
+                        <TextBlock Margin="10,5" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Nhận dạng vạch đen khi xem video (áp dụng cho cả 21:9 và 4:3)"/>
+                    </StackPanel>
+                </StackPanel>
             </Grid>
         </Grid>
         <Grid Grid.Row="2">

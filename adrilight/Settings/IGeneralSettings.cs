@@ -9,6 +9,8 @@ namespace adrilight
 
 
         bool Autostart { get; set; }
+        bool IsBlackBarDetectionEnabled { get; set; }
+        bool IsPowerLimitEnabled { get; set; }
         int ScreenCapturingMethod { get; set; }
         bool NotificationEnabled { get; set; }
         int SelectedAudioDevice { get; set; }
