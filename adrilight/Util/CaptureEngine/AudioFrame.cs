@@ -5,7 +5,6 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Windows;
 using Un4seen.Bass;
 using Un4seen.BassWasapi;
 
@@ -21,7 +20,7 @@ namespace adrilight
             MainViewModel = mainViewModel ?? throw new ArgumentException(nameof(mainViewModel));
             _process = new WASAPIPROC(Process);
             _fft = new float[1024];
-            Init();
+            //Init();
             RefreshCapturingState();
 
         }
@@ -55,7 +54,8 @@ namespace adrilight
             {
 
                 case nameof(GeneralSettings.SelectedAudioDevice):
-                    StartBassWasapi();
+                    Log.Information("Audio Device Changing to: " + GeneralSettings.SelectedAudioDevice);
+                    RefreshCapturingState();
                     break;
             }
 
@@ -86,7 +86,19 @@ namespace adrilight
                 };
                 thread.Start();
             }
-
+            else if (isRunning && shouldBeRunning)
+            {
+                //force create new one
+                Stop();
+                Log.Information("Restarting Audio Frame");
+                _cancellationTokenSource = new CancellationTokenSource();
+                var thread = new Thread(() => Run(_cancellationTokenSource.Token)) {
+                    IsBackground = true,
+                    Priority = ThreadPriority.BelowNormal,
+                    Name = "AudioFrame"
+                };
+                thread.Start();
+            }
         }
 
 
@@ -100,7 +112,7 @@ namespace adrilight
         public void Run(CancellationToken token)
 
         {
-            if (IsRunning) throw new Exception(" AudioFrame is already running!");
+            // if (IsRunning) throw new Exception(" AudioFrame is already running!");
 
             IsRunning = true;
 
@@ -124,10 +136,8 @@ namespace adrilight
                     }
                     else
                     {
-                        var error = Bass.BASS_ErrorGetCode();
-                        Log.Error(error.ToString());
+                        Frame.Frame = new byte[32];
                     }
-
                     if (isPreviewWindowOpen)
                     {
                         lock (MainViewModel.AudioUpdateLock)
@@ -210,13 +220,11 @@ namespace adrilight
             //Required, because some programs hang the output. If the output hangs for a 75ms
             //this piece of code re initializes the output
             //so it doesn't make a gliched sound for long.
-            if (_hanctr > 3)
-            {
-                _hanctr = 0;
-                Free();
-                Bass.BASS_Init(0, 44100, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero);
-                StartBassWasapi();
-            }
+            //if (_hanctr > 3)
+            //{
+            //    _hanctr = 0;
+            //    StartBassWasapi();
+            //}
             return true;
 
 
@@ -243,6 +251,8 @@ namespace adrilight
         }
         private void StartBassWasapi()
         {
+            Free();
+            Init();
             var selectedIndex = GeneralSettings.SelectedAudioDevice > 0 ? GeneralSettings.SelectedAudioDevice : 0;
             var selectedAudioDevice = GetAvailableAudioDevices()[selectedIndex];
             _deviceIndex = selectedAudioDevice.Index;
@@ -251,7 +261,7 @@ namespace adrilight
             {
                 var error = Bass.BASS_ErrorGetCode();
                 Log.Error(error.ToString());
-                MessageBox.Show(error.ToString());
+                // MessageBox.Show(error.ToString());
             }
             else
             {
@@ -293,8 +303,8 @@ namespace adrilight
 
         private void Init()
         {
-            BassWasapi.BASS_WASAPI_Free();
-            Bass.BASS_Free();
+            //BassWasapi.BASS_WASAPI_Free();
+            //Bass.BASS_Free();
             Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_UPDATETHREADS, false);
             var result = Bass.BASS_Init(0, 44100, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero);
             if (!result) throw new Exception("Init Error");
@@ -320,9 +330,9 @@ namespace adrilight
         {
             Log.Information("Stop called for audio frame");
             if (_workerThread == null) return;
-            Free();
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource = null;
+            Free();
             _workerThread?.Join();
             _workerThread = null;
 

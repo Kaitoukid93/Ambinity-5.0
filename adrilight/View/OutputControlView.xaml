@@ -793,7 +793,7 @@
                                                                                 <Border Effect="{DynamicResource EffectShadow1}" Background="{DynamicResource SecondaryRegionBrush}" ToolTip="{Binding Description}" CornerRadius="2">
                                                                                     <TextBlock Margin="5" Style="{DynamicResource TextBlockDefault}" Text="{Binding Name}" />
                                                                                 </Border>
-                                                                                <CheckBox IsChecked="{Binding IsChecked}" Margin="2" Background="{DynamicResource PrimaryBrush}" BorderThickness="0" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                                                                <!--<CheckBox IsChecked="{Binding IsChecked}" Margin="2" Background="{DynamicResource PrimaryBrush}" BorderThickness="0" HorizontalAlignment="Right" VerticalAlignment="Top">
                                                                                     <CheckBox.Style>
                                                                                         <Style TargetType="CheckBox" BasedOn="{StaticResource CheckBoxBaseStyle}">
                                                                                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -807,7 +807,7 @@
                                                                                             </Style.Triggers>
                                                                                         </Style>
                                                                                     </CheckBox.Style>
-                                                                                </CheckBox>
+                                                                                </CheckBox>-->
                                                                             </Grid>
                                                                         </DataTemplate>
                                                                         <DataTemplate DataType="{x:Type ut:ColorPalette}">

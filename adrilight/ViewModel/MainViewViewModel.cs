@@ -8016,6 +8016,17 @@ namespace adrilight.ViewModel
         public double SelectedItemScaleValue { get { return _selectedItemScaleValue; } set { _selectedItemScaleValue = value; RaisePropertyChanged(); } }
         private double _selectedItemRotationValue;
         public double SelectedItemRotationValue { get { return _selectedItemRotationValue; } set { _selectedItemRotationValue = value; RaisePropertyChanged(); } }
+        public List<RGBLEDOrderEnum> AvailableRGBOrders {
+            get
+            {
+                var list = new List<RGBLEDOrderEnum>();
+                foreach (RGBLEDOrderEnum type in Enum.GetValues(typeof(RGBLEDOrderEnum)))
+                {
+                    list.Add(type);
+                }
+                return list;
+            }
+        }
         private void OpenSurfaceEditorWindow()
         {
             SurfaceEditorItems = new ObservableCollection<IDrawable>();
