@@ -112,7 +112,7 @@
                 </ListBox>
             </Grid>
             <Grid>
-                <hc:ComboBox BorderThickness="2" Height="32" ItemContainerStyle="{DynamicResource _ComboboxItemStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10,10,10,10" SelectedIndex="{Binding GeneralSettings.SelectedAudioDevice,Mode=TwoWay}" ItemsSource="{Binding AvailableAudioDevices,Mode=TwoWay}">
+                <hc:ComboBox SelectedIndex="{Binding ClickedAudioButtonParameter.CapturingSourceIndex,Mode=TwoWay}" x:Name="sourceList" SelectionChanged="SourceIndexChanged" BorderThickness="2" Height="32" ItemContainerStyle="{DynamicResource _ComboboxItemStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10,10,10,10" ItemsSource="{Binding AvailableAudioDevices,Mode=TwoWay}">
                     <hc:ComboBox.Style>
                         <Style TargetType="hc:ComboBox" BasedOn="{StaticResource ComboBoxBaseStyle}">
                             <Setter Property="Visibility" Value="Visible"/>

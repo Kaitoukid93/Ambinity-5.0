@@ -5,13 +5,12 @@ using GalaSoft.MvvmLight;
 using Polly;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing.Imaging;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 using Windows.Foundation.Metadata;
 using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX.Direct3D11;
@@ -20,63 +19,84 @@ namespace adrilight
 {
     internal class DesktopFrame : ViewModelBase, ICaptureEngine
     {
-        public DesktopFrame(IGeneralSettings userSettings, MainViewViewModel mainViewViewModel, string deviceName)
+        /// <summary>
+        /// this class record all present screens to list of byte arrays
+        /// </summary>
+        /// <param name="userSettings"></param>
+        /// <param name="mainViewViewModel"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public DesktopFrame(IGeneralSettings userSettings, MainViewViewModel mainViewViewModel)
         {
             UserSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
-            DeviceName = deviceName;
             MainViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             _retryPolicy = Policy.Handle<Exception>()
                 .WaitAndRetryForever(ProvideDelayDuration);
             RefreshCapturingState();
+            Microsoft.Win32.SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
         }
         #region private field
-        private Thread _workerThread;
-        private CancellationTokenSource _cancellationTokenSource;
-        private int _currentScreenIdex;
+        private List<Thread> _workerThreads;
+        private enum RunningState { Capturing, Waiting, Canceling };
+        private RunningState _state = RunningState.Waiting;
         #endregion
 
         #region public properties
         public bool IsRunning { get; private set; } = false;
         public bool NeededRefreshing { get; private set; } = false;
+        public ByteFrame[] Frames { get; set; }
         public ByteFrame Frame { get; set; }
-        public string DeviceName { get; set; }
         private DrawableHelpers DrHlprs { get; set; }
+        private CancellationTokenSource _cancellationTokenSource;
         public object Lock { get; } = new object();
         #endregion
-
-        public void RefreshCapturingState()
+        void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e)
         {
-            var isRunning = _cancellationTokenSource != null && IsRunning;
-            var shouldBeRunning = true;
-            _currentScreenIdex = Array.IndexOf(Screen.AllScreens, Screen.AllScreens.Where(s => s.DeviceName == DeviceName).FirstOrDefault());
-            if (_currentScreenIdex == -1)
+            Stop();
+            _workerThreads = new List<Thread>();
+            Log.Information("starting WCG");
+            IEnumerable<MonitorInfo> monitors = MonitorEnumerationHelper.GetMonitors();
+            Frames = new ByteFrame[monitors.Count()];
+            _captures = new BasicCapture[monitors.Count()];
+            int index = 0;
+            foreach (var monitor in monitors)
             {
-                shouldBeRunning = false;
-            }
-            if (isRunning && !shouldBeRunning)
-            {
-                //stop it!
-                Log.Information("stopping the capturing");
-                _cancellationTokenSource.Cancel();
-                _cancellationTokenSource = null;
-
-            }
-
-
-            else if (!isRunning && shouldBeRunning)
-            {
-                //start it
-                Log.Information("starting WCG for: " + DeviceName);
-                _cancellationTokenSource = new CancellationTokenSource();
-                _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
+                Thread workerThread = new Thread(() => Run(monitor, index++)) {
                     IsBackground = true,
                     Priority = ThreadPriority.BelowNormal,
-                    Name = "WCG"
+                    Name = "WCG" + monitor.DeviceName
                 };
-                _workerThread.Start();
+                _state = RunningState.Capturing;
+                workerThread.Start();
+                _workerThreads.Add(workerThread);
+            }
+        }
+        public void RefreshCapturingState()
+        {
+
+            //start it
+            //_device?.Dispose();
+            _workerThreads = new List<Thread>();
+            _cancellationTokenSource = new CancellationTokenSource();
+            Log.Information("starting WCG");
+            IEnumerable<MonitorInfo> monitors = MonitorEnumerationHelper.GetMonitors();
+            Frames = new ByteFrame[monitors.Count()];
+            _device = Direct3D11Helper.CreateDevice();
+            _captures = new BasicCapture[monitors.Count()];
+            int index = 0;
+            foreach (var monitor in monitors)
+            {
+                Thread workerThread = new Thread(() => Run(monitor, index++)) {
+                    IsBackground = true,
+                    Priority = ThreadPriority.BelowNormal,
+                    Name = "WCG" + monitor.DeviceName
+                };
+                _state = RunningState.Capturing;
+                workerThread.Start();
+                _workerThreads.Add(workerThread);
             }
 
         }
+
         private bool CheckRectangle(Rect parrentRect, Rect childRect)
         {
             if (Rect.Intersect(parrentRect, childRect).Equals(childRect))
@@ -86,8 +106,8 @@ namespace adrilight
 
         private IGeneralSettings UserSettings { get; set; }
         private MainViewViewModel MainViewModel { get; set; }
-        private IDirect3DDevice device;
-        private BasicCapture capture;
+        private IDirect3DDevice _device;
+        private BasicCapture[] _captures;
 
         private readonly Policy _retryPolicy;
 
@@ -95,7 +115,6 @@ namespace adrilight
         {
             if (index < 10)
             {
-
                 return TimeSpan.FromMilliseconds(100);
             }
 
@@ -107,29 +126,25 @@ namespace adrilight
             }
             return TimeSpan.FromMilliseconds(1000);
         }
-        public async void Run(CancellationToken token)
+        public async void Run(MonitorInfo monitor, int screenIndex)
         {
             IsRunning = true;
             NeededRefreshing = false;
-            Log.Information("WCG is running for :" + DeviceName);
-            Frame = new ByteFrame();
+            Log.Information("WCG is running for screen :" + monitor.DeviceName);
+            Frames[screenIndex] = new ByteFrame();
             try
             {
-
-                device = Direct3D11Helper.CreateDevice();
-                BitmapData bitmapData = new BitmapData();
-
-                await StartHmonCapture();
-                while (!token.IsCancellationRequested)
+                await StartHmonCapture(monitor, screenIndex);
+                while (_state == RunningState.Capturing)
                 {
                     var frameTime = Stopwatch.StartNew();
-                    lock (Lock)
+                    lock (_captures[screenIndex].Lock)
                     {
-                        Frame = capture.CurrentFrame;
+                        Frames[screenIndex] = _captures[screenIndex].CurrentFrame;
                     }
                     if (MainViewModel.IsRegionSelectionOpen)
                     {
-                        MainViewModel.DesktopsPreviewUpdate(Frame, _currentScreenIdex);
+                        MainViewModel.DesktopsPreviewUpdate(Frames[screenIndex], screenIndex);
                     }
                     int minFrameTimeInMs = 1000 / 30;
                     var elapsedMs = (int)frameTime.ElapsedMilliseconds;
@@ -147,42 +162,40 @@ namespace adrilight
 
         public void Stop()
         {
-            Log.Error("Stop called for WCG: " + DeviceName);
-            if (_workerThread == null) return;
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = null;
-            capture?.Dispose();
-            GC.Collect();
-            _workerThread?.Join();
-            _workerThread = null;
-
+            Log.Information("Stop called for WCG");
+            _state = RunningState.Canceling;
+            for (int i = 0; i < _workerThreads.Count(); i++)
+            {
+                if (_workerThreads[i] == null) return;
+                //_captures[i]?.Dispose();
+                GC.Collect();
+                _workerThreads[i]?.Join();
+                _workerThreads[i] = null;
+            }
         }
 
-        public async Task StartHmonCapture()
+        public async Task StartHmonCapture(MonitorInfo monitor, int screenIndex)
         {
-            MonitorInfo monitor = (from m in MonitorEnumerationHelper.GetMonitors()
-                                   where m.DeviceName == DeviceName
-                                   select m).First();
             GraphicsCaptureItem item = CaptureHelper.CreateItemForMonitor(monitor.Hmon);
             if (item != null)
             {
-                await StartCaptureFromItem(item);
+                await StartCaptureFromItem(item, screenIndex);
             }
         }
-        public async Task StartCaptureFromItem(GraphicsCaptureItem item)
+        public async Task StartCaptureFromItem(GraphicsCaptureItem item, int screenIndex)
         {
             try
             {
-                StopCapture();
-                capture = new BasicCapture(device, item);
+                StopCapture(screenIndex);
+                _captures[screenIndex] = new BasicCapture(_device, item);
                 if (ApiInformation.IsPropertyPresent(typeof(GraphicsCaptureSession).FullName, nameof(GraphicsCaptureSession.IsBorderRequired)))
                 {
-                    await capture.StartCaptureBorderless();
+                    await _captures[screenIndex].StartCaptureBorderless();
                     Log.Information("This Version of Windows is able to disable the anoying yellow border. Thanks God");
                 }
                 else
                 {
-                    capture.StartCaptureWithBorder();
+                    _captures[screenIndex].StartCaptureWithBorder();
                     Log.Information("This Version of Windows does not let you turn off the stupid yellow border, just f*king live with it");
                 }
 
@@ -197,10 +210,11 @@ namespace adrilight
         private int? _lastObservedHeight;
         private int? _lastObservedWidth;
 
-        public void StopCapture()
+        public void StopCapture(int screenIndex)
         {
-            capture?.Dispose();
-            Log.Information("HmonCapture Dispose", DeviceName);
+
+            _captures[screenIndex]?.Dispose();
+            Log.Information("HmonCapture Dispose for Screen index " + screenIndex);
         }
 
 

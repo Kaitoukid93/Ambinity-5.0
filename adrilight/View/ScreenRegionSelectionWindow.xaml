@@ -208,7 +208,7 @@
                          SelectionChanged="SourceIndexChanged"
                          Background="Transparent" 
                          BorderThickness="0" 
-                         SelectedIndex="{Binding ClickedRegionButtonParameter.CapturingSourceIndex,Mode=OneTime}"
+                         SelectedIndex="{Binding ClickedRegionButtonParameter.CapturingSourceIndex,Mode=TwoWay}"
                          ItemContainerStyle="{DynamicResource _listBoxVisualizerItemContainerStyle}">
                                 <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>

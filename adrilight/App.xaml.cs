@@ -1,4 +1,5 @@
-﻿using adrilight.Ninject;
+﻿using adrilight.DesktopDuplication;
+using adrilight.Ninject;
 using adrilight.Settings;
 using adrilight.Settings.Automation;
 using adrilight.Util;
@@ -20,7 +21,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Media;
 using Un4seen.Bass;
 using SplashScreen = adrilight.View.SplashScreen;
@@ -370,9 +370,6 @@ namespace adrilight
                 }
                 Log.Information("Application exit!");
             };
-            Microsoft.Win32.SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
-            Microsoft.Win32.SystemEvents.DisplaySettingsChanging += SystemEvents_DisplaySettingsChanging;
-            Microsoft.Win32.SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
 
             SystemEvents.PowerModeChanged += async (s, e) =>
            {
@@ -387,13 +384,13 @@ namespace adrilight
                        Thread.Sleep(10);
                    }
                    Log.Information("System resume!");
-                   var desktopFrames = kernel.GetAll<ICaptureEngine>().Where(c => c is DesktopFrame);
-                   if (desktopFrames != null)
+                   var desktopFrame = kernel.GetAll<ICaptureEngine>().Where(c => c is DesktopFrame).FirstOrDefault();
+                   if (desktopFrame != null)
                    {
-                       foreach (var engine in desktopFrames)
+                       int count = 0;
+                       foreach (var monitor in MonitorEnumerationHelper.GetMonitors())
                        {
-                           var desktopFrame = engine as DesktopFrame;
-                           await desktopFrame.StartHmonCapture();
+                           await (desktopFrame as DesktopFrame).StartHmonCapture(monitor, count++);
                        }
                    }
                }
@@ -441,44 +438,44 @@ namespace adrilight
 
         static void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e)
         {
-            var desktopFrames = kernel.GetAll<ICaptureEngine>().Where(c => c is DesktopFrame || c is DesktopFrameDXGI);
-            var screenList = Screen.AllScreens.ToList();
-            foreach (var screen in Screen.AllScreens)
-            {
-                //restart old screen
-                if (desktopFrames.Any(p => p.DeviceName == screen.DeviceName))
-                {
-                    var oldScreen = desktopFrames.Where(p => p.DeviceName == screen.DeviceName).FirstOrDefault();
-                    if (oldScreen != null)
-                    {
-                        oldScreen.RefreshCapturingState();
-                        screenList.Remove(screen);
-                    }
-                }
-            }
-            //inject new screen
-            foreach (var newScreen in screenList)
-            {
-                kernel.Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(newScreen.DeviceName).WithConstructorArgument("deviceName", newScreen.DeviceName);
-                var newDesktopFrame = kernel.Get<ICaptureEngine>(newScreen.DeviceName);
-            }
-            //restart process
-            foreach (var desktopDuplicatorReader in kernel.GetAll<ILightingEngine>())
-            {
-                desktopDuplicatorReader.Refresh();
-            }
+            //var desktopFrames = kernel.GetAll<ICaptureEngine>().Where(c => c is DesktopFrame || c is DesktopFrameDXGI);
+            //var screenList = Screen.AllScreens.ToList();
+            //foreach (var screen in Screen.AllScreens)
+            //{
+            //    //restart old screen
+            //    if (desktopFrames.Any(p => p.DeviceName == screen.DeviceName))
+            //    {
+            //        var oldScreen = desktopFrames.Where(p => p.DeviceName == screen.DeviceName).FirstOrDefault();
+            //        if (oldScreen != null)
+            //        {
+            //            oldScreen.RefreshCapturingState();
+            //            screenList.Remove(screen);
+            //        }
+            //    }
+            //}
+            ////inject new screen
+            //foreach (var newScreen in screenList)
+            //{
+            //    kernel.Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(newScreen.DeviceName).WithConstructorArgument("deviceName", newScreen.DeviceName);
+            //    var newDesktopFrame = kernel.Get<ICaptureEngine>(newScreen.DeviceName);
+            //}
+            ////restart process
+            //foreach (var desktopDuplicatorReader in kernel.GetAll<ILightingEngine>())
+            //{
+            //    desktopDuplicatorReader.Refresh();
+            //}
         }
 
         static void SystemEvents_DisplaySettingsChanging(object sender, EventArgs e)
         {
-            foreach (var desktopFrame in kernel.GetAll<ICaptureEngine>().Where(c => c is DesktopFrame))
-            {
-                desktopFrame.Stop();
-            }
-            foreach (var desktopDuplicatorReader in kernel.GetAll<ILightingEngine>().Where(l => l is DesktopDuplicatorReader))
-            {
-                desktopDuplicatorReader.Stop();
-            }
+            //foreach (var desktopFrame in kernel.GetAll<ICaptureEngine>().Where(c => c is DesktopFrame))
+            //{
+            //    desktopFrame.Stop();
+            //}
+            //foreach (var desktopDuplicatorReader in kernel.GetAll<ILightingEngine>().Where(l => l is DesktopDuplicatorReader))
+            //{
+            //    desktopDuplicatorReader.Stop();
+            //}
 
 
         }

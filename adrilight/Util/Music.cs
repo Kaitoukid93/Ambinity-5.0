@@ -77,6 +77,7 @@ namespace adrilight
         private ListSelectionParameter _midDataControl;
         private ToggleParameter _enableControl;
 
+        private AudioDeviceSelectionButtonParameter _audioDeviceSelectionControl;
         private enum DimMode { Up, Down };
         private DimMode _dimMode;
         private double _dimFactor;
@@ -281,6 +282,12 @@ namespace adrilight
         {
             _brightness = value / 100d;
         }
+        private void OnCapturingSourceChanged(int sourceIndex)
+        {
+            if (sourceIndex >= AudioFrame.Frames.Length)
+                _audioDeviceSelectionControl.CapturingSourceIndex = 0;
+
+        }
         #endregion
 
         public void Refresh()
@@ -369,6 +376,16 @@ namespace adrilight
             _midDataControl.SubParams[2].PropertyChanged += (_, __) => OnVUModePropertyChanged(_midDataControl.SubParams[2].Value);
             _colorControl.LoadAvailableValues();
             _midDataControl.LoadAvailableValues();
+            _audioDeviceSelectionControl = _currentLightingMode.Parameters.Where(p => p is AudioDeviceSelectionButtonParameter).FirstOrDefault() as AudioDeviceSelectionButtonParameter;
+            _audioDeviceSelectionControl.PropertyChanged += (_, __) =>
+            {
+                switch (__.PropertyName)
+                {
+                    case nameof(_audioDeviceSelectionControl.CapturingSourceIndex):
+                        OnCapturingSourceChanged(_audioDeviceSelectionControl.CapturingSourceIndex);
+                        break;
+                }
+            };
             #endregion
             //safety check
             if (_colorControl.SelectedValue == null)
@@ -424,7 +441,7 @@ namespace adrilight
                             position %= _colorBank.Length;
                             //get brightness using MID and audioFrame
                             var columnIndex = spot.MID;
-                            if (columnIndex > AudioFrame.Frame.Frame.Length)
+                            if (columnIndex > AudioFrame.Frames[_audioDeviceSelectionControl.CapturingSourceIndex].Frame.Length)
                                 columnIndex = 0;
                             byte colorR = 0;
                             byte colorG = 0;
@@ -623,10 +640,12 @@ namespace adrilight
         }
         public byte[] BrightnessMapCreator(int index, int maxHeight)//create brightnessmap based on input fft or volume
         {
-            var currentFrame = AudioFrame.Frame;
+            var currentFrame = AudioFrame.Frames[_audioDeviceSelectionControl.CapturingSourceIndex];
+            if (currentFrame == null)
+                return null;
             byte[] brightnessMap = new byte[maxHeight];
 
-            lock (AudioFrame.Lock)
+            lock (AudioFrame.Frames[_audioDeviceSelectionControl.CapturingSourceIndex])
             {
                 switch (_dancingMode)
                 {
@@ -726,7 +745,6 @@ namespace adrilight
             const float factor = 80f;
             return (byte)(256f * ((float)Math.Pow(factor, color / 256f) - 1f) / (factor - 1));
         }
-
         public void Stop()
         {
             Log.Information("Stop called for Music engine");

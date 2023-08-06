@@ -29,7 +29,7 @@ namespace adrilight
             )
         {
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
-            DesktopFrame = desktopFrame.Where(d => d is DesktopFrame || d is DesktopFrameDXGI).ToArray() ?? throw new ArgumentNullException(nameof(desktopFrame));
+            DesktopFrame = desktopFrame.Where(d => d is DesktopFrame || d is DesktopFrameDXGI).First() ?? throw new ArgumentNullException(nameof(desktopFrame));
             CurrentZone = zone as LEDSetup ?? throw new ArgumentNullException(nameof(zone));
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             _retryPolicy = Policy.Handle<Exception>().WaitAndRetryForever(ProvideDelayDuration);
@@ -48,7 +48,7 @@ namespace adrilight
         /// </summary>
         private IGeneralSettings GeneralSettings { get; }
 
-        private ICaptureEngine[] DesktopFrame { get; }
+        private ICaptureEngine DesktopFrame { get; }
         public bool IsRunning { get; private set; }
         private LEDSetup CurrentZone { get; }
 
@@ -112,7 +112,7 @@ namespace adrilight
         }
         private void OnCapturingRegionChanged(CapturingRegion region)
         {
-            if (DesktopFrame[(int)_currentScreenIndex].Frame == null || DesktopFrame[(int)_currentScreenIndex].Frame.FrameWidth == 0 || DesktopFrame[(int)_currentScreenIndex].Frame.FrameHeight == 0)
+            if (DesktopFrame.Frames[(int)_currentScreenIndex] == null || DesktopFrame.Frames[(int)_currentScreenIndex].FrameWidth == 0 || DesktopFrame.Frames[(int)_currentScreenIndex].FrameHeight == 0)
             {
                 Log.Error("DesktopFrame is null");
                 return;
@@ -144,7 +144,7 @@ namespace adrilight
         }
         private void OnCapturingSourceChanged(int sourceIndex)
         {
-            if (sourceIndex >= DesktopFrame.Length)
+            if (sourceIndex >= DesktopFrame.Frames.Length)
                 _regionControl.CapturingSourceIndex = 0;
             _currentScreenIndex = _regionControl.CapturingSourceIndex;
         }
@@ -601,15 +601,17 @@ namespace adrilight
             {
                 ByteFrame CurrentFrame = null;
                 Bitmap DesktopImage;
-                if (_currentScreenIndex >= DesktopFrame.Length)
+                if (_currentScreenIndex >= DesktopFrame.Frames.Length)
                 {
                     HandyControl.Controls.MessageBox.Show("màn hình không khả dụng", "Sáng theo màn hình", MessageBoxButton.OK, MessageBoxImage.Error);
                     _currentScreenIndex = 0;
                 }
-                var currentDesktop = DesktopFrame[(int)_currentScreenIndex];
-                lock (currentDesktop.Lock)
+                //var currentDesktop = ;
+                if (DesktopFrame.Frames[(int)_currentScreenIndex] == null)
+                    return null;
+                lock (DesktopFrame.Frames[(int)_currentScreenIndex])
                 {
-                    CurrentFrame = currentDesktop.Frame;
+                    CurrentFrame = DesktopFrame.Frames[(int)_currentScreenIndex];
 
                     if (CurrentFrame == null || CurrentFrame.FrameWidth == 0 || CurrentFrame.FrameHeight == 0)
                     {
@@ -653,30 +655,6 @@ namespace adrilight
             }
             catch (Exception ex)
             {
-                if (ex.Message != "_outputDuplication is null" && ex.Message != "Access Lost, resolution might be changed" && ex.Message != "Invalid call, might be retrying" && ex.Message != "Failed to release frame.")
-                {
-                    Log.Error(ex.Message, "GetNextFrame() failed.");
-
-                    // throw;
-                }
-                else if (ex.Message == "Access Lost, resolution might be changed")
-                {
-                    Log.Error(ex, "Access Lost, retrying");
-
-                }
-                else if (ex.Message == "Invalid call, might be retrying")
-                {
-                    Log.Error(ex, "Invalid Call Lost, retrying");
-                }
-                else if (ex.Message == "Failed to release frame.")
-                {
-                    Log.Error(ex, "Failed to release frame.");
-                }
-                else
-                {
-                    throw new DesktopDuplicationException("Unknown Device Error", ex);
-                }
-
                 GC.Collect();
                 return null;
             }

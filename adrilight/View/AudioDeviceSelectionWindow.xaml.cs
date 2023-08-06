@@ -1,18 +1,5 @@
-﻿using HandyControl.Data;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using adrilight.ViewModel;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace adrilight.View
 {
@@ -24,12 +11,25 @@ namespace adrilight.View
         public AudioDeviceSelectionWindow()
         {
             InitializeComponent();
-            
+
         }
 
-     
-      
-        
-     
+
+        private void SourceIndexChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var viewModel = this.DataContext as MainViewViewModel;
+            if (viewModel.ClickedRegionButtonParameter == null)
+                return;
+            if (sourceList.SelectedIndex < 0)
+                return;
+            if (viewModel.AvailableBitmaps == null || viewModel.AvailableBitmaps.Count == 0)
+                return;
+            viewModel.ClickedAudioButtonParameter.CapturingSourceIndex = sourceList.SelectedIndex;
+            //viewModel.CalculateAdjustingRectangle(viewModel.AvailableBitmaps[sourceList.SelectedIndex].Bitmap, viewModel.ClickedRegionButtonParameter.CapturingRegion);
+
+
+        }
+
+
     }
 }

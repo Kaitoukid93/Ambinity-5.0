@@ -2277,6 +2277,7 @@ namespace adrilight.ViewModel
                         break;
 
                     case "audioDevice":
+                        ClickedAudioButtonParameter = p as AudioDeviceSelectionButtonParameter;
                         OpenAudioSelectorWindow();
                         break;
                 }
@@ -6873,6 +6874,8 @@ namespace adrilight.ViewModel
 
         private void OpenAudioSelectorWindow()
         {
+            if (ClickedAudioButtonParameter == null)
+                return;
             if (AssemblyHelper.CreateInternalInstance($"View.{"AudioDeviceSelectionWindow"}") is System.Windows.Window window)
             {
                 IsAudioSelectionOpen = true;
@@ -6884,6 +6887,7 @@ namespace adrilight.ViewModel
         public bool IsRegionSelectionOpen { get; set; }
         private HandyControl.Controls.Window regionSelectionView { get; set; }
         public CapturingRegionSelectionButtonParameter ClickedRegionButtonParameter { get; set; }
+        public AudioDeviceSelectionButtonParameter ClickedAudioButtonParameter { get; set; }
         private double _adjustingRectangleWidth;
 
         private Border _regionSelectionRect;
@@ -6904,7 +6908,9 @@ namespace adrilight.ViewModel
             {
                 case "screen":
                     ScreenBitmapCollectionInit();
-                    var index = ClickedRegionButtonParameter.CapturingSourceIndex > 0 ? ClickedRegionButtonParameter.CapturingSourceIndex : 0;
+                    var index = ClickedRegionButtonParameter.CapturingSourceIndex > 0 && ClickedRegionButtonParameter.CapturingSourceIndex < Screen.AllScreens.Length ? ClickedRegionButtonParameter.CapturingSourceIndex : 0;
+                    if (index != ClickedRegionButtonParameter.CapturingSourceIndex)
+                        ClickedRegionButtonParameter.CapturingSourceIndex = index;
                     CalculateAdjustingRectangle(AvailableBitmaps[index].Bitmap, ClickedRegionButtonParameter.CapturingRegion);
                     regionSelectionView = new ScreenRegionSelectionWindow();
                     IsRegionSelectionOpen = true;

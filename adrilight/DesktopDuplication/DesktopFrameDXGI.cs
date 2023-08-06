@@ -5,64 +5,73 @@ using GalaSoft.MvvmLight;
 using Polly;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing.Imaging;
 using System.Linq;
 using System.Threading;
 using System.Windows;
-using System.Windows.Forms;
 
 namespace adrilight
 {
     internal class DesktopFrameDXGI : ViewModelBase, ICaptureEngine
     {
-        public DesktopFrameDXGI(IGeneralSettings userSettings, MainViewViewModel mainViewViewModel, string deviceName)
+        public DesktopFrameDXGI(IGeneralSettings userSettings, MainViewViewModel mainViewViewModel)
         {
             UserSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
-            DeviceName = deviceName;
             MainViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
-            _retryPolicy = Policy.Handle<Exception>()
-                .WaitAndRetryForever(ProvideDelayDuration);
+            Microsoft.Win32.SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
             RefreshCapturingState();
         }
 
         #region private field
-        private Thread _workerThread;
+        private List<Thread> _workerThreads;
+        private enum RunningState { Capturing, Waiting, Canceling };
+        private RunningState _state = RunningState.Waiting;
+        private DesktopDuplicator[] _desktopDuplicators;
         private CancellationTokenSource _cancellationTokenSource;
-        private int _currentScreenIdex => Array.IndexOf(Screen.AllScreens, Screen.AllScreens.Where(s => s.DeviceName == DeviceName).FirstOrDefault());
         #endregion
 
         #region public properties
         public bool IsRunning { get; private set; } = false;
         public ByteFrame Frame { get; set; }
-        public string DeviceName { get; set; }
+        public ByteFrame[] Frames { get; set; }
         private DrawableHelpers DrHlprs { get; set; }
         public object Lock { get; } = new object();
         #endregion
-
+        void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e)
+        {
+            RefreshCapturingState();
+        }
         public void RefreshCapturingState()
         {
-            var isRunning = _cancellationTokenSource != null && IsRunning;
-            var shouldBeRunning = true;
-            if (isRunning && !shouldBeRunning)
+            //start it
+            _state = RunningState.Waiting;
+            if (_desktopDuplicators != null)
             {
-                //stop it!
-                Log.Information("stopping the capturing");
-                _cancellationTokenSource.Cancel();
-                _cancellationTokenSource = null;
-
+                for (int i = 0; i < _desktopDuplicators.Length; i++)
+                {
+                    _desktopDuplicators[i]?.Dispose();
+                    _desktopDuplicators[i] = null;
+                }
             }
-            else if (!isRunning && shouldBeRunning)
+            Stop();
+            _workerThreads = new List<Thread>();
+            _cancellationTokenSource = new CancellationTokenSource();
+            Log.Information("starting DXGI");
+            IEnumerable<MonitorInfo> monitors = MonitorEnumerationHelper.GetMonitors();
+            Frames = new ByteFrame[monitors.Count()];
+            _desktopDuplicators = new DesktopDuplicator[monitors.Count()];
+            int index = 0;
+            foreach (var monitor in monitors)
             {
-                //start it
-                Log.Information("starting the DXGI Capturing for: " + DeviceName);
-                _cancellationTokenSource = new CancellationTokenSource();
-                _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
+                Thread workerThread = new Thread(() => Run(index++)) {
                     IsBackground = true,
                     Priority = ThreadPriority.BelowNormal,
-                    Name = "DesktopDuplicatorReader"
+                    Name = "DXGI" + monitor.DeviceName
                 };
-                _workerThread.Start();
+                _state = RunningState.Capturing;
+                workerThread.Start();
+                _workerThreads.Add(workerThread);
             }
 
         }
@@ -76,7 +85,6 @@ namespace adrilight
         private MainViewViewModel MainViewModel { get; set; }
 
 
-        private readonly Policy _retryPolicy;
 
         private TimeSpan ProvideDelayDuration(int index)
         {
@@ -95,21 +103,23 @@ namespace adrilight
             return TimeSpan.FromMilliseconds(1000);
         }
 
-        private DesktopDuplicator _desktopDuplicator;
-
-        public void Run(CancellationToken token)
+        public void Run(int screenIndex)
         {
             IsRunning = true;
-            Log.Information("DXGI is running", DeviceName);
+            Log.Information("DXGI is running for screen " + screenIndex);
             Frame = new ByteFrame();
+            Frames[screenIndex] = new ByteFrame();
+            var _retryPolicy = Policy.Handle<Exception>()
+            .WaitAndRetryForever(sleepDurationProvider: attempt => TimeSpan.FromMilliseconds(2000));
+            var policyContext = new Context("RetryContext");
+
+            policyContext.Add("CancellationTokenSource", _cancellationTokenSource);
             try
             {
-                BitmapData bitmapData = new BitmapData();
-
-                while (!token.IsCancellationRequested)
+                while (_state == RunningState.Capturing)
                 {
                     var frameTime = Stopwatch.StartNew();
-                    var frame = _retryPolicy.Execute(() => GetNextFrame());
+                    var frame = _retryPolicy.Execute((ctx, ct) => GetNextFrame(screenIndex), policyContext, _cancellationTokenSource.Token);
                     if (frame == null)
                     {
                         //there was a timeout before there was the next frame, simply retry!
@@ -118,11 +128,11 @@ namespace adrilight
 
                     lock (Lock)
                     {
-                        Frame = frame;
+                        Frames[screenIndex] = frame;
                     }
                     if (MainViewModel.IsRegionSelectionOpen)
                     {
-                        MainViewModel.DesktopsPreviewUpdate(Frame, _currentScreenIdex);
+                        MainViewModel.DesktopsPreviewUpdate(Frames[screenIndex], screenIndex);
                     }
                     int minFrameTimeInMs = 1000 / 30;
                     var elapsedMs = (int)frameTime.ElapsedMilliseconds;
@@ -136,84 +146,59 @@ namespace adrilight
             {
                 Log.Error(ex, this.ToString());
             }
-
-            finally
-            {
-                //image?.Dispose();
-                _desktopDuplicator?.Dispose();
-                _desktopDuplicator = null;
-                Log.Information("Stopped DXGI", DeviceName);
-                IsRunning = false;
-                GC.Collect();
-            }
         }
 
 
         public void Stop()
         {
-            Log.Information("Stop called DXGI", DeviceName);
-            if (_workerThread == null) return;
-            _desktopDuplicator?.Dispose();
-            _desktopDuplicator = null;
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = null;
-            GC.Collect();
-            _workerThread?.Join();
-            _workerThread = null;
+            Log.Information("Stop called for DXGI");
+            if (_cancellationTokenSource != null)
+            {
+                _cancellationTokenSource?.Cancel();
+                _cancellationTokenSource = null;
+            }
+            _state = RunningState.Canceling;
+            if (_workerThreads == null)
+                return;
+            for (int i = 0; i < _workerThreads.Count(); i++)
+            {
+                if (_workerThreads[i] == null) return;
+                //_captures[i]?.Dispose();
+                GC.Collect();
+                _workerThreads[i]?.Join();
+                _workerThreads[i] = null;
+            }
 
         }
 
         private int? _lastObservedHeight;
         private int? _lastObservedWidth;
-        private ByteFrame GetNextFrame()
+        private ByteFrame GetNextFrame(int screenIndex)
         {
 
 
 
-            if (_desktopDuplicator == null)
+            if (_desktopDuplicators[screenIndex] == null)
             {
 
-                _desktopDuplicator = new DesktopDuplicator(0, _currentScreenIdex);
+                _desktopDuplicators[screenIndex] = new DesktopDuplicator(0, screenIndex);
 
             }
 
             try
             {
-                var latestFrame = _desktopDuplicator.GetLatestFrame();
+                var latestFrame = _desktopDuplicators[screenIndex].GetLatestFrame();
+
                 return latestFrame;
             }
             catch (Exception ex)
             {
-                if (ex.Message != "_outputDuplication is null" && ex.Message != "Access Lost, resolution might be changed" && ex.Message != "Invalid call, might be retrying" && ex.Message != "Failed to release frame.")
-                {
-                    Log.Error(ex, "GetNextFrame() failed.");
-
-                    // throw;
-                }
-                else if (ex.Message == "Access Lost, resolution might be changed")
-                {
-                    Log.Error(ex, "Access Lost, retrying");
-
-                }
-                else if (ex.Message == "Invalid call, might be retrying")
-                {
-                    Log.Error(ex, "Invalid Call Lost, retrying");
-                }
-                else if (ex.Message == "Failed to release frame.")
-                {
-                    Log.Error(ex, "Failed to release frame.");
-                }
-
-                else
-                {
-                    throw new DesktopDuplicationException("Unknown Device Error", ex);
-                }
-
-
-                _desktopDuplicator?.Dispose();
-                _desktopDuplicator = null;
+                Log.Error(ex.ToString());
+                Log.Information("Problem when getting next frame from screen: " + screenIndex);
+                _desktopDuplicators[screenIndex]?.Dispose();
+                _desktopDuplicators[screenIndex] = null;
                 GC.Collect();
-                return null;
+                throw;
             }
         }
 

@@ -21,7 +21,7 @@ namespace adrilight.DesktopDuplication
         private Texture2D _stagingTexture;
         private Texture2D _smallerTexture;
         private ShaderResourceView _smallerTextureView;
-
+        private int _blackFrameCounter = 0;
         /// <summary>
         /// Duplicates the output of the specified monitor on the specified graphics adapter.
         /// </summary>
@@ -169,30 +169,10 @@ namespace adrilight.DesktopDuplication
             try
             {
                 if (_outputDuplication == null) throw new Exception("_outputDuplication is null");
-                _outputDuplication.TryAcquireNextFrame(10000, out var frameInformation, out desktopResource);
+                var result = _outputDuplication.TryAcquireNextFrame(10000, out var frameInformation, out desktopResource);
             }
             catch (SharpDXException ex)
             {
-                if (ex.ResultCode.Code == SharpDX.DXGI.ResultCode.WaitTimeout.Result.Code)
-                {
-                    return false;
-                }
-                if (ex.ResultCode.Code == SharpDX.DXGI.ResultCode.AccessLost.Result.Code)
-                {
-                    // ReleaseFrame();
-                    throw new Exception("Access Lost, resolution might be changed");
-                    //do something to restart desktop duplicator here
-
-
-                }
-                if (ex.ResultCode.Code == SharpDX.DXGI.ResultCode.InvalidCall.Result.Code)
-                {
-                    // ReleaseFrame();
-                    throw new Exception("Invalid call, might be retrying");
-
-
-                }
-
                 throw new DesktopDuplicationException("Failed to acquire next frame.", ex);
             }
             // if (desktopResource == null) throw new Exception("desktopResource is null");
@@ -246,7 +226,7 @@ namespace adrilight.DesktopDuplication
 
                 return false;
             }
-
+            _blackFrameCounter = 0;
             return true;
         }
 

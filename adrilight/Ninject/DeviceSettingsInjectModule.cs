@@ -5,7 +5,6 @@ using adrilight.ViewModel;
 using Microsoft.Win32;
 using Ninject.Modules;
 using Serilog;
-using System.Windows.Forms;
 
 namespace adrilight.Ninject
 {
@@ -27,61 +26,35 @@ namespace adrilight.Ninject
             Bind<DeviceDiscovery>().ToSelf().InSingletonScope();
 
 
-            if (generalSettings.IsMultipleScreenEnable)
-                foreach (var screen in Screen.AllScreens)
-                {
-                    if (generalSettings.ScreenCapturingMethod == 0)
-                    {
-                        if (osBuild == "22000" || osBuild == "22621")
-                        {
-                            Log.Information("This is Windows 11 Machine, Injecting WCG", osBuild);
-                            Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("deviceName", screen.DeviceName);
-                        }
-                        else
-                        {
-                            Log.Information("This is Windows 10 Machine, Injecting DXGI", osBuild);
-                            Bind<ICaptureEngine>().To<DesktopFrameDXGI>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("deviceName", screen.DeviceName);
-                        }
-                    }
-                    else if (generalSettings.ScreenCapturingMethod == 1) //DXGI
-                    {
-                        Log.Information("Manual Capturing Method Selection, Injecting DXGI", osBuild);
-                        Bind<ICaptureEngine>().To<DesktopFrameDXGI>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("deviceName", screen.DeviceName);
-                    }
-                    else if (generalSettings.ScreenCapturingMethod == 2) //WGC
-                    {
-                        Log.Information("Manual Capturing Method Selection, Injecting WCG", osBuild);
-                        Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(screen.DeviceName).WithConstructorArgument("deviceName", screen.DeviceName);
-                    }
 
 
-                }
-            else
+            if (generalSettings.ScreenCapturingMethod == 0)
             {
-                if (generalSettings.ScreenCapturingMethod == 0)
+                if (osBuild == "22000" || osBuild == "22621")
                 {
-                    if (osBuild == "22000" || osBuild == "22621")
-                    {
-                        Log.Information("This is Windows 11 Machine, Injecting WCG", osBuild);
-                        Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(Screen.AllScreens[0].DeviceName).WithConstructorArgument("deviceName", Screen.AllScreens[0].DeviceName);
-                    }
-                    else
-                    {
-                        Log.Information("This is Windows 10 Machine, Injecting DXGI", osBuild);
-                        Bind<ICaptureEngine>().To<DesktopFrameDXGI>().InSingletonScope().Named(Screen.AllScreens[0].DeviceName).WithConstructorArgument("deviceName", Screen.AllScreens[0].DeviceName);
-                    }
+                    Log.Information("This is Windows 11 Machine, Injecting WCG", osBuild);
+                    Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope();
                 }
-                else if (generalSettings.ScreenCapturingMethod == 1) //DXGI
+                else
                 {
-                    Log.Information("Manual Capturing Method Selection, Injecting DXGI", osBuild);
-                    Bind<ICaptureEngine>().To<DesktopFrameDXGI>().InSingletonScope().Named(Screen.AllScreens[0].DeviceName).WithConstructorArgument("deviceName", Screen.AllScreens[0].DeviceName);
-                }
-                else if (generalSettings.ScreenCapturingMethod == 2) //WGC
-                {
-                    Log.Information("Manual Capturing Method Selection, Injecting WCG", osBuild);
-                    Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(Screen.AllScreens[0].DeviceName).WithConstructorArgument("deviceName", Screen.AllScreens[0].DeviceName);
+                    Log.Information("This is Windows 10 Machine, Injecting DXGI", osBuild);
+                    Bind<ICaptureEngine>().To<DesktopFrameDXGI>().InSingletonScope();
                 }
             }
+            else if (generalSettings.ScreenCapturingMethod == 1) //DXGI
+            {
+                Log.Information("Manual Capturing Method Selection, Injecting DXGI", osBuild);
+                Bind<ICaptureEngine>().To<DesktopFrameDXGI>().InSingletonScope();
+            }
+            else if (generalSettings.ScreenCapturingMethod == 2) //WGC
+            {
+                Log.Information("Manual Capturing Method Selection, Injecting WCG", osBuild);
+                Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope();
+            }
+
+
+
+
             Bind<ICaptureEngine>().To<AudioFrame>().InSingletonScope();
             Bind<RainbowTicker>().ToSelf().InSingletonScope();
 

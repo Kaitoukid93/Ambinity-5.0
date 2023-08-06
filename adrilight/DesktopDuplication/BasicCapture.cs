@@ -28,6 +28,7 @@ namespace adrilight.DesktopDuplication
         private SharpDX.DXGI.SwapChain1 swapChain;
         private const int mipMapLevel = 3;
         private const int scalingFactor = 1 << mipMapLevel;
+        public object Lock { get; } = new object();
         public BasicCapture(IDirect3DDevice d, GraphicsCaptureItem i)
         {
             item = i;
@@ -111,7 +112,7 @@ namespace adrilight.DesktopDuplication
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex, "Staging Texture");
+                    Log.Error(ex.ToString() + "Staging Texture");
                     return;
                 }
 
@@ -138,7 +139,7 @@ namespace adrilight.DesktopDuplication
 
             catch (Exception ex)
             {
-                Log.Error(ex, "SmallerTexture Texture");
+                Log.Error(ex.ToString() + "SmallerTexture Texture");
                 return;
             }
 
@@ -188,7 +189,7 @@ namespace adrilight.DesktopDuplication
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Staging Texture");
+                Log.Error(ex.ToString() + "Staging Texture");
                 return null;
             }
             var frame = new ByteFrame() {
@@ -239,8 +240,11 @@ namespace adrilight.DesktopDuplication
                     2,
                     lastSize);
             }
+            lock (Lock)
+            {
+                CurrentFrame = ProcessFrame();
+            }
 
-            CurrentFrame = ProcessFrame();
 
 
         }

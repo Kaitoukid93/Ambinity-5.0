@@ -4,6 +4,7 @@ using GalaSoft.MvvmLight;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Un4seen.Bass;
 using Un4seen.BassWasapi;
@@ -31,7 +32,6 @@ namespace adrilight
         private int _hanctr;                //last output level counter
         private CancellationTokenSource _cancellationTokenSource;
         public static float[] _fft;
-        private byte[] _lastSpectrumData;
         public WASAPIPROC _process;
         private float _speed1 = 1.0F, _speed2 = 0.20F;
         public object Lock { get; } = new object();
@@ -44,8 +44,12 @@ namespace adrilight
 
         #region public field
         public bool IsRunning { get; private set; } = false;
+        public ByteFrame[] Frames { get; set; }
         public ByteFrame Frame { get; set; }
         public string DeviceName { get; set; }
+        private List<Thread> _workerThreads;
+        private enum RunningState { Capturing, Waiting, Canceling };
+        private RunningState _state = RunningState.Waiting;
         #endregion
 
         private void PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -53,54 +57,36 @@ namespace adrilight
             switch (e.PropertyName)
             {
 
-                case nameof(GeneralSettings.SelectedAudioDevice):
-                    Log.Information("Audio Device Changing to: " + GeneralSettings.SelectedAudioDevice);
-                    RefreshCapturingState();
-                    break;
+                // case nameof(GeneralSettings.SelectedAudioDevice):
+                //   Log.Information("Audio Device Changing to: " + GeneralSettings.SelectedAudioDevice);
+                //  RefreshCapturingState();
+                //break;
             }
 
         }
         public void RefreshCapturingState()
         {
 
-            var isRunning = _cancellationTokenSource != null && IsRunning;
-            var shouldBeRunning = true;
-            if (isRunning && !shouldBeRunning)
+            Stop();
+            Free();
+            Init();
+            _workerThreads = new List<Thread>();
+            Log.Information("starting BassAudioCapturing");
+            List<AudioDevice> audioDevices = GetAvailableAudioDevices();
+            Frames = new ByteFrame[audioDevices.Count()];
+            int index = 0;
+            foreach (var device in audioDevices)
             {
-                //stop it!
-                Log.Information("stopping the Audio Frame");
-                _cancellationTokenSource.Cancel();
-                _cancellationTokenSource = null;
-                // Free();
-            }
-
-            else if (!isRunning && shouldBeRunning)
-            {
-                //start it
-                Log.Information("starting the Audio Frame");
-                _cancellationTokenSource = new CancellationTokenSource();
-                var thread = new Thread(() => Run(_cancellationTokenSource.Token)) {
+                Thread workerThread = new Thread(() => Run(device, index++)) {
                     IsBackground = true,
                     Priority = ThreadPriority.BelowNormal,
-                    Name = "AudioFrame"
+                    Name = "AudioCapture" + device.Name
                 };
-                thread.Start();
-            }
-            else if (isRunning && shouldBeRunning)
-            {
-                //force create new one
-                Stop();
-                Log.Information("Restarting Audio Frame");
-                _cancellationTokenSource = new CancellationTokenSource();
-                var thread = new Thread(() => Run(_cancellationTokenSource.Token)) {
-                    IsBackground = true,
-                    Priority = ThreadPriority.BelowNormal,
-                    Name = "AudioFrame"
-                };
-                thread.Start();
+                _state = RunningState.Capturing;
+                workerThread.Start();
+                _workerThreads.Add(workerThread);
             }
         }
-
 
 
         private int Process(IntPtr buffer, int length, IntPtr user)
@@ -109,40 +95,40 @@ namespace adrilight
         }
 
 
-        public void Run(CancellationToken token)
+        public void Run(AudioDevice device, int index)
 
         {
             // if (IsRunning) throw new Exception(" AudioFrame is already running!");
 
             IsRunning = true;
 
-            Log.Information("Started Audio Frame.");
-            Frame = new ByteFrame();
+            Log.Information("Started Audio Capture for: " + device.Name);
+            Frames[index] = new ByteFrame();
             try
             {
-                _lastSpectrumData = new byte[32];
-                Frame.Frame = new byte[32];
-                StartBassWasapi();
-                while (!token.IsCancellationRequested)
+                Frames[index].Frame = new byte[32];
+                StartBassWasapi(device);
+                while (_state == RunningState.Capturing)
                 {
                     var isPreviewWindowOpen = MainViewModel.IsInIDEditStage && MainViewModel.IdEditMode == MainViewViewModel.IDMode.FID || MainViewModel.IsAudioSelectionOpen;
-                    bool result = GetCurrentFFTFrame(32);
-                    if (result)
+                    //var result = GetCurrentFFTFrame(32, Frames[index].Frame);
+
+                    lock (Lock)
                     {
-                        lock (Lock)
+                        var result = GetCurrentFFTFrame(32, Frames[index].Frame);
+                        if (!result)
                         {
-                            Frame.Frame = _lastSpectrumData;
+                            Frames[index].Frame = new byte[32];
                         }
                     }
-                    else
-                    {
-                        Frame.Frame = new byte[32];
-                    }
+
+
+
                     if (isPreviewWindowOpen)
                     {
                         lock (MainViewModel.AudioUpdateLock)
                         {
-                            MainViewModel.AudioVisualizerUpdate(Frame);
+                            MainViewModel.AudioVisualizerUpdate(Frames[0]);
                         }
 
                     }
@@ -175,7 +161,7 @@ namespace adrilight
         }
 
 
-        private bool GetCurrentFFTFrame(int numFreq)
+        private bool GetCurrentFFTFrame(int numFreq, byte[] lastSpectrumData)
         {
             List<byte> spectrumdata = new List<byte>();
             int ret = BassWasapi.BASS_WASAPI_GetData(_fft, (int)BASSData.BASS_DATA_FFT2048);// get channel fft data
@@ -202,16 +188,16 @@ namespace adrilight
 
             for (int i = 0; i < numFreq; i++)
             {
-                if (spectrumdata[i] > _lastSpectrumData[i])
+                if (spectrumdata[i] > lastSpectrumData[i])
                 {
-                    _lastSpectrumData[i] += (byte)(_speed1 * (spectrumdata[i] - _lastSpectrumData[i]));
+                    lastSpectrumData[i] += (byte)(_speed1 * (spectrumdata[i] - lastSpectrumData[i]));
 
 
                 }
 
-                if (spectrumdata[i] < _lastSpectrumData[i])
+                if (spectrumdata[i] < lastSpectrumData[i])
                 {
-                    _lastSpectrumData[i] -= (byte)(_speed2 * (_lastSpectrumData[i] - spectrumdata[i]));
+                    lastSpectrumData[i] -= (byte)(_speed2 * (lastSpectrumData[i] - spectrumdata[i]));
                 }
             }
             int level = BassWasapi.BASS_WASAPI_GetLevel();
@@ -249,20 +235,21 @@ namespace adrilight
             }
             return availableDevices;
         }
-        private void StartBassWasapi()
+        private void StartBassWasapi(AudioDevice device)
         {
-            Free();
-            Init();
-            var selectedIndex = GeneralSettings.SelectedAudioDevice > 0 ? GeneralSettings.SelectedAudioDevice : 0;
-            var selectedAudioDevice = GetAvailableAudioDevices()[selectedIndex];
-            _deviceIndex = selectedAudioDevice.Index;
-            bool result = BassWasapi.BASS_WASAPI_Init(_deviceIndex, 0, 0, BASSWASAPIInit.BASS_WASAPI_BUFFER, 1f, 0.05f, _process, IntPtr.Zero); // this is the function to init the device according to device index
+            bool result = BassWasapi.BASS_WASAPI_Init(device.Index, 0, 0, BASSWASAPIInit.BASS_WASAPI_BUFFER, 1f, 0.05f, _process, IntPtr.Zero); // this is the function to init the device according to device index
             if (!result)
             {
                 var error = Bass.BASS_ErrorGetCode();
                 Log.Error(error.ToString());
                 // MessageBox.Show(error.ToString());
             }
+            bool dev = BassWasapi.BASS_WASAPI_SetDevice(device.Index);
+            if (!dev)
+            {
+                var err = Bass.BASS_ErrorGetCode();
+            }
+
             else
             {
 
@@ -328,14 +315,18 @@ namespace adrilight
 
         public void Stop()
         {
-            Log.Information("Stop called for audio frame");
-            if (_workerThread == null) return;
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = null;
-            Free();
-            _workerThread?.Join();
-            _workerThread = null;
-
+            if (_workerThreads == null)
+                return;
+            Log.Error("Stop called for Audio Capture");
+            _state = RunningState.Canceling;
+            for (int i = 0; i < _workerThreads.Count(); i++)
+            {
+                if (_workerThreads[i] == null) return;
+                //_captures[i]?.Dispose();
+                GC.Collect();
+                _workerThreads[i]?.Join();
+                _workerThreads[i] = null;
+            }
         }
     }
 }

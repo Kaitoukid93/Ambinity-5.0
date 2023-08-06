@@ -56,6 +56,8 @@ namespace adrilight.View
                 return;
             if (sourceList.SelectedIndex < 0)
                 return;
+            if (viewModel.AvailableBitmaps == null || viewModel.AvailableBitmaps.Count == 0)
+                return;
             viewModel.ClickedRegionButtonParameter.CapturingSourceIndex = sourceList.SelectedIndex;
             viewModel.CalculateAdjustingRectangle(viewModel.AvailableBitmaps[sourceList.SelectedIndex].Bitmap, viewModel.ClickedRegionButtonParameter.CapturingRegion);
 
