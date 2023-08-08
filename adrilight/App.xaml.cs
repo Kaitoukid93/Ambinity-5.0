@@ -368,6 +368,7 @@ namespace adrilight
                         File.Delete(file);
                     Log.Information("Delete File :" + file);
                 }
+                Thread.Sleep(2000);
                 Log.Information("Application exit!");
             };
 
@@ -427,7 +428,7 @@ namespace adrilight
                         }
                     }
                 }
-
+                Thread.Sleep(2000);
                 Log.Information("Stop the serial stream due to power down or log off condition!");
             };
         }
