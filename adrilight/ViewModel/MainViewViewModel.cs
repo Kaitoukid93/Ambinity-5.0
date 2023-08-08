@@ -1568,10 +1568,12 @@ namespace adrilight.ViewModel
                     if (AvailableBitmaps[index] == null)
                     {
                         AvailableBitmaps[index].Bitmap = new WriteableBitmap(frame.FrameWidth, frame.FrameHeight, 96, 96, PixelFormats.Bgra32, null);
+                        UpdateRegionView();
                     }
                     else if (AvailableBitmaps[index].Bitmap != null && (AvailableBitmaps[index].Bitmap.Width != frame.FrameWidth || AvailableBitmaps[index].Bitmap.Height != frame.FrameHeight))
                     {
                         AvailableBitmaps[index].Bitmap = new WriteableBitmap(frame.FrameWidth, frame.FrameHeight, 96, 96, PixelFormats.Bgra32, null);
+                        UpdateRegionView();
                     }
                     else if (AvailableBitmaps[index].Bitmap != null && AvailableBitmaps[index].Bitmap.Width == frame.FrameWidth && AvailableBitmaps[index].Bitmap.Height == frame.FrameHeight)
                     {

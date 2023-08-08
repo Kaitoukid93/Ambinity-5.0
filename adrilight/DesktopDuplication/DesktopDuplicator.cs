@@ -4,7 +4,9 @@ using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using System;
 using System.Drawing.Imaging;
+using Windows.Graphics;
 using Device = SharpDX.Direct3D11.Device;
+using Format = SharpDX.DXGI.Format;
 using MapFlags = SharpDX.Direct3D11.MapFlags;
 
 namespace adrilight.DesktopDuplication
@@ -122,25 +124,44 @@ namespace adrilight.DesktopDuplication
 
         private const int mipMapLevel = 3;
         private const int scalingFactor = 1 << mipMapLevel;
-
+        private SizeInt32 lastSize;
         private bool RetrieveFrame()
         {
 
             int desktopWidth;
             int desktopHeight;
-            if (_outputDescription.DesktopBounds.GetWidth() >= _outputDescription.DesktopBounds.GetHeight()) //landscape mode
+            var newSize = false;
+            if (_outputDescription.DesktopBounds.GetWidth() != lastSize.Width ||
+                    _outputDescription.DesktopBounds.GetHeight() != lastSize.Height)
             {
-
-                desktopWidth = _outputDescription.DesktopBounds.GetWidth();
-                desktopHeight = _outputDescription.DesktopBounds.GetHeight();
+                // The thing we have been capturing has changed size.
+                // We need to resize the swap chain first, then blit the pixels.
+                // After we do that, retire the frame and then recreate the frame pool.
+                newSize = true;
+                lastSize.Width = _outputDescription.DesktopBounds.GetWidth();
+                lastSize.Height = _outputDescription.DesktopBounds.GetHeight();
             }
-            else
+            //if (_outputDescription.DesktopBounds.GetWidth() >= _outputDescription.DesktopBounds.GetHeight()) //landscape mode
+            //{
+
+            desktopWidth = _outputDescription.DesktopBounds.GetWidth();
+            desktopHeight = _outputDescription.DesktopBounds.GetHeight();
+            //}
+            //else
+            //{
+
+            //    desktopWidth = _outputDescription.DesktopBounds.GetHeight();
+            //    desktopHeight = _outputDescription.DesktopBounds.GetWidth();
+            //}
+            if (newSize)
             {
-
-                desktopWidth = _outputDescription.DesktopBounds.GetHeight();
-                desktopHeight = _outputDescription.DesktopBounds.GetWidth();
+                _smallerTexture?.Dispose();
+                _smallerTextureView?.Dispose();
+                _stagingTexture?.Dispose();
+                _smallerTexture = null;
+                _smallerTextureView = null;
+                _stagingTexture = null;
             }
-
             if (_stagingTexture == null)
             {
                 try
@@ -237,18 +258,18 @@ namespace adrilight.DesktopDuplication
             //Rectangle frame;
             int height;
             int width;
-            if (_outputDescription.DesktopBounds.GetWidth() >= _outputDescription.DesktopBounds.GetHeight()) //landscape mode
-            {
+            //if (_outputDescription.DesktopBounds.GetWidth() >= _outputDescription.DesktopBounds.GetHeight()) //landscape mode
+            //{
 
-                width = _outputDescription.DesktopBounds.GetWidth() / scalingFactor;
-                height = _outputDescription.DesktopBounds.GetHeight() / scalingFactor;
-            }
-            else
-            {
+            width = _outputDescription.DesktopBounds.GetWidth() / scalingFactor;
+            height = _outputDescription.DesktopBounds.GetHeight() / scalingFactor;
+            //}
+            //else
+            //{
 
-                width = _outputDescription.DesktopBounds.GetHeight() / scalingFactor;
-                height = _outputDescription.DesktopBounds.GetWidth() / scalingFactor;
-            }
+            //    width = _outputDescription.DesktopBounds.GetHeight() / scalingFactor;
+            //    height = _outputDescription.DesktopBounds.GetWidth() / scalingFactor;
+            //}
             // Copy pixels from screen capture Texture to GDI bitmap
             var sourcePtr = mapSource.DataPointer;
             int bitsPerPixel = ((int)PixelFormat.Format32bppRgb & 0xff00) >> 8;
