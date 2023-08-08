@@ -212,6 +212,7 @@
     <Compile Include="Settings\Automation\HotkeyTriggerCondition.cs" />
     <Compile Include="Settings\Automation\TriggerCondition.cs" />
     <Compile Include="Settings\GifCard.cs" />
+    <Compile Include="Util\CaptureEngine\AudioCaptureBasic.cs" />
     <Compile Include="Util\Gifxelation.cs" />
     <Compile Include="DesktopDuplication\DesktopDuplicatorReader.cs" />
     <Compile Include="DesktopDuplication\Direct3D11Helper.cs" />

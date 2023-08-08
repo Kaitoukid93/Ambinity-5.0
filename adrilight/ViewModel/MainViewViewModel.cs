@@ -227,6 +227,8 @@ namespace adrilight.ViewModel
             }
         }
         public ICommand OpenOOTBCommand { get; set; }
+        public ICommand RefreshAudioDeviceCommand { get; set; }
+        public ICommand RefreshMonitorCollectionCommand { get; set; }
         public ICommand StoreSearchCommand { get; set; }
         public ICommand CloseSearchingScreenCommand { get; set; }
         public ICommand ManuallyAddSelectedDeviceToDashboard { get; set; }
@@ -595,9 +597,9 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-        private VisualizerDataModel _audioVisualizers;
+        private ObservableCollection<VisualizerDataModel> _audioVisualizers;
 
-        public VisualizerDataModel AudioVisualizers {
+        public ObservableCollection<VisualizerDataModel> AudioVisualizers {
             get { return _audioVisualizers; }
             set { _audioVisualizers = value; RaisePropertyChanged(); }
         }
@@ -607,6 +609,12 @@ namespace adrilight.ViewModel
         public ObservableCollection<DesktopFrameCard> AvailableBitmaps {
             get { return _availableBitmaps; }
             set { _availableBitmaps = value; RaisePropertyChanged(); }
+        }
+        private DesktopFrameCard _selectedBitmap;
+
+        public DesktopFrameCard SelectedBitmap {
+            get { return _selectedBitmap; }
+            set { _selectedBitmap = value; RaisePropertyChanged(); }
         }
         private ObservableCollection<GifCard> _availableGifs;
 
@@ -751,7 +759,6 @@ namespace adrilight.ViewModel
             };
 
             #endregion Registering devices
-
             #region registering General settings
 
             RegisterGeneralSettings(GeneralSettings);
@@ -1498,20 +1505,20 @@ namespace adrilight.ViewModel
 
         public object AudioUpdateLock { get; } = new object();
         public object AvailableDeviceLock { get; } = new object();
-
-        public void AudioVisualizerUpdate(ByteFrame frame)
+        public VisualizerDataModel CurrentVisualizer { get; set; }
+        public void AudioVisualizerUpdate(ByteFrame frame, int index)
         {
             if (AudioVisualizers == null)
-            {
-                AudioVisualizers = new VisualizerDataModel(32);
-            }
-
+                return;
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
-                foreach (var column in AudioVisualizers.Columns)
+
+                foreach (var column in AudioVisualizers[index].Columns)
                 {
                     column.SetValue(frame.Frame[column.Index]);
                 }
+
+
             });
         }
 
@@ -2183,6 +2190,21 @@ namespace adrilight.ViewModel
             {
                 var listParam = p as ListSelectionParameter;
                 listParam.LoadAvailableValues();
+            });
+            RefreshAudioDeviceCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                CreateAudioDevicesCollection();
+            });
+            RefreshMonitorCollectionCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                ScreenBitmapCollectionInit();
+                UpdateRegionView();
             });
             RefreshLocalSlaveDeviceCollectionCommand = new RelayCommand<string>((p) =>
             {
@@ -6564,7 +6586,7 @@ namespace adrilight.ViewModel
             ToolBarWidth = 450;
             if (IsInIDEditStage)
             {
-                GetThingsReadyFroIDEdit();
+                GetThingsReadyForIDEdit();
             }
             if (lastSelectedItem != null)
             {
@@ -6585,7 +6607,7 @@ namespace adrilight.ViewModel
 
         }
 
-        private void GetThingsReadyFroIDEdit()
+        private void GetThingsReadyForIDEdit()
         {
             switch (IdEditMode)
             {
@@ -6596,6 +6618,8 @@ namespace adrilight.ViewModel
                     break;
 
                 case IDMode.FID:
+                    var _audioDeviceSelectionControl = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p is AudioDeviceSelectionButtonParameter).FirstOrDefault() as AudioDeviceSelectionButtonParameter;
+                    CurrentVisualizer = AudioVisualizers[_audioDeviceSelectionControl.CapturingSourceIndex];
                     ToolBarWidth = 450;
                     break;
             }
@@ -6899,7 +6923,7 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-        public WriteableBitmap SelectedBitmap => ClickedRegionButtonParameter.CapturingSourceIndex > 0 ? AvailableBitmaps[ClickedRegionButtonParameter.CapturingSourceIndex].Bitmap : AvailableBitmaps[0].Bitmap;
+        // public WriteableBitmap SelectedBitmap => ClickedRegionButtonParameter.CapturingSourceIndex > 0 ? AvailableBitmaps[ClickedRegionButtonParameter.CapturingSourceIndex].Bitmap : AvailableBitmaps[0].Bitmap;
         private void OpenRegionSelectionWindow(string mode)
         {
             if (ClickedRegionButtonParameter == null)
@@ -6908,10 +6932,7 @@ namespace adrilight.ViewModel
             {
                 case "screen":
                     ScreenBitmapCollectionInit();
-                    var index = ClickedRegionButtonParameter.CapturingSourceIndex > 0 && ClickedRegionButtonParameter.CapturingSourceIndex < Screen.AllScreens.Length ? ClickedRegionButtonParameter.CapturingSourceIndex : 0;
-                    if (index != ClickedRegionButtonParameter.CapturingSourceIndex)
-                        ClickedRegionButtonParameter.CapturingSourceIndex = index;
-                    CalculateAdjustingRectangle(AvailableBitmaps[index].Bitmap, ClickedRegionButtonParameter.CapturingRegion);
+                    UpdateRegionView();
                     regionSelectionView = new ScreenRegionSelectionWindow();
                     IsRegionSelectionOpen = true;
                     break;
@@ -6932,6 +6953,14 @@ namespace adrilight.ViewModel
 
 
 
+        }
+        private void UpdateRegionView()
+        {
+            var index = ClickedRegionButtonParameter.CapturingSourceIndex > 0 && ClickedRegionButtonParameter.CapturingSourceIndex < AvailableBitmaps.Count ? ClickedRegionButtonParameter.CapturingSourceIndex : 0;
+            if (index != ClickedRegionButtonParameter.CapturingSourceIndex)
+                ClickedRegionButtonParameter.CapturingSourceIndex = index;
+            SelectedBitmap = AvailableBitmaps[index];
+            CalculateAdjustingRectangle(AvailableBitmaps[index].Bitmap, ClickedRegionButtonParameter.CapturingRegion);
         }
         public void CalculateAdjustingRectangle(WriteableBitmap bitmap, CapturingRegion region)
         {
@@ -7028,9 +7057,15 @@ namespace adrilight.ViewModel
 
             }
         }
+
         public void ScreenBitmapCollectionInit()
         {
-            AvailableBitmaps = new ObservableCollection<DesktopFrameCard>();
+
+            if (AvailableBitmaps == null)
+            {
+                AvailableBitmaps = new ObservableCollection<DesktopFrameCard>();
+            }
+            AvailableBitmaps.Clear();
             lock (AvailableBitmaps)
             {
                 if (GeneralSettings.IsMultipleScreenEnable)
@@ -7058,66 +7093,7 @@ namespace adrilight.ViewModel
                 }
             }
         }
-        //private void LaunchPIDEditWindow(IDrawable p)
-        //{
-        //    CurrentEditingDevice = p as ARGBLEDSlaveDevice;
-        //    CurrentIDType = "PID";
-        //    //Clone this slave device
-        //    var temp = ObjectHelpers.Clone<ARGBLEDSlaveDevice>(p as ARGBLEDSlaveDevice);
 
-        //    CountPID = 0;
-
-        //    //add output border rect
-        //    PIDEditWindowsRichCanvasItems = new ObservableCollection<IDrawable>();
-        //    // PIDEditWindowsRichCanvasItems.CollectionChanged += PIDEditItemsChanged;
-        //    //ad zone border
-        //    PIDEditWindowSelectedItems = new ObservableCollection<IDrawable>();
-        //    PIDEditWindowSelectedItems.CollectionChanged += PIDEditSelectedItemsChanged;
-        //    // PIDEditWindowsRichCanvasSelectedItem = null;
-        //    foreach (var zone in temp.ControlableZones)
-        //    {
-        //        var ledSetup = zone as LEDSetup;
-        //        //deselect any selected zone
-        //        ledSetup.IsSelected = false;
-        //        ledSetup.Left = ledSetup.GetRect.Left;
-        //        ledSetup.Top = ledSetup.GetRect.Top;
-        //        PIDEditWindowsRichCanvasItems.Add(ledSetup);
-        //    }
-
-        //    //add virtual borders
-        //    if (GeneralSettings.IsMultipleScreenEnable)
-        //    {
-        //        for (int i = 0; i < Screen.AllScreens.Length; i++)
-        //        {
-        //            ScreenBound screen = new ScreenBound();
-        //            screen.Width = Screen.AllScreens[i].Bounds.Width;
-        //            screen.Height = Screen.AllScreens[i].Bounds.Height;
-        //            screen.Top = Screen.AllScreens[i].Bounds.Top;
-        //            screen.Left = Screen.AllScreens[i].Bounds.Left;
-        //            screen.Index = i;
-        //            PIDEditWindowsRichCanvasItems.Insert(0, screen);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        ScreenBound screen = new ScreenBound();
-        //        PIDEditWindowsRichCanvasItems.Insert(0, screen);
-        //    }
-
-        //    PathGuide pathGuide = new PathGuide() {
-        //        Width = 200,
-        //        Height = 200,
-        //        IsDraggable = true,
-        //        IsSelectable = true,
-        //        IsResizeable = false,
-        //        Geometry = "AmbinoA1Guide"
-        //    };
-
-        //    surfaceeditorWindow.Close();
-        //    IsRichCanvasWindowOpen = true;
-        //    pidEditCanvasWindow = new PIDEditCanvasWindow();
-        //    pidEditCanvasWindow.ShowDialog();
-        //}
 
         #region color and palette edit properties
 
@@ -8640,6 +8616,7 @@ namespace adrilight.ViewModel
             CreateGifCollectionFolder();
             CreateVIDCollectionFolder();
             CreateMIDCollectionFolder();
+            ScreenBitmapCollectionInit();
             CreateAudioDevicesCollection();
             CreateProfileCollectionFolder();
             CreateSupportedDevicesCollectionFolder();
@@ -8709,10 +8686,21 @@ namespace adrilight.ViewModel
 
         private void CreateAudioDevicesCollection()
         {
-            AvailableAudioDevices = new ObservableCollection<AudioDevice>();
+            if (AudioVisualizers == null)
+            {
+                AudioVisualizers = new ObservableCollection<VisualizerDataModel>();
+            }
+            if (AvailableAudioDevices == null)
+            {
+                AvailableAudioDevices = new ObservableCollection<AudioDevice>();
+            }
+
+            AvailableAudioDevices.Clear();
+            AudioVisualizers.Clear();
             foreach (var device in GetAvailableAudioDevices())
             {
                 AvailableAudioDevices.Add(device);
+                AudioVisualizers.Add(new VisualizerDataModel(32, device.Name));
             }
         }
 

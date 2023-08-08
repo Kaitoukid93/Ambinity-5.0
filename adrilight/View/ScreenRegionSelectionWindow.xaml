@@ -208,6 +208,7 @@
                          SelectionChanged="SourceIndexChanged"
                          Background="Transparent" 
                          BorderThickness="0" 
+                         SelectedItem="{Binding SelectedBitmap}"
                          SelectedIndex="{Binding ClickedRegionButtonParameter.CapturingSourceIndex,Mode=TwoWay}"
                          ItemContainerStyle="{DynamicResource _listBoxVisualizerItemContainerStyle}">
                                 <ListBox.ItemsPanel>
@@ -240,6 +241,11 @@
                             </ListBox>
                         </Grid>
                     </GroupBox>
+                    <Grid>
+
+                        <Button Margin="0,0,15,0" HorizontalAlignment="Right" Command="{Binding RefreshMonitorCollectionCommand}" Content="Refresh"/>
+
+                    </Grid>
                     <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="10,10,10,10">
                     </hc:Divider>
                     <StackPanel Orientation="Vertical">
@@ -248,7 +254,7 @@
                             <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="Mở cài đặt App"/>
                         </Button>
                     </StackPanel>
-
+                   
                 </StackPanel>
             </Grid>
             <Grid Margin="10" Grid.Column="1">
@@ -264,8 +270,8 @@
                     <Border HorizontalAlignment="Left" MaxWidth="1000" MaxHeight="640" Margin="5" BorderThickness="2">
                         <Viewbox>
                             <Border BorderThickness="1" BorderBrush="{DynamicResource SecondaryBorderBrush}">
-                                <Canvas HorizontalAlignment="Left" VerticalAlignment="Center" Width="{Binding ElementName=sourceList,Path=SelectedItem.Bitmap.Width}" Height="{Binding ElementName=sourceList,Path=SelectedItem.Bitmap.Height}">
-                                    <Image x:Name="bitmap" Stretch="Uniform" Source="{Binding ElementName=sourceList,Path=SelectedItem.Bitmap}">
+                                    <Canvas HorizontalAlignment="Left" VerticalAlignment="Center" Width="{Binding SelectedBitmap.Bitmap.Width}" Height="{Binding SelectedBitmap.Bitmap.Height}">
+                                    <Image x:Name="bitmap" Stretch="Uniform" Source="{Binding SelectedBitmap.Bitmap}">
                                     </Image>
                                     <ContentControl 
                                         MinHeight="20" 

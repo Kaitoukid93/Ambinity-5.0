@@ -29,11 +29,21 @@ namespace adrilight
         {
             UserSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
             MainViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
+            MainViewModel.AvailableBitmaps.CollectionChanged += (s, e) =>
+            {
+                switch (e.Action)
+                {
+                    case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
+                        ScreenSetupChanged();
+                        break;
+                }
+            };
             _retryPolicy = Policy.Handle<Exception>()
                 .WaitAndRetryForever(ProvideDelayDuration);
             RefreshCapturingState();
-            Microsoft.Win32.SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
+            // Microsoft.Win32.SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
         }
+
         #region private field
         private List<Thread> _workerThreads;
         private enum RunningState { Capturing, Waiting, Canceling };
@@ -49,7 +59,29 @@ namespace adrilight
         private CancellationTokenSource _cancellationTokenSource;
         public object Lock { get; } = new object();
         #endregion
-        void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e)
+        //void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e)
+        //{
+
+        //    Stop();
+        //    _workerThreads = new List<Thread>();
+        //    Log.Information("starting WCG");
+        //    IEnumerable<MonitorInfo> monitors = MonitorEnumerationHelper.GetMonitors();
+        //    Frames = new ByteFrame[monitors.Count()];
+        //    _captures = new BasicCapture[monitors.Count()];
+        //    int index = 0;
+        //    foreach (var monitor in monitors)
+        //    {
+        //        Thread workerThread = new Thread(() => Run(monitor, index++)) {
+        //            IsBackground = true,
+        //            Priority = ThreadPriority.BelowNormal,
+        //            Name = "WCG" + monitor.DeviceName
+        //        };
+        //        _state = RunningState.Capturing;
+        //        workerThread.Start();
+        //        _workerThreads.Add(workerThread);
+        //    }
+        //}
+        private void ScreenSetupChanged()
         {
             Stop();
             _workerThreads = new List<Thread>();

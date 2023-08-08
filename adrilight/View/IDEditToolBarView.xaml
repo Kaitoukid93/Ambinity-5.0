@@ -128,7 +128,7 @@
                         </Grid>
                     </DataTemplate>
                     <DataTemplate x:Key="_midToolBar">
-                        <Grid ToolTip="Brush size">
+                        <Grid >
                             <StackPanel>
                                 <Grid>
                                     <GroupBox Margin="10"   HorizontalContentAlignment="Left"  Style="{StaticResource GroupBoxOriginal}"  hc:TitleElement.TitlePlacement="Left">
@@ -157,7 +157,7 @@
 
                                 </hc:Divider>
                                 <Grid>
-                                    <ListBox Margin="10" SelectedIndex="{Binding CountMID,Mode=TwoWay}" Background="Transparent" BorderThickness="0" ItemContainerStyle="{DynamicResource _listBoxVisualizerItemContainerStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding AudioVisualizers.Columns}">
+                                    <ListBox Margin="10" SelectedIndex="{Binding CountMID,Mode=TwoWay}" Background="Transparent" BorderThickness="0" ItemContainerStyle="{DynamicResource _listBoxVisualizerItemContainerStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding CurrentVisualizer.Columns}">
                                         <ListBox.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <UniformGrid Columns="32" Rows="1"/>
@@ -177,24 +177,7 @@
                                     </ListBox>
                                 </Grid>
                                 <Grid>
-                                    <hc:ComboBox BorderThickness="0" Height="32" ItemContainerStyle="{DynamicResource _ComboboxItemStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10,10,10,10" SelectedIndex="{Binding GeneralSettings.SelectedAudioDevice,Mode=TwoWay}" ItemsSource="{Binding AvailableAudioDevices,Mode=TwoWay}">
-                                        <hc:ComboBox.Style>
-                                            <Style TargetType="hc:ComboBox" BasedOn="{StaticResource ComboBoxBaseStyle}">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Path=Items.Count, RelativeSource={RelativeSource Self}}" Value="1">
-                                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </hc:ComboBox.Style>
-                                        <hc:ComboBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding Name}"/>
-                                            </DataTemplate>
-                                        </hc:ComboBox.ItemTemplate>
-
-                                    </hc:ComboBox>
+                                    <TextBlock Margin="10,0,10,10" Text="{Binding CurrentVisualizer.Name }"/>
                                 </Grid>
                             </StackPanel>
                         </Grid>

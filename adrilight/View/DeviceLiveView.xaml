@@ -144,7 +144,17 @@
                 </DataTemplate>
                 <DataTemplate DataType="{x:Type local:LEDSetup}">
                     <Grid>
-                        <view:ZoneVisualizer IsHitTestVisible="{Binding IsSelectable}" Width="{Binding Width}" Height="{Binding Height}" Zone="{Binding}" RenderOptions.BitmapScalingMode="Linear">
+                        <view:ZoneVisualizer  Width="{Binding Width}" Height="{Binding Height}" Zone="{Binding}" RenderOptions.BitmapScalingMode="Linear">
+                            <view:ZoneVisualizer.Style>
+                                <Style TargetType="view:ZoneVisualizer">
+                                    <Setter Property="IsHitTestVisible" Value="{Binding IsSelectable}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.IsInIDEditStage,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" Value="True">
+                                            <Setter Property="IsHitTestVisible" Value="True"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </view:ZoneVisualizer.Style>
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
                                     <i:InvokeCommandAction Command="{Binding DataContext.SelectLiveViewItemCommand,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLiveView}}}" CommandParameter="{Binding .}" />

@@ -19,7 +19,15 @@ namespace adrilight
         {
             UserSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
             MainViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
-            Microsoft.Win32.SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
+            MainViewModel.AvailableBitmaps.CollectionChanged += (s, e) =>
+            {
+                switch (e.Action)
+                {
+                    case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
+                        ScreenSetupChanged();
+                        break;
+                }
+            };
             RefreshCapturingState();
         }
 
@@ -38,7 +46,7 @@ namespace adrilight
         private DrawableHelpers DrHlprs { get; set; }
         public object Lock { get; } = new object();
         #endregion
-        void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e)
+        private void ScreenSetupChanged()
         {
             RefreshCapturingState();
         }

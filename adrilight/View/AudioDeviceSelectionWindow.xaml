@@ -97,39 +97,36 @@
     <Grid Margin="10,0,10,10">
         <StackPanel>
             <Grid>
-                <ListBox Margin="10" SelectedIndex="{Binding CountMID,Mode=TwoWay}" Background="Transparent" BorderThickness="0" ItemContainerStyle="{DynamicResource _listBoxVisualizerItemContainerStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding AudioVisualizers.Columns}">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <UniformGrid Columns="32" Rows="1"/>
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
+                <ListBox x:Name="sourceList" SelectionChanged="SourceIndexChanged" ItemContainerStyle="{DynamicResource _listBoxGeneralModeSelectionStyle}" Background="Transparent" BorderThickness="0" ItemsSource="{Binding AudioVisualizers}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <ProgressBar Width="9" Minimum="0" Maximum="255" Margin="2" Style="{DynamicResource ProgressBarFlat}" Foreground="{DynamicResource primaryBackgroundBrush}" Background="{DynamicResource SecondaryRegionBrush}" Height="100" Orientation="Vertical" Value="{Binding Value,Mode=TwoWay}">
-                            </ProgressBar>
+                            <StackPanel>
+                                <ListBox Margin="10" IsHitTestVisible="False" SelectedIndex="{Binding CountMID,Mode=TwoWay}" Background="Transparent" BorderThickness="0" ItemContainerStyle="{DynamicResource _listBoxVisualizerItemContainerStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Columns}">
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <UniformGrid Columns="32" Rows="1"/>
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <ProgressBar Width="9" Minimum="0" Maximum="255" Margin="2" Style="{DynamicResource ProgressBarFlat}" Foreground="{DynamicResource primaryBackgroundBrush}" Background="{DynamicResource SecondaryRegionBrush}" Height="100" Orientation="Vertical" Value="{Binding Value,Mode=TwoWay}">
+                                            </ProgressBar>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                                <TextBlock Margin="15,0,0,10" Text="{Binding Name}"/>
+                            </StackPanel>
+
                         </DataTemplate>
                     </ListBox.ItemTemplate>
+
                 </ListBox>
+
             </Grid>
             <Grid>
-                <hc:ComboBox SelectedIndex="{Binding ClickedAudioButtonParameter.CapturingSourceIndex,Mode=TwoWay}" x:Name="sourceList" SelectionChanged="SourceIndexChanged" BorderThickness="2" Height="32" ItemContainerStyle="{DynamicResource _ComboboxItemStyle}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10,10,10,10" ItemsSource="{Binding AvailableAudioDevices,Mode=TwoWay}">
-                    <hc:ComboBox.Style>
-                        <Style TargetType="hc:ComboBox" BasedOn="{StaticResource ComboBoxBaseStyle}">
-                            <Setter Property="Visibility" Value="Visible"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Path=Items.Count, RelativeSource={RelativeSource Self}}" Value="1">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </hc:ComboBox.Style>
-                    <hc:ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Name}"/>
-                        </DataTemplate>
-                    </hc:ComboBox.ItemTemplate>
 
-                </hc:ComboBox>
+                <Button HorizontalAlignment="Right" Command="{Binding RefreshAudioDeviceCommand}" Content="Refresh"/>
+
             </Grid>
         </StackPanel>
     </Grid>

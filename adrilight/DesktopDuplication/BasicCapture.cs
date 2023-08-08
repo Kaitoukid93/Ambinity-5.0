@@ -67,6 +67,7 @@ namespace adrilight.DesktopDuplication
 
         public void Dispose()
         {
+
             session?.Dispose();
             framePool?.Dispose();
             swapChain?.Dispose();
@@ -224,13 +225,22 @@ namespace adrilight.DesktopDuplication
                 //  using (var backBuffer = swapChain.GetBackBuffer<SharpDX.Direct3D11.Texture2D>(0))
                 using (var bitmap = Direct3D11Helper.CreateSharpDXTexture2D(frame.Surface))
                 {
-                    // d3dDevice.ImmediateContext.CopyResource(bitmap, backBuffer);
+                    //d3dDevice.ImmediateContext.CopyResource(bitmap, backBuffer);
+                    if (newSize)
+                    {
+                        _smallerTexture?.Dispose();
+                        _smallerTextureView?.Dispose();
+                        _stagingTexture?.Dispose();
+                        _smallerTexture = null;
+                        _smallerTextureView = null;
+                        _stagingTexture = null;
+                    }
                     CopyTexture(bitmap);
                 }
                 //process frame
             } // Retire the frame.
 
-            //  swapChain.Present(0, SharpDX.DXGI.PresentFlags.None);
+            //swapChain.Present(0, SharpDX.DXGI.PresentFlags.None);
 
             if (newSize)
             {
@@ -244,9 +254,6 @@ namespace adrilight.DesktopDuplication
             {
                 CurrentFrame = ProcessFrame();
             }
-
-
-
         }
     }
 }

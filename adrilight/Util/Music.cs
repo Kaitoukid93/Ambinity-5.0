@@ -284,6 +284,7 @@ namespace adrilight
         }
         private void OnCapturingSourceChanged(int sourceIndex)
         {
+
             if (sourceIndex >= AudioFrame.Frames.Length)
                 _audioDeviceSelectionControl.CapturingSourceIndex = 0;
 
@@ -430,6 +431,12 @@ namespace adrilight
                     if (id > 31)
                         id = 0;
                     var currentFrame = BrightnessMapCreator(id, CurrentZone.Spots.Count());
+                    if (currentFrame == null)
+                    {
+                        Thread.Sleep(1000);
+                        continue;
+                    }
+
                     lock (CurrentZone.Lock)
                     {
                         DimLED();
@@ -441,7 +448,7 @@ namespace adrilight
                             position %= _colorBank.Length;
                             //get brightness using MID and audioFrame
                             var columnIndex = spot.MID;
-                            if (columnIndex > AudioFrame.Frames[_audioDeviceSelectionControl.CapturingSourceIndex].Frame.Length)
+                            if (columnIndex >= 32)
                                 columnIndex = 0;
                             byte colorR = 0;
                             byte colorG = 0;
@@ -640,6 +647,16 @@ namespace adrilight
         }
         public byte[] BrightnessMapCreator(int index, int maxHeight)//create brightnessmap based on input fft or volume
         {
+            if (_audioDeviceSelectionControl.CapturingSourceIndex >= AudioFrame.Frames.Length)
+                if (AudioFrame.Frames.Length == 0)
+                {
+                    // _audioDeviceSelectionControl.CapturingSourceIndex = -1;
+                    return null;
+                }
+                else if (AudioFrame.Frames.Length == 1)
+                {
+                    _audioDeviceSelectionControl.CapturingSourceIndex = 0;
+                }
             var currentFrame = AudioFrame.Frames[_audioDeviceSelectionControl.CapturingSourceIndex];
             if (currentFrame == null)
                 return null;
