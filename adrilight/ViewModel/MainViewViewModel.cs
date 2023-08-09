@@ -7062,7 +7062,6 @@ namespace adrilight.ViewModel
 
         public void ScreenBitmapCollectionInit()
         {
-
             if (AvailableBitmaps == null)
             {
                 AvailableBitmaps = new ObservableCollection<DesktopFrameCard>();

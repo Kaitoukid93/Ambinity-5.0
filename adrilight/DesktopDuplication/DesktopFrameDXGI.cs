@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace adrilight
@@ -19,12 +20,12 @@ namespace adrilight
         {
             UserSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
             MainViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
-            MainViewModel.AvailableBitmaps.CollectionChanged += (s, e) =>
+            MainViewModel.AvailableBitmaps.CollectionChanged += async (s, e) =>
             {
                 switch (e.Action)
                 {
                     case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
-                        ScreenSetupChanged();
+                        await Task.Run(() => ScreenSetupChanged());
                         break;
                 }
             };
@@ -48,12 +49,12 @@ namespace adrilight
         #endregion
         private void ScreenSetupChanged()
         {
-            RefreshCapturingState();
-        }
-        public void RefreshCapturingState()
-        {
-            //start it
-            _state = RunningState.Waiting;
+            Stop();
+            _workerThreads = new List<Thread>();
+            _cancellationTokenSource = new CancellationTokenSource();
+            Log.Information("starting DXGI");
+            IEnumerable<MonitorInfo> monitors = MonitorEnumerationHelper.GetMonitors();
+            Frames = new ByteFrame[monitors.Count()];
             if (_desktopDuplicators != null)
             {
                 for (int i = 0; i < _desktopDuplicators.Length; i++)
@@ -62,7 +63,23 @@ namespace adrilight
                     _desktopDuplicators[i] = null;
                 }
             }
-            Stop();
+            _desktopDuplicators = new DesktopDuplicator[monitors.Count()];
+            int index = 0;
+            foreach (var monitor in monitors)
+            {
+                Thread workerThread = new Thread(() => Run(index++, _cancellationTokenSource.Token)) {
+                    IsBackground = true,
+                    Priority = ThreadPriority.BelowNormal,
+                    Name = "DXGI" + monitor.DeviceName
+                };
+                _state = RunningState.Capturing;
+                workerThread.Start();
+                _workerThreads.Add(workerThread);
+            }
+        }
+        public void RefreshCapturingState()
+        {
+            //start it
             _workerThreads = new List<Thread>();
             _cancellationTokenSource = new CancellationTokenSource();
             Log.Information("starting DXGI");
@@ -72,7 +89,7 @@ namespace adrilight
             int index = 0;
             foreach (var monitor in monitors)
             {
-                Thread workerThread = new Thread(() => Run(index++)) {
+                Thread workerThread = new Thread(() => Run(index++, _cancellationTokenSource.Token)) {
                     IsBackground = true,
                     Priority = ThreadPriority.BelowNormal,
                     Name = "DXGI" + monitor.DeviceName
@@ -111,7 +128,7 @@ namespace adrilight
             return TimeSpan.FromMilliseconds(1000);
         }
 
-        public void Run(int screenIndex)
+        public void Run(int screenIndex, CancellationToken token)
         {
             IsRunning = true;
             Log.Information("DXGI is running for screen " + screenIndex);
@@ -124,7 +141,7 @@ namespace adrilight
             policyContext.Add("CancellationTokenSource", _cancellationTokenSource);
             try
             {
-                while (_state == RunningState.Capturing)
+                while (!token.IsCancellationRequested)
                 {
                     var frameTime = Stopwatch.StartNew();
                     var frame = _retryPolicy.Execute((ctx, ct) => GetNextFrame(screenIndex), policyContext, _cancellationTokenSource.Token);
@@ -196,13 +213,13 @@ namespace adrilight
             try
             {
                 var latestFrame = _desktopDuplicators[screenIndex].GetLatestFrame();
-
                 return latestFrame;
+
             }
             catch (Exception ex)
             {
-                Log.Error(ex.ToString());
-                Log.Information("Problem when getting next frame from screen: " + screenIndex);
+                // Log.Error(ex.ToString());
+                // Log.Information("Problem when getting next frame from screen: " + screenIndex);
                 _desktopDuplicators[screenIndex]?.Dispose();
                 _desktopDuplicators[screenIndex] = null;
                 GC.Collect();

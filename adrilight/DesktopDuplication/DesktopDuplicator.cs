@@ -69,6 +69,8 @@ namespace adrilight.DesktopDuplication
             }
             var output1 = output.QueryInterface<Output1>();
             _outputDescription = output.Description;
+            lastSize.Width = _outputDescription.DesktopBounds.GetWidth();
+            lastSize.Height = _outputDescription.DesktopBounds.GetHeight();
 
             try
             {
@@ -141,18 +143,19 @@ namespace adrilight.DesktopDuplication
                 lastSize.Width = _outputDescription.DesktopBounds.GetWidth();
                 lastSize.Height = _outputDescription.DesktopBounds.GetHeight();
             }
-            //if (_outputDescription.DesktopBounds.GetWidth() >= _outputDescription.DesktopBounds.GetHeight()) //landscape mode
-            //{
 
-            desktopWidth = _outputDescription.DesktopBounds.GetWidth();
-            desktopHeight = _outputDescription.DesktopBounds.GetHeight();
-            //}
-            //else
-            //{
+            if (_outputDescription.Rotation == DisplayModeRotation.Rotate90 || _outputDescription.Rotation == DisplayModeRotation.Rotate270)
+            {
 
-            //    desktopWidth = _outputDescription.DesktopBounds.GetHeight();
-            //    desktopHeight = _outputDescription.DesktopBounds.GetWidth();
-            //}
+                desktopWidth = _outputDescription.DesktopBounds.GetHeight();
+                desktopHeight = _outputDescription.DesktopBounds.GetWidth();
+            }
+            else  //landscape mode
+            {
+
+                desktopWidth = _outputDescription.DesktopBounds.GetWidth();
+                desktopHeight = _outputDescription.DesktopBounds.GetHeight();
+            }
             if (newSize)
             {
                 _smallerTexture?.Dispose();
@@ -190,10 +193,15 @@ namespace adrilight.DesktopDuplication
             try
             {
                 if (_outputDuplication == null) throw new Exception("_outputDuplication is null");
-                var result = _outputDuplication.TryAcquireNextFrame(10000, out var frameInformation, out desktopResource);
+                _outputDuplication.TryAcquireNextFrame(500, out var frameInformation, out desktopResource);
             }
             catch (SharpDXException ex)
             {
+                if (ex.ResultCode.Code == SharpDX.DXGI.ResultCode.WaitTimeout.Result.Code)
+                {
+                    return false;
+                }
+
                 throw new DesktopDuplicationException("Failed to acquire next frame.", ex);
             }
             // if (desktopResource == null) throw new Exception("desktopResource is null");
@@ -258,18 +266,18 @@ namespace adrilight.DesktopDuplication
             //Rectangle frame;
             int height;
             int width;
-            //if (_outputDescription.DesktopBounds.GetWidth() >= _outputDescription.DesktopBounds.GetHeight()) //landscape mode
-            //{
+            if (_outputDescription.Rotation == DisplayModeRotation.Rotate90 || _outputDescription.Rotation == DisplayModeRotation.Rotate270)
+            {
 
-            width = _outputDescription.DesktopBounds.GetWidth() / scalingFactor;
-            height = _outputDescription.DesktopBounds.GetHeight() / scalingFactor;
-            //}
-            //else
-            //{
+                width = _outputDescription.DesktopBounds.GetHeight() / scalingFactor;
+                height = _outputDescription.DesktopBounds.GetWidth() / scalingFactor;
+            }
+            else  //landscape mode
+            {
 
-            //    width = _outputDescription.DesktopBounds.GetHeight() / scalingFactor;
-            //    height = _outputDescription.DesktopBounds.GetWidth() / scalingFactor;
-            //}
+                width = _outputDescription.DesktopBounds.GetWidth() / scalingFactor;
+                height = _outputDescription.DesktopBounds.GetHeight() / scalingFactor;
+            }
             // Copy pixels from screen capture Texture to GDI bitmap
             var sourcePtr = mapSource.DataPointer;
             int bitsPerPixel = ((int)PixelFormat.Format32bppRgb & 0xff00) >> 8;
@@ -277,22 +285,15 @@ namespace adrilight.DesktopDuplication
             int stride = 4 * ((width * bytesPerPixel + 3) / 4);
             int bytes = Math.Abs(stride) * height;
             byte[] rgbValues = new byte[bytes];
-            if (mapSource.RowPitch == stride)
-            {
-                //fast copy
-                System.Runtime.InteropServices.Marshal.Copy(sourcePtr, rgbValues, 0, bytes);
-            }
-            else
-            {
-                //safe copy
-                for (int y = 0; y < height; y++)
-                {
-                    // Copy a single line 
-                    System.Runtime.InteropServices.Marshal.Copy(sourcePtr, rgbValues, y * stride, width * 4);
-                    sourcePtr = IntPtr.Add(sourcePtr, mapSource.RowPitch);
 
-                }
+            for (int y = 0; y < height; y++)
+            {
+                // Copy a single line 
+                System.Runtime.InteropServices.Marshal.Copy(sourcePtr, rgbValues, y * stride, width * 4);
+                sourcePtr = IntPtr.Add(sourcePtr, mapSource.RowPitch);
+
             }
+
             try
             {
                 _device.ImmediateContext.UnmapSubresource(_stagingTexture, 0);

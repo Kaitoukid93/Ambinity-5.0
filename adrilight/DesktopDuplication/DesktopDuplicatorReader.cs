@@ -609,7 +609,7 @@ namespace adrilight
                 //var currentDesktop = ;
                 if (DesktopFrame.Frames[(int)_currentScreenIndex] == null)
                     return null;
-                lock (DesktopFrame.Frames[(int)_currentScreenIndex])
+                lock (DesktopFrame.Lock)
                 {
                     CurrentFrame = DesktopFrame.Frames[(int)_currentScreenIndex];
 
