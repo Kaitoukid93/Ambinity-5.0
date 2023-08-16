@@ -9,7 +9,7 @@ using System.Windows.Input;
 
 namespace adrilight
 {
-    internal class OutputSettings : ViewModelBase, IOutputSettings, IDrawable
+    public class OutputSettings : ViewModelBase, IOutputSettings, IDrawable
     {
 
         private string _outputName;
@@ -75,7 +75,7 @@ namespace adrilight
         //private int _outputSelectedGifIndex = 0;
         //private MotionCard _outputSelectedMotion;
 
-
+        [JsonIgnore]
         public bool IsLoadingProfile { get; set; }
         public OutputSettings()
         {

@@ -127,7 +127,48 @@ namespace adrilight.Helpers
             return newDevice;
 
         }
+        public IDeviceSettings DefaultCreatedGenericDevice(
+            DeviceType type,
+            string deviceName,
+            string outputPort,
+            bool hasFancontrol,
+            bool hasLightingControl,
+            int outputCount)
+        {
+            var newDevice = new DeviceSettings();
+            newDevice.DeviceName = deviceName;
+            newDevice.DeviceUID = Guid.NewGuid().ToString();
+            newDevice.DeviceType = type;
+            newDevice.OutputPort = outputPort;
+            newDevice.IsSizeNeedUserDefine = true;
+            newDevice.AvailableControllers = new List<IDeviceController>();
+            if (hasLightingControl)
+            {
+                var lightingController = DefaultCreatedDeviceController(ControllerTypeEnum.LightingController, "Lighting", "brightness");
 
+                foreach (var output in GetOutputMap(outputCount))
+                {
+                    lightingController.Outputs.Add(output);
+
+                }
+                newDevice.AvailableControllers.Add(lightingController);
+
+            }
+            if (hasFancontrol)
+            {
+                var pwmController = DefaultCreatedDeviceController(ControllerTypeEnum.PWMController, "Fan", "fanSpeedController");
+
+                for (int i = 0; i < outputCount; i++)
+                {
+                    pwmController.Outputs.Add(DefaultCreatedOutput(OutputTypeEnum.PWMOutput, i, "genericConnector", "Generic PWM Fan Output"));
+                }
+                newDevice.AvailableControllers.Add(pwmController);
+            }
+
+            // newDevice.UpdateChildSize();
+            return newDevice;
+
+        }
         public ISlaveDevice DefaultCreatedSlaveDevice(string name, SlaveDeviceTypeEnum type, ZoneData[] zoneData)
         {
             ISlaveDevice newSlaveDevice = new ARGBLEDSlaveDevice();
@@ -209,9 +250,11 @@ namespace adrilight.Helpers
             {
                 case OutputTypeEnum.ARGBLEDOutput:
                     newOuput.SlaveDevice = DefaultCreatedSlaveDevice("Generic LED Strip", SlaveDeviceTypeEnum.LEDStrip, new ZoneData[1] { new ZoneData("Zone", 20, 1, 1200, 60) });
+                    newOuput.SlaveDevice.ParrentID = id;
                     break;
                 case OutputTypeEnum.PWMOutput:
                     newOuput.SlaveDevice = DefaultCreatedSlaveDevice("Generic PWM Fan", SlaveDeviceTypeEnum.FanMotor, null);
+                    newOuput.SlaveDevice.ParrentID = id;
                     break;
             }
 

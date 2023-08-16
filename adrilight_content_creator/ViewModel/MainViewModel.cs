@@ -16,13 +16,16 @@ using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Threading;
 using System.Xml;
 using static adrilight.ViewModel.MainViewViewModel;
+using File = System.IO.File;
 using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
 
 namespace adrilight_content_creator.ViewModel
@@ -32,6 +35,10 @@ namespace adrilight_content_creator.ViewModel
         private const double UPDATE_FRAME_RATE = 60.0;
         private readonly DispatcherTimer _timer;
         private int _frameCounter = 0;
+        private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
+
+        private string JsonFileNameAndPath => Path.Combine(JsonPath, "adrilight-settings.json");
+        private string DevicesCollectionFolderPath => Path.Combine(JsonPath, "Devices");
         public MainViewModel(IList<ISelectableViewPart> selectableViewParts)
         {
             SetupCommand();
@@ -49,9 +56,20 @@ namespace adrilight_content_creator.ViewModel
             {
                 AvailableDeviceTypes.Add(type);
             }
+            AvailableMasterDeviceTypes = new ObservableCollection<DeviceTypeEnum>();
+            foreach (DeviceTypeEnum type in Enum.GetValues(typeof(DeviceTypeEnum)))
+            {
+                AvailableMasterDeviceTypes.Add(type);
+            }
             _timer = new DispatcherTimer(DispatcherPriority.Normal) { Interval = TimeSpan.FromMilliseconds(1000.0 / UPDATE_FRAME_RATE) };
         }
-
+        public ICommand SetSelectedOutputSlaveDeviceFromFileCommand { get; set; }
+        public ICommand RefreshExistedDeviceCollectionCommand { get; set; }
+        public ICommand SaveCurrentDeviceToFilesCommand { get; set; }
+        public ICommand ChageCurrentDeviceSourceCommand { get; set; }
+        public ICommand OpenImageSelectionForCurrentDeviceCommand { get; set; }
+        public ICommand AddNewDeviceCommand { get; set; }
+        public ICommand OpenAddNewDeviceWindowCommand { get; set; }
         public ICommand OpenAddNewDrawableItemCommand { get; set; }
         public ICommand SaveDeviceDataCommand { get; set; }
         public ICommand ApplyDeviceActualDimensionCommand { get; set; }
@@ -74,6 +92,46 @@ namespace adrilight_content_creator.ViewModel
         public ICommand PlayPauseCurrentMotion { get; set; }
         public ICommand ExportCurrentLayerCommand { get; set; }
 
+        private ObservableCollection<IDeviceSettings> _availableDevices;
+        public ObservableCollection<IDeviceSettings> AvailableDevices
+        {
+            get { return _availableDevices; }
+            set
+            {
+                _availableDevices = value;
+                RaisePropertyChanged();
+            }
+        }
+        private ObservableCollection<IDeviceSettings> _availableAddedDevices;
+        public ObservableCollection<IDeviceSettings> AvailableAddedDevices
+        {
+            get { return _availableAddedDevices; }
+            set
+            {
+                _availableAddedDevices = value;
+                RaisePropertyChanged();
+            }
+        }
+        private string _selectedDeviceThumbnail;
+        public string SelectedDeviceThumbnail
+        {
+            get { return _selectedDeviceThumbnail; }
+            set
+            {
+                _selectedDeviceThumbnail = value;
+                RaisePropertyChanged();
+            }
+        }
+        private IDeviceSettings _selectedDevice;
+        public IDeviceSettings SelectedDevice
+        {
+            get { return _selectedDevice; }
+            set
+            {
+                _selectedDevice = value;
+                RaisePropertyChanged();
+            }
+        }
         private bool _canSelectMultipleItems;
         public bool CanSelectMultipleItems
         {
@@ -100,6 +158,44 @@ namespace adrilight_content_creator.ViewModel
         }
         public void SetupCommand()
         {
+            RefreshExistedDeviceCollectionCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, async (p) =>
+            {
+                IsLoadingDevice = true;
+                var devices = await Task.Run(() => LoadDeviceIfExists());
+                AvailableDevices = new ObservableCollection<IDeviceSettings>();
+
+                foreach (var device in devices)
+                {
+                    AvailableDevices.Add(device);
+                }
+                IsLoadingDevice = false;
+
+
+            }
+          );
+            SaveCurrentDeviceToFilesCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+
+                SaveDeviceToFile();
+
+            }
+          );
+            SetSelectedOutputSlaveDeviceFromFileCommand = new RelayCommand<int>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+
+                SetSelectedOutputSlaveDeviceFromFile(p);
+
+            }
+          );
             OpenAddNewDrawableItemCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -130,6 +226,26 @@ namespace adrilight_content_creator.ViewModel
 
             }
            );
+            AddNewDeviceCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+
+                AddNewDefaultDevice(NewDeviceOutputCount);
+
+            }
+           );
+            OpenAddNewDeviceWindowCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                var newDeviceWindow = new NewDeviceParametersWindow();
+                newDeviceWindow.Owner = System.Windows.Application.Current.MainWindow;
+                newDeviceWindow.ShowDialog();
+            }
+           );
             SaveDeviceDataCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -140,6 +256,25 @@ namespace adrilight_content_creator.ViewModel
 
             }
            );
+            OpenImageSelectionForCurrentDeviceCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+
+                SelectDeviceImage();
+
+            }
+         );
+            ChageCurrentDeviceSourceCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                SelectedDevice = null;
+
+            }
+         );
             ImportSVGCommand = new RelayCommand<string>((p) =>
                 {
                     return true;
@@ -321,9 +456,207 @@ namespace adrilight_content_creator.ViewModel
             set
             {
                 Set(ref _selectedViewPart, value);
+                if (value.ViewPartName == "Device+")
+                {
+                    //reload existed device
+                    RefreshExistedDeviceCollectionCommand.Execute("refresh");
+
+                }
 
             }
         }
+
+        #region Device+ Viewmodel region
+        public int NewDeviceOutputCount { get; set; }
+        private bool _isLoadingDevice;
+
+        public bool IsLoadingDevice
+        {
+            get
+            {
+                return _isLoadingDevice;
+            }
+            set
+            {
+                _isLoadingDevice = value;
+                RaisePropertyChanged();
+            }
+        }
+        private void SetSelectedOutputSlaveDeviceFromFile(int output)
+        {
+            OpenFileDialog Import = new OpenFileDialog();
+            Import.Title = "Chọn file";
+            Import.CheckFileExists = true;
+            Import.CheckPathExists = true;
+            Import.DefaultExt = "json";
+            Import.Filter = "All files (*.*)|*.*";
+            Import.FilterIndex = 1;
+            Import.ShowDialog();
+            if (!string.IsNullOrEmpty(Import.FileName) && File.Exists(Import.FileName))
+            {
+                var json = File.ReadAllText(Import.FileName);
+
+                try
+                {
+                    var dev = JsonConvert.DeserializeObject<ARGBLEDSlaveDevice>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    SelectedDevice.AvailableLightingOutputs[output].SlaveDevice = dev;
+                }
+                catch (Exception)
+                {
+                    HandyControl.Controls.MessageBox.Show("Corrupted or incompatible data File!!!", "File Import", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+            }
+        }
+        private void SaveDeviceToFile()
+        {
+            SelectedDevice.IsLoadingProfile = true;
+            SaveFileDialog Export = new SaveFileDialog();
+            Export.CreatePrompt = true;
+            Export.OverwritePrompt = true;
+            Export.Title = "Xuất dữ liệu";
+            Export.FileName = SelectedDevice.DeviceName;
+            Export.CheckFileExists = false;
+            Export.CheckPathExists = true;
+            Export.InitialDirectory =
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            Export.RestoreDirectory = true;
+
+            if (Export.ShowDialog() == DialogResult.OK)
+            {
+                //deserialize to config
+                Directory.CreateDirectory(Export.FileName);
+                var configjson = JsonConvert.SerializeObject(SelectedDevice, new JsonSerializerSettings()
+                {
+                    TypeNameHandling = TypeNameHandling.Auto
+                });
+                File.WriteAllText(Path.Combine(Export.FileName, "config.json"), configjson);
+
+            }
+            //copy thumbnail
+            if (File.Exists(SelectedDeviceThumbnail))
+                File.Copy(SelectedDeviceThumbnail, Path.Combine(Export.FileName, "thumbnail.png"));
+            //copy required slave device folder (config + thumbnail)
+            var requiredSlaveDevice = new List<string>();
+            foreach (ARGBLEDSlaveDevice device in SelectedDevice.AvailableLightingDevices)
+            {
+                if (requiredSlaveDevice.Any(p => p == device.Name))
+                    continue;
+                requiredSlaveDevice.Add(device.Name);
+                var requiredSlaveDevicejson = JsonConvert.SerializeObject(device, new JsonSerializerSettings()
+                {
+                    TypeNameHandling = TypeNameHandling.Auto
+                });
+                Directory.CreateDirectory(Path.Combine(Export.FileName, "dependencies", "SlaveDevices", device.Name));
+                File.WriteAllText(Path.Combine(Export.FileName, "dependencies", "SlaveDevices", device.Name, "config.json"), requiredSlaveDevicejson);
+                File.Copy(device.Thumbnail, Path.Combine(Export.FileName, "dependencies", "SlaveDevices", device.Name, Path.GetFileName(device.Thumbnail)));
+                File.Copy(device.ThumbnailWithColor, Path.Combine(Export.FileName, "dependencies", "SlaveDevices", device.Name, Path.GetFileName(device.ThumbnailWithColor)));
+            }
+
+            //export
+        }
+        private void AddNewDefaultDevice(int outputCount)
+        {
+            if (AvailableAddedDevices == null)
+                AvailableAddedDevices = new ObservableCollection<IDeviceSettings>();
+            if (outputCount <= 0 || outputCount > 20)
+                return;
+            var newDevice = new SlaveDeviceHelpers().DefaultCreatedGenericDevice(
+                                new DeviceType(DeviceTypeEnum.Unknown),
+                                "Change name",
+                                "Không có",
+                                false,
+                                true,
+                                outputCount);
+            newDevice.DashboardWidth = 230;
+            newDevice.DashboardHeight = 270;
+            newDevice.UpdateChildSize();
+            AvailableAddedDevices.Add(newDevice);
+        }
+        public Task<List<DeviceSettings>> LoadDeviceIfExists()
+        {
+            var devices = new List<DeviceSettings>();
+            if (!Directory.Exists(DevicesCollectionFolderPath)) return Task.FromResult(devices); ; // no device has been added
+
+            foreach (var folder in Directory.GetDirectories(DevicesCollectionFolderPath))
+            {
+                try
+                {
+                    var json = File.ReadAllText(Path.Combine(folder, "config.json"));
+                    var device = JsonConvert.DeserializeObject<DeviceSettings>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    device.AvailableControllers = new List<IDeviceController>();
+                    //read slave device info
+                    //check if this device contains lighting controller
+                    var lightingoutputDir = Path.Combine(Path.Combine(folder, "LightingOutputs"));
+                    var pwmoutputDir = Path.Combine(Path.Combine(folder, "PWMOutputs"));
+                    DeserializeChild<ARGBLEDSlaveDevice>(lightingoutputDir, device, OutputTypeEnum.ARGBLEDOutput);
+                    DeserializeChild<PWMMotorSlaveDevice>(pwmoutputDir, device, OutputTypeEnum.PWMOutput);
+                    devices.Add(device);
+                }
+                catch (Exception ex)
+                {
+                    continue;
+                }
+            }
+            return Task.FromResult(devices);
+        }
+        private void DeserializeChild<T>(string outputDir, IDeviceSettings device, OutputTypeEnum outputType)
+        {
+            if (Directory.Exists(outputDir))
+            {
+                //add controller to this device
+
+                var controller = new DeviceController();
+                switch (outputType)
+                {
+                    case (OutputTypeEnum.PWMOutput):
+                        controller.Geometry = "fanSpeedController";
+                        controller.Name = "Fan";
+                        controller.Type = ControllerTypeEnum.PWMController;
+                        break;
+                    case (OutputTypeEnum.ARGBLEDOutput):
+                        controller.Geometry = "brightness";
+                        controller.Name = "Lighting";
+                        controller.Type = ControllerTypeEnum.LightingController;
+                        break;
+                }
+
+
+                foreach (var subfolder in Directory.GetDirectories(outputDir)) // each subfolder contains 1 slave device
+                {
+                    //read slave device info
+                    var outputJson = File.ReadAllText(Path.Combine(subfolder, "config.json"));
+                    var output = JsonConvert.DeserializeObject<OutputSettings>(outputJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    var slaveDeviceJson = File.ReadAllText(Path.Combine(Directory.GetDirectories(subfolder).FirstOrDefault(), "config.json"));
+                    var slaveDevice = JsonConvert.DeserializeObject<T>(slaveDeviceJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+
+                    if (slaveDevice == null)//somehow data corrupted
+                        continue;
+                    else
+                    {
+                        if (!File.Exists((slaveDevice as ISlaveDevice).Thumbnail))
+                        {
+                            //(slaveDevice as ISlaveDevice).Thumbnail = Path.Combine(Directory.GetDirectories(subfolder).FirstOrDefault(), "thumbnail.png");
+                        }
+                    }
+
+
+                    output.SlaveDevice = slaveDevice as ISlaveDevice;
+                    controller.Outputs.Add(output);
+                    //each slave device attach to one output so we need to create output
+                    //lightin
+
+                }
+                device.AvailableControllers.Add(controller);
+            }
+        }
+        private void SelectDeviceImage()
+        {
+            var lclfhlprs = new LocalFileHelpers();
+            SelectedDeviceThumbnail = lclfhlprs.OpenImportFileDialog("png", "Image files (*.png)|*.Png|Image files (*.jpg)|*.jpeg");
+        }
+        #endregion
 
         #region Layout Creator Viewmodel region
         public DrawableShape SelectedShape { get; set; }
@@ -496,6 +829,7 @@ namespace adrilight_content_creator.ViewModel
                 RaisePropertyChanged();
             }
         }
+
         private void OpenChangeSpotSizeWindow()
         {
             var changeSpotSizeWindow = new ChangeSpotSizeWindow();
@@ -672,6 +1006,7 @@ namespace adrilight_content_creator.ViewModel
         }
         public SlaveDeviceTypeEnum DeviceType { get; set; }
         public ObservableCollection<SlaveDeviceTypeEnum> AvailableDeviceTypes { get; set; }
+        public ObservableCollection<DeviceTypeEnum> AvailableMasterDeviceTypes { get; set; }
         public ARGBLEDSlaveDevice Device { get; set; }
         private IDrawable _canvasSelectedItem;
         public IDrawable CanvasSelectedItem

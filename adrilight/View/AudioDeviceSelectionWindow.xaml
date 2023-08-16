@@ -10,9 +10,8 @@
            Background="{DynamicResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
-           SizeToContent="Height"
-            ResizeMode="NoResize"
            MaxHeight="1000" 
+           SizeToContent="Height"
            Width="400" 
            WindowStartupLocation="CenterOwner">
 
@@ -93,11 +92,14 @@
 
         </ResourceDictionary>
     </Window.Resources>
-
-    <Grid Margin="10,0,10,10">
+    <ScrollViewer MaxHeight="700">
+        <Grid Margin="10,0,10,10">
         <StackPanel>
+          
+                
+           
             <Grid>
-                <ListBox x:Name="sourceList" SelectionChanged="SourceIndexChanged" ItemContainerStyle="{DynamicResource _listBoxGeneralModeSelectionStyle}" Background="Transparent" BorderThickness="0" ItemsSource="{Binding AudioVisualizers}">
+                <ListBox hc:ScrollViewerAttach.IsDisabled="True" x:Name="sourceList" SelectionChanged="SourceIndexChanged" ItemContainerStyle="{DynamicResource _listBoxGeneralModeSelectionStyle}" Background="Transparent" BorderThickness="0" ItemsSource="{Binding AudioVisualizers}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel>
@@ -109,7 +111,7 @@
                                     </ListBox.ItemsPanel>
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
-                                            <ProgressBar Width="9" Minimum="0" Maximum="255" Margin="2" Style="{DynamicResource ProgressBarFlat}" Foreground="{DynamicResource primaryBackgroundBrush}" Background="{DynamicResource SecondaryRegionBrush}" Height="100" Orientation="Vertical" Value="{Binding Value,Mode=TwoWay}">
+                                            <ProgressBar  Minimum="0" Maximum="255" Margin="2" Style="{DynamicResource ProgressBarFlat}" Foreground="{DynamicResource primaryBackgroundBrush}" Background="{DynamicResource SecondaryRegionBrush}" Height="50" Orientation="Vertical" Value="{Binding Value,Mode=TwoWay}">
                                             </ProgressBar>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
@@ -125,9 +127,11 @@
             </Grid>
             <Grid>
 
-                <Button HorizontalAlignment="Right" Command="{Binding RefreshAudioDeviceCommand}" Content="Refresh"/>
+                <Button Margin="0,10,5,5" HorizontalAlignment="Right" Command="{Binding RefreshAudioDeviceCommand}" Content="Refresh"/>
 
             </Grid>
+        
         </StackPanel>
     </Grid>
+    </ScrollViewer>
 </hc:Window>

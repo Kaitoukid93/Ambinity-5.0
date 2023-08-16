@@ -1,4 +1,5 @@
 ﻿using adrilight.Extensions;
+using Serilog;
 using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
@@ -193,7 +194,7 @@ namespace adrilight.DesktopDuplication
             try
             {
                 if (_outputDuplication == null) throw new Exception("_outputDuplication is null");
-                _outputDuplication.TryAcquireNextFrame(500, out var frameInformation, out desktopResource);
+                _outputDuplication.AcquireNextFrame(500, out var frameInformation, out desktopResource);
             }
             catch (SharpDXException ex)
             {
@@ -202,7 +203,8 @@ namespace adrilight.DesktopDuplication
                     return false;
                 }
 
-                throw new DesktopDuplicationException("Failed to acquire next frame.", ex);
+                Log.Warning("Failed to acquire next frame.", ex);
+                throw new Exception("Failed to acquire next frame.", ex);
             }
             // if (desktopResource == null) throw new Exception("desktopResource is null");
             try

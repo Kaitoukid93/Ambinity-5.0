@@ -516,6 +516,9 @@
                             <Button Command="{Binding OpenOOTBCommand}" Padding="0" Background="Transparent" BorderThickness="0">
                                 <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="Chạy lại Device Setup"/>
                             </Button>
+                            <Button Command="{Binding SaveDeviceInformationToDiskCommand}" Padding="0" Background="Transparent" BorderThickness="0">
+                                <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="Lưu thông tin device"/>
+                            </Button>
                         </StackPanel>
                     </Grid>
                 </StackPanel>
@@ -617,7 +620,7 @@
                         <Grid HorizontalAlignment="Left" Grid.Column="1">
                             <StackPanel HorizontalAlignment="Left">
 
-                                <TextBlock  Text="{Binding CurrentDevice.OutputPort}"
+                                <TextBlock MaxWidth="100"  Text="{Binding CurrentDevice.OutputPort}"
                                                                 FlowDirection="RightToLeft"
                                                                  FontWeight="SemiBold"
                                                                 Style="{StaticResource TextBlockSubTitle}" />

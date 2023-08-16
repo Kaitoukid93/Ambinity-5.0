@@ -10,8 +10,8 @@
            xmlns:view="clr-namespace:adrilight_content_creator.View"
            mc:Ignorable="d"
            Background="{StaticResource RegionBrush}"
-           Height="920" 
-           Width="1000" 
+           Height="768" 
+           Width="1366" 
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewModel}" 
            WindowStartupLocation="CenterScreen">

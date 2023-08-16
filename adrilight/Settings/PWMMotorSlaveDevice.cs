@@ -10,7 +10,7 @@ using System.Windows;
 using System.Windows.Input;
 namespace adrilight.Settings
 {
-    internal class PWMMotorSlaveDevice : ViewModelBase, ISlaveDevice, IDrawable
+    public class PWMMotorSlaveDevice : ViewModelBase, ISlaveDevice, IDrawable
     {
         private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
         private string SupportedSlaveDeviceFolderPath => Path.Combine(JsonPath, "SupportedDevices");

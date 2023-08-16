@@ -48,6 +48,7 @@ namespace adrilight
         ISlaveDevice[] AvailablePWMDevices { get; }
         void DeviceEnableChanged();
         void UpdateChildSize();
+        void UpdateUID();
         void HandleResolutionChange(double scaleX, double scaleY);
         void BrightnessUp(int value);
         void BrightnessDown(int value);

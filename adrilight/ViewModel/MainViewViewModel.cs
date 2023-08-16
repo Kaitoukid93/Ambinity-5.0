@@ -56,7 +56,6 @@ using SaveFileDialog = System.Windows.Forms.SaveFileDialog;
 using SelectionMode = System.Windows.Controls.SelectionMode;
 using SplashScreen = adrilight.View.SplashScreen;
 using Task = System.Threading.Tasks.Task;
-
 namespace adrilight.ViewModel
 {
     public class MainViewViewModel : BaseViewModel
@@ -226,6 +225,8 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        public ICommand SaveDeviceInformationToDiskCommand { get; set; }
+        public ICommand ImportDeviceFromFileCommand { get; set; }
         public ICommand OpenOOTBCommand { get; set; }
         public ICommand RefreshAudioDeviceCommand { get; set; }
         public ICommand RefreshMonitorCollectionCommand { get; set; }
@@ -1421,7 +1422,7 @@ namespace adrilight.ViewModel
                 {
                     SetSearchingScreenHeaderText("New device found: " + device.DeviceName, true);
                     device.IsTransferActive = true;
-                    if (device.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
+                    if (device.DeviceType.Type == DeviceTypeEnum.AmbinoFanHub)
                     {
                         GeneralSettings.IsOpenRGBEnabled = true;
                     }
@@ -1486,7 +1487,7 @@ namespace adrilight.ViewModel
                     // oldDevice.IsTransferActive = false;
                     //Thread.Sleep(500);
                     oldDevice.IsTransferActive = true;
-                    if (oldDevice.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
+                    if (oldDevice.DeviceType.Type == DeviceTypeEnum.AmbinoFanHub)
                     {
                         GeneralSettings.IsOpenRGBEnabled = true;
                     }
@@ -2697,6 +2698,14 @@ namespace adrilight.ViewModel
                 }
             }
           );
+            ImportDeviceFromFileCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                ImportDevice();
+            }
+          );
             ImportProfileCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -3245,6 +3254,13 @@ namespace adrilight.ViewModel
             {
                 OOTBStage = 0;
                 OpenLEDSteupSelectionWindows();
+            });
+            SaveDeviceInformationToDiskCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                WriteSingleDeviceInfoJson(CurrentDevice);
             });
             SelectCardCommand = new RelayCommand<IDeviceSettings>((p) =>
             {
@@ -4776,6 +4792,48 @@ namespace adrilight.ViewModel
             {
                 window.Owner = System.Windows.Application.Current.MainWindow;
                 window.ShowDialog();
+            }
+        }
+        private void ImportDevice()
+        {
+            var deviceFolder = LocalFileHlprs.OpenImportFolderDialog();
+            IDeviceSettings device;
+            if (deviceFolder != null)
+            {
+
+                try
+                {
+                    var deviceJson = File.ReadAllText(Path.Combine(deviceFolder, "config.json"));
+                    device = JsonConvert.DeserializeObject<DeviceSettings>(deviceJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    if (device != null)
+                    {
+                        //create device info
+                        device.UpdateChildSize();
+                        device.UpdateUID();
+                        WriteDeviceInfo(device);
+                        //copy thumb
+                        if (File.Exists(Path.Combine(deviceFolder, "thumbnail.png")) && !File.Exists(Path.Combine(ResourceFolderPath, device.DeviceName + "_thumb.png")))
+                        {
+                            File.Copy(Path.Combine(deviceFolder, "thumbnail.png"), Path.Combine(ResourceFolderPath, device.DeviceName + "_thumb.png"), true);
+                        }
+                        //copy required SlaveDevice
+                        var dependenciesFiles = Path.Combine(deviceFolder, "dependencies");
+                        if (Directory.Exists(dependenciesFiles))
+                        {
+                            foreach (var sub in Directory.GetDirectories(dependenciesFiles))
+                            {
+                                LocalFileHelpers.CopyDirectory(sub, SupportedDeviceCollectionFolderPath, true);
+                            }
+                        }
+                        AvailableDevices.Add(device);
+                    }
+                }
+                catch (Exception)
+                {
+                    HandyControl.Controls.MessageBox.Show("Corrupted or incompatible data File!!!", "File Import", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+
             }
         }
 

@@ -17,7 +17,7 @@ using System.Windows;
 
 namespace adrilight
 {
-    internal class DeviceSettings : ViewModelBase, IDeviceSettings
+    public class DeviceSettings : ViewModelBase, IDeviceSettings
     {
         private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
         private string DevicesCollectionFolderPath => Path.Combine(JsonPath, "Devices");
@@ -76,6 +76,7 @@ namespace adrilight
         public string DeviceUID { get => _deviceUID; set { Set(() => DeviceUID, ref _deviceUID, value); } }
         public bool IsSizeNeedUserDefine { get => _isSizeNeedUserDefine; set { Set(() => IsSizeNeedUserDefine, ref _isSizeNeedUserDefine, value); } }
         public List<IDeviceController> AvailableControllers { get => _availableControllers; set { Set(() => AvailableControllers, ref _availableControllers, value); } }
+        [JsonIgnore]
         public bool IsLoadingProfile { get => _isLoadingProfile; set { Set(() => IsLoadingProfile, ref _isLoadingProfile, value); IsLoadingProfilePropertyChanged(); } }
         [JsonIgnore]
         public IDeviceController CurrentActiveController { get => AvailableControllers[CurrentActiveControlerIndex]; set { Set(() => CurrentActiveController, ref _currentActiveController, value); } }
@@ -461,6 +462,14 @@ namespace adrilight
             }
         }
         #endregion
+        public void UpdateUID()
+        {
+            foreach (var zone in AvailableControlZones)
+            {
+                zone.ZoneUID = Guid.NewGuid().ToString();
+            }
+            DeviceUID = Guid.NewGuid().ToString();
+        }
         public void RefreshFirmwareVersion()
         {
 

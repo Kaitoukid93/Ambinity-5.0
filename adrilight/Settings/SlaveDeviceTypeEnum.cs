@@ -13,6 +13,8 @@
 
         FanLED,
 
+        Matrix,
+
 
     }
 }

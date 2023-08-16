@@ -92,6 +92,12 @@
     <Reference Include="HandyControl, Version=3.4.0.0, Culture=neutral, PublicKeyToken=45be8712787a1e5b, processorArchitecture=MSIL">
       <HintPath>..\packages\HandyControls.3.4.5\lib\net472\HandyControl.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack-Core.1.1.1\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack-Shell.1.1.1\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -177,6 +183,9 @@
     <Compile Include="ViewModel\ISelectableViewParts.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
+    <Compile Include="View\DeviceExporterView.xaml.cs">
+      <DependentUpon>DeviceExporterView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\DeviceLayoutCreatorView.xaml.cs">
       <DependentUpon>DeviceLayoutCreatorView.xaml</DependentUpon>
     </Compile>
@@ -185,6 +194,9 @@
     </Compile>
     <Compile Include="View\ChangeSpotSizeWindow.xaml.cs">
       <DependentUpon>ChangeSpotSizeWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\NewDeviceParametersWindow.xaml.cs">
+      <DependentUpon>NewDeviceParametersWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\NewItemParametersWindow.xaml.cs">
       <DependentUpon>NewItemParametersWindow.xaml</DependentUpon>
@@ -201,6 +213,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="View\DeviceExporterView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="View\DeviceLayoutCreatorView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -218,6 +234,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\ChangeSpotSizeWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\NewDeviceParametersWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

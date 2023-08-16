@@ -566,7 +566,9 @@ namespace adrilight
             {
                 try
                 {
-                    const int baudRate = 1000000;
+                    int baudRate = 1000000;
+                    if (DeviceSettings.DeviceType.Type == DeviceTypeEnum.AmbinoFanHub)
+                        baudRate = 2000000;
                     string openedComPort = null;
 
                     while (!cancellationToken.IsCancellationRequested)
