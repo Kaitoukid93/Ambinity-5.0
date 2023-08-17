@@ -16,6 +16,7 @@ using MoreLinq.Extensions;
 using Newtonsoft.Json;
 using Renci.SshNet;
 using Renci.SshNet.Common;
+using Renci.SshNet.Sftp;
 using Serilog;
 using Squirrel;
 using System;
@@ -25,6 +26,7 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.IO.Compression;
 using System.IO.Ports;
 using System.Linq;
 using System.Reflection;
@@ -92,6 +94,7 @@ namespace adrilight.ViewModel
         private string VIDCollectionFolderPath => Path.Combine(JsonPath, "VID");
         private string MIDCollectionFolderPath => Path.Combine(JsonPath, "MID");
         private string ResourceFolderPath => Path.Combine(JsonPath, "Resource");
+        private string CacheFolderPath => Path.Combine(JsonPath, "Cache");
         private string ProfileCollectionFolderPath => Path.Combine(JsonPath, "Profiles");
 
         #endregion database local folder paths
@@ -1392,7 +1395,55 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        private async Task<bool> DownloadDeviceInfo(IDeviceSettings device)
+        {
+            bool result;
+            if (!Directory.Exists(CacheFolderPath))
+            {
+                Directory.CreateDirectory(CacheFolderPath);
+            }
+            if (FTPHlprs == null)
+            {
+                SFTPInit(GeneralSettings.CurrentAppUser);
+                SFTPConnect();
+            }
+            if (!FTPHlprs.sFTP.IsConnected)
+            {
+                try
+                {
+                    SFTPConnect();
+                }
+                catch (Exception ex)
+                {
+                    result = false;
+                    return await Task.FromResult(result);
+                }
+            }
+            SftpFile matchedDevice = null;
+            string matchedDevicePath = "";
+            switch (device.DeviceType.ConnectionTypeEnum)
+            {
+                case DeviceConnectionTypeEnum.OpenRGB:
+                    //search for device path
+                    matchedDevice = await FTPHlprs.GetFileByNameMatching(device.DeviceName + ".zip", openRGBDevicesFolderPath + "/" + device.DeviceType.Type.ToString());
+                    matchedDevicePath = openRGBDevicesFolderPath + "/" + device.DeviceType.Type.ToString() + "/" + matchedDevice.Name;
+                    break;
+                case DeviceConnectionTypeEnum.Wired:
+                    //search for device path
+                    matchedDevice = await FTPHlprs.GetFileByNameMatching(device.DeviceName + ".zip", ambinoDevicesFolderPath + "/" + device.DeviceType.Type.ToString());
+                    matchedDevicePath = ambinoDevicesFolderPath + "/" + device.DeviceType.Type.ToString() + "/" + matchedDevice.Name;
+                    break;
+            }
+            if (matchedDevice == null)
+            {
+                result = false;
+                return await Task.FromResult(result);
+            }
 
+            FTPHlprs.DownloadFile(matchedDevicePath, Path.Combine(CacheFolderPath, matchedDevice.Name), DownloadProgresBar);
+            result = true;
+            return await Task.FromResult(result);
+        }
         public async Task FoundNewDevice(List<IDeviceSettings> newDevices)
         {
             if (IsLoadingProfile)
@@ -1418,9 +1469,27 @@ namespace adrilight.ViewModel
             if (newDevices != null && newDevices.Count > 0)
             {
                 IsDeviceDiscoveryInit = false;
-                foreach (var device in newDevices)
+                foreach (var newDevice in newDevices)
                 {
+                    var device = newDevice as IDeviceSettings;
                     SetSearchingScreenHeaderText("New device found: " + device.DeviceName, true);
+                    //download device info
+                    SetSearchingScreenHeaderText("Downloading device modules: " + device.DeviceName, true);
+                    var result = await DownloadDeviceInfo(device);
+                    if (!result)
+                    {
+                        SetSearchingScreenHeaderText("Device info not found: " + device.DeviceName, true);
+                    }
+                    else
+                    {
+                        SetSearchingScreenHeaderText("Device modules downloaded: " + device.DeviceName, true);
+                        var downloadedDevice = ImportDevice(Path.Combine(CacheFolderPath, device.DeviceName + ".zip"));
+                        if (downloadedDevice != null)
+                        {
+                            downloadedDevice.OutputPort = device.OutputPort;
+                            device = downloadedDevice;
+                        }
+                    }
                     device.IsTransferActive = true;
                     if (device.DeviceType.Type == DeviceTypeEnum.AmbinoFanHub)
                     {
@@ -2703,7 +2772,7 @@ namespace adrilight.ViewModel
                 return true;
             }, (p) =>
             {
-                ImportDevice();
+                ImportDeviceFromLocalFile();
             }
           );
             ImportProfileCommand = new RelayCommand<string>((p) =>
@@ -4390,6 +4459,8 @@ namespace adrilight.ViewModel
         private string SupportedDevicesFolderPath = "/home/adrilight_enduser/ftp/files/SupportedDevices";
         private string ProfilesFolderPath = "/home/adrilight_enduser/ftp/files/Profiles";
         private string thumbResourceFolderPath = "/home/adrilight_enduser/ftp/files/Resources/Thumbs";
+        private string openRGBDevicesFolderPath = "/home/adrilight_enduser/ftp/files/OpenRGBDevices";
+        private string ambinoDevicesFolderPath = "/home/adrilight_enduser/ftp/files/AmbinoDevices";
         #endregion Store Folder Path
 
         #region Resource Folder Path
@@ -4794,46 +4865,69 @@ namespace adrilight.ViewModel
                 window.ShowDialog();
             }
         }
-        private void ImportDevice()
+        private IDeviceSettings ImportDevice(string path)
         {
-            var deviceFolder = LocalFileHlprs.OpenImportFolderDialog();
+            if (!File.Exists(path))
+                return null;
             IDeviceSettings device;
-            if (deviceFolder != null)
+            try
+            {
+                var fileName = Path.GetFileNameWithoutExtension(path);
+                //extract device
+                //Create directory to extract
+                Directory.CreateDirectory(CacheFolderPath);
+                //then extract
+                if (Directory.Exists(Path.Combine(CacheFolderPath, fileName)))
+                {
+                    goto import;
+                }
+
+                ZipFile.ExtractToDirectory(path, CacheFolderPath);
+            import:
+                var deviceJson = File.ReadAllText(Path.Combine(CacheFolderPath, fileName, "config.json"));
+                device = JsonConvert.DeserializeObject<DeviceSettings>(deviceJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                if (device != null)
+                {
+                    //create device info
+                    device.UpdateChildSize();
+                    device.UpdateUID();
+                    WriteDeviceInfo(device);
+                    //copy thumb
+                    if (File.Exists(Path.Combine(CacheFolderPath, fileName, "thumbnail.png")) && !File.Exists(Path.Combine(ResourceFolderPath, device.DeviceName + "_thumb.png")))
+                    {
+                        File.Copy(Path.Combine(CacheFolderPath, fileName, "thumbnail.png"), Path.Combine(ResourceFolderPath, device.DeviceName + "_thumb.png"), true);
+                    }
+                    //copy required SlaveDevice
+                    var dependenciesFiles = Path.Combine(CacheFolderPath, fileName, "dependencies");
+                    if (Directory.Exists(dependenciesFiles))
+                    {
+                        foreach (var sub in Directory.GetDirectories(dependenciesFiles))
+                        {
+                            LocalFileHelpers.CopyDirectory(sub, SupportedDeviceCollectionFolderPath, true);
+                        }
+                    }
+                    return device;
+                }
+            }
+            catch (Exception)
+            {
+                HandyControl.Controls.MessageBox.Show("Corrupted or incompatible data File!!!", "File Import", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
+            }
+            return null;
+        }
+        private void ImportDeviceFromLocalFile()
+        {
+            var deviceFile = LocalFileHlprs.OpenImportFileDialog(".zip", "ZIP Folders (.ZIP)|*.zip");
+
+            if (deviceFile != null)
             {
 
-                try
+                var device = ImportDevice(deviceFile);
+                if (device != null)
                 {
-                    var deviceJson = File.ReadAllText(Path.Combine(deviceFolder, "config.json"));
-                    device = JsonConvert.DeserializeObject<DeviceSettings>(deviceJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
-                    if (device != null)
-                    {
-                        //create device info
-                        device.UpdateChildSize();
-                        device.UpdateUID();
-                        WriteDeviceInfo(device);
-                        //copy thumb
-                        if (File.Exists(Path.Combine(deviceFolder, "thumbnail.png")) && !File.Exists(Path.Combine(ResourceFolderPath, device.DeviceName + "_thumb.png")))
-                        {
-                            File.Copy(Path.Combine(deviceFolder, "thumbnail.png"), Path.Combine(ResourceFolderPath, device.DeviceName + "_thumb.png"), true);
-                        }
-                        //copy required SlaveDevice
-                        var dependenciesFiles = Path.Combine(deviceFolder, "dependencies");
-                        if (Directory.Exists(dependenciesFiles))
-                        {
-                            foreach (var sub in Directory.GetDirectories(dependenciesFiles))
-                            {
-                                LocalFileHelpers.CopyDirectory(sub, SupportedDeviceCollectionFolderPath, true);
-                            }
-                        }
-                        AvailableDevices.Add(device);
-                    }
+                    AvailableDevices.Insert(0, device);
                 }
-                catch (Exception)
-                {
-                    HandyControl.Controls.MessageBox.Show("Corrupted or incompatible data File!!!", "File Import", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-
-
             }
         }
 
@@ -8609,7 +8703,8 @@ namespace adrilight.ViewModel
             SupportedDevicesFolderPath = "/home/" + GeneralSettings.CurrentAppUser.DataBaseUserName + "/ftp/files/SupportedDevices";
             ProfilesFolderPath = "/home/" + GeneralSettings.CurrentAppUser.DataBaseUserName + "/ftp/files/Profiles";
             thumbResourceFolderPath = "/home/" + GeneralSettings.CurrentAppUser.DataBaseUserName + "/ftp/files/Resources/Thumbs";
-
+            openRGBDevicesFolderPath = "/home/" + GeneralSettings.CurrentAppUser.DataBaseUserName + "/ftp/files/OpenRGBDevices";
+            ambinoDevicesFolderPath = "/home/" + GeneralSettings.CurrentAppUser.DataBaseUserName + "/ftp/files/AmbinoDevices";
 
         }
         private string _developerPassword;

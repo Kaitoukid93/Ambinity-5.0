@@ -62,6 +62,25 @@ namespace FTPServer
                 return null;
             }
         }
+        public async Task<SftpFile> GetFileByNameMatching(string fileName, string folderPath)
+        {
+            var listFilesAddress = new List<String>();
+
+            try
+            {
+                var files = sFTP.ListDirectory(folderPath);
+
+                var file = files.Where(i => i.Name == fileName).FirstOrDefault();
+
+                return await Task.FromResult(file);
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("An exception has been caught " + e.ToString());
+                return null;
+            }
+        }
         public async Task<List<SftpFile>> GetAllFilesInFolder(string folderPath)
         {
             var listFiles = new List<SftpFile>();
@@ -127,6 +146,7 @@ namespace FTPServer
                 return null;
             }
         }
+
         public SftpFileAttributes GetFileAttributes(string remotePath)
         {
             SftpFileAttributes attrs = sFTP.GetAttributes(remotePath);
@@ -141,7 +161,7 @@ namespace FTPServer
 
             try
             {
-                using (var s = File.Create(localPath))
+                using (var s = System.IO.File.Create(localPath))
                 {
                     sFTP.DownloadFile(remotePath, s, donwloadCallback);
                 }
