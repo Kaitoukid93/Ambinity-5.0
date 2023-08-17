@@ -1,0 +1,59 @@
+﻿<Grid x:Class="adrilight.View.NonClientAreaContent"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Height="50"
+      DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
+      xmlns:hc="https://handyorg.github.io/handycontrol">
+    <Grid.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary
+  Source="GeometryCollection.xaml">
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Grid.Resources>
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+    </Grid.ColumnDefinitions>
+    <Grid Grid.Column="0">
+        <StackPanel Orientation="Horizontal">
+            <!--<Grid>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CurrentOnlineStoreView}" Value="Details">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <hc:TransitioningContentControl TransitionMode="Right2LeftWithFade">
+                    <Button   Command="{Binding BackToCollectionViewCommand}"    
+                          CommandParameter="back"
+                            Width="32"
+                            Padding="0"
+                            Height="32" 
+                            Margin="0,10,10,0"  
+                            VerticalAlignment="Center" 
+                            BorderThickness="0" 
+                            HorizontalAlignment="Left" 
+                            hc:IconElement.Width="15"
+                            hc:IconElement.Height="15"
+                            hc:IconElement.Geometry="{DynamicResource back}" 
+                            Foreground="{DynamicResource SecondaryTextBrush}">
+                   
+                </Button>
+                </hc:TransitioningContentControl>
+            </Grid>-->
+            <Path HorizontalAlignment="left"  Stretch="Uniform" Margin="5,5,10,0" Data="{DynamicResource contentCreatorIcon}" 
+                                      Width="27" 
+                                      Height="27" 
+                                      Fill="{StaticResource PrimaryTextBrush}"/>
+            <TextBlock Margin="5,5,0,0" VerticalAlignment="Center" Text="Adrilight Content Creator - 1.0.1"/>
+        </StackPanel>
+
+    </Grid>
+</Grid>

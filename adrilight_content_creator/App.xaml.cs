@@ -1,14 +1,10 @@
-﻿
-using Microsoft.Win32;
-using Ninject;
-using System;
-using System.Reflection;
-using System.Text;
-using System.Linq;
-using System.Windows;
-using Ninject.Extensions.Conventions;
-using adrilight_content_creator.ViewModel;
+﻿using adrilight_content_creator.ViewModel;
 using HandyControl.Themes;
+using Ninject;
+using Ninject.Extensions.Conventions;
+using System;
+using System.Windows;
+using System.Windows.Media;
 
 namespace adrilight_content_creator
 {
@@ -22,16 +18,18 @@ namespace adrilight_content_creator
         {
 
             base.OnStartup(startupEvent);
+            ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
+            ThemeManager.Current.AccentColor = new SolidColorBrush(Color.FromArgb(255, 255, 69, 0));
             kernel = SetupDependencyInjection();
             ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
             this.Resources["Locator"] = new ViewModelLocator(kernel);
-                OpenMainWindow();
-            
+            OpenMainWindow();
+
         }
 
- 
 
- 
+
+
 
         internal static IKernel SetupDependencyInjection()
         {

@@ -3,13 +3,13 @@
   <metadata>
     <id>adrilightContentCreatorApp</id>
     <!-- version will be replaced by MSBuild -->
-    <version>5.0.7</version>
-    <title>adrilight</title>
+    <version>1.0.1</version>
+    <title>adrilight content creator</title>
     <authors>Ambinity</authors>
-    <description>Simple App to control Ambino LED Devices</description>
+    <description>Simple App to create content for Adrilight</description>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <copyright>Copyright 2022</copyright>
-    <iconUrl>https://github.com/Kaitoukid93/Ambinity/raw/master/adrilight/zoe.ico</iconUrl>
+    <copyright>Copyright 2023</copyright>
+    <iconUrl>https://github.com/Kaitoukid93/Ambinity/blob/master/adrilight/adrilightSketch.ico</iconUrl>
   </metadata>
   <files>
     <file src="bin\Release\" target="lib\net472\" exclude="*.pdb;*.nupkg;*.vshost.*"/>

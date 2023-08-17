@@ -48,6 +48,7 @@ namespace adrilight_content_creator.ViewModel
             }
             SelectableViewParts = selectableViewParts.OrderBy(p => p.Order)
                 .ToList();
+            SelectedViewPart = SelectableViewParts.First();
             CanvasItems = new ObservableCollection<IDrawable>();
             CanvasSelectedItems = new ObservableCollection<IDrawable>();
             CanvasSelectedItems.CollectionChanged += SelectedItemsChanged;
