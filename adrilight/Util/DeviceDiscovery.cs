@@ -90,7 +90,6 @@ namespace adrilight
                         {
                             openRGBDevices = await ScanOpenRGBDevices();
                         }
-
                         var serialDevices = await ScanSerialDevice();
                         var newDevices = new List<IDeviceSettings>();
                         var oldDevicesReconnected = new List<string>();
@@ -129,7 +128,6 @@ namespace adrilight
             var detectedDevices = AmbinityClient.ScanNewDevice();
             if (detectedDevices != null)
             {
-
                 foreach (var openRGBDevice in detectedDevices)
                 {
                     try
@@ -141,7 +139,6 @@ namespace adrilight
                             oldDeviceReconnected.Add(openRGBDevice.Location);
                             continue;
                         }
-
                         var convertedDevice = new SlaveDeviceHelpers().DefaultCreateOpenRGBDevice(openRGBDevice.Type, deviceName, openRGBDevice.Location, openRGBDevice.Serial, deviceUID);
                         var zonesData = new ZoneData[openRGBDevice.Zones.Length];
                         for (int i = 0; i < openRGBDevice.Zones.Length; i++)
