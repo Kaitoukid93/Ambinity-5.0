@@ -21,12 +21,14 @@ namespace adrilight.Settings
         private bool _isEnabled;
         private ISlaveDevice _slaveDevice;
         private string _geometry = "generaldevice";
+        private bool _isLocked;
 
         public LightingOutput()
         {
 
         }
         [JsonIgnore]
+        public bool IsLocked { get => _isLocked; set { Set(() => IsLocked, ref _isLocked, value); } }
         public bool IsLoadingProfile { get; set; }
         public string OutputName { get => _outputName; set { Set(() => OutputName, ref _outputName, value); } }
         public string TargetDevice { get => _targetDevice; set { Set(() => TargetDevice, ref _targetDevice, value); } }

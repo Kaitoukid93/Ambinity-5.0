@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -358,10 +359,6 @@ namespace adrilight
                 var hwMonitor = kernel.GetAll<HWMonitor>().FirstOrDefault();
                 var ambinityClient = kernel.GetAll<IAmbinityClient>().FirstOrDefault();
                 var deviceDiscovery = kernel.GetAll<DeviceDiscovery>().FirstOrDefault();
-                deviceDiscovery.Stop();
-                GeneralSettings.IsOpenRGBEnabled = false;
-                hwMonitor.Dispose();
-                ambinityClient.Dispose();
                 foreach (var file in MainViewViewModel.FilesQToRemove)
                 {
                     if (File.Exists(file))
@@ -369,6 +366,10 @@ namespace adrilight
                     Log.Information("Delete File :" + file);
                 }
                 Thread.Sleep(2000);
+                deviceDiscovery.Stop();
+                GeneralSettings.IsOpenRGBEnabled = false;
+                hwMonitor.Dispose();
+                ambinityClient.Dispose();
                 Log.Information("Application exit!");
             };
 
@@ -378,6 +379,7 @@ namespace adrilight
                if (e.Mode == PowerModes.Resume)
                {
                    GC.Collect();
+
                    var devices = kernel.GetAll<IDeviceSettings>();
                    foreach (var device in devices)
                    {
@@ -394,16 +396,28 @@ namespace adrilight
                            await (desktopFrame as DesktopFrame).StartHmonCapture(monitor, count++);
                        }
                    }
+                   var ambinityClient = kernel.Get<IAmbinityClient>() as AmbinityClient;
+                   ambinityClient.IsInitialized = false;
+                   await ambinityClient.RefreshTransferState();
+                   foreach (var openRGBStream in kernel.GetAll<ISerialStream>().Where(s => s is OpenRGBStream))
+                   {
+                       openRGBStream.Start();
+                   }
+
                }
                else if (e.Mode == PowerModes.Suspend)
                {
-                   var devices = kernel.GetAll<IDeviceSettings>();
 
-                   foreach (var device in devices)
+                   foreach (var openRGBStream in kernel.GetAll<ISerialStream>().Where(s => s is OpenRGBStream))
                    {
-                       device.TurnOffLED();
-                       Thread.Sleep(10);
+                       openRGBStream.Stop();
                    }
+                   var devices = kernel.GetAll<IDeviceSettings>();
+                   //foreach (var device in devices)
+                   //{
+                   //    device.TurnOffLED();
+                   //    Thread.Sleep(10);
+                   //}
                    Log.Information("System suspended!");
                }
            };

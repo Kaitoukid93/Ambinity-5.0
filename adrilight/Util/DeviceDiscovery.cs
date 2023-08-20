@@ -20,7 +20,7 @@ namespace adrilight
         {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
             Context = context ?? throw new ArgumentNullException(nameof(context));
-            AmbinityClient = ambinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
+            AmbinityClient = ambinityClient as AmbinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             MainViewViewModel.AvailableDevices.CollectionChanged += (_, __) => DeviceCollectionChanged();
             SerialDeviceDetector = new SerialDeviceDetection(MainViewViewModel.AvailableDevices.Where(p => p.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.Wired).ToList());
@@ -63,7 +63,7 @@ namespace adrilight
 
         }
 
-        private IAmbinityClient AmbinityClient { get; }
+        private AmbinityClient AmbinityClient { get; }
         private async void StartDiscovery(object tokenObject)
         {
             var cancellationToken = (CancellationToken)tokenObject;
@@ -118,6 +118,10 @@ namespace adrilight
 
             var newDevicesDetected = new List<IDeviceSettings>();
             var oldDeviceReconnected = new List<string>();
+            if(!AmbinityClient.IsInitialized)
+            {
+                await AmbinityClient.RefreshTransferState();
+            }
             var detectedDevices = AmbinityClient.ScanNewDevice();
             if (detectedDevices != null)
             {

@@ -756,6 +756,29 @@
                     <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                     </hc:Divider>
+                    <Grid Name="showOpenRGB">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="200" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                            <GroupBox.HeaderTemplate>
+                                <DataTemplate>
+                                    <TextBlock FontWeight="SemiBold" Text="HIỂN THỊ OPENRGB"/>
+                                </DataTemplate>
+                            </GroupBox.HeaderTemplate>
+
+                            <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding GeneralSettings.ShowOpenRGB}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
+
+                            </ToggleButton>
+
+
+                        </GroupBox>
+                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Hiển thị OpenRGB Process ở System Tray ( yêu cầu khởi động lại ứn dụng)"/>
+                    </Grid>
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
+
+                    </hc:Divider>
                     <Grid Name="powerLimit">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"/>

@@ -434,7 +434,19 @@ CornerRadius="7">
                                                         <ToggleButton x:Name="showMore" Margin="5,0,0,0"  Grid.Column="1" IsChecked="{Binding DataContext.ShowMore, RelativeSource={RelativeSource AncestorType=GroupBox}}" HorizontalAlignment="Right" Style="{DynamicResource ToggleButtonIconTransparent}" hc:IconSwitchElement.Geometry="{DynamicResource showMore}" hc:IconSwitchElement.GeometrySelected="{DynamicResource showLess}">
                                                         </ToggleButton>
                                                         <Button CommandParameter="{Binding OutputID}" Command="{Binding Path=DataContext.SetSelectedOutputSlaveDeviceFromFileCommand, RelativeSource={RelativeSource AncestorType={x:Type view2:DeviceExporterView}}}" Margin="5" Width="15" Padding="0" hc:IconElement.Width="15" BorderThickness="0" Background="Transparent" hc:IconElement.Geometry="{DynamicResource addnew}"/>
-                                                    </StackPanel>
+                                                            <ToggleButton IsChecked="{Binding IsLocked}" Background="Transparent" hc:IconElement.Width="15" hc:IconElement.Height="15" Padding="0" BorderThickness="0" Width="25" Height="25" Margin="0,10,0,10" hc:IconSwitchElement.Geometry="{DynamicResource unlock}" hc:IconSwitchElement.GeometrySelected="{DynamicResource lock}">
+                                                                <ToggleButton.Style>
+                                                                    <Style TargetType="ToggleButton" BasedOn="{StaticResource ToggleButtonIcon}">
+                                                                        <Setter Property="Foreground" Value="White"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsLocked}" Value="True">
+                                                                                <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </ToggleButton.Style>
+                                                            </ToggleButton>
+                                                        </StackPanel>
                                                     
                                                     <TextBlock Margin="5" HorizontalAlignment="Left" Text="{Binding OutputID}" Style="{DynamicResource TextBlockDefaultSecLight }"/>
                                                     <Image Grid.Row="1" Margin="5" Source="{Binding SlaveDevice.Thumbnail}"/>
@@ -587,6 +599,30 @@ CornerRadius="7">
                                     </GroupBox>
                                     <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Kích thước chính xác đến milimet"/>
                                 </Grid>
+                                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
+
+                                </hc:Divider>
+
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition Height="auto"/>
+                                    </Grid.RowDefinitions>
+                                    <GroupBox  VerticalAlignment="Center" hc:TitleElement.TitleWidth="150" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                                        <GroupBox.HeaderTemplate>
+                                            <DataTemplate>
+                                                <TextBlock FontWeight="SemiBold" Text="LOẠI KẾT NỐI"/>
+                                            </DataTemplate>
+                                        </GroupBox.HeaderTemplate>
+
+                                        <ComboBox ItemsSource="{Binding AvailableConnectionTypes}" SelectedItem="{Binding SelectedDevice.DeviceType.ConnectionTypeEnum}" Width="110" Margin="0,0,5,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Right" Style="{StaticResource ComboBoxBaseStyle}">
+
+                                        </ComboBox>
+
+
+                                    </GroupBox>
+                                    <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Kích thước chính xác đến milimet"/>
+                                </Grid>
 
                                 <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
@@ -603,7 +639,7 @@ CornerRadius="7">
                                             </DataTemplate>
                                         </GroupBox.HeaderTemplate>
 
-                                        <hc:NumericUpDown HorizontalAlignment="Right" Width="50" Value="{Binding SelectedDevice.DashboardWidth,Mode=TwoWay}" Maximum="500" Minimum="100" ValueFormat="N0"/>
+                                        <hc:NumericUpDown HorizontalAlignment="Right" Width="70" Value="{Binding SelectedDevice.DashboardWidth,Mode=TwoWay}" Maximum="500" Minimum="100" ValueFormat="N0"/>
 
 
                                     </GroupBox>
@@ -624,7 +660,7 @@ CornerRadius="7">
                                             </DataTemplate>
                                         </GroupBox.HeaderTemplate>
 
-                                        <hc:NumericUpDown Width="50" HorizontalAlignment="Right" Value="{Binding SelectedDevice.DashboardHeight,Mode=TwoWay}" Maximum="500" Minimum="100" ValueFormat="N0"/>
+                                        <hc:NumericUpDown Width="70" HorizontalAlignment="Right" Value="{Binding SelectedDevice.DashboardHeight,Mode=TwoWay}" Maximum="500" Minimum="100" ValueFormat="N0"/>
 
 
                                     </GroupBox>

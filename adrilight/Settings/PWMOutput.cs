@@ -20,7 +20,8 @@ namespace adrilight.Settings
         private bool _isEnabled;
         private ISlaveDevice _slaveDevice;
         private string _geometry = "generaldevice";
-
+        private bool _isLocked;
+        public bool IsLocked { get => _isLocked; set { Set(() => IsLocked, ref _isLocked, value); } }
         public PWMOutput()
         {
 

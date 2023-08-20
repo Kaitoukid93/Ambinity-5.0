@@ -62,6 +62,11 @@ namespace adrilight_content_creator.ViewModel
             {
                 AvailableMasterDeviceTypes.Add(type);
             }
+            AvailableConnectionTypes = new ObservableCollection<DeviceConnectionTypeEnum>();
+            foreach (DeviceConnectionTypeEnum type in Enum.GetValues(typeof(DeviceConnectionTypeEnum)))
+            {
+                AvailableConnectionTypes.Add(type);
+            }
             _timer = new DispatcherTimer(DispatcherPriority.Normal) { Interval = TimeSpan.FromMilliseconds(1000.0 / UPDATE_FRAME_RATE) };
         }
         public ICommand SetSelectedOutputSlaveDeviceFromFileCommand { get; set; }
@@ -1008,6 +1013,7 @@ namespace adrilight_content_creator.ViewModel
         public SlaveDeviceTypeEnum DeviceType { get; set; }
         public ObservableCollection<SlaveDeviceTypeEnum> AvailableDeviceTypes { get; set; }
         public ObservableCollection<DeviceTypeEnum> AvailableMasterDeviceTypes { get; set; }
+        public ObservableCollection<DeviceConnectionTypeEnum> AvailableConnectionTypes { get; set; }
         public ARGBLEDSlaveDevice Device { get; set; }
         private IDrawable _canvasSelectedItem;
         public IDrawable CanvasSelectedItem

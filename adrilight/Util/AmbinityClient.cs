@@ -8,8 +8,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Web.Profile;
+using Windows.Media.Protection.PlayReady;
 
 namespace adrilight
 {
@@ -60,14 +63,39 @@ namespace adrilight
             }
         }
 
+        public void LoadDefaultProfile()
+        {
+            //try
+            //{
+            //    var listProfile = Client.GetProfiles();
+            //    var defaultProfile = listProfile.Where(p => p.Contains("default")).FirstOrDefault();
+            //    if (defaultProfile != null)
+            //    {
+            //        Client.LoadProfile(defaultProfile);
+            //    }
+            //}
+            //catch(Exception ex)
+            //{
+
+            //}
+            Client.LoadProfile("default");
+
+        }
+        public void SaveDefaultProfile()
+        {
+            Client.SaveProfile("default");
+        }
 
         public async Task RefreshTransferState()
         {
 
             if (!IsInitialized && GeneralSettings.IsOpenRGBEnabled) // Only run OpenRGB Stream if User enable OpenRGB Utilities in General Settings
             {
-                MainViewViewModel.SetSearchingScreenProgressText("Starting OpenRGB service...");
-                LaunchOpenRGBProcess();
+                if (ORGBProcess == null)
+                {
+                    MainViewViewModel.SetSearchingScreenProgressText("Starting OpenRGB service...");
+                    LaunchOpenRGBProcess();
+                }
                 await Task.Delay(3000);
                 try
                 {
@@ -128,7 +156,14 @@ namespace adrilight
                 }
 
             }
-            ORGBProcess = System.Diagnostics.Process.Start(ORGBExeFileNameAndPath, "--server --startminimized --gui");
+            if (GeneralSettings.ShowOpenRGB)
+            {
+                ORGBProcess = System.Diagnostics.Process.Start(ORGBExeFileNameAndPath, "--server --startminimized --gui");
+            }
+            else
+            {
+                ORGBProcess = System.Diagnostics.Process.Start(ORGBExeFileNameAndPath, "--server");
+            }
 
 
         }
@@ -169,6 +204,8 @@ namespace adrilight
             catch (Exception ex)
             {
                 //something could happen to openRGB client
+                Client.Dispose();
+                IsInitialized = false;
 
             }
             return AvailableOpenRGBDevices;
@@ -180,30 +217,49 @@ namespace adrilight
 
             if (Client != null)
                 Client.Dispose();
-            Client = new OpenRGBClient("127.0.0.1", 6742, name: "Ambinity", autoconnect: true, timeout: 1000);
-
+            Client = new OpenRGBClient("127.0.0.1", 6742, name: "Ambinity", autoconnect: true, timeout: 1000, protocolVersion: 2);
             if (Client != null)
             {
                 //check if we get any device from Openrgb
+                //create default profile if not exist
                 if (Client.GetControllerCount() > 0)
                 {
-
                     var devices = Client.GetAllControllerData();
                     int index = 0;
+                    var profiles = Client.GetProfiles();
+                    if (!profiles.Any(p => p == "default"))
+                    {
+                        foreach (var device in devices)
+                        {
+                            for (var i = 0; i < device.Modes.Length; i++)
+                            {
+                                Debug.WriteLine(device.Modes[i].Name.ToString());
+                                if (device.Modes[i].Name == "Direct")
+                                {
+                                    Client.SetMode(index, i);
+                                }
+                            }
+                            index++;
+
+                            Log.Information($"Device found : " + device.Name.ToString() + "At index: " + index);
+
+                        }
+                        Client.SaveProfile("default");                       
+                        Log.Information("Saving OpenRGB Default Profile");
+                    }
+                    
+                    Client.LoadProfile("default");
                     foreach (var device in devices)
                     {
-                        for (var i = 0; i < device.Modes.Length; i++)
-                        {
-                            Debug.WriteLine(device.Modes[i].Name.ToString());
-                            if (device.Modes[i].Name == "Direct")
-                            {
-                                Client.SetMode(index, i);
-                            }
-                        }
-                        index++;
+                        var colors = new Color[device.Colors.Length];
+                        for (var i = 0; i < colors.Length; i++)
+                            colors[i] = new Color(255, 0, 0);
 
-                        Log.Information($"Device found : " + device.Name.ToString() + "At index: " + index);
+                        Client.UpdateLeds(index, colors);
+                        index++;
                     }
+                    await Task.Delay(500);
+                    Log.Information("Loading OpenRGB Default Profile");
                     return await Task.FromResult(true);
                 }
                 else // this could happen due to device scanning is in progress
@@ -234,7 +290,7 @@ namespace adrilight
                 }
 
             }
-
+            IsInitialized = false;
             GC.SuppressFinalize(this);
         }
 

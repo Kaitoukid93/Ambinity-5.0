@@ -7,7 +7,5 @@ namespace adrilight.Settings
       Wired,
       Wireless,
       OpenRGB
-
-
     }
 }

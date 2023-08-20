@@ -2,9 +2,11 @@
 using adrilight.Spots;
 using adrilight.Util;
 using NLog;
+using NLog.LayoutRenderers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 
 namespace adrilight
@@ -47,7 +49,6 @@ namespace adrilight
                     break;
             }
         }
-
 
 
         private void RefreshTransferState()
@@ -174,7 +175,7 @@ namespace adrilight
                             {
                                 if (spot.IsEnabled)
                                 {
-
+                                   
                                     ApplyColorWhitebalance(spot.Red, spot.Green, spot.Blue,
                                       currentDevice.WhiteBalanceRed, currentDevice.WhiteBalanceGreen, currentDevice.WhiteBalanceBlue,
                                       out byte FinalR, out byte FinalG, out byte FinalB);
@@ -309,9 +310,14 @@ namespace adrilight
 
                         var deviceColors = new List<OpenRGB.NET.Models.Color>();
                         //send frame data
+                        var outputColor = new List<OpenRGB.NET.Models.Color>();
+                        foreach (var output in DeviceSettings.AvailableLightingOutputs)
+                        {
+                            var currentSegmentColor = GetOutputStream(output.SlaveDevice);
+                            outputColor.AddRange(currentSegmentColor.ToList());
+                        }
 
-                        var outputColor = GetOutputStream(DeviceSettings.AvailableLightingOutputs[0].SlaveDevice);
-                        if (outputColor != null)
+                        if (outputColor.Count > 0)
                         {
                             foreach (var color in outputColor)
                             {
@@ -323,6 +329,7 @@ namespace adrilight
 
                         lock (AmbinityClient.Lock)
                         {
+                            if(AmbinityClient.IsInitialized)
                             AmbinityClient.Client.UpdateLeds(index, deviceColors.ToArray());
                         }
                         Thread.Sleep(30);

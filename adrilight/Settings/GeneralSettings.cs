@@ -37,10 +37,12 @@ namespace adrilight
         private int _screenCapturingMethod = 0;
         private bool _isBlackBarDetectionEnabled = true;
         private bool _isPowerLimitEnabled = true;
+        private bool _showOpenRGB = true;
         public GeneralSettings()
         {
 
         }
+        public bool ShowOpenRGB { get => _showOpenRGB; set { Set(() => ShowOpenRGB, ref _showOpenRGB, value); } }
         public int StartupDelaySecond { get => _startupDelaySecond; set { Set(() => StartupDelaySecond, ref _startupDelaySecond, value); } }
         public bool IsMultipleScreenEnable { get => _isMultipleScreenEnable; set { Set(() => IsMultipleScreenEnable, ref _isMultipleScreenEnable, value); } }
         public int SelectedAudioDevice { get => _selectedAudioDevice; set { Set(() => SelectedAudioDevice, ref _selectedAudioDevice, value); } }

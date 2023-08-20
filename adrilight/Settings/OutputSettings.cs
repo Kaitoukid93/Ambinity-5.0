@@ -16,6 +16,7 @@ namespace adrilight
         private OutputTypeEnum _outputType;
         private int _outputID;
         private bool _isVissible = true;
+        private bool _isLocked;
         private string _outputDescription;
         private string _targetDevice;
 
@@ -109,6 +110,7 @@ namespace adrilight
         //[Reflectable]
         //public IGifCard OutputSelectedGif { get => _outputSelectedGif; set { Set(() => OutputSelectedGif, ref _outputSelectedGif, value); } }
         public bool IsVissible { get => _isVissible; set { Set(() => IsVissible, ref _isVissible, value); } }
+        public bool IsLocked{ get => _isLocked; set { Set(() => IsLocked, ref _isLocked, value); } }
         public bool OutputIsSelected { get => _outputIsSelected; set { Set(() => OutputIsSelected, ref _outputIsSelected, value); } }
         public Rectangle Rectangle { get; set; }
         public string OutputUniqueID { get => _outputUniqueID; set { Set(() => OutputUniqueID, ref _outputUniqueID, value); } }

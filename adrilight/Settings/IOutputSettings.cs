@@ -15,7 +15,7 @@ namespace adrilight
         string OutputName { get; set; }
         string OutputDescription { get; set; }
         bool IsVissible { get; set; }
-
+        bool IsLocked { get; set; }
         int OutputID { get; set; } // position off current output
         //int VUOrientation { get; set; }
         //int VUMode { get; set; }

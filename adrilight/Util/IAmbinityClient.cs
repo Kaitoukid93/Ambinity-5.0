@@ -8,11 +8,11 @@ namespace adrilight
     {
         bool IsInitialized { get; set; }
         List<OpenRGB.NET.Models.Device> ScanNewDevice();
+
         OpenRGBClient Client { get; set; }
         System.Diagnostics.Process ORGBProcess { get; set; }
         void Dispose();
         object Lock { get;}
-
 
     }
 }

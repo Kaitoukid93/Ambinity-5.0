@@ -1426,11 +1426,15 @@ namespace adrilight.ViewModel
                 case DeviceConnectionTypeEnum.OpenRGB:
                     //search for device path
                     matchedDevice = await FTPHlprs.GetFileByNameMatching(device.DeviceName + ".zip", openRGBDevicesFolderPath + "/" + device.DeviceType.Type.ToString());
+                    if (matchedDevice == null)
+                        return false;
                     matchedDevicePath = openRGBDevicesFolderPath + "/" + device.DeviceType.Type.ToString() + "/" + matchedDevice.Name;
                     break;
                 case DeviceConnectionTypeEnum.Wired:
                     //search for device path
                     matchedDevice = await FTPHlprs.GetFileByNameMatching(device.DeviceName + ".zip", ambinoDevicesFolderPath + "/" + device.DeviceType.Type.ToString());
+                    if (matchedDevice == null)
+                        return false;
                     matchedDevicePath = ambinoDevicesFolderPath + "/" + device.DeviceType.Type.ToString() + "/" + matchedDevice.Name;
                     break;
             }
@@ -1491,7 +1495,7 @@ namespace adrilight.ViewModel
                         }
                     }
                     device.IsTransferActive = true;
-                    if (device.DeviceType.Type == DeviceTypeEnum.AmbinoFanHub)
+                    if (device.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
                     {
                         GeneralSettings.IsOpenRGBEnabled = true;
                     }
@@ -1555,16 +1559,20 @@ namespace adrilight.ViewModel
                     var oldDevice = AvailableDevices.Where(p => p.OutputPort == port).FirstOrDefault();
                     // oldDevice.IsTransferActive = false;
                     //Thread.Sleep(500);
-                    oldDevice.IsTransferActive = true;
-                    if (oldDevice.DeviceType.Type == DeviceTypeEnum.AmbinoFanHub)
+                    if(!oldDevice.IsTransferActive)
                     {
-                        GeneralSettings.IsOpenRGBEnabled = true;
+                        oldDevice.IsTransferActive = true;
+                        if (oldDevice.DeviceType.Type == DeviceTypeEnum.AmbinoFanHub)
+                        {
+                            GeneralSettings.IsOpenRGBEnabled = true;
+                        }
+                        //Thread.Sleep(500);
+                        SetSearchingScreenProgressText("Connected: " + oldDevice.OutputPort);
+
+
+                        WriteSingleDeviceInfoJson(oldDevice);
                     }
-                    //Thread.Sleep(500);
-                    SetSearchingScreenProgressText("Connected: " + oldDevice.OutputPort);
-
-
-                    WriteSingleDeviceInfoJson(oldDevice);
+                   
                 }
 
                 SearchingForDevices = false;
@@ -4865,6 +4873,18 @@ namespace adrilight.ViewModel
                 window.ShowDialog();
             }
         }
+        private void ClearCacheFolder()
+        {
+            System.IO.DirectoryInfo cache = new DirectoryInfo(CacheFolderPath);
+            foreach (FileInfo file in cache.EnumerateFiles())
+            {
+                file.Delete();
+            }
+            foreach (DirectoryInfo dir in cache.EnumerateDirectories())
+            {
+                dir.Delete(true);
+            }
+        }
         private IDeviceSettings ImportDevice(string path)
         {
             if (!File.Exists(path))
@@ -4906,10 +4926,12 @@ namespace adrilight.ViewModel
                             LocalFileHelpers.CopyDirectory(sub, SupportedDeviceCollectionFolderPath, true);
                         }
                     }
+                    //remove cache
+                    ClearCacheFolder();
                     return device;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 HandyControl.Controls.MessageBox.Show("Corrupted or incompatible data File!!!", "File Import", MessageBoxButton.OK, MessageBoxImage.Error);
                 return null;
