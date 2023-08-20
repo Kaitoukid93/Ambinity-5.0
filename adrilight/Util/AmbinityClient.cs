@@ -1,4 +1,5 @@
 ﻿using adrilight.ViewModel;
+using GalaSoft.MvvmLight;
 using OpenRGB.NET;
 using OpenRGB.NET.Models;
 using Polly;
@@ -17,7 +18,7 @@ using Windows.Media.Protection.PlayReady;
 namespace adrilight
 {
     internal sealed class
-        AmbinityClient : IDisposable, IAmbinityClient
+        AmbinityClient : ViewModelBase, IDisposable, IAmbinityClient
     {
         private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
         private string ORGBJsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "OpenRGB\\");
@@ -43,7 +44,28 @@ namespace adrilight
             get { return _oRGBProcess; }
             set { _oRGBProcess = value; }
         }
-        public bool IsInitialized { get; set; }
+        private bool _isInitialize;
+        public bool IsInitialized {
+            get
+            {
+                return _isInitialize;
+            }
+            set
+            {
+                _isInitialize = value; RaisePropertyChanged();
+            }
+        }
+        private bool _isInitializing;
+        public bool IsInitializing {
+            get
+            {
+                return _isInitializing;
+            }
+            private set
+            {
+                _isInitializing = value; RaisePropertyChanged();
+            }
+        }
         private OpenRGBClient _client;
         public OpenRGBClient Client {
             get { return _client; }
@@ -88,6 +110,7 @@ namespace adrilight
 
         public async Task RefreshTransferState()
         {
+            IsInitializing = true;
 
             if (!IsInitialized && GeneralSettings.IsOpenRGBEnabled) // Only run OpenRGB Stream if User enable OpenRGB Utilities in General Settings
             {
@@ -107,6 +130,7 @@ namespace adrilight
                     {
                         MainViewViewModel.SetSearchingScreenProgressText("Done!");
                         IsInitialized = true;
+                        IsInitializing = false;
                     }
 
                 }
@@ -115,6 +139,7 @@ namespace adrilight
                     HandyControl.Controls.MessageBox.Show("Không tìm thấy Server OpenRGB, Hãy thử thoát ứng dụng và mở lại");
                     IsInitialized = false;
                     MainViewViewModel.SearchingForDevices = false;
+                    IsInitializing = false;
                     //IsAvailable= false;
 
                 }
@@ -122,12 +147,15 @@ namespace adrilight
                 {
                     HandyControl.Controls.MessageBox.Show("Mất kết nối ứng dụng OpenRGB, vui lòng không thoát OpenRGB khi đang sử dụng");
                     IsInitialized = false;
+                    IsInitializing = false;
                     //IsAvailable= false;
 
                 }
                 catch (Exception ex)
                 {
                     Log.Error(ex, "OpenRGB External Exception");
+                    IsInitialized = false;        
+                    IsInitializing = false;
                 }
             }
 
@@ -244,20 +272,11 @@ namespace adrilight
                             Log.Information($"Device found : " + device.Name.ToString() + "At index: " + index);
 
                         }
-                        Client.SaveProfile("default");                       
+                        Client.SaveProfile("default");
                         Log.Information("Saving OpenRGB Default Profile");
                     }
-                    
-                    Client.LoadProfile("default");
-                    foreach (var device in devices)
-                    {
-                        var colors = new Color[device.Colors.Length];
-                        for (var i = 0; i < colors.Length; i++)
-                            colors[i] = new Color(255, 0, 0);
 
-                        Client.UpdateLeds(index, colors);
-                        index++;
-                    }
+                    Client.LoadProfile("default");
                     await Task.Delay(500);
                     Log.Information("Loading OpenRGB Default Profile");
                     return await Task.FromResult(true);

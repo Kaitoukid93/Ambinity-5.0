@@ -21,13 +21,23 @@ namespace adrilight
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
             Context = context ?? throw new ArgumentNullException(nameof(context));
             AmbinityClient = ambinityClient as AmbinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
+            AmbinityClient.PropertyChanged += (_, __) =>
+            {
+                if (__.PropertyName == nameof(AmbinityClient.IsInitialized))
+                {
+                    AmbinityClientStateChanged();
+                }
+            };
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             MainViewViewModel.AvailableDevices.CollectionChanged += (_, __) => DeviceCollectionChanged();
             SerialDeviceDetector = new SerialDeviceDetection(MainViewViewModel.AvailableDevices.Where(p => p.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.Wired).ToList());
             StartThread();
 
         }
-
+        private void AmbinityClientStateChanged()
+        {
+            _openRGBIsInit = false;
+        }
         private void DeviceCollectionChanged()
         {
             SerialDeviceDetector = new SerialDeviceDetection(MainViewViewModel.AvailableDevices.Where(p => p.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.Wired).ToList());
@@ -40,12 +50,12 @@ namespace adrilight
         {
             //if (App.IsPrivateBuild) return;
             _cancellationTokenSource = new CancellationTokenSource();
-            _workerThread = new Thread(StartDiscovery) {
+            _workerThread = new Thread(() => StartDiscovery(_cancellationTokenSource.Token)) {
                 Name = "Device Discovery",
                 IsBackground = true,
                 Priority = ThreadPriority.BelowNormal
             };
-            _workerThread.Start(_cancellationTokenSource.Token);
+            _workerThread.Start();
 
         }
 
@@ -56,18 +66,12 @@ namespace adrilight
         public ObservableCollection<IDeviceSettings> AvailableWLEDDevices { get; set; }
         public ObservableCollection<IDeviceSettings> AvailableSerialDevices { get; set; }
         public MainViewViewModel MainViewViewModel { get; set; }
-        private bool _enable = true;
-        public bool enable {
-            get { return _enable; }
-            set { _enable = value; }
-
-        }
-
         private AmbinityClient AmbinityClient { get; }
-        private async void StartDiscovery(object tokenObject)
+        private bool _isAllDeviceConnected => !MainViewViewModel.AvailableDevices.Any(d => d.IsTransferActive == false);
+        private async void StartDiscovery(CancellationToken token)
         {
-            var cancellationToken = (CancellationToken)tokenObject;
-            while (!cancellationToken.IsCancellationRequested)
+
+            while (!token.IsCancellationRequested)
             {
                 try
                 {
@@ -78,11 +82,11 @@ namespace adrilight
                     //    MainViewViewModel.SetSearchingScreenHeaderText("Searching for devices...", true);
                     //    MainViewViewModel.SetSearchingScreenProgressText("Scanning...");
                     //}
-                    if (Settings.DeviceDiscoveryMode == 0 && !MainViewViewModel.FrimwareUpgradeIsInProgress && enable)
+                    if (Settings.DeviceDiscoveryMode == 0 && !MainViewViewModel.FrimwareUpgradeIsInProgress)
                     {
                         // openRGB device scan only run once at startup
                         var openRGBDevices = (new List<IDeviceSettings>(), new List<string>());
-                        if (Settings.IsOpenRGBEnabled)
+                        if (Settings.IsOpenRGBEnabled && !_isAllDeviceConnected)
                         {
                             openRGBDevices = await ScanOpenRGBDevices();
                         }
@@ -118,7 +122,7 @@ namespace adrilight
 
             var newDevicesDetected = new List<IDeviceSettings>();
             var oldDeviceReconnected = new List<string>();
-            if(!AmbinityClient.IsInitialized)
+            if (!AmbinityClient.IsInitialized && !AmbinityClient.IsInitializing)
             {
                 await AmbinityClient.RefreshTransferState();
             }

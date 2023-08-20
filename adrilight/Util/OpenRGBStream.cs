@@ -332,7 +332,7 @@ namespace adrilight
                             if(AmbinityClient.IsInitialized)
                             AmbinityClient.Client.UpdateLeds(index, deviceColors.ToArray());
                         }
-                        Thread.Sleep(30);
+                        Thread.Sleep(10);
                     }
 
                 }
