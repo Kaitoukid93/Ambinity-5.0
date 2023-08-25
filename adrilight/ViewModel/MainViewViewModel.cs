@@ -650,17 +650,7 @@ namespace adrilight.ViewModel
             }
         }
 
-        private IVisualizerProgressBar[] _visualizerFFT;
 
-        public IVisualizerProgressBar[] VisualizerFFT {
-            get { return _visualizerFFT; }
-
-            set
-            {
-                _visualizerFFT = value;
-                RaisePropertyChanged(nameof(VisualizerFFT));
-            }
-        }
 
         private int _selectedDeviceCount;
 
@@ -1559,7 +1549,7 @@ namespace adrilight.ViewModel
                     var oldDevice = AvailableDevices.Where(p => p.OutputPort == port).FirstOrDefault();
                     // oldDevice.IsTransferActive = false;
                     //Thread.Sleep(500);
-                    if(!oldDevice.IsTransferActive)
+                    if (!oldDevice.IsTransferActive)
                     {
                         oldDevice.IsTransferActive = true;
                         if (oldDevice.DeviceType.Type == DeviceTypeEnum.AmbinoFanHub)
@@ -1572,7 +1562,7 @@ namespace adrilight.ViewModel
 
                         WriteSingleDeviceInfoJson(oldDevice);
                     }
-                   
+
                 }
 
                 SearchingForDevices = false;

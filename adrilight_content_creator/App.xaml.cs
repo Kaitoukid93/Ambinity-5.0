@@ -2,6 +2,7 @@
 using HandyControl.Themes;
 using Ninject;
 using Ninject.Extensions.Conventions;
+using Squirrel;
 using System;
 using System.Windows;
 using System.Windows.Media;
@@ -13,11 +14,20 @@ namespace adrilight_content_creator
     /// </summary>
     public sealed partial class App : Application
     {
-
+        private const string ADRILIGHT_RELEASES = "https://github.com/Kaitoukid93/Ambinity_Developer_Release";
         protected override void OnStartup(StartupEventArgs startupEvent)
         {
 
             base.OnStartup(startupEvent);
+            using (var mgr = new UpdateManager(ADRILIGHT_RELEASES))
+            {
+                // Note, in most of these scenarios, the app exits after this method
+                // completes!
+                SquirrelAwareApp.HandleEvents(
+                  onInitialInstall: v => mgr.CreateShortcutForThisExe(),
+                  onAppUpdate: v => mgr.CreateShortcutForThisExe(),
+                  onAppUninstall: v => mgr.RemoveShortcutForThisExe());
+            }
             ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
             ThemeManager.Current.AccentColor = new SolidColorBrush(Color.FromArgb(255, 255, 69, 0));
             kernel = SetupDependencyInjection();

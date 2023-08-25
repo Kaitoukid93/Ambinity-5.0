@@ -53,9 +53,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup />
-  <PropertyGroup>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-  </PropertyGroup>
+  <PropertyGroup />
   <PropertyGroup>
     <ApplicationIcon>zoe.ico</ApplicationIcon>
   </PropertyGroup>
@@ -79,6 +77,9 @@
     <LangVersion>Latest</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -218,9 +219,9 @@
     <Compile Include="Settings\Automation\HotkeyTriggerCondition.cs" />
     <Compile Include="Settings\Automation\TriggerCondition.cs" />
     <Compile Include="Settings\GifCard.cs" />
-    <Compile Include="Util\CaptureEngine\AudioCaptureBasic.cs" />
-    <Compile Include="Util\Gifxelation.cs" />
-    <Compile Include="DesktopDuplication\DesktopDuplicatorReader.cs" />
+    <Compile Include="Services\CaptureEngine\AudioCaptureBasic.cs" />
+    <Compile Include="Services\LightingEngine\Gifxelation\Gifxelation.cs" />
+    <Compile Include="Services\LightingEngine\ScreenCapturing\DesktopDuplicatorReader.cs" />
     <Compile Include="DesktopDuplication\Direct3D11Helper.cs" />
     <Compile Include="DesktopDuplication\ICaptureEngine.cs" />
     <Compile Include="DesktopDuplication\MonitorEnumerationHelper.cs" />
@@ -231,8 +232,6 @@
     <Compile Include="Helpers\ControlModeHelpers.cs" />
     <Compile Include="Helpers\DancingModeEnum.cs" />
     <Compile Include="Helpers\EventToCommand.cs" />
-    <Compile Include="Helpers\JsonHelpers.cs" />
-    <Compile Include="Helpers\LocalFileHelpers.cs" />
     <Compile Include="Helpers\SimpleStringParameterValue.cs" />
     <Compile Include="Helpers\ZoneData.cs" />
     <Compile Include="Settings\Automation\ActionParameter.cs" />
@@ -240,14 +239,9 @@
     <Compile Include="Settings\Automation\ActionType.cs" />
     <Compile Include="Settings\Automation\AutomationSettings.cs" />
     <Compile Include="Settings\ControllerData.cs" />
-    <Compile Include="Settings\DeserializeMethodEnum.cs" />
     <Compile Include="Settings\AppProfile.cs" />
-    <Compile Include="Settings\DeviceStateEnum.cs" />
     <Compile Include="Settings\ModeDirection.cs" />
-    <Compile Include="Helpers\ObjectHelpers.cs" />
     <Compile Include="Helpers\perSizeBindingHelper.cs" />
-    <Compile Include="Helpers\ResourceHelpers.cs" />
-    <Compile Include="Helpers\SlaveDeviceHelpers.cs" />
     <Compile Include="Resources\IContext.cs" />
     <Compile Include="Resources\WpfContext.cs" />
     <Compile Include="Settings\ControlZoneGroup.cs" />
@@ -255,28 +249,21 @@
     <Compile Include="Settings\DesktopScreen.cs" />
     <Compile Include="Settings\DeviceAdvanceController.cs" />
     <Compile Include="Settings\DeviceType.cs" />
-    <Compile Include="Settings\DeviceConnectionTypeEnum.cs" />
     <Compile Include="Settings\OutputData.cs" />
-    <Compile Include="Settings\OutputTypeEnum.cs" />
     <Compile Include="Settings\ProfileIgnoreAttribute.cs" />
     <Compile Include="Settings\ResourceLoaderConfig.cs" />
-    <Compile Include="Settings\RGBLEDOrderEnum.cs" />
-    <Compile Include="Settings\SlaveDeviceTypeEnum.cs" />
     <Compile Include="Settings\PWMMotorSlaveDevice.cs" />
     <Compile Include="Settings\ARGBLEDSlaveDevice.cs" />
-    <Compile Include="Settings\ControllerTypeEnum.cs" />
-    <Compile Include="Settings\DeviceTypeEnum.cs" />
     <Compile Include="Settings\FanMotor.cs" />
     <Compile Include="Settings\IControlZone.cs" />
     <Compile Include="Settings\IDeviceController.cs" />
     <Compile Include="Settings\IOutputControlableProperty.cs" />
     <Compile Include="Settings\DeviceController.cs" />
     <Compile Include="Settings\ISlaveDevice.cs" />
-    <Compile Include="Settings\PWMMode.cs" />
+    <Compile Include="Services\model\ControlMode\Mode\PWMMode.cs" />
     <Compile Include="Settings\PWMOutput.cs" />
     <Compile Include="Settings\LightingOutput.cs" />
     <Compile Include="Settings\OutputControlableProperty.cs" />
-    <Compile Include="Settings\OutputControlablePropertyEnum.cs" />
     <Compile Include="Settings\ScreenBound.cs" />
     <Compile Include="Settings\ImageVisual.cs" />
     <Compile Include="Settings\PathGuide.cs" />
@@ -310,96 +297,81 @@
     <Compile Include="Spots\ILEDSetup.cs" />
     <Compile Include="Spots\LEDSetup.cs" />
     <Compile Include="Spots\LEDSetupHelpers.cs" />
-    <Compile Include="Util\FileNameCorrector.cs" />
-    <Compile Include="Util\ModeParameters\CapturingRegion.cs" />
-    <Compile Include="Util\ModeParameters\CapturingRegionPreview.cs" />
-    <Compile Include="Util\ModeParameters\CapturingRegionSelectionButtonParameter.cs" />
-    <Compile Include="Util\ModeParameters\AudioDeviceSelectionButtonParameter.cs" />
-    <Compile Include="Util\ModeParameters\BaseButtonParameter.cs" />
-    <Compile Include="Util\ModeParameters\DataSource.cs" />
-    <Compile Include="Util\ModeParameters\IModeParameter.cs" />
-    <Compile Include="Util\ModeParameters\ListSelectionParameter.cs" />
-    <Compile Include="Util\ModeParameters\PreviewableContent.cs" />
-    <Compile Include="Util\ModeParameters\PreviewableContentEnum.cs" />
-    <Compile Include="Util\ModeParameters\SliderParameter.cs" />
-    <Compile Include="Util\ModeParameters\ToggleParameter.cs" />
-    <Compile Include="Util\Music.cs" />
-    <Compile Include="Util\AudioDevice.cs" />
-    <Compile Include="Util\ChasingPatternTypeEnum.cs" />
-    <Compile Include="Util\ColorEditingObject.cs" />
-    <Compile Include="Util\ColumnDataModel.cs" />
-    <Compile Include="Util\ILightingEngine.cs" />
-    <Compile Include="Util\IParameterValue.cs" />
-    <Compile Include="Util\LightingModeEnum.cs" />
-    <Compile Include="Util\MIDFrequency.cs" />
-    <Compile Include="Util\ModeParameterEnum.cs" />
-    <Compile Include="Util\ModeParameterTemplateEnum.cs" />
-    <Compile Include="Util\ChasingPattern.cs" />
-    <Compile Include="Util\NativeMethods.cs" />
-    <Compile Include="Util\OnlineItemModel.cs" />
-    <Compile Include="Util\DeviceDiscovery.cs" />
-    <Compile Include="Util\Updaters\AdrilightUpdater.cs" />
+    <Compile Include="Services\model\ControlMode\ModeParameters\CapturingRegion.cs" />
+    <Compile Include="Services\model\ControlMode\ModeParameters\CapturingRegionPreview.cs" />
+    <Compile Include="Services\model\ControlMode\ModeParameters\CapturingRegionSelectionButtonParameter.cs" />
+    <Compile Include="Services\model\ControlMode\ModeParameters\AudioDeviceSelectionButtonParameter.cs" />
+    <Compile Include="Services\model\ControlMode\ModeParameters\BaseButtonParameter.cs" />
+    <Compile Include="Services\model\ControlMode\ModeParameters\DataSource.cs" />
+    <Compile Include="Services\model\ControlMode\ModeParameters\IModeParameter.cs" />
+    <Compile Include="Services\model\ControlMode\ModeParameters\ListSelectionParameter.cs" />
+    <Compile Include="Services\model\ControlMode\ModeParameters\PreviewableContent.cs" />
+    <Compile Include="Services\model\ControlMode\ModeParameters\PreviewableContentEnum.cs" />
+    <Compile Include="Services\model\ControlMode\ModeParameters\SliderParameter.cs" />
+    <Compile Include="Services\model\ControlMode\ModeParameters\ToggleParameter.cs" />
+    <Compile Include="Services\LightingEngine\Music\Music.cs" />
+    <Compile Include="Services\model\AudioDevice.cs" />
+    <Compile Include="Services\Enum\ChasingPatternTypeEnum.cs" />
+    <Compile Include="Services\model\ColorEditingObject.cs" />
+    <Compile Include="Services\model\ColumnDataModel.cs" />
+    <Compile Include="Services\LightingEngine\ILightingEngine.cs" />
+    <Compile Include="Services\model\ControlMode\ModeParameters\IParameterValue.cs" />
+    <Compile Include="Services\model\ControlMode\Enum\LightingModeEnum.cs" />
+    <Compile Include="Services\MIDFrequency.cs" />
+    <Compile Include="Services\ModeParameterEnum.cs" />
+    <Compile Include="Services\ModeParameterTemplateEnum.cs" />
+    <Compile Include="Services\model\ChasingPattern.cs" />
+    <Compile Include="Services\NativeMethods.cs" />
+    <Compile Include="Services\OnlineItemModel.cs" />
+    <Compile Include="Services\DeviceDiscoveryServices\DeviceDiscovery.cs" />
+    <Compile Include="Services\Updaters\AdrilightUpdater.cs" />
     <Compile Include="Helpers\AssemblyHelper.cs" />
-    <Compile Include="Util\CaptureEngine\AudioFrame.cs" />
-    <Compile Include="Util\Brightness.cs" />
-    <Compile Include="Util\ColorsDataModel\ColorPalette.cs" />
-    <Compile Include="Util\ColorUtil.cs" />
-    <Compile Include="Util\ColorWithIndex.cs" />
-    <Compile Include="Util\Computer.cs" />
-    <Compile Include="Util\DefaultColorCollection.cs" />
-    <Compile Include="Util\FakeSerialPort.cs" />
-    <Compile Include="Util\FpsLogger.cs" />
-    <Compile Include="Util\Composition.cs" />
-    <Compile Include="Util\PWMModeEnum.cs" />
-    <Compile Include="Util\LightingEngine\Animation.cs" />
-    <Compile Include="Util\Rainbow.cs" />
-    <Compile Include="Util\SelectableLocalPath.cs" />
-    <Compile Include="Util\StaticColor.cs" />
-    <Compile Include="Util\StoreCategory.cs" />
-    <Compile Include="Util\MotionLayer.cs" />
-    <Compile Include="Util\MotionCard.cs" />
-    <Compile Include="Util\Gif.cs" />
-    <Compile Include="Util\GradientColor.cs" />
-    <Compile Include="Util\ColorsDataModel\ColorCard.cs" />
-    <Compile Include="Util\HotKeyManager.cs" />
-    <Compile Include="Util\HWMonitor.cs" />
-    <Compile Include="Util\IAtmosphere.cs" />
-    <Compile Include="Util\IAudioFrame.cs" />
-    <Compile Include="Util\IColorWithIndex.cs" />
-    <Compile Include="Util\IComputer.cs" />
-    <Compile Include="Util\IHotKeyManager.cs" />
-    <Compile Include="Util\ILeftMenuItemGroup.cs" />
-    <Compile Include="Util\IControlMode.cs" />
-    <Compile Include="Util\IOpenRGBClientDevice.cs" />
-    <Compile Include="Util\IAmbinityClient.cs" />
-    <Compile Include="Util\IRainbow.cs" />
-    <Compile Include="Util\ISerialPortWrapper.cs" />
-    <Compile Include="Util\ISerialStream.cs" />
-    <Compile Include="Util\IVisualizerProgressBar.cs" />
-    <Compile Include="Util\LeftMenuItemGroup.cs" />
-    <Compile Include="Util\LightingMode.cs" />
-    <Compile Include="Util\NetworkStream.cs" />
-    <Compile Include="Util\OpenRGBClientDevice.cs" />
-    <Compile Include="Util\AmbinityClient.cs" />
-    <Compile Include="Util\PaletteCardContextMenu.cs" />
-    <Compile Include="Util\RainbowTicker.cs" />
-    <Compile Include="Util\SerialDeviceDetection.cs" />
-    <Compile Include="Util\OpenRGBStream.cs" />
-    <Compile Include="Util\SerialStream.cs" />
-    <Compile Include="Util\StartupManager.cs" />
-    <Compile Include="Util\SubParameter.cs" />
-    <Compile Include="Util\Tick.cs" />
-    <Compile Include="Util\TickEnum.cs" />
-    <Compile Include="Util\UpdateVisitor.cs" />
-    <Compile Include="Util\MIDDataModel.cs" />
-    <Compile Include="Util\VisualizerDataModel.cs" />
-    <Compile Include="Util\VIDDirrection.cs" />
-    <Compile Include="Util\VIDToolBarDataModel.cs" />
-    <Compile Include="Util\VIDDataModel.cs" />
-    <Compile Include="Util\VIDType.cs" />
-    <Compile Include="Util\VisualizerProgressBar.cs" />
-    <Compile Include="Util\WinApi.cs" />
-    <Compile Include="Util\WrappedSerialPort.cs" />
+    <Compile Include="Services\CaptureEngine\AudioFrame.cs" />
+    <Compile Include="Services\ColorsDataModel\ColorPalette.cs" />
+    <Compile Include="Services\model\Computer.cs" />
+    <Compile Include="Services\model\FakeSerialPort.cs" />
+    <Compile Include="Services\LightingEngine\ScreenCapturing\FpsLogger.cs" />
+    <Compile Include="Services\model\Composition.cs" />
+    <Compile Include="Services\model\ControlMode\Enum\PWMModeEnum.cs" />
+    <Compile Include="Services\LightingEngine\Animation\Animation.cs" />
+    <Compile Include="Services\LightingEngine\ColorPalette\Rainbow.cs" />
+    <Compile Include="Services\SelectableLocalPath.cs" />
+    <Compile Include="Services\LightingEngine\StaticColor\StaticColor.cs" />
+    <Compile Include="Services\StoreCategory.cs" />
+    <Compile Include="Services\MotionLayer.cs" />
+    <Compile Include="Services\MotionCard.cs" />
+    <Compile Include="Services\model\Gif.cs" />
+    <Compile Include="Services\model\GradientColor.cs" />
+    <Compile Include="Services\ColorsDataModel\ColorCard.cs" />
+    <Compile Include="Services\HWMonitor\HWMonitor.cs" />
+    <Compile Include="Services\HWMonitor\IComputer.cs" />
+    <Compile Include="Services\model\ControlMode\IControlMode.cs" />
+    <Compile Include="Services\OpenRGB\IAmbinityClient.cs" />
+    <Compile Include="Services\model\SerialPort\ISerialPortWrapper.cs" />
+    <Compile Include="Services\SerialStream\ISerialStream.cs" />
+    <Compile Include="Services\model\ControlMode\Mode\LightingMode.cs" />
+    <Compile Include="Services\NetworkStream.cs" />
+    <Compile Include="Services\OpenRGBClientDevice.cs" />
+    <Compile Include="Services\OpenRGB\AmbinityClient.cs" />
+    <Compile Include="Services\PaletteCardContextMenu.cs" />
+    <Compile Include="Services\RainbowTicker.cs" />
+    <Compile Include="Services\SerialDeviceDetection.cs" />
+    <Compile Include="Services\OpenRGBStream.cs" />
+    <Compile Include="Services\SerialStream.cs" />
+    <Compile Include="Services\StartupManager.cs" />
+    <Compile Include="Services\SubParameter.cs" />
+    <Compile Include="Services\Tick.cs" />
+    <Compile Include="Services\TickEnum.cs" />
+    <Compile Include="Services\UpdateVisitor.cs" />
+    <Compile Include="Services\MIDDataModel.cs" />
+    <Compile Include="Services\VisualizerDataModel.cs" />
+    <Compile Include="Services\VIDDirrection.cs" />
+    <Compile Include="Services\VIDToolBarDataModel.cs" />
+    <Compile Include="Services\VIDDataModel.cs" />
+    <Compile Include="Services\VIDType.cs" />
+    <Compile Include="Services\VisualizerProgressBar.cs" />
+    <Compile Include="Services\WinApi.cs" />
+    <Compile Include="Services\WrappedSerialPort.cs" />
     <Compile Include="Converter\BrushToHexConverter.cs" />
     <Compile Include="Converter\ColorToBrushConverter.cs" />
     <Compile Include="Converter\ImageConverter.cs" />
@@ -982,6 +954,8 @@
       <Name>TimeLineTool</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

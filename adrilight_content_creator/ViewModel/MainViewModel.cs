@@ -1,9 +1,8 @@
-﻿using adrilight;
-using adrilight.Helpers;
-using adrilight.Settings;
-using adrilight.Spots;
+﻿//using adrilight.Helpers;
+//using adrilight.Settings;
+//using adrilight.Spots;
 using adrilight_content_creator.View;
-using adrilight_effect_analyzer.Model;
+//using adrilight_effect_analyzer.Model;
 using Newtonsoft.Json;
 using SharpVectors.Converters;
 using SharpVectors.Renderers.Wpf;
@@ -24,7 +23,7 @@ using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Threading;
 using System.Xml;
-using static adrilight.ViewModel.MainViewViewModel;
+//using static adrilight.ViewModel.MainViewViewModel;
 using File = System.IO.File;
 using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
 
