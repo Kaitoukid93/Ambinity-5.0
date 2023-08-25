@@ -1,20 +1,11 @@
-﻿using GalaSoft.MvvmLight;
-using System;
-using System.Collections.Generic;
-using System.Windows.Media;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
-using TimeLineTool;
-using System.Collections.ObjectModel;
-using adrilight_effect_analyzer.Model;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using TimeLineTool;
 
-namespace adrilight.Util
+namespace adrilight_shared.Models.Composition
 {
-    public class MotionLayer:INotifyPropertyChanged // for displaying motion at rainbow control panel
+    public class MotionLayer : INotifyPropertyChanged // for displaying motion at rainbow control panel
     {
         public event PropertyChangedEventHandler PropertyChanged;
         private ObservableCollection<ITimeLineDataItem> _motions;
@@ -22,7 +13,8 @@ namespace adrilight.Util
         {
             Motions = new ObservableCollection<ITimeLineDataItem>();
         }
-       public ObservableCollection<ITimeLineDataItem> Motions {
+        public ObservableCollection<ITimeLineDataItem> Motions
+        {
             get { return _motions; }
             set { _motions = value; OnPropertyChanged(); }
         }

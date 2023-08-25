@@ -1,7 +1,8 @@
-﻿using GalaSoft.MvvmLight;
+﻿using adrilight_shared.Models.ControlMode.Enum;
+using GalaSoft.MvvmLight;
 using System.Collections.ObjectModel;
 
-namespace adrilight.Models.ControlMode.ModeParameters
+namespace adrilight_shared.Models.ControlMode.ModeParameters
 {
     public class SliderParameter : ViewModelBase, IModeParameter // parameter specific for lighting control
     {

@@ -1,10 +1,8 @@
-﻿using System;
+﻿using adrilight_shared.Enum;
+using adrilight_shared.Models.Device.Output;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace adrilight.Settings
+namespace adrilight_shared.Models.Device.Controller
 {
     public interface IDeviceController
     {

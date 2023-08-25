@@ -1,6 +1,8 @@
-﻿using adrilight.Spots;
-using adrilight.ViewModel;
+﻿using adrilight_shared.Enum;
+using adrilight_shared.Models.Device.Zone;
+using adrilight_shared.Models.Drawable;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
 using Newtonsoft.Json;
 using System;
 using System.Collections.ObjectModel;
@@ -8,7 +10,8 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-namespace adrilight.Settings
+
+namespace adrilight_shared.Models.Device.SlaveDevice
 {
     public class PWMMotorSlaveDevice : ViewModelBase, ISlaveDevice, IDrawable
     {
@@ -51,7 +54,7 @@ namespace adrilight.Settings
         private double _height = 100;
         private VisualProperties _visualProperties;
         private bool _shouldBringIntoView;
-        private System.Windows.Point _directionPoint;
+        private Point _directionPoint;
         private RelayCommand<double> leftChangedCommand;
         private RelayCommand<double> topChangedCommand;
         private double _angle = 0;
@@ -100,7 +103,7 @@ namespace adrilight.Settings
 
         public bool ShouldBringIntoView { get => _shouldBringIntoView; set { Set(() => ShouldBringIntoView, ref _hasCustomBehavior, value); } }
 
-        public System.Windows.Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
+        public Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
 
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
 

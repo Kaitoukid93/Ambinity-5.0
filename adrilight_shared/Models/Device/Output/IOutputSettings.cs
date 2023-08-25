@@ -1,8 +1,9 @@
-﻿using adrilight.Settings;
+﻿using adrilight_shared.Enum;
+using adrilight_shared.Models.Device.SlaveDevice;
 using System.ComponentModel;
 using System.Drawing;
 
-namespace adrilight
+namespace adrilight_shared.Models.Device.Output
 {
     public interface IOutputSettings : INotifyPropertyChanged
     {

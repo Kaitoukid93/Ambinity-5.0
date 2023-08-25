@@ -1,7 +1,7 @@
 ﻿using GalaSoft.MvvmLight;
 using System.Windows.Media.Imaging;
 
-namespace adrilight.Settings
+namespace adrilight_shared.Models.Preview
 {
     public class DesktopFrameCard : ViewModelBase
     {

@@ -1,6 +1,4 @@
-﻿using adrilight.Helpers;
-using adrilight.Settings;
-using adrilight.Spots;
+﻿using adrilight_shared.Models.Device;
 using Microsoft.Win32;
 using Serilog;
 using System;

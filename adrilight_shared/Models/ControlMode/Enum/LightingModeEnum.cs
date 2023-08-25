@@ -1,4 +1,4 @@
-﻿namespace adrilight.Models.ControlMode.Enum
+﻿namespace adrilight_shared.Models.ControlMode.Enum
 {
     /// <summary>
     ///     Enum representing the various device types supported.

@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace adrilight.Helpers
+﻿namespace adrilight_shared.Models.Device.Zone
 {
     public class ZoneData
     {
-        public ZoneData(string name,int numLEDX, int numLEDY, int width, int height)
+        public ZoneData(string name, int numLEDX, int numLEDY, int width, int height)
         {
             NumLEDX = numLEDX;
             NumLEDY = numLEDY;

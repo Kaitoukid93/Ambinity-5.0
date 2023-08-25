@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace adrilight.DesktopDuplication
+namespace adrilight.Services.CaptureEngine.ScreenCapture
 {
     [Serializable]
     public class DesktopDuplicationException : Exception

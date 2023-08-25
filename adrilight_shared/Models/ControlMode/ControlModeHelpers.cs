@@ -1,11 +1,13 @@
-﻿using adrilight.Models.ControlMode.Enum;
-using adrilight.Models.ControlMode.Mode;
+﻿using adrilight_shared.Models.ControlMode.Enum;
+using adrilight_shared.Models.ControlMode.Mode;
+using adrilight_shared.Models.ControlMode.ModeParameters;
+using adrilight_shared.Models.Device.Zone;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 
-namespace adrilight.Models.ControlMode
+namespace adrilight_shared.Models.ControlMode
 {
     public class ControlModeHelpers
     {
@@ -27,10 +29,12 @@ namespace adrilight.Models.ControlMode
             zone.AvailableControlMode.Add(Gifxelation);
             return zone;
         }
-        public IControlMode ColorPalette {
+        public IControlMode ColorPalette
+        {
             get
             {
-                return new LightingMode() {
+                return new LightingMode()
+                {
                     Name = "Color Palette",
                     Geometry = "colorpalette",
                     BasedOn = LightingModeEnum.Rainbow,
@@ -42,10 +46,12 @@ namespace adrilight.Models.ControlMode
                 };
             }
         }
-        public IControlMode Animation {
+        public IControlMode Animation
+        {
             get
             {
-                return new LightingMode() {
+                return new LightingMode()
+                {
                     Name = "Animation",
                     Geometry = "animation",
                     BasedOn = LightingModeEnum.Animation,
@@ -56,10 +62,12 @@ namespace adrilight.Models.ControlMode
                 };
             }
         }
-        public IControlMode Gifxelation {
+        public IControlMode Gifxelation
+        {
             get
             {
-                return new LightingMode() {
+                return new LightingMode()
+                {
                     Name = "Gifxelation",
                     Geometry = "gifxelation",
                     BasedOn = LightingModeEnum.Gifxelation,
@@ -70,10 +78,12 @@ namespace adrilight.Models.ControlMode
                 };
             }
         }
-        public IControlMode ScreenCapturing {
+        public IControlMode ScreenCapturing
+        {
             get
             {
-                return new LightingMode() {
+                return new LightingMode()
+                {
                     Name = "Screen Capturing",
                     Geometry = "screencapture",
                     BasedOn = LightingModeEnum.ScreenCapturing,
@@ -88,10 +98,12 @@ namespace adrilight.Models.ControlMode
         /// <summary>
         /// Legacy Music mode
         /// </summary>
-        public IControlMode MusicReactive {
+        public IControlMode MusicReactive
+        {
             get
             {
-                return new LightingMode() {
+                return new LightingMode()
+                {
                     Name = "Music Reactive",
                     Geometry = "music",
                     BasedOn = LightingModeEnum.MusicCapturing,
@@ -103,10 +115,12 @@ namespace adrilight.Models.ControlMode
                 };
             }
         }
-        public IControlMode StaticColor {
+        public IControlMode StaticColor
+        {
             get
             {
-                return new LightingMode() {
+                return new LightingMode()
+                {
                     Name = "Static Color",
                     Geometry = "genericCircle",
                     BasedOn = LightingModeEnum.StaticColor,
@@ -118,10 +132,12 @@ namespace adrilight.Models.ControlMode
             }
         }
 
-        public IControlMode FanSpeedAuto {
+        public IControlMode FanSpeedAuto
+        {
             get
             {
-                return new PWMMode() {
+                return new PWMMode()
+                {
                     Name = "Auto Speed",
                     Geometry = "autoSpeed",
                     BasedOn = PWMModeEnum.auto,
@@ -133,10 +149,12 @@ namespace adrilight.Models.ControlMode
                 };
             }
         }
-        public IControlMode FanSpeedManual {
+        public IControlMode FanSpeedManual
+        {
             get
             {
-                return new PWMMode() {
+                return new PWMMode()
+                {
                     Name = "Manual Speed",
                     Geometry = "manualSpeed",
                     BasedOn = PWMModeEnum.manual,
@@ -156,7 +174,8 @@ namespace adrilight.Models.ControlMode
         public SliderParameter GenericSpeedParameter(int min, int max, int defaultValue)
         {
 
-            return new SliderParameter(min, max, defaultValue, ModeParameterEnum.Speed) {
+            return new SliderParameter(min, max, defaultValue, ModeParameterEnum.Speed)
+            {
                 Name = "Speed",
                 Description = "Speed of Motion",
                 Geometry = "speed"
@@ -164,20 +183,24 @@ namespace adrilight.Models.ControlMode
 
         }
 
-        public IModeParameter UseLinearLighting {
+        public IModeParameter UseLinearLighting
+        {
             get
             {
-                return new ToggleParameter(1, ModeParameterEnum.LinearLighting) {
+                return new ToggleParameter(1, ModeParameterEnum.LinearLighting)
+                {
 
                     Name = "Linear Lighting",
                     Description = "The Light Changes with linear brightness",
                 };
             }
         }
-        public IModeParameter IsSystemSync {
+        public IModeParameter IsSystemSync
+        {
             get
             {
-                return new ToggleParameter(1, ModeParameterEnum.IsSystemSync) {
+                return new ToggleParameter(1, ModeParameterEnum.IsSystemSync)
+                {
 
                     Name = "System Sync",
                     Description = "Đồng bộ với tốc độ hệ thống",
@@ -190,10 +213,12 @@ namespace adrilight.Models.ControlMode
                 };
             }
         }
-        public IModeParameter Breathing {
+        public IModeParameter Breathing
+        {
             get
             {
-                return new ToggleParameter(0, ModeParameterEnum.Breathing) {
+                return new ToggleParameter(0, ModeParameterEnum.Breathing)
+                {
 
                     Name = "Breathing",
                     Description = "LED sáng dần và tắt dần theo tốc độ",
@@ -214,20 +239,24 @@ namespace adrilight.Models.ControlMode
                 };
             }
         }
-        public IModeParameter IsEnabled {
+        public IModeParameter IsEnabled
+        {
             get
             {
-                return new ToggleParameter(1, ModeParameterEnum.IsEnabled) {
+                return new ToggleParameter(1, ModeParameterEnum.IsEnabled)
+                {
 
                     Name = "Enable",
                     Description = "Bật hoặc tắt chế độ này",
                 };
             }
         }
-        public IModeParameter GenericVIDSelectParameter {
+        public IModeParameter GenericVIDSelectParameter
+        {
             get
             {
-                return new ListSelectionParameter(ModeParameterEnum.VID) {
+                return new ListSelectionParameter(ModeParameterEnum.VID)
+                {
 
                     Name = "Chiều chạy",
                     Description = "Chọn chiều chạy của hiệu ứng",
@@ -240,10 +269,12 @@ namespace adrilight.Models.ControlMode
                 };
             }
         }
-        public IModeParameter GenericMIDSelectParameter {
+        public IModeParameter GenericMIDSelectParameter
+        {
             get
             {
-                return new ListSelectionParameter(ModeParameterEnum.MID) {
+                return new ListSelectionParameter(ModeParameterEnum.MID)
+                {
 
                     Name = "Tần số",
                     Description = "Chọn tần số cho từng vùng LED",
@@ -258,10 +289,12 @@ namespace adrilight.Models.ControlMode
             }
         }
 
-        public IModeParameter GenericColorSelectionParameter {
+        public IModeParameter GenericColorSelectionParameter
+        {
             get
             {
-                return new ListSelectionParameter(ModeParameterEnum.Color) {
+                return new ListSelectionParameter(ModeParameterEnum.Color)
+                {
 
                     Name = "Colors",
                     Description = "Available Colors",
@@ -273,10 +306,12 @@ namespace adrilight.Models.ControlMode
                 };
             }
         }
-        public IModeParameter GenericColorPaletteSelectionParameter {
+        public IModeParameter GenericColorPaletteSelectionParameter
+        {
             get
             {
-                return new ListSelectionParameter(ModeParameterEnum.Palette) {
+                return new ListSelectionParameter(ModeParameterEnum.Palette)
+                {
 
                     Name = "Palettes",
                     Description = "Available Palettes",
@@ -289,10 +324,12 @@ namespace adrilight.Models.ControlMode
                 };
             }
         }
-        public IModeParameter GenericColorPaletteAndSolidColorSelectionParameter {
+        public IModeParameter GenericColorPaletteAndSolidColorSelectionParameter
+        {
             get
             {
-                return new ListSelectionParameter(ModeParameterEnum.MixedColor) {
+                return new ListSelectionParameter(ModeParameterEnum.MixedColor)
+                {
 
                     Name = "Colors",
                     Description = "Available Colors",
@@ -308,10 +345,12 @@ namespace adrilight.Models.ControlMode
             }
         }
 
-        public IModeParameter GenericBrightnessParameter {
+        public IModeParameter GenericBrightnessParameter
+        {
             get
             {
-                return new SliderParameter(10, 100, 60, ModeParameterEnum.Brightness) {
+                return new SliderParameter(10, 100, 60, ModeParameterEnum.Brightness)
+                {
 
                     Name = "Brightness",
                     Geometry = "brightness",
@@ -320,10 +359,12 @@ namespace adrilight.Models.ControlMode
                 };
             }
         }
-        public IModeParameter GenericSmoothParameter {
+        public IModeParameter GenericSmoothParameter
+        {
             get
             {
-                return new SliderParameter(1, 7, 2, ModeParameterEnum.Smoothing) {
+                return new SliderParameter(1, 7, 2, ModeParameterEnum.Smoothing)
+                {
 
                     Name = "Smoothing",
                     Geometry = "smooth",
@@ -332,10 +373,12 @@ namespace adrilight.Models.ControlMode
                 };
             }
         }
-        public IModeParameter GenericLaunchScreenRegionSelectionButtonParameter {
+        public IModeParameter GenericLaunchScreenRegionSelectionButtonParameter
+        {
             get
             {
-                return new CapturingRegionSelectionButtonParameter(new CapturingRegion(0, 0, 1.0, 1.0), "screenRegionSelection") {
+                return new CapturingRegionSelectionButtonParameter(new CapturingRegion(0, 0, 1.0, 1.0), "screenRegionSelection")
+                {
 
                     Name = "Cài đặt vị trí",
                     Description = "Mở cửa sổ cài đặt vị trí capture",
@@ -344,10 +387,12 @@ namespace adrilight.Models.ControlMode
                 };
             }
         }
-        public IModeParameter GenericLaunchGifRegionSelectionButtonParameter {
+        public IModeParameter GenericLaunchGifRegionSelectionButtonParameter
+        {
             get
             {
-                return new CapturingRegionSelectionButtonParameter(new CapturingRegion(0, 0, 1.0, 1.0), "gifRegionSelection") {
+                return new CapturingRegionSelectionButtonParameter(new CapturingRegion(0, 0, 1.0, 1.0), "gifRegionSelection")
+                {
 
                     Name = "Cài đặt vị trí",
                     Description = "Mở cửa sổ cài đặt vị trí capture",
@@ -356,10 +401,12 @@ namespace adrilight.Models.ControlMode
                 };
             }
         }
-        public IModeParameter GenericLaunchAudioDeviceSelectionButtonParameter {
+        public IModeParameter GenericLaunchAudioDeviceSelectionButtonParameter
+        {
             get
             {
-                return new AudioDeviceSelectionButtonParameter("audioDevice") {
+                return new AudioDeviceSelectionButtonParameter("audioDevice")
+                {
 
                     Name = "Chọn đầu ra âm thanh",
                     Description = "Đầu ra âm thanh cần capture, thay đổi có ảnh hưởng đế tất cả thiết bị",
@@ -368,10 +415,12 @@ namespace adrilight.Models.ControlMode
                 };
             }
         }
-        public IModeParameter ChasingPatterns {
+        public IModeParameter ChasingPatterns
+        {
             get
             {
-                return new ListSelectionParameter(ModeParameterEnum.ChasingPattern) {
+                return new ListSelectionParameter(ModeParameterEnum.ChasingPattern)
+                {
                     Name = "Pattern",
                     Description = "The motion to be colored",
                     DataSourceLocaFolderNames = new List<string>() { "ChasingPatterns" },
@@ -382,10 +431,12 @@ namespace adrilight.Models.ControlMode
                 };
             }
         }
-        public IModeParameter Gifs {
+        public IModeParameter Gifs
+        {
             get
             {
-                return new ListSelectionParameter(ModeParameterEnum.Gifs) {
+                return new ListSelectionParameter(ModeParameterEnum.Gifs)
+                {
                     Name = "Gifs",
                     Description = "Các ảnh động có thể chọn",
                     DataSourceLocaFolderNames = new List<string>() { "Gifs" },

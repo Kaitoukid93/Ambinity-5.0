@@ -1,6 +1,6 @@
 ﻿using GalaSoft.MvvmLight;
 
-namespace adrilight.Settings
+namespace adrilight_shared.Models.Preview
 {
     public class GifCard : ViewModelBase
     {

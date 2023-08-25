@@ -1,5 +1,9 @@
-﻿using adrilight.Helpers;
-using adrilight.Util;
+﻿using adrilight_shared.Enum;
+using adrilight_shared.Helpers;
+using adrilight_shared.Models.ChasingPatternData;
+using adrilight_shared.Models.ColorData;
+using adrilight_shared.Models.ControlMode.Enum;
+using adrilight_shared.Models.GifData;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
 using System;
@@ -9,7 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 
-namespace adrilight.Models.ControlMode.ModeParameters
+namespace adrilight_shared.Models.ControlMode.ModeParameters
 {
     public class ListSelectionParameter : ViewModelBase, IModeParameter
     {
@@ -198,7 +202,8 @@ namespace adrilight.Models.ControlMode.ModeParameters
                                     OnlineCatergory = "Gif";
                                     foreach (var file in files)
                                     {
-                                        var data = new Gif() {
+                                        var data = new Gif()
+                                        {
                                             Name = Path.GetFileName(file),
                                             Description = "Ambino Default Gif Collection",
                                             LocalPath = file
@@ -218,7 +223,8 @@ namespace adrilight.Models.ControlMode.ModeParameters
                                     OnlineCatergory = "Pattern";
                                     foreach (var file in files)
                                     {
-                                        var data = new ChasingPattern() {
+                                        var data = new ChasingPattern()
+                                        {
                                             Name = Path.GetFileName(file),
                                             Description = "xxx",
                                             Type = ChasingPatternTypeEnum.BlacknWhite,

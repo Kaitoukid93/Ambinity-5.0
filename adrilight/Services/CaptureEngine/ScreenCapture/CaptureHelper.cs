@@ -27,7 +27,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Graphics.Capture;
 
-namespace adrilight.DesktopDuplication
+namespace adrilight.Services.CaptureEngine.ScreenCapture
 {
     public static class CaptureHelper
     {

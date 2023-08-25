@@ -1,13 +1,17 @@
-﻿using adrilight.Settings;
-using adrilight.ViewModel;
+﻿using adrilight_shared.Enum;
+using adrilight_shared.Models.Device.SlaveDevice;
+using adrilight_shared.Models.Device.Zone;
+using adrilight_shared.Models.Drawable;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
 using Newtonsoft.Json;
 using System;
 using System.Drawing;
 using System.Windows;
 using System.Windows.Input;
+using Point = System.Windows.Point;
 
-namespace adrilight
+namespace adrilight_shared.Models.Device.Output
 {
     public class OutputSettings : ViewModelBase, IOutputSettings, IDrawable
     {
@@ -82,7 +86,7 @@ namespace adrilight
         {
             //AvailableLightingMode = new List<ILightingMode>();
             VisualProperties = new VisualProperties();
-            Scale = new System.Windows.Point(1, 1);
+            Scale = new Point(1, 1);
         }
 
         //private int _outputGifSpeed = 20;
@@ -110,7 +114,7 @@ namespace adrilight
         //[Reflectable]
         //public IGifCard OutputSelectedGif { get => _outputSelectedGif; set { Set(() => OutputSelectedGif, ref _outputSelectedGif, value); } }
         public bool IsVissible { get => _isVissible; set { Set(() => IsVissible, ref _isVissible, value); } }
-        public bool IsLocked{ get => _isLocked; set { Set(() => IsLocked, ref _isLocked, value); } }
+        public bool IsLocked { get => _isLocked; set { Set(() => IsLocked, ref _isLocked, value); } }
         public bool OutputIsSelected { get => _outputIsSelected; set { Set(() => OutputIsSelected, ref _outputIsSelected, value); } }
         public Rectangle Rectangle { get; set; }
         public string OutputUniqueID { get => _outputUniqueID; set { Set(() => OutputUniqueID, ref _outputUniqueID, value); } }
@@ -233,7 +237,7 @@ namespace adrilight
         private double _height = 100;
         private VisualProperties _visualProperties;
         private bool _shouldBringIntoView;
-        private System.Windows.Point _directionPoint;
+        private Point _directionPoint;
         private RelayCommand<double> leftChangedCommand;
         private RelayCommand<double> topChangedCommand;
         private double _angle = 0;
@@ -274,7 +278,7 @@ namespace adrilight
 
         public bool ShouldBringIntoView { get => _shouldBringIntoView; set { Set(() => ShouldBringIntoView, ref _hasCustomBehavior, value); } }
 
-        public System.Windows.Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
+        public Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
 
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
 

@@ -1,8 +1,10 @@
-﻿using adrilight.Helpers;
-using adrilight.Resources;
-using adrilight.Settings;
+﻿using adrilight.Resources;
 using adrilight.Util;
 using adrilight.ViewModel;
+using adrilight_shared.Enum;
+using adrilight_shared.Helpers;
+using adrilight_shared.Models.Device;
+using adrilight_shared.Models.Device.Zone;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -11,7 +13,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace adrilight
+namespace adrilight.Services.DeviceDiscoveryServices
 {
     internal class DeviceDiscovery
     {
@@ -141,7 +143,7 @@ namespace adrilight
                         }
                         var convertedDevice = new SlaveDeviceHelpers().DefaultCreateOpenRGBDevice(openRGBDevice.Type, deviceName, openRGBDevice.Location, openRGBDevice.Serial, deviceUID);
                         var zonesData = new ZoneData[openRGBDevice.Zones.Length];
-                        for (int i = 0; i < openRGBDevice.Zones.Length; i++)
+                        for (var i = 0; i < openRGBDevice.Zones.Length; i++)
                         {
                             var currentZone = openRGBDevice.Zones[i];
                             ZoneData currentZoneData = null;

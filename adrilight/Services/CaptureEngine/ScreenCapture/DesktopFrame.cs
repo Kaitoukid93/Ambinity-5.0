@@ -1,6 +1,6 @@
-﻿using adrilight.DesktopDuplication;
-using adrilight.Spots;
-using adrilight.ViewModel;
+﻿using adrilight.ViewModel;
+using adrilight_shared.Helpers;
+using adrilight_shared.Models.FrameData;
 using GalaSoft.MvvmLight;
 using Polly;
 using Serilog;
@@ -15,7 +15,7 @@ using Windows.Foundation.Metadata;
 using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX.Direct3D11;
 
-namespace adrilight
+namespace adrilight.Services.CaptureEngine.ScreenCapture
 {
     internal class DesktopFrame : ViewModelBase, ICaptureEngine
     {
@@ -89,10 +89,10 @@ namespace adrilight
             IEnumerable<MonitorInfo> monitors = MonitorEnumerationHelper.GetMonitors();
             Frames = new ByteFrame[monitors.Count()];
             _captures = new BasicCapture[monitors.Count()];
-            int index = 0;
+            var index = 0;
             foreach (var monitor in monitors)
             {
-                Thread workerThread = new Thread(() => Run(monitor, index++)) {
+                var workerThread = new Thread(() => Run(monitor, index++)) {
                     IsBackground = true,
                     Priority = ThreadPriority.BelowNormal,
                     Name = "WCG" + monitor.DeviceName
@@ -114,10 +114,10 @@ namespace adrilight
             Frames = new ByteFrame[monitors.Count()];
             _device = Direct3D11Helper.CreateDevice();
             _captures = new BasicCapture[monitors.Count()];
-            int index = 0;
+            var index = 0;
             foreach (var monitor in monitors)
             {
-                Thread workerThread = new Thread(() => Run(monitor, index++)) {
+                var workerThread = new Thread(() => Run(monitor, index++)) {
                     IsBackground = true,
                     Priority = ThreadPriority.BelowNormal,
                     Name = "WCG" + monitor.DeviceName
@@ -178,7 +178,7 @@ namespace adrilight
                     {
                         MainViewModel.DesktopsPreviewUpdate(Frames[screenIndex], screenIndex);
                     }
-                    int minFrameTimeInMs = 1000 / 30;
+                    var minFrameTimeInMs = 1000 / 30;
                     var elapsedMs = (int)frameTime.ElapsedMilliseconds;
                     if (elapsedMs < minFrameTimeInMs)
                     {
@@ -188,7 +188,7 @@ namespace adrilight
             }
             catch (Exception ex)
             {
-                Log.Error(ex, this.ToString());
+                Log.Error(ex, ToString());
             }
         }
 
@@ -196,7 +196,7 @@ namespace adrilight
         {
             Log.Information("Stop called for WCG");
             _state = RunningState.Canceling;
-            for (int i = 0; i < _workerThreads.Count(); i++)
+            for (var i = 0; i < _workerThreads.Count(); i++)
             {
                 if (_workerThreads[i] == null) return;
                 //_captures[i]?.Dispose();

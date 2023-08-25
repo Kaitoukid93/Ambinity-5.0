@@ -1,8 +1,9 @@
 ﻿
+using adrilight_shared.Models.ControlMode.Enum;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
-namespace adrilight.Models.ControlMode.ModeParameters
+namespace adrilight_shared.Models.ControlMode.ModeParameters
 {
     public interface IModeParameter : INotifyPropertyChanged
     {

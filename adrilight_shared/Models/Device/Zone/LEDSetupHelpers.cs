@@ -1,10 +1,11 @@
-﻿using adrilight.Models.ControlMode;
+﻿using adrilight_shared.Models.ControlMode;
+using adrilight_shared.Models.Device.Zone.Spot;
 using System;
 using System.Collections.ObjectModel;
 using System.Windows.Forms;
 using System.Windows.Media;
 
-namespace adrilight.Spots
+namespace adrilight_shared.Models.Device.Zone
 {
     public class LEDSetupHelpers
     {
@@ -50,8 +51,8 @@ namespace adrilight.Spots
             if (spotsY == 0)
                 spotsY = 1;
             IDeviceSpot[] spotSet = new DeviceSpot[spotsX * spotsY];
-            var compareWidth = (rectwidth - (spacing * (spotsX + 1))) / spotsX;
-            var compareHeight = (rectheight - (spacing * (spotsY + 1))) / spotsY;
+            var compareWidth = (rectwidth - spacing * (spotsX + 1)) / spotsX;
+            var compareHeight = (rectheight - spacing * (spotsY + 1)) / spotsY;
             var spotSize = Math.Min(compareWidth, compareHeight);
 
             //var startPoint = (Math.Max(rectheight,rectwidth) - spotSize * Math.Min(spotsX, spotsY))/2;
@@ -62,15 +63,16 @@ namespace adrilight.Spots
             {
                 for (var i = 0; i < spotsX; i++)
                 {
-                    var x = spacing * i + (rectwidth - (spotsX * spotSize) - spacing * (spotsX - 1)) / 2 + i * spotSize;
-                    var y = spacing * j + (rectheight - (spotsY * spotSize) - spacing * (spotsY - 1)) / 2 + j * spotSize;
+                    var x = spacing * i + (rectwidth - spotsX * spotSize - spacing * (spotsX - 1)) / 2 + i * spotSize;
+                    var y = spacing * j + (rectheight - spotsY * spotSize - spacing * (spotsY - 1)) / 2 + j * spotSize;
                     var index = counter;
                     double scaleLeft = x / rectwidth;
                     double scaleTop = y / rectheight;
                     double scaleWidth = spotSize / rectwidth;
                     double scaleHeight = spotSize / rectheight;
                     var geometry = Geometry.Parse("M0 0H100V100H0V0Z").Clone();
-                    geometry.Transform = new TransformGroup {
+                    geometry.Transform = new TransformGroup
+                    {
                         Children = new TransformCollection
                         {
                          new ScaleTransform(spotSize/100, spotSize/100),

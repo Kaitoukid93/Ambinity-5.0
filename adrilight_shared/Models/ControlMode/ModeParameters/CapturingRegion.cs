@@ -1,4 +1,4 @@
-﻿namespace adrilight.Models.ControlMode.ModeParameters
+﻿namespace adrilight_shared.Models.ControlMode.ModeParameters
 {
     public class CapturingRegion
     {

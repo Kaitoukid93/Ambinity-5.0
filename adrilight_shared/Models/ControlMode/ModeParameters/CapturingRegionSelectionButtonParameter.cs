@@ -1,7 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using adrilight_shared.Models.ControlMode.Enum;
+using Newtonsoft.Json;
 using System.Windows;
 
-namespace adrilight.Models.ControlMode.ModeParameters
+namespace adrilight_shared.Models.ControlMode.ModeParameters
 {
     public class CapturingRegionSelectionButtonParameter : BaseButtonParameter // parameter specific for lighting control
     {

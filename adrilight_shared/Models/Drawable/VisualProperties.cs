@@ -1,7 +1,7 @@
 ﻿using GalaSoft.MvvmLight;
 using System.Windows.Media;
 
-namespace adrilight.ViewModel
+namespace adrilight_shared.Models.Drawable
 {
     public class VisualProperties : ObservableObject
     {
@@ -9,11 +9,13 @@ namespace adrilight.ViewModel
         private Color _fillColor = Colors.Red;
         private Color _borderColor = Colors.Red;
 
-        public Color FillColor {
+        public Color FillColor
+        {
             get { return _fillColor; }
             set { _fillColor = value; }
         }
-        public Color BorderColor {
+        public Color BorderColor
+        {
             get { return _borderColor; }
             set { _borderColor = value; }
         }

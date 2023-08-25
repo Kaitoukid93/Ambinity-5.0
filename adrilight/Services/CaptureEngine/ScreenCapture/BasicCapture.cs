@@ -1,5 +1,4 @@
-﻿
-using Serilog;
+﻿using Serilog;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using System;
@@ -12,7 +11,7 @@ using Windows.Graphics.DirectX.Direct3D11;
 using Windows.UI.Composition;
 using MapFlags = SharpDX.Direct3D11.MapFlags;
 
-namespace adrilight.DesktopDuplication
+namespace adrilight.Services.CaptureEngine.ScreenCapture
 {
     public class BasicCapture : IDisposable
     {
@@ -25,7 +24,7 @@ namespace adrilight.DesktopDuplication
         private ShaderResourceView _smallerTextureView;
         private IDirect3DDevice device;
         private SharpDX.Direct3D11.Device d3dDevice;
-        private SharpDX.DXGI.SwapChain1 swapChain;
+        private SwapChain1 swapChain;
         private const int mipMapLevel = 3;
         private const int scalingFactor = 1 << mipMapLevel;
         public object Lock { get; } = new object();
@@ -35,24 +34,24 @@ namespace adrilight.DesktopDuplication
             device = d;
             d3dDevice = Direct3D11Helper.CreateSharpDXDevice(device);
 
-            var dxgiFactory = new SharpDX.DXGI.Factory2();
-            var description = new SharpDX.DXGI.SwapChainDescription1() {
+            var dxgiFactory = new Factory2();
+            var description = new SwapChainDescription1() {
                 Width = item.Size.Width,
                 Height = item.Size.Height,
-                Format = SharpDX.DXGI.Format.B8G8R8A8_UNorm,
+                Format = Format.B8G8R8A8_UNorm,
                 Stereo = false,
-                SampleDescription = new SharpDX.DXGI.SampleDescription() {
+                SampleDescription = new SampleDescription() {
                     Count = 1,
                     Quality = 0
                 },
-                Usage = SharpDX.DXGI.Usage.RenderTargetOutput,
+                Usage = Usage.RenderTargetOutput,
                 BufferCount = 2,
-                Scaling = SharpDX.DXGI.Scaling.Stretch,
-                SwapEffect = SharpDX.DXGI.SwapEffect.FlipSequential,
-                AlphaMode = SharpDX.DXGI.AlphaMode.Premultiplied,
-                Flags = SharpDX.DXGI.SwapChainFlags.None
+                Scaling = Scaling.Stretch,
+                SwapEffect = SwapEffect.FlipSequential,
+                AlphaMode = AlphaMode.Premultiplied,
+                Flags = SwapChainFlags.None
             };
-            swapChain = new SharpDX.DXGI.SwapChain1(dxgiFactory, d3dDevice, ref description);
+            swapChain = new SwapChain1(dxgiFactory, d3dDevice, ref description);
 
             framePool = Direct3D11CaptureFramePool.CreateFreeThreaded(
                 device,
@@ -158,16 +157,16 @@ namespace adrilight.DesktopDuplication
             // Get the desktop capture texture
             var mapSource = d3dDevice.ImmediateContext.MapSubresource(_stagingTexture, 0, MapMode.Read, MapFlags.None);
             //Rectangle frame;
-            int height = lastSize.Height / 8;
-            int width = lastSize.Width / 8;
+            var height = lastSize.Height / 8;
+            var width = lastSize.Width / 8;
 
             // Copy pixels from screen capture Texture to GDI bitmap
             var sourcePtr = mapSource.DataPointer;
-            int bitsPerPixel = ((int)PixelFormat.Format32bppRgb & 0xff00) >> 8;
-            int bytesPerPixel = (bitsPerPixel + 7) / 8;
-            int stride = 4 * ((width * bytesPerPixel + 3) / 4);
-            int bytes = Math.Abs(stride) * height;
-            byte[] rgbValues = new byte[bytes];
+            var bitsPerPixel = ((int)PixelFormat.Format32bppRgb & 0xff00) >> 8;
+            var bytesPerPixel = (bitsPerPixel + 7) / 8;
+            var stride = 4 * ((width * bytesPerPixel + 3) / 4);
+            var bytes = Math.Abs(stride) * height;
+            var rgbValues = new byte[bytes];
             if (mapSource.RowPitch == stride)
             {
                 //fast copy
@@ -176,7 +175,7 @@ namespace adrilight.DesktopDuplication
             else
             {
                 //safe copy
-                for (int y = 0; y < height; y++)
+                for (var y = 0; y < height; y++)
                 {
                     // Copy a single line 
                     System.Runtime.InteropServices.Marshal.Copy(sourcePtr, rgbValues, y * stride, width * 4);
@@ -218,8 +217,8 @@ namespace adrilight.DesktopDuplication
                         2,
                         lastSize.Width,
                         lastSize.Height,
-                        SharpDX.DXGI.Format.B8G8R8A8_UNorm,
-                        SharpDX.DXGI.SwapChainFlags.None);
+                        Format.B8G8R8A8_UNorm,
+                        SwapChainFlags.None);
                 }
 
                 //  using (var backBuffer = swapChain.GetBackBuffer<SharpDX.Direct3D11.Texture2D>(0))

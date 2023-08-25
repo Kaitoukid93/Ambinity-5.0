@@ -1,9 +1,10 @@
-﻿using System;
+﻿using adrilight_shared.Models.Device.Zone;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 
-namespace adrilight.Spots
+namespace adrilight_shared.Models.Drawable
 {
     public class DrawableHelpers
     {
@@ -95,15 +96,16 @@ namespace adrilight.Spots
             double angleInRadians = angleInDegrees * (Math.PI / 180);
             double cosTheta = Math.Cos(angleInRadians);
             double sinTheta = Math.Sin(angleInRadians);
-            return new Point {
+            return new Point
+            {
                 X =
 
-                    (cosTheta * (pointToRotate.X - centerPoint.X) -
-                    sinTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.X),
+                    cosTheta * (pointToRotate.X - centerPoint.X) -
+                    sinTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.X,
                 Y =
 
-                    (sinTheta * (pointToRotate.X - centerPoint.X) +
-                    cosTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.Y)
+                    sinTheta * (pointToRotate.X - centerPoint.X) +
+                    cosTheta * (pointToRotate.Y - centerPoint.Y) + centerPoint.Y
             };
         }
         public Rect RotateRectangle(Rect inputRect, Point centerPoint, double angleInDegrees)

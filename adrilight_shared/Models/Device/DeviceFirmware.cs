@@ -1,13 +1,7 @@
-﻿using adrilight.ViewModel;
+﻿using adrilight_shared.Enum;
 using GalaSoft.MvvmLight;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace adrilight.Settings
+namespace adrilight_shared.Models.Device
 {
     public class DeviceFirmware : ViewModelBase
     {

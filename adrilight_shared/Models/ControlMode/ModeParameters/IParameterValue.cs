@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace adrilight.Models.ControlMode.ModeParameters
+namespace adrilight_shared.Models.ControlMode.ModeParameters
 {
     public interface IParameterValue : INotifyPropertyChanged
     {

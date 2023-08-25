@@ -1,10 +1,9 @@
-﻿using adrilight.ViewModel;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 
-namespace adrilight
+namespace adrilight_shared.Models.Drawable
 {
     public interface IDrawable : INotifyPropertyChanged
     {

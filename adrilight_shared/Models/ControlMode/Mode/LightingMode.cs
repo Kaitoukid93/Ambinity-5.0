@@ -1,11 +1,11 @@
-﻿using adrilight.Models.ControlMode.Enum;
-using adrilight.Util.ModeParameters;
+﻿using adrilight_shared.Models.ControlMode.Enum;
+using adrilight_shared.Models.ControlMode.ModeParameters;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace adrilight.Models.ControlMode.Mode
+namespace adrilight_shared.Models.ControlMode.Mode
 {
     internal class LightingMode : ViewModelBase, IControlMode
     {

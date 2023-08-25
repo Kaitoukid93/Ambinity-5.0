@@ -1,4 +1,5 @@
-﻿using GalaSoft.MvvmLight;
+﻿using adrilight_shared.Models.KeyboardHook;
+using GalaSoft.MvvmLight;
 using NonInvasiveKeyboardHookLibrary;
 using System.Collections.ObjectModel;
 

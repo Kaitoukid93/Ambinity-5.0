@@ -26,7 +26,7 @@ using System;
 using System.Runtime.InteropServices;
 using Windows.UI.Composition;
 
-namespace adrilight.DesktopDuplication
+namespace adrilight.Services.CaptureEngine.ScreenCapture
 {
     public static class CompositionHelper
     {
@@ -59,7 +59,7 @@ namespace adrilight.DesktopDuplication
 
         public static CompositionTarget CreateDesktopWindowTarget(this Compositor compositor, IntPtr hwnd, bool isTopmost)
         {
-            var desktopInterop = (ICompositorDesktopInterop)((object)compositor);
+            var desktopInterop = (ICompositorDesktopInterop)(object)compositor;
             return desktopInterop.CreateDesktopWindowTarget(hwnd, isTopmost);
         }
 

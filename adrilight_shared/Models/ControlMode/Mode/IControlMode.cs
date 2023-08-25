@@ -1,8 +1,8 @@
-﻿using adrilight.Util;
+﻿using adrilight_shared.Models.ControlMode.ModeParameters;
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace adrilight.Models.ControlMode.Mode
+namespace adrilight_shared.Models.ControlMode.Mode
 {
     public interface IControlMode : INotifyPropertyChanged
     {

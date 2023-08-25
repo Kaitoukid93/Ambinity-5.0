@@ -1,4 +1,4 @@
-﻿namespace adrilight.Models.ControlMode.Enum
+﻿namespace adrilight_shared.Models.ControlMode.Enum
 {
     public enum PWMModeEnum
     {

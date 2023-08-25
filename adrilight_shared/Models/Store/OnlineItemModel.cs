@@ -1,10 +1,10 @@
-﻿using adrilight.Settings;
+﻿using adrilight_shared.Models.Device;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Windows.Media.Imaging;
 
-namespace adrilight.Util
+namespace adrilight_shared.Models.Store
 {
     public class OnlineItemModel : ViewModelBase // this for displaying on the store
     {

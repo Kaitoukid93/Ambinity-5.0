@@ -204,9 +204,6 @@
     <Compile Include="View\Adorners\ResizeAdorner.cs" />
     <Compile Include="View\Adorners\ResizeLineAdorner.cs" />
     <Compile Include="App.xaml.cs" />
-    <Compile Include="Converter\BoolToBorderThicknessConverter.cs" />
-    <Compile Include="Converter\CommandToListConverter.cs" />
-    <Compile Include="Converter\ToUpperValueConverter.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\BasicCapture.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\CaptureHelper.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\CompositionHelper.cs" />
@@ -216,14 +213,12 @@
     <Compile Include="Services\LightingEngine\Gifxelation\Gifxelation.cs" />
     <Compile Include="Services\LightingEngine\ScreenCapturing\DesktopDuplicatorReader.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\Direct3D11Helper.cs" />
-    <Compile Include="Services\CaptureEngine\ScreenCapture\ICaptureEngine.cs" />
+    <Compile Include="Services\CaptureEngine\ICaptureEngine.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\MonitorEnumerationHelper.cs" />
     <Compile Include="Extension\EnumExtensions.cs" />
     <Compile Include="View\Adorners\AttachedAdorner.cs" />
     <Compile Include="View\Helpers\CheckComBoBoxHelper.cs" />
-    <Compile Include="Services\LightingEngine\Music\DancingModeEnum.cs" />
     <Compile Include="View\Helpers\EventToCommand.cs" />
-    <Compile Include="Helpers\SimpleStringParameterValue.cs" />
     <Compile Include="Helpers\perSizeBindingHelper.cs" />
     <Compile Include="Context\IContext.cs" />
     <Compile Include="Context\WpfContext.cs" />
@@ -236,20 +231,16 @@
     <Compile Include="Services\NetworkStream\XmlApiResponse.cs" />
     <Compile Include="Services\NetworkStream\XmlApiResponseParser.cs" />
     <Compile Include="Services\LightingEngine\Music\Music.cs" />
-    <Compile Include="Services\LightingEngine\Animation\ChasingPatternTypeEnum.cs" />
     <Compile Include="Services\LightingEngine\ILightingEngine.cs" />
     <Compile Include="View\Methods\NativeMethods.cs" />
     <Compile Include="Services\DeviceDiscoveryServices\DeviceDiscovery.cs" />
     <Compile Include="Services\Updaters\AdrilightUpdater.cs" />
     <Compile Include="Helpers\AssemblyHelper.cs" />
     <Compile Include="Services\CaptureEngine\AudioCapture\AudioFrame.cs" />
-    <Compile Include="Services\ColorsDataModel\ColorPalette.cs" />
     <Compile Include="Services\HWMonitor\Computer.cs" />
-    <Compile Include="Services\LightingEngine\ScreenCapturing\FpsLogger.cs" />
     <Compile Include="Services\LightingEngine\Animation\Animation.cs" />
     <Compile Include="Services\LightingEngine\ColorPalette\Rainbow.cs" />
     <Compile Include="Services\LightingEngine\StaticColor\StaticColor.cs" />
-    <Compile Include="Services\ColorsDataModel\ColorCard.cs" />
     <Compile Include="Services\HWMonitor\HWMonitor.cs" />
     <Compile Include="Services\HWMonitor\IComputer.cs" />
     <Compile Include="Services\OpenRGB\IAmbinityClient.cs" />
@@ -261,24 +252,10 @@
     <Compile Include="Services\OpenRGB\OpenRGBStream.cs" />
     <Compile Include="Services\SerialStream\SerialStream.cs" />
     <Compile Include="Manager\StartupManager.cs" />
-    <Compile Include="Services\Ticker\Tick.cs" />
-    <Compile Include="Services\Ticker\TickEnum.cs" />
     <Compile Include="Services\HWMonitor\UpdateVisitor.cs" />
-    <Compile Include="Services\LightingEngine\Music\MIDDataModel.cs" />
-    <Compile Include="Services\LightingEngine\ColorPalette\VIDDirrection.cs" />
-    <Compile Include="Services\LightingEngine\ColorPalette\VIDToolBarDataModel.cs" />
-    <Compile Include="Services\LightingEngine\ColorPalette\VIDDataModel.cs" />
-    <Compile Include="Services\LightingEngine\ColorPalette\VIDType.cs" />
+    <Compile Include="ViewModel\VIDToolBarDataModel.cs" />
     <Compile Include="Services\SerialStream\WinApi.cs" />
     <Compile Include="Services\SerialStream\WrappedSerialPort.cs" />
-    <Compile Include="Converter\BrushToHexConverter.cs" />
-    <Compile Include="Converter\ColorToBrushConverter.cs" />
-    <Compile Include="Converter\ImageConverter.cs" />
-    <Compile Include="Converter\Inverseboolvisibility .cs" />
-    <Compile Include="Converter\ItemToStringConverter.cs" />
-    <Compile Include="Converter\StaticResourceConverter.cs" />
-    <Compile Include="Converter\ThicknessToDoubleConverter.cs" />
-    <Compile Include="Services\CaptureEngine\ScreenCapture\ByteFrame.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\DesktopDuplicationException.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\DesktopFrame.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\IDesktopDuplicatorReader.cs" />
@@ -753,9 +730,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\adrilight_effect_analyzer\adrilight_effect_analyzer.csproj">
-      <Project>{8966a6b0-cec4-4337-a5be-af363303e02a}</Project>
-      <Name>adrilight_effect_analyzer</Name>
+    <ProjectReference Include="..\adrilight_shared\adrilight_shared.csproj">
+      <Project>{808cf0c2-f33b-4cfb-9d34-8ec8115cb2c2}</Project>
+      <Name>adrilight_shared</Name>
     </ProjectReference>
     <ProjectReference Include="..\FTPServer\FTPServer.csproj">
       <Project>{5B8BF436-7610-4335-80EB-809A7E7A655F}</Project>
@@ -770,8 +747,6 @@
       <Name>TimeLineTool</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="View\Controls\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

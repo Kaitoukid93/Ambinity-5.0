@@ -1,22 +1,12 @@
-﻿using adrilight.Spots;
-using adrilight.Util;
-using GalaSoft.MvvmLight;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
-using NonInvasiveKeyboardHookLibrary;
+﻿using GalaSoft.MvvmLight;
 
-namespace adrilight
+namespace adrilight_shared.Models.KeyboardHook
 {
     public class KeyModel : ViewModelBase
     {
         public string Name { get; set; }
         public int KeyCode { get; set; }
 
-     
+
     }
 }

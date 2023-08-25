@@ -3,41 +3,42 @@ using System.IO;
 using System.Reflection;
 
 namespace adrilight_shared.Helpers
-    public class ResourceHelpers
 {
-    public ResourceHelpers()
+    public class ResourceHelpers
     {
-
-    }
-    public void CopyResource(string resourceName, string file)
-    {
-        var assembly = Assembly.GetExecutingAssembly();
-        try
+        public ResourceHelpers()
         {
-            using (Stream resource = assembly.GetManifestResourceStream(resourceName))
+
+        }
+        public void CopyResource(string resourceName, string file)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            try
             {
-                if (resource == null)
+                using (Stream resource = assembly.GetManifestResourceStream(resourceName))
                 {
-                    throw new ArgumentException("No such resource", "resourceName");
-                }
-                using (Stream output = File.OpenWrite(file))
-                {
-                    resource.CopyTo(output);
+                    if (resource == null)
+                    {
+                        throw new ArgumentException("No such resource", "resourceName");
+                    }
+                    using (Stream output = File.OpenWrite(file))
+                    {
+                        resource.CopyTo(output);
+                    }
                 }
             }
+            catch
+            {
+
+            }
+
         }
-        catch
+        public string[] GetResourceFileName()
         {
+            var assembly = Assembly.GetExecutingAssembly();
+            return assembly.GetManifestResourceNames();
+
 
         }
-
     }
-    public string[] GetResourceFileName()
-    {
-        var assembly = Assembly.GetExecutingAssembly();
-        return assembly.GetManifestResourceNames();
-
-
-    }
-}
 }

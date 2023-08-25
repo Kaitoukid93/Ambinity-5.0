@@ -17,6 +17,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>Latest</LangVersion>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -27,6 +28,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>Latest</LangVersion>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -50,8 +52,47 @@
     <Reference Include="GalaSoft.MvvmLight.Platform, Version=5.4.1.0, Culture=neutral, PublicKeyToken=5f873c45e98af8a1, processorArchitecture=MSIL">
       <HintPath>..\packages\MvvmLightLibs.5.4.1.1\lib\net45\GalaSoft.MvvmLight.Platform.dll</HintPath>
     </Reference>
+    <Reference Include="HandyControl, Version=3.4.0.0, Culture=neutral, PublicKeyToken=45be8712787a1e5b, processorArchitecture=MSIL">
+      <HintPath>..\packages\HandyControls.3.4.5\lib\net472\HandyControl.dll</HintPath>
+    </Reference>
+    <Reference Include="LiveCharts, Version=0.9.7.0, Culture=neutral, PublicKeyToken=0bc1f845d1ebb8df, processorArchitecture=MSIL">
+      <HintPath>..\packages\LiveCharts.0.9.7\lib\net45\LiveCharts.dll</HintPath>
+    </Reference>
+    <Reference Include="LiveCharts.Wpf, Version=0.9.7.0, Culture=neutral, PublicKeyToken=0bc1f845d1ebb8df, processorArchitecture=MSIL">
+      <HintPath>..\packages\LiveCharts.Wpf.0.9.7\lib\net45\LiveCharts.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack-Core.1.1.1\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WindowsAPICodePack-Shell.1.1.1\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
+    </Reference>
+    <Reference Include="MoreLinq, Version=3.0.0.0, Culture=neutral, PublicKeyToken=384d532d7e88985d, processorArchitecture=MSIL">
+      <HintPath>..\packages\morelinq.3.0.0\lib\net451\MoreLinq.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NonInvasiveKeyboardHookLibrary, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NonInvasiveKeyboardHookLibrary.2.1.0\lib\net452\NonInvasiveKeyboardHookLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenRGB.NET, Version=1.7.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenRGB.NET.1.7.0\lib\netstandard2.0\OpenRGB.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.3.0.1\lib\net471\Serilog.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Reactive, Version=4.1.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Reactive.4.1.0-preview.84\lib\net46\System.Reactive.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\MvvmLightLibs.5.4.1.1\lib\net45\System.Windows.Interactivity.dll</HintPath>
     </Reference>
@@ -69,8 +110,19 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Enum\Class1.cs" />
+    <Compile Include="Converter\BoolToBorderThicknessConverter.cs" />
+    <Compile Include="Converter\BrushToHexConverter.cs" />
+    <Compile Include="Converter\ColorToBrushConverter.cs" />
+    <Compile Include="Converter\CommandToListConverter.cs" />
+    <Compile Include="Converter\ImageConverter.cs" />
+    <Compile Include="Converter\Inverseboolvisibility .cs" />
+    <Compile Include="Converter\ItemToStringConverter.cs" />
+    <Compile Include="Converter\StaticResourceConverter.cs" />
+    <Compile Include="Converter\ThicknessToDoubleConverter.cs" />
+    <Compile Include="Converter\ToUpperValueConverter.cs" />
+    <Compile Include="Enum\ChasingPatternTypeEnum.cs" />
     <Compile Include="Enum\ControllerTypeEnum.cs" />
+    <Compile Include="Enum\DancingModeEnum.cs" />
     <Compile Include="Enum\DeserializeMethodEnum.cs" />
     <Compile Include="Enum\DeviceConnectionTypeEnum.cs" />
     <Compile Include="Enum\DeviceStateEnum.cs" />
@@ -79,7 +131,6 @@
     <Compile Include="Enum\OutputTypeEnum.cs" />
     <Compile Include="Enum\RGBLEDOrderEnum.cs" />
     <Compile Include="Enum\SlaveDeviceTypeEnum.cs" />
-    <Compile Include="Helpers\Class1.cs" />
     <Compile Include="Helpers\JsonHelpers.cs" />
     <Compile Include="Helpers\LocalFileHelpers.cs" />
     <Compile Include="Helpers\ObjectHelpers.cs" />
@@ -100,8 +151,10 @@
     <Compile Include="Models\Automation\SystemEventEnum.cs" />
     <Compile Include="Models\Automation\SystemEventTriggerCondition.cs" />
     <Compile Include="Models\Automation\TriggerCondition.cs" />
-    <Compile Include="Models\ChasingPattern\ChasingPattern.cs" />
-    <Compile Include="Models\Color\ColorEditingObject.cs" />
+    <Compile Include="Models\ChasingPatternData\ChasingPattern.cs" />
+    <Compile Include="Models\ColorData\ColorEditingObject.cs" />
+    <Compile Include="Models\ColorData\ColorCard.cs" />
+    <Compile Include="Models\ColorData\ColorPalette.cs" />
     <Compile Include="Models\Composition\Composition.cs" />
     <Compile Include="Models\Composition\MotionCard.cs" />
     <Compile Include="Models\Composition\MotionLayer.cs" />
@@ -120,12 +173,17 @@
     <Compile Include="Models\ControlMode\ModeParameters\IModeParameter.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\IParameterValue.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\ListSelectionParameter.cs" />
+    <Compile Include="Models\ControlMode\ModeParameters\MIDDataModel.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\ModeDirection.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\PreviewableContent.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\PreviewableContentEnum.cs" />
+    <Compile Include="Models\ControlMode\ModeParameters\DancingModeParameterValue.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\SliderParameter.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\SubParameter.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\ToggleParameter.cs" />
+    <Compile Include="Models\ControlMode\ModeParameters\VIDDataModel.cs" />
+    <Compile Include="Models\ControlMode\ModeParameters\VIDDirrection.cs" />
+    <Compile Include="Models\ControlMode\ModeParameters\VIDType.cs" />
     <Compile Include="Models\ControlMode\Mode\IControlMode.cs" />
     <Compile Include="Models\ControlMode\Mode\LightingMode.cs" />
     <Compile Include="Models\ControlMode\Mode\PWMMode.cs" />
@@ -142,12 +200,12 @@
     <Compile Include="Models\Device\SlaveDevice\ARGBLEDSlaveDevice.cs" />
     <Compile Include="Models\Device\SlaveDevice\ISlaveDevice.cs" />
     <Compile Include="Models\Device\SlaveDevice\PWMMotorSlaveDevice.cs" />
-    <Compile Include="Models\Device\Zone\FanMotor\FanMotor.cs" />
+    <Compile Include="Models\Device\Zone\FanMotor.cs" />
     <Compile Include="Models\Device\Zone\IControlZone.cs" />
     <Compile Include="Models\Device\Zone\LEDSetupHelpers.cs" />
-    <Compile Include="Models\Device\Zone\LEDSetup\LEDSetup.cs" />
-    <Compile Include="Models\Device\Zone\LEDSetup\Spot\DeviceSpot.cs" />
-    <Compile Include="Models\Device\Zone\LEDSetup\Spot\IDeviceSpot.cs" />
+    <Compile Include="Models\Device\Zone\LEDSetup.cs" />
+    <Compile Include="Models\Device\Zone\Spot\DeviceSpot.cs" />
+    <Compile Include="Models\Device\Zone\Spot\IDeviceSpot.cs" />
     <Compile Include="Models\Device\Zone\ZoneData.cs" />
     <Compile Include="Models\Drawable\Border.cs" />
     <Compile Include="Models\Drawable\Drawable.cs" />
@@ -157,16 +215,22 @@
     <Compile Include="Models\Drawable\PathGuide.cs" />
     <Compile Include="Models\Drawable\ScreenBound.cs" />
     <Compile Include="Models\Drawable\VisualProperties.cs" />
-    <Compile Include="Models\Gif\Gif.cs" />
+    <Compile Include="Models\FrameData\ByteFrame.cs" />
+    <Compile Include="Models\FrameData\Frame.cs" />
+    <Compile Include="Models\FrameData\Motion.cs" />
+    <Compile Include="Models\GifData\Gif.cs" />
     <Compile Include="Models\KeyboardHook\IModifiersType.cs" />
     <Compile Include="Models\KeyboardHook\KeyModel.cs" />
     <Compile Include="Models\KeyboardHook\ModifiersType.cs" />
     <Compile Include="Models\Preview\DesktopFrameCard.cs" />
     <Compile Include="Models\Preview\GifCard.cs" />
-    <Compile Include="Models\SerialPort\FakeSerialPort.cs" />
-    <Compile Include="Models\SerialPort\ISerialPortWrapper.cs" />
+    <Compile Include="Models\SerialPortData\FakeSerialPort.cs" />
+    <Compile Include="Models\SerialPortData\FpsLogger.cs" />
+    <Compile Include="Models\SerialPortData\ISerialPortWrapper.cs" />
     <Compile Include="Models\Store\OnlineItemModel.cs" />
     <Compile Include="Models\Store\StoreCategory.cs" />
+    <Compile Include="Models\TickData\Tick.cs" />
+    <Compile Include="Models\TickData\TickEnum.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -180,11 +244,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Spots\DeviceSpot.cs" />
     <Compile Include="Helpers\DrawableHelpers.cs" />
-    <Compile Include="Spots\IDeviceSpot.cs" />
-    <Compile Include="Spots\ILEDSetup.cs" />
-    <Compile Include="Spots\LEDSetup.cs" />
     <Compile Include="Helpers\LEDSetupHelpers.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -199,6 +259,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\TimeLineTool\TimeLineTool.csproj">
+      <Project>{7439a26a-46e1-42a0-9d58-2e38289675f6}</Project>
+      <Name>TimeLineTool</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

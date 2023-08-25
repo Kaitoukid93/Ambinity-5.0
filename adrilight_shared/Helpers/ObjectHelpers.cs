@@ -1,4 +1,6 @@
-﻿namespace adrilight_shared.Helpers
+﻿using Newtonsoft.Json;
+
+namespace adrilight_shared.Helpers
 {
     public class ObjectHelpers
     {

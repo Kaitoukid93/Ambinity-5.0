@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace adrilight.DesktopDuplication
+namespace adrilight.Services.CaptureEngine.ScreenCapture
 {
     /// <summary>
     /// Describes the movement of an image rectangle within a desktop frame.

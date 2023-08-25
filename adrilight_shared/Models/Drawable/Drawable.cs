@@ -1,12 +1,12 @@
-﻿using adrilight.ViewModel;
-using GalaSoft.MvvmLight;
+﻿using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
 using Newtonsoft.Json;
 using System;
 using System.Windows;
 using System.Windows.Input;
 using Point = System.Windows.Point;
 
-namespace adrilight
+namespace adrilight_shared.Models.Drawable
 {
     public class Drawable : ViewModelBase, IDrawable
     {
@@ -20,7 +20,7 @@ namespace adrilight
         private double _height = 100;
         private VisualProperties _visualProperties;
         private bool _shouldBringIntoView;
-        private System.Windows.Point _directionPoint;
+        private Point _directionPoint;
         private RelayCommand<double> leftChangedCommand;
         private RelayCommand<double> topChangedCommand;
         private double _angle = 0;

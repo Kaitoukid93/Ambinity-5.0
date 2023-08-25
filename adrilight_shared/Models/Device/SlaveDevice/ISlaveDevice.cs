@@ -1,8 +1,9 @@
-﻿using adrilight.Settings;
+﻿using adrilight_shared.Enum;
+using adrilight_shared.Models.Device.Zone;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
-namespace adrilight
+namespace adrilight_shared.Models.Device.SlaveDevice
 {
     public interface ISlaveDevice : INotifyPropertyChanged
     {

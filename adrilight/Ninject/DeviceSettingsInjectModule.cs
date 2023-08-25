@@ -1,4 +1,7 @@
 ﻿using adrilight.Resources;
+using adrilight.Services.CaptureEngine;
+using adrilight.Services.CaptureEngine.ScreenCapture;
+using adrilight.Services.DeviceDiscoveryServices;
 using adrilight.Util;
 using adrilight.View;
 using adrilight.ViewModel;

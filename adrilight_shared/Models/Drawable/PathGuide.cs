@@ -1,18 +1,12 @@
-﻿using adrilight.Spots;
-using adrilight.ViewModel;
-using GalaSoft.MvvmLight;
+﻿using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
-using Rectangle = System.Drawing.Rectangle;
 
-namespace adrilight.Settings
+namespace adrilight_shared.Models.Drawable
 {
     public class PathGuide : ViewModelBase, IDrawable
     {
@@ -79,15 +73,15 @@ namespace adrilight.Settings
             IsDraggable = false;
             IsSelectable = false;
         }
-        
+
 
         protected virtual void OnLeftChanged(double delta)
         {
-            
+
         }
         protected virtual void OnTopChanged(double delta)
         {
-            
+
         }
 
         protected virtual void OnWidthUpdated() { }

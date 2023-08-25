@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using adrilight_shared.Enum;
+using adrilight_shared.Models.Device.Output;
+using System.Collections.Generic;
 
-namespace adrilight.Settings
+namespace adrilight_shared.Models.Device.Controller
 {
     public class DeviceController : IDeviceController
     {

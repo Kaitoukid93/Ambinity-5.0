@@ -1,18 +1,16 @@
-﻿using GalaSoft.MvvmLight;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
+﻿using adrilight_shared.Enum;
+using adrilight_shared.Models.Device.SlaveDevice;
+using adrilight_shared.Models.Device.Zone;
+using adrilight_shared.Models.Drawable;
+using GalaSoft.MvvmLight;
 
-namespace adrilight.Settings
+namespace adrilight_shared.Models.Device.Group
 {
     public class ControlZoneGroup : ViewModelBase
     {
         public ControlZoneGroup()
         {
-           
+
         }
         private Border _border;
         public string Name { get; set; }

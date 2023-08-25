@@ -1,9 +1,9 @@
-﻿using adrilight.Models.ControlMode.Mode;
+﻿using adrilight_shared.Models.ControlMode.Mode;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Media.Imaging;
 
-namespace adrilight
+namespace adrilight_shared.Models.Device.Zone
 {
     public interface IControlZone : INotifyPropertyChanged
     {

@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using adrilight_shared.Models.Audio;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using Un4seen.Bass;

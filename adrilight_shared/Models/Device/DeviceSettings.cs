@@ -1,12 +1,17 @@
-﻿using adrilight.Models.ControlMode.Enum;
-using adrilight.Models.ControlMode.ModeParameters;
-using adrilight.Settings;
-using adrilight.Spots;
-using adrilight.Util;
+﻿using adrilight_shared.Enum;
+using adrilight_shared.Models.ColorData;
+using adrilight_shared.Models.ControlMode.Enum;
+using adrilight_shared.Models.ControlMode.Mode;
+using adrilight_shared.Models.ControlMode.ModeParameters;
+using adrilight_shared.Models.Device.Controller;
+using adrilight_shared.Models.Device.Group;
+using adrilight_shared.Models.Device.Output;
+using adrilight_shared.Models.Device.SlaveDevice;
+using adrilight_shared.Models.Device.Zone;
+using adrilight_shared.Models.Drawable;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -16,7 +21,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 
-namespace adrilight
+namespace adrilight_shared.Models.Device
 {
     public class DeviceSettings : ViewModelBase, IDeviceSettings
     {
@@ -423,7 +428,7 @@ namespace adrilight
                     var lightingZone = group.MaskedControlZone as LEDSetup;
                     if (lightingZone != null)
                     {
-                        var targetMode = lightingZone.AvailableControlMode.Where(m => (m as LightingMode).BasedOn == (LightingModeEnum)value).FirstOrDefault() as LightingMode;
+                        var targetMode = lightingZone.AvailableControlMode.Where(m => (m as LightingMode).BasedOn == value).FirstOrDefault() as LightingMode;
                         if (targetMode == null)
                             continue;
                         lightingZone.CurrentActiveControlMode = targetMode;

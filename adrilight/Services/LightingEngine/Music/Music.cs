@@ -1,5 +1,6 @@
 ﻿using adrilight.Models.ControlMode.Enum;
 using adrilight.Models.ControlMode.ModeParameters;
+using adrilight.Services.CaptureEngine;
 using adrilight.Util;
 using adrilight.Util.ModeParameters;
 using adrilight.ViewModel;

@@ -1,6 +1,10 @@
 ﻿
+using adrilight_shared.Models.ControlMode;
+using adrilight_shared.Models.Device.Zone;
+using adrilight_shared.Models.Device.Zone.Spot;
 using System;
 using System.Collections.ObjectModel;
+using System.Windows.Forms;
 using System.Windows.Media;
 
 namespace adrilight_shared.Helpers

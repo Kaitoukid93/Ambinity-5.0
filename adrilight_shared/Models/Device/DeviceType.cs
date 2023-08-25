@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using adrilight_shared.Enum;
 
-namespace adrilight.Settings
+namespace adrilight_shared.Models.Device
 {
     public class DeviceType
     {
@@ -18,7 +14,8 @@ namespace adrilight.Settings
 
         }
         public DeviceTypeEnum Type { get; set; }
-        public string Name {
+        public string Name
+        {
             get
             {
                 switch (Type)
@@ -69,7 +66,8 @@ namespace adrilight.Settings
         }
         public string Description { get; set; }
         public bool Selected { get; set; } // for the sake of checkCombobox only
-        public string Geometry {
+        public string Geometry
+        {
             get
             {
                 switch (Type)
@@ -91,7 +89,8 @@ namespace adrilight.Settings
             }
         }
 
-        public string ConnectionGeometry {
+        public string ConnectionGeometry
+        {
             get
             {
                 switch (ConnectionTypeEnum)

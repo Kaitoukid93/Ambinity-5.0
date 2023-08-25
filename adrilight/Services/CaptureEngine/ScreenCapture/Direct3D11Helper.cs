@@ -26,7 +26,7 @@ using System;
 using System.Runtime.InteropServices;
 using Windows.Graphics.DirectX.Direct3D11;
 
-namespace adrilight.DesktopDuplication
+namespace adrilight.Services.CaptureEngine.ScreenCapture
 {
     public static class Direct3D11Helper
     {
@@ -53,7 +53,7 @@ namespace adrilight.DesktopDuplication
             ExactSpelling = true,
             CallingConvention = CallingConvention.StdCall
             )]
-        static extern UInt32 CreateDirect3D11DeviceFromDXGIDevice(IntPtr dxgiDevice, out IntPtr graphicsDevice);
+        static extern uint CreateDirect3D11DeviceFromDXGIDevice(IntPtr dxgiDevice, out IntPtr graphicsDevice);
 
         [DllImport(
             "d3d11.dll",
@@ -63,7 +63,7 @@ namespace adrilight.DesktopDuplication
             ExactSpelling = true,
             CallingConvention = CallingConvention.StdCall
             )]
-        static extern UInt32 CreateDirect3D11SurfaceFromDXGISurface(IntPtr dxgiSurface, out IntPtr graphicsSurface);
+        static extern uint CreateDirect3D11SurfaceFromDXGISurface(IntPtr dxgiSurface, out IntPtr graphicsSurface);
 
         public static IDirect3DDevice CreateDevice()
         {
@@ -87,7 +87,7 @@ namespace adrilight.DesktopDuplication
             using (var dxgiDevice = d3dDevice.QueryInterface<SharpDX.DXGI.Device3>())
             {
                 // Wrap the native device using a WinRT interop object.
-                uint hr = CreateDirect3D11DeviceFromDXGIDevice(dxgiDevice.NativePointer, out IntPtr pUnknown);
+                var hr = CreateDirect3D11DeviceFromDXGIDevice(dxgiDevice.NativePointer, out IntPtr pUnknown);
 
                 if (hr == 0)
                 {
@@ -107,7 +107,7 @@ namespace adrilight.DesktopDuplication
             using (var dxgiSurface = texture.QueryInterface<SharpDX.DXGI.Surface>())
             {
                 // Wrap the native device using a WinRT interop object.
-                uint hr = CreateDirect3D11SurfaceFromDXGISurface(dxgiSurface.NativePointer, out IntPtr pUnknown);
+                var hr = CreateDirect3D11SurfaceFromDXGISurface(dxgiSurface.NativePointer, out IntPtr pUnknown);
 
                 if (hr == 0)
                 {

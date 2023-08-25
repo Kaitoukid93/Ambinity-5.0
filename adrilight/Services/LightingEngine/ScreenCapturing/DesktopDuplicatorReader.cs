@@ -1,5 +1,7 @@
 ﻿using adrilight.DesktopDuplication;
 using adrilight.Models.ControlMode.Enum;
+using adrilight.Services.CaptureEngine;
+using adrilight.Services.CaptureEngine.ScreenCapture;
 using adrilight.Spots;
 using adrilight.Util;
 using adrilight.Util.ModeParameters;

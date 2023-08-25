@@ -1,18 +1,12 @@
-﻿using adrilight.Spots;
-using adrilight.ViewModel;
-using GalaSoft.MvvmLight;
+﻿using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
 
-namespace adrilight.Settings
+namespace adrilight_shared.Models.Drawable
 {
     public class Border : ViewModelBase, IDrawable
     {
@@ -27,7 +21,7 @@ namespace adrilight.Settings
         private double _height = 100;
         private VisualProperties _visualProperties;
         private bool _shouldBringIntoView;
-        private System.Windows.Point _directionPoint;
+        private Point _directionPoint;
         private RelayCommand<double> leftChangedCommand;
         private RelayCommand<double> topChangedCommand;
         private double _angle = 0;
@@ -36,7 +30,7 @@ namespace adrilight.Settings
 
         private bool _isResizeable;
         private bool _isDeleteable;
-   
+
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
         public double CenterX => Width / 2 + Left;
@@ -63,18 +57,18 @@ namespace adrilight.Settings
 
         public bool ShouldBringIntoView { get => _shouldBringIntoView; set { Set(() => ShouldBringIntoView, ref _hasCustomBehavior, value); } }
 
-        public System.Windows.Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
+        public Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
         public Rect GetRect => new Rect(Left, Top, Width, Height);
         public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
 
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
-       
+
         public Border()
         {
             VisualProperties = new VisualProperties();
-            Scale = new System.Windows.Point(1, 1);
+            Scale = new Point(1, 1);
             Width = Screen.PrimaryScreen.Bounds.Width;
             Height = Screen.PrimaryScreen.Bounds.Height;
             IsDraggable = false;
@@ -102,12 +96,12 @@ namespace adrilight.Settings
         public virtual void OnDrawingEnded(Action<object> callback = default) { }
         public bool SetScale(double scaleX, double scaleY, bool keepOrigin)
         {
-    
+
             Width *= scaleX;
             Height *= scaleY;
             if (!keepOrigin)
             {
-                Left *= scaleX; 
+                Left *= scaleX;
                 Top *= scaleY;
             }
             return true;

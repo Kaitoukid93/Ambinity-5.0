@@ -1,6 +1,6 @@
-﻿using adrilight.Util.ModeParameters;
+﻿using adrilight_shared.Models.ControlMode.Enum;
 
-namespace adrilight.Models.ControlMode.ModeParameters
+namespace adrilight_shared.Models.ControlMode.ModeParameters
 {
     public class AudioDeviceSelectionButtonParameter : BaseButtonParameter // parameter specific for lighting control
     {

@@ -1,9 +1,12 @@
-﻿using adrilight.Models.ControlMode.Enum;
-using adrilight.Models.ControlMode.ModeParameters;
-using adrilight.Spots;
-using adrilight.Util;
-using adrilight.ViewModel;
+﻿using adrilight_shared.Enum;
+using adrilight_shared.Models.ColorData;
+using adrilight_shared.Models.ControlMode.Enum;
+using adrilight_shared.Models.ControlMode.Mode;
+using adrilight_shared.Models.ControlMode.ModeParameters;
+using adrilight_shared.Models.Device.Zone;
+using adrilight_shared.Models.Drawable;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
 using Newtonsoft.Json;
 using Serilog;
 using System;
@@ -15,7 +18,7 @@ using System.Windows;
 using System.Windows.Input;
 using Point = System.Windows.Point;
 
-namespace adrilight.Settings
+namespace adrilight_shared.Models.Device.SlaveDevice
 {
     /// <summary>
     /// this class holding LED Zones that current slave device has
@@ -30,7 +33,8 @@ namespace adrilight.Settings
         public string Vendor { get; set; }
         public int ParrentID { get; set; }
         private RGBLEDOrderEnum _rgbLEDOrder = RGBLEDOrderEnum.RGB;
-        public RGBLEDOrderEnum RGBLEDOrder {
+        public RGBLEDOrderEnum RGBLEDOrder
+        {
             get => _rgbLEDOrder;
             set { Set(() => RGBLEDOrder, ref _rgbLEDOrder, value); }
         }
@@ -76,7 +80,7 @@ namespace adrilight.Settings
         private double _height;
         private VisualProperties _visualProperties;
         private bool _shouldBringIntoView;
-        private System.Windows.Point _directionPoint;
+        private Point _directionPoint;
         private RelayCommand<double> leftChangedCommand;
         private RelayCommand<double> topChangedCommand;
         private double _angle = 0;
@@ -155,7 +159,7 @@ namespace adrilight.Settings
                 if (!ledZone.IsInControlGroup)
                     ledZone.BrightnessUp(value);
             }
-            Log.Information("Brightness Up: " + this.Name);
+            Log.Information("Brightness Up: " + Name);
         }
         public void BrightnessDown(int value)
         {
@@ -165,7 +169,7 @@ namespace adrilight.Settings
                 if (!ledZone.IsInControlGroup)
                     ledZone.BrightnessDown(value);
             }
-            Log.Information("Brightness down: " + this.Name);
+            Log.Information("Brightness down: " + Name);
         }
         public void TurnOffLED()
         {
@@ -175,7 +179,7 @@ namespace adrilight.Settings
                 if (!ledZone.IsInControlGroup)
                     ledZone.TurnOffLED();
             }
-            Log.Information("Turning off LED: " + this.Name);
+            Log.Information("Turning off LED: " + Name);
         }
         public void TurnOnLED()
         {
@@ -185,7 +189,7 @@ namespace adrilight.Settings
                 if (!ledZone.IsInControlGroup)
                     ledZone.TurnOnLED();
             }
-            Log.Information("Turning on LED: " + this.Name);
+            Log.Information("Turning on LED: " + Name);
         }
         public void SetStaticColor(ColorCard colors)
         {
@@ -204,7 +208,7 @@ namespace adrilight.Settings
                 }
 
             }
-            Log.Information("Set static Color: " + this.Name + "-" + colors.ColorCode);
+            Log.Information("Set static Color: " + Name + "-" + colors.ColorCode);
         }
         public void SetModeByEnumValue(LightingModeEnum value)
         {
@@ -214,14 +218,14 @@ namespace adrilight.Settings
                 if (!ledZone.IsInControlGroup)
                 {
                     //find static color mode
-                    var targetMode = ledZone.AvailableControlMode.Where(m => (m as LightingMode).BasedOn == (LightingModeEnum)value).FirstOrDefault() as LightingMode;
+                    var targetMode = ledZone.AvailableControlMode.Where(m => (m as LightingMode).BasedOn == value).FirstOrDefault() as LightingMode;
                     if (targetMode == null)
                         continue;
                     ledZone.CurrentActiveControlMode = targetMode;
                 }
 
             }
-            Log.Information("Change Lighting mode: " + value + " for " + this.Name);
+            Log.Information("Change Lighting mode: " + value + " for " + Name);
         }
         #endregion
         #region Graphic Related Method
@@ -343,7 +347,7 @@ namespace adrilight.Settings
                 //get image rotation bounding box
                 var rect = new Rect(Image.Left + Image.OffsetX, Image.Top + Image.OffsetY, Image.Width, Image.Height);
                 var rotatedImageBoundingBox = DrawableHlprs.RotateRectangle(rect, new Point(CenterX, CenterY), Image.Angle);
-                var r = new Drawable(rotatedImageBoundingBox.Top, rotatedImageBoundingBox.Left, rotatedImageBoundingBox.Width, rotatedImageBoundingBox.Height);
+                var r = new adrilight_shared.Models.Drawable.Drawable(rotatedImageBoundingBox.Top, rotatedImageBoundingBox.Left, rotatedImageBoundingBox.Width, rotatedImageBoundingBox.Height);
                 children.Add(r);
             }
 

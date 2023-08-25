@@ -1,6 +1,4 @@
-﻿using adrilight.Util.ModeParameters;
-
-namespace adrilight.Models.ControlMode.ModeParameters
+﻿namespace adrilight_shared.Models.ControlMode.ModeParameters
 {
     public interface PreviewableContent
     {

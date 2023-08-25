@@ -1,15 +1,6 @@
-﻿using GalaSoft.MvvmLight;
-using System;
-using System.Collections.Generic;
-using System.Windows.Media;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
-using TimeLineTool;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 
-namespace adrilight.Util
+namespace adrilight_shared.Models.Composition
 {
     public class Composition // for displaying motion at rainbow control panel
     {
@@ -22,6 +13,6 @@ namespace adrilight.Util
 
 
         //timeline data item inheritance
-        public ObservableCollection<MotionLayer> Layers {get;set;}
+        public ObservableCollection<MotionLayer> Layers { get; set; }
     }
 }

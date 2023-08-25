@@ -1,12 +1,17 @@
-﻿using adrilight.Models.ControlMode.Enum;
-using adrilight.Settings;
-using adrilight.Util;
+﻿using adrilight_shared.Enum;
+using adrilight_shared.Models.ColorData;
+using adrilight_shared.Models.ControlMode.Enum;
+using adrilight_shared.Models.Device.Controller;
+using adrilight_shared.Models.Device.Group;
+using adrilight_shared.Models.Device.Output;
+using adrilight_shared.Models.Device.SlaveDevice;
+using adrilight_shared.Models.Device.Zone;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 
-namespace adrilight
+namespace adrilight_shared.Models.Device
 {
     public interface IDeviceSettings : INotifyPropertyChanged
     {

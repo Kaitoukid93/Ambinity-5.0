@@ -1,4 +1,4 @@
-﻿using adrilight.Spots;
+﻿using adrilight_shared.Models.Device.Zone.Spot;
 using System;
 using System.Windows.Media;
 using Color = System.Windows.Media.Color;

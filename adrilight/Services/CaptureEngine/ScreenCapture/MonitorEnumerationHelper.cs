@@ -28,7 +28,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using Windows.Foundation;
 
-namespace adrilight.DesktopDuplication
+namespace adrilight.Services.CaptureEngine.ScreenCapture
 {
     class MonitorInfo
     {
@@ -77,9 +77,9 @@ namespace adrilight.DesktopDuplication
 
             EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero,
                 delegate (IntPtr hMonitor, IntPtr hdcMonitor, ref RECT lprcMonitor, IntPtr dwData) {
-                    MonitorInfoEx mi = new MonitorInfoEx();
+                    var mi = new MonitorInfoEx();
                     mi.Size = Marshal.SizeOf(mi);
-                    bool success = GetMonitorInfo(hMonitor, ref mi);
+                    var success = GetMonitorInfo(hMonitor, ref mi);
                     if (success)
                     {
                         var info = new MonitorInfo {

@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace adrilight.Models.ControlMode.ModeParameters
+namespace adrilight_shared.Models.ControlMode.ModeParameters
 {
     internal class CapturingRegionPreview : PreviewableContent
     {

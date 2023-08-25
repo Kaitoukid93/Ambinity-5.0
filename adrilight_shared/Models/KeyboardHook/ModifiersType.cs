@@ -1,16 +1,7 @@
-﻿using adrilight.Spots;
-using adrilight.Util;
-using GalaSoft.MvvmLight;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
+﻿using GalaSoft.MvvmLight;
 using NonInvasiveKeyboardHookLibrary;
 
-namespace adrilight
+namespace adrilight_shared.Models.KeyboardHook
 {
     internal class ModifiersType : ViewModelBase, IModifiersType
     {
@@ -22,6 +13,6 @@ namespace adrilight
         public ModifierKeys ModifierKey { get => _modifierKey; set { Set(() => ModifierKey, ref _modifierKey, value); } }
         public bool IsChecked { get => _isChecked; set { Set(() => IsChecked, ref _isChecked, value); } }
 
-     
+
     }
 }

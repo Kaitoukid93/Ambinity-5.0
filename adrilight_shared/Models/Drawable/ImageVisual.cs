@@ -1,5 +1,5 @@
-﻿using adrilight.ViewModel;
-using GalaSoft.MvvmLight;
+﻿using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
 using Newtonsoft.Json;
 using System;
 using System.Windows;
@@ -7,7 +7,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using Point = System.Windows.Point;
 
-namespace adrilight.Settings
+namespace adrilight_shared.Models.Drawable
 {
     public class ImageVisual : ViewModelBase, IDrawable
     {

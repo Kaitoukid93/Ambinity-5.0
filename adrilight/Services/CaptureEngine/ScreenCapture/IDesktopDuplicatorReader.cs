@@ -1,8 +1,6 @@
-﻿using System.Drawing;
-using System.Drawing.Imaging;
-using System.Threading;
+﻿using System.Threading;
 
-namespace adrilight
+namespace adrilight.Services.CaptureEngine.ScreenCapture
 {
     public interface IDesktopDuplicatorReader
     {

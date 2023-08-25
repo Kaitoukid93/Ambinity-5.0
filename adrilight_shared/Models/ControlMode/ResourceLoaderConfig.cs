@@ -1,4 +1,6 @@
-﻿namespace adrilight.Models.ControlMode
+﻿using adrilight_shared.Enum;
+
+namespace adrilight_shared.Models.ControlMode
 {
     public class ResourceLoaderConfig
     {

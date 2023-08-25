@@ -10,7 +10,7 @@ using Device = SharpDX.Direct3D11.Device;
 using Format = SharpDX.DXGI.Format;
 using MapFlags = SharpDX.Direct3D11.MapFlags;
 
-namespace adrilight.DesktopDuplication
+namespace adrilight.Services.CaptureEngine.ScreenCapture
 {
     /// <summary>
     /// Provides access to frame-by-frame updates of a particular desktop (i.e. one monitor), with image and cursor information.
@@ -282,13 +282,13 @@ namespace adrilight.DesktopDuplication
             }
             // Copy pixels from screen capture Texture to GDI bitmap
             var sourcePtr = mapSource.DataPointer;
-            int bitsPerPixel = ((int)PixelFormat.Format32bppRgb & 0xff00) >> 8;
-            int bytesPerPixel = (bitsPerPixel + 7) / 8;
-            int stride = 4 * ((width * bytesPerPixel + 3) / 4);
-            int bytes = Math.Abs(stride) * height;
-            byte[] rgbValues = new byte[bytes];
+            var bitsPerPixel = ((int)PixelFormat.Format32bppRgb & 0xff00) >> 8;
+            var bytesPerPixel = (bitsPerPixel + 7) / 8;
+            var stride = 4 * ((width * bytesPerPixel + 3) / 4);
+            var bytes = Math.Abs(stride) * height;
+            var rgbValues = new byte[bytes];
 
-            for (int y = 0; y < height; y++)
+            for (var y = 0; y < height; y++)
             {
                 // Copy a single line 
                 System.Runtime.InteropServices.Marshal.Copy(sourcePtr, rgbValues, y * stride, width * 4);

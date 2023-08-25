@@ -1,4 +1,5 @@
-﻿using GalaSoft.MvvmLight;
+﻿using adrilight_shared.Models.Device;
+using GalaSoft.MvvmLight;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;

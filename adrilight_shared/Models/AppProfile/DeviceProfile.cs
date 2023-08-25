@@ -1,6 +1,7 @@
-﻿using adrilight;
-using adrilight.Settings;
+﻿using adrilight_shared.Helpers;
+using adrilight_shared.Models.Device;
 using GalaSoft.MvvmLight;
+using Newtonsoft.Json;
 
 namespace adrilight_shared.Models.AppProfile
 {
