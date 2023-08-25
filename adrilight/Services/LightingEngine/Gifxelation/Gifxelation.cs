@@ -1,4 +1,6 @@
 ﻿using adrilight.DesktopDuplication;
+using adrilight.Models.ControlMode.Enum;
+using adrilight.Models.ControlMode.ModeParameters;
 using adrilight.Spots;
 using adrilight.Util;
 using adrilight.Util.ModeParameters;

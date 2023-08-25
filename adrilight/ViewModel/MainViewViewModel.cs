@@ -1,10 +1,13 @@
 ﻿using adrilight.DesktopDuplication;
 using adrilight.Helpers;
+using adrilight.Models.ControlMode;
+using adrilight.Models.ControlMode.Enum;
+using adrilight.Models.ControlMode.Mode;
+using adrilight.Models.ControlMode.ModeParameters;
 using adrilight.Settings;
 using adrilight.Settings.Automation;
 using adrilight.Spots;
 using adrilight.Util;
-using adrilight.Util.ModeParameters;
 using adrilight.View;
 using adrilight_effect_analyzer.Model;
 using FTPServer;
@@ -49,7 +52,6 @@ using Color = System.Windows.Media.Color;
 using ColorPalette = adrilight.Util.ColorPalette;
 using File = System.IO.File;
 using Formatting = Newtonsoft.Json.Formatting;
-using Group = adrilight.Settings.Group;
 using IComputer = adrilight.Util.IComputer;
 using NotifyIcon = HandyControl.Controls.NotifyIcon;
 using OpenFileDialog = System.Windows.Forms.OpenFileDialog;
@@ -296,7 +298,6 @@ namespace adrilight.ViewModel
         public ICommand SpreadItemUpVerticalCommand { get; set; }
         public ICommand SpreadItemDownVerticalCommand { get; set; }
         public ICommand AglignSelectedItemstoTopCommand { get; set; }
-        public ICommand AddSelectedItemToGroupCommand { get; set; }
         public ICommand ExitCurrentRunningAppCommand { get; set; }
         public ICommand ExecuteAutomationFromManagerCommand { get; set; }
         public ICommand UpdateAppCommand { get; set; }
@@ -8205,13 +8206,7 @@ namespace adrilight.ViewModel
         private PIDEditCanvasWindow pidEditCanvasWindow { get; set; }
         private VIDEditCanvasWindow vidEditCanvasWindow { get; set; }
 
-        private void AddSelectedItemToGroup()
-        {
-            var newGroup = new Group();
-            newGroup.SetGroupedElements(SurfaceEditorItems.OfType<IDrawable>().Where(d => !(d is Group) && d is IGroupable && d.IsSelected).ToArray());
-            newGroup.SetGroupSize();
-            SurfaceEditorItems.Add(newGroup);
-        }
+
 
         private OnlineItemExporterView itemExporter { get; set; }
         public object CurrentOnlineItemToExport { get; set; }

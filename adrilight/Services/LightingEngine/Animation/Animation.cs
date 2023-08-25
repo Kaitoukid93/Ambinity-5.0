@@ -1,4 +1,6 @@
-﻿using adrilight.Util;
+﻿using adrilight.Models.ControlMode.Enum;
+using adrilight.Models.ControlMode.ModeParameters;
+using adrilight.Util;
 using adrilight.Util.ModeParameters;
 using adrilight.ViewModel;
 using adrilight_effect_analyzer.Model;

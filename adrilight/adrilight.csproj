@@ -199,179 +199,78 @@
     <PackageReference Include="WpfAnimatedGif" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Adorners\HoverAdorner.cs" />
-    <Compile Include="Adorners\LineHoverAdorner.cs" />
-    <Compile Include="Adorners\ResizeAdorner.cs" />
-    <Compile Include="Adorners\ResizeLineAdorner.cs" />
+    <Compile Include="View\Adorners\HoverAdorner.cs" />
+    <Compile Include="View\Adorners\LineHoverAdorner.cs" />
+    <Compile Include="View\Adorners\ResizeAdorner.cs" />
+    <Compile Include="View\Adorners\ResizeLineAdorner.cs" />
     <Compile Include="App.xaml.cs" />
     <Compile Include="Converter\BoolToBorderThicknessConverter.cs" />
     <Compile Include="Converter\CommandToListConverter.cs" />
     <Compile Include="Converter\ToUpperValueConverter.cs" />
-    <Compile Include="DesktopDuplication\BasicCapture.cs" />
-    <Compile Include="DesktopDuplication\CaptureHelper.cs" />
-    <Compile Include="DesktopDuplication\CompositionHelper.cs" />
-    <Compile Include="DesktopDuplication\DesktopDuplicator.cs" />
-    <Compile Include="DesktopDuplication\DesktopFrameDXGI.cs" />
-    <Compile Include="Settings\AppUser.cs" />
-    <Compile Include="Settings\Automation\ExecuteConditionEnum.cs" />
-    <Compile Include="Settings\Automation\SystemEventEnum.cs" />
-    <Compile Include="Settings\Automation\SystemEventTriggerCondition.cs" />
-    <Compile Include="Settings\Automation\HotkeyTriggerCondition.cs" />
-    <Compile Include="Settings\Automation\TriggerCondition.cs" />
-    <Compile Include="Settings\GifCard.cs" />
-    <Compile Include="Services\CaptureEngine\AudioCaptureBasic.cs" />
+    <Compile Include="Services\CaptureEngine\ScreenCapture\BasicCapture.cs" />
+    <Compile Include="Services\CaptureEngine\ScreenCapture\CaptureHelper.cs" />
+    <Compile Include="Services\CaptureEngine\ScreenCapture\CompositionHelper.cs" />
+    <Compile Include="Services\CaptureEngine\ScreenCapture\DesktopDuplicator.cs" />
+    <Compile Include="Services\CaptureEngine\ScreenCapture\DesktopFrameDXGI.cs" />
+    <Compile Include="Services\CaptureEngine\AudioCapture\AudioCaptureBasic.cs" />
     <Compile Include="Services\LightingEngine\Gifxelation\Gifxelation.cs" />
     <Compile Include="Services\LightingEngine\ScreenCapturing\DesktopDuplicatorReader.cs" />
-    <Compile Include="DesktopDuplication\Direct3D11Helper.cs" />
-    <Compile Include="DesktopDuplication\ICaptureEngine.cs" />
-    <Compile Include="DesktopDuplication\MonitorEnumerationHelper.cs" />
+    <Compile Include="Services\CaptureEngine\ScreenCapture\Direct3D11Helper.cs" />
+    <Compile Include="Services\CaptureEngine\ScreenCapture\ICaptureEngine.cs" />
+    <Compile Include="Services\CaptureEngine\ScreenCapture\MonitorEnumerationHelper.cs" />
     <Compile Include="Extension\EnumExtensions.cs" />
-    <Compile Include="Helpers\AttachedAdorner.cs" />
-    <Compile Include="Helpers\Behaviors\GroupBehavior.cs" />
-    <Compile Include="Helpers\CheckComBoBoxHelper.cs" />
-    <Compile Include="Helpers\ControlModeHelpers.cs" />
-    <Compile Include="Helpers\DancingModeEnum.cs" />
-    <Compile Include="Helpers\EventToCommand.cs" />
+    <Compile Include="View\Adorners\AttachedAdorner.cs" />
+    <Compile Include="View\Helpers\CheckComBoBoxHelper.cs" />
+    <Compile Include="Services\LightingEngine\Music\DancingModeEnum.cs" />
+    <Compile Include="View\Helpers\EventToCommand.cs" />
     <Compile Include="Helpers\SimpleStringParameterValue.cs" />
-    <Compile Include="Helpers\ZoneData.cs" />
-    <Compile Include="Settings\Automation\ActionParameter.cs" />
-    <Compile Include="Settings\Automation\ActionSettings.cs" />
-    <Compile Include="Settings\Automation\ActionType.cs" />
-    <Compile Include="Settings\Automation\AutomationSettings.cs" />
-    <Compile Include="Settings\ControllerData.cs" />
-    <Compile Include="Settings\AppProfile.cs" />
-    <Compile Include="Settings\ModeDirection.cs" />
     <Compile Include="Helpers\perSizeBindingHelper.cs" />
-    <Compile Include="Resources\IContext.cs" />
-    <Compile Include="Resources\WpfContext.cs" />
-    <Compile Include="Settings\ControlZoneGroup.cs" />
-    <Compile Include="Settings\DesktopFrameCard.cs" />
-    <Compile Include="Settings\DesktopScreen.cs" />
-    <Compile Include="Settings\DeviceAdvanceController.cs" />
-    <Compile Include="Settings\DeviceType.cs" />
-    <Compile Include="Settings\OutputData.cs" />
-    <Compile Include="Settings\ProfileIgnoreAttribute.cs" />
-    <Compile Include="Settings\ResourceLoaderConfig.cs" />
-    <Compile Include="Settings\PWMMotorSlaveDevice.cs" />
-    <Compile Include="Settings\ARGBLEDSlaveDevice.cs" />
-    <Compile Include="Settings\FanMotor.cs" />
-    <Compile Include="Settings\IControlZone.cs" />
-    <Compile Include="Settings\IDeviceController.cs" />
-    <Compile Include="Settings\IOutputControlableProperty.cs" />
-    <Compile Include="Settings\DeviceController.cs" />
-    <Compile Include="Settings\ISlaveDevice.cs" />
-    <Compile Include="Services\model\ControlMode\Mode\PWMMode.cs" />
-    <Compile Include="Settings\PWMOutput.cs" />
-    <Compile Include="Settings\LightingOutput.cs" />
-    <Compile Include="Settings\OutputControlableProperty.cs" />
-    <Compile Include="Settings\ScreenBound.cs" />
-    <Compile Include="Settings\ImageVisual.cs" />
-    <Compile Include="Settings\PathGuide.cs" />
-    <Compile Include="Settings\DeviceCatergory.cs" />
-    <Compile Include="Settings\DeviceFirmware.cs" />
-    <Compile Include="Settings\DeviceHttpConnection.cs" />
-    <Compile Include="Settings\DeviceProfile.cs" />
-    <Compile Include="Settings\DeviceSettings.cs" />
+    <Compile Include="Context\IContext.cs" />
+    <Compile Include="Context\WpfContext.cs" />
+    <Compile Include="Services\NetworkStream\DeviceHttpConnection.cs" />
     <Compile Include="Settings\GeneralSettings.cs" />
-    <Compile Include="Settings\Border.cs" />
-    <Compile Include="Settings\Group.cs" />
-    <Compile Include="Settings\IDeviceCatergory.cs" />
-    <Compile Include="Settings\IDeviceSettings.cs" />
     <Compile Include="Settings\IGeneralSettings.cs" />
-    <Compile Include="Settings\IGroupable.cs" />
-    <Compile Include="Settings\IModifiersType.cs" />
-    <Compile Include="Settings\IDrawable.cs" />
-    <Compile Include="Settings\IOutputSettings.cs" />
-    <Compile Include="Settings\KeyModel.cs" />
-    <Compile Include="Settings\ModifiersType.cs" />
-    <Compile Include="Settings\Drawable.cs" />
-    <Compile Include="Settings\OutputSettings.cs" />
-    <Compile Include="Settings\RateLimitedSender.cs" />
-    <Compile Include="Settings\UserSettingsManager.cs" />
-    <Compile Include="Settings\WLEDDevice.cs" />
-    <Compile Include="Settings\XmlApiResponse.cs" />
-    <Compile Include="Settings\XmlApiResponseParser.cs" />
-    <Compile Include="Spots\DeviceSpot.cs" />
-    <Compile Include="Spots\DrawableHelpers.cs" />
-    <Compile Include="Spots\IDeviceSpot.cs" />
-    <Compile Include="Spots\ILEDSetup.cs" />
-    <Compile Include="Spots\LEDSetup.cs" />
-    <Compile Include="Spots\LEDSetupHelpers.cs" />
-    <Compile Include="Services\model\ControlMode\ModeParameters\CapturingRegion.cs" />
-    <Compile Include="Services\model\ControlMode\ModeParameters\CapturingRegionPreview.cs" />
-    <Compile Include="Services\model\ControlMode\ModeParameters\CapturingRegionSelectionButtonParameter.cs" />
-    <Compile Include="Services\model\ControlMode\ModeParameters\AudioDeviceSelectionButtonParameter.cs" />
-    <Compile Include="Services\model\ControlMode\ModeParameters\BaseButtonParameter.cs" />
-    <Compile Include="Services\model\ControlMode\ModeParameters\DataSource.cs" />
-    <Compile Include="Services\model\ControlMode\ModeParameters\IModeParameter.cs" />
-    <Compile Include="Services\model\ControlMode\ModeParameters\ListSelectionParameter.cs" />
-    <Compile Include="Services\model\ControlMode\ModeParameters\PreviewableContent.cs" />
-    <Compile Include="Services\model\ControlMode\ModeParameters\PreviewableContentEnum.cs" />
-    <Compile Include="Services\model\ControlMode\ModeParameters\SliderParameter.cs" />
-    <Compile Include="Services\model\ControlMode\ModeParameters\ToggleParameter.cs" />
+    <Compile Include="Services\NetworkStream\RateLimitedSender.cs" />
+    <Compile Include="Manager\UserSettingsManager.cs" />
+    <Compile Include="Services\NetworkStream\WLEDDevice.cs" />
+    <Compile Include="Services\NetworkStream\XmlApiResponse.cs" />
+    <Compile Include="Services\NetworkStream\XmlApiResponseParser.cs" />
     <Compile Include="Services\LightingEngine\Music\Music.cs" />
-    <Compile Include="Services\model\AudioDevice.cs" />
-    <Compile Include="Services\Enum\ChasingPatternTypeEnum.cs" />
-    <Compile Include="Services\model\ColorEditingObject.cs" />
-    <Compile Include="Services\model\ColumnDataModel.cs" />
+    <Compile Include="Services\LightingEngine\Animation\ChasingPatternTypeEnum.cs" />
     <Compile Include="Services\LightingEngine\ILightingEngine.cs" />
-    <Compile Include="Services\model\ControlMode\ModeParameters\IParameterValue.cs" />
-    <Compile Include="Services\model\ControlMode\Enum\LightingModeEnum.cs" />
-    <Compile Include="Services\MIDFrequency.cs" />
-    <Compile Include="Services\ModeParameterEnum.cs" />
-    <Compile Include="Services\ModeParameterTemplateEnum.cs" />
-    <Compile Include="Services\model\ChasingPattern.cs" />
-    <Compile Include="Services\NativeMethods.cs" />
-    <Compile Include="Services\OnlineItemModel.cs" />
+    <Compile Include="View\Methods\NativeMethods.cs" />
     <Compile Include="Services\DeviceDiscoveryServices\DeviceDiscovery.cs" />
     <Compile Include="Services\Updaters\AdrilightUpdater.cs" />
     <Compile Include="Helpers\AssemblyHelper.cs" />
-    <Compile Include="Services\CaptureEngine\AudioFrame.cs" />
+    <Compile Include="Services\CaptureEngine\AudioCapture\AudioFrame.cs" />
     <Compile Include="Services\ColorsDataModel\ColorPalette.cs" />
-    <Compile Include="Services\model\Computer.cs" />
-    <Compile Include="Services\model\FakeSerialPort.cs" />
+    <Compile Include="Services\HWMonitor\Computer.cs" />
     <Compile Include="Services\LightingEngine\ScreenCapturing\FpsLogger.cs" />
-    <Compile Include="Services\model\Composition.cs" />
-    <Compile Include="Services\model\ControlMode\Enum\PWMModeEnum.cs" />
     <Compile Include="Services\LightingEngine\Animation\Animation.cs" />
     <Compile Include="Services\LightingEngine\ColorPalette\Rainbow.cs" />
-    <Compile Include="Services\SelectableLocalPath.cs" />
     <Compile Include="Services\LightingEngine\StaticColor\StaticColor.cs" />
-    <Compile Include="Services\StoreCategory.cs" />
-    <Compile Include="Services\MotionLayer.cs" />
-    <Compile Include="Services\MotionCard.cs" />
-    <Compile Include="Services\model\Gif.cs" />
-    <Compile Include="Services\model\GradientColor.cs" />
     <Compile Include="Services\ColorsDataModel\ColorCard.cs" />
     <Compile Include="Services\HWMonitor\HWMonitor.cs" />
     <Compile Include="Services\HWMonitor\IComputer.cs" />
-    <Compile Include="Services\model\ControlMode\IControlMode.cs" />
     <Compile Include="Services\OpenRGB\IAmbinityClient.cs" />
-    <Compile Include="Services\model\SerialPort\ISerialPortWrapper.cs" />
     <Compile Include="Services\SerialStream\ISerialStream.cs" />
-    <Compile Include="Services\model\ControlMode\Mode\LightingMode.cs" />
-    <Compile Include="Services\NetworkStream.cs" />
-    <Compile Include="Services\OpenRGBClientDevice.cs" />
+    <Compile Include="Services\NetworkStream\NetworkStream.cs" />
     <Compile Include="Services\OpenRGB\AmbinityClient.cs" />
-    <Compile Include="Services\PaletteCardContextMenu.cs" />
-    <Compile Include="Services\RainbowTicker.cs" />
-    <Compile Include="Services\SerialDeviceDetection.cs" />
-    <Compile Include="Services\OpenRGBStream.cs" />
-    <Compile Include="Services\SerialStream.cs" />
-    <Compile Include="Services\StartupManager.cs" />
-    <Compile Include="Services\SubParameter.cs" />
-    <Compile Include="Services\Tick.cs" />
-    <Compile Include="Services\TickEnum.cs" />
-    <Compile Include="Services\UpdateVisitor.cs" />
-    <Compile Include="Services\MIDDataModel.cs" />
-    <Compile Include="Services\VisualizerDataModel.cs" />
-    <Compile Include="Services\VIDDirrection.cs" />
-    <Compile Include="Services\VIDToolBarDataModel.cs" />
-    <Compile Include="Services\VIDDataModel.cs" />
-    <Compile Include="Services\VIDType.cs" />
-    <Compile Include="Services\VisualizerProgressBar.cs" />
-    <Compile Include="Services\WinApi.cs" />
-    <Compile Include="Services\WrappedSerialPort.cs" />
+    <Compile Include="Services\Ticker\RainbowTicker.cs" />
+    <Compile Include="Services\DeviceDiscoveryServices\SerialDeviceDetection.cs" />
+    <Compile Include="Services\OpenRGB\OpenRGBStream.cs" />
+    <Compile Include="Services\SerialStream\SerialStream.cs" />
+    <Compile Include="Manager\StartupManager.cs" />
+    <Compile Include="Services\Ticker\Tick.cs" />
+    <Compile Include="Services\Ticker\TickEnum.cs" />
+    <Compile Include="Services\HWMonitor\UpdateVisitor.cs" />
+    <Compile Include="Services\LightingEngine\Music\MIDDataModel.cs" />
+    <Compile Include="Services\LightingEngine\ColorPalette\VIDDirrection.cs" />
+    <Compile Include="Services\LightingEngine\ColorPalette\VIDToolBarDataModel.cs" />
+    <Compile Include="Services\LightingEngine\ColorPalette\VIDDataModel.cs" />
+    <Compile Include="Services\LightingEngine\ColorPalette\VIDType.cs" />
+    <Compile Include="Services\SerialStream\WinApi.cs" />
+    <Compile Include="Services\SerialStream\WrappedSerialPort.cs" />
     <Compile Include="Converter\BrushToHexConverter.cs" />
     <Compile Include="Converter\ColorToBrushConverter.cs" />
     <Compile Include="Converter\ImageConverter.cs" />
@@ -379,301 +278,262 @@
     <Compile Include="Converter\ItemToStringConverter.cs" />
     <Compile Include="Converter\StaticResourceConverter.cs" />
     <Compile Include="Converter\ThicknessToDoubleConverter.cs" />
-    <Compile Include="DesktopDuplication\ByteFrame.cs" />
-    <Compile Include="DesktopDuplication\DesktopDuplicationException.cs" />
-    <Compile Include="DesktopDuplication\DesktopFrame.cs" />
-    <Compile Include="DesktopDuplication\IDesktopDuplicatorReader.cs" />
-    <Compile Include="DesktopDuplication\MovedRegion.cs" />
+    <Compile Include="Services\CaptureEngine\ScreenCapture\ByteFrame.cs" />
+    <Compile Include="Services\CaptureEngine\ScreenCapture\DesktopDuplicationException.cs" />
+    <Compile Include="Services\CaptureEngine\ScreenCapture\DesktopFrame.cs" />
+    <Compile Include="Services\CaptureEngine\ScreenCapture\IDesktopDuplicatorReader.cs" />
+    <Compile Include="Services\CaptureEngine\ScreenCapture\MovedRegion.cs" />
     <Compile Include="Extension\ArrayExtensions.cs" />
     <Compile Include="Extension\MathExtensions.cs" />
     <Compile Include="Extension\RawRectangleExtensions.cs" />
     <Compile Include="ViewModel\BaseViewModel.cs" />
     <Compile Include="ViewModel\ISelectableViewParts.cs" />
     <Compile Include="ViewModel\KeyboardHookManagerSingleton.cs" />
-    <Compile Include="ViewModel\DeleteMessageDialogViewModel.cs" />
-    <Compile Include="ViewModel\ExpandedOutputControlViewmodel.cs" />
     <Compile Include="ViewModel\MainViewViewModel.cs" />
-    <Compile Include="ViewModel\Reflectable.cs" />
-    <Compile Include="ViewModel\SystemEditOnly.cs" />
     <Compile Include="ViewModel\SystemTrayContextMenu.cs" />
-    <Compile Include="ViewModel\UserEditOnly.cs" />
-    <Compile Include="ViewModel\UserIncreamentInputViewModel.cs" />
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
-    <Compile Include="ViewModel\VisualProperties.cs" />
-    <Compile Include="View\ActionManagerWindow.xaml.cs" />
-    <Compile Include="View\AutomationNonClientAreaContent.xaml.cs" />
-    <Compile Include="View\DebugWindow.xaml.cs" />
-    <Compile Include="View\GifRegionSelectionWindow.xaml.cs" />
-    <Compile Include="View\ScreenRegionSelectionWindow.xaml.cs" />
-    <Compile Include="View\AudioDeviceSelectionWindow.xaml.cs" />
-    <Compile Include="View\PIDQuickEditNonClientAreaContent.xaml.cs" />
-    <Compile Include="View\DebugNonClientAreaContent.xaml.cs" />
-    <Compile Include="View\DeviceSearchingScreen.xaml.cs" />
-    <Compile Include="View\ZoneVisualizer.cs" />
-    <Compile Include="View\SurfaceEditorNonClientAreaContent.xaml.cs" />
-    <Compile Include="View\StoreNonClientAreaContent.xaml.cs" />
-    <Compile Include="View\PIDQuickEditWindow.xaml.cs" />
-    <Compile Include="View\DeviceOutputMapingView.xaml.cs" />
-    <Compile Include="View\IDEditToolBarView.xaml.cs" />
-    <Compile Include="View\SlaveDeviceNullValueView.xaml.cs" />
-    <Compile Include="View\SlaveDeviceInfoView.xaml.cs" />
-    <Compile Include="View\SlaveDeviceCollectionView.xaml.cs" />
-    <Compile Include="View\OutputControlView.xaml.cs" />
-    <Compile Include="View\DeviceControlView.xaml.cs" />
-    <Compile Include="View\OnlineItemExporterView.xaml.cs" />
-    <Compile Include="View\OnlineItemsCollectionView.xaml.cs" />
-    <Compile Include="View\OnlineItemDetailView.xaml.cs" />
-    <Compile Include="View\AmbinoOnlineStoreView.xaml.cs" />
-    <Compile Include="View\MotionCollectionView.xaml.cs" />
-    <Compile Include="View\CompositionControl.xaml.cs" />
-    <Compile Include="View\CompositionSidePanel.xaml.cs" />
-    <Compile Include="View\OOTBWindow.xaml.cs" />
-    <Compile Include="View\CompositionEditWindow.xaml.cs" />
-    <Compile Include="View\DeviceLiveView.xaml.cs" />
-    <Compile Include="View\VIDEditCanvasWindow.xaml.cs" />
-    <Compile Include="View\RotateSelectionWindow.xaml.cs" />
-    <Compile Include="View\NewItemParametersWindow.xaml.cs" />
-    <Compile Include="View\ScaleSelectionWindow.xaml.cs" />
-    <Compile Include="View\PIDEditCanvasWindow.xaml.cs" />
-    <Compile Include="View\SurfaceEditorWindow.xaml.cs" />
-    <Compile Include="View\AutomationValuePickerWindow.xaml.cs" />
-    <Compile Include="View\TargetDeviceSelectionWindow.xaml.cs" />
-    <Compile Include="View\HotKeySelectionWindow.xaml.cs" />
-    <Compile Include="View\CommonInfoDialog.xaml.cs" />
-    <Compile Include="View\CommonAskingDialog.xaml.cs" />
-    <Compile Include="View\UpdateSelectionWindow.xaml.cs" />
-    <Compile Include="View\PasswordDialog.xaml.cs" />
-    <Compile Include="View\AddNewAutomationWindow.xaml.cs" />
-    <Compile Include="View\AddNewPaletteWindow.xaml.cs" />
-    <Compile Include="View\AddNewProfileWindow.xaml.cs" />
-    <Compile Include="View\AllDeviceView.xaml.cs" />
-    <Compile Include="View\AppSettingsWindow.xaml.cs" />
-    <Compile Include="View\AutomationManagerWindow.xaml.cs" />
-    <Compile Include="View\ColorPickerWindow.xaml.cs" />
-    <Compile Include="View\DeviceConnectionSettingsWindow.xaml.cs" />
-    <Compile Include="View\DeviceFirmwareSettingsWindow.xaml.cs" />
-    <Compile Include="View\FirmwareSelectionWindow.xaml.cs" />
-    <Compile Include="View\GridHelpers.cs" />
-    <Compile Include="View\IDSetupWindow.xaml.cs" />
-    <Compile Include="View\KeySelectionButton.cs" />
-    <Compile Include="View\MainView.xaml.cs" />
-    <Compile Include="View\NonClientAreaContent.xaml.cs" />
-    <Compile Include="View\NotifyObject.cs" />
-    <Compile Include="View\RenameItemWindow.xaml.cs" />
-    <Compile Include="View\ScreenCapturingControl.xaml.cs" />
-    <Compile Include="View\ScreenCapturingSidePanel.xaml.cs" />
-    <Compile Include="View\SimpleListviewControl.xaml.cs" />
-    <Compile Include="View\SizeSelectionWindow.xaml.cs" />
-    <Compile Include="View\SplashScreen.xaml.cs" />
-    <Compile Include="View\SpotDataSelection.xaml.cs" />
-    <Compile Include="View\SpotSetEditing.xaml.cs" />
-    <Compile Include="View\StaticColorControl.xaml.cs" />
-    <Compile Include="View\StaticColorSidePanel.xaml.cs" />
-    <Compile Include="View\UnionOutputControl.xaml.cs" />
-    <Compile Include="View\VerticalMenuItem.cs" />
+    <Compile Include="View\Windows\Automation\ActionManagerWindow.xaml.cs" />
+    <Compile Include="View\Windows\Automation\AutomationNonClientAreaContent.xaml.cs" />
+    <Compile Include="View\Windows\Debug\DebugWindow.xaml.cs" />
+    <Compile Include="View\Windows\Mainview\ControlView\GifRegionSelectionWindow.xaml.cs" />
+    <Compile Include="View\Windows\Mainview\ControlView\Controls\ScreenRegionSelectionWindow.xaml.cs" />
+    <Compile Include="View\Dialogs\AudioDeviceSelectionWindow.xaml.cs" />
+    <Compile Include="View\Windows\SurfaceEditor\PIDQuickEditNonClientAreaContent.xaml.cs" />
+    <Compile Include="View\Windows\Debug\DebugNonClientAreaContent.xaml.cs" />
+    <Compile Include="View\Windows\DeviceDiscovery\DeviceSearchingScreen.xaml.cs" />
+    <Compile Include="View\DataVisualizer\ZoneVisualizer.cs" />
+    <Compile Include="View\Windows\SurfaceEditor\SurfaceEditorNonClientAreaContent.xaml.cs" />
+    <Compile Include="View\Windows\Store\StoreNonClientAreaContent.xaml.cs" />
+    <Compile Include="View\Windows\SurfaceEditor\PIDQuickEditWindow.xaml.cs" />
+    <Compile Include="View\Windows\OOBExperience\DeviceOutputMapingView.xaml.cs" />
+    <Compile Include="View\Windows\Mainview\ControlView\IDEditToolBarView.xaml.cs" />
+    <Compile Include="View\Windows\Mainview\ControlView\SlaveDeviceNullValueView.xaml.cs" />
+    <Compile Include="View\Windows\Mainview\ControlView\SlaveDeviceInfoView.xaml.cs" />
+    <Compile Include="View\Windows\OOBExperience\SlaveDeviceCollectionView.xaml.cs" />
+    <Compile Include="View\Windows\Mainview\ControlView\OutputControlView.xaml.cs" />
+    <Compile Include="View\Windows\Mainview\ControlView\DeviceControlView.xaml.cs" />
+    <Compile Include="View\Windows\Store\OnlineItemExporterView.xaml.cs" />
+    <Compile Include="View\Windows\Store\OnlineItemsCollectionView.xaml.cs" />
+    <Compile Include="View\Windows\Store\OnlineItemDetailView.xaml.cs" />
+    <Compile Include="View\Windows\Store\AmbinoOnlineStoreView.xaml.cs" />
+    <Compile Include="View\Windows\Composition\MotionCollectionView.xaml.cs" />
+    <Compile Include="View\Windows\Composition\CompositionControl.xaml.cs" />
+    <Compile Include="View\Windows\Composition\CompositionSidePanel.xaml.cs" />
+    <Compile Include="View\Windows\OOBExperience\OOTBWindow.xaml.cs" />
+    <Compile Include="View\Windows\Composition\CompositionEditWindow.xaml.cs" />
+    <Compile Include="View\Windows\Mainview\LiveView\DeviceLiveView.xaml.cs" />
+    <Compile Include="View\Dialogs\NewItemParametersWindow.xaml.cs" />
+    <Compile Include="View\Windows\SurfaceEditor\SurfaceEditorWindow.xaml.cs" />
+    <Compile Include="View\Windows\Automation\AutomationValuePickerWindow.xaml.cs" />
+    <Compile Include="View\Windows\Automation\TargetDeviceSelectionWindow.xaml.cs" />
+    <Compile Include="View\Windows\Automation\HotKeySelectionWindow.xaml.cs" />
+    <Compile Include="View\Dialogs\CommonInfoDialog.xaml.cs" />
+    <Compile Include="View\Dialogs\CommonAskingDialog.xaml.cs" />
+    <Compile Include="View\Windows\Settings\UpdateSelectionWindow.xaml.cs" />
+    <Compile Include="View\Windows\Store\PasswordDialog.xaml.cs" />
+    <Compile Include="View\Dialogs\AddNewAutomationWindow.xaml.cs" />
+    <Compile Include="View\Dialogs\AddNewPaletteWindow.xaml.cs" />
+    <Compile Include="View\Dialogs\AddNewProfileWindow.xaml.cs" />
+    <Compile Include="View\Windows\Mainview\Dashboard\AllDeviceView.xaml.cs" />
+    <Compile Include="View\Windows\Settings\AppSettingsWindow.xaml.cs" />
+    <Compile Include="View\Windows\Automation\AutomationManagerWindow.xaml.cs" />
+    <Compile Include="View\Dialogs\ColorPickerWindow.xaml.cs" />
+    <Compile Include="View\Windows\Settings\DeviceConnectionSettingsWindow.xaml.cs" />
+    <Compile Include="View\Windows\Settings\DeviceFirmwareSettingsWindow.xaml.cs" />
+    <Compile Include="View\Dialogs\FirmwareSelectionWindow.xaml.cs" />
+    <Compile Include="View\Helpers\GridHelpers.cs" />
+    <Compile Include="View\Windows\Automation\KeySelectionButton.cs" />
+    <Compile Include="View\Windows\Mainview\MainView.xaml.cs" />
+    <Compile Include="View\Windows\Mainview\NonClientAreaContent.xaml.cs" />
+    <Compile Include="View\Dialogs\SizeSelectionWindow.xaml.cs" />
+    <Compile Include="View\Windows\SplashScreen\SplashScreen.xaml.cs" />
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="View\LEDVisualizer.cs" />
+    <Compile Include="View\DataVisualizer\LEDVisualizer.cs" />
     <Page Include="Properties\DesignTimeResources.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\ActionManagerWindow.xaml">
+    <Page Include="View\Windows\Automation\ActionManagerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>XamlIntelliSenseFileGenerator</Generator>
     </Page>
-    <Page Include="View\AutomationNonClientAreaContent.xaml">
+    <Page Include="View\Windows\Automation\AutomationNonClientAreaContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\DebugWindow.xaml">
+    <Page Include="View\Windows\Debug\DebugWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\GifRegionSelectionWindow.xaml">
+    <Page Include="View\Windows\Mainview\ControlView\GifRegionSelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\ScreenRegionSelectionWindow.xaml">
+    <Page Include="View\Windows\Mainview\ControlView\Controls\ScreenRegionSelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\AudioDeviceSelectionWindow.xaml">
+    <Page Include="View\Dialogs\AudioDeviceSelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\PIDQuickEditNonClientAreaContent.xaml">
+    <Page Include="View\Windows\SurfaceEditor\PIDQuickEditNonClientAreaContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\DebugNonClientAreaContent.xaml">
+    <Page Include="View\Windows\Debug\DebugNonClientAreaContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\DeviceSearchingScreen.xaml">
+    <Page Include="View\Windows\DeviceDiscovery\DeviceSearchingScreen.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\SurfaceEditorNonClientAreaContent.xaml">
+    <Page Include="View\Windows\SurfaceEditor\SurfaceEditorNonClientAreaContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\StoreNonClientAreaContent.xaml">
+    <Page Include="View\Windows\Store\StoreNonClientAreaContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\PIDQuickEditWindow.xaml">
+    <Page Include="View\Windows\SurfaceEditor\PIDQuickEditWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\DeviceOutputMapingView.xaml">
+    <Page Include="View\Windows\OOBExperience\DeviceOutputMapingView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\IDEditToolBarView.xaml">
+    <Page Include="View\Windows\Mainview\ControlView\IDEditToolBarView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\SlaveDeviceNullValueView.xaml">
+    <Page Include="View\Windows\Mainview\ControlView\SlaveDeviceNullValueView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\SlaveDeviceInfoView.xaml">
+    <Page Include="View\Windows\Mainview\ControlView\SlaveDeviceInfoView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\SlaveDeviceCollectionView.xaml">
+    <Page Include="View\Windows\OOBExperience\SlaveDeviceCollectionView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\OutputControlView.xaml">
+    <Page Include="View\Windows\Mainview\ControlView\OutputControlView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\DeviceControlView.xaml">
+    <Page Include="View\Windows\Mainview\ControlView\DeviceControlView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\OnlineItemExporterView.xaml">
+    <Page Include="View\Windows\Store\OnlineItemExporterView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\OnlineItemsCollectionView.xaml">
+    <Page Include="View\Windows\Store\OnlineItemsCollectionView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\OnlineItemDetailView.xaml">
+    <Page Include="View\Windows\Store\OnlineItemDetailView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\AmbinoOnlineStoreView.xaml">
+    <Page Include="View\Windows\Store\AmbinoOnlineStoreView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\MotionCollectionView.xaml">
+    <Page Include="View\Windows\Composition\MotionCollectionView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\CompositionControl.xaml">
+    <Page Include="View\Windows\Composition\CompositionControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\CompositionSidePanel.xaml">
+    <Page Include="View\Windows\Composition\CompositionSidePanel.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\CompositionEditWindow.xaml">
+    <Page Include="View\Windows\Composition\CompositionEditWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\DeviceLiveView.xaml">
+    <Page Include="View\Windows\Mainview\LiveView\DeviceLiveView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\VIDEditCanvasWindow.xaml">
+    <Page Include="View\Dialogs\NewItemParametersWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\RotateSelectionWindow.xaml">
+    <Page Include="View\Windows\SurfaceEditor\SurfaceEditorWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\NewItemParametersWindow.xaml">
+    <Page Include="View\Windows\Automation\AutomationValuePickerWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\ScaleSelectionWindow.xaml">
+    <Page Include="View\Windows\Automation\TargetDeviceSelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\PIDEditCanvasWindow.xaml">
+    <Page Include="View\Windows\Automation\HotKeySelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\SurfaceEditorWindow.xaml">
+    <Page Include="View\Dialogs\CommonInfoDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\AutomationValuePickerWindow.xaml">
+    <Page Include="View\Dialogs\CommonAskingDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\TargetDeviceSelectionWindow.xaml">
+    <Page Include="View\Windows\Settings\UpdateSelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\HotKeySelectionWindow.xaml">
+    <Page Include="View\Windows\OOBExperience\OOTBWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\CommonInfoDialog.xaml">
+    <Page Include="View\Windows\Store\PasswordDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\CommonAskingDialog.xaml">
+    <Page Include="View\Dialogs\AddNewAutomationWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\UpdateSelectionWindow.xaml">
+    <Page Include="View\Dialogs\AddNewPaletteWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\OOTBWindow.xaml">
+    <Page Include="View\Dialogs\AddNewProfileWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\PasswordDialog.xaml">
+    <Page Include="View\Windows\Mainview\ControlView\AllDeviceView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\AddNewAutomationWindow.xaml">
+    <Page Include="View\Windows\Settings\AppSettingsWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\AddNewPaletteWindow.xaml">
+    <Page Include="View\Windows\Automation\AutomationManagerWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\AddNewProfileWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\AllDeviceView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\AppSettingsWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\AutomationManagerWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\ColorPickerWindow.xaml">
+    <Page Include="View\Dialogs\ColorPickerWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -681,77 +541,36 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\DeviceConnectionSettingsWindow.xaml">
+    <Page Include="View\Windows\Settings\DeviceConnectionSettingsWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\DeviceFirmwareSettingsWindow.xaml">
+    <Page Include="View\Windows\Settings\DeviceFirmwareSettingsWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\FirmwareSelectionWindow.xaml">
+    <Page Include="View\Dialogs\FirmwareSelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\IDSetupWindow.xaml">
+    <Page Include="View\Windows\Mainview\MainView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\MainView.xaml">
+    <Page Include="View\Windows\Mainview\NonClientAreaContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\NonClientAreaContent.xaml">
+    <Page Include="View\Dialogs\SizeSelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\RenameItemWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\ScreenCapturingControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\ScreenCapturingSidePanel.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\SimpleListviewControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\SizeSelectionWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\SplashScreen.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\SpotDataSelection.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\SpotSetEditing.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\StaticColorControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\StaticColorSidePanel.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\UnionOutputControl.xaml">
+    <Page Include="View\Windows\SplashScreen\SplashScreen.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Messaging\TraceFrameMessage.cs" />
     <Compile Include="Ninject\DeviceSettingsInjectModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -813,9 +632,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <None Include="adrilightApp.nuspec" />
-    <EmbeddedResource Include="Animation\splashLoading.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
     <EmbeddedResource Include="AmbinoFactoryValue\ABBasic24.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -955,7 +771,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Models\" />
+    <Folder Include="View\Controls\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

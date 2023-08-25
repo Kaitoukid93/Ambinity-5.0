@@ -1,5 +1,5 @@
 ﻿
-using adrilight.Util;
+using adrilight.Models.ControlMode.Enum;
 using System.Threading;
 
 namespace adrilight

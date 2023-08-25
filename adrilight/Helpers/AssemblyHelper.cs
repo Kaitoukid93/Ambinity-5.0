@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace adrilight.Util
+namespace adrilight.Helpers
 {
     internal class AssemblyHelper
     {
