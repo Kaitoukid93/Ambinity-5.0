@@ -1,19 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
-using System.Windows.Controls;
-using System.Threading;
-using Castle.Core.Logging;
-using NLog;
-using adrilight.ViewModel;
-using System.Diagnostics;
-using adrilight.Spots;
-using LibreHardwareMonitor.Hardware;
-
-
+﻿using LibreHardwareMonitor.Hardware;
 
 namespace adrilight.Util
 {

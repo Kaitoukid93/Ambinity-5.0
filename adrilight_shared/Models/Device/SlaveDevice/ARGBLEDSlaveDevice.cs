@@ -1,6 +1,6 @@
-﻿using adrilight_shared.Enum;
+﻿using adrilight_shared.Enums;
+using adrilight_shared.Helpers;
 using adrilight_shared.Models.ColorData;
-using adrilight_shared.Models.ControlMode.Enum;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.ControlMode.ModeParameters;
 using adrilight_shared.Models.Device.Zone;

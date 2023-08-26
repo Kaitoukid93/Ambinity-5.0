@@ -1,5 +1,5 @@
 ﻿
-using adrilight_shared.Models.ControlMode.Enum;
+using adrilight_shared.Enums;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 

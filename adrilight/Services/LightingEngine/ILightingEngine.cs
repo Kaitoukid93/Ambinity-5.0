@@ -1,8 +1,7 @@
-﻿
-using adrilight.Models.ControlMode.Enum;
+﻿using adrilight_shared.Enums;
 using System.Threading;
 
-namespace adrilight
+namespace adrilight.Services.LightingEngine
 {
     public interface ILightingEngine
     {

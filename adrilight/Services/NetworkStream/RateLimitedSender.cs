@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using System.Timers;
+﻿using System.Timers;
 
 
-namespace adrilight.Settings
+namespace adrilight.Services.NetworkStream
 {
     class RateLimitedSender
     {
@@ -35,7 +31,7 @@ namespace adrilight.Settings
             alreadySent = true;
         }
 
-        private static void OnWaitPeriodOver(Object sender, ElapsedEventArgs e)
+        private static void OnWaitPeriodOver(object sender, ElapsedEventArgs e)
         {
             timer.Stop();
             if (!alreadySent)

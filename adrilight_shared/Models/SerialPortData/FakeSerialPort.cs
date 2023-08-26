@@ -3,7 +3,7 @@ using System.IO.Ports;
 
 namespace adrilight_shared.Models.SerialPortData
 {
-    class FakeSerialPort : ISerialPortWrapper
+    public class FakeSerialPort : ISerialPortWrapper
     {
         public FakeSerialPort() => Log.Warning("FakeSerialPort created!");
 

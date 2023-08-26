@@ -9,7 +9,7 @@ using System.IO;
 
 namespace adrilight_shared.Models.GifData
 {
-    internal class Gif : ViewModelBase, IParameterValue
+    public class Gif : ViewModelBase, IParameterValue
     {
 
         public Gif(string path)

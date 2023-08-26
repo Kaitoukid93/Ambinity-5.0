@@ -1,4 +1,4 @@
-﻿using adrilight_shared.Models.ControlMode.Enum;
+﻿using adrilight_shared.Enums;
 using adrilight_shared.Models.ControlMode.ModeParameters;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace adrilight_shared.Models.ControlMode.Mode
 {
-    internal class LightingMode : ViewModelBase, IControlMode
+    public class LightingMode : ViewModelBase, IControlMode
     {
         //bool Autostart { get; set; }
 

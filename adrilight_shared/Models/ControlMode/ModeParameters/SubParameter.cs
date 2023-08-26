@@ -1,4 +1,4 @@
-﻿using adrilight_shared.Models.ControlMode.Enum;
+﻿using adrilight_shared.Enums;
 using GalaSoft.MvvmLight;
 using System.Collections.Generic;
 

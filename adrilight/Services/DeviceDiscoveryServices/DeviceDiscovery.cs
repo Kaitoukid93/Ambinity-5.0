@@ -1,7 +1,9 @@
 ﻿using adrilight.Resources;
+using adrilight.Services.OpenRGBService;
 using adrilight.Util;
 using adrilight.ViewModel;
-using adrilight_shared.Enum;
+using adrilight_shared.Enums;
+using adrilight_shared.Extensions;
 using adrilight_shared.Helpers;
 using adrilight_shared.Models.Device;
 using adrilight_shared.Models.Device.Zone;

@@ -1,12 +1,33 @@
 ﻿using adrilight.Helpers;
+using adrilight.Manager;
+using adrilight.Services.NetworkStream;
+using adrilight.Services.SerialStream;
 using adrilight.Settings;
 using adrilight.Settings.Automation;
 using adrilight.Util;
 using adrilight.View;
+using adrilight_shared.Enums;
+using adrilight_shared.Helpers;
+using adrilight_shared.Models.AppProfile;
 using adrilight_shared.Models.Audio;
+using adrilight_shared.Models.ChasingPatternData;
+using adrilight_shared.Models.ColorData;
+using adrilight_shared.Models.Composition;
+using adrilight_shared.Models.ControlMode;
+using adrilight_shared.Models.ControlMode.Mode;
+using adrilight_shared.Models.ControlMode.ModeParameters;
 using adrilight_shared.Models.Device;
+using adrilight_shared.Models.Device.Group;
+using adrilight_shared.Models.Device.Output;
+using adrilight_shared.Models.Device.SlaveDevice;
+using adrilight_shared.Models.Device.Zone;
+using adrilight_shared.Models.Device.Zone.Spot;
+using adrilight_shared.Models.Drawable;
 using adrilight_shared.Models.FrameData;
+using adrilight_shared.Models.GifData;
+using adrilight_shared.Models.KeyboardHook;
 using adrilight_shared.Models.Preview;
+using adrilight_shared.Models.Store;
 using FTPServer;
 using HandyControl.Controls;
 using HandyControl.Data;
@@ -24,7 +45,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.IO.Ports;
@@ -44,9 +64,7 @@ using System.Xml;
 using TimeLineTool;
 using Un4seen.BassWasapi;
 using Bitmap = System.Drawing.Bitmap;
-using Border = adrilight.Settings.Border;
 using Color = System.Windows.Media.Color;
-using ColorPalette = adrilight.Util.ColorPalette;
 using File = System.IO.File;
 using Formatting = Newtonsoft.Json.Formatting;
 using IComputer = adrilight.Util.IComputer;
@@ -283,10 +301,8 @@ namespace adrilight.ViewModel
         public ICommand AddSpotGeometryCommand { get; set; }
         public ICommand AddSpotLayoutCommand { get; set; }
         public ICommand SaveCurretSurfaceLayoutCommand { get; set; }
-        public ICommand SaveCurrentLEDSetupLayoutCommand { get; set; }
         public ICommand SetRandomOutputColorCommand { get; set; }
         public ICommand LockSelectedItemCommand { get; set; }
-        public ICommand OpenAddNewDrawableItemCommand { get; set; }
         public ICommand UnlockSelectedItemCommand { get; set; }
         public ICommand ResetToDefaultRectangleScaleCommand { get; set; }
         public ICommand AglignSelectedItemstoLeftCommand { get; set; }
@@ -2542,14 +2558,6 @@ namespace adrilight.ViewModel
                 LockSelectedItem(p);
             }
             );
-            OpenAddNewDrawableItemCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                OpenAddNewItemWindow();
-            }
-            );
             AddItemsToPIDCanvasCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -2636,16 +2644,6 @@ namespace adrilight.ViewModel
                 SaveCurrentSurfaceLayout();
             }
             );
-
-            SaveCurrentLEDSetupLayoutCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                SaveCurrentLEDSetupLayout(p);
-            }
-            );
-
             UnlockSelectedItemCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -2703,14 +2701,6 @@ namespace adrilight.ViewModel
                 AglignSelectedItemstoTop(p);
             }
             );
-            AddSelectedItemToGroupCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                AddSelectedItemToGroup();
-            }
-          );
             ExitCurrentRunningAppCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -2848,13 +2838,6 @@ namespace adrilight.ViewModel
             }, (p) =>
             {
                 UnZone();
-            });
-            RenameZoneCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                RenameZone();
             });
             SnapshotCommand = new RelayCommand<string>((p) =>
             {
@@ -5745,15 +5728,6 @@ namespace adrilight.ViewModel
         }
 
         private object NameChangingSelectedItem { get; set; }
-
-        private void RenameZone()
-        {
-            NameChangingSelectedItem = PIDEditWindowsRichCanvasItems.Where(z => z is LEDSetup && z.IsSelected).FirstOrDefault();
-            OpenNameEditWindow(pidEditCanvasWindow);
-
-            //now add item from temp bag
-        }
-
         private void AddNewZone(ObservableCollection<IDrawable> itemSource, ObservableCollection<IDrawable> selectedItemsSource) // create new zone from selected spot fomr wellknown itemsource
         {
             var newZone = new LEDSetup();
@@ -6901,9 +6875,9 @@ namespace adrilight.ViewModel
                             foreach (TempDataType temp in newMotions)
                             {
                                 //load motion from disk
-                                var motion = ReadMotionFromResource(testMotionPath); // load test
-                                                                                     //the resize state is implemeting inside render state
-                                                                                     //ResizeMotion(motion, CurrentOutput.OutputLEDSetup.Spots.Count());
+                                //  var motion = ReadMotionFromResource(testMotionPath); // load test
+                                //the resize state is implemeting inside render state
+                                //ResizeMotion(motion, CurrentOutput.OutputLEDSetup.Spots.Count());
                             }
                             break;
                     }
@@ -6915,8 +6889,6 @@ namespace adrilight.ViewModel
             compositionEditWindow.Owner = System.Windows.Application.Current.MainWindow;
             compositionEditWindow.ShowDialog();
         }
-
-        private string testMotionPath = "adrilight.AmbinoFactoryValue.NewBouncing.AML";
 
         private static Motion ReadMotionFromResource(string resourceName)
         {
@@ -7724,29 +7696,6 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-
-        private void OpenAddNewItemWindow()
-        {
-            AvailableShapeToAdd = new ObservableCollection<DrawableShape>();
-            var circleShape = new DrawableShape() {
-                Geometry = Geometry.Parse("M100 50C100 77.6142 77.6142 100 50 100C22.3858 100 0 77.6142 0 50C0 22.3858 22.3858 0 50 0C77.6142 0 100 22.3858 100 50Z"),
-                Name = "Round"
-            };
-            var squareShape = new DrawableShape() {
-                Geometry = Geometry.Parse("M0 0H100V100H0V0Z"),
-                Name = "Square"
-            };
-            AvailableShapeToAdd.Add(squareShape);
-            AvailableShapeToAdd.Add(circleShape);
-            //AvailableShapeToAdd.Add(ambinoA1Inner);
-            //AvailableShapeToAdd.Add(ambinoA1Outer);
-            if (AssemblyHelper.CreateInternalInstance($"View.{"NewItemParametersWindow"}") is System.Windows.Window window)
-            {
-                window.Owner = pidEditCanvasWindow;
-                window.ShowDialog();
-            }
-        }
-
         private Point _mousePosition;
 
         public Point MousePosition {
@@ -7969,70 +7918,6 @@ namespace adrilight.ViewModel
 
         private DrawableHelpers DrawableHlprs { get; set; }
         private ControlModeHelpers CtrlHlprs { get; set; }
-
-        private void SaveCurrentLEDSetupLayout(string mode)
-        {
-            if (mode == "save")
-            {
-                if (DrawableHlprs == null)
-                    DrawableHlprs = new DrawableHelpers();
-                if (CtrlHlprs == null)
-                    CtrlHlprs = new ControlModeHelpers();
-
-                var usableItems = PIDEditWindowsRichCanvasItems.OfType<IDrawable>().Where(d => d is DeviceSpot || d is LEDSetup);
-                if (usableItems.Count() == 0)
-                {
-                    HandyControl.Controls.MessageBox.Show("Bạn phải thêm ít nhất 1 LED", "Invalid LED number", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-                //check if there is any zone exist
-                if (PIDEditWindowsRichCanvasItems.Where(d => d is LEDSetup).Count() == 0)//no zone at all so we add all device spot in to single zone
-                {
-                    //select all spot
-                    var availableSpot = PIDEditWindowsRichCanvasItems.Where(s => s is DeviceSpot).ToList();
-                    availableSpot.ForEach(s => s.IsSelected = true);
-
-                    //add single zone grab all available spot to canvas
-                    AddNewZone(PIDEditWindowsRichCanvasItems, PIDEditWindowSelectedItems);
-                }
-                var usableZone = PIDEditWindowsRichCanvasItems.Where(z => z is LEDSetup).ToList();
-                //now update zone size by its own child
-                foreach (var zone in usableZone)
-                {
-                    //get left and top also, set true
-                    var ledSetup = zone as LEDSetup;
-                }
-                //get new boundRect of all usable zone
-                var newBoundRect = DrawableHlprs.GetBound(usableZone);
-
-                //get current screen size
-                var screen = PIDEditWindowsRichCanvasItems.OfType<IDrawable>().Where(d => d is ScreenBound && !d.IsResizeable).FirstOrDefault();
-                var screenRect = new Rectangle((int)screen.Left, (int)screen.Top, (int)screen.Width, (int)screen.Height);
-
-                foreach (var zone in usableZone)
-                {
-                    //reset origin for each zone
-                    var ledSetup = zone as LEDSetup;
-                    ledSetup.Left -= newBoundRect.Left;
-                    ledSetup.Top -= newBoundRect.Top;
-                    ledSetup.ZoneUID = Guid.NewGuid().ToString();
-                    //make this zone controlable
-                    CtrlHlprs.MakeZoneControlable(ledSetup);
-                }
-
-                CurrentEditingDevice.ControlableZones.Clear();
-                usableZone.ForEach(zone => CurrentEditingDevice.ControlableZones.Add(zone as LEDSetup));
-                CurrentEditingDevice.UpdateSizeByChild(true);
-                CurrentEditingDevice.Left = newBoundRect.Left;
-                CurrentEditingDevice.Top = newBoundRect.Top;
-            }
-
-            if (IsLiveViewOpen)
-                UpdateLiveView();
-            pidEditCanvasWindow.Close();
-            OpenSurfaceEditorWindow();
-        }
-
         private async void SaveCurrentSurfaceLayout()
         {
             var screens = SurfaceEditorItems.OfType<IDrawable>().Where(d => d is ScreenBound);
@@ -8200,8 +8085,6 @@ namespace adrilight.ViewModel
         }
 
         private SurfaceEditorWindow surfaceeditorWindow { get; set; }
-        private PIDEditCanvasWindow pidEditCanvasWindow { get; set; }
-        private VIDEditCanvasWindow vidEditCanvasWindow { get; set; }
 
 
 
@@ -8901,50 +8784,24 @@ namespace adrilight.ViewModel
         {
             if (!Directory.Exists(PalettesCollectionFolderPath))
             {
-                //create default palette
-                var palettes = new List<ColorPalette>();
-                var rainbow = new ColorPalette("Full Rainbow", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.rainbow);
-                var police = new ColorPalette("Police", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.police);
-                var forest = new ColorPalette("Forest", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.forest);
-                var aurora = new ColorPalette("Aurora", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.aurora);
-                var iceandfire = new ColorPalette("Ice and Fire", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.iceandfire);
-                var scarlet = new ColorPalette("Scarlet", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.scarlet);
-                var party = new ColorPalette("Party", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.party);
-                var cloud = new ColorPalette("Cloud", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.cloud);
-                var france = new ColorPalette("France", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.france);
-                var badtrip = new ColorPalette("Bad Trip", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.badtrip);
-                var lemon = new ColorPalette("Lemon", "Zooey", "RGBPalette16", "Default Color Palette by Ambino", DefaultColorCollection.lemon);
-
-                palettes.Add(rainbow);
-                palettes.Add(police);
-                palettes.Add(forest);
-                palettes.Add(aurora);
-                palettes.Add(iceandfire);
-                palettes.Add(scarlet);
-                palettes.Add(party);
-                palettes.Add(cloud);
-                palettes.Add(france);
-                palettes.Add(badtrip);
-                palettes.Add(lemon);
                 Directory.CreateDirectory(PalettesCollectionFolderPath);
                 var collectionFolder = Path.Combine(PalettesCollectionFolderPath, "collection");
                 Directory.CreateDirectory(collectionFolder);
-                foreach (var palette in palettes)
+                //var allResourceNames = "adrilight.Resources.Colors.ChasingPatterns.json";
+                var allResourceNames = ResourceHlprs.GetResourceFileName();
+                foreach (var resourceName in allResourceNames.Where(r => r.EndsWith(".col")))
                 {
-                    var json = JsonConvert.SerializeObject(palette, new JsonSerializerSettings() {
-                        TypeNameHandling = TypeNameHandling.Auto
-                    });
-                    File.WriteAllText(Path.Combine(collectionFolder, palette.Name + ".col"), json);
+                    ResourceHlprs.CopyResource(resourceName, Path.Combine(collectionFolder, resourceName.Remove(0, 33)));
                 }
-
-                //coppy all internal palettes to local
-                var config = new ResourceLoaderConfig(nameof(ColorPalette), DeserializeMethodEnum.MultiJson);
+                var config = new ResourceLoaderConfig(nameof(ColorPalette), DeserializeMethodEnum.Files);
                 var configJson = JsonConvert.SerializeObject(config, new JsonSerializerSettings() {
                     TypeNameHandling = TypeNameHandling.Auto
                 });
-                File.WriteAllText(Path.Combine(PalettesCollectionFolderPath, "config.json"), configJson);
+                File.WriteAllText(Path.Combine(ChasingPatternsCollectionFolderPath, "config.json"), configJson);
+                //copy default chasing pattern from resource
             }
         }
+
 
         public List<AppProfile> LoadAppProfileIfExist()
         {

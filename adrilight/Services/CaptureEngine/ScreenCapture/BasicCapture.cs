@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using adrilight_shared.Models.FrameData;
+using Serilog;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using System;

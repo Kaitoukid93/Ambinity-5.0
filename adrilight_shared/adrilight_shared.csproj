@@ -82,6 +82,9 @@
     <Reference Include="Serilog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
       <HintPath>..\packages\Serilog.3.0.1\lib\net471\Serilog.dll</HintPath>
     </Reference>
+    <Reference Include="SharpDX, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpDX.4.2.0\lib\net45\SharpDX.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -120,17 +123,22 @@
     <Compile Include="Converter\StaticResourceConverter.cs" />
     <Compile Include="Converter\ThicknessToDoubleConverter.cs" />
     <Compile Include="Converter\ToUpperValueConverter.cs" />
-    <Compile Include="Enum\ChasingPatternTypeEnum.cs" />
-    <Compile Include="Enum\ControllerTypeEnum.cs" />
-    <Compile Include="Enum\DancingModeEnum.cs" />
-    <Compile Include="Enum\DeserializeMethodEnum.cs" />
-    <Compile Include="Enum\DeviceConnectionTypeEnum.cs" />
-    <Compile Include="Enum\DeviceStateEnum.cs" />
-    <Compile Include="Enum\DeviceTypeEnum.cs" />
-    <Compile Include="Enum\OutputControlablePropertyEnum.cs" />
-    <Compile Include="Enum\OutputTypeEnum.cs" />
-    <Compile Include="Enum\RGBLEDOrderEnum.cs" />
-    <Compile Include="Enum\SlaveDeviceTypeEnum.cs" />
+    <Compile Include="Enums\ChasingPatternTypeEnum.cs" />
+    <Compile Include="Enums\ControllerTypeEnum.cs" />
+    <Compile Include="Enums\DancingModeEnum.cs" />
+    <Compile Include="Enums\DeserializeMethodEnum.cs" />
+    <Compile Include="Enums\DeviceConnectionTypeEnum.cs" />
+    <Compile Include="Enums\DeviceStateEnum.cs" />
+    <Compile Include="Enums\DeviceTypeEnum.cs" />
+    <Compile Include="Enums\OutputControlablePropertyEnum.cs" />
+    <Compile Include="Enums\OutputTypeEnum.cs" />
+    <Compile Include="Enums\RGBLEDOrderEnum.cs" />
+    <Compile Include="Enums\SlaveDeviceTypeEnum.cs" />
+    <Compile Include="Extensions\ArrayExtensions.cs" />
+    <Compile Include="Extensions\EnumExtensions.cs" />
+    <Compile Include="Extensions\FileNameCorector.cs" />
+    <Compile Include="Extensions\MathExtensions.cs" />
+    <Compile Include="Extensions\RawRectangleExtensions.cs" />
     <Compile Include="Helpers\JsonHelpers.cs" />
     <Compile Include="Helpers\LocalFileHelpers.cs" />
     <Compile Include="Helpers\ObjectHelpers.cs" />
@@ -159,11 +167,11 @@
     <Compile Include="Models\Composition\MotionCard.cs" />
     <Compile Include="Models\Composition\MotionLayer.cs" />
     <Compile Include="Models\ControlMode\ControlModeHelpers.cs" />
-    <Compile Include="Models\ControlMode\Enum\LightingModeEnum.cs" />
-    <Compile Include="Models\ControlMode\Enum\MIDFrequency.cs" />
-    <Compile Include="Models\ControlMode\Enum\ModeParameterEnum.cs" />
-    <Compile Include="Models\ControlMode\Enum\ModeParameterTemplateEnum.cs" />
-    <Compile Include="Models\ControlMode\Enum\PWMModeEnum.cs" />
+    <Compile Include="Enums\LightingModeEnum.cs" />
+    <Compile Include="Enums\MIDFrequency.cs" />
+    <Compile Include="Enums\ModeParameterEnum.cs" />
+    <Compile Include="Enums\ModeParameterTemplateEnum.cs" />
+    <Compile Include="Enums\PWMModeEnum.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\AudioDeviceSelectionButtonParameter.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\BaseButtonParameter.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\CapturingRegion.cs" />
@@ -209,7 +217,6 @@
     <Compile Include="Models\Device\Zone\ZoneData.cs" />
     <Compile Include="Models\Drawable\Border.cs" />
     <Compile Include="Models\Drawable\Drawable.cs" />
-    <Compile Include="Models\Drawable\DrawableHelpers.cs" />
     <Compile Include="Models\Drawable\IDrawable.cs" />
     <Compile Include="Models\Drawable\ImageVisual.cs" />
     <Compile Include="Models\Drawable\PathGuide.cs" />
@@ -227,6 +234,7 @@
     <Compile Include="Models\SerialPortData\FakeSerialPort.cs" />
     <Compile Include="Models\SerialPortData\FpsLogger.cs" />
     <Compile Include="Models\SerialPortData\ISerialPortWrapper.cs" />
+    <Compile Include="Models\SerialPortData\WrappedSerialPort.cs" />
     <Compile Include="Models\Store\OnlineItemModel.cs" />
     <Compile Include="Models\Store\StoreCategory.cs" />
     <Compile Include="Models\TickData\Tick.cs" />

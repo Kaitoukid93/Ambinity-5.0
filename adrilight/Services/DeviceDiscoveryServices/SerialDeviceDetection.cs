@@ -1,4 +1,6 @@
-﻿using adrilight_shared.Models.Device;
+﻿using adrilight_shared.Enums;
+using adrilight_shared.Helpers;
+using adrilight_shared.Models.Device;
 using Microsoft.Win32;
 using Serilog;
 using System;

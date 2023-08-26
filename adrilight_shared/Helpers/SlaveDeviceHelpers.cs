@@ -1,4 +1,4 @@
-﻿using adrilight_shared.Enum;
+﻿using adrilight_shared.Enums;
 using adrilight_shared.Models.ControlMode;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.Device;

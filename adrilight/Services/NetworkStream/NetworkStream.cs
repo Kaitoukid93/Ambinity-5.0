@@ -1,37 +1,35 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO.Ports;
-using System.Threading;
-using NLog;
-using System.Buffers;
+﻿using adrilight.Services.SerialStream;
 using adrilight.Util;
+using adrilight_shared.Enums;
+using adrilight_shared.Models.Device;
+using NLog;
+using System;
+using System.IO.Ports;
 using System.Linq;
-using Newtonsoft.Json;
-using System.Windows;
-using adrilight.Spots;
-using System.Threading.Tasks;
-using adrilight.Settings;
-using System.Net.Sockets;
 using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
 
-namespace adrilight
+namespace adrilight.Services.NetworkStream
 {
     internal sealed class
         NetworkStream : IDisposable, ISerialStream
     {
         private ILogger _log = LogManager.GetCurrentClassLogger();
 
-        public NetworkStream(IDeviceSettings deviceSettings ,IGeneralSettings generalSettings)
+        public NetworkStream(IDeviceSettings deviceSettings, IGeneralSettings generalSettings)
         {
             GeneralSettings = generalSettings ?? throw new ArgumentException(nameof(generalSettings));
             DeviceSettings = deviceSettings ?? throw new ArgumentNullException(nameof(deviceSettings));
-          // DeviceSpotSets = deviceSpotSets ?? throw new ArgumentNullException(nameof(deviceSpotSets));
+            // DeviceSpotSets = deviceSpotSets ?? throw new ArgumentNullException(nameof(deviceSpotSets));
             DeviceSettings.PropertyChanged += UserSettings_PropertyChanged;
             RefreshTransferState();
 
             _log.Info($"SerialStream created.");
 
-            
+
         }
         //Dependency Injection//
         private IDeviceSettings DeviceSettings { get; set; }
@@ -41,15 +39,15 @@ namespace adrilight
         private async Task<bool> Refresh() //fetches updated values from WLED device
         {
 
-            bool available;        
-            available= await SendAPICall("");
-            if(!available)
+            bool available;
+            available = await SendAPICall("");
+            if (!available)
             {
                 _log.Debug("current device network address is not available, the device could be offline");
                 HandyControl.Controls.MessageBox.Show("Current device is not available", "Network Address", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-                   
-                   
+
+
             return available;
 
 
@@ -63,7 +61,7 @@ namespace adrilight
                 url = networkAddress;
             }
 
-            string response = await DeviceHttpConnection.GetInstance().Send_WLED_API_Call(url, call);
+            var response = await DeviceHttpConnection.GetInstance().Send_WLED_API_Call(url, call);
             if (response == null)
             {
                 //CurrentStatus = DeviceStatus.Unreachable;
@@ -83,7 +81,7 @@ namespace adrilight
                 return false;
             }
 
-           // CurrentStatus = DeviceStatus.Default; //the received response was valid
+            // CurrentStatus = DeviceStatus.Default; //the received response was valid
 
             //if (!NameIsCustom) Name = deviceResponse.Name;
 
@@ -133,7 +131,7 @@ namespace adrilight
                 else
                 {
                     DeviceSettings.IsTransferActive = false;
-                    
+
                 }
             }
 
@@ -198,7 +196,7 @@ namespace adrilight
 
         public void DFU()
         {
-           //not apply for wireless device
+            //not apply for wireless device
 
         }
 
@@ -206,118 +204,118 @@ namespace adrilight
 
 
 
-      /*  private (byte[] Buffer, int OutputLength) GetOutputStream( int output)
-        {
-            byte[] outputStream;
-            var currentOutput = DeviceSettings.AvailableOutputs[output];
+        /*  private (byte[] Buffer, int OutputLength) GetOutputStream( int output)
+          {
+              byte[] outputStream;
+              var currentOutput = DeviceSettings.AvailableOutputs[output];
 
-            int counter = _messageWARLSPreamble.Length;
+              int counter = _messageWARLSPreamble.Length;
 
-            lock (currentOutput.OutputLEDSetup.Lock)
-            {
-                const int colorsPerLed = 4;
-                int bufferLength = _messageWARLSPreamble.Length 
-                    + (currentOutput.OutputLEDSetup.Spots.Count * colorsPerLed);
-
-
-                outputStream = ArrayPool<byte>.Shared.Rent(bufferLength);
-
-                Buffer.BlockCopy(_messageWARLSPreamble, 0, outputStream, 0, _messageWARLSPreamble.Length);
-
-                var isEnabled = currentOutput.OutputIsEnabled;
-                var allBlack = true;
-                //}
-
-               
-                    foreach (DeviceSpot spot in currentOutput.OutputLEDSetup.Spots)
-                    {
-                    if (isEnabled)
-                    {
-                        var RGBOrder = currentOutput.OutputRGBLEDOrder;
-                        switch (RGBOrder)
-                        {
-                            case "RGB": //RGB
-                                outputStream[counter++] = (byte)spot.Index; //LED index
-                                outputStream[counter++] = spot.Red; // blue
-                                outputStream[counter++] = spot.Green; // green
-                                outputStream[counter++] = spot.Blue; // red
-                                break;
-                            case "GRB": //GRB
-                                outputStream[counter++] = (byte)spot.Index; //LED index
-                                outputStream[counter++] = spot.Green; // blue
-                                outputStream[counter++] = spot.Red; // green
-                                outputStream[counter++] = spot.Blue; // red
-                                break;
-                            case "BRG": //BRG
-                                outputStream[counter++] = (byte)spot.Index; //LED index
-                                outputStream[counter++] = spot.Blue; // blue
-                                outputStream[counter++] = spot.Red; // green
-                                outputStream[counter++] = spot.Green; // red
-                                break;
-                            case "BGR": //BGR
-                                outputStream[counter++] = (byte)spot.Index; //LED index
-                                outputStream[counter++] = spot.Blue; // blue
-                                outputStream[counter++] = spot.Green; // green
-                                outputStream[counter++] = spot.Red; // red
-                                break;
-                            case "GBR"://GBR
-                                outputStream[counter++] = (byte)spot.Index; //LED index
-                                outputStream[counter++] = spot.Green; // blue
-                                outputStream[counter++] = spot.Blue; // green
-                                outputStream[counter++] = spot.Red; // red
-                                break;
-                            case "RBG": //GBR
-                                outputStream[counter++] = (byte)spot.Index; //LED index
-                                outputStream[counter++] = spot.Red; // blue
-                                outputStream[counter++] = spot.Blue; // green
-                                outputStream[counter++] = spot.Green; // red
-                                break;
+              lock (currentOutput.OutputLEDSetup.Lock)
+              {
+                  const int colorsPerLed = 4;
+                  int bufferLength = _messageWARLSPreamble.Length 
+                      + (currentOutput.OutputLEDSetup.Spots.Count * colorsPerLed);
 
 
+                  outputStream = ArrayPool<byte>.Shared.Rent(bufferLength);
 
-                        }
+                  Buffer.BlockCopy(_messageWARLSPreamble, 0, outputStream, 0, _messageWARLSPreamble.Length);
 
-
-                        allBlack = allBlack && spot.Red == 0 && spot.Green == 0 && spot.Blue == 0;
-
-                    }
-                    else
-                    {
-                        outputStream[counter++] = (byte)spot.Index; //LED index
-                        outputStream[counter++] = 0; // blue
-                        outputStream[counter++] = 0; // green
-                        outputStream[counter++] = 0; // red
-                    }
+                  var isEnabled = currentOutput.OutputIsEnabled;
+                  var allBlack = true;
+                  //}
 
 
-                    }
-                   
-                
-              
-
-
-                if (allBlack)
-                {
-                    blackFrameCounter++;
-                }
-            
-            return (outputStream, bufferLength);
-            }
+                      foreach (DeviceSpot spot in currentOutput.OutputLEDSetup.Spots)
+                      {
+                      if (isEnabled)
+                      {
+                          var RGBOrder = currentOutput.OutputRGBLEDOrder;
+                          switch (RGBOrder)
+                          {
+                              case "RGB": //RGB
+                                  outputStream[counter++] = (byte)spot.Index; //LED index
+                                  outputStream[counter++] = spot.Red; // blue
+                                  outputStream[counter++] = spot.Green; // green
+                                  outputStream[counter++] = spot.Blue; // red
+                                  break;
+                              case "GRB": //GRB
+                                  outputStream[counter++] = (byte)spot.Index; //LED index
+                                  outputStream[counter++] = spot.Green; // blue
+                                  outputStream[counter++] = spot.Red; // green
+                                  outputStream[counter++] = spot.Blue; // red
+                                  break;
+                              case "BRG": //BRG
+                                  outputStream[counter++] = (byte)spot.Index; //LED index
+                                  outputStream[counter++] = spot.Blue; // blue
+                                  outputStream[counter++] = spot.Red; // green
+                                  outputStream[counter++] = spot.Green; // red
+                                  break;
+                              case "BGR": //BGR
+                                  outputStream[counter++] = (byte)spot.Index; //LED index
+                                  outputStream[counter++] = spot.Blue; // blue
+                                  outputStream[counter++] = spot.Green; // green
+                                  outputStream[counter++] = spot.Red; // red
+                                  break;
+                              case "GBR"://GBR
+                                  outputStream[counter++] = (byte)spot.Index; //LED index
+                                  outputStream[counter++] = spot.Green; // blue
+                                  outputStream[counter++] = spot.Blue; // green
+                                  outputStream[counter++] = spot.Red; // red
+                                  break;
+                              case "RBG": //GBR
+                                  outputStream[counter++] = (byte)spot.Index; //LED index
+                                  outputStream[counter++] = spot.Red; // blue
+                                  outputStream[counter++] = spot.Blue; // green
+                                  outputStream[counter++] = spot.Green; // red
+                                  break;
 
 
 
-            
+                          }
 
-        }
-    */
+
+                          allBlack = allBlack && spot.Red == 0 && spot.Green == 0 && spot.Blue == 0;
+
+                      }
+                      else
+                      {
+                          outputStream[counter++] = (byte)spot.Index; //LED index
+                          outputStream[counter++] = 0; // blue
+                          outputStream[counter++] = 0; // green
+                          outputStream[counter++] = 0; // red
+                      }
+
+
+                      }
+
+
+
+
+
+                  if (allBlack)
+                  {
+                      blackFrameCounter++;
+                  }
+
+              return (outputStream, bufferLength);
+              }
+
+
+
+
+
+          }
+      */
 
         private void DoWork(object tokenObject)
         {
             var cancellationToken = (CancellationToken)tokenObject;
-           
 
 
-            if (String.IsNullOrEmpty(DeviceSettings.OutputPort))
+
+            if (string.IsNullOrEmpty(DeviceSettings.OutputPort))
             {
                 _log.Warn("Cannot start the UDP Broadcasting because the address is not valid.");
                 return;
@@ -334,19 +332,19 @@ namespace adrilight
                     const int baudRate = 1000000;
                     string openedComPort = null;
 
-                    Socket sock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram,ProtocolType.Udp);
+                    var sock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
                     IPAddress serverAddr = IPAddress.Parse(DeviceSettings.OutputPort);
 
-                    IPEndPoint endPoint = new IPEndPoint(serverAddr, 21324);
+                    var endPoint = new IPEndPoint(serverAddr, 21324);
 
-                  
 
-                    
+
+
 
                     while (!cancellationToken.IsCancellationRequested)
                     {
-                      
+
                         /*
                         //send frame data
                         for(int i = 0; i < DeviceSettings.AvailableOutputs.Length; i++)
@@ -382,7 +380,7 @@ namespace adrilight
                         */
 
 
-                   
+
                     }
                 }
                 catch (OperationCanceledException)
@@ -397,15 +395,15 @@ namespace adrilight
 
 
                     _log.Debug(ex, "Exception catched.");
-                   
+
                     Thread.Sleep(500);
                     Stop();
-            
+
                 }
                 finally
                 {
-                  
-                        _log.Debug("SerialPort Disposed!");
+
+                    _log.Debug("SerialPort Disposed!");
 
 
                 }

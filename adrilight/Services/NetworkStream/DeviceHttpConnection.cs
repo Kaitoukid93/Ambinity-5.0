@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace adrilight.Settings
+namespace adrilight.Services.NetworkStream
 {
     class DeviceHttpConnection
     {
@@ -28,7 +26,7 @@ namespace adrilight.Settings
         {
             try
             {
-                string apiCommand = "/win"; //WLED http API URI
+                var apiCommand = "/win"; //WLED http API URI
                 if (API_Call != null && API_Call.Length > 0)
                 {
                     apiCommand += "&";

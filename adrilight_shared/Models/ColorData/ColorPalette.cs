@@ -5,7 +5,7 @@ using System;
 
 namespace adrilight_shared.Models.ColorData
 {
-    internal class ColorPalette : ViewModelBase, IParameterValue
+    public class ColorPalette : ViewModelBase, IParameterValue
     {
         public ColorPalette(string name, string owner, string type, string description, System.Windows.Media.Color[] colors)
         {

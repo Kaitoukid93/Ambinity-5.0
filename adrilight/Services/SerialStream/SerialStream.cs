@@ -1,6 +1,11 @@
-﻿using adrilight.Settings;
-using adrilight.Spots;
+﻿using adrilight.Services.SerialStream;
 using adrilight.Util;
+using adrilight_shared.Enums;
+using adrilight_shared.Models.Device;
+using adrilight_shared.Models.Device.SlaveDevice;
+using adrilight_shared.Models.Device.Zone;
+using adrilight_shared.Models.Device.Zone.Spot;
+using adrilight_shared.Models.SerialPortData;
 using Serilog;
 using System;
 using System.Buffers;

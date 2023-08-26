@@ -3,7 +3,7 @@ using System.IO.Ports;
 
 namespace adrilight_shared.Models.SerialPortData
 {
-    interface ISerialPortWrapper : IDisposable
+    public interface ISerialPortWrapper : IDisposable
     {
         bool IsOpen { get; }
         SerialPort SerialPort { get; }

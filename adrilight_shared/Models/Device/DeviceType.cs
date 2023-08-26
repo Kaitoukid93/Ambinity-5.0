@@ -1,4 +1,4 @@
-﻿using adrilight_shared.Enum;
+﻿using adrilight_shared.Enums;
 
 namespace adrilight_shared.Models.Device
 {

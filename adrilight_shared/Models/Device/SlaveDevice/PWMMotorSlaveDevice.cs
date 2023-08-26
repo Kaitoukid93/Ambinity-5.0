@@ -1,4 +1,5 @@
-﻿using adrilight_shared.Enum;
+﻿using adrilight_shared.Enums;
+using adrilight_shared.Helpers;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.Drawable;
 using GalaSoft.MvvmLight;

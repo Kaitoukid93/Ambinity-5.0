@@ -1,4 +1,4 @@
-﻿using adrilight_shared.Enum;
+﻿using adrilight_shared.Enums;
 using GalaSoft.MvvmLight;
 
 namespace adrilight_shared.Models.Device

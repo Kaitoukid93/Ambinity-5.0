@@ -1,8 +1,7 @@
-﻿using adrilight_shared.Enum;
+﻿using adrilight_shared.Enums;
 using adrilight_shared.Helpers;
 using adrilight_shared.Models.ChasingPatternData;
 using adrilight_shared.Models.ColorData;
-using adrilight_shared.Models.ControlMode.Enum;
 using adrilight_shared.Models.GifData;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;

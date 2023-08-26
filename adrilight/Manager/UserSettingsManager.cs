@@ -1,4 +1,8 @@
-﻿using adrilight.Settings;
+﻿using adrilight_shared.Enums;
+using adrilight_shared.Models.Device;
+using adrilight_shared.Models.Device.Controller;
+using adrilight_shared.Models.Device.Output;
+using adrilight_shared.Models.Device.SlaveDevice;
 using Newtonsoft.Json;
 using Serilog;
 using System;

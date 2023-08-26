@@ -2,6 +2,9 @@
 using adrilight.Services.CaptureEngine;
 using adrilight.Services.CaptureEngine.ScreenCapture;
 using adrilight.Services.DeviceDiscoveryServices;
+using adrilight.Services.LightingEngine;
+using adrilight.Services.OpenRGBService;
+using adrilight.Services.SerialStream;
 using adrilight.Settings;
 using adrilight.Settings.Automation;
 using adrilight.Util;

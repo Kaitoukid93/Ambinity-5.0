@@ -210,12 +210,11 @@
     <Compile Include="Services\CaptureEngine\ScreenCapture\DesktopDuplicator.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\DesktopFrameDXGI.cs" />
     <Compile Include="Services\CaptureEngine\AudioCapture\AudioCaptureBasic.cs" />
-    <Compile Include="Services\LightingEngine\Gifxelation\Gifxelation.cs" />
-    <Compile Include="Services\LightingEngine\ScreenCapturing\DesktopDuplicatorReader.cs" />
+    <Compile Include="Services\LightingEngine\Gifxelation.cs" />
+    <Compile Include="Services\LightingEngine\DesktopDuplicatorReader.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\Direct3D11Helper.cs" />
     <Compile Include="Services\CaptureEngine\ICaptureEngine.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\MonitorEnumerationHelper.cs" />
-    <Compile Include="Extension\EnumExtensions.cs" />
     <Compile Include="View\Adorners\AttachedAdorner.cs" />
     <Compile Include="View\Helpers\CheckComBoBoxHelper.cs" />
     <Compile Include="View\Helpers\EventToCommand.cs" />
@@ -230,7 +229,7 @@
     <Compile Include="Services\NetworkStream\WLEDDevice.cs" />
     <Compile Include="Services\NetworkStream\XmlApiResponse.cs" />
     <Compile Include="Services\NetworkStream\XmlApiResponseParser.cs" />
-    <Compile Include="Services\LightingEngine\Music\Music.cs" />
+    <Compile Include="Services\LightingEngine\Music.cs" />
     <Compile Include="Services\LightingEngine\ILightingEngine.cs" />
     <Compile Include="View\Methods\NativeMethods.cs" />
     <Compile Include="Services\DeviceDiscoveryServices\DeviceDiscovery.cs" />
@@ -238,31 +237,26 @@
     <Compile Include="Helpers\AssemblyHelper.cs" />
     <Compile Include="Services\CaptureEngine\AudioCapture\AudioFrame.cs" />
     <Compile Include="Services\HWMonitor\Computer.cs" />
-    <Compile Include="Services\LightingEngine\Animation\Animation.cs" />
-    <Compile Include="Services\LightingEngine\ColorPalette\Rainbow.cs" />
-    <Compile Include="Services\LightingEngine\StaticColor\StaticColor.cs" />
+    <Compile Include="Services\LightingEngine\Animation.cs" />
+    <Compile Include="Services\LightingEngine\Rainbow.cs" />
+    <Compile Include="Services\LightingEngine\StaticColor.cs" />
     <Compile Include="Services\HWMonitor\HWMonitor.cs" />
     <Compile Include="Services\HWMonitor\IComputer.cs" />
-    <Compile Include="Services\OpenRGB\IAmbinityClient.cs" />
+    <Compile Include="Services\OpenRGBService\IAmbinityClient.cs" />
     <Compile Include="Services\SerialStream\ISerialStream.cs" />
     <Compile Include="Services\NetworkStream\NetworkStream.cs" />
-    <Compile Include="Services\OpenRGB\AmbinityClient.cs" />
+    <Compile Include="Services\OpenRGBService\AmbinityClient.cs" />
     <Compile Include="Services\Ticker\RainbowTicker.cs" />
     <Compile Include="Services\DeviceDiscoveryServices\SerialDeviceDetection.cs" />
-    <Compile Include="Services\OpenRGB\OpenRGBStream.cs" />
+    <Compile Include="Services\OpenRGBService\OpenRGBStream.cs" />
     <Compile Include="Services\SerialStream\SerialStream.cs" />
     <Compile Include="Manager\StartupManager.cs" />
     <Compile Include="Services\HWMonitor\UpdateVisitor.cs" />
     <Compile Include="ViewModel\VIDToolBarDataModel.cs" />
     <Compile Include="Services\SerialStream\WinApi.cs" />
-    <Compile Include="Services\SerialStream\WrappedSerialPort.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\DesktopDuplicationException.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\DesktopFrame.cs" />
-    <Compile Include="Services\CaptureEngine\ScreenCapture\IDesktopDuplicatorReader.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\MovedRegion.cs" />
-    <Compile Include="Extension\ArrayExtensions.cs" />
-    <Compile Include="Extension\MathExtensions.cs" />
-    <Compile Include="Extension\RawRectangleExtensions.cs" />
     <Compile Include="ViewModel\BaseViewModel.cs" />
     <Compile Include="ViewModel\ISelectableViewParts.cs" />
     <Compile Include="ViewModel\KeyboardHookManagerSingleton.cs" />
@@ -609,30 +603,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <None Include="adrilightApp.nuspec" />
-    <EmbeddedResource Include="AmbinoFactoryValue\ABBasic24.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="AmbinoFactoryValue\ABBasic27.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="AmbinoFactoryValue\ABBasic29.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="AmbinoFactoryValue\ABBasic32.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="AmbinoFactoryValue\ABBasic34.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="AmbinoFactoryValue\ABEDGE2M.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="AmbinoFactoryValue\ABEDGE1M2.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="AmbinoFactoryValue\ABA1.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
     <EmbeddedResource Include="Resources\ChasingPatterns\Bouncing.AML">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -688,6 +658,39 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Tools\OpenRGB\OpenRGB.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\ColorPalette\Aurora.col">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\ColorPalette\Bad Trip.col">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\ColorPalette\Cloud.col">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\ColorPalette\Forest.col">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\ColorPalette\France.col">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\ColorPalette\Full Rainbow.col">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\ColorPalette\Ice and Fire.col">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\ColorPalette\Lemon.col">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\ColorPalette\Party.col">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\ColorPalette\Police.col">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\ColorPalette\Scarlet.col">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>

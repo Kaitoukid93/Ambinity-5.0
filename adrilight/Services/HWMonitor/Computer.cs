@@ -1,4 +1,5 @@
-﻿using LibreHardwareMonitor.Hardware;
+﻿using GalaSoft.MvvmLight;
+using LibreHardwareMonitor.Hardware;
 using System.Collections.Generic;
 using System.Windows.Media;
 
