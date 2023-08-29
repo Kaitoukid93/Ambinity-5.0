@@ -494,6 +494,8 @@
                 </Setter>
             </Style>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="GeometryCollection.xaml">
+                </ResourceDictionary>
                 <hc:ThemeResources>
                     <hc:ThemeResources.ThemeDictionaries>
                         <ResourceDictionary x:Key="Light" hc:ThemeDictionary.Key="Light">
@@ -510,7 +512,7 @@
                         <ResourceDictionary x:Key="Dark" hc:ThemeDictionary.Key="Dark">
 
                             <!-- Put the resources you want to use in the Dark theme Here -->
-                          
+
                             <SolidColorBrush x:Key="HoverBrush" Color="#FF323232" />
                             <SolidColorBrush x:Key="ButtonHoverBrush" Color="#FF434343" />
                             <SolidColorBrush x:Key="MainContentBackgroundBrush" Color="#FF2b2b2b" />
@@ -522,8 +524,6 @@
                 </hc:ThemeResources>
                 <hc:Theme/>
             </ResourceDictionary.MergedDictionaries>
-
-
         </ResourceDictionary>
     </Application.Resources>
 

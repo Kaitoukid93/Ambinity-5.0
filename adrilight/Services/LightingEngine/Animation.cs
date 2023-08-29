@@ -1,9 +1,8 @@
 ﻿using adrilight.ViewModel;
 using adrilight_shared.Enums;
-using adrilight_shared.Models.ChasingPatternData;
-using adrilight_shared.Models.ColorData;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.ControlMode.ModeParameters;
+using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.FrameData;
 using adrilight_shared.Models.TickData;
@@ -345,10 +344,10 @@ namespace adrilight.Services.LightingEngine
             else if (!isRunning && shouldBeRunning)
             {
                 //start it
-                Init();
                 Log.Information("starting the Animation Color Engine");
-                _dimMode = DimMode.Up;
-                _dimFactor = 0.00;
+                _dimMode = DimMode.Down;
+                _dimFactor = 1.00;
+                Init();
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,

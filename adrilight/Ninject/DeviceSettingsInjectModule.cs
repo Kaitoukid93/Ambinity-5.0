@@ -1,4 +1,5 @@
-﻿using adrilight.Resources;
+﻿using adrilight.Manager;
+using adrilight.Resources;
 using adrilight.Services.CaptureEngine;
 using adrilight.Services.CaptureEngine.ScreenCapture;
 using adrilight.Services.DeviceDiscoveryServices;
@@ -28,7 +29,7 @@ namespace adrilight.Ninject
             Bind<HWMonitor>().ToSelf().InSingletonScope();
             Bind<IContext>().To<WpfContext>().InSingletonScope();
             Bind<DeviceDiscovery>().ToSelf().InSingletonScope();
-
+            Bind<DBmanager>().ToSelf().InSingletonScope();
 
 
 
@@ -61,7 +62,6 @@ namespace adrilight.Ninject
 
             Bind<ICaptureEngine>().To<AudioFrame>().InSingletonScope();
             Bind<RainbowTicker>().ToSelf().InSingletonScope();
-
         }
 
     }

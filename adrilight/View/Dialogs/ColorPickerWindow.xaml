@@ -6,7 +6,7 @@
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
-           xmlns:converters="clr-namespace:adrilight.Converter"
+           xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
            xmlns:view ="clr-namespace:adrilight.View"
            mc:Ignorable="d"
            Background="{DynamicResource RegionBrush}"

@@ -1,4 +1,5 @@
-﻿using GalaSoft.MvvmLight;
+﻿using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
+using GalaSoft.MvvmLight;
 using System.Collections.ObjectModel;
 
 namespace adrilight_shared.Models.ControlMode.ModeParameters

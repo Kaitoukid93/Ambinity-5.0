@@ -1,6 +1,6 @@
 ﻿using GalaSoft.MvvmLight;
 
-namespace adrilight.Settings.Automation
+namespace adrilight_shared.Models.Automation
 {
     public class ActionSettings : ViewModelBase
     {

@@ -1,8 +1,8 @@
 ﻿using adrilight_shared.Enums;
 using adrilight_shared.Helpers;
-using adrilight_shared.Models.ColorData;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.ControlMode.ModeParameters;
+using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
 using adrilight_shared.Models.Device.Controller;
 using adrilight_shared.Models.Device.Group;
 using adrilight_shared.Models.Device.Output;
@@ -18,6 +18,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Windows;
 
@@ -190,6 +191,18 @@ namespace adrilight_shared.Models.Device
             }
 
         }
+        bool _isDeserializing = false;
+        [OnDeserializing]
+        internal void OnDeserializingMethod(StreamingContext context)
+        {
+            _isDeserializing = true;
+        }
+
+        [OnDeserialized]
+        internal void OnDeserializedMethod(StreamingContext context)
+        {
+            _isDeserializing = false;
+        }
         public bool ShouldSerializeAvailableControllers()
         {
             return IsLoadingProfile;
@@ -312,46 +325,12 @@ namespace adrilight_shared.Models.Device
         }
         public void TurnOffLED()
         {
-            if (AvailableLightingDevices == null)
-                return;
-            foreach (var device in AvailableLightingDevices)//possible replace with method from IOutputSettings
-            {
-                var lightingDevice = device as ARGBLEDSlaveDevice;
-                lightingDevice.TurnOffLED();
-            }
-            if (ControlZoneGroups != null)
-            {
-                foreach (var group in ControlZoneGroups)
-                {
-                    var lightingZone = group.MaskedControlZone as LEDSetup;
-                    if (lightingZone != null)
-                    {
-                        lightingZone.TurnOffLED();
-                    }
-                }
-            }
+            DeviceState = DeviceStateEnum.Off;
 
         }
         public void TurnOnLED()
         {
-            if (AvailableLightingDevices == null)
-                return;
-            foreach (var device in AvailableLightingDevices)//possible replace with method from IOutputSettings
-            {
-                var lightingDevice = device as ARGBLEDSlaveDevice;
-                lightingDevice.TurnOnLED();
-            }
-            if (ControlZoneGroups != null)
-            {
-                foreach (var group in ControlZoneGroups)
-                {
-                    var lightingZone = group.MaskedControlZone as LEDSetup;
-                    if (lightingZone != null)
-                    {
-                        lightingZone.TurnOnLED();
-                    }
-                }
-            }
+            DeviceState = DeviceStateEnum.Normal;
         }
         public void DeviceEnableChanged()
         {
@@ -361,6 +340,9 @@ namespace adrilight_shared.Models.Device
             {
                 TurnOffLED();
             }
+            if (_isDeserializing) return;
+            var dvcHlprs = new DeviceHelpers();
+            dvcHlprs.WriteSingleDeviceInfoJson(this);
         }
         public void ToggleOnOffLED()
         {

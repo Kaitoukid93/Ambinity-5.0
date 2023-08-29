@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace adrilight.Settings.Automation
+namespace adrilight_shared.Models.Automation
 {
     public class AutomationSettings : ViewModelBase
     {

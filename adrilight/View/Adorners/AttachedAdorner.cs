@@ -1,13 +1,12 @@
-﻿using adrilight.Adorners;
+﻿
 using RichCanvas;
-using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace adrilight.Helpers
+namespace adrilight.View.Adorners
 {
     public class AttachedAdorner
     {
@@ -52,7 +51,7 @@ namespace adrilight.Helpers
             Adorner[] toRemoveArray = layer.GetAdorners(element);
             if (toRemoveArray != null)
             {
-                for (int x = 0; x < toRemoveArray.Length; x++)
+                for (var x = 0; x < toRemoveArray.Length; x++)
                 {
                     layer.Remove(toRemoveArray[x]);
                 }
@@ -60,7 +59,7 @@ namespace adrilight.Helpers
             var value = (bool)e.NewValue;
             if (value && element.IsSelectable)
             {
-                HoverAdorner adorner = new HoverAdorner(element);
+                var adorner = new HoverAdorner(element);
                 adorner.Container.Content = element;
                 adorner.Container.ContentTemplate = (DataTemplate)element.FindResource("HoverAdornerTemplate");
                 layer.Add(adorner);
@@ -90,7 +89,7 @@ namespace adrilight.Helpers
         private static void OnMouseLeaveLine(object sender, MouseEventArgs e)
         {
             var element = (Line)sender;
-            AdornerLayer layer = AdornerLayer.GetAdornerLayer(element);
+            var layer = AdornerLayer.GetAdornerLayer(element);
             if (layer != null)
             {
                 layer.Remove(_currentLineAdorner);
@@ -101,7 +100,7 @@ namespace adrilight.Helpers
         {
             var line = (Line)sender;
 
-            AdornerLayer layer = AdornerLayer.GetAdornerLayer(line);
+            var layer = AdornerLayer.GetAdornerLayer(line);
 
             var adorner = new LineHoverAdorner(line);
             var highlightLine = new Line {
@@ -142,9 +141,9 @@ namespace adrilight.Helpers
 
             //if (!(element.DataContext is ViewModels.Line))
             //{
-            AdornerLayer layer = AdornerLayer.GetAdornerLayer(element);
+            var layer = AdornerLayer.GetAdornerLayer(element);
 
-            HoverAdorner adorner = new HoverAdorner(element);
+            var adorner = new HoverAdorner(element);
             adorner.Container.ContentTemplate = template;
             layer.Add(adorner);
             _currentAdorner = adorner;
@@ -156,7 +155,7 @@ namespace adrilight.Helpers
             var element = (RichItemContainer)sender;
             //if (!(element.DataContext is ViewModels.Line))
             //{
-            AdornerLayer layer = AdornerLayer.GetAdornerLayer(element);
+            var layer = AdornerLayer.GetAdornerLayer(element);
             if (layer != null)
             {
                 layer.Remove(_currentAdorner);

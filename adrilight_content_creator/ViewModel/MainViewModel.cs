@@ -2,6 +2,17 @@
 //using adrilight.Settings;
 //using adrilight.Spots;
 using adrilight_content_creator.View;
+using adrilight_shared.Enums;
+using adrilight_shared.Helpers;
+using adrilight_shared.Models.ControlMode;
+using adrilight_shared.Models.Device;
+using adrilight_shared.Models.Device.Controller;
+using adrilight_shared.Models.Device.Output;
+using adrilight_shared.Models.Device.SlaveDevice;
+using adrilight_shared.Models.Device.Zone;
+using adrilight_shared.Models.Device.Zone.Spot;
+using adrilight_shared.Models.Drawable;
+using adrilight_shared.Models.FrameData;
 //using adrilight_effect_analyzer.Model;
 using Newtonsoft.Json;
 using SharpVectors.Converters;
@@ -201,26 +212,6 @@ namespace adrilight_content_creator.ViewModel
 
             }
           );
-            OpenAddNewDrawableItemCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-
-                OpenAddNewItemWindow();
-
-            }
-          );
-            AddSpotGeometryCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-
-                AddSpotGeometry();
-
-            }
-              );
             ApplyDeviceActualDimensionCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -359,16 +350,7 @@ namespace adrilight_content_creator.ViewModel
 
             }
             );
-            AddItemsToPIDCanvasCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
 
-                AddItemsToPIDCanvas();
-
-            }
-         );
             ChangeSelectedSpotSizeCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -664,23 +646,10 @@ namespace adrilight_content_creator.ViewModel
         #endregion
 
         #region Layout Creator Viewmodel region
-        public DrawableShape SelectedShape { get; set; }
         public double NewItemWidth { get; set; }
         public double NewItemHeight { get; set; }
         public int ItemNumber { get; set; }
         private double _itemsScale;
-
-        private ObservableCollection<DrawableShape> _availableShapeToAdd;
-        public ObservableCollection<DrawableShape> AvailableShapeToAdd
-        {
-            get { return _availableShapeToAdd; }
-            set
-            {
-                _availableShapeToAdd = value;
-                RaisePropertyChanged();
-            }
-        }
-        private adrilight_content_creator.View.NewItemParametersWindow NewItemParamsWindow { get; set; }
         public void UpdateZoneSize(bool withPoint, LEDSetup zone)
         {
             //get all child and set size
@@ -872,26 +841,7 @@ namespace adrilight_content_creator.ViewModel
             }
 
         }
-        private void OpenAddNewItemWindow()
-        {
-            AvailableShapeToAdd = new ObservableCollection<DrawableShape>();
-            var circleShape = new DrawableShape()
-            {
-                Geometry = Geometry.Parse("M100 50C100 77.6142 77.6142 100 50 100C22.3858 100 0 77.6142 0 50C0 22.3858 22.3858 0 50 0C77.6142 0 100 22.3858 100 50Z"),
-                Name = "Round"
-            };
-            var squareShape = new DrawableShape()
-            {
-                Geometry = Geometry.Parse("M0 0H100V100H0V0Z"),
-                Name = "Square"
-            };
-            AvailableShapeToAdd.Add(squareShape);
-            AvailableShapeToAdd.Add(circleShape);
-            NewItemParamsWindow = new adrilight_content_creator.View.NewItemParametersWindow();
-            NewItemParamsWindow.Owner = System.Windows.Application.Current.MainWindow;
-            NewItemParamsWindow.ShowDialog();
 
-        }
         private double _deviceActualWidth;
         private double _deviceActualHeight;
         public double DeviceActualWidth
@@ -1080,45 +1030,7 @@ namespace adrilight_content_creator.ViewModel
                     itemSource.Remove(selectedItems[i]);
             }
         }
-        private void AddItemsToPIDCanvas()
-        {
-            var lastSpotID = CanvasItems.Where(s => s is DeviceSpot).Count();
-            var newItems = new ObservableCollection<IDrawable>();
-            if (ItemNumber == 0)
-            {
-                ItemNumber = 1;
-            }
-            for (int i = 0; i < ItemNumber; i++)
-            {
-                var newItem = new DeviceSpot(
-                    MousePosition.Y,
-                    MousePosition.X,
-                    NewItemWidth > 0 ? NewItemWidth : 20.0,
-                    NewItemHeight > 0 ? NewItemHeight : 20.0,
-                    1,
-                    1,
-                    1,
-                    1,
-                    lastSpotID + i,
-                    lastSpotID + i,
-                    lastSpotID + i,
-                    lastSpotID + i,
-                    lastSpotID + i,
-                    false,
-                    SelectedShape.Geometry);
-                newItem.IsSelected = true;
-                newItem.IsDeleteable = true;
-                newItems.Add(newItem);
 
-            }
-            SpreadItemHorizontal(newItems, 0);
-            foreach (var item in newItems)
-            {
-                CanvasItems.Add(item);
-                //CurrentOutput.OutputLEDSetup.Spots.Add(item as DeviceSpot);
-            }
-
-        }
         private void AglignSelectedItemstoLeft(ObservableCollection<IDrawable> itemSource)
         {
             double minLeft = itemSource.OfType<IDrawable>().Where(d => d.IsSelected).Min(x => x.Left);
@@ -1389,44 +1301,6 @@ namespace adrilight_content_creator.ViewModel
 
 
             }
-        }
-        public string InputShapeData { get; set; }
-        private void AddSpotGeometry()
-        {
-            System.Windows.Forms.OpenFileDialog Import = new System.Windows.Forms.OpenFileDialog();
-            Import.Title = "Chọn GeometryGroup files";
-            Import.CheckFileExists = true;
-            Import.CheckPathExists = true;
-            Import.DefaultExt = "Pro";
-            Import.Filter = "Text files (*.txt)|*.TXT";
-            Import.FilterIndex = 2;
-            Import.Multiselect = false;
-
-            Import.ShowDialog();
-
-            var text = System.IO.File.ReadAllText(Import.FileName);
-            try
-            {
-                StringReader sr = new StringReader(text);
-
-                XmlReader reader = XmlReader.Create(sr);
-
-                Geometry geo = (Geometry)XamlReader.Load(reader);
-
-
-                var lastSpotID = CanvasItems.Where(s => s is DeviceSpot).Count();
-                var newItem = new DrawableShape()
-                {
-                    Geometry = geo,
-                };
-                AvailableShapeToAdd.Add(newItem);
-
-            }
-            catch (Exception ex)
-            {
-
-            }
-
         }
         #endregion
         #region Effect Analyzer Viewmodel region

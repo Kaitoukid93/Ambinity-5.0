@@ -1,5 +1,5 @@
 ﻿using adrilight_shared.Enums;
-using adrilight_shared.Models.ColorData;
+using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
 using adrilight_shared.Models.Device.Controller;
 using adrilight_shared.Models.Device.Group;
 using adrilight_shared.Models.Device.Output;

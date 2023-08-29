@@ -377,7 +377,10 @@ namespace adrilight_shared.Models.Device.Output
             //}
             return 0;
         }
-
+        public bool ShouldSerializeSlaveDevice()
+        {
+            return IsLoadingProfile;
+        }
         public bool SetScale(double scaleX, double scaleY, bool keepOrigin) => throw new NotImplementedException();
     }
 }

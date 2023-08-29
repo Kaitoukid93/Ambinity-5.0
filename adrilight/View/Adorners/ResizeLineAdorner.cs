@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Controls.Primitives;
 
-namespace adrilight.Adorners
+namespace adrilight.View.Adorners
 {
     public class ResizeLineAdorner : ResizeAdorner
     {
@@ -15,8 +15,8 @@ namespace adrilight.Adorners
         protected override void BottomRightThumbDrag(object sender, DragDeltaEventArgs e)
         {
             var hitThumb = (Thumb)sender;
-            double x = e.HorizontalChange;
-            double y = e.VerticalChange;
+            var x = e.HorizontalChange;
+            var y = e.VerticalChange;
 
             if (ItemContainer.Scale.Y < 1 && ItemContainer.Scale.X < 1)
             {
@@ -45,8 +45,8 @@ namespace adrilight.Adorners
         protected override void TopLeftThumbDrag(object sender, DragDeltaEventArgs e)
         {
             var hitThumb = (Thumb)sender;
-            double x = e.HorizontalChange;
-            double y = e.VerticalChange;
+            var x = e.HorizontalChange;
+            var y = e.VerticalChange;
             if (ItemContainer.Scale.Y < 1 && ItemContainer.Scale.X < 1)
             {
                 UpdateWidth(x, hitThumb.DesiredSize.Width);
@@ -93,11 +93,11 @@ namespace adrilight.Adorners
             //Arrange by scale
             if (container.Scale.Y < 1)
             {
-                Container.Arrange(new Rect(new Point((container.Width / 2) - 30, -20), new Size(60, 20)));
+                Container.Arrange(new Rect(new Point(container.Width / 2 - 30, -20), new Size(60, 20)));
             }
             else
             {
-                Container.Arrange(new Rect(new Point((container.Width / 2) - 30, container.Height), new Size(60, 20)));
+                Container.Arrange(new Rect(new Point(container.Width / 2 - 30, container.Height), new Size(60, 20)));
             }
             return finalSize;
         }

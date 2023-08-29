@@ -2,7 +2,7 @@
 
 namespace adrilight_shared.Models.ControlMode.ModeParameters
 {
-    internal class CapturingRegionPreview : PreviewableContent
+    public class CapturingRegionPreview : PreviewableContent
     {
         public CapturingRegionPreview()
         {

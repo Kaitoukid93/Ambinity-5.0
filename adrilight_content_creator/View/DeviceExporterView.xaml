@@ -5,25 +5,19 @@
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-           xmlns:converters="clr-namespace:adrilight_content_creator.Converter" 
-           xmlns:richCanvas="clr-namespace:RichCanvas;assembly=RichCanvas"
+           xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
            mc:Ignorable="d"
-           xmlns:view2 ="clr-namespace:adrilight_content_creator.View"
+           xmlns:view ="clr-namespace:adrilight_content_creator.View"
            x:Name="window"
-           xmlns:behaviors="clr-namespace:adrilight.Helpers.Behaviors;assembly=adrilight"
-           xmlns:helpers="clr-namespace:adrilight.Helpers;assembly=adrilight"
-           xmlns:local ="clr-namespace:adrilight;assembly=adrilight"
-           xmlns:view="clr-namespace:adrilight.View;assembly=adrilight"
-           xmlns:spot ="clr-namespace:adrilight.Spots;assembly=adrilight"
-           xmlns:settings ="clr-namespace:adrilight;assembly=adrilight"
-           xmlns:settings2 ="clr-namespace:adrilight.Settings;assembly=adrilight"
+           xmlns:dataVisualizer ="clr-namespace:adrilight_shared.Models.DataVisualizer;assembly=adrilight_shared"
+           xmlns:devices ="clr-namespace:adrilight_shared.Models.Device;assembly=adrilight_shared"
+           xmlns:zone ="clr-namespace:adrilight_shared.Models.Device.Zone;assembly=adrilight_shared"
            Background="{DynamicResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewModel}">
 
     <UserControl.Resources>
         <ResourceDictionary>
-            <converters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
             <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
             <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
             <converters:Inverseboolvisibility x:Key="InverseBoolToVisConverter"/>
@@ -157,7 +151,7 @@
                 </Style.Triggers>
 
             </Style>
-            <DataTemplate x:Key="_deviceCardListViewTemplate" DataType="{x:Type settings:DeviceSettings}">
+            <DataTemplate x:Key="_deviceCardListViewTemplate" DataType="{x:Type devices:DeviceSettings}">
                 <Grid>
                     <Border Width="{Binding DashboardWidth}" 
                          Height="{Binding DashboardHeight}"
@@ -166,7 +160,7 @@
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseLeftButtonDown">
                                 <i:InvokeCommandAction 
-                                         Command="{Binding Path=DataContext.SelectCardCommand, RelativeSource={RelativeSource AncestorType={x:Type view2:DeviceExporterView}}}"
+                                         Command="{Binding Path=DataContext.SelectCardCommand, RelativeSource={RelativeSource AncestorType={x:Type view:DeviceExporterView}}}"
                                          CommandParameter="{Binding}"/>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
@@ -267,7 +261,7 @@
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseLeftButtonDown">
                                     <i:InvokeCommandAction 
-                  Command="{Binding Path=DataContext.ChageCurrentDeviceSourceCommand, RelativeSource={RelativeSource AncestorType={x:Type view2:DeviceExporterView}}}"
+                  Command="{Binding Path=DataContext.ChageCurrentDeviceSourceCommand, RelativeSource={RelativeSource AncestorType={x:Type view:DeviceExporterView}}}"
                   CommandParameter="existed"/>
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
@@ -307,7 +301,7 @@
                     <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="Add Device"/>
                 </Button>
             </StackPanel>
-          
+
         </Grid>
         <Grid Grid.Column="1">
             <Grid >
@@ -315,7 +309,7 @@
                     <TextBlock Text="PREVIEW"  HorizontalAlignment="Left" VerticalAlignment="Top" FontWeight="SemiBold" Style="{StaticResource TextBlockSubTitle}"/>
                     <TextBlock Margin="0,5" Style="{DynamicResource TextBlockDefaultSecLight}" HorizontalAlignment="Left" MaxWidth="500" TextWrapping="Wrap" Text="Khu vực này sẽ cho thấy thiết bị trông như thế nào và chứa những output nào, mỗi output sẽ hiển thị như nào trong app"/>
                 </StackPanel>
-                
+
                 <Grid Margin="10,100,10,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
@@ -329,14 +323,14 @@
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
                             <Border Width="{Binding SelectedDevice.DashboardWidth}" 
-Height="{Binding SelectedDevice.DashboardHeight}"
-Background="{DynamicResource MainContentBackgroundBrush}"
-CornerRadius="7">
+                                    Height="{Binding SelectedDevice.DashboardHeight}"
+                                    Background="{DynamicResource MainContentBackgroundBrush}"
+                                    CornerRadius="7">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="MouseLeftButtonDown">
                                         <i:InvokeCommandAction 
-                Command="{Binding Path=DataContext.SelectCardCommand, RelativeSource={RelativeSource AncestorType={x:Type view2:DeviceExporterView}}}"
-                CommandParameter="{Binding}"/>
+                                                 Command="{Binding Path=DataContext.SelectCardCommand, RelativeSource={RelativeSource AncestorType={x:Type view:DeviceExporterView}}}"
+                                                 CommandParameter="{Binding}"/>
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                                 <Grid>
@@ -402,7 +396,7 @@ CornerRadius="7">
                             </Border>
                         </GroupBox>
                     </Grid>
-                  
+
                     <Grid Grid.Row="1">
                         <GroupBox   VerticalAlignment="Top" hc:TitleElement.TitleWidth="150" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Top">
                             <GroupBox.HeaderTemplate>
@@ -411,29 +405,29 @@ CornerRadius="7">
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
                             <ScrollViewer>
-                                
-                           
-                            <ItemsControl ItemsSource="{Binding SelectedDevice.AvailableLightingOutputs}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel>
 
-                                        </WrapPanel>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid>
-                                            <Border Margin="5" Background="{DynamicResource MainContentBackgroundBrush}" Width="100" CornerRadius="4">
-                                                <Grid>
-                                                    <Grid.RowDefinitions>
-                                                        <RowDefinition Height="auto"/>
-                                                        <RowDefinition Height="*"/>
-                                                    </Grid.RowDefinitions>
-                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                                        <ToggleButton x:Name="showMore" Margin="5,0,0,0"  Grid.Column="1" IsChecked="{Binding DataContext.ShowMore, RelativeSource={RelativeSource AncestorType=GroupBox}}" HorizontalAlignment="Right" Style="{DynamicResource ToggleButtonIconTransparent}" hc:IconSwitchElement.Geometry="{DynamicResource showMore}" hc:IconSwitchElement.GeometrySelected="{DynamicResource showLess}">
-                                                        </ToggleButton>
-                                                        <Button CommandParameter="{Binding OutputID}" Command="{Binding Path=DataContext.SetSelectedOutputSlaveDeviceFromFileCommand, RelativeSource={RelativeSource AncestorType={x:Type view2:DeviceExporterView}}}" Margin="5" Width="15" Padding="0" hc:IconElement.Width="15" BorderThickness="0" Background="Transparent" hc:IconElement.Geometry="{DynamicResource addnew}"/>
+
+                                <ItemsControl ItemsSource="{Binding SelectedDevice.AvailableLightingOutputs}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel>
+
+                                            </WrapPanel>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Border Margin="5" Background="{DynamicResource MainContentBackgroundBrush}" Width="100" CornerRadius="4">
+                                                    <Grid>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="auto"/>
+                                                            <RowDefinition Height="*"/>
+                                                        </Grid.RowDefinitions>
+                                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                                            <ToggleButton x:Name="showMore" Margin="5,0,0,0"  Grid.Column="1" IsChecked="{Binding DataContext.ShowMore, RelativeSource={RelativeSource AncestorType=GroupBox}}" HorizontalAlignment="Right" Style="{DynamicResource ToggleButtonIconTransparent}" hc:IconSwitchElement.Geometry="{DynamicResource showMore}" hc:IconSwitchElement.GeometrySelected="{DynamicResource showLess}">
+                                                            </ToggleButton>
+                                                            <Button CommandParameter="{Binding OutputID}" Command="{Binding Path=DataContext.SetSelectedOutputSlaveDeviceFromFileCommand, RelativeSource={RelativeSource AncestorType={x:Type view:DeviceExporterView}}}" Margin="5" Width="15" Padding="0" hc:IconElement.Width="15" BorderThickness="0" Background="Transparent" hc:IconElement.Geometry="{DynamicResource addnew}"/>
                                                             <ToggleButton IsChecked="{Binding IsLocked}" Background="Transparent" hc:IconElement.Width="15" hc:IconElement.Height="15" Padding="0" BorderThickness="0" Width="25" Height="25" Margin="0,10,0,10" hc:IconSwitchElement.Geometry="{DynamicResource unlock}" hc:IconSwitchElement.GeometrySelected="{DynamicResource lock}">
                                                                 <ToggleButton.Style>
                                                                     <Style TargetType="ToggleButton" BasedOn="{StaticResource ToggleButtonIcon}">
@@ -447,54 +441,54 @@ CornerRadius="7">
                                                                 </ToggleButton.Style>
                                                             </ToggleButton>
                                                         </StackPanel>
-                                                    
-                                                    <TextBlock Margin="5" HorizontalAlignment="Left" Text="{Binding OutputID}" Style="{DynamicResource TextBlockDefaultSecLight }"/>
-                                                    <Image Grid.Row="1" Margin="5" Source="{Binding SlaveDevice.Thumbnail}"/>
-                                                </Grid>
-                                            </Border>
-                                            <Popup StaysOpen="False" IsOpen="{Binding ElementName=showMore,Path=IsChecked}">
-                                                <Border CornerRadius="2" Background="{DynamicResource MainContentBackgroundBrush}">
-                                                    
-                                               
-                                                <ItemsControl Margin="5"
+
+                                                        <TextBlock Margin="5" HorizontalAlignment="Left" Text="{Binding OutputID}" Style="{DynamicResource TextBlockDefaultSecLight }"/>
+                                                        <Image Grid.Row="1" Margin="5" Source="{Binding SlaveDevice.Thumbnail}"/>
+                                                    </Grid>
+                                                </Border>
+                                                <Popup StaysOpen="False" IsOpen="{Binding ElementName=showMore,Path=IsChecked}">
+                                                    <Border CornerRadius="2" Background="{DynamicResource MainContentBackgroundBrush}">
+
+
+                                                        <ItemsControl Margin="5"
                                                                Name="PreviewGird"  
                                                                HorizontalAlignment="Left"
                                                                VerticalAlignment="Top" 
                                                                ItemsSource="{Binding SlaveDevice.ControlableZones}">
-                                                    <ItemsControl.ItemsPanel>
-                                                        <ItemsPanelTemplate>
-                                                            <Canvas 
+                                                            <ItemsControl.ItemsPanel>
+                                                                <ItemsPanelTemplate>
+                                                                    <Canvas 
                                                                HorizontalAlignment="Center" 
                                                                VerticalAlignment="Top" 
                                                                Name="PreviewCanvas"
                                                                Margin="0" 
                                                                Width="{Binding SlaveDevice.Width,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" 
                                                                Height="{Binding SlaveDevice.Height, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" >
-                                                            </Canvas>
-                                                        </ItemsPanelTemplate>
-                                                    </ItemsControl.ItemsPanel>
-                                                    <ItemsControl.ItemContainerStyle>
-                                                        <Style TargetType="ContentPresenter">
-                                                                <Setter Property="Canvas.Left" Value="{Binding Left}"/>
-                                                                <Setter Property="Canvas.Top" Value="{Binding Top}"/>
-                                                        </Style>
-                                                    </ItemsControl.ItemContainerStyle>
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate DataType="{x:Type local:LEDSetup}">
-                                                            <Grid>
-                                                                <view:ZoneVisualizer Width="{Binding Width}" Height="{Binding Height}" Zone="{Binding}" RenderOptions.BitmapScalingMode="Linear">
-                                                                </view:ZoneVisualizer>
-                                                            </Grid>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
-                                                </Border>
-                                            </Popup>
-                                        </Grid>
-                                        
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                                                                    </Canvas>
+                                                                </ItemsPanelTemplate>
+                                                            </ItemsControl.ItemsPanel>
+                                                            <ItemsControl.ItemContainerStyle>
+                                                                <Style TargetType="ContentPresenter">
+                                                                    <Setter Property="Canvas.Left" Value="{Binding Left}"/>
+                                                                    <Setter Property="Canvas.Top" Value="{Binding Top}"/>
+                                                                </Style>
+                                                            </ItemsControl.ItemContainerStyle>
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate DataType="{x:Type zone:LEDSetup}">
+                                                                    <Grid>
+                                                                        <dataVisualizer:ZoneVisualizer Width="{Binding Width}" Height="{Binding Height}" Zone="{Binding}" RenderOptions.BitmapScalingMode="Linear">
+                                                                        </dataVisualizer:ZoneVisualizer>
+                                                                    </Grid>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                    </Border>
+                                                </Popup>
+                                            </Grid>
+
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
                             </ScrollViewer>
 
 

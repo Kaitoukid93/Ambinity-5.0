@@ -5,17 +5,19 @@
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-           xmlns:converters="clr-namespace:adrilight_content_creator.Converter" 
+           xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"  
            xmlns:richCanvas="clr-namespace:RichCanvas;assembly=RichCanvas"
+           xmlns:slaveDevice ="clr-namespace:adrilight_shared.Models.Device.SlaveDevice;assembly=adrilight_shared"
+           xmlns:spot ="clr-namespace:adrilight_shared.Models.Device.Zone.Spot;assembly=adrilight_shared"
+           xmlns:zone ="clr-namespace:adrilight_shared.Models.Device.Zone;assembly=adrilight_shared"
+           xmlns:device ="clr-namespace:adrilight_shared.Models.Device;assembly=adrilight_shared"
+           xmlns:helpers="clr-namespace:adrilight_content_creator.View.Helpers"
+             xmlns:adorners="clr-namespace:adrilight_content_creator.View.Adorners"
+           xmlns:drawable ="clr-namespace:adrilight_shared.Models.Drawable;assembly=adrilight_shared"
            mc:Ignorable="d"
-           xmlns:view2 ="clr-namespace:adrilight_content_creator.View"
+           xmlns:view ="clr-namespace:adrilight_content_creator.View"
+             
            x:Name="window"
-           xmlns:behaviors="clr-namespace:adrilight.Helpers.Behaviors;assembly=adrilight"
-           xmlns:helpers="clr-namespace:adrilight.Helpers;assembly=adrilight"
-           xmlns:local ="clr-namespace:adrilight;assembly=adrilight"
-           xmlns:view="clr-namespace:adrilight.View;assembly=adrilight"
-           xmlns:spot ="clr-namespace:adrilight.Spots;assembly=adrilight"
-           xmlns:settings ="clr-namespace:adrilight.Settings;assembly=adrilight"
            Background="{DynamicResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewModel}">
@@ -82,7 +84,7 @@
                         <Style TargetType="Rectangle">
                             <Setter Property="Fill" Value="Transparent" />
                             <Setter Property="Stroke" Value="{DynamicResource PrimaryBrush}" />
-                            <Setter Property="StrokeThickness" Value="{Binding DataContext.SelectionRectangleStrokeThickness,RelativeSource={RelativeSource AncestorType={x:Type view2:DeviceLayoutCreatorView}}}" />
+                            <Setter Property="StrokeThickness" Value="{Binding DataContext.SelectionRectangleStrokeThickness,RelativeSource={RelativeSource AncestorType={x:Type view:DeviceLayoutCreatorView}}}" />
                         </Style>
                     </richCanvas:RichItemsControl.SelectionRectangleStyle>
                     <richCanvas:RichItemsControl.ContextMenu>
@@ -112,7 +114,7 @@
                     </richCanvas:RichItemsControl.ContextMenu>
 
                     <richCanvas:RichItemsControl.Resources>
-                        <DataTemplate DataType="{x:Type settings:ARGBLEDSlaveDevice}">
+                        <DataTemplate DataType="{x:Type slaveDevice:ARGBLEDSlaveDevice}">
                             <Grid>
                                 <Canvas Width="{Binding Width,UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}" 
                                                 Height="{Binding Height, UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}">
@@ -142,7 +144,7 @@
                                         </Style>
                                     </ItemsControl.ItemContainerStyle>
                                     <ItemsControl.ItemTemplate>
-                                        <DataTemplate DataType="{x:Type local:LEDSetup}">
+                                        <DataTemplate DataType="{x:Type zone:LEDSetup}">
                                             <Grid>
                                                 <ItemsControl IsHitTestVisible="{Binding IsDraggable,Mode=TwoWay}" 
                                                  Name="PreviewGird"  
@@ -236,7 +238,7 @@
 
                             </Grid>
                         </DataTemplate>
-                        <DataTemplate DataType="{x:Type local:LEDSetup}">
+                        <DataTemplate DataType="{x:Type zone:LEDSetup}">
                             <Grid>
                                 <ItemsControl Margin="0,0,0,0"  
                                     Name="PreviewGird"  
@@ -348,7 +350,7 @@
                             </Grid>
 
                         </DataTemplate>
-                        <DataTemplate DataType="{x:Type settings:ImageVisual}">
+                        <DataTemplate DataType="{x:Type drawable:ImageVisual}">
                             <Grid>
                                 <Image Source="{Binding ImagePath}" 
                            Stretch="Uniform" />
@@ -373,30 +375,14 @@
                             </Grid>
                            
                         </DataTemplate>
-                        <DataTemplate DataType="{x:Type settings:PathGuide}">
+                        <DataTemplate DataType="{x:Type drawable:Border}">
                             <Path Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}" 
                               Stretch="Fill"
                               Fill="White"
                               Opacity="0.2">
                             </Path>
                         </DataTemplate>
-                        <DataTemplate DataType="{x:Type settings:Border}">
-                            <Grid>
-                                <StackPanel Orientation="Horizontal">
-                                </StackPanel>
-
-                                <Rectangle Margin="-5,-5,0,0" Stroke="{DynamicResource SecondaryBorderBrush}"
-                                   Width="{Binding Width}"
-                                   Height="{Binding Height}"
-                               StrokeThickness="5"
-                               Fill="Transparent"
-                               StrokeDashArray="2"
-                               IsHitTestVisible="{Binding IsSelectable}">
-                                </Rectangle>
-                            </Grid>
-
-                        </DataTemplate>
-                        <DataTemplate DataType="{x:Type settings:ScreenBound}">
+                        <DataTemplate DataType="{x:Type drawable:Border}">
                             <Grid>
                                 <StackPanel Orientation="Horizontal">
                                 </StackPanel>
@@ -440,9 +426,9 @@
                             <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
                             <Setter Property="Tag"
                             Value="{Binding DataContext, ElementName=window}" />
-                            <Setter Property="helpers:AttachedAdorner.HasHoverAdorner"
+                            <Setter Property="adorners:AttachedAdorner.HasHoverAdorner"
                             Value="False" />
-                            <Setter Property="helpers:AttachedAdorner.ShowResizeAdorner"
+                            <Setter Property="adorners:AttachedAdorner.ShowResizeAdorner"
                             Value="False" />
                             <Setter Property="Top"
                             Value="{Binding Top,Mode=TwoWay}" />
@@ -571,7 +557,7 @@
                                         </Setter.Value>
                                     </Setter>
                                 </Trigger>
-                                <DataTrigger Binding="{Binding DataType}" Value="{x:Type local:LEDSetup}">
+                                <DataTrigger Binding="{Binding DataType}" Value="{x:Type zone:LEDSetup}">
                                     <Setter Property="ContextMenu">
                                         <Setter.Value>
                                             <ContextMenu DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">

@@ -1,9 +1,9 @@
 ﻿using adrilight.Services.CaptureEngine;
 using adrilight.ViewModel;
 using adrilight_shared.Enums;
-using adrilight_shared.Models.ColorData;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.ControlMode.ModeParameters;
+using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.TickData;
 using MoreLinq;
@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Color = System.Windows.Media.Color;
-using ColorPalette = adrilight_shared.Models.ColorData.ColorPalette;
+using ColorPalette = adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues.ColorPalette;
 
 namespace adrilight.Services.LightingEngine
 {
@@ -329,10 +329,10 @@ namespace adrilight.Services.LightingEngine
             else if (!isRunning && shouldBeRunning)
             {
                 //start it
-                Init();
                 Log.Information("starting the Music Engine");
-                _dimMode = DimMode.Up;
-                _dimFactor = 0.00;
+                _dimMode = DimMode.Down;
+                _dimFactor = 1.00;
+                Init();
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,

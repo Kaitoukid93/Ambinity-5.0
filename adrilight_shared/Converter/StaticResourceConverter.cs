@@ -8,7 +8,7 @@ using System.Xaml;
 
 namespace adrilight_shared.Converter
 {
-    class StaticResourceConverter : MarkupExtension, IValueConverter
+    public class StaticResourceConverter : MarkupExtension, IValueConverter
     {
         private Control _target;
 

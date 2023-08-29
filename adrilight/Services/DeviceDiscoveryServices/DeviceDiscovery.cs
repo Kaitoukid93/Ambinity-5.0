@@ -90,7 +90,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
                     {
                         // openRGB device scan only run once at startup
                         var openRGBDevices = (new List<IDeviceSettings>(), new List<string>());
-                        if (Settings.IsOpenRGBEnabled && !_isAllDeviceConnected)
+                        if (Settings.IsOpenRGBEnabled)
                         {
                             openRGBDevices = await ScanOpenRGBDevices();
                         }

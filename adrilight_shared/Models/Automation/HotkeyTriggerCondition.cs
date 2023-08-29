@@ -3,7 +3,7 @@ using GalaSoft.MvvmLight;
 using NonInvasiveKeyboardHookLibrary;
 using System.Collections.ObjectModel;
 
-namespace adrilight.Settings.Automation
+namespace adrilight_shared.Models.Automation
 {
     public class HotkeyTriggerCondition : ViewModelBase, ITriggerCondition
     {

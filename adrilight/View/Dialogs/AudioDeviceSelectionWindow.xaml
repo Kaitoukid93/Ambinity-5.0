@@ -4,8 +4,7 @@
            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:hc="https://handyorg.github.io/handycontrol"
-           xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-           xmlns:converters="clr-namespace:adrilight.Converter"
+           xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
            mc:Ignorable="d"
            Background="{DynamicResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
@@ -94,44 +93,44 @@
     </Window.Resources>
     <ScrollViewer MaxHeight="700">
         <Grid Margin="10,0,10,10">
-        <StackPanel>
-          
-                
-           
-            <Grid>
-                <ListBox hc:ScrollViewerAttach.IsDisabled="True" x:Name="sourceList" SelectionChanged="SourceIndexChanged" ItemContainerStyle="{DynamicResource _listBoxGeneralModeSelectionStyle}" Background="Transparent" BorderThickness="0" ItemsSource="{Binding AudioVisualizers}">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel>
-                                <ListBox Margin="10" IsHitTestVisible="False" SelectedIndex="{Binding CountMID,Mode=TwoWay}" Background="Transparent" BorderThickness="0" ItemContainerStyle="{DynamicResource _listBoxVisualizerItemContainerStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Columns}">
-                                    <ListBox.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <UniformGrid Columns="32" Rows="1"/>
-                                        </ItemsPanelTemplate>
-                                    </ListBox.ItemsPanel>
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <ProgressBar  Minimum="0" Maximum="255" Margin="2" Style="{DynamicResource ProgressBarFlat}" Foreground="{DynamicResource primaryBackgroundBrush}" Background="{DynamicResource SecondaryRegionBrush}" Height="50" Orientation="Vertical" Value="{Binding Value,Mode=TwoWay}">
-                                            </ProgressBar>
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-                                </ListBox>
-                                <TextBlock Margin="15,0,0,10" Text="{Binding Name}"/>
-                            </StackPanel>
+            <StackPanel>
 
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
 
-                </ListBox>
 
-            </Grid>
-            <Grid>
+                <Grid>
+                    <ListBox hc:ScrollViewerAttach.IsDisabled="True" x:Name="sourceList" SelectionChanged="SourceIndexChanged" ItemContainerStyle="{DynamicResource _listBoxGeneralModeSelectionStyle}" Background="Transparent" BorderThickness="0" ItemsSource="{Binding AudioVisualizers}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <ListBox Margin="10" IsHitTestVisible="False" SelectedIndex="{Binding CountMID,Mode=TwoWay}" Background="Transparent" BorderThickness="0" ItemContainerStyle="{DynamicResource _listBoxVisualizerItemContainerStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Columns}">
+                                        <ListBox.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <UniformGrid Columns="32" Rows="1"/>
+                                            </ItemsPanelTemplate>
+                                        </ListBox.ItemsPanel>
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <ProgressBar  Minimum="0" Maximum="255" Margin="2" Style="{DynamicResource ProgressBarFlat}" Foreground="{DynamicResource primaryBackgroundBrush}" Background="{DynamicResource SecondaryRegionBrush}" Height="50" Orientation="Vertical" Value="{Binding Value,Mode=TwoWay}">
+                                                </ProgressBar>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                    <TextBlock Margin="15,0,0,10" Text="{Binding Name}"/>
+                                </StackPanel>
 
-                <Button Margin="0,10,5,5" HorizontalAlignment="Right" Command="{Binding RefreshAudioDeviceCommand}" Content="Refresh"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
 
-            </Grid>
-        
-        </StackPanel>
-    </Grid>
+                    </ListBox>
+
+                </Grid>
+                <Grid>
+
+                    <Button Margin="0,10,5,5" HorizontalAlignment="Right" Command="{Binding RefreshAudioDeviceCommand}" Content="Refresh"/>
+
+                </Grid>
+
+            </StackPanel>
+        </Grid>
     </ScrollViewer>
 </hc:Window>

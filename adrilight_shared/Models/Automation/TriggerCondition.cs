@@ -1,4 +1,4 @@
-﻿namespace adrilight.Settings.Automation
+﻿namespace adrilight_shared.Models.Automation
 {
     public interface ITriggerCondition
     {

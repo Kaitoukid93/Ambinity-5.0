@@ -1,0 +1,211 @@
+﻿<Grid x:Class="adrilight.View.NonClientAreaContent"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Height="42"
+      DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
+      xmlns:hc="https://handyorg.github.io/handycontrol">
+    <Grid.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary
+                    Source="ControlStyle.xaml">
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Grid.Resources>
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+    </Grid.ColumnDefinitions>
+    <Grid Grid.Column="0">
+        <StackPanel Orientation="Horizontal">
+            <Path HorizontalAlignment="left"  Stretch="Uniform" Margin="5,5,10,0" Data="{DynamicResource appicon}" 
+                                      Width="20" 
+                                      Height="20" 
+                                      Fill="{StaticResource PrimaryTextBrush}"/>
+            <TextBlock Margin="5,5,5,0" VerticalAlignment="Center" Text="Adrilight"/>
+        </StackPanel>
+    </Grid>
+    <Grid Grid.Column="1">
+        <StackPanel Orientation="Horizontal">
+            <Button HorizontalAlignment="Stretch" 
+                    HorizontalContentAlignment="Left"  
+                    Padding="0" 
+                    Command="{Binding OpenSurfaceEditorWindowCommand }" 
+                    hc:IconElement.Geometry="{DynamicResource position}" 
+                    CommandParameter="about" 
+                    BorderBrush="Transparent" 
+                    ToolTip="Setup vị trí (Surface Editor)"  
+                    hc:IconElement.Width="18" 
+                    hc:IconElement.Height="18"   
+                    Margin="10,5" 
+                    Style="{DynamicResource ButtonDashed}"/>
+            <Button HorizontalAlignment="Stretch" 
+                    HorizontalContentAlignment="Left" 
+                    Padding="0" 
+                    Command="{Binding OpenAutomationManagerWindowCommand }" 
+                    hc:IconElement.Geometry="{StaticResource auto}" 
+                    CommandParameter="automation" 
+                    BorderBrush="Transparent" 
+                    ToolTip="Phím tắt (Automation)"  
+                    hc:IconElement.Width="18" 
+                    hc:IconElement.Height="18" 
+                    Margin="10,5"  
+                    Style="{DynamicResource ButtonDashed}"/>
+            <Button Padding="0" 
+                    Command="{Binding OpenAmbinoStoreWindowCommand }" 
+                    hc:IconElement.Geometry="{DynamicResource onlineStore}" 
+                    CommandParameter="store" BorderBrush="Transparent"  
+                    Margin="10,5" 
+                    hc:IconElement.Width="18" 
+                    hc:IconElement.Height="18" 
+                    ToolTip="Thư viện (Adrilight store)"  
+                    Style="{DynamicResource ButtonDashed}"/>
+            <Button Grid.Column="1" 
+                    Padding="0" 
+                    Command="{Binding OpenDebugWindowCommand}"
+                    Name="ButtonDebug" 
+                    hc:IconElement.Width="20" 
+                    hc:IconElement.Height="20" 
+                    Margin="10,5,10,5" 
+                    BorderThickness="0"
+                    ToolTip="Cài đặt chung"
+                    Style="{DynamicResource ButtonDashed}"
+                    hc:IconElement.Geometry="{DynamicResource debug}"/>
+            <Button Grid.Column="1" 
+                    Padding="0" 
+                    Command="{Binding OpenAppSettingsWindowCommand}"
+                    Name="ButtonConfig" 
+                    hc:IconElement.Width="18" 
+                    hc:IconElement.Height="18" 
+                    Margin="10,5,20,5" 
+                    BorderThickness="0"
+                    ToolTip="Cài đặt chung"
+                    Style="{DynamicResource ButtonDashed}"
+                    hc:IconElement.Geometry="{DynamicResource generalSettings}"/>
+            <Grid  hc:RelativePanel.AlignRightWithPanel="True" Margin="0,0,10,0">
+                <Popup PlacementTarget="{Binding ElementName=profileBadge}" Effect="{StaticResource EffectShadow1}" AllowsTransparency="True" Grid.ColumnSpan="2"  HorizontalOffset="15" x:Name="profile_selection" VerticalOffset="5" StaysOpen="False">
+                    <hc:TransitioningContentControl Effect="{StaticResource EffectShadow3}" TransitionMode="Top2Bottom">
+                        <Border  Margin="15,0,15,15" Background="{DynamicResource MainContentBackgroundBrush}" CornerRadius="4" BorderThickness="1">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid>
+                                        <TextBlock VerticalAlignment="Center" Margin="10,5" HorizontalAlignment="Left" Text="PROFILES"/>
+                                    </Grid>
+                                </Grid>
+
+                                <hc:Divider LineStroke="{StaticResource RegionBrush}" Margin="-10,2">
+
+                                </hc:Divider>
+                                <StackPanel>
+                                    <ListView IsSynchronizedWithCurrentItem="False"
+                                                 ItemContainerStyle="{StaticResource _listBoxGeneralModeSelectionStyle}"  
+                                                 Background="Transparent"
+                                                 BorderThickness="0"
+                                                 ItemsSource="{Binding AvailableProfiles}"
+                                                 Style="{StaticResource StackPanelVerticalListBox}">
+
+                                        <ListView.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel>
+
+                                                </StackPanel>
+                                            </ItemsPanelTemplate>
+                                        </ListView.ItemsPanel>
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="5">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Path HorizontalAlignment="Left" Stretch="Uniform" Margin="5" Data="{DynamicResource appProfile}" 
+                                                          Width="20" 
+                                                          Height="20" 
+                                                          Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
+                                                    <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,20,0" Grid.Column="1" Text="{Binding Name}" Style="{StaticResource TextBlockDefault}"/>
+                                                    <Grid Grid.Column="2">
+                                                        <StackPanel Visibility="{Binding Path=IsActivated,Converter={StaticResource Boolean2BooleanReConverter}}" Orientation="Horizontal">
+                                                            <Button Width="25" Height="25" Background="Transparent" ToolTip="Activate" CommandParameter="{Binding .}" Command="{Binding Path=DataContext.ActivateSelectedProfileCommmand, RelativeSource={RelativeSource AncestorType=ListBox}}" hc:IconElement.Width="15" hc:IconElement.Height="15" Style="{DynamicResource ButtonDashed}" BorderBrush="Transparent" hc:IconElement.Geometry="{StaticResource playComposition}" Padding="0" Margin="2"/>
+                                                            <Button Width="25" Height="25" Background="Transparent"  ToolTip="Export Profile" CommandParameter="{Binding .}" Command="{Binding Path=DataContext.ExportItemForOnlineStoreCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" hc:IconElement.Width="15" hc:IconElement.Height="15" Style="{DynamicResource ButtonDashed}"   BorderBrush="Transparent" hc:IconElement.Geometry="{StaticResource export}" Padding="0" Margin="2"/>
+                                                            <Button Width="25" Height="25" Background="Transparent" ToolTip="Delete" CommandParameter="{Binding .}" Command="{Binding Path=DataContext.DeleteAttachedProfileCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" hc:IconElement.Width="15" hc:IconElement.Height="15"  Style="{DynamicResource ButtonDashed}"  BorderBrush="Transparent" hc:IconElement.Geometry="{StaticResource delete}" Padding="0" Margin="2"/>
+                                                        </StackPanel>
+                                                    </Grid>
+
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+
+                                    </ListView>
+
+                                </StackPanel>
+                                <TextBlock  Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Chưa có Profile nào được thêm">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource TextBlockDefaultSecLight}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding AvailableProfiles.Count}" Value="0">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                                    <Button Command="{Binding OpenProfileCreateCommand}" Padding="0" Background="Transparent" BorderThickness="0">
+                                    <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="Create New Profile"/>
+                                </Button>
+                                    <Button Command="{Binding ImportProfileCommand}" Padding="0" Background="Transparent" BorderThickness="0">
+                                        <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="Import Profile"/>
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+
+                        </Border>
+                    </hc:TransitioningContentControl>
+
+                </Popup>
+
+                <Border x:Name="profileBadge" Effect="{DynamicResource EffectShadow1}" Background="{DynamicResource MainContentBackgroundBrush}"   CornerRadius="4" Margin="0,5,5,5" Height="32" VerticalAlignment="Stretch" HorizontalAlignment="Right" Padding="0"  BorderBrush="Transparent">
+                    <Grid Margin="0">
+                        <Grid>
+                            <StackPanel>
+                                <!--<TextBlock Text="ACTIVE PROFILE" Style="{DynamicResource TextBlockDefaultSecLight}"  Margin="5,2"/>
+                                    <hc:Divider  LineStroke="{StaticResource RegionBrush}" Margin="-10,2">
+
+                                    </hc:Divider>-->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Path Grid.Column="0" Width="20" Height="20" Margin="5,5,5,2" Data="{StaticResource profile}" Stretch="Uniform" >
+                                        <Path.Style>
+                                            <Style TargetType="Path">
+                                                <Setter Property="Fill" Value="{DynamicResource PrimaryBrush}"/>
+                                            </Style>
+                                        </Path.Style>
+
+                                    </Path>
+                                    <TextBlock Grid.Column="1" Text="Profiles" Style="{DynamicResource TextBlockDefaultPrimary}" FontWeight="Bold"  Margin="5,0"/>
+                                    <ToggleButton Margin="0,2,0,0" Grid.Column="2" IsChecked="{Binding ElementName=profile_selection,Path=IsOpen,Mode=TwoWay}"  HorizontalAlignment="Right" Style="{DynamicResource ToggleButtonIconTransparent}" hc:IconSwitchElement.Geometry="{DynamicResource showMore}" hc:IconElement.Height="10" hc:IconElement.Width="10" hc:IconSwitchElement.GeometrySelected="{DynamicResource showLess}">
+                                    </ToggleButton>
+                                </Grid>
+
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+
+                </Border>
+
+            </Grid>
+        </StackPanel>
+    </Grid>
+</Grid>

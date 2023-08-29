@@ -3,10 +3,10 @@ using adrilight.ViewModel;
 using adrilight_shared.Enums;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.ControlMode.ModeParameters;
+using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.Device.Zone.Spot;
 using adrilight_shared.Models.FrameData;
-using adrilight_shared.Models.GifData;
 using adrilight_shared.Models.TickData;
 using MoreLinq;
 using Polly;
@@ -279,11 +279,10 @@ namespace adrilight.Services.LightingEngine
             else if (!isRunning && shouldBeRunning)
             {
                 //start it
-                //get current lighting mode confirm that based on desktop duplicator reader engine
-                Init();
                 Log.Information("Starting the Gifxelation Engine");
-                _dimMode = DimMode.Up;
-                _dimFactor = 0.00;
+                _dimMode = DimMode.Down;
+                _dimFactor = 1.00;
+                Init();
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,

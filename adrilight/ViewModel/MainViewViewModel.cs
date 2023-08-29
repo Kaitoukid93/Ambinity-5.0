@@ -3,19 +3,18 @@ using adrilight.Manager;
 using adrilight.Services.NetworkStream;
 using adrilight.Services.SerialStream;
 using adrilight.Settings;
-using adrilight.Settings.Automation;
 using adrilight.Util;
 using adrilight.View;
 using adrilight_shared.Enums;
 using adrilight_shared.Helpers;
 using adrilight_shared.Models.AppProfile;
 using adrilight_shared.Models.Audio;
-using adrilight_shared.Models.ChasingPatternData;
-using adrilight_shared.Models.ColorData;
-using adrilight_shared.Models.Composition;
+using adrilight_shared.Models.Automation;
+using adrilight_shared.Models.CompositionData;
 using adrilight_shared.Models.ControlMode;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.ControlMode.ModeParameters;
+using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
 using adrilight_shared.Models.Device;
 using adrilight_shared.Models.Device.Group;
 using adrilight_shared.Models.Device.Output;
@@ -24,7 +23,6 @@ using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.Device.Zone.Spot;
 using adrilight_shared.Models.Drawable;
 using adrilight_shared.Models.FrameData;
-using adrilight_shared.Models.GifData;
 using adrilight_shared.Models.KeyboardHook;
 using adrilight_shared.Models.Preview;
 using adrilight_shared.Models.Store;
@@ -514,7 +512,17 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        private ObservableCollection<AutomationSettings> _shutdownAutomations;
 
+        public ObservableCollection<AutomationSettings> ShutdownAutomations {
+            get { return _shutdownAutomations; }
+            set
+            {
+                if (_shutdownAutomations == value) return;
+                _shutdownAutomations = value;
+                RaisePropertyChanged();
+            }
+        }
         private ObservableCollection<AutomationSettings> _availableAutomations;
 
         public ObservableCollection<AutomationSettings> AvailableAutomations {
@@ -691,13 +699,11 @@ namespace adrilight.ViewModel
         }
 
         public ResourceHelpers ResourceHlprs { get; private set; }
+        public DeviceHelpers DeviceHlprs { get; private set; }
         public LocalFileHelpers LocalFileHlprs { get; private set; }
         public IGeneralSettings GeneralSettings { get; }
 
         public ISerialStream[] SerialStreams { get; }
-
-        //public IAmbinityClient AmbinityClient { get; set; }
-        private static ReaderWriterLockSlim _readWriteLock = new ReaderWriterLockSlim();
 
         public object this[string propertyName] {
             get
@@ -828,10 +834,10 @@ namespace adrilight.ViewModel
                 var outputDirectory = Path.Combine(lightingOutputDirectory, output.OutputName + "_" + output.OutputID.ToString());
                 Directory.CreateDirectory(outputDirectory);
                 //write output infojson
-                WriteSingleOutputInfoJson(output, device);
+                DeviceHlprs.WriteSingleOutputInfoJson(output, device);
                 var slaveDeviceDirectory = Path.Combine(outputDirectory, "AttachedDevice");
                 Directory.CreateDirectory(slaveDeviceDirectory);
-                WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
+                DeviceHlprs.WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
             }
             var pwmController = device.AvailableControllers.Where(c => c.Type == ControllerTypeEnum.PWMController).FirstOrDefault();
             if (pwmController != null)
@@ -842,17 +848,17 @@ namespace adrilight.ViewModel
                     var outputDirectory = Path.Combine(pwmOutputDirectory, output.OutputName + "_" + output.OutputID.ToString());
                     Directory.CreateDirectory(outputDirectory);
                     //write output infojson
-                    WriteSingleOutputInfoJson(output, device);
+                    DeviceHlprs.WriteSingleOutputInfoJson(output, device);
 
                     //write slave device config
                     var slaveDeviceDirectory = Path.Combine(outputDirectory, "AttachedDevice");
                     Directory.CreateDirectory(slaveDeviceDirectory);
-                    WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
+                    DeviceHlprs.WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
                 }
             }
 
             // finally write infojson
-            WriteSingleDeviceInfoJson(device);
+            DeviceHlprs.WriteSingleDeviceInfoJson(device);
             Log.Information("Device information saved!", device.DeviceName);
         }
 
@@ -1107,117 +1113,6 @@ namespace adrilight.ViewModel
             var json = JsonConvert.SerializeObject(generalSettings, Formatting.Indented);
             Directory.CreateDirectory(JsonPath);
             File.WriteAllText(JsonGeneralFileNameAndPath, json);
-        }
-
-        public void WriteSingleDeviceInfoJson(IDeviceSettings device)
-        {
-            foreach (var controller in device.AvailableControllers)
-            {
-                foreach (var output in controller.Outputs)
-                {
-                    WriteSingleOutputInfoJson(output, device);
-                    WriteSingleSlaveDeviceInfoJson(output.SlaveDevice, output, device);
-
-                }
-            }
-            var directory = Path.Combine(DevicesCollectionFolderPath, device.DeviceName + "-" + device.DeviceUID);
-            var fileToWrite = Path.Combine(directory, "config.json");
-            var json = JsonConvert.SerializeObject(device, new JsonSerializerSettings() {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
-
-            // Set Status to Locked
-            _readWriteLock.EnterWriteLock();
-            try
-            {
-                // Append text to the file
-                using (StreamWriter sw = new StreamWriter(fileToWrite))
-                {
-                    sw.Write(json);
-                    sw.Close();
-                }
-            }
-            finally
-            {
-                // Release lock
-                _readWriteLock.ExitWriteLock();
-            }
-        }
-
-        public void WriteSingleSlaveDeviceInfoJson(ISlaveDevice slaveDevice, IOutputSettings output, IDeviceSettings parrent)
-        {
-            var parrentDirectory = Path.Combine(DevicesCollectionFolderPath, parrent.DeviceName + "-" + parrent.DeviceUID);
-            string outputDirectory = " ";
-            switch (output.OutputType)
-            {
-                case (OutputTypeEnum.PWMOutput):
-                    outputDirectory = Path.Combine(parrentDirectory, "PWmOutputs", output.OutputName + "_" + output.OutputID.ToString());
-                    break;
-
-                case (OutputTypeEnum.ARGBLEDOutput):
-                    outputDirectory = Path.Combine(parrentDirectory, "LightingOutputs", output.OutputName + "_" + output.OutputID.ToString());
-                    break;
-            }
-
-            var fileToWrite = Path.Combine(outputDirectory, "AttachedDevice", "config.json");
-            var json = JsonConvert.SerializeObject(slaveDevice, new JsonSerializerSettings() {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
-
-            // Set Status to Locked
-            _readWriteLock.EnterWriteLock();
-            try
-            {
-                // Append text to the file
-                using (StreamWriter sw = new StreamWriter(fileToWrite))
-                {
-                    sw.Write(json);
-                    sw.Close();
-                }
-            }
-            finally
-            {
-                // Release lock
-                _readWriteLock.ExitWriteLock();
-            }
-            //change thumb path
-        }
-
-        public void WriteSingleOutputInfoJson(IOutputSettings output, IDeviceSettings parrent)
-        {
-            var parrentDirectory = Path.Combine(DevicesCollectionFolderPath, parrent.DeviceName + "-" + parrent.DeviceUID);
-            string childDirectory = " ";
-            switch (output.OutputType)
-            {
-                case (OutputTypeEnum.PWMOutput):
-                    childDirectory = Path.Combine(parrentDirectory, "PWmOutputs", output.OutputName + "_" + output.OutputID.ToString());
-                    break;
-
-                case (OutputTypeEnum.ARGBLEDOutput):
-                    childDirectory = Path.Combine(parrentDirectory, "LightingOutputs", output.OutputName + "_" + output.OutputID.ToString());
-                    break;
-            }
-            var fileToWrite = Path.Combine(childDirectory, "config.json");
-            var json = JsonConvert.SerializeObject(output, new JsonSerializerSettings() {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
-
-            // Set Status to Locked
-            _readWriteLock.EnterWriteLock();
-            try
-            {
-                // Append text to the file
-                using (StreamWriter sw = new StreamWriter(fileToWrite))
-                {
-                    sw.Write(json);
-                    sw.Close();
-                }
-            }
-            finally
-            {
-                // Release lock
-                _readWriteLock.ExitWriteLock();
-            }
         }
 
         #endregion writing database
@@ -1486,7 +1381,7 @@ namespace adrilight.ViewModel
                     var result = await DownloadDeviceInfo(device);
                     if (!result)
                     {
-                        SetSearchingScreenHeaderText("Device info not found: " + device.DeviceName, true);
+                        SetSearchingScreenHeaderText("Using Default: " + device.DeviceName, true);
                     }
                     else
                     {
@@ -1566,7 +1461,7 @@ namespace adrilight.ViewModel
                     if (!oldDevice.IsTransferActive)
                     {
                         oldDevice.IsTransferActive = true;
-                        if (oldDevice.DeviceType.Type == DeviceTypeEnum.AmbinoFanHub)
+                        if (oldDevice.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
                         {
                             GeneralSettings.IsOpenRGBEnabled = true;
                         }
@@ -1574,7 +1469,7 @@ namespace adrilight.ViewModel
                         SetSearchingScreenProgressText("Connected: " + oldDevice.OutputPort);
 
 
-                        WriteSingleDeviceInfoJson(oldDevice);
+                        DeviceHlprs.WriteSingleDeviceInfoJson(oldDevice);
                     }
 
                 }
@@ -1801,37 +1696,6 @@ namespace adrilight.ViewModel
             }
         }
 
-        private BadgeStatus _isSettingsUnsaved = BadgeStatus.Dot;
-
-        public BadgeStatus IsSettingsUnsaved {
-            get
-            {
-                return _isSettingsUnsaved;
-            }
-
-            set
-            {
-                _isSettingsUnsaved = value;
-
-                RaisePropertyChanged();
-            }
-        }
-
-        public bool _isSpeedSettingUnsetted = false;
-
-        public bool IsSpeedSettingUnsetted {
-            get
-            {
-                return _isSpeedSettingUnsetted;
-            }
-
-            set
-            {
-                _isSpeedSettingUnsetted = value;
-
-                RaisePropertyChanged();
-            }
-        }
 
         private string _nameToChange;
 
@@ -3308,7 +3172,7 @@ namespace adrilight.ViewModel
                 return true;
             }, (p) =>
             {
-                WriteSingleDeviceInfoJson(CurrentDevice);
+                DeviceHlprs.WriteSingleDeviceInfoJson(CurrentDevice);
             });
             SelectCardCommand = new RelayCommand<IDeviceSettings>((p) =>
             {
@@ -4880,7 +4744,7 @@ namespace adrilight.ViewModel
                 if (device != null)
                 {
                     //create device info
-                    device.UpdateChildSize();
+                    //device.UpdateChildSize();
                     device.UpdateUID();
                     WriteDeviceInfo(device);
                     //copy thumb
@@ -5302,7 +5166,13 @@ namespace adrilight.ViewModel
                 }
             }
         }
-
+        public void ExecuteShudownAutomationActions()
+        {
+            foreach (var automation in ShutdownAutomations)
+            {
+                ExecuteAutomationActions(automation.Actions);
+            }
+        }
         public void ExecuteAutomationActions(ObservableCollection<ActionSettings> actions)
         {
             if (actions == null)
@@ -8173,6 +8043,14 @@ namespace adrilight.ViewModel
             var name = NewAutomationName;
             AutomationSettings newAutomation = new AutomationSettings { Name = name };
             AvailableAutomations.Add(newAutomation);
+            if (newAutomation.Condition != null && newAutomation.Condition is SystemEventTriggerCondition)
+            {
+                var condition = newAutomation.Condition as SystemEventTriggerCondition;
+                if (condition.Event == SystemEventEnum.Shutdown)
+                {
+                    ShutdownAutomations.Add(newAutomation);
+                }
+            }
             WriteAutomationCollectionJson();
         }
 
@@ -8646,6 +8524,8 @@ namespace adrilight.ViewModel
                 ResourceHlprs = new ResourceHelpers();
             if (LocalFileHlprs == null)
                 LocalFileHlprs = new LocalFileHelpers();
+            if (DeviceHlprs == null)
+                DeviceHlprs = new DeviceHelpers();
             //create Public user
             LoadAvailableAppUser();
             //Task.Run(() => SFTPInit(GeneralSettings.CurrentAppUser));
@@ -8694,9 +8574,18 @@ namespace adrilight.ViewModel
         private void LoadAvailableAutomations()
         {
             AvailableAutomations = new ObservableCollection<AutomationSettings>();
+            ShutdownAutomations = new ObservableCollection<AutomationSettings>();
             foreach (var automation in LoadAutomationIfExist())
             {
                 AvailableAutomations.Add(automation);
+                if (automation.Condition != null && automation.Condition is SystemEventTriggerCondition)
+                {
+                    var condition = automation.Condition as SystemEventTriggerCondition;
+                    if (condition.Event == SystemEventEnum.Shutdown)
+                    {
+                        ShutdownAutomations.Add(automation);
+                    }
+                }
             }
             WriteAutomationCollectionJson();
         }

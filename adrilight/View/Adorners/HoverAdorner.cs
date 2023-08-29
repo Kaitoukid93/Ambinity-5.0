@@ -4,7 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 
-namespace adrilight.Adorners
+namespace adrilight.View.Adorners
 {
     public class HoverAdorner : Adorner
     {

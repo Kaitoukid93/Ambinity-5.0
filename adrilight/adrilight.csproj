@@ -199,6 +199,8 @@
     <PackageReference Include="WpfAnimatedGif" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Manager\DBManager.cs" />
+    <Compile Include="ViewModel\ColorEditingObject.cs" />
     <Compile Include="View\Adorners\HoverAdorner.cs" />
     <Compile Include="View\Adorners\LineHoverAdorner.cs" />
     <Compile Include="View\Adorners\ResizeAdorner.cs" />
@@ -264,87 +266,84 @@
     <Compile Include="ViewModel\SystemTrayContextMenu.cs" />
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
-    <Compile Include="View\Windows\Automation\ActionManagerWindow.xaml.cs" />
-    <Compile Include="View\Windows\Automation\AutomationNonClientAreaContent.xaml.cs" />
-    <Compile Include="View\Windows\Debug\DebugWindow.xaml.cs" />
-    <Compile Include="View\Windows\Mainview\ControlView\GifRegionSelectionWindow.xaml.cs" />
-    <Compile Include="View\Windows\Mainview\ControlView\Controls\ScreenRegionSelectionWindow.xaml.cs" />
+    <Compile Include="View\Screens\Automation\ActionManagerWindow.xaml.cs" />
+    <Compile Include="View\Screens\Automation\AutomationNonClientAreaContent.xaml.cs" />
+    <Compile Include="View\Screens\Debug\DebugWindow.xaml.cs" />
+    <Compile Include="View\Screens\Mainview\ControlView\GifRegionSelectionWindow.xaml.cs" />
+    <Compile Include="View\Screens\Mainview\ControlView\Controls\ScreenRegionSelectionWindow.xaml.cs" />
     <Compile Include="View\Dialogs\AudioDeviceSelectionWindow.xaml.cs" />
-    <Compile Include="View\Windows\SurfaceEditor\PIDQuickEditNonClientAreaContent.xaml.cs" />
-    <Compile Include="View\Windows\Debug\DebugNonClientAreaContent.xaml.cs" />
-    <Compile Include="View\Windows\DeviceDiscovery\DeviceSearchingScreen.xaml.cs" />
-    <Compile Include="View\DataVisualizer\ZoneVisualizer.cs" />
-    <Compile Include="View\Windows\SurfaceEditor\SurfaceEditorNonClientAreaContent.xaml.cs" />
-    <Compile Include="View\Windows\Store\StoreNonClientAreaContent.xaml.cs" />
-    <Compile Include="View\Windows\SurfaceEditor\PIDQuickEditWindow.xaml.cs" />
-    <Compile Include="View\Windows\OOBExperience\DeviceOutputMapingView.xaml.cs" />
-    <Compile Include="View\Windows\Mainview\ControlView\IDEditToolBarView.xaml.cs" />
-    <Compile Include="View\Windows\Mainview\ControlView\SlaveDeviceNullValueView.xaml.cs" />
-    <Compile Include="View\Windows\Mainview\ControlView\SlaveDeviceInfoView.xaml.cs" />
-    <Compile Include="View\Windows\OOBExperience\SlaveDeviceCollectionView.xaml.cs" />
-    <Compile Include="View\Windows\Mainview\ControlView\OutputControlView.xaml.cs" />
-    <Compile Include="View\Windows\Mainview\ControlView\DeviceControlView.xaml.cs" />
-    <Compile Include="View\Windows\Store\OnlineItemExporterView.xaml.cs" />
-    <Compile Include="View\Windows\Store\OnlineItemsCollectionView.xaml.cs" />
-    <Compile Include="View\Windows\Store\OnlineItemDetailView.xaml.cs" />
-    <Compile Include="View\Windows\Store\AmbinoOnlineStoreView.xaml.cs" />
-    <Compile Include="View\Windows\Composition\MotionCollectionView.xaml.cs" />
-    <Compile Include="View\Windows\Composition\CompositionControl.xaml.cs" />
-    <Compile Include="View\Windows\Composition\CompositionSidePanel.xaml.cs" />
-    <Compile Include="View\Windows\OOBExperience\OOTBWindow.xaml.cs" />
-    <Compile Include="View\Windows\Composition\CompositionEditWindow.xaml.cs" />
-    <Compile Include="View\Windows\Mainview\LiveView\DeviceLiveView.xaml.cs" />
-    <Compile Include="View\Dialogs\NewItemParametersWindow.xaml.cs" />
-    <Compile Include="View\Windows\SurfaceEditor\SurfaceEditorWindow.xaml.cs" />
-    <Compile Include="View\Windows\Automation\AutomationValuePickerWindow.xaml.cs" />
-    <Compile Include="View\Windows\Automation\TargetDeviceSelectionWindow.xaml.cs" />
-    <Compile Include="View\Windows\Automation\HotKeySelectionWindow.xaml.cs" />
+    <Compile Include="View\Screens\SurfaceEditor\PIDQuickEditNonClientAreaContent.xaml.cs" />
+    <Compile Include="View\Screens\Debug\DebugNonClientAreaContent.xaml.cs" />
+    <Compile Include="View\Screens\DeviceDiscovery\DeviceSearchingScreen.xaml.cs" />
+    <Compile Include="View\Screens\SurfaceEditor\SurfaceEditorNonClientAreaContent.xaml.cs" />
+    <Compile Include="View\Screens\Store\StoreNonClientAreaContent.xaml.cs" />
+    <Compile Include="View\Screens\SurfaceEditor\PIDQuickEditWindow.xaml.cs" />
+    <Compile Include="View\Screens\OOBExperience\DeviceOutputMapingView.xaml.cs" />
+    <Compile Include="View\Screens\Mainview\ControlView\IDEditToolBarView.xaml.cs" />
+    <Compile Include="View\Screens\Mainview\ControlView\SlaveDeviceNullValueView.xaml.cs" />
+    <Compile Include="View\Screens\Mainview\ControlView\SlaveDeviceInfoView.xaml.cs" />
+    <Compile Include="View\Screens\OOBExperience\SlaveDeviceCollectionView.xaml.cs" />
+    <Compile Include="View\Screens\Mainview\ControlView\OutputControlView.xaml.cs" />
+    <Compile Include="View\Screens\Mainview\ControlView\DeviceControlView.xaml.cs" />
+    <Compile Include="View\Screens\Store\OnlineItemExporterView.xaml.cs" />
+    <Compile Include="View\Screens\Store\OnlineItemsCollectionView.xaml.cs" />
+    <Compile Include="View\Screens\Store\OnlineItemDetailView.xaml.cs" />
+    <Compile Include="View\Screens\Store\AmbinoOnlineStoreView.xaml.cs" />
+    <Compile Include="View\Screens\Composition\MotionCollectionView.xaml.cs" />
+    <Compile Include="View\Screens\Composition\CompositionControl.xaml.cs" />
+    <Compile Include="View\Screens\Composition\CompositionSidePanel.xaml.cs" />
+    <Compile Include="View\Screens\OOBExperience\OOTBWindow.xaml.cs" />
+    <Compile Include="View\Screens\Composition\CompositionEditWindow.xaml.cs" />
+    <Compile Include="View\Screens\Mainview\LiveView\DeviceLiveView.xaml.cs" />
+    <Compile Include="View\Screens\SurfaceEditor\SurfaceEditorWindow.xaml.cs" />
+    <Compile Include="View\Screens\Automation\AutomationValuePickerWindow.xaml.cs" />
+    <Compile Include="View\Screens\Automation\TargetDeviceSelectionWindow.xaml.cs" />
+    <Compile Include="View\Screens\Automation\HotKeySelectionWindow.xaml.cs" />
     <Compile Include="View\Dialogs\CommonInfoDialog.xaml.cs" />
     <Compile Include="View\Dialogs\CommonAskingDialog.xaml.cs" />
-    <Compile Include="View\Windows\Settings\UpdateSelectionWindow.xaml.cs" />
-    <Compile Include="View\Windows\Store\PasswordDialog.xaml.cs" />
+    <Compile Include="View\Screens\Settings\UpdateSelectionWindow.xaml.cs" />
+    <Compile Include="View\Screens\Store\PasswordDialog.xaml.cs" />
     <Compile Include="View\Dialogs\AddNewAutomationWindow.xaml.cs" />
     <Compile Include="View\Dialogs\AddNewPaletteWindow.xaml.cs" />
     <Compile Include="View\Dialogs\AddNewProfileWindow.xaml.cs" />
-    <Compile Include="View\Windows\Mainview\Dashboard\AllDeviceView.xaml.cs" />
-    <Compile Include="View\Windows\Settings\AppSettingsWindow.xaml.cs" />
-    <Compile Include="View\Windows\Automation\AutomationManagerWindow.xaml.cs" />
+    <Compile Include="View\Screens\Mainview\Dashboard\AllDeviceView.xaml.cs" />
+    <Compile Include="View\Screens\Settings\AppSettingsWindow.xaml.cs" />
+    <Compile Include="View\Screens\Automation\AutomationManagerWindow.xaml.cs" />
     <Compile Include="View\Dialogs\ColorPickerWindow.xaml.cs" />
-    <Compile Include="View\Windows\Settings\DeviceConnectionSettingsWindow.xaml.cs" />
-    <Compile Include="View\Windows\Settings\DeviceFirmwareSettingsWindow.xaml.cs" />
+    <Compile Include="View\Screens\Settings\DeviceConnectionSettingsWindow.xaml.cs" />
+    <Compile Include="View\Screens\Settings\DeviceFirmwareSettingsWindow.xaml.cs" />
     <Compile Include="View\Dialogs\FirmwareSelectionWindow.xaml.cs" />
     <Compile Include="View\Helpers\GridHelpers.cs" />
-    <Compile Include="View\Windows\Automation\KeySelectionButton.cs" />
-    <Compile Include="View\Windows\Mainview\MainView.xaml.cs" />
-    <Compile Include="View\Windows\Mainview\NonClientAreaContent.xaml.cs" />
+    <Compile Include="View\Screens\Automation\KeySelectionButton.cs" />
+    <Compile Include="View\Screens\Mainview\MainView.xaml.cs" />
+    <Compile Include="View\Screens\Mainview\NonClientAreaContent.xaml.cs" />
     <Compile Include="View\Dialogs\SizeSelectionWindow.xaml.cs" />
-    <Compile Include="View\Windows\SplashScreen\SplashScreen.xaml.cs" />
+    <Compile Include="View\Screens\SplashScreen\SplashScreen.xaml.cs" />
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="View\DataVisualizer\LEDVisualizer.cs" />
     <Page Include="Properties\DesignTimeResources.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Automation\ActionManagerWindow.xaml">
+    <Page Include="View\Screens\Automation\ActionManagerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>XamlIntelliSenseFileGenerator</Generator>
     </Page>
-    <Page Include="View\Windows\Automation\AutomationNonClientAreaContent.xaml">
+    <Page Include="View\Screens\Automation\AutomationNonClientAreaContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Debug\DebugWindow.xaml">
+    <Page Include="View\Screens\Debug\DebugWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Mainview\ControlView\GifRegionSelectionWindow.xaml">
+    <Page Include="View\Screens\Mainview\ControlView\GifRegionSelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Mainview\ControlView\Controls\ScreenRegionSelectionWindow.xaml">
+    <Page Include="View\Screens\Mainview\ControlView\Controls\ScreenRegionSelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -352,111 +351,107 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\SurfaceEditor\PIDQuickEditNonClientAreaContent.xaml">
+    <Page Include="View\Screens\SurfaceEditor\PIDQuickEditNonClientAreaContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Debug\DebugNonClientAreaContent.xaml">
+    <Page Include="View\Screens\Debug\DebugNonClientAreaContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\DeviceDiscovery\DeviceSearchingScreen.xaml">
+    <Page Include="View\Screens\DeviceDiscovery\DeviceSearchingScreen.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\SurfaceEditor\SurfaceEditorNonClientAreaContent.xaml">
+    <Page Include="View\Screens\SurfaceEditor\SurfaceEditorNonClientAreaContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Store\StoreNonClientAreaContent.xaml">
+    <Page Include="View\Screens\Store\StoreNonClientAreaContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\SurfaceEditor\PIDQuickEditWindow.xaml">
+    <Page Include="View\Screens\SurfaceEditor\PIDQuickEditWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\OOBExperience\DeviceOutputMapingView.xaml">
+    <Page Include="View\Screens\OOBExperience\DeviceOutputMapingView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Mainview\ControlView\IDEditToolBarView.xaml">
+    <Page Include="View\Screens\Mainview\ControlView\IDEditToolBarView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Mainview\ControlView\SlaveDeviceNullValueView.xaml">
+    <Page Include="View\Screens\Mainview\ControlView\SlaveDeviceNullValueView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Mainview\ControlView\SlaveDeviceInfoView.xaml">
+    <Page Include="View\Screens\Mainview\ControlView\SlaveDeviceInfoView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\OOBExperience\SlaveDeviceCollectionView.xaml">
+    <Page Include="View\Screens\OOBExperience\SlaveDeviceCollectionView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Mainview\ControlView\OutputControlView.xaml">
+    <Page Include="View\Screens\Mainview\ControlView\OutputControlView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Mainview\ControlView\DeviceControlView.xaml">
+    <Page Include="View\Screens\Mainview\ControlView\DeviceControlView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Store\OnlineItemExporterView.xaml">
+    <Page Include="View\Screens\Store\OnlineItemExporterView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Store\OnlineItemsCollectionView.xaml">
+    <Page Include="View\Screens\Store\OnlineItemsCollectionView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Store\OnlineItemDetailView.xaml">
+    <Page Include="View\Screens\Store\OnlineItemDetailView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Store\AmbinoOnlineStoreView.xaml">
+    <Page Include="View\Screens\Store\AmbinoOnlineStoreView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Composition\MotionCollectionView.xaml">
+    <Page Include="View\Screens\Composition\MotionCollectionView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Composition\CompositionControl.xaml">
+    <Page Include="View\Screens\Composition\CompositionControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Composition\CompositionSidePanel.xaml">
+    <Page Include="View\Screens\Composition\CompositionSidePanel.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Composition\CompositionEditWindow.xaml">
+    <Page Include="View\Screens\Composition\CompositionEditWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Mainview\LiveView\DeviceLiveView.xaml">
+    <Page Include="View\Screens\Mainview\LiveView\DeviceLiveView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Dialogs\NewItemParametersWindow.xaml">
+    <Page Include="View\Screens\SurfaceEditor\SurfaceEditorWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\SurfaceEditor\SurfaceEditorWindow.xaml">
+    <Page Include="View\Screens\Automation\AutomationValuePickerWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Automation\AutomationValuePickerWindow.xaml">
+    <Page Include="View\Screens\Automation\TargetDeviceSelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Automation\TargetDeviceSelectionWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\Windows\Automation\HotKeySelectionWindow.xaml">
+    <Page Include="View\Screens\Automation\HotKeySelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -468,15 +463,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Settings\UpdateSelectionWindow.xaml">
+    <Page Include="View\Screens\Settings\UpdateSelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\OOBExperience\OOTBWindow.xaml">
+    <Page Include="View\Screens\OOBExperience\OOTBWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Store\PasswordDialog.xaml">
+    <Page Include="View\Screens\Store\PasswordDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -492,15 +487,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Mainview\ControlView\AllDeviceView.xaml">
+    <Page Include="View\Screens\Mainview\Dashboard\AllDeviceView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Settings\AppSettingsWindow.xaml">
+    <Page Include="View\Screens\Settings\AppSettingsWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Automation\AutomationManagerWindow.xaml">
+    <Page Include="View\Screens\Automation\AutomationManagerWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -508,15 +503,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\ControlStyle.xaml">
+    <Page Include="GeometryCollection.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Settings\DeviceConnectionSettingsWindow.xaml">
+    <Page Include="View\Screens\Settings\DeviceConnectionSettingsWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Settings\DeviceFirmwareSettingsWindow.xaml">
+    <Page Include="View\Screens\Settings\DeviceFirmwareSettingsWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -524,11 +519,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Mainview\MainView.xaml">
+    <Page Include="View\Screens\Mainview\MainView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\Mainview\NonClientAreaContent.xaml">
+    <Page Include="View\Screens\Mainview\NonClientAreaContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -536,7 +531,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Windows\SplashScreen\SplashScreen.xaml">
+    <Page Include="View\Screens\SplashScreen\SplashScreen.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

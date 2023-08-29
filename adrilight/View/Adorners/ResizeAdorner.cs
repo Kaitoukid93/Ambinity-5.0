@@ -5,10 +5,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 
-namespace adrilight.Adorners
+namespace adrilight.View.Adorners
 {
     public class ResizeAdorner : Adorner
     {
@@ -45,22 +44,22 @@ namespace adrilight.Adorners
 
         protected void UpdateWidth(double offset, double minWidth)
         {
-            double currentWidth = Math.Max(ItemContainer.Width - offset, minWidth);
+            var currentWidth = Math.Max(ItemContainer.Width - offset, minWidth);
             ItemContainer.Width = currentWidth;
         }
         protected void UpdateHeight(double offset, double minHeight)
         {
-            double currentHeight = Math.Max(ItemContainer.Height - offset, minHeight);
+            var currentHeight = Math.Max(ItemContainer.Height - offset, minHeight);
             ItemContainer.Height = currentHeight;
         }
         protected void UpdateLeft(double offset, double minValue)
         {
-            double currentWidth = Math.Max(ItemContainer.Width - offset, minValue);
+            var currentWidth = Math.Max(ItemContainer.Width - offset, minValue);
             ItemContainer.Left -= currentWidth - ItemContainer.Width;
         }
         protected void UpdateTop(double offset, double minValue)
         {
-            double currentHeight = Math.Max(ItemContainer.Height - offset, minValue);
+            var currentHeight = Math.Max(ItemContainer.Height - offset, minValue);
             ItemContainer.Top -= currentHeight - ItemContainer.Height;
         }
 
@@ -80,8 +79,8 @@ namespace adrilight.Adorners
         protected virtual void BottomLeftThumbDrag(object sender, DragDeltaEventArgs e)
         {
             var hitThumb = (Thumb)sender;
-            double x = e.HorizontalChange;
-            double y = e.VerticalChange;
+            var x = e.HorizontalChange;
+            var y = e.VerticalChange;
 
             UpdateWidth(x, hitThumb.DesiredSize.Width);
             UpdateLeft(x, hitThumb.DesiredSize.Width);
@@ -91,8 +90,8 @@ namespace adrilight.Adorners
         protected virtual void BottomRightThumbDrag(object sender, DragDeltaEventArgs e)
         {
             var hitThumb = (Thumb)sender;
-            double x = e.HorizontalChange;
-            double y = e.VerticalChange;
+            var x = e.HorizontalChange;
+            var y = e.VerticalChange;
 
             UpdateHeight(-y, hitThumb.DesiredSize.Height);
             UpdateWidth(-x, hitThumb.DesiredSize.Width);
@@ -101,8 +100,8 @@ namespace adrilight.Adorners
         protected virtual void TopRightThumbDrag(object sender, DragDeltaEventArgs e)
         {
             var hitThumb = (Thumb)sender;
-            double x = e.HorizontalChange;
-            double y = e.VerticalChange;
+            var x = e.HorizontalChange;
+            var y = e.VerticalChange;
             UpdateHeight(y, hitThumb.DesiredSize.Height);
             UpdateTop(y, hitThumb.DesiredSize.Height);
             UpdateWidth(-x, hitThumb.DesiredSize.Width);
@@ -112,8 +111,8 @@ namespace adrilight.Adorners
         {
             var hitThumb = (Thumb)sender;
             var p = new Point(e.HorizontalChange, e.VerticalChange);
-            double x = p.X;
-            double y = p.Y;
+            var x = p.X;
+            var y = p.Y;
 
             UpdateWidth(x, hitThumb.DesiredSize.Width);
             UpdateLeft(x, hitThumb.DesiredSize.Width);
@@ -155,11 +154,11 @@ namespace adrilight.Adorners
             //Arrange by scale
             if (ItemContainer.Scale.Y < 1)
             {
-                Container.Arrange(new Rect(new Point((ItemContainer.Width / 2) - 30, -20), new Size(60, 20)));
+                Container.Arrange(new Rect(new Point(ItemContainer.Width / 2 - 30, -20), new Size(60, 20)));
             }
             else
             {
-                Container.Arrange(new Rect(new Point((ItemContainer.Width / 2) - 30, ItemContainer.Height), new Size(60, 20)));
+                Container.Arrange(new Rect(new Point(ItemContainer.Width / 2 - 30, ItemContainer.Height), new Size(60, 20)));
             }
             return finalSize;
         }
@@ -192,8 +191,7 @@ namespace adrilight.Adorners
 
         private Thumb CreateThumb()
         {
-            var thumb = new Thumb
-            {
+            var thumb = new Thumb {
                 Background = Brushes.DodgerBlue,
                 Height = 10,
                 Width = 10,

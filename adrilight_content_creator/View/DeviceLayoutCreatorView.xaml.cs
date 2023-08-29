@@ -1,4 +1,4 @@
-﻿using adrilight.Helpers;
+﻿
 using adrilight_content_creator.ViewModel;
 using System;
 using System.Windows.Controls;
@@ -39,7 +39,7 @@ namespace adrilight_content_creator.View
 
         private void Canvas_Keydown(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            if(e.Key==System.Windows.Input.Key.LeftCtrl)
+            if (e.Key == System.Windows.Input.Key.LeftCtrl)
             {
                 layoutCanvas.CanSelectMultipleItems = true;
                 e.Handled = true;
