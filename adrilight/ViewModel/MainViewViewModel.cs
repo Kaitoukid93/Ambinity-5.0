@@ -1351,24 +1351,6 @@ namespace adrilight.ViewModel
         {
             if (IsLoadingProfile)
                 return;
-            //if (FTPHlprs == null)
-            //{
-            //    SFTPInit(GeneralSettings.CurrentAppUser);
-            //    SFTPConnect();
-            //}
-            //if (!FTPHlprs.sFTP.IsConnected)
-            //{
-            //    try
-            //    {
-            //        SFTPConnect();
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        CarouselImageLoading = false;
-            //        return;
-            //    }
-            //}
-
             if (newDevices != null && newDevices.Count > 0)
             {
                 IsDeviceDiscoveryInit = false;
@@ -1394,20 +1376,17 @@ namespace adrilight.ViewModel
                         }
                     }
                     device.IsTransferActive = true;
+
                     if (device.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
                     {
                         GeneralSettings.IsOpenRGBEnabled = true;
                     }
                     SetSearchingScreenProgressText("Writing device information...");
+
                     await Task.Delay(TimeSpan.FromSeconds(2));
+
                     WriteDeviceInfo(device);
 
-                    //var thumbPath = await FTPHlprs.GetFileByName(device.DeviceName + ".png", thumbResourceFolderPath);
-                    //if (thumbPath != null)
-                    //{
-                    //    SetSearchingScreenProgressText("Downloading device information");
-                    //    FTPHlprs.DownloadFile(thumbPath, Path.Combine(ResourceFolderPath, device.DeviceName + "_thumb.png"), DownloadProgresBar);
-                    //}
                     lock (AvailableDeviceLock)
                     {
                         System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
@@ -1428,19 +1407,8 @@ namespace adrilight.ViewModel
                 if (_noDeviceDetectedCounter >= 3)
                 {
                     SearchingForDevices = false;
-                    //if (!IsDeviceDiscoveryInit)
-                    //{
-                    //    var result = HandyControl.Controls.MessageBox.Show("Không phát hiện ra thiết bị nào được hỗ trợ", "No device detected", MessageBoxButton.OK, MessageBoxImage.Error);
-                    //    if (result == MessageBoxResult.Yes)//stop showing message
-                    //    {
-                    //        //open device setup wizard
-                    //    }
-                    //}
                     IsDeviceDiscoveryInit = true;
-                    //CloseSearchingScreen();
                 }
-
-
             }
         }
 
@@ -8164,10 +8132,11 @@ namespace adrilight.ViewModel
                 Directory.CreateDirectory(GifsCollectionFolderPath);
                 var collectionFolder = Path.Combine(GifsCollectionFolderPath, "collection");
                 Directory.CreateDirectory(collectionFolder);
-                var allResourceNames = ResourceHlprs.GetResourceFileName();
+                var allResourceNames = ResourceHlprs.GetResourceFileNames();
                 foreach (var resourceName in allResourceNames.Where(r => r.EndsWith(".gif")))
                 {
-                    ResourceHlprs.CopyResource(resourceName, Path.Combine(collectionFolder, resourceName.Remove(0, 32)));
+                    var name = ResourceHlprs.GetResourceFileName(resourceName);
+                    ResourceHlprs.CopyResource(resourceName, Path.Combine(collectionFolder, name));
                 }
                 var config = new ResourceLoaderConfig(nameof(Gif), DeserializeMethodEnum.Files);
                 var configJson = JsonConvert.SerializeObject(config);
@@ -8571,10 +8540,11 @@ namespace adrilight.ViewModel
             if (!Directory.Exists(ResourceFolderPath))
             {
                 Directory.CreateDirectory(ResourceFolderPath);
-                var allResourceNames = ResourceHlprs.GetResourceFileName();
+                var allResourceNames = ResourceHlprs.GetResourceFileNames();
                 foreach (var resourceName in allResourceNames.Where(r => r.EndsWith(".png")))
                 {
-                    ResourceHlprs.CopyResource(resourceName, Path.Combine(ResourceFolderPath, resourceName.Remove(0, 34)));
+                    var name = ResourceHlprs.GetResourceFileName(resourceName);
+                    ResourceHlprs.CopyResource(resourceName, Path.Combine(ResourceFolderPath, name));
                 }
             }
         }
@@ -8617,10 +8587,12 @@ namespace adrilight.ViewModel
                 var collectionFolder = Path.Combine(ChasingPatternsCollectionFolderPath, "collection");
                 Directory.CreateDirectory(collectionFolder);
                 //var allResourceNames = "adrilight.Resources.Colors.ChasingPatterns.json";
-                var allResourceNames = ResourceHlprs.GetResourceFileName();
+                var allResourceNames = ResourceHlprs.GetResourceFileNames();
                 foreach (var resourceName in allResourceNames.Where(r => r.EndsWith(".AML")))
                 {
-                    ResourceHlprs.CopyResource(resourceName, Path.Combine(collectionFolder, resourceName.Remove(0, 36)));
+
+                    var name = ResourceHlprs.GetResourceFileName(resourceName);
+                    ResourceHlprs.CopyResource(resourceName, Path.Combine(collectionFolder, name));
                 }
                 var config = new ResourceLoaderConfig(nameof(ChasingPattern), DeserializeMethodEnum.Files);
                 var configJson = JsonConvert.SerializeObject(config);
@@ -8650,12 +8622,13 @@ namespace adrilight.ViewModel
                 var collectionFolder = Path.Combine(PalettesCollectionFolderPath, "collection");
                 Directory.CreateDirectory(collectionFolder);
                 //var allResourceNames = "adrilight.Resources.Colors.ChasingPatterns.json";
-                var allResourceNames = ResourceHlprs.GetResourceFileName();
+                var allResourceNames = ResourceHlprs.GetResourceFileNames();
                 foreach (var resourceName in allResourceNames.Where(r => r.EndsWith(".col")))
                 {
-                    ResourceHlprs.CopyResource(resourceName, Path.Combine(collectionFolder, resourceName.Remove(0, 40)));
+                    var name = ResourceHlprs.GetResourceFileName(resourceName);
+                    ResourceHlprs.CopyResource(resourceName, Path.Combine(collectionFolder, name));
                 }
-                var config = new ResourceLoaderConfig(nameof(ColorPalette), DeserializeMethodEnum.Files);
+                var config = new ResourceLoaderConfig(nameof(ColorPalette), DeserializeMethodEnum.MultiJson);
                 var configJson = JsonConvert.SerializeObject(config);
                 File.WriteAllText(Path.Combine(PalettesCollectionFolderPath, "config.json"), configJson);
                 //copy default chasing pattern from resource

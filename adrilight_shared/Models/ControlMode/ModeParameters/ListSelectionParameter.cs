@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using ColorPalette = adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues.ColorPalette;
 
 namespace adrilight_shared.Models.ControlMode.ModeParameters
 {
@@ -69,12 +70,18 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
             { AvailableValues.Clear(); });
 
         }
+        private DeserializeMethodEnum _deserializeMethod;
         public void DeletedSelectedItem(IParameterValue item)
         {
             ShowDeleteButton = false;
             AvailableValues.Remove(item);
-            //LoadAvailableValues();
+            if (_deserializeMethod == DeserializeMethodEnum.SingleJson)
+            {
+                var path = Path.Combine(appFolder, dataSourceLocalFolderName);
+                JsonHelpers.WriteSimpleJson(AvailableValues, System.IO.Path.Combine(path, "collection.json"));
+            }
         }
+        private string dataSourceLocalFolderName;
         public void LoadAvailableValues()
         {
             ShowDeleteButton = false;
@@ -82,7 +89,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
             {
                 SelectedDataSourceIndex = 0;
             }
-            var dataSourceLocalFolderName = DataSourceLocaFolderNames[SelectedDataSourceIndex];
+            dataSourceLocalFolderName = DataSourceLocaFolderNames[SelectedDataSourceIndex];
             var path = Path.Combine(appFolder, dataSourceLocalFolderName);
 
             try
@@ -100,16 +107,30 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
                     switch (m)
                     {
                         case DeserializeMethodEnum.SingleJson:
+                            _deserializeMethod = DeserializeMethodEnum.SingleJson;
                             var valuesJson = File.ReadAllText(Path.Combine(path, "collection.json"));
                             switch (t)
                             {
                                 case nameof(ColorCard):
-                                    JsonConvert.DeserializeObject<List<ColorCard>>(valuesJson).ForEach(c => AvailableValues.Add(c));
+                                    JsonConvert.DeserializeObject<List<ColorCard>>(valuesJson).ForEach(c =>
+                                    {
+                                        AvailableValues.Add(c);
+                                        c.PropertyChanged += (_, __) =>
+                                        {
+                                            if (__.PropertyName == nameof(c.IsChecked))
+                                            {
+                                                //show deletebutton
+                                                ShowDeleteButton = AvailableValues.Where(c => (c as ColorCard).IsChecked).Count() > 0 ? true : false;
+                                            }
+                                        };
+
+                                    });
+
                                     break;
                             }
                             break;
                         case DeserializeMethodEnum.MultiJson:
-
+                            _deserializeMethod = DeserializeMethodEnum.MultiJson;
                             switch (t)
                             {
                                 case nameof(ColorPalette):
@@ -194,6 +215,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
                             }
                             break;
                         case DeserializeMethodEnum.Files:
+                            _deserializeMethod = DeserializeMethodEnum.Files;
                             switch (t)
                             {
                                 case nameof(Gif):

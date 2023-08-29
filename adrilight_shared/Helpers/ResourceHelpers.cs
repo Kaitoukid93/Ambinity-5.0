@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace adrilight_shared.Helpers
@@ -33,12 +34,17 @@ namespace adrilight_shared.Helpers
             }
 
         }
-        public string[] GetResourceFileName()
+        public string[] GetResourceFileNames()
         {
             var assembly = Assembly.GetExecutingAssembly();
             return assembly.GetManifestResourceNames();
-
-
+        }
+        public string GetResourceFileName(string resourceName)
+        {
+            //this actually take last 2 string split by "."
+            var extension = resourceName.Split('.').Last();
+            var name = resourceName.Split('.').Reverse().Take(2).Last();
+            return (name + "." + extension);
         }
     }
 }

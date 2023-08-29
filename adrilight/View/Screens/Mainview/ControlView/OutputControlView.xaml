@@ -749,7 +749,7 @@
                                                                                         </TextBlock>
                                                                                     </Border.ToolTip>
                                                                                 </Border>
-                                                                                <!--<CheckBox IsChecked="{Binding IsChecked}" Margin="2" Background="{DynamicResource PrimaryBrush}" BorderThickness="0" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                                                                <CheckBox IsChecked="{Binding IsChecked}" Margin="2" Background="{DynamicResource PrimaryBrush}" BorderThickness="0" HorizontalAlignment="Right" VerticalAlignment="Top">
                                                                                     <CheckBox.Style>
                                                                                         <Style TargetType="CheckBox" BasedOn="{StaticResource CheckBoxBaseStyle}">
                                                                                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -763,7 +763,7 @@
                                                                                             </Style.Triggers>
                                                                                         </Style>
                                                                                     </CheckBox.Style>
-                                                                                </CheckBox>-->
+                                                                                </CheckBox>
                                                                             </Grid>
                                                                         </DataTemplate>
                                                                         <DataTemplate DataType="{x:Type parameterValues:VIDDataModel}">

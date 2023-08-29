@@ -496,6 +496,8 @@
                 </Setter>
             </Style>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="GeometryCollection.xaml">
+                </ResourceDictionary>
                 <hc:ThemeResources>
                     <hc:ThemeResources.ThemeDictionaries>
                         <ResourceDictionary x:Key="Light" hc:ThemeDictionary.Key="Light">

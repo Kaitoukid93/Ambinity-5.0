@@ -21,15 +21,24 @@ namespace adrilight_content_creator
         {
 
             base.OnStartup(startupEvent);
-            using (var mgr = new UpdateManager(ADRILIGHT_RELEASES))
+            try
             {
-                // Note, in most of these scenarios, the app exits after this method
-                // completes!
-                SquirrelAwareApp.HandleEvents(
-                  onInitialInstall: v => mgr.CreateShortcutForThisExe(),
-                  onAppUpdate: v => mgr.CreateShortcutForThisExe(),
-                  onAppUninstall: v => mgr.RemoveShortcutForThisExe());
+                using (var mgr = new UpdateManager(ADRILIGHT_RELEASES))
+                {
+                    // Note, in most of these scenarios, the app exits after this method
+                    // completes!
+                    SquirrelAwareApp.HandleEvents(
+                      onInitialInstall: v => mgr.CreateShortcutForThisExe(),
+                      onAppUpdate: v => mgr.CreateShortcutForThisExe(),
+                      onAppUninstall: v => mgr.RemoveShortcutForThisExe());
+                }
+
             }
+            catch (Exception ex)
+            {
+
+            }
+            _knownTypeBinders = new KnownTypesBinder();
             JsonConvert.DefaultSettings = () => new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Objects, SerializationBinder = _knownTypeBinders };
             ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
             ThemeManager.Current.AccentColor = new SolidColorBrush(Color.FromArgb(255, 255, 69, 0));

@@ -89,10 +89,13 @@ namespace adrilight_shared.Models.Device.Zone
         private double _scaleLeft;
         private double _scaleWidth = 1;
         private double _scaleHeight = 1;
+        [JsonIgnore]
         public Rect GetRect => new Rect(Left, Top, Width, Height);
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
+        [JsonIgnore]
         public double CenterX => Width / 2 + Left;
+        [JsonIgnore]
         public double CenterY => Height / 2 + Top;
         public double ScaleTop { get => _scaleTop; set { Set(() => ScaleTop, ref _scaleTop, value); } }
         public double ScaleLeft { get => _scaleLeft; set { Set(() => ScaleLeft, ref _scaleLeft, value); } }

@@ -73,7 +73,9 @@ namespace adrilight_shared.Models.Device.SlaveDevice
         public string Version { get => _version; set { Set(() => Version, ref _version, value); } }
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
+        [JsonIgnore]
         public double CenterX => Width / 2 + Left;
+        [JsonIgnore]
         public double CenterY => Height / 2 + Top;
         public double ActualWidth { get => _actualWidth; set { Set(() => ActualWidth, ref _actualWidth, value); } }
 

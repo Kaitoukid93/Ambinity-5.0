@@ -19,8 +19,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary
-                    Source="GeometryCollection.xaml">
+                <ResourceDictionary>
                     <converters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
                     <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
                     <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />

@@ -94,9 +94,9 @@ namespace adrilight_shared.Models.Device.SlaveDevice
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
 
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
-
+        [JsonIgnore]
         public double CenterX => Width / 2 + Left;
-
+        [JsonIgnore]
         public double CenterY => Height / 2 + Top;
         public int WhiteBalanceRed { get => _whiteBalanceRed; set { Set(() => WhiteBalanceRed, ref _whiteBalanceRed, value); } }
         public int WhiteBalanceGreen { get => _whiteBalanceGreen; set { Set(() => WhiteBalanceGreen, ref _whiteBalanceGreen, value); } }
@@ -134,7 +134,7 @@ namespace adrilight_shared.Models.Device.SlaveDevice
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
         [JsonIgnore]
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
-
+        [JsonIgnore]
         public Rect GetRect => new Rect(Left, Top, Width, Height);
         private string _version = "1.0.0";
         public string Version { get => _version; set { Set(() => Version, ref _version, value); } }

@@ -25,8 +25,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary
-                    Source="GeometryCollection.xaml">
+                <ResourceDictionary>
                     <SolidColorBrush x:Key="_primaryBackgroundColor" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.3"/>
                     <converters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
                     <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
@@ -375,13 +374,13 @@
                             </Grid>
                            
                         </DataTemplate>
-                        <DataTemplate DataType="{x:Type drawable:Border}">
+                        <!--<DataTemplate DataType="{x:Type drawable:Border}">
                             <Path Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}" 
                               Stretch="Fill"
                               Fill="White"
                               Opacity="0.2">
                             </Path>
-                        </DataTemplate>
+                        </DataTemplate>-->
                         <DataTemplate DataType="{x:Type drawable:Border}">
                             <Grid>
                                 <StackPanel Orientation="Horizontal">

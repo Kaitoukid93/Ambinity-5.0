@@ -18,12 +18,8 @@
         <Grid Margin="5,9,0,10" Grid.Column="0">
             <Grid Grid.Column="0" HorizontalAlignment="Left" >
                 <hc:ScrollViewer IsInertiaEnabled="True" hc:ScrollViewerAttach.AutoHide="False">
-
-
                     <StackPanel>
                         <Border MinWidth="275" Background="{DynamicResource MainContentBackgroundBrush}" CornerRadius="7">
-
-
                             <StackPanel Margin="5">
                                 <Grid>
                                     <Grid.RowDefinitions>
