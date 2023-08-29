@@ -1,7 +1,7 @@
 ﻿using adrilight.DesktopDuplication;
+using adrilight.Helpers;
 using adrilight.Ninject;
 using adrilight.Settings;
-using adrilight.Settings.Automation;
 using adrilight.Util;
 using adrilight.View;
 using adrilight.ViewModel;
@@ -16,7 +16,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -101,7 +100,7 @@ namespace adrilight
         {
             _mutex?.Close();
         }
-
+        private DeviceHelpers DeviceHlprs { get; set; }
         private TelemetryClient _telemetryClient;
         private static View.SplashScreen _splashScreen;
         private static View.DeviceSearchingScreen _searchingForDeviceScreen;
@@ -176,6 +175,7 @@ namespace adrilight
                 }
             }
             var deviceDiscovery = kernel.Get<DeviceDiscovery>();
+            var dbManager = kernel.Get<DBmanager>();
             return kernel;
         }
 
@@ -330,31 +330,19 @@ namespace adrilight
 
         private void SetupLoggingForProcessWideEvents()
         {
+            if (DeviceHlprs == null)
+                DeviceHlprs = new DeviceHelpers();
             AppDomain.CurrentDomain.UnhandledException +=
             (sender, args) => ApplicationWideException(sender, args.ExceptionObject as Exception, "CurrentDomain.UnhandledException");
             DispatcherUnhandledException += (sender, args) => ApplicationWideException(sender, args.Exception, "DispatcherUnhandledException");
             Exit += (s, e) =>
             {
-                //execute any automation
                 var devices = kernel.GetAll<IDeviceSettings>();
                 foreach (var device in devices)
                 {
-                    // device.DeviceState = DeviceStateEnum.Sleep;
-                    Thread.Sleep(10);
-                    //device.IsTransferActive = false;
-                    MainViewViewModel.WriteSingleDeviceInfoJson(device);
+                    DeviceHlprs.WriteSingleDeviceInfoJson(device);
                 }
-                foreach (var automation in MainViewViewModel.AvailableAutomations)
-                {
-                    if (automation.Condition is SystemEventTriggerCondition)
-                    {
-                        var condition = automation.Condition as SystemEventTriggerCondition;
-                        if (condition.Event == SystemEventEnum.Shutdown)
-                        {
-                            MainViewViewModel.ExecuteAutomationActions(automation.Actions);
-                        }
-                    }
-                }
+                MainViewViewModel.ExecuteShudownAutomationActions();
 
                 var hwMonitor = kernel.GetAll<HWMonitor>().FirstOrDefault();
                 var ambinityClient = kernel.GetAll<IAmbinityClient>().FirstOrDefault();
@@ -412,87 +400,14 @@ namespace adrilight
                    {
                        openRGBStream.Stop();
                    }
-                   var devices = kernel.GetAll<IDeviceSettings>();
-                   //foreach (var device in devices)
-                   //{
-                   //    device.TurnOffLED();
-                   //    Thread.Sleep(10);
-                   //}
                    Log.Information("System suspended!");
                }
            };
             SystemEvents.SessionEnding += (s, e) =>
             {
-                var devices = kernel.GetAll<IDeviceSettings>();
-                foreach (var device in devices)
-                {
-                    // device.DeviceState = DeviceStateEnum.Sleep;
-                    Thread.Sleep(10);
-                    //device.IsTransferActive = false;
-                    MainViewViewModel.WriteSingleDeviceInfoJson(device);
-                }
-                foreach (var automation in MainViewViewModel.AvailableAutomations)
-                {
-                    if (automation.Condition is SystemEventTriggerCondition)
-                    {
-                        var condition = automation.Condition as SystemEventTriggerCondition;
-                        if (condition.Event == SystemEventEnum.Shutdown)
-                        {
-                            MainViewViewModel.ExecuteAutomationActions(automation.Actions);
-                        }
-                    }
-                }
-                Thread.Sleep(2000);
+                MainViewViewModel.ExecuteShudownAutomationActions();
                 Log.Information("Stop the serial stream due to power down or log off condition!");
             };
-        }
-        static void SystemEvents_UserPreferenceChanged(object sender, Microsoft.Win32.UserPreferenceChangedEventArgs e)
-        {
-            //Do nothing
-        }
-
-        static void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e)
-        {
-            //var desktopFrames = kernel.GetAll<ICaptureEngine>().Where(c => c is DesktopFrame || c is DesktopFrameDXGI);
-            //var screenList = Screen.AllScreens.ToList();
-            //foreach (var screen in Screen.AllScreens)
-            //{
-            //    //restart old screen
-            //    if (desktopFrames.Any(p => p.DeviceName == screen.DeviceName))
-            //    {
-            //        var oldScreen = desktopFrames.Where(p => p.DeviceName == screen.DeviceName).FirstOrDefault();
-            //        if (oldScreen != null)
-            //        {
-            //            oldScreen.RefreshCapturingState();
-            //            screenList.Remove(screen);
-            //        }
-            //    }
-            //}
-            ////inject new screen
-            //foreach (var newScreen in screenList)
-            //{
-            //    kernel.Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope().Named(newScreen.DeviceName).WithConstructorArgument("deviceName", newScreen.DeviceName);
-            //    var newDesktopFrame = kernel.Get<ICaptureEngine>(newScreen.DeviceName);
-            //}
-            ////restart process
-            //foreach (var desktopDuplicatorReader in kernel.GetAll<ILightingEngine>())
-            //{
-            //    desktopDuplicatorReader.Refresh();
-            //}
-        }
-
-        static void SystemEvents_DisplaySettingsChanging(object sender, EventArgs e)
-        {
-            //foreach (var desktopFrame in kernel.GetAll<ICaptureEngine>().Where(c => c is DesktopFrame))
-            //{
-            //    desktopFrame.Stop();
-            //}
-            //foreach (var desktopDuplicatorReader in kernel.GetAll<ILightingEngine>().Where(l => l is DesktopDuplicatorReader))
-            //{
-            //    desktopDuplicatorReader.Stop();
-            //}
-
-
         }
         private void SetupTrackingForProcessWideEvents(TelemetryClient tc)
         {

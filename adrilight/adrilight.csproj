@@ -211,6 +211,7 @@
     <Compile Include="DesktopDuplication\CompositionHelper.cs" />
     <Compile Include="DesktopDuplication\DesktopDuplicator.cs" />
     <Compile Include="DesktopDuplication\DesktopFrameDXGI.cs" />
+    <Compile Include="Helpers\DeviceHelpers.cs" />
     <Compile Include="Settings\AppUser.cs" />
     <Compile Include="Settings\Automation\ExecuteConditionEnum.cs" />
     <Compile Include="Settings\Automation\SystemEventEnum.cs" />
@@ -219,6 +220,7 @@
     <Compile Include="Settings\Automation\TriggerCondition.cs" />
     <Compile Include="Settings\GifCard.cs" />
     <Compile Include="Util\CaptureEngine\AudioCaptureBasic.cs" />
+    <Compile Include="Util\DBManager.cs" />
     <Compile Include="Util\Gifxelation.cs" />
     <Compile Include="DesktopDuplication\DesktopDuplicatorReader.cs" />
     <Compile Include="DesktopDuplication\Direct3D11Helper.cs" />

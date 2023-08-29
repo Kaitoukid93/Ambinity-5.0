@@ -110,7 +110,7 @@ namespace adrilight
         //[Reflectable]
         //public IGifCard OutputSelectedGif { get => _outputSelectedGif; set { Set(() => OutputSelectedGif, ref _outputSelectedGif, value); } }
         public bool IsVissible { get => _isVissible; set { Set(() => IsVissible, ref _isVissible, value); } }
-        public bool IsLocked{ get => _isLocked; set { Set(() => IsLocked, ref _isLocked, value); } }
+        public bool IsLocked { get => _isLocked; set { Set(() => IsLocked, ref _isLocked, value); } }
         public bool OutputIsSelected { get => _outputIsSelected; set { Set(() => OutputIsSelected, ref _outputIsSelected, value); } }
         public Rectangle Rectangle { get; set; }
         public string OutputUniqueID { get => _outputUniqueID; set { Set(() => OutputUniqueID, ref _outputUniqueID, value); } }
@@ -216,7 +216,7 @@ namespace adrilight
         public string OutputInterface { get; set; }
         public ISlaveDevice SlaveDevice { get => _slaveDevice; set { Set(() => SlaveDevice, ref _slaveDevice, value); } }
 
-        public bool ShouldSerializeAvailableControllers()
+        public bool ShouldSerializeSlaveDevice()
         {
             return IsLoadingProfile;
         }

@@ -24,10 +24,7 @@ namespace adrilight.Ninject
             Bind<HWMonitor>().ToSelf().InSingletonScope();
             Bind<IContext>().To<WpfContext>().InSingletonScope();
             Bind<DeviceDiscovery>().ToSelf().InSingletonScope();
-
-
-
-
+            Bind<DBmanager>().ToSelf().InSingletonScope();
             if (generalSettings.ScreenCapturingMethod == 0)
             {
                 if (osBuild == "22000" || osBuild == "22621")

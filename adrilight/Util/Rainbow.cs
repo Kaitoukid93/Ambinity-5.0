@@ -214,10 +214,10 @@ namespace adrilight
             else if (!isRunning && shouldBeRunning)
             {
                 //start it
-                Init();
+                _dimMode = DimMode.Down;
+                _dimFactor = 1.00;
                 Log.Information("starting the Static Color Engine");
-                _dimMode = DimMode.Up;
-                _dimFactor = 0.00;
+                Init();
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,

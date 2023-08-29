@@ -1,4 +1,5 @@
-﻿using adrilight.Settings;
+﻿using adrilight.Helpers;
+using adrilight.Settings;
 using adrilight.Spots;
 using adrilight.Util;
 using adrilight.Util.ModeParameters;
@@ -12,6 +13,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Windows;
 
@@ -306,46 +308,62 @@ namespace adrilight
         }
         public void TurnOffLED()
         {
-            if (AvailableLightingDevices == null)
-                return;
-            foreach (var device in AvailableLightingDevices)//possible replace with method from IOutputSettings
-            {
-                var lightingDevice = device as ARGBLEDSlaveDevice;
-                lightingDevice.TurnOffLED();
-            }
-            if (ControlZoneGroups != null)
-            {
-                foreach (var group in ControlZoneGroups)
-                {
-                    var lightingZone = group.MaskedControlZone as LEDSetup;
-                    if (lightingZone != null)
-                    {
-                        lightingZone.TurnOffLED();
-                    }
-                }
-            }
+            DeviceState = DeviceStateEnum.Off;
+            //if (AvailableLightingDevices == null)
+            //    return;
+            //foreach (var device in AvailableLightingDevices)//possible replace with method from IOutputSettings
+            //{
+            //    var lightingDevice = device as ARGBLEDSlaveDevice;
+            //    lightingDevice.TurnOffLED();
+            //}
+            //if (ControlZoneGroups != null)
+            //{
+            //    foreach (var group in ControlZoneGroups)
+            //    {
+            //        var lightingZone = group.MaskedControlZone as LEDSetup;
+            //        if (lightingZone != null)
+            //        {
+            //            lightingZone.TurnOffLED();
+            //        }
+            //    }
+            //}
 
         }
         public void TurnOnLED()
         {
-            if (AvailableLightingDevices == null)
-                return;
-            foreach (var device in AvailableLightingDevices)//possible replace with method from IOutputSettings
-            {
-                var lightingDevice = device as ARGBLEDSlaveDevice;
-                lightingDevice.TurnOnLED();
-            }
-            if (ControlZoneGroups != null)
-            {
-                foreach (var group in ControlZoneGroups)
-                {
-                    var lightingZone = group.MaskedControlZone as LEDSetup;
-                    if (lightingZone != null)
-                    {
-                        lightingZone.TurnOnLED();
-                    }
-                }
-            }
+            DeviceState = DeviceStateEnum.Normal;
+            //if (AvailableLightingDevices == null)
+            //    return;
+            //foreach (var device in AvailableLightingDevices)//possible replace with method from IOutputSettings
+            //{
+            //    if (device == null)
+            //        return;
+            //    var lightingDevice = device as ARGBLEDSlaveDevice;
+            //    lightingDevice.TurnOnLED();
+            //}
+            //if (ControlZoneGroups != null)
+            //{
+            //    foreach (var group in ControlZoneGroups)
+            //    {
+            //        var lightingZone = group.MaskedControlZone as LEDSetup;
+            //        if (lightingZone != null)
+            //        {
+            //            lightingZone.TurnOnLED();
+            //        }
+            //    }
+            //}
+        }
+        bool _isDeserializing = false;
+        [OnDeserializing]
+        internal void OnDeserializingMethod(StreamingContext context)
+        {
+            _isDeserializing = true;
+        }
+
+        [OnDeserialized]
+        internal void OnDeserializedMethod(StreamingContext context)
+        {
+            _isDeserializing = false;
         }
         public void DeviceEnableChanged()
         {
@@ -355,6 +373,9 @@ namespace adrilight
             {
                 TurnOffLED();
             }
+            if (_isDeserializing) return;
+            var dvcHlprs = new DeviceHelpers();
+            dvcHlprs.WriteSingleDeviceInfoJson(this);
         }
         public void ToggleOnOffLED()
         {

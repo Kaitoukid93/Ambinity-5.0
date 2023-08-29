@@ -211,11 +211,10 @@ namespace adrilight
             else if (!isRunning && shouldBeRunning)
             {
                 //start it
-                //get current lighting mode confirm that based on desktop duplicator reader engine
-                Init();
                 Log.Information("starting the capturing");
-                _dimMode = DimMode.Up;
-                _dimFactor = 0.00;
+                _dimMode = DimMode.Down;
+                _dimFactor = 1.00;
+                Init();
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,

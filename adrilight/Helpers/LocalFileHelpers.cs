@@ -130,7 +130,10 @@ namespace adrilight.Helpers
             {
                 foreach (DirectoryInfo subDir in dirs)
                 {
+
                     string newDestinationDir = Path.Combine(destinationDir, subDir.Name);
+                    if (Directory.Exists(newDestinationDir))
+                        continue;
                     CopyDirectory(subDir.FullName, newDestinationDir, true);
                 }
             }

@@ -340,10 +340,10 @@ namespace adrilight
             else if (!isRunning && shouldBeRunning)
             {
                 //start it
-                Init();
                 Log.Information("starting the Animation Color Engine");
-                _dimMode = DimMode.Up;
-                _dimFactor = 0.00;
+                _dimMode = DimMode.Down;
+                _dimFactor = 1.00;
+                Init();
                 _cancellationTokenSource = new CancellationTokenSource();
                 _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                     IsBackground = true,

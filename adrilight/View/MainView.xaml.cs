@@ -16,6 +16,8 @@ namespace adrilight.View
         private HwndSource _HwndSource;
         private readonly IntPtr _ScreenStateNotify;
         private MainViewViewModel ViewModel { get; set; }
+        private enum MonitorState { on, off };
+        private MonitorState monitorState;
         public MainView()
         {
             InitializeComponent();
@@ -63,31 +65,41 @@ namespace adrilight.View
                     {
                         case 0:
                             Serilog.Log.Information("Monitor Power Off");
-                            foreach (var automation in ViewModel.AvailableAutomations)
+                            if (monitorState == MonitorState.on)
                             {
-                                if (automation.Condition is SystemEventTriggerCondition)
+                                foreach (var automation in ViewModel.AvailableAutomations)
                                 {
-                                    var condition = automation.Condition as SystemEventTriggerCondition;
-                                    if (condition.Event == SystemEventEnum.MonitorSleep)
+                                    if (automation.Condition is SystemEventTriggerCondition)
                                     {
-                                        ViewModel.ExecuteAutomationActions(automation.Actions);
+                                        var condition = automation.Condition as SystemEventTriggerCondition;
+                                        if (condition.Event == SystemEventEnum.MonitorSleep)
+                                        {
+                                            ViewModel.ExecuteAutomationActions(automation.Actions);
+                                        }
                                     }
                                 }
+                                monitorState = MonitorState.off;
                             }
+
                             break;
                         case 1:
                             Serilog.Log.Information("Monitor Power On");
-                            foreach (var automation in ViewModel.AvailableAutomations)
+                            if (monitorState == MonitorState.off)
                             {
-                                if (automation.Condition is SystemEventTriggerCondition)
+                                foreach (var automation in ViewModel.AvailableAutomations)
                                 {
-                                    var condition = automation.Condition as SystemEventTriggerCondition;
-                                    if (condition.Event == SystemEventEnum.MonitorWakeup)
+                                    if (automation.Condition is SystemEventTriggerCondition)
                                     {
-                                        ViewModel.ExecuteAutomationActions(automation.Actions);
+                                        var condition = automation.Condition as SystemEventTriggerCondition;
+                                        if (condition.Event == SystemEventEnum.MonitorWakeup)
+                                        {
+                                            ViewModel.ExecuteAutomationActions(automation.Actions);
+                                        }
                                     }
                                 }
+                                monitorState = MonitorState.on;
                             }
+
                             break;
                         case 2:
                             Serilog.Log.Information("Monitor Dimmed");

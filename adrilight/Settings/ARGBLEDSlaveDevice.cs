@@ -130,7 +130,6 @@ namespace adrilight.Settings
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
 
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
-
         public Rect GetRect => new Rect(Left, Top, Width, Height);
         private string _version = "1.0.0";
         public string Version { get => _version; set { Set(() => Version, ref _version, value); } }

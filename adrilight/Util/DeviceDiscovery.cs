@@ -67,7 +67,7 @@ namespace adrilight
         public ObservableCollection<IDeviceSettings> AvailableSerialDevices { get; set; }
         public MainViewViewModel MainViewViewModel { get; set; }
         private AmbinityClient AmbinityClient { get; }
-        private bool _isAllDeviceConnected => !MainViewViewModel.AvailableDevices.Any(d => d.IsTransferActive == false);
+        private bool _isAllDeviceConnected => !MainViewViewModel.AvailableDevices.Any(d => d.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.OpenRGB && d.IsTransferActive == false) || !MainViewViewModel.AvailableDevices.Any(d => d.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.OpenRGB);
         private async void StartDiscovery(CancellationToken token)
         {
 
@@ -86,7 +86,7 @@ namespace adrilight
                     {
                         // openRGB device scan only run once at startup
                         var openRGBDevices = (new List<IDeviceSettings>(), new List<string>());
-                        if (Settings.IsOpenRGBEnabled && !_isAllDeviceConnected)
+                        if (Settings.IsOpenRGBEnabled)
                         {
                             openRGBDevices = await ScanOpenRGBDevices();
                         }
