@@ -14,10 +14,12 @@ using adrilight_shared.Helpers;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.Device;
 using adrilight_shared.Models.Device.Zone;
+using adrilight_shared.Settings;
 using HandyControl.Themes;
 using HandyControl.Tools.Extension;
 using Microsoft.ApplicationInsights;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 using Ninject;
 using Ninject.Extensions.Conventions;
 using Serilog;
@@ -47,6 +49,7 @@ namespace adrilight
         private static System.Threading.Mutex _mutex = null;
         private static Mutex _adrilightMutex;
         private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
+        private KnownTypesBinder _knownTypeBinders { get; set; }
         protected override async void OnStartup(StartupEventArgs startupEvent)
         {
             //check if this app is already open in the background
@@ -61,6 +64,9 @@ namespace adrilight
             }
             /////////
             BassNet.Registration("saorihara93@gmail.com", "2X2831021152222");
+
+            _knownTypeBinders = new KnownTypesBinder();
+            JsonConvert.DefaultSettings = () => new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Objects, SerializationBinder = _knownTypeBinders };
             SetupDebugLogging();
             SetupLoggingForProcessWideEvents();
 

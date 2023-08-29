@@ -7,6 +7,7 @@ using adrilight.Services.OpenRGBService;
 using adrilight.Util;
 using adrilight.View;
 using adrilight.ViewModel;
+using adrilight_shared.Settings;
 using Microsoft.Win32;
 using Ninject.Modules;
 using Serilog;

@@ -1,7 +1,7 @@
 ﻿using GalaSoft.MvvmLight;
 using System.Collections.ObjectModel;
 
-namespace adrilight.Util
+namespace adrilight_shared.Models.Audio
 {
     public class VisualizerDataModel : ViewModelBase
     {

@@ -8,6 +8,7 @@ using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.Device.Zone.Spot;
 using adrilight_shared.Models.FrameData;
 using adrilight_shared.Models.TickData;
+using adrilight_shared.Settings;
 using MoreLinq;
 using Polly;
 using Serilog;

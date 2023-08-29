@@ -18,7 +18,7 @@ namespace adrilight_shared.Helpers
                 TypeNameHandling = TypeNameHandling.Auto
             });
 
-            cloned_obj = JsonConvert.DeserializeObject<T>(objectJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+            cloned_obj = JsonConvert.DeserializeObject<T>(objectJson);
 
 
             return cloned_obj;

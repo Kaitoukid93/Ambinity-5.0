@@ -1,8 +1,8 @@
-﻿using adrilight.Settings;
+﻿using adrilight_shared.Models.AppUser;
 using System.ComponentModel;
 using Color = System.Windows.Media.Color;
 
-namespace adrilight
+namespace adrilight_shared.Settings
 {
     public interface IGeneralSettings : INotifyPropertyChanged
     {

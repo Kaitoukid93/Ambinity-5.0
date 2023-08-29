@@ -10,17 +10,13 @@ namespace adrilight_shared.Helpers
         {
             try
             {
-                var json = JsonConvert.SerializeObject(obj, new JsonSerializerSettings()
-                {
-                    TypeNameHandling = TypeNameHandling.Auto
-                });
+                var json = JsonConvert.SerializeObject(obj);
                 File.WriteAllText(path, json);
             }
             catch (Exception ex)
             {
                 //log
             }
-
         }
     }
 }

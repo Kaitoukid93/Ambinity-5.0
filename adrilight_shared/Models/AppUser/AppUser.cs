@@ -1,6 +1,6 @@
 ﻿using System.Windows.Media;
 
-namespace adrilight.Settings
+namespace adrilight_shared.Models.AppUser
 {
     public class AppUser
     {

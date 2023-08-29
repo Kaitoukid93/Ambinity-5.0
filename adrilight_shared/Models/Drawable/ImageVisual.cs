@@ -65,9 +65,9 @@ namespace adrilight_shared.Models.Drawable
         public bool ShouldBringIntoView { get => _shouldBringIntoView; set { Set(() => ShouldBringIntoView, ref _hasCustomBehavior, value); } }
 
         public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
-
+        [JsonIgnore]
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
-
+        [JsonIgnore]
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
 
         public ImageVisual()

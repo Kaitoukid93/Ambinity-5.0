@@ -1,11 +1,11 @@
-﻿using adrilight.Settings;
+﻿using adrilight_shared.Models.AppUser;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
 using Color = System.Windows.Media.Color;
 
-namespace adrilight
+namespace adrilight_shared.Settings
 {
-    internal class GeneralSettings : ViewModelBase, IGeneralSettings
+    public class GeneralSettings : ViewModelBase, IGeneralSettings
     {
         // private bool _autostart = true;
         private bool _isOpenRGBEnabled = false;

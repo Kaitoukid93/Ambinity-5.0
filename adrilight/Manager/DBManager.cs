@@ -59,13 +59,13 @@ namespace adrilight.Manager
                 }
 
                 //check once a second for updates
-                await Task.Delay(TimeSpan.FromSeconds(5));
+                await Task.Delay(TimeSpan.FromSeconds(30));
             }
         }
         private static object _syncRoot = new object();
         public void Stop()
         {
-            Log.Information("Stop called for Device Discovery");
+            Log.Information("Stop called for DBManager");
             if (_workerThread == null) return;
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource = null;

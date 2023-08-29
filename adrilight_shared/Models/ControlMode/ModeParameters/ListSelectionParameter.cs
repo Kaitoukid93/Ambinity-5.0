@@ -48,6 +48,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
         public ModeParameterTemplateEnum Template { get => _template; set { Set(() => Template, ref _template, value); } }
         public ModeParameterEnum ParamType { get => _paramType; set { Set(() => ParamType, ref _paramType, value); } }
         public ObservableCollection<SubParameter> SubParams { get => _subParams; set { Set(() => SubParams, ref _subParams, value); } }
+        [JsonIgnore]
         public object Lock { get; } = new object();
         /// <summary>
         /// this is the min and max value of this parameter , use to set min or max value of the template (slider, nummeric updown
@@ -90,7 +91,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
                 {
                     AvailableValues = new ObservableCollection<IParameterValue>();
                     var configJson = File.ReadAllText(Path.Combine(path, "config.json"));
-                    var config = JsonConvert.DeserializeObject<ResourceLoaderConfig>(configJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    var config = JsonConvert.DeserializeObject<ResourceLoaderConfig>(configJson);
                     var t = config.DataType;
                     var m = config.MethodEnum;
                     var files = new string[1] { string.Empty };
@@ -103,7 +104,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
                             switch (t)
                             {
                                 case nameof(ColorCard):
-                                    JsonConvert.DeserializeObject<List<ColorCard>>(valuesJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto }).ForEach(c => AvailableValues.Add(c));
+                                    JsonConvert.DeserializeObject<List<ColorCard>>(valuesJson).ForEach(c => AvailableValues.Add(c));
                                     break;
                             }
                             break;
@@ -270,7 +271,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
             try
             {
                 var configJson = File.ReadAllText(Path.Combine(path, "config.json"));
-                var config = JsonConvert.DeserializeObject<ResourceLoaderConfig>(configJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                var config = JsonConvert.DeserializeObject<ResourceLoaderConfig>(configJson);
                 var t = config.DataType;
                 var m = config.MethodEnum;
                 var collectionFolderPath = Path.Combine(path, "collection");

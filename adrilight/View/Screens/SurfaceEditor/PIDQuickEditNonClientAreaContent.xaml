@@ -7,8 +7,7 @@
     <Grid.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary
-                    Source="ControlStyle.xaml">
+                <ResourceDictionary>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>

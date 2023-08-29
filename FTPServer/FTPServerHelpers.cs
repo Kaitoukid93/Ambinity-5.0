@@ -206,7 +206,7 @@ namespace FTPServer
                 {
                     var textReader = new System.IO.StreamReader(remoteFileStream);
                     string s = textReader.ReadToEnd();
-                    file = JsonConvert.DeserializeObject<T>(s, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    file = JsonConvert.DeserializeObject<T>(s);
                 }
 
                 return await Task.FromResult(file);

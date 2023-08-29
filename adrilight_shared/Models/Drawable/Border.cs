@@ -60,9 +60,9 @@ namespace adrilight_shared.Models.Drawable
         public Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
         public Rect GetRect => new Rect(Left, Top, Width, Height);
         public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
-
+        [JsonIgnore]
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
-
+        [JsonIgnore]
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
 
         public Border()

@@ -229,11 +229,6 @@
                     </Border>
                 </Grid>
             </DataTemplate>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary
-                    Source="ControlStyle.xaml">
-                </ResourceDictionary>
-            </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>

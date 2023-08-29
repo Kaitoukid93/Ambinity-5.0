@@ -1,5 +1,6 @@
 ﻿using adrilight_content_creator.ViewModel;
 using HandyControl.Themes;
+using Newtonsoft.Json;
 using Ninject;
 using Ninject.Extensions.Conventions;
 using Squirrel;
@@ -15,6 +16,7 @@ namespace adrilight_content_creator
     public sealed partial class App : Application
     {
         private const string ADRILIGHT_RELEASES = "https://github.com/Kaitoukid93/Ambinity_Developer_Release";
+        private KnownTypesBinder _knownTypeBinders { get; set; }
         protected override void OnStartup(StartupEventArgs startupEvent)
         {
 
@@ -28,6 +30,7 @@ namespace adrilight_content_creator
                   onAppUpdate: v => mgr.CreateShortcutForThisExe(),
                   onAppUninstall: v => mgr.RemoveShortcutForThisExe());
             }
+            JsonConvert.DefaultSettings = () => new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Objects, SerializationBinder = _knownTypeBinders };
             ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
             ThemeManager.Current.AccentColor = new SolidColorBrush(Color.FromArgb(255, 255, 69, 0));
             kernel = SetupDependencyInjection();

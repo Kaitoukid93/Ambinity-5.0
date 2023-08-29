@@ -1,6 +1,7 @@
 ﻿using adrilight.ViewModel;
 using adrilight_shared.Helpers;
 using adrilight_shared.Models.FrameData;
+using adrilight_shared.Settings;
 using GalaSoft.MvvmLight;
 using Polly;
 using Serilog;

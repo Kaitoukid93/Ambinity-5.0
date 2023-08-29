@@ -6,6 +6,7 @@ using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.FrameData;
 using adrilight_shared.Models.TickData;
+using adrilight_shared.Settings;
 using MoreLinq;
 using Newtonsoft.Json;
 using Serilog;
@@ -666,7 +667,7 @@ namespace adrilight.Services.LightingEngine
             {
                 var json = File.ReadAllText(path);
 
-                motion = JsonConvert.DeserializeObject<Motion>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                motion = JsonConvert.DeserializeObject<Motion>(json);
             }
             catch (Exception ex)
             {

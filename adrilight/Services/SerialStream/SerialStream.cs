@@ -6,6 +6,7 @@ using adrilight_shared.Models.Device.SlaveDevice;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.Device.Zone.Spot;
 using adrilight_shared.Models.SerialPortData;
+using adrilight_shared.Settings;
 using Serilog;
 using System;
 using System.Buffers;
@@ -91,10 +92,20 @@ namespace adrilight
                 _dimFactor = 0.00;
 
             }
-            else
+            else if (DeviceSettings.DeviceState == DeviceStateEnum.Off)
             {
                 _dimMode = DimMode.Down;
                 _dimFactor = 1.00;
+            }
+            else if (DeviceSettings.DeviceState == DeviceStateEnum.DFU)
+            {
+                if (DeviceSettings.IsTransferActive)
+                {
+                    Stop();
+                    Thread.Sleep(1000);
+                    DFU();
+                }
+
             }
         }
         #endregion
@@ -138,12 +149,7 @@ namespace adrilight
                 Stop();
                 Thread.Sleep(500);
             }
-            else if (DeviceSettings.IsTransferActive && DeviceSettings.DeviceState == DeviceStateEnum.DFU) // this is only requested by dfu or fwupgrade button.
-            {
-                Stop();
-                Thread.Sleep(1000);
-                DFU();
-            }
+
 
         }
         private double _dimFactor;
@@ -327,9 +333,9 @@ namespace adrilight
                                  out byte FinalR, out byte FinalG, out byte FinalB);
                                 var reOrderedColor = ReOrderSpotColor(rgbOrder, FinalR, FinalG, FinalB);
                                 //get data
-                                outputStream[counter + spot.Index * 3 + 0] = (byte)(reOrderedColor[0] * powerLimitFactor); // blue
-                                outputStream[counter + spot.Index * 3 + 1] = (byte)(reOrderedColor[1] * powerLimitFactor); // green
-                                outputStream[counter + spot.Index * 3 + 2] = (byte)(reOrderedColor[2] * powerLimitFactor); // red
+                                outputStream[counter + spot.Index * 3 + 0] = (byte)(reOrderedColor[0] * powerLimitFactor * _dimFactor); // blue
+                                outputStream[counter + spot.Index * 3 + 1] = (byte)(reOrderedColor[1] * powerLimitFactor * _dimFactor); // green
+                                outputStream[counter + spot.Index * 3 + 2] = (byte)(reOrderedColor[2] * powerLimitFactor * _dimFactor); // red
                                 aliveSpotCounter++;
                             }
                             allBlack = allBlack && spot.Red == 0 && spot.Green == 0 && spot.Blue == 0;
@@ -416,9 +422,9 @@ namespace adrilight
                                  out byte FinalR, out byte FinalG, out byte FinalB);
                                 var reOrderedColor = ReOrderSpotColor(rgbOrder, FinalR, FinalG, FinalB);
                                 //get data
-                                outputStream[counter + spot.Index * 3 + 0] = (byte)(reOrderedColor[0] * powerLimitFactor); // blue
-                                outputStream[counter + spot.Index * 3 + 1] = (byte)(reOrderedColor[1] * powerLimitFactor); // green
-                                outputStream[counter + spot.Index * 3 + 2] = (byte)(reOrderedColor[2] * powerLimitFactor); // red
+                                outputStream[counter + spot.Index * 3 + 0] = (byte)(reOrderedColor[0] * powerLimitFactor * _dimFactor); // blue
+                                outputStream[counter + spot.Index * 3 + 1] = (byte)(reOrderedColor[1] * powerLimitFactor * _dimFactor); // green
+                                outputStream[counter + spot.Index * 3 + 2] = (byte)(reOrderedColor[2] * powerLimitFactor * _dimFactor); // red
                                 aliveSpotCounter++;
                             }
                             allBlack = allBlack && spot.Red == 0 && spot.Green == 0 && spot.Blue == 0;

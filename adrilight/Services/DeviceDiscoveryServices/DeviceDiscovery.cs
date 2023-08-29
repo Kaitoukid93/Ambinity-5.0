@@ -7,6 +7,7 @@ using adrilight_shared.Extensions;
 using adrilight_shared.Helpers;
 using adrilight_shared.Models.Device;
 using adrilight_shared.Models.Device.Zone;
+using adrilight_shared.Settings;
 using Serilog;
 using System;
 using System.Collections.Generic;

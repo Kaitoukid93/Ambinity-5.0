@@ -1,4 +1,6 @@
 ﻿using adrilight.ViewModel;
+using adrilight_shared.Helpers;
+using adrilight_shared.Settings;
 using GalaSoft.MvvmLight;
 using OpenRGB.NET;
 using OpenRGB.NET.Models;
@@ -10,7 +12,6 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace adrilight.Services.OpenRGBService
@@ -32,11 +33,14 @@ namespace adrilight.Services.OpenRGBService
            .Handle<Exception>()
            .WaitAndRetryAsync(10, _ => TimeSpan.FromSeconds(1));
             GeneralSettings.PropertyChanged += UserSettings_PropertyChangedAsync;
+            if (ResourceHlprs == null)
+                ResourceHlprs = new ResourceHelpers();
             //RefreshTransferState();
         }
         //Dependency Injection//
         private IGeneralSettings GeneralSettings { get; }
         private MainViewViewModel MainViewViewModel { get; }
+        public ResourceHelpers ResourceHlprs { get; set; }
         private Process _oRGBProcess;
         public Process ORGBProcess {
             get { return _oRGBProcess; }
@@ -167,7 +171,7 @@ namespace adrilight.Services.OpenRGBService
                 {
                     Directory.CreateDirectory(ORGBPath);
 
-                    CopyResource("adrilight.Tools.OpenRGB.OpenRGB.zip", Path.Combine(ORGBPath, "OpenRGB.zip"));
+                    ResourceHlprs.CopyResource("adrilight_shared.Tools.OpenRGB.OpenRGB.zip", Path.Combine(ORGBPath, "OpenRGB.zip"));
                     //Create directory to extract
                     Directory.CreateDirectory(ORGBExeFolderNameAndPath);
                     //then extract
@@ -192,21 +196,6 @@ namespace adrilight.Services.OpenRGBService
             }
 
 
-        }
-        private void CopyResource(string resourceName, string file)
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            using (Stream resource = assembly.GetManifestResourceStream(resourceName))
-            {
-                if (resource == null)
-                {
-                    throw new ArgumentException("No such resource", "resourceName");
-                }
-                using (Stream output = File.OpenWrite(file))
-                {
-                    resource.CopyTo(output);
-                }
-            }
         }
         public object Lock { get; } = new object();
         public List<OpenRGB.NET.Models.Device> ScanNewDevice()

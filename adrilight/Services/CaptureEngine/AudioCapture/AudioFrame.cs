@@ -3,6 +3,7 @@ using adrilight.Util.CaptureEngine;
 using adrilight.ViewModel;
 using adrilight_shared.Models.Audio;
 using adrilight_shared.Models.FrameData;
+using adrilight_shared.Settings;
 using GalaSoft.MvvmLight;
 using Serilog;
 using System;

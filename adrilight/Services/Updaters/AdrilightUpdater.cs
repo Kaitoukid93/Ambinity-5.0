@@ -1,6 +1,7 @@
 ﻿using adrilight.Resources;
 using adrilight.Services.OpenRGBService;
 using adrilight.View;
+using adrilight_shared.Settings;
 using Serilog;
 using Squirrel;
 using System;

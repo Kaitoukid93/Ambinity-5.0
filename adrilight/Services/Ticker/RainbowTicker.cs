@@ -1,6 +1,7 @@
 ﻿using adrilight.ViewModel;
 using adrilight_shared.Models.Device;
 using adrilight_shared.Models.TickData;
+using adrilight_shared.Settings;
 using Microsoft.Win32;
 using Serilog;
 using System;

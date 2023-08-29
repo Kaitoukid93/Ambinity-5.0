@@ -485,7 +485,7 @@ namespace adrilight_content_creator.ViewModel
 
                 try
                 {
-                    var dev = JsonConvert.DeserializeObject<ARGBLEDSlaveDevice>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    var dev = JsonConvert.DeserializeObject<ARGBLEDSlaveDevice>(json);
                     SelectedDevice.AvailableLightingOutputs[output].SlaveDevice = dev;
                 }
                 catch (Exception)
@@ -514,10 +514,7 @@ namespace adrilight_content_creator.ViewModel
             {
                 //deserialize to config
                 Directory.CreateDirectory(Export.FileName);
-                var configjson = JsonConvert.SerializeObject(SelectedDevice, new JsonSerializerSettings()
-                {
-                    TypeNameHandling = TypeNameHandling.Auto
-                });
+                var configjson = JsonConvert.SerializeObject(SelectedDevice);
                 File.WriteAllText(Path.Combine(Export.FileName, "config.json"), configjson);
 
             }
@@ -531,10 +528,7 @@ namespace adrilight_content_creator.ViewModel
                 if (requiredSlaveDevice.Any(p => p == device.Name))
                     continue;
                 requiredSlaveDevice.Add(device.Name);
-                var requiredSlaveDevicejson = JsonConvert.SerializeObject(device, new JsonSerializerSettings()
-                {
-                    TypeNameHandling = TypeNameHandling.Auto
-                });
+                var requiredSlaveDevicejson = JsonConvert.SerializeObject(device);
                 Directory.CreateDirectory(Path.Combine(Export.FileName, "dependencies", "SlaveDevices", device.Name));
                 File.WriteAllText(Path.Combine(Export.FileName, "dependencies", "SlaveDevices", device.Name, "config.json"), requiredSlaveDevicejson);
                 File.Copy(device.Thumbnail, Path.Combine(Export.FileName, "dependencies", "SlaveDevices", device.Name, Path.GetFileName(device.Thumbnail)));
@@ -571,7 +565,7 @@ namespace adrilight_content_creator.ViewModel
                 try
                 {
                     var json = File.ReadAllText(Path.Combine(folder, "config.json"));
-                    var device = JsonConvert.DeserializeObject<DeviceSettings>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    var device = JsonConvert.DeserializeObject<DeviceSettings>(json);
                     device.AvailableControllers = new List<IDeviceController>();
                     //read slave device info
                     //check if this device contains lighting controller
@@ -614,9 +608,9 @@ namespace adrilight_content_creator.ViewModel
                 {
                     //read slave device info
                     var outputJson = File.ReadAllText(Path.Combine(subfolder, "config.json"));
-                    var output = JsonConvert.DeserializeObject<OutputSettings>(outputJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    var output = JsonConvert.DeserializeObject<OutputSettings>(outputJson);
                     var slaveDeviceJson = File.ReadAllText(Path.Combine(Directory.GetDirectories(subfolder).FirstOrDefault(), "config.json"));
-                    var slaveDevice = JsonConvert.DeserializeObject<T>(slaveDeviceJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    var slaveDevice = JsonConvert.DeserializeObject<T>(slaveDeviceJson);
 
                     if (slaveDevice == null)//somehow data corrupted
                         continue;
@@ -932,10 +926,7 @@ namespace adrilight_content_creator.ViewModel
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             Export.RestoreDirectory = true;
 
-            var layerJson = JsonConvert.SerializeObject(Device, new JsonSerializerSettings()
-            {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
+            var layerJson = JsonConvert.SerializeObject(Device);
 
             if (Export.ShowDialog() == true)
             {
@@ -1496,10 +1487,7 @@ namespace adrilight_content_creator.ViewModel
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             Export.RestoreDirectory = true;
 
-            var layerJson = JsonConvert.SerializeObject(Layer, new JsonSerializerSettings()
-            {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
+            var layerJson = JsonConvert.SerializeObject(Layer);
 
             if (Export.ShowDialog() == true)
             {

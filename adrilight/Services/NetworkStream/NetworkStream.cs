@@ -2,6 +2,7 @@
 using adrilight.Util;
 using adrilight_shared.Enums;
 using adrilight_shared.Models.Device;
+using adrilight_shared.Settings;
 using NLog;
 using System;
 using System.IO.Ports;

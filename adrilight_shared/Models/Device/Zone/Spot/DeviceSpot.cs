@@ -218,9 +218,9 @@ namespace adrilight_shared.Models.Device.Zone.Spot
         public bool ShouldBringIntoView { get => _shouldBringIntoView; set { Set(() => ShouldBringIntoView, ref _hasCustomBehavior, value); } }
 
         public Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
-
+        [JsonIgnore]
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
-
+        [JsonIgnore]
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
         private DrawableHelpers DrawableHlprs => new DrawableHelpers();
         public string Name { get => _name; set { Set(() => Name, ref _name, value); } }

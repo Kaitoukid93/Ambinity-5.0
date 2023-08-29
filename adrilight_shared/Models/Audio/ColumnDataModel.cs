@@ -1,10 +1,8 @@
 ﻿using GalaSoft.MvvmLight;
-using OpenRGB.NET.Models;
-using System.Windows.Forms;
 
-namespace adrilight.Util
+namespace adrilight_shared.Models.Audio
 {
-    public class ColumnDataModel :ViewModelBase
+    public class ColumnDataModel : ViewModelBase
     {
         public ColumnDataModel() { }
         public int Index { get; set; }
@@ -14,7 +12,7 @@ namespace adrilight.Util
             Value = value;
             RaisePropertyChanged(nameof(Value));
 
-           
+
         }
     }
 }

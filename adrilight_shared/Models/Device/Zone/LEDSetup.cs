@@ -75,6 +75,7 @@ namespace adrilight_shared.Models.Device.Zone
         public bool IsInsideScreen { get => _isInsideScreen; set { Set(() => IsInsideScreen, ref _isInsideScreen, value); } }
         public string TargetType { get; set; } // Tartget Type of the spotset (keyboard, strips, ...
         public ObservableCollection<IDeviceSpot> Spots { get => _spots; set { Set(() => Spots, ref _spots, value); } }
+        [JsonIgnore]
         public object Lock { get; } = new object();
         public string Thumbnail { get; set; }
         public void DimLED(float dimFactor)
@@ -157,9 +158,9 @@ namespace adrilight_shared.Models.Device.Zone
         public bool ShouldBringIntoView { get => _shouldBringIntoView; set { Set(() => ShouldBringIntoView, ref _shouldBringIntoView, value); } }
 
         public Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
-
+        [JsonIgnore]
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
-
+        [JsonIgnore]
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
         [JsonIgnore]
         public Rect GetRect => new Rect(Left + OffsetX, Top + OffsetY, Width, Height);

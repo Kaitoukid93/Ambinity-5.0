@@ -6,6 +6,7 @@ using adrilight_shared.Models.Device;
 using adrilight_shared.Models.Device.SlaveDevice;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.Device.Zone.Spot;
+using adrilight_shared.Settings;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -217,7 +218,7 @@ namespace adrilight.Services.OpenRGBService
                               out var FinalR, out var FinalG, out var FinalB);
                             var reOrderedColor = ReOrderSpotColor(RGBOrder, FinalR, FinalG, FinalB);
                             //get data
-                            outputColor[spot.Index] = new OpenRGB.NET.Models.Color(reOrderedColor[0], reOrderedColor[1], reOrderedColor[2]);
+                            outputColor[spot.Index] = new OpenRGB.NET.Models.Color((byte)(reOrderedColor[0] * _dimFactor), (byte)(reOrderedColor[1] * _dimFactor), (byte)(reOrderedColor[2] * _dimFactor));
                             // aliveSpotCounter++;
                         }
                         allBlack = allBlack && spot.Red == 0 && spot.Green == 0 && spot.Blue == 0;
