@@ -9,6 +9,7 @@ using HandyControl.Themes;
 using HandyControl.Tools.Extension;
 using Microsoft.ApplicationInsights;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 using Ninject;
 using Ninject.Extensions.Conventions;
 using Serilog;
@@ -35,6 +36,7 @@ namespace adrilight
 
     public sealed partial class App : System.Windows.Application
     {
+        private KnownTypesBinder _knownTypeBinders { get; set; }
         private static System.Threading.Mutex _mutex = null;
         private static Mutex _adrilightMutex;
         private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
@@ -51,6 +53,8 @@ namespace adrilight
                 return;
             }
             /////////
+            _knownTypeBinders = new KnownTypesBinder();
+            JsonConvert.DefaultSettings = () => new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Objects, SerializationBinder = _knownTypeBinders };
             BassNet.Registration("saorihara93@gmail.com", "2X2831021152222");
             SetupDebugLogging();
             SetupLoggingForProcessWideEvents();

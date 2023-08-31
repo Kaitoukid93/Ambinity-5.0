@@ -3890,9 +3890,7 @@ namespace adrilight.ViewModel
                 //create main content
                 if (content is ColorPalette)
                 {
-                    contentjson = JsonConvert.SerializeObject(content, new JsonSerializerSettings() {
-                        TypeNameHandling = TypeNameHandling.Auto
-                    });
+                    contentjson = JsonConvert.SerializeObject(content);
                     File.WriteAllText(Path.Combine(Export.FileName, "content", "config.json"), contentjson);
                 }
                 else if (content is ChasingPattern)
@@ -3910,9 +3908,7 @@ namespace adrilight.ViewModel
                 {
                     var device = content as ARGBLEDSlaveDevice;
                     version = device.Version;
-                    contentjson = JsonConvert.SerializeObject(content, new JsonSerializerSettings() {
-                        TypeNameHandling = TypeNameHandling.Auto
-                    });
+                    contentjson = JsonConvert.SerializeObject(content);
                     File.WriteAllText(Path.Combine(Export.FileName, "content", "config.json"), contentjson);
                     if (File.Exists(device.Thumbnail))
                         File.Copy(device.Thumbnail, Path.Combine(Export.FileName, "content", "thumbnail.png"));
@@ -3929,9 +3925,7 @@ namespace adrilight.ViewModel
                     Version = version,
                     TargetDevices = OnlineItemSelectedTargetTypes.ToList()
                 };
-                var infoJson = JsonConvert.SerializeObject(info, new JsonSerializerSettings() {
-                    TypeNameHandling = TypeNameHandling.Auto
-                });
+                var infoJson = JsonConvert.SerializeObject(info);
                 File.WriteAllText(Path.Combine(Export.FileName, "info.json"), infoJson);
                 File.WriteAllText(Path.Combine(Export.FileName, "description.md"), OnlineItemMarkdownDescription);
                 //coppy image data
@@ -4318,12 +4312,8 @@ namespace adrilight.ViewModel
         }
         private bool CheckEqualityObjects(object object1, object object2)
         {
-            string object1String = JsonConvert.SerializeObject(object1, new JsonSerializerSettings() {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
-            string object2String = JsonConvert.SerializeObject(object2, new JsonSerializerSettings() {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
+            string object1String = JsonConvert.SerializeObject(object1);
+            string object2String = JsonConvert.SerializeObject(object2);
             return (string.Equals(object2String, object1String));
         }
 
@@ -4396,7 +4386,7 @@ namespace adrilight.ViewModel
                         {
                             info.IsLocalExisted = true;
                             var json = File.ReadAllText(itemLocalInfo);
-                            var localInfo = JsonConvert.DeserializeObject<OnlineItemModel>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                            var localInfo = JsonConvert.DeserializeObject<OnlineItemModel>(json);
                             var v1 = new Version(localInfo.Version);
                             var v2 = new Version(info.Version);
                             if (v2 > v1)
@@ -4472,7 +4462,7 @@ namespace adrilight.ViewModel
                             {
                                 info.IsLocalExisted = true;
                                 var json = File.ReadAllText(itemLocalInfo);
-                                var localInfo = JsonConvert.DeserializeObject<OnlineItemModel>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                                var localInfo = JsonConvert.DeserializeObject<OnlineItemModel>(json);
                                 var v1 = new Version(localInfo.Version);
                                 var v2 = new Version(info.Version);
                                 if (v2 > v1)
@@ -4559,7 +4549,7 @@ namespace adrilight.ViewModel
                             {
                                 info.IsLocalExisted = true;
                                 var json = File.ReadAllText(itemLocalInfo);
-                                var localInfo = JsonConvert.DeserializeObject<OnlineItemModel>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                                var localInfo = JsonConvert.DeserializeObject<OnlineItemModel>(json);
                                 var v1 = new Version(localInfo.Version);
                                 var v2 = new Version(info.Version);
                                 if (v2 > v1)
@@ -4773,7 +4763,7 @@ namespace adrilight.ViewModel
                 ZipFile.ExtractToDirectory(path, CacheFolderPath);
             import:
                 var deviceJson = File.ReadAllText(Path.Combine(CacheFolderPath, fileName, "config.json"));
-                device = JsonConvert.DeserializeObject<DeviceSettings>(deviceJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                device = JsonConvert.DeserializeObject<DeviceSettings>(deviceJson);
                 if (device != null)
                 {
                     //create device info
@@ -5421,7 +5411,7 @@ namespace adrilight.ViewModel
                     {
                         //grab available firmware for current device type
                         var json = File.ReadAllText(JsonFWToolsFWListFileNameAndPath);
-                        var availableFirmware = JsonConvert.DeserializeObject<List<DeviceFirmware>>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                        var availableFirmware = JsonConvert.DeserializeObject<List<DeviceFirmware>>(json);
                         AvailableFirmwareForCurrentDevice = new ObservableCollection<DeviceFirmware>();
                         foreach (var firmware in availableFirmware)
                         {
@@ -5437,7 +5427,7 @@ namespace adrilight.ViewModel
                 {
                     // regconize this device, find the compatible firmware
                     var json = File.ReadAllText(JsonFWToolsFWListFileNameAndPath);
-                    var requiredFwVersion = JsonConvert.DeserializeObject<List<DeviceFirmware>>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    var requiredFwVersion = JsonConvert.DeserializeObject<List<DeviceFirmware>>(json);
 
                     var currentDeviceFirmwareInfo = requiredFwVersion.Where(p => p.TargetHardware == device.HardwareVersion).FirstOrDefault();
                     if (currentDeviceFirmwareInfo == null)
@@ -5448,7 +5438,7 @@ namespace adrilight.ViewModel
                         if (result == MessageBoxResult.Yes)
                         {
                             var fwjson = File.ReadAllText(JsonFWToolsFWListFileNameAndPath);
-                            var availableFirmware = JsonConvert.DeserializeObject<List<DeviceFirmware>>(fwjson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                            var availableFirmware = JsonConvert.DeserializeObject<List<DeviceFirmware>>(fwjson);
                             AvailableFirmwareForCurrentDevice = new ObservableCollection<DeviceFirmware>();
                             foreach (var firmware in availableFirmware)
                             {
@@ -5682,7 +5672,7 @@ namespace adrilight.ViewModel
 
                 try
                 {
-                    var ledSetup = JsonConvert.DeserializeObject<LEDSetup>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    var ledSetup = JsonConvert.DeserializeObject<LEDSetup>(json);
                     foreach (var spot in ledSetup.Spots)
                     {
                         (spot as IDrawable).IsSelected = false;
@@ -6820,7 +6810,7 @@ namespace adrilight.ViewModel
                     string json = reader.ReadToEnd(); //Make string equal to full file
                     try
                     {
-                        motion = JsonConvert.DeserializeObject<Motion>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                        motion = JsonConvert.DeserializeObject<Motion>(json);
                     }
                     catch (Exception)
                     {
@@ -7394,9 +7384,7 @@ namespace adrilight.ViewModel
         {
             try
             {
-                var json = JsonConvert.SerializeObject(obj, new JsonSerializerSettings() {
-                    TypeNameHandling = TypeNameHandling.Auto
-                });
+                var json = JsonConvert.SerializeObject(obj);
                 File.WriteAllText(path, json);
             }
             catch (Exception ex)
@@ -8159,7 +8147,7 @@ namespace adrilight.ViewModel
                     var json = File.ReadAllText(Path.Combine(deviceFolder, "config.json"));
                     try
                     {
-                        var existedDevice = JsonConvert.DeserializeObject<ARGBLEDSlaveDevice>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                        var existedDevice = JsonConvert.DeserializeObject<ARGBLEDSlaveDevice>(json);
                         await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
                         {
                             if (existedDevice != null)
@@ -8303,9 +8291,7 @@ namespace adrilight.ViewModel
                 ResourceHlprs.CopyResource(colorCollectionResourcePath, Path.Combine(ColorsCollectionFolderPath, "collection.json"));
                 //Create deserialize config
                 var config = new ResourceLoaderConfig(nameof(ColorCard), DeserializeMethodEnum.SingleJson);
-                var configJson = JsonConvert.SerializeObject(config, new JsonSerializerSettings() {
-                    TypeNameHandling = TypeNameHandling.Auto
-                });
+                var configJson = JsonConvert.SerializeObject(config);
                 File.WriteAllText(Path.Combine(ColorsCollectionFolderPath, "config.json"), configJson);
             }
             //deserialize and store colorcollection
@@ -8323,9 +8309,7 @@ namespace adrilight.ViewModel
                     ResourceHlprs.CopyResource(resourceName, Path.Combine(collectionFolder, resourceName.Remove(0, 25)));
                 }
                 var config = new ResourceLoaderConfig(nameof(Gif), DeserializeMethodEnum.Files);
-                var configJson = JsonConvert.SerializeObject(config, new JsonSerializerSettings() {
-                    TypeNameHandling = TypeNameHandling.Auto
-                });
+                var configJson = JsonConvert.SerializeObject(config);
                 File.WriteAllText(Path.Combine(GifsCollectionFolderPath, "config.json"), configJson);
             }
             //deserialize and store colorcollection
@@ -8381,16 +8365,12 @@ namespace adrilight.ViewModel
                 vidCollection.Add(linear);
                 foreach (var vid in vidCollection)
                 {
-                    var json = JsonConvert.SerializeObject(vid, new JsonSerializerSettings() {
-                        TypeNameHandling = TypeNameHandling.Auto
-                    });
+                    var json = JsonConvert.SerializeObject(vid);
                     File.WriteAllText(Path.Combine(collectionFolder, vid.Name + ".json"), json);
                 }
                 //coppy all internal palettes to local
                 var config = new ResourceLoaderConfig(nameof(VIDDataModel), DeserializeMethodEnum.MultiJson);
-                var configJson = JsonConvert.SerializeObject(config, new JsonSerializerSettings() {
-                    TypeNameHandling = TypeNameHandling.Auto
-                });
+                var configJson = JsonConvert.SerializeObject(config);
                 File.WriteAllText(Path.Combine(VIDCollectionFolderPath, "config.json"), configJson);
             }
             //deserialize and store colorcollection
@@ -8434,16 +8414,12 @@ namespace adrilight.ViewModel
                 midCollection.Add(custom);
                 foreach (var mid in midCollection)
                 {
-                    var json = JsonConvert.SerializeObject(mid, new JsonSerializerSettings() {
-                        TypeNameHandling = TypeNameHandling.Auto
-                    });
+                    var json = JsonConvert.SerializeObject(mid);
                     File.WriteAllText(Path.Combine(collectionFolder, mid.Name + ".json"), json);
                 }
                 //coppy all internal palettes to local
                 var config = new ResourceLoaderConfig(nameof(MIDDataModel), DeserializeMethodEnum.MultiJson);
-                var configJson = JsonConvert.SerializeObject(config, new JsonSerializerSettings() {
-                    TypeNameHandling = TypeNameHandling.Auto
-                });
+                var configJson = JsonConvert.SerializeObject(config);
                 File.WriteAllText(Path.Combine(MIDCollectionFolderPath, "config.json"), configJson);
             }
             //deserialize and store colorcollection
@@ -8748,9 +8724,7 @@ namespace adrilight.ViewModel
             var collectionFolder = Path.Combine(ProfileCollectionFolderPath, "collection");
             Directory.CreateDirectory(collectionFolder);
             var config = new ResourceLoaderConfig(nameof(AppProfile), DeserializeMethodEnum.MultiJson);
-            var configJson = JsonConvert.SerializeObject(config, new JsonSerializerSettings() {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
+            var configJson = JsonConvert.SerializeObject(config);
             File.WriteAllText(Path.Combine(ProfileCollectionFolderPath, "config.json"), configJson);
         }
 
@@ -8788,9 +8762,7 @@ namespace adrilight.ViewModel
                     ResourceHlprs.CopyResource(resourceName, Path.Combine(collectionFolder, resourceName.Remove(0, 36)));
                 }
                 var config = new ResourceLoaderConfig(nameof(ChasingPattern), DeserializeMethodEnum.Files);
-                var configJson = JsonConvert.SerializeObject(config, new JsonSerializerSettings() {
-                    TypeNameHandling = TypeNameHandling.Auto
-                });
+                var configJson = JsonConvert.SerializeObject(config);
                 File.WriteAllText(Path.Combine(ChasingPatternsCollectionFolderPath, "config.json"), configJson);
                 //copy default chasing pattern from resource
             }
@@ -8843,17 +8815,13 @@ namespace adrilight.ViewModel
                 Directory.CreateDirectory(collectionFolder);
                 foreach (var palette in palettes)
                 {
-                    var json = JsonConvert.SerializeObject(palette, new JsonSerializerSettings() {
-                        TypeNameHandling = TypeNameHandling.Auto
-                    });
+                    var json = JsonConvert.SerializeObject(palette);
                     File.WriteAllText(Path.Combine(collectionFolder, palette.Name + ".col"), json);
                 }
 
                 //coppy all internal palettes to local
                 var config = new ResourceLoaderConfig(nameof(ColorPalette), DeserializeMethodEnum.MultiJson);
-                var configJson = JsonConvert.SerializeObject(config, new JsonSerializerSettings() {
-                    TypeNameHandling = TypeNameHandling.Auto
-                });
+                var configJson = JsonConvert.SerializeObject(config);
                 File.WriteAllText(Path.Combine(PalettesCollectionFolderPath, "config.json"), configJson);
             }
         }
@@ -8865,7 +8833,7 @@ namespace adrilight.ViewModel
             foreach (var file in files)
             {
                 var jsonData = File.ReadAllText(file);
-                var profile = JsonConvert.DeserializeObject<AppProfile>(jsonData, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                var profile = JsonConvert.DeserializeObject<AppProfile>(jsonData);
                 existedProfile.Add(profile);
             }
             return existedProfile;
@@ -8882,7 +8850,7 @@ namespace adrilight.ViewModel
             {
                 var json = File.ReadAllText(JsonAutomationFileNameAndPath);
 
-                var existedAutomation = JsonConvert.DeserializeObject<List<AutomationSettings>>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                var existedAutomation = JsonConvert.DeserializeObject<List<AutomationSettings>>(json);
                 foreach (var automation in existedAutomation)
                 {
                     loadedAutomations.Add(automation);
@@ -8967,9 +8935,7 @@ namespace adrilight.ViewModel
             {
                 automations.Add(automation);
             }
-            var json = JsonConvert.SerializeObject(automations, new JsonSerializerSettings() {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
+            var json = JsonConvert.SerializeObject(automations);
             File.WriteAllText(JsonAutomationFileNameAndPath, json);
         }
         private string _currentSelectedOnlineItemType;

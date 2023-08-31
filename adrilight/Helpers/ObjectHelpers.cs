@@ -1,12 +1,4 @@
-﻿using adrilight.Settings;
-using Newtonsoft.Json;
-using SharpDX.WIC;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Newtonsoft.Json;
 
 namespace adrilight.Helpers
 {
@@ -21,11 +13,9 @@ namespace adrilight.Helpers
         {
             T cloned_obj = default(T);
 
-            var objectJson = JsonConvert.SerializeObject(objectToClone, new JsonSerializerSettings() {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
+            var objectJson = JsonConvert.SerializeObject(objectToClone);
 
-            cloned_obj = JsonConvert.DeserializeObject<T>(objectJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+            cloned_obj = JsonConvert.DeserializeObject<T>(objectJson);
 
 
             return cloned_obj;

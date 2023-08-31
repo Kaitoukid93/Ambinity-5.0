@@ -212,6 +212,7 @@
     <Compile Include="DesktopDuplication\DesktopDuplicator.cs" />
     <Compile Include="DesktopDuplication\DesktopFrameDXGI.cs" />
     <Compile Include="Helpers\DeviceHelpers.cs" />
+    <Compile Include="Helpers\KnownTypesBinder.cs" />
     <Compile Include="Settings\AppUser.cs" />
     <Compile Include="Settings\Automation\ExecuteConditionEnum.cs" />
     <Compile Include="Settings\Automation\SystemEventEnum.cs" />

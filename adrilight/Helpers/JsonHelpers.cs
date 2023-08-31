@@ -1,10 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace adrilight.Helpers
 {
@@ -14,9 +10,7 @@ namespace adrilight.Helpers
         {
             try
             {
-                var json = JsonConvert.SerializeObject(obj, new JsonSerializerSettings() {
-                    TypeNameHandling = TypeNameHandling.Auto
-                });
+                var json = JsonConvert.SerializeObject(obj);
                 File.WriteAllText(path, json);
             }
             catch (Exception ex)

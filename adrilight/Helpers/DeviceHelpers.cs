@@ -26,9 +26,7 @@ namespace adrilight.Helpers
             if (!Directory.Exists(directory))
                 return;
             var fileToWrite = Path.Combine(directory, "config.json");
-            var json = JsonConvert.SerializeObject(device, new JsonSerializerSettings() {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
+            var json = JsonConvert.SerializeObject(device);
 
             // Set Status to Locked
             _readWriteLock.EnterWriteLock();
@@ -65,9 +63,7 @@ namespace adrilight.Helpers
             if (!Directory.Exists(outputDirectory))
                 return;
             var fileToWrite = Path.Combine(outputDirectory, "AttachedDevice", "config.json");
-            var json = JsonConvert.SerializeObject(slaveDevice, new JsonSerializerSettings() {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
+            var json = JsonConvert.SerializeObject(slaveDevice);
 
             // Set Status to Locked
             _readWriteLock.EnterWriteLock();
@@ -105,9 +101,7 @@ namespace adrilight.Helpers
             if (!Directory.Exists(childDirectory))
                 return;
             var fileToWrite = Path.Combine(childDirectory, "config.json");
-            var json = JsonConvert.SerializeObject(output, new JsonSerializerSettings() {
-                TypeNameHandling = TypeNameHandling.Auto
-            });
+            var json = JsonConvert.SerializeObject(output);
 
             // Set Status to Locked
             _readWriteLock.EnterWriteLock();

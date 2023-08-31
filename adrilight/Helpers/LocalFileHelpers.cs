@@ -36,7 +36,7 @@ namespace adrilight.Helpers
 
                 try
                 {
-                    item = JsonConvert.DeserializeObject<T>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    item = JsonConvert.DeserializeObject<T>(json);
                     return item;
                 }
                 catch (Exception)
@@ -64,9 +64,7 @@ namespace adrilight.Helpers
             {
                 try
                 {
-                    var contentjson = JsonConvert.SerializeObject(content, new JsonSerializerSettings() {
-                        TypeNameHandling = TypeNameHandling.Auto
-                    });
+                    var contentjson = JsonConvert.SerializeObject(content);
                     File.WriteAllText(Export.FileName, contentjson);
                 }
                 catch (Exception)

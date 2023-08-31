@@ -32,7 +32,7 @@ namespace adrilight
             var json = File.ReadAllText(JsonFileNameAndPath);
             try
             {
-                var generalSettings = JsonConvert.DeserializeObject<GeneralSettings>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                var generalSettings = JsonConvert.DeserializeObject<GeneralSettings>(json);
                 generalSettings.PropertyChanged += (_, __) => SaveSettings(generalSettings);
 
                 HandleAutostart(generalSettings);
@@ -54,7 +54,7 @@ namespace adrilight
                 try
                 {
                     var json = File.ReadAllText(Path.Combine(folder, "config.json"));
-                    var device = JsonConvert.DeserializeObject<DeviceSettings>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    var device = JsonConvert.DeserializeObject<DeviceSettings>(json);
                     device.AvailableControllers = new List<Settings.IDeviceController>();
                     //read slave device info
                     //check if this device contains lighting controller
@@ -98,9 +98,9 @@ namespace adrilight
                 {
                     //read slave device info
                     var outputJson = File.ReadAllText(Path.Combine(subfolder, "config.json"));
-                    var output = JsonConvert.DeserializeObject<OutputSettings>(outputJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    var output = JsonConvert.DeserializeObject<OutputSettings>(outputJson);
                     var slaveDeviceJson = File.ReadAllText(Path.Combine(Directory.GetDirectories(subfolder).FirstOrDefault(), "config.json"));
-                    var slaveDevice = JsonConvert.DeserializeObject<T>(slaveDeviceJson, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                    var slaveDevice = JsonConvert.DeserializeObject<T>(slaveDeviceJson);
 
                     if (slaveDevice == null)//somehow data corrupted
                         continue;

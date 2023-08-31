@@ -662,7 +662,7 @@ namespace adrilight
             {
                 var json = File.ReadAllText(path);
 
-                motion = JsonConvert.DeserializeObject<Motion>(json, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+                motion = JsonConvert.DeserializeObject<Motion>(json);
             }
             catch (Exception ex)
             {

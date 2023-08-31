@@ -58,6 +58,7 @@ namespace adrilight.Settings
         private bool _isEnabled = true;
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); } }
         private ChartValues<ObservableValue> _lineValues;
+        [JsonIgnore]
         public ChartValues<ObservableValue> LineValues { get => _lineValues; set { Set(() => LineValues, ref _lineValues, value); } }
         private int _currentPWMValue;
         public int CurrentPWMValue { get => _currentPWMValue; set { Set(() => CurrentPWMValue, ref _currentPWMValue, value); } }
@@ -118,9 +119,9 @@ namespace adrilight.Settings
         public bool ShouldBringIntoView { get => _shouldBringIntoView; set { Set(() => ShouldBringIntoView, ref _hasCustomBehavior, value); } }
 
         public System.Windows.Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
-
+        [JsonIgnore]
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
-
+        [JsonIgnore]
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
 
         public string Type { get; set; }
