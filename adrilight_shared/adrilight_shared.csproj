@@ -240,6 +240,7 @@
     <Compile Include="Models\SerialPortData\WrappedSerialPort.cs" />
     <Compile Include="Models\Store\OnlineItemModel.cs" />
     <Compile Include="Models\Store\StoreCategory.cs" />
+    <Compile Include="Models\Store\StoreFilterModel.cs" />
     <Compile Include="Models\TickData\Tick.cs" />
     <Compile Include="Models\TickData\TickEnum.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">

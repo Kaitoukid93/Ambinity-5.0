@@ -4429,8 +4429,50 @@ namespace adrilight.ViewModel
                 return;
             }
         }
-        private async Task GetStoreItem(string itemFolderPath, string itemLocalFolderPath, string infoLocalFolderPath, string filter)
+        private string GetLocalFolderPathByDataType(string dataType)
         {
+            string result = "all";
+            switch (dataType)
+            {
+                case nameof(ARGBLEDSlaveDevice):
+                    result = SupportedDeviceCollectionFolderPath;
+                    break;
+                case nameof(ColorPalette):
+                    result = Path.Combine(PalettesCollectionFolderPath, "collection");
+                    break;
+                case nameof(Gif):
+                    result = Path.Combine(GifsCollectionFolderPath, "collection");
+                    break;
+                case nameof(ChasingPattern):
+                    result = Path.Combine(ChasingPatternsCollectionFolderPath, "collection");
+                    break;
+
+            }
+            return result;
+        }
+        private string GetOnlineFolderPathByDataType(string dataType)
+        {
+            string result = "all";
+            switch (dataType)
+            {
+                case nameof(ARGBLEDSlaveDevice):
+                    result = "/home/adrilight_enduser/ftp/files/SupportedDevices";
+                    break;
+                case nameof(ColorPalette):
+                    result = "/home/adrilight_enduser/ftp/files/ColorPalettes";
+                    break;
+                case nameof(Gif):
+                    result = "/home/adrilight_enduser/ftp/files/Gifxelations";
+                    break;
+                case nameof(ChasingPattern):
+                    result = "/home/adrilight_enduser/ftp/files/ChasingPatterns";
+                    break;
+            }
+            return result;
+        }
+        private async Task GetStoreItem(StoreFilterModel filter)
+        {
+            //init if null
             if (FTPHlprs == null)
             {
                 SFTPInit(GeneralSettings.CurrentAppUser);
@@ -4450,18 +4492,25 @@ namespace adrilight.ViewModel
 
             }
 
-            var listItemAddress = await FTPHlprs.GetAllFilesAddressInFolder(itemFolderPath);
-            var filteredItemAddress = new List<string>();
             var currentPageListItemAddress = new List<string>();
-            //display all available files to the view
+            var currentDeviceTypeFilter = filter.DeviceTypeFilter.ToString();
+            var currentnameFilter = filter.NameFilter;
+            var currentDataTypeFilter = filter.DataTypeFilter;
+            // get itemfolderPath and itemLocalFolderPath based on datatype if datatpye == all search all folder
+            var itemFolderPath = GetOnlineFolderPathByDataType(currentDataTypeFilter);
+            var listItemAddress = await FTPHlprs.GetAllFilesAddressInFolder(itemFolderPath);
+
+            var itemLocalFolderPath = GetLocalFolderPathByDataType(currentDataTypeFilter);
+            var infoLocalFolderPath = Path.Combine(itemLocalFolderPath, "info");
+            //filter item by name if exist
             if (listItemAddress != null && listItemAddress.Count > 0)
             {
-
-                var lowerFilter = filter.ToLower();
+                var lowerFilter = currentnameFilter.ToLower();
+                var filteredItemAddress = new List<string>();
                 foreach (var address in listItemAddress)
                 {
                     var itemName = FTPHlprs.GetFileOrFoldername(address).Name;
-                    if (itemName.ToLower().Contains(lowerFilter))
+                    if (itemName.ToLower().Contains(lowerFilter) || lowerFilter == string.Empty)
                     {
                         filteredItemAddress.Add(address);
                     }
@@ -5145,6 +5194,8 @@ namespace adrilight.ViewModel
                     WriteAutomationCollectionJson();
                     continue;
                 }
+                if (!targetDevice.IsEnabled)
+                    return;
                 switch (action.ActionType.Type)
                 {
                     //case "Activate":
