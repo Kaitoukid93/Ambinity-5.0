@@ -16,12 +16,13 @@ namespace adrilight_shared.Models.Store
         private bool _isDownloading = false;
         private bool _isLocalExisted = false;
         private bool _isUpgradeAvailable = false;
+        private BitmapImage _thumb;
         public string Name { get; set; }
         public string Owner { get; set; } // the name of creator
         public string Type { get; set; } // ledsetup or color palette
         public string Description { get; set; }
         public string Path { get; set; }
-        public BitmapImage Thumb { get; set; }
+        public BitmapImage Thumb { get => _thumb; set { Set(() => Thumb, ref _thumb, value); } }
         public List<BitmapImage> Screenshots { get; set; }
         public string MarkDownDescription { get; set; }
         public List<DeviceType> TargetDevices { get; set; }

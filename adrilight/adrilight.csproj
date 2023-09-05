@@ -273,6 +273,7 @@
     <Compile Include="View\Screens\Mainview\ControlView\GifRegionSelectionWindow.xaml.cs" />
     <Compile Include="View\Screens\Mainview\ControlView\Controls\ScreenRegionSelectionWindow.xaml.cs" />
     <Compile Include="View\Dialogs\AudioDeviceSelectionWindow.xaml.cs" />
+    <Compile Include="View\Screens\Store\StoreHomePageView.xaml.cs" />
     <Compile Include="View\Screens\SurfaceEditor\PIDQuickEditNonClientAreaContent.xaml.cs" />
     <Compile Include="View\Screens\Debug\DebugNonClientAreaContent.xaml.cs" />
     <Compile Include="View\Screens\DeviceDiscovery\DeviceSearchingScreen.xaml.cs" />
@@ -349,6 +350,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\Dialogs\AudioDeviceSelectionWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Screens\Store\StoreHomePageView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

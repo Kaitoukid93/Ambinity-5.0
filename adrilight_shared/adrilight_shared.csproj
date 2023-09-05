@@ -238,8 +238,10 @@
     <Compile Include="Models\SerialPortData\FpsLogger.cs" />
     <Compile Include="Models\SerialPortData\ISerialPortWrapper.cs" />
     <Compile Include="Models\SerialPortData\WrappedSerialPort.cs" />
+    <Compile Include="Models\Store\HomePageCarouselItem.cs" />
     <Compile Include="Models\Store\OnlineItemModel.cs" />
     <Compile Include="Models\Store\StoreCategory.cs" />
+    <Compile Include="Models\Store\StoreCollectionModel.cs" />
     <Compile Include="Models\Store\StoreFilterModel.cs" />
     <Compile Include="Models\TickData\Tick.cs" />
     <Compile Include="Models\TickData\TickEnum.cs" />

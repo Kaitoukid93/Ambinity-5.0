@@ -13,6 +13,7 @@ using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.Device.Zone.Spot;
 using adrilight_shared.Models.Drawable;
 using adrilight_shared.Models.FrameData;
+using adrilight_shared.Models.Store;
 //using adrilight_effect_analyzer.Model;
 using Newtonsoft.Json;
 using SharpVectors.Converters;
@@ -80,10 +81,13 @@ namespace adrilight_content_creator.ViewModel
             _timer = new DispatcherTimer(DispatcherPriority.Normal) { Interval = TimeSpan.FromMilliseconds(1000.0 / UPDATE_FRAME_RATE) };
         }
         public ICommand SetSelectedOutputSlaveDeviceFromFileCommand { get; set; }
+        public ICommand OpenURLCommand { get; set; }
         public ICommand RefreshExistedDeviceCollectionCommand { get; set; }
         public ICommand SaveCurrentDeviceToFilesCommand { get; set; }
+        public ICommand SaveCarouselToFileCommand { get; set; }
         public ICommand ChageCurrentDeviceSourceCommand { get; set; }
         public ICommand OpenImageSelectionForCurrentDeviceCommand { get; set; }
+        public ICommand OpenCarouselImageSelectorCommand { get; set; }
         public ICommand AddNewDeviceCommand { get; set; }
         public ICommand OpenAddNewDeviceWindowCommand { get; set; }
         public ICommand OpenAddNewDrawableItemCommand { get; set; }
@@ -135,6 +139,46 @@ namespace adrilight_content_creator.ViewModel
             set
             {
                 _selectedDeviceThumbnail = value;
+                RaisePropertyChanged();
+            }
+        }
+        private string _selectedCarouselImage;
+        public string SelectedCarouselImage
+        {
+            get { return _selectedCarouselImage; }
+            set
+            {
+                _selectedCarouselImage = value;
+                RaisePropertyChanged();
+            }
+        }
+        private string _selectedCarouselURL;
+        public string SelectedCarouselURL
+        {
+            get { return _selectedCarouselURL; }
+            set
+            {
+                _selectedCarouselURL = value;
+                RaisePropertyChanged();
+            }
+        }
+        private string _carouselDescription;
+        public string CarouselDescription
+        {
+            get { return _carouselDescription; }
+            set
+            {
+                _carouselDescription = value;
+                RaisePropertyChanged();
+            }
+        }
+        private string _carouselName;
+        public string CarouselName
+        {
+            get { return _carouselName; }
+            set
+            {
+                _carouselName = value;
                 RaisePropertyChanged();
             }
         }
@@ -202,6 +246,16 @@ namespace adrilight_content_creator.ViewModel
 
             }
           );
+            SaveCarouselToFileCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+
+                SaveCarouselToFile();
+
+            }
+          );
             SetSelectedOutputSlaveDeviceFromFileCommand = new RelayCommand<int>((p) =>
             {
                 return true;
@@ -209,6 +263,16 @@ namespace adrilight_content_creator.ViewModel
             {
 
                 SetSelectedOutputSlaveDeviceFromFile(p);
+
+            }
+          );
+            OpenURLCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+
+                System.Diagnostics.Process.Start(p);
 
             }
           );
@@ -262,6 +326,16 @@ namespace adrilight_content_creator.ViewModel
 
             }
          );
+            OpenCarouselImageSelectorCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+
+                SelectCarouselImage();
+
+            }
+      );
             ChageCurrentDeviceSourceCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -496,6 +570,36 @@ namespace adrilight_content_creator.ViewModel
 
             }
         }
+        private void SaveCarouselToFile()
+        {
+            SaveFileDialog Export = new SaveFileDialog();
+            Export.CreatePrompt = true;
+            Export.OverwritePrompt = true;
+            Export.Title = "Xuất dữ liệu";
+            Export.FileName = CarouselName;
+            Export.CheckFileExists = false;
+            Export.CheckPathExists = true;
+            Export.InitialDirectory =
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            Export.RestoreDirectory = true;
+
+            if (Export.ShowDialog() == DialogResult.OK)
+            {
+                //deserialize to config
+                Directory.CreateDirectory(Export.FileName);
+                var config = new HomePageCarouselItem()
+                {
+                    Name = CarouselName,
+                    Description = CarouselDescription,
+                    EmbeddedURL = SelectedCarouselURL,
+
+                };
+                var configjson = JsonConvert.SerializeObject(config);
+                File.WriteAllText(Path.Combine(Export.FileName, "config.json"), configjson);
+                if (File.Exists(SelectedCarouselImage))
+                    File.Copy(SelectedCarouselImage, Path.Combine(Export.FileName, "image.png"));
+            }
+        }
         private void SaveDeviceToFile()
         {
             SelectedDevice.IsLoadingProfile = true;
@@ -636,6 +740,11 @@ namespace adrilight_content_creator.ViewModel
         {
             var lclfhlprs = new LocalFileHelpers();
             SelectedDeviceThumbnail = lclfhlprs.OpenImportFileDialog("png", "Image files (*.png)|*.Png|Image files (*.jpg)|*.jpeg");
+        }
+        private void SelectCarouselImage()
+        {
+            var lclfhlprs = new LocalFileHelpers();
+            SelectedCarouselImage = lclfhlprs.OpenImportFileDialog("png", "Image files (*.png)|*.Png|Image files (*.jpg)|*.jpeg");
         }
         #endregion
 

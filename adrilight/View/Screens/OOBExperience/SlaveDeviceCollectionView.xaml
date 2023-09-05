@@ -317,7 +317,7 @@
             </Grid.Style>
             <StackPanel VerticalAlignment="Center">
                 <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}" Text="Hiện không có sẵn bất kỳ thiết bị nào tương thích, Vào Adrilight store để tải về"/>
-                <Button Command="{Binding OpenAmbinoStoreWindowCommand}" CommandParameter="SupportedDevice" Padding="0" Background="Transparent" BorderThickness="0">
+                <Button Command="{Binding OpenAmbinoStoreWindowForCurrentDeviceCommand}" CommandParameter="{Binding CurrentDevice}" Padding="0" Background="Transparent" BorderThickness="0">
                     <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="Truy cập Adrilight Store"/>
                 </Button>
                 <Button Margin="10" Style="{DynamicResource _mediumProfileDefaultButton}" HorizontalAlignment="Center"  Content="Refresh" Command="{Binding RefreshLocalSlaveDeviceCollectionCommand}" CommandParameter="SupportedDevice" BorderThickness="0">
@@ -339,7 +339,7 @@
             </Grid.Style>
             <StackPanel VerticalAlignment="Center">
                 <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}" Text="Nếu bạn không thấy thiết bị nào phù hợp hãy truy cập Adrilight Store để tải về"/>
-                <Button Command="{Binding OpenAmbinoStoreWindowCommand}" CommandParameter="SupportedDevice" Padding="0" Background="Transparent" BorderThickness="0">
+                <Button Command="{Binding OpenAmbinoStoreWindowForCurrentDeviceCommand}" CommandParameter="{Binding CurrentDevice}" Padding="0" Background="Transparent" BorderThickness="0">
                     <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="Truy cập Adrilight Store"/>
                 </Button>
                 <Button Margin="10" Style="{DynamicResource _mediumProfileDefaultButton}" HorizontalAlignment="Center"  Content="Refresh" Command="{Binding RefreshLocalSlaveDeviceCollectionCommand}" CommandParameter="SupportedDevice" BorderThickness="0">

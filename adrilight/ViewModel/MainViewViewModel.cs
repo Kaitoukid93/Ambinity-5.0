@@ -248,7 +248,6 @@ namespace adrilight.ViewModel
         public ICommand OpenOOTBCommand { get; set; }
         public ICommand RefreshAudioDeviceCommand { get; set; }
         public ICommand RefreshMonitorCollectionCommand { get; set; }
-        public ICommand StoreSearchCommand { get; set; }
         public ICommand CloseSearchingScreenCommand { get; set; }
         public ICommand ManuallyAddSelectedDeviceToDashboard { get; set; }
         public ICommand FilterStoreItemByTargetDeviceTypeCommand { get; set; }
@@ -346,6 +345,7 @@ namespace adrilight.ViewModel
         public ICommand OpenAutomationValuePickerWindowCommand { get; set; }
         public ICommand OpenAutomationManagerWindowCommand { get; set; }
         public ICommand OpenAmbinoStoreWindowCommand { get; set; }
+        public ICommand OpenAmbinoStoreWindowForCurrentDeviceCommand { get; set; }
         public ICommand SetCurrentActionTypeForSelectedActionCommand { get; set; }
         public ICommand SetCurrentActionTargetDeviceForSelectedActionCommand { get; set; }
         public ICommand SetCurrentActionParamForSelectedActionCommand { get; set; }
@@ -3036,7 +3036,13 @@ namespace adrilight.ViewModel
             {
                 OpenAmbinoStoreWindow(p);
             });
-
+            OpenAmbinoStoreWindowForCurrentDeviceCommand = new RelayCommand<IDeviceSettings>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                OpenAmbinoStoreWindow(p);
+            });
             SetCurrentActionTypeForSelectedActionCommand = new RelayCommand<ActionType>((p) =>
             {
                 return true;
@@ -3115,16 +3121,7 @@ namespace adrilight.ViewModel
             }, async (p) =>
             {
                 CarouselImageLoading = true;
-                await Task.Run(() => UpdateStoreView(p));
-                CurrentOnlineStoreView = "Collections";
-            });
-            StoreSearchCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, async (p) =>
-            {
-                CarouselImageLoading = true;
-                await Task.Run(() => UpdateStoreView(p));
+                // await Task.Run(() => UpdateStoreView(p));
                 CurrentOnlineStoreView = "Collections";
             });
             OpenOOTBCommand = new RelayCommand<string>((p) =>
@@ -4103,8 +4100,9 @@ namespace adrilight.ViewModel
                 {
                     CurrentOnlineStoreView = "Collections";
                     CarouselImageLoading = true;
-                    StorePageIndex = 1;
-                    StorePageUpdatedCmd.Execute(new FunctionEventArgs<int>(1));
+                    StoreCatergoryUpdateCmd.Execute(value);
+                    //StorePageIndex = 1;
+                    //StorePageUpdatedCmd.Execute(new FunctionEventArgs<int>(1));
                 }
             }
         }
@@ -4168,83 +4166,189 @@ namespace adrilight.ViewModel
 
             }
         }
+
+        public RelayCommand<DeviceType> StoreDeviceTypeUpdateCmd => new(StoreDeviceTypeUpdate);
+        public RelayCommand<StoreCategory> StoreCatergoryUpdateCmd => new(CatergoryUpdated);
         public RelayCommand<FunctionEventArgs<int>> StorePageUpdatedCmd => new(PageUpdated);
+        public RelayCommand<string> StoreSearchUpdateCmd => new(StoreSearchUpdate);
+        public RelayCommand<StoreFilterModel> StoreFilterUpdateCmd => new(StoreFilterUpdate);
 
         /// <summary>
         ///     页码改变
         /// </summary>
+        /// 
+
+        private async void StoreFilterUpdate(StoreFilterModel filter)
+        {
+            CarouselImageLoading = true;
+            await Task.Run(() => UpdateStoreView(filter));
+        }
         private async void PageUpdated(FunctionEventArgs<int> info)
         {
             CarouselImageLoading = true;
             await Task.Run(() => UpdateStoreView(info.Info));
+        }
+        private async void StoreSearchUpdate(string searchContent)
+        {
+            CarouselImageLoading = true;
+            await Task.Run(() => UpdateStoreView(searchContent));
+        }
+        private async void CatergoryUpdated(StoreCategory catergory)
+        {
+            CarouselImageLoading = true;
+            AvailableHomePageCarousel = new ObservableCollection<HomePageCarouselItem>();
+            await Task.Run(() => UpdateStoreView(catergory));
             //CarouselImageLoading = false;
         }
-        public AmbinoOnlineStoreView StoreWindow { get; set; }
-        private async void UpdateStoreView(DeviceType filter)
+        private async void StoreDeviceTypeUpdate(DeviceType type)
         {
-            AvailableOnlineItems = new ObservableCollection<OnlineItemModel>();
-            PaginationEnable = false;
-            NoItemText = "Mục này hiện chưa có hiệu ứng nào hoặc server chưa được kết nối";
-            switch (CurrentSelectedCategory.Type)
+            CarouselImageLoading = true;
+            await Task.Run(() => UpdateStoreView(type, CurrentSelectedCategory));
+            //CarouselImageLoading = false;
+        }
+        private async void StoreDeviceTypeUpdate(DeviceType type, StoreCategory catergory)
+        {
+            CarouselImageLoading = true;
+            await Task.Run(() => UpdateStoreView(type, catergory));
+            //CarouselImageLoading = false;
+        }
+        private StoreFilterModel _currentStoreFilter;
+        public StoreFilterModel CurrentStoreFilter {
+            get
             {
-                case "Palette":
-                    await GetStoreItem(paletteFolderpath, Path.Combine(PalettesCollectionFolderPath, "collection"), Path.Combine(PalettesCollectionFolderPath, "info"), filter);
-                    break;
-                case "Pattern":
-                    await GetStoreItem(chasingPatternsFolderPath, Path.Combine(ChasingPatternsCollectionFolderPath, "collection"), Path.Combine(ChasingPatternsCollectionFolderPath, "info"), filter);
-                    break;
-                case "Gif":
-                    await GetStoreItem(gifxelationsFolderPath, Path.Combine(GifsCollectionFolderPath, "collection"), Path.Combine(GifsCollectionFolderPath, "info"), filter);
-                    break;
-                case "SupportedDevice":
-                    await GetStoreItem(SupportedDevicesFolderPath, SupportedDeviceCollectionFolderPath, Path.Combine(SupportedDeviceCollectionFolderPath, "info"), filter);
-                    break;
-                case "Profiles":
-                    await GetStoreItem(ProfilesFolderPath, Path.Combine(ProfileCollectionFolderPath, "collection"), Path.Combine(ProfileCollectionFolderPath, "info"), filter);
-                    break;
+                return _currentStoreFilter;
+            }
+            set
+            {
+                _currentStoreFilter = value;
+                RaisePropertyChanged();
+            }
+        }
+        public AmbinoOnlineStoreView StoreWindow { get; set; }
+        private async void UpdateStoreView(StoreCategory catergory)
+        {
+            if (catergory.Name == "Home")
+            {
+                CurrentOnlineStoreView = "Home";
+                GetCarousel();
+            }
+            else
+            {
+                CurrentOnlineStoreView = "Collections";
+                var filter = new StoreFilterModel() {
+                    CatergoryFilter = catergory,
+                    Name = catergory.Name.ToString(),
+                    PageIndex = 1
+                };
+                AvailableOnlineItems = new ObservableCollection<OnlineItemModel>();
+                NoItemText = "Mục này hiện chưa có hiệu ứng nào hoặc server chưa được kết nối";
+                await GetStoreItem(filter);
             }
 
+        }
+        private async void UpdateStoreView(StoreFilterModel filter)
+        {
+            CurrentOnlineStoreView = "Collections";
+            AvailableOnlineItems = new ObservableCollection<OnlineItemModel>();
+            NoItemText = "Mục này hiện chưa có hiệu ứng nào hoặc server chưa được kết nối";
+            await GetStoreItem(filter);
+        }
+        private async void UpdateStoreView(string searchContent)
+        {
+            CurrentOnlineStoreView = "Collections";
+            var filter = new StoreFilterModel() {
+                CatergoryFilter = CurrentSelectedCategory,
+                NameFilter = searchContent,
+                Name = searchContent,
+                PageIndex = 1
+            };
+            AvailableOnlineItems = new ObservableCollection<OnlineItemModel>();
+            NoItemText = "Mục này hiện chưa có hiệu ứng nào hoặc server chưa được kết nối";
+            await GetStoreItem(filter);
+        }
+        private async void UpdateStoreView(DeviceType type, StoreCategory catergory)
+        {
+            CurrentOnlineStoreView = "Collections";
+            var filter = new StoreFilterModel() {
+                DeviceTypeFilter = type.Type.ToString(),
+                CatergoryFilter = catergory,
+                Name = catergory.Name + ": " + type.Type.ToString(),
+                PageIndex = 1
+            };
+            AvailableOnlineItems = new ObservableCollection<OnlineItemModel>();
+            NoItemText = "Mục này hiện chưa có hiệu ứng nào hoặc server chưa được kết nối";
+            await GetStoreItem(filter);
         }
         private async void UpdateStoreView(int pageIndex)
         {
+            CurrentOnlineStoreView = "Collections";
+            CurrentStoreFilter.PageIndex = pageIndex;
             AvailableOnlineItems = new ObservableCollection<OnlineItemModel>();
-            NoItemText = "Không có item nào khớp với từ khóa hoặc mục đã chọn";
-            PaginationEnable = true;
-            switch (CurrentSelectedCategory.Type)
-            {
-                case "Palette":
-                    await GetStoreItem(paletteFolderpath, Path.Combine(PalettesCollectionFolderPath, "collection"), Path.Combine(PalettesCollectionFolderPath, "info"), pageIndex);
-                    break;
-                case "Pattern":
-                    await GetStoreItem(chasingPatternsFolderPath, Path.Combine(ChasingPatternsCollectionFolderPath, "collection"), Path.Combine(ChasingPatternsCollectionFolderPath, "info"), pageIndex);
-                    break;
-                case "Gif":
-                    await GetStoreItem(gifxelationsFolderPath, Path.Combine(GifsCollectionFolderPath, "collection"), Path.Combine(GifsCollectionFolderPath, "info"), pageIndex);
-                    break;
-                case "SupportedDevice":
-                    await GetStoreItem(SupportedDevicesFolderPath, SupportedDeviceCollectionFolderPath, Path.Combine(SupportedDeviceCollectionFolderPath, "info"), pageIndex);
-                    break;
-                case "Profiles":
-                    await GetStoreItem(ProfilesFolderPath, Path.Combine(ProfileCollectionFolderPath, "collection"), Path.Combine(ProfileCollectionFolderPath, "info"), pageIndex);
-                    break;
-            }
-
-
-
+            NoItemText = "Mục này hiện chưa có hiệu ứng nào hoặc server chưa được kết nối";
+            await GetStoreItem(CurrentStoreFilter);
         }
-        private async void UpdateStoreView(string filter)
-        {
-            AvailableOnlineItems = new ObservableCollection<OnlineItemModel>();
-            PaginationEnable = false;
-            NoItemText = "Không có item nào khớp với từ khóa hoặc mục đã chọn";
-            AvailableOnlineItems = new ObservableCollection<OnlineItemModel>();
-            await GetStoreItem(paletteFolderpath, Path.Combine(PalettesCollectionFolderPath, "collection"), Path.Combine(PalettesCollectionFolderPath, "info"), filter);
-            await GetStoreItem(chasingPatternsFolderPath, Path.Combine(ChasingPatternsCollectionFolderPath), Path.Combine(ChasingPatternsCollectionFolderPath, "info"), filter);
-            await GetStoreItem(gifxelationsFolderPath, Path.Combine(GifsCollectionFolderPath, "collection"), Path.Combine(GifsCollectionFolderPath, "info"), filter);
-            await GetStoreItem(SupportedDevicesFolderPath, SupportedDeviceCollectionFolderPath, Path.Combine(SupportedDeviceCollectionFolderPath, "info"), filter);
-            await GetStoreItem(ProfilesFolderPath, Path.Combine(ProfileCollectionFolderPath, "collection"), Path.Combine(ProfileCollectionFolderPath, "info"), filter);
+        //private async void UpdateStoreView(DeviceType filter)
+        //{
+        //    AvailableOnlineItems = new ObservableCollection<OnlineItemModel>();
+        //    PaginationEnable = false;
+        //    NoItemText = "Mục này hiện chưa có hiệu ứng nào hoặc server chưa được kết nối";
+        //    switch (CurrentSelectedCategory.Type)
+        //    {
+        //        case "Palette":
+        //            await GetStoreItem(paletteFolderpath, Path.Combine(PalettesCollectionFolderPath, "collection"), Path.Combine(PalettesCollectionFolderPath, "info"), filter);
+        //            break;
+        //        case "Pattern":
+        //            await GetStoreItem(chasingPatternsFolderPath, Path.Combine(ChasingPatternsCollectionFolderPath, "collection"), Path.Combine(ChasingPatternsCollectionFolderPath, "info"), filter);
+        //            break;
+        //        case "Gif":
+        //            await GetStoreItem(gifxelationsFolderPath, Path.Combine(GifsCollectionFolderPath, "collection"), Path.Combine(GifsCollectionFolderPath, "info"), filter);
+        //            break;
+        //        case "SupportedDevice":
+        //            await GetStoreItem(SupportedDevicesFolderPath, SupportedDeviceCollectionFolderPath, Path.Combine(SupportedDeviceCollectionFolderPath, "info"), filter);
+        //            break;
+        //        case "Profiles":
+        //            await GetStoreItem(ProfilesFolderPath, Path.Combine(ProfileCollectionFolderPath, "collection"), Path.Combine(ProfileCollectionFolderPath, "info"), filter);
+        //            break;
+        //    }
 
-        }
+        //}
+        //private async void UpdateStoreView(int pageIndex)
+        //{
+        //    AvailableOnlineItems = new ObservableCollection<OnlineItemModel>();
+        //    NoItemText = "Không có item nào khớp với từ khóa hoặc mục đã chọn";
+        //    PaginationEnable = true;
+        //    switch (CurrentSelectedCategory.Type)
+        //    {
+        //        case "Palette":
+        //            await GetStoreItem(paletteFolderpath, Path.Combine(PalettesCollectionFolderPath, "collection"), Path.Combine(PalettesCollectionFolderPath, "info"), pageIndex);
+        //            break;
+        //        case "Pattern":
+        //            await GetStoreItem(chasingPatternsFolderPath, Path.Combine(ChasingPatternsCollectionFolderPath, "collection"), Path.Combine(ChasingPatternsCollectionFolderPath, "info"), pageIndex);
+        //            break;
+        //        case "Gif":
+        //            await GetStoreItem(gifxelationsFolderPath, Path.Combine(GifsCollectionFolderPath, "collection"), Path.Combine(GifsCollectionFolderPath, "info"), pageIndex);
+        //            break;
+        //        case "SupportedDevice":
+        //            await GetStoreItem(SupportedDevicesFolderPath, SupportedDeviceCollectionFolderPath, Path.Combine(SupportedDeviceCollectionFolderPath, "info"), pageIndex);
+        //            break;
+        //        case "Profiles":
+        //            await GetStoreItem(ProfilesFolderPath, Path.Combine(ProfileCollectionFolderPath, "collection"), Path.Combine(ProfileCollectionFolderPath, "info"), pageIndex);
+        //            break;
+        //    }
+        //}
+        //private async void UpdateStoreView(string filter)
+        //{
+        //    AvailableOnlineItems = new ObservableCollection<OnlineItemModel>();
+        //    PaginationEnable = false;
+        //    NoItemText = "Không có item nào khớp với từ khóa hoặc mục đã chọn";
+        //    AvailableOnlineItems = new ObservableCollection<OnlineItemModel>();
+        //    await GetStoreItem(paletteFolderpath, Path.Combine(PalettesCollectionFolderPath, "collection"), Path.Combine(PalettesCollectionFolderPath, "info"), filter);
+        //    await GetStoreItem(chasingPatternsFolderPath, Path.Combine(ChasingPatternsCollectionFolderPath), Path.Combine(ChasingPatternsCollectionFolderPath, "info"), filter);
+        //    await GetStoreItem(gifxelationsFolderPath, Path.Combine(GifsCollectionFolderPath, "collection"), Path.Combine(GifsCollectionFolderPath, "info"), filter);
+        //    await GetStoreItem(SupportedDevicesFolderPath, SupportedDeviceCollectionFolderPath, Path.Combine(SupportedDeviceCollectionFolderPath, "info"), filter);
+        //    await GetStoreItem(ProfilesFolderPath, Path.Combine(ProfileCollectionFolderPath, "collection"), Path.Combine(ProfileCollectionFolderPath, "info"), filter);
+
+        //}
         private bool CheckEqualityObjects(object object1, object object2)
         {
             string object1String = JsonConvert.SerializeObject(object1);
@@ -4278,206 +4382,15 @@ namespace adrilight.ViewModel
                 return obj.GetHashCode();
             }
         }
-        private async Task GetStoreItem(string itemFolderPath, string itemLocalFolderPath, string infoLocalFolderPath, DeviceType filter)
-        {
-
-            //get carousel image
-            //get all available files
-            if (FTPHlprs == null)
-            {
-                SFTPInit(GeneralSettings.CurrentAppUser);
-                SFTPConnect();
-            }
-            if (!FTPHlprs.sFTP.IsConnected)
-            {
-                try
-                {
-                    SFTPConnect();
-                }
-                catch (Exception ex)
-                {
-                    CarouselImageLoading = false;
-                    return;
-                }
-
-            }
-
-            var listItemAddress = await FTPHlprs.GetAllFilesAddressInFolder(itemFolderPath);
-            //display all available files to the view
-            if (listItemAddress != null && listItemAddress.Count > 0)
-            {
-                foreach (var address in listItemAddress)
-                {
-                    //var item = FTPHlprs.GetFiles<T>(address);
-                    var thumbPath = address + "/thumb.png";
-                    var infoPath = address + "/info.json";
-                    var thumb = FTPHlprs.GetThumb(address + "/thumb.png").Result;
-                    var info = FTPHlprs.GetFiles<OnlineItemModel>(infoPath).Result;
-                    if (Directory.Exists(itemLocalFolderPath))
-                    {
-                        //check for update
-                        var itemLocalInfo = Path.Combine(infoLocalFolderPath, info.Name + ".info");
-                        if (File.Exists(itemLocalInfo))
-                        {
-                            info.IsLocalExisted = true;
-                            var json = File.ReadAllText(itemLocalInfo);
-                            var localInfo = JsonConvert.DeserializeObject<OnlineItemModel>(json);
-                            var v1 = new Version(localInfo.Version);
-                            var v2 = new Version(info.Version);
-                            if (v2 > v1)
-                                info.IsUpgradeAvailable = true;
-                        }
-
-                    }
-
-                    info.Path = address;
-                    info.Thumb = thumb;
-                    await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
-                    {
-                        if (info.TargetDevices != null && info.TargetDevices.Any(t => t.Name == filter.Name))
-                            AvailableOnlineItems.Add(info);
-                    });
-                }
-
-                CarouselImageLoading = false;
-            }
-            else
-            {
-
-                CarouselImageLoading = false;
-                return;
-            }
-        }
-        private async Task GetStoreItem(string itemFolderPath, string itemLocalFolderPath, string infoLocalFolderPath, int pageIndex)
-        {
-            if (FTPHlprs == null)
-            {
-                SFTPInit(GeneralSettings.CurrentAppUser);
-            }
-
-            if (!FTPHlprs.sFTP.IsConnected)
-            {
-                try
-                {
-                    SFTPConnect();
-                }
-                catch (Exception ex)
-                {
-                    CarouselImageLoading = false;
-                    return;
-                }
-
-            }
-
-            var listItemAddress = await FTPHlprs.GetAllFilesAddressInFolder(itemFolderPath);
-            if (listItemAddress == null)
-                return;
-            MaxPaginationPageCount = listItemAddress.Count / 12 + 1;
-            var filteredItemAddress = new List<string>();
-            var currentPageListItemAddress = new List<string>();
-            //display all available files to the view
-            if (listItemAddress != null && listItemAddress.Count > 0)
-            {
-                filteredItemAddress = listItemAddress;
-                foreach (var address in filteredItemAddress.Skip((pageIndex - 1) * 12).Take(12).ToList())
-                {
-                    //var item = FTPHlprs.GetFiles<T>(address);
-                    try
-                    {
-                        var thumbPath = address + "/thumb.png";
-                        var infoPath = address + "/info.json";
-                        var thumb = FTPHlprs.GetThumb(address + "/thumb.png").Result;
-                        var info = FTPHlprs.GetFiles<OnlineItemModel>(infoPath).Result;
-                        if (Directory.Exists(itemLocalFolderPath))
-                        {
-
-                            //check for update
-                            var itemLocalInfo = Path.Combine(infoLocalFolderPath, info.Name + ".info");
-                            if (File.Exists(itemLocalInfo))
-                            {
-                                info.IsLocalExisted = true;
-                                var json = File.ReadAllText(itemLocalInfo);
-                                var localInfo = JsonConvert.DeserializeObject<OnlineItemModel>(json);
-                                var v1 = new Version(localInfo.Version);
-                                var v2 = new Version(info.Version);
-                                if (v2 > v1)
-                                    info.IsUpgradeAvailable = true;
-                            }
-                        }
-                        info.Path = address;
-                        info.Thumb = thumb;
-                        await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
-                        {
-                            AvailableOnlineItems.Add(info);
-                        });
-
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-
-                }
-                //if (AvailableOnlineItems.Count == 0)
-                //    HandyControl.Controls.MessageBox.Show("Không có Item nào được tìm thấy, Hãy thử chọn mục khác", "No Item Found", MessageBoxButton.OK, MessageBoxImage.Warning);
-                CarouselImageLoading = false;
-            }
-            else
-            {
-                //HandyControl.Controls.MessageBox.Show("Không có item nào cho mục này, vui lòng thử lại sau", "Item notfound", MessageBoxButton.OK, MessageBoxImage.Error);
-                CarouselImageLoading = false;
-                return;
-            }
-        }
-        private string GetLocalFolderPathByDataType(string dataType)
-        {
-            string result = "all";
-            switch (dataType)
-            {
-                case nameof(ARGBLEDSlaveDevice):
-                    result = SupportedDeviceCollectionFolderPath;
-                    break;
-                case nameof(ColorPalette):
-                    result = Path.Combine(PalettesCollectionFolderPath, "collection");
-                    break;
-                case nameof(Gif):
-                    result = Path.Combine(GifsCollectionFolderPath, "collection");
-                    break;
-                case nameof(ChasingPattern):
-                    result = Path.Combine(ChasingPatternsCollectionFolderPath, "collection");
-                    break;
-
-            }
-            return result;
-        }
-        private string GetOnlineFolderPathByDataType(string dataType)
-        {
-            string result = "all";
-            switch (dataType)
-            {
-                case nameof(ARGBLEDSlaveDevice):
-                    result = "/home/adrilight_enduser/ftp/files/SupportedDevices";
-                    break;
-                case nameof(ColorPalette):
-                    result = "/home/adrilight_enduser/ftp/files/ColorPalettes";
-                    break;
-                case nameof(Gif):
-                    result = "/home/adrilight_enduser/ftp/files/Gifxelations";
-                    break;
-                case nameof(ChasingPattern):
-                    result = "/home/adrilight_enduser/ftp/files/ChasingPatterns";
-                    break;
-            }
-            return result;
-        }
         private async Task GetStoreItem(StoreFilterModel filter)
         {
             //init if null
+            CurrentStoreFilter = filter;
             if (FTPHlprs == null)
             {
                 SFTPInit(GeneralSettings.CurrentAppUser);
+                await Task.Delay(1000);
             }
-
             if (!FTPHlprs.sFTP.IsConnected)
             {
                 try
@@ -4493,59 +4406,84 @@ namespace adrilight.ViewModel
             }
 
             var currentPageListItemAddress = new List<string>();
-            var currentDeviceTypeFilter = filter.DeviceTypeFilter.ToString();
+            var currentDeviceTypeFilter = filter.DeviceTypeFilter;
             var currentnameFilter = filter.NameFilter;
-            var currentDataTypeFilter = filter.DataTypeFilter;
+            var currentCatergoryFilter = filter.CatergoryFilter;
+            if (currentCatergoryFilter == null)
+                currentCatergoryFilter = CurrentSelectedCategory;
             // get itemfolderPath and itemLocalFolderPath based on datatype if datatpye == all search all folder
-            var itemFolderPath = GetOnlineFolderPathByDataType(currentDataTypeFilter);
+            var itemFolderPath = currentCatergoryFilter.OnlineFolderPath;
             var listItemAddress = await FTPHlprs.GetAllFilesAddressInFolder(itemFolderPath);
+            var pageIndex = filter.PageIndex;
 
-            var itemLocalFolderPath = GetLocalFolderPathByDataType(currentDataTypeFilter);
-            var infoLocalFolderPath = Path.Combine(itemLocalFolderPath, "info");
+            var itemLocalFolderPath = currentCatergoryFilter.LocalFolderPath;
+            var infoLocalFolderPath = currentCatergoryFilter.LocalInfoPath;
             //filter item by name if exist
             if (listItemAddress != null && listItemAddress.Count > 0)
             {
-                var lowerFilter = currentnameFilter.ToLower();
+                var lowerFilter = string.Empty;
+                //filter name
+                if (currentnameFilter != null)
+                    lowerFilter = currentnameFilter.ToLower();
+                //filter by supported device
+
                 var filteredItemAddress = new List<string>();
                 foreach (var address in listItemAddress)
                 {
+                    //get name
                     var itemName = FTPHlprs.GetFileOrFoldername(address).Name;
-                    if (itemName.ToLower().Contains(lowerFilter) || lowerFilter == string.Empty)
+                    //get description content
+                    var descriptionPath = address + "/description.md";
+                    var description = await FTPHlprs.GetStringContent(descriptionPath);
+                    if (itemName.ToLower().Contains(lowerFilter) || lowerFilter == string.Empty || description.ToLower().Contains(lowerFilter))
                     {
                         filteredItemAddress.Add(address);
                     }
                 }
+                //get info
+                var finalItemList = new List<OnlineItemModel>();
                 foreach (var address in filteredItemAddress)
                 {
-                    //var item = FTPHlprs.GetFiles<T>(address);
+                    var infoPath = address + "/info.json";
+                    var info = FTPHlprs.GetFiles<OnlineItemModel>(infoPath).Result;
+                    info.Path = address;
+                    if (info.TargetDevices != null && currentDeviceTypeFilter != null && info.TargetDevices.Any(t => t.Type.ToString() == currentDeviceTypeFilter))
+                    {
+                        finalItemList.Add(info);
+                    }
+                    else if (currentDeviceTypeFilter == null)
+                    {
+                        finalItemList.Add(info);
+                    }
+                }
+                MaxPaginationPageCount = finalItemList.Count / 12 + 1;
+                foreach (var item in finalItemList.Skip((pageIndex - 1) * 12).Take(12).ToList())
+                {
                     try
                     {
-                        var thumbPath = address + "/thumb.png";
-                        var infoPath = address + "/info.json";
-                        var thumb = FTPHlprs.GetThumb(address + "/thumb.png").Result;
-                        var info = FTPHlprs.GetFiles<OnlineItemModel>(infoPath).Result;
+                        var infoPath = item.Path + "/info.json";
                         if (Directory.Exists(itemLocalFolderPath))
                         {
-
                             //check for update
-                            var itemLocalInfo = Path.Combine(infoLocalFolderPath, info.Name + ".info");
+                            var itemLocalInfo = Path.Combine(infoLocalFolderPath, item.Name + ".info");
                             if (File.Exists(itemLocalInfo))
                             {
-                                info.IsLocalExisted = true;
+                                item.IsLocalExisted = true;
                                 var json = File.ReadAllText(itemLocalInfo);
                                 var localInfo = JsonConvert.DeserializeObject<OnlineItemModel>(json);
                                 var v1 = new Version(localInfo.Version);
-                                var v2 = new Version(info.Version);
+                                var v2 = new Version(item.Version);
                                 if (v2 > v1)
-                                    info.IsUpgradeAvailable = true;
+                                    item.IsUpgradeAvailable = true;
                             }
                         }
-                        info.Path = address;
-                        info.Thumb = thumb;
+
                         await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
                         {
-                            AvailableOnlineItems.Add(info);
+                            lock (AvailableOnlineItems)
+                                AvailableOnlineItems.Add(item);
                         });
+
 
                     }
                     catch (Exception ex)
@@ -4554,8 +4492,15 @@ namespace adrilight.ViewModel
                     }
 
                 }
-                //if (AvailableOnlineItems.Count == 0)
-                //    HandyControl.Controls.MessageBox.Show("Không có Item nào được tìm thấy, Hãy thử chọn mục khác", "No Item Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+                lock (AvailableOnlineItems)
+                {
+                    foreach (var item in AvailableOnlineItems)
+                    {
+                        var thumbPath = item.Path + "/thumb.png";
+                        item.Thumb = FTPHlprs.GetThumb(thumbPath).Result;
+                    }
+                }
+
                 CarouselImageLoading = false;
             }
             else
@@ -4572,7 +4517,148 @@ namespace adrilight.ViewModel
             get { return _currentOnlineStoreView; }
             set { _currentOnlineStoreView = value; RaisePropertyChanged(); }
         }
+        private void AmbinoStoreInit()
+        {
+            if (AvailableStoreCategories == null)
+            {
+                AvailableStoreCategories = new ObservableCollection<StoreCategory>();
+                var home = new StoreCategory() {
+                    Name = "Home",
+                    OnlineFolderPath = "/home/adrilight_enduser/ftp/files/HomePage",
+                    LocalFolderPath = CacheFolderPath,
+                    DataType = typeof(ColorPalette),
+                    Description = "Home page",
+                    Geometry = "onlineStore"
+                };
+                var palettes = new StoreCategory() {
+                    Name = "Colors",
+                    DefaultFilters = new List<StoreFilterModel>() {
+                        new StoreFilterModel( "All Colors", null, string.Empty),
+                        new StoreFilterModel( "Summer", null, "summer"),
+                        new StoreFilterModel( "Rainbow", null, "rainbow"),
+                        new StoreFilterModel( "Spring", null, "spring"),
+                        new StoreFilterModel( "Vintage", null, "vintage"),
+                        new StoreFilterModel( "Dance", null, "dance"),
+                        new StoreFilterModel( "Cold", null, "cold"),
+                        new StoreFilterModel( "Warm", null, "warm"),
+                        new StoreFilterModel( "Neon", null, "neon"),
+                        new StoreFilterModel( "Pastel", null, "pastel")
+                    },
+                    OnlineFolderPath = "/home/adrilight_enduser/ftp/files/ColorPalettes",
+                    LocalFolderPath = Path.Combine(PalettesCollectionFolderPath),
+                    DataType = typeof(ColorPalette),
+                    Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
+                    Geometry = "palette"
+                };
+                var chasingPatterns = new StoreCategory() {
+                    Name = "Animations",
+                    OnlineFolderPath = "/home/adrilight_enduser/ftp/files/ChasingPatterns",
+                    LocalFolderPath = Path.Combine(ChasingPatternsCollectionFolderPath),
+                    DataType = typeof(ChasingPattern),
+                    Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
+                    Geometry = "chasingPattern"
+                };
+                var gif = new StoreCategory() {
+                    Name = "Gifs",
+                    DefaultFilters = new List<StoreFilterModel>() {
+                        new StoreFilterModel( "All Gifs", null, string.Empty),
+                        new StoreFilterModel( "Rainbow", null, "rainbow"),
+                        new StoreFilterModel( "Abstract", null, "abstract"),
+                        new StoreFilterModel( "Colorful", null, "colorful"),
+                        new StoreFilterModel( "Love", null, "love")
+                    },
+                    DataType = typeof(Gif),
+                    OnlineFolderPath = "/home/adrilight_enduser/ftp/files/Gifxelations",
+                    LocalFolderPath = Path.Combine(GifsCollectionFolderPath),
+                    Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
+                    Geometry = "gifxelation"
+                };
+                var supportedDevices = new StoreCategory() {
+                    Name = "Devices",
+                    DefaultFilters = new List<StoreFilterModel>() {
+                        new StoreFilterModel( "All Devices", null, string.Empty),
+                        new StoreFilterModel( "Ambino Basic", null, "Ambino Basic"),
+                        new StoreFilterModel( "Ambino EDGE", null, "Ambino EDGE"),
+                        new StoreFilterModel( "Fan", null, "fan"),
+                        new StoreFilterModel( "Coolmoon", null, "coolmoon"),
+                        new StoreFilterModel( "Xigmatek", null, "xigmatek"),
+                        new StoreFilterModel( "AIO", null, "aio"),
+                    },
+                    DataType = typeof(ARGBLEDSlaveDevice),
+                    OnlineFolderPath = "/home/adrilight_enduser/ftp/files/SupportedDevices",
+                    LocalFolderPath = SupportedDeviceCollectionFolderPath,
+                    Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
+                    Geometry = "slaveDevice"
+                };
+                AvailableStoreCategories.Add(home);
+                AvailableStoreCategories.Add(palettes);
+                AvailableStoreCategories.Add(chasingPatterns);
+                AvailableStoreCategories.Add(gif);
+                AvailableStoreCategories.Add(supportedDevices);
+            }
+        }
+        private ObservableCollection<HomePageCarouselItem> _availableHomePageCarousel;
+        public ObservableCollection<HomePageCarouselItem> AvailableHomePageCarousel {
+            get
+            {
+                return _availableHomePageCarousel;
+            }
+            set
+            {
+                _availableHomePageCarousel = value;
+                RaisePropertyChanged();
+            }
+        }
+        private async void GetCarousel()
+        {
+            var carouselFolderPath = "/home/adrilight_enduser/ftp/files/HomePage/Carousel";
+            if (FTPHlprs == null)
+            {
+                SFTPInit(GeneralSettings.CurrentAppUser);
+                await Task.Delay(1000);
+            }
+            if (!FTPHlprs.sFTP.IsConnected)
+            {
+                try
+                {
+                    SFTPConnect();
+                }
+                catch (Exception ex)
+                {
+                    CarouselImageLoading = false;
+                    return;
+                }
 
+            }
+            var listItemAddress = await FTPHlprs.GetAllFilesAddressInFolder(carouselFolderPath);
+            foreach (var address in listItemAddress)
+            {
+                try
+                {
+                    var infoPath = address + "/config.json";
+                    var info = FTPHlprs.GetFiles<HomePageCarouselItem>(infoPath).Result;
+                    info.Path = address;
+                    await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                    {
+                        lock (AvailableHomePageCarousel)
+                            AvailableHomePageCarousel.Add(info);
+                    });
+                }
+
+                catch (Exception ex)
+                {
+
+                }
+            }
+            lock (AvailableHomePageCarousel)
+            {
+                foreach (var item in AvailableHomePageCarousel)
+                {
+                    var thumbPath = item.Path + "/image.png";
+                    item.Image = FTPHlprs.GetScreenShot(thumbPath).Result;
+                }
+            }
+        }
         private void OpenAmbinoStoreWindow(string catergory)
         {
             CurrentOnlineStoreView = "Collections";
@@ -4580,49 +4666,21 @@ namespace adrilight.ViewModel
             AvailableOnlineItems = new ObservableCollection<OnlineItemModel>();
             StoreWindow.Owner = System.Windows.Application.Current.MainWindow;
             StoreWindow.Show();
-            if (AvailableStoreCategories == null)
-            {
-                AvailableStoreCategories = new ObservableCollection<StoreCategory>();
-                var palettes = new StoreCategory() {
-                    Name = "Colors",
-                    Type = "Palette",
-                    Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
-                    Geometry = "palette"
-                };
-                var chasingPatterns = new StoreCategory() {
-                    Name = "Animations",
-                    Type = "Pattern",
-                    Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
-                    Geometry = "chasingPattern"
-                };
-                var gif = new StoreCategory() {
-                    Name = "Gifs",
-                    Type = "Gif",
-                    Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
-                    Geometry = "gifxelation"
-                };
-                var supportedDevices = new StoreCategory() {
-                    Name = "Devices",
-                    Type = "SupportedDevice",
-                    Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
-                    Geometry = "slaveDevice"
-                };
-                var profiles = new StoreCategory() {
-                    Name = "Profiles",
-                    Type = "Profiles",
-                    Description = "Color Lighting and Setup profile by Ambino and Ambino User",
-                    Geometry = "appProfile"
-                };
-
-                AvailableStoreCategories.Add(palettes);
-                AvailableStoreCategories.Add(chasingPatterns);
-                AvailableStoreCategories.Add(gif);
-                AvailableStoreCategories.Add(supportedDevices);
-                // AvailableStoreCategories.Add(profiles);
-
-            }
-            CurrentSelectedCategory = AvailableStoreCategories.Where(c => c.Type == catergory).FirstOrDefault();
+            AmbinoStoreInit();
+            CurrentSelectedCategory = AvailableStoreCategories.Where(c => c.Name == "Home").FirstOrDefault();
             AvailableCarouselImage = new ObservableCollection<BitmapImage>();
+        }
+        private void OpenAmbinoStoreWindow(IDeviceSettings device)
+        {
+            CurrentOnlineStoreView = "Collections";
+            StoreWindow = new AmbinoOnlineStoreView();
+            AvailableOnlineItems = new ObservableCollection<OnlineItemModel>();
+            StoreWindow.Owner = System.Windows.Application.Current.MainWindow;
+            StoreWindow.Show();
+            AmbinoStoreInit();
+            AvailableCarouselImage = new ObservableCollection<BitmapImage>();
+            var devCatergory = AvailableStoreCategories.Where(c => c.Name == "Devices").FirstOrDefault();
+            StoreDeviceTypeUpdate(device.DeviceType, devCatergory);
         }
         private AutomationManagerWindow automationManagerWindow { get; set; }
         private void OpenAutomationManagerWindow()
@@ -9230,8 +9288,8 @@ namespace adrilight.ViewModel
         {
             CurrentOnlineStoreView = "Collections";
             Log.Information("Navigating to Store Collection View");
-            CarouselImageLoading = true;
-            Task.Run(() => UpdateStoreView(1));
+            //CarouselImageLoading = true;
+            //Task.Run(() => UpdateStoreView(1));
         }
 
         /// <summary>

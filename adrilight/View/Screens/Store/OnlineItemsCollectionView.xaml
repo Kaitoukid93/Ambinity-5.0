@@ -16,6 +16,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary>
+                    <SolidColorBrush x:Key="primaryBackgroundBrush" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.15" />
                     <converters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
                     <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
                     <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
@@ -75,7 +76,7 @@
                                     <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
                                         <Border x:Name="Bd" 
                                                 BorderBrush="{TemplateBinding BorderBrush}" 
-                                                Margin="5,10" 
+                                                Margin="5,5" 
                                                 CornerRadius="7" 
                                                 BorderThickness="{TemplateBinding BorderThickness}" 
                                                 Background="{TemplateBinding Background}" 
@@ -269,12 +270,37 @@
 
         <Grid>
             <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <StackPanel Margin="10,10,0,10" HorizontalAlignment="Left" Orientation="Horizontal">
+                    <TextBlock Text="{Binding CurrentStoreFilter.Name}" Style="{DynamicResource TextBlockTitle}"/>
+                </StackPanel>
+               
+            </Grid>
+            <Grid Grid.Row="1">
+                <ItemsControl Margin="5" ItemsSource="{Binding CurrentSelectedCategory.DefaultFilters}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel>
+                                
+                            </WrapPanel>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button CommandParameter="{Binding .}"  Command="{Binding Path=DataContext.StoreFilterUpdateCmd, RelativeSource={RelativeSource AncestorType=ItemsControl}}" BorderThickness="0" Foreground="{DynamicResource PrimaryBrush}" Background="{DynamicResource primaryBackgroundBrush}" Margin="5"  Content="{Binding Name}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+            </Grid>
             <!--Store Carousel in the future-->
-            <Grid Visibility="{Binding PaginationEnable,Converter={StaticResource Boolean2VisibilityConverter}}" Grid.Row="1">
-                <hc:Pagination IsEnabled="{Binding CarouselImageLoading,Converter={StaticResource Boolean2BooleanReConverter}}" Margin="10" IsJumpEnabled="False" MaxPageCount="{Binding MaxPaginationPageCount}" PageIndex="{Binding StorePageIndex,Mode=TwoWay}">
+            <Grid Grid.Row="3">
+                <hc:Pagination IsEnabled="{Binding CarouselImageLoading,Converter={StaticResource Boolean2BooleanReConverter}}" Margin="10,0" IsJumpEnabled="False" MaxPageCount="{Binding MaxPaginationPageCount}" PageIndex="{Binding CurrentStoreFilter.PageIndex,Mode=TwoWay}">
                     <hc:Interaction.Triggers>
                         <hc:EventTrigger EventName="PageUpdated">
                             <hc:EventToCommand Command="{Binding StorePageUpdatedCmd}" PassEventArgsToCommand="True" />
@@ -283,8 +309,8 @@
                 </hc:Pagination>
             </Grid>
             <!--List of content-->
-            <Grid Grid.Row="0">
-                <ListView ItemTemplate="{DynamicResource _onlineItemTemplate}" Background="Transparent" BorderThickness="0" ItemsSource="{Binding AvailableOnlineItems}">
+            <Grid Grid.Row="2">
+                <ListView IsHitTestVisible ="{Binding CarouselImageLoading,Converter={StaticResource Boolean2BooleanReConverter}}" ItemTemplate="{DynamicResource _onlineItemTemplate}" Background="Transparent" BorderThickness="0" ItemsSource="{Binding AvailableOnlineItems}">
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel Orientation="Horizontal"/>

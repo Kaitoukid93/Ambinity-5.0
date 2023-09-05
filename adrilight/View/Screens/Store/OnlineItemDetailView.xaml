@@ -125,7 +125,7 @@
                                                         </ItemsControl.ItemsPanel>
                                                         <ItemsControl.ItemTemplate>
                                                             <DataTemplate>
-                                                                <Button Command="{Binding Path = DataContext.FilterStoreItemByTargetDeviceTypeCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OnlineItemDetailView}}}" CommandParameter="{Binding .}" Margin="2" Padding="5,0" Height="20" Style="{DynamicResource _lowProfileDefaultButton}" Content="{Binding Name}"/>
+                                                                <Button Command="{Binding Path = DataContext.StoreDeviceTypeUpdateCmd,RelativeSource={RelativeSource AncestorType={x:Type local:OnlineItemDetailView}}}" CommandParameter="{Binding .}" Margin="2" Padding="5,0" Height="20" Style="{DynamicResource _lowProfileDefaultButton}" Content="{Binding Name}"/>
                                                             </DataTemplate>
                                                         </ItemsControl.ItemTemplate>
                                                        

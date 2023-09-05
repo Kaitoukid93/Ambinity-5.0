@@ -90,6 +90,9 @@
                     <DataTemplate x:Key="_itemsColletionView">
                         <local:OnlineItemsCollectionView/>
                     </DataTemplate>
+                    <DataTemplate x:Key="_homeView">
+                        <local:StoreHomePageView/>
+                    </DataTemplate>
                     <DataTemplate x:Key="_detailsView">
                         <local:OnlineItemDetailView/>
                     </DataTemplate>
@@ -101,7 +104,9 @@
                             <DataTrigger Binding="{Binding CurrentOnlineStoreView}" Value="Details">
                                 <Setter Property="ContentTemplate" Value="{StaticResource _detailsView}" />
                             </DataTrigger>
-                          
+                            <DataTrigger Binding="{Binding CurrentOnlineStoreView}" Value="Home">
+                                <Setter Property="ContentTemplate" Value="{StaticResource _homeView}" />
+                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </ResourceDictionary>

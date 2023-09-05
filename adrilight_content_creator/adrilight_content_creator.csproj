@@ -216,6 +216,9 @@
     <Compile Include="View\Adorners\LineHoverAdorner.cs" />
     <Compile Include="View\Adorners\ResizeAdorner.cs" />
     <Compile Include="View\Adorners\ResizeLineAdorner.cs" />
+    <Compile Include="View\CarouselCreator.xaml.cs">
+      <DependentUpon>CarouselCreator.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Helpers\CheckComBoBoxHelper.cs" />
     <Compile Include="View\Helpers\EventToCommand.cs" />
     <Compile Include="View\Helpers\GridHelpers.cs" />
@@ -252,6 +255,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="View\CarouselCreator.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="View\NonClientAreaContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
