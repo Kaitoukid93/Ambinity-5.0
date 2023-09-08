@@ -6,6 +6,8 @@
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
            xmlns:mdxam="clr-namespace:MdXaml;assembly=MdXaml"
+           xmlns:enums="clr-namespace:adrilight_shared.Enums;assembly=adrilight_shared"
+           xmlns:local="clr-namespace:adrilight.View"
            mc:Ignorable="d"
            Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
@@ -57,25 +59,77 @@
                 <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
 
 
-                    <Border MinHeight="220" CornerRadius="7" Background="{DynamicResource RegionBrush}" Margin="10">
+                    <Border MinHeight="220"
+                            CornerRadius="7"
+                            Background="{DynamicResource RegionBrush}"
+                            Margin="10">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="auto" />
                             </Grid.ColumnDefinitions>
                             <!--thumb-->
                             <Grid Grid.Column="0">
-                                <Border VerticalAlignment="Top" HorizontalAlignment="Left" Margin="20,20,10,10" CornerRadius="7" Width="150" Height="150" Background="Transparent">
+                                <Border VerticalAlignment="Top"
+                                        HorizontalAlignment="Left"
+                                        Margin="20,20,10,10"
+                                        CornerRadius="7"
+                                        Width="150"
+                                        Height="200"
+                                        Background="Transparent">
                                     <Grid>
-
-                                        <Image Stretch="Uniform" Source="{Binding OnlineItemAvatar}" Width="150" Height="150"/>
-                                        <Button Opacity="0.5" Width="50" Height="50" Command="{Binding OpenImageSelectorCommand}" CommandParameter="avatar" HorizontalAlignment="Center" hc:IconElement.Geometry="{DynamicResource AddGeometry}"/>
-
-
+                                        <Grid>
+                                            <Grid.Style>
+                                                <Style TargetType="Grid">
+                                                    <Setter Property="Visibility"
+                                                            Value="Collapsed">
+                                                    </Setter>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Path=DataContext.CurrentItemForExport.AvatarType, RelativeSource={RelativeSource AncestorType={x:Type local:OnlineItemExporterView}}}"
+                                                                     Value="{x:Static enums:OnlineItemAvatarTypeEnum.Image}">
+                                                            <Setter Property="Visibility"
+                                                                    Value="Visible">
+                                                            </Setter>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Grid.Style>
+                                            <Image Stretch="Uniform"
+                                                   Source="{Binding OnlineItemAvatar}"
+                                                   Width="150"
+                                                   Height="150">
+                                            </Image>
+                                            <Button Opacity="0.5"
+                                                    Width="50"
+                                                    Height="50"
+                                                    Command="{Binding OpenImageSelectorCommand}"
+                                                    CommandParameter="avatar"
+                                                    HorizontalAlignment="Center"
+                                                    hc:IconElement.Geometry="{DynamicResource AddGeometry}" />
+                                        </Grid>
+                                        <Grid>
+                                            <Grid.Style>
+                                                <Style TargetType="Grid">
+                                                    <Setter Property="Visibility"
+                                                            Value="Collapsed">
+                                                    </Setter>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Path=DataContext.CurrentItemForExport.AvatarType, RelativeSource={RelativeSource AncestorType={x:Type local:OnlineItemExporterView}}}"
+                                                                     Value="{x:Static enums:OnlineItemAvatarTypeEnum.Gravatar}">
+                                                            <Setter Property="Visibility"
+                                                                    Value="Visible">
+                                                            </Setter>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Grid.Style>
+                                            <hc:Gravatar Width="150"
+                                                         Height="150"
+                                                         Id="{Binding CurrentItemForExport.Name}">
+                                            </hc:Gravatar>
+                                        </Grid>
                                     </Grid>
-
-
                                 </Border>
                             </Grid>
 
@@ -83,16 +137,30 @@
                             <Grid Grid.Column="1">
                                 <StackPanel>
                                     <Grid>
-                                        <TextBox HorizontalAlignment="Left" Margin="10,20,0,5" FontSize="25" FontWeight="SemiBold" Text="{Binding CurrentItemForExport.Name}" Style="{DynamicResource TextBoxExtend}"/>
+                                        <TextBox HorizontalAlignment="Left"
+                                                 Margin="10,20,0,5"
+                                                 FontSize="25"
+                                                 FontWeight="SemiBold"
+                                                 Text="{Binding CurrentItemForExport.Name,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{DynamicResource TextBoxExtend}" />
                                     </Grid>
                                     <Grid>
-                                        <TextBox HorizontalAlignment="Left" Margin="10,0,0,0" Text="{Binding CurrentItemForExport.Owner}" Style="{DynamicResource TextBox.Small}"  Foreground="{DynamicResource PrimaryBrush}"/>
+                                        <TextBox HorizontalAlignment="Left"
+                                                 Margin="10,0,0,0"
+                                                 Text="{Binding CurrentItemForExport.Owner}"
+                                                 Style="{DynamicResource TextBox.Small}"
+                                                 Foreground="{DynamicResource PrimaryBrush}" />
                                     </Grid>
                                     <Grid>
-                                        <TextBox HorizontalAlignment="Left" Margin="10,0,0,0" Text="{Binding CurrentItemForExport.Version}" Style="{DynamicResource TextBox.Small}"  Foreground="{DynamicResource PrimaryBrush}"/>
+                                        <TextBox HorizontalAlignment="Left"
+                                                 Margin="10,0,0,0"
+                                                 Text="{Binding CurrentItemForExport.Version}"
+                                                 Style="{DynamicResource TextBox.Small}"
+                                                 Foreground="{DynamicResource PrimaryBrush}" />
                                     </Grid>
                                     <Grid>
-                                        <StackPanel Margin="10,0" Orientation="Horizontal">
+                                        <StackPanel Margin="10,0"
+                                                    Orientation="Horizontal">
                                             <!--<Grid ToolTip="Số lượt download" VerticalAlignment="Center" HorizontalAlignment="Center">
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="auto"/>
@@ -114,61 +182,88 @@
                                             </Grid>-->
                                             <!--<hc:Divider Margin="20,0,10,0" LineStrokeThickness="1" LineStroke="{DynamicResource BorderBrush}" Orientation="Vertical" MaxHeight="60"/>-->
                                             <Grid>
-                                                <Button BorderThickness="0" Height="auto" Padding="10" Style="{DynamicResource ButtonDefault}">
+                                                <Button BorderThickness="0"
+                                                        Height="auto"
+                                                        Padding="10"
+                                                        Style="{DynamicResource ButtonDefault}">
                                                     <Grid>
                                                         <Grid.RowDefinitions>
-                                                            <RowDefinition Height="auto"/>
-                                                            <RowDefinition Height="auto"/>
+                                                            <RowDefinition Height="auto" />
+                                                            <RowDefinition Height="auto" />
                                                         </Grid.RowDefinitions>
 
-                                                        <TextBlock HorizontalAlignment="Center" Margin="2" Text="{Binding CurrentItemForExport.Type}" Style="{DynamicResource TextBlockTitleBold}"/>
-                                                        <TextBlock HorizontalAlignment="Center" Grid.Row="1" Margin="2" Text="Hạng mục" Style="{DynamicResource TextBlockDefault}"/>
+                                                        <TextBlock HorizontalAlignment="Center"
+                                                                   Margin="2"
+                                                                   Text="{Binding CurrentItemForExport.Type}"
+                                                                   Style="{DynamicResource TextBlockTitleBold}" />
+                                                        <TextBlock HorizontalAlignment="Center"
+                                                                   Grid.Row="1"
+                                                                   Margin="2"
+                                                                   Text="Hạng mục"
+                                                                   Style="{DynamicResource TextBlockDefault}" />
                                                     </Grid>
                                                 </Button>
 
                                             </Grid>
-                                            <hc:Divider Margin="10,0" LineStrokeThickness="1" LineStroke="{DynamicResource BorderBrush}" Orientation="Vertical" MaxHeight="60"/>
+                                            <hc:Divider Margin="10,0"
+                                                        LineStrokeThickness="1"
+                                                        LineStroke="{DynamicResource BorderBrush}"
+                                                        Orientation="Vertical"
+                                                        MaxHeight="60" />
                                             <Grid>
                                                 <Grid.RowDefinitions>
-                                                    <RowDefinition Height="auto"/>
-                                                    <RowDefinition Height="auto"/>
+                                                    <RowDefinition Height="auto" />
+                                                    <RowDefinition Height="auto" />
                                                 </Grid.RowDefinitions>
                                                 <Grid>
                                                     <StackPanel Orientation="Horizontal">
 
                                                         <Grid>
-                                                            <hc:CheckComboBox 
-                                                                BorderThickness="0" 
-                                                                ItemsSource="{Binding OnlineItemSelectableTargetType}"
-                                                                Background="{DynamicResource DarkOpacityBrush}" 
-                                                                DisplayMemberPath="Name" 
-                                                                MinWidth ="150" 
-                                                                MaxWidth="512" 
-                                                                SelectionChanged="CheckComboBox_SelectionChanged"
-                                                                ShowSelectAllButton="True" 
-                                                                hc:InfoElement.Necessary="True"
-                                                                hc:TitleElement.Title="Các thiết bị được hỗ trợ"
-                                                                Style="{DynamicResource CheckComboBoxPlus}">
+                                                            <hc:CheckComboBox BorderThickness="0"
+                                                                              ItemsSource="{Binding OnlineItemSelectableTargetType}"
+                                                                              Background="{DynamicResource DarkOpacityBrush}"
+                                                                              DisplayMemberPath="Name"
+                                                                              MinWidth="150"
+                                                                              MaxWidth="512"
+                                                                              SelectionChanged="CheckComboBox_SelectionChanged"
+                                                                              ShowSelectAllButton="True"
+                                                                              hc:InfoElement.Necessary="True"
+                                                                              hc:TitleElement.Title="Các thiết bị được hỗ trợ"
+                                                                              Style="{DynamicResource CheckComboBoxPlus}">
                                                             </hc:CheckComboBox>
                                                         </Grid>
                                                     </StackPanel>
 
                                                 </Grid>
-                                               
+
                                             </Grid>
                                         </StackPanel>
                                     </Grid>
                                     <Grid>
-                                        <TextBox HorizontalAlignment="Left" Margin="10" Text="{Binding CurrentItemForExport.Description}" Style="{DynamicResource TextBoxExtend}"/>
+                                        <TextBox HorizontalAlignment="Left"
+                                                 Margin="10"
+                                                 Text="{Binding CurrentItemForExport.Description}"
+                                                 Style="{DynamicResource TextBoxExtend}" />
                                     </Grid>
                                 </StackPanel>
 
                             </Grid>
                             <!--downloadbutton-->
                             <Grid Grid.Column="2">
-                                <Button Margin="20" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="2" Width="150" Height="30" Foreground="{DynamicResource ReverseTextBrush}" BorderThickness="0" Content="Export" Command="{Binding ExportCurrentOnlineItemToFilesCommand}" CommandParameter="export">
+                                <Button Margin="20"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Top"
+                                        Padding="2"
+                                        Width="150"
+                                        Height="30"
+                                        Foreground="{DynamicResource ReverseTextBrush}"
+                                        BorderThickness="0"
+                                        Content="Export"
+                                        Command="{Binding ExportCurrentOnlineItemToFilesCommand}"
+                                        CommandParameter="export">
                                     <Button.Background>
-                                        <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="1"/>
+                                        <SolidColorBrush Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
+                                                         Opacity="1" />
                                     </Button.Background>
                                 </Button>
                             </Grid>
@@ -182,19 +277,29 @@
                 <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
 
 
-                    <Border CornerRadius="7" Background="{DynamicResource DarkOpacityBrush}" Margin="10">
+                    <Border CornerRadius="7"
+                            Background="{DynamicResource DarkOpacityBrush}"
+                            Margin="10">
                         <StackPanel>
 
-                            <Button Command="{Binding OpenImageSelectorCommand}" CommandParameter="screenshot" HorizontalAlignment="Right" hc:IconElement.Geometry="{DynamicResource AddGeometry}" Content="Add image"/>
+                            <Button Command="{Binding OpenImageSelectorCommand}"
+                                    CommandParameter="screenshot"
+                                    HorizontalAlignment="Right"
+                                    hc:IconElement.Geometry="{DynamicResource AddGeometry}"
+                                    Content="Add image" />
                             <ItemsControl ItemsSource="{Binding OnlineItemScreenShotCollection}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <WrapPanel Orientation="Horizontal"/>
+                                        <WrapPanel Orientation="Horizontal" />
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Image Margin="20" Width="200" Height="200" Stretch="Uniform" Source="{Binding .}"/>
+                                        <Image Margin="20"
+                                               Width="200"
+                                               Height="200"
+                                               Stretch="Uniform"
+                                               Source="{Binding .}" />
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
 
@@ -209,36 +314,48 @@
                 <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
 
 
-                    <Border CornerRadius="7" Background="{DynamicResource DarkOpacityBrush}" Margin="10">
+                    <Border CornerRadius="7"
+                            Background="{DynamicResource DarkOpacityBrush}"
+                            Margin="10">
                         <StackPanel>
 
                             <Grid>
-                                <TextBlock Margin="20,15,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Text="Description" Style="{DynamicResource TextBlockSubTitleBold}"/>
+                                <TextBlock Margin="20,15,0,0"
+                                           HorizontalAlignment="Left"
+                                           VerticalAlignment="Top"
+                                           Text="Description"
+                                           Style="{DynamicResource TextBlockSubTitleBold}" />
                             </Grid>
-                            <hc:Divider Margin="0,15"/>
+                            <hc:Divider Margin="0,15" />
 
                             <Grid>
 
 
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
 
-                                <mdxam:MarkdownScrollViewer VerticalScrollBarVisibility="Auto" Margin="15"  Markdown="{Binding OnlineItemMarkdownDescription,Mode=TwoWay}">
+                                <mdxam:MarkdownScrollViewer VerticalScrollBarVisibility="Auto"
+                                                            Margin="15"
+                                                            Markdown="{Binding OnlineItemMarkdownDescription,Mode=TwoWay}">
                                     <mdxam:MarkdownScrollViewer.MarkdownStyle>
-                                        <Style 
-                                               TargetType="FlowDocument"
+                                        <Style TargetType="FlowDocument"
                                                BasedOn="{x:Static mdxam:MarkdownStyle.Standard}">
                                             <Style.Resources>
                                                 <Style TargetType="Paragraph">
 
                                                     <Style.Triggers>
-                                                        <Trigger Property="Tag" Value="Heading2">
-                                                            <Setter Property="FontSize"   Value="30" />
-                                                            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-                                                            <Setter Property="FontWeight" Value="Light" />
-                                                            <Setter Property="Margin" Value="0"/>
+                                                        <Trigger Property="Tag"
+                                                                 Value="Heading2">
+                                                            <Setter Property="FontSize"
+                                                                    Value="30" />
+                                                            <Setter Property="Foreground"
+                                                                    Value="{DynamicResource PrimaryTextBrush}" />
+                                                            <Setter Property="FontWeight"
+                                                                    Value="Light" />
+                                                            <Setter Property="Margin"
+                                                                    Value="0" />
                                                         </Trigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -248,7 +365,8 @@
 
                                 </mdxam:MarkdownScrollViewer>
                                 <Grid Grid.Column="1">
-                                    <TextBox AcceptsReturn="True" Text="{Binding OnlineItemMarkdownDescription,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBox AcceptsReturn="True"
+                                             Text="{Binding OnlineItemMarkdownDescription,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                                 </Grid>
                             </Grid>
                         </StackPanel>

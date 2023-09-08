@@ -7,6 +7,7 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:local="clr-namespace:adrilight.View"
              xmlns:device="clr-namespace:adrilight_shared.Models.Device;assembly=adrilight_shared"
+             xmlns:lighting ="clr-namespace:adrilight_shared.Models.Lighting;assembly=adrilight_shared"
              Background="{StaticResource RegionBrush}"
              xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
              mc:Ignorable="d"
@@ -128,6 +129,75 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            <DataTemplate x:Key="_horizontalCardItemTemplate"
+                          DataType="{x:Type lighting:LightingProfile}">
+                <Border Width="300"
+                        BorderBrush="Transparent"
+                        Effect="{StaticResource EffectShadow2}"
+                        CornerRadius="7"
+                        Height="100"
+                        Background="{DynamicResource MainContentBackgroundBrush}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="90"
+                                CornerRadius="4"
+                                Margin="5"
+                                Background="{DynamicResource SecondaryRegionBrush}">
+                            <hc:Gravatar Id="{Binding Name}">
+                                
+                            </hc:Gravatar>
+
+                        </Border>
+                        <Grid Grid.Column="1">
+
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="auto" />
+                                </Grid.RowDefinitions>
+                                <StackPanel>
+                                    <TextBlock HorizontalAlignment="Left"
+                                               Text="{Binding Name}"
+                                               Margin="10,5"
+                                               Style="{DynamicResource TextBlockSubTitle}"
+                                               FontWeight="SemiBold"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding ControlMode.BasedOn}"
+                                               HorizontalAlignment="Left"
+                                               Margin="10,5"
+                                               Style="{DynamicResource TextBlockDefaultSecLight}"
+                                               FontWeight="SemiBold"
+                                               TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+                                <Grid  Grid.Row="1">
+                                    <Grid>
+                                        <Button Margin="10"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Bottom"
+                                                Padding="2"
+                                                Width="50"
+                                                Height="25"
+                                                BorderThickness="0"
+                                                Content="Activate"
+                                                Foreground="{DynamicResource InfoBrush}"
+                                                Command="{Binding Path=DataContext.DownloadCurrentItemCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
+                                            <Button.Background>
+                                                <SolidColorBrush Color="{DynamicResource InfoColor}"
+                                                                 Opacity="0.3" />
+                                            </Button.Background>
+                                        </Button>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+
+                    </Grid>
+                </Border>
+            </DataTemplate>
             <Style x:Key="_listBoxGeneralModeSelectionStyle"
                    TargetType="ListViewItem">
                 <Setter Property="Template">
@@ -375,7 +445,7 @@
                     </Grid>
                 <Grid x:Name="AllDevicesPanel">
                     <!-- all devices-->
-                                <ListView  Margin="0"
+                                <ListView  Margin="5"
                                            hc:ScrollViewerAttach.IsDisabled="True"
                                            Name="itm"
                                            SelectionMode="Multiple"
@@ -423,6 +493,11 @@
                                        FontWeight="SemiBold"
                                        Style="{StaticResource TextBlockSubTitle}"
                                        HorizontalAlignment="Left" />
+                        </Grid>
+                        <Grid Grid.Row="1">
+                            <ItemsControl Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" ItemTemplate="{DynamicResource _horizontalCardItemTemplate}" ItemsSource="{Binding AvailableLightingProfiles}">
+                                
+                            </ItemsControl>
                         </Grid>
                     </Grid>
                 </StackPanel>

@@ -7,6 +7,7 @@
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
              xmlns:store="clr-namespace:adrilight_shared.Models.Store;assembly=adrilight_shared"
+             xmlns:enums="clr-namespace:adrilight_shared.Enums;assembly=adrilight_shared"
              mc:Ignorable="d"
              Background="{StaticResource RegionBrush}"
              d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
@@ -186,9 +187,49 @@
                                     Style="{StaticResource BorderClip}">
                                 <Border CornerRadius="4"
                                         Margin="10">
-                                    <Image Source="{Binding Thumb}"
-                                           RenderOptions.BitmapScalingMode="HighQuality"
-                                           Stretch="Uniform" />
+                                    <Grid>
+                                        <Grid>
+                                            <Grid.Style>
+                                                <Style TargetType="Grid">
+                                                    <Setter Property="Visibility"
+                                                            Value="Collapsed">
+                                                    </Setter>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Path=DataContext.AvatarType,RelativeSource={RelativeSource AncestorType=hc:Card}}"
+                                                                     Value="{x:Static enums:OnlineItemAvatarTypeEnum.Gravatar}">
+                                                            <Setter Property="Visibility"
+                                                                    Value="Visible">
+                                                            </Setter>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Grid.Style>
+                                            <hc:Gravatar Width="100" Height="100" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                         Id="{Binding Name}">
+                                            </hc:Gravatar>
+                                        </Grid>
+                                        <Grid>
+                                            <Grid.Style>
+                                                <Style TargetType="Grid">
+                                                    <Setter Property="Visibility"
+                                                            Value="Collapsed">
+                                                    </Setter>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Path=DataContext.AvatarType,RelativeSource={RelativeSource AncestorType=hc:Card}}"
+                                                                     Value="{x:Static enums:OnlineItemAvatarTypeEnum.Image}">
+                                                            <Setter Property="Visibility"
+                                                                    Value="Visible">
+                                                            </Setter>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Grid.Style>
+                                            <Image Source="{Binding Thumb}"
+                                                   RenderOptions.BitmapScalingMode="HighQuality"
+                                                   Stretch="Uniform" />
+                                        </Grid>
+                                    </Grid>
+
                                 </Border>
 
 
@@ -389,11 +430,14 @@
                                                            PassEventArgsToCommand="True" />
                                     </hc:EventTrigger>
                                 </hc:Interaction.Triggers>
-                                <Border HorizontalAlignment="Stretch"  CornerRadius="4" Height="27"
+                                <Border HorizontalAlignment="Stretch"
+                                        CornerRadius="4"
+                                        Height="27"
                                         Background="{DynamicResource MainContentBackgroundBrush}">
-                                    <TextBlock Margin="10,5" Text="{Binding Name}" />
+                                    <TextBlock Margin="10,5"
+                                               Text="{Binding Name}" />
                                 </Border>
-                                
+
                             </Grid>
 
                         </DataTemplate>

@@ -972,7 +972,7 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="{Binding SelectedControlZone.Name}" FontWeight="SemiBold" Style="{DynamicResource TextBlockDefaultPrimary}" />
-                                <Button Style="{DynamicResource _defaultIconButton}" Grid.Column="1" HorizontalAlignment="Right" Command="{Binding ShareCurrentControlModeCommand}" CommandParameter="advance" Margin="0,0,5,0" ToolTip="Share this effect" hc:IconElement.Geometry="{DynamicResource export}" />
+                                <Button Style="{DynamicResource _defaultIconButton}" Grid.Column="1" HorizontalAlignment="Right" Command="{Binding ExportItemForOnlineStoreCommand}" CommandParameter="{Binding SelectedControlZone.CurrentActiveControlMode}" Margin="0,0,5,0" ToolTip="Share this effect" hc:IconElement.Geometry="{DynamicResource export}" />
                             </Grid>
                             <Grid Height="5">
                             </Grid>

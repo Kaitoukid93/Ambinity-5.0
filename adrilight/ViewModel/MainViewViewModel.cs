@@ -102,6 +102,7 @@ namespace adrilight.ViewModel
         private string PalettesCollectionFolderPath => Path.Combine(JsonPath, "ColorPalettes");
         private string AnimationsCollectionFolderPath => Path.Combine(JsonPath, "Animations");
         private string ChasingPatternsCollectionFolderPath => Path.Combine(JsonPath, "ChasingPatterns");
+        private string LightingProfilesCollectionFolderPath => Path.Combine(JsonPath, "LightingProfiles");
         private string AutomationsCollectionFolderPath => Path.Combine(JsonPath, "Automations");
         private string DevicesCollectionFolderPath => Path.Combine(JsonPath, "Devices");
         private string SupportedDeviceCollectionFolderPath => Path.Combine(JsonPath, "SupportedDevices");
@@ -244,7 +245,6 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-        public ICommand ShareCurrentControlModeCommand { get; set; }
         public ICommand SaveDeviceInformationToDiskCommand { get; set; }
         public ICommand ImportDeviceFromFileCommand { get; set; }
         public ICommand BackToHomePageCommand { get; set; }
@@ -501,7 +501,19 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        private ObservableCollection<LightingProfile> _availableLightingProfiles;
 
+        public ObservableCollection<LightingProfile> AvailableLightingProfiles {
+            get { return _availableLightingProfiles; }
+
+            set
+            {
+                if (_availableLightingProfiles == value) return;
+                _availableLightingProfiles = value;
+
+                RaisePropertyChanged();
+            }
+        }
         private ObservableCollection<DeviceFirmware> _availableFirmwareForCurrentDevice;
 
         public ObservableCollection<DeviceFirmware> AvailableFirmwareForCurrentDevice {
@@ -2150,14 +2162,6 @@ namespace adrilight.ViewModel
                     listParam.DeletedSelectedItem(item);
                     removeFileCount++;
                 }
-
-            });
-            ShareCurrentControlModeCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                ShareCurrentControlMode();
 
             });
             SubParamActionCommand = new RelayCommand<string>((p) =>
@@ -3879,12 +3883,26 @@ namespace adrilight.ViewModel
                     if (OnlineItemAvatar != null && OnlineItemAvatar != string.Empty)
                         File.Copy(OnlineItemAvatar, Path.Combine(Export.FileName, "content", "colored_thumbnail.png"));
                 }
+                if (content is LightingMode)
+                {
+                    var lightingProfile = new LightingProfile() {
+                        Name = CurrentItemForExport.Name,
+                        Description = CurrentItemForExport.Description,
+                        Owner = CurrentItemForExport.Owner,
+                        ControlMode = content as LightingMode
+                    };
+
+                    contentjson = JsonConvert.SerializeObject(lightingProfile);
+                    File.WriteAllText(Path.Combine(Export.FileName, "content", "config.json"), contentjson);
+
+                }
                 //create info
                 var info = new OnlineItemModel() {
                     Name = CurrentItemForExport.Name,
                     Owner = CurrentItemForExport.Owner,
                     Description = CurrentItemForExport.Description,
                     Type = CurrentItemForExport.Type,
+                    AvatarType = CurrentItemForExport.AvatarType,
                     Version = version,
                     TargetDevices = OnlineItemSelectedTargetTypes.ToList()
                 };
@@ -3940,44 +3958,40 @@ namespace adrilight.ViewModel
             OnlineItemScreenShotCollection = new ObservableCollection<string>();
             OnlineItemSelectableTargetType = new ObservableCollection<DeviceType>();
             OnlineItemSelectedTargetTypes = new List<DeviceType>();
-
+            foreach (DeviceTypeEnum type in Enum.GetValues(typeof(DeviceTypeEnum)))
+            {
+                OnlineItemSelectableTargetType.Add(new DeviceType(type));
+            }
+            CurrentItemForExport.AvatarType = OnlineItemAvatarTypeEnum.Image;
             if (p.GetType() == typeof(ARGBLEDSlaveDevice))
             {
                 CurrentItemForExport.Name = (p as ARGBLEDSlaveDevice).Name;
-                foreach (DeviceTypeEnum type in Enum.GetValues(typeof(DeviceTypeEnum)))
-                {
-                    OnlineItemSelectableTargetType.Add(new DeviceType(type));
-                }
             }
             else if (p.GetType() == typeof(ColorPalette))
             {
                 CurrentItemForExport.Name = (p as ColorPalette).Name;
-                foreach (DeviceTypeEnum type in Enum.GetValues(typeof(DeviceTypeEnum)))
-                {
-                    OnlineItemSelectableTargetType.Add(new DeviceType(type));
-                }
-            }
-            else if (p.GetType() == typeof(AppProfile))
-            {
-                var name = (p as AppProfile).Name;
-                LocalFileHlprs.OpenExportFileDialog(p, ".aap", ".aap", name);
-                return;
+
             }
             else if (p.GetType() == typeof(ChasingPattern))
             {
                 CurrentItemForExport.Name = (p as ChasingPattern).Name;
-                foreach (DeviceTypeEnum type in Enum.GetValues(typeof(DeviceTypeEnum)))
-                {
-                    OnlineItemSelectableTargetType.Add(new DeviceType(type));
-                }
+
             }
             else if (p.GetType() == typeof(Gif))
             {
                 CurrentItemForExport.Name = (p as Gif).Name;
-                foreach (DeviceTypeEnum type in Enum.GetValues(typeof(DeviceTypeEnum)))
-                {
-                    OnlineItemSelectableTargetType.Add(new DeviceType(type));
-                }
+
+            }
+            else if (p.GetType() == typeof(Gif))
+            {
+                CurrentItemForExport.Name = (p as Gif).Name;
+
+            }
+            else if (p.GetType() == typeof(LightingMode))
+            {
+                CurrentItemForExport.Name = (p as LightingMode).Name;
+                CurrentItemForExport.AvatarType = OnlineItemAvatarTypeEnum.Gravatar;
+                CurrentItemForExport.Type = typeof(LightingProfile).Name.ToString();
             }
             onlineExportWindow = new OnlineItemExporterView();
             onlineExportWindow.Show();
@@ -4102,6 +4116,9 @@ namespace adrilight.ViewModel
                     break;
                 case "ChasingPattern":
                     await SaveItemToLocalCollection<ChasingPattern>(ChasingPatternsCollectionFolderPath, DeserializeMethodEnum.Files, o, "AML");
+                    break;
+                case "LightingProfile":
+                    await SaveItemToLocalCollection<LightingProfile>(LightingProfilesCollectionFolderPath, DeserializeMethodEnum.MultiJson, o, ".ALP");
                     break;
             }
         }
@@ -4449,6 +4466,9 @@ namespace adrilight.ViewModel
                 case "ChasingPattern":
                     localPath = ChasingPatternsCollectionFolderPath;
                     break;
+                case "LightingProfile":
+                    localPath = LightingProfilesCollectionFolderPath;
+                    break;
             }
             var itemLocalInfo = Path.Combine(localPath, "info", item.Name + ".info");
             return itemLocalInfo;
@@ -4645,7 +4665,7 @@ namespace adrilight.ViewModel
                     OnlineFolderPath = "/home/adrilight_enduser/ftp/files/ChasingPatterns",
                     LocalFolderPath = Path.Combine(ChasingPatternsCollectionFolderPath),
                     DataType = typeof(ChasingPattern),
-                    Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
+                    Description = "All  Animations created by Ambino and Contributed by Ambino Community",
                     Geometry = "chasingPattern"
                 };
                 var gif = new StoreCategory() {
@@ -4653,7 +4673,7 @@ namespace adrilight.ViewModel
                     DataType = typeof(Gif),
                     OnlineFolderPath = "/home/adrilight_enduser/ftp/files/Gifxelations",
                     LocalFolderPath = Path.Combine(GifsCollectionFolderPath),
-                    Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
+                    Description = "All Gifs created by Ambino and Contributed by Ambino Community",
                     Geometry = "gifxelation"
                 };
                 var supportedDevices = new StoreCategory() {
@@ -4664,11 +4684,21 @@ namespace adrilight.ViewModel
                     Description = "All Color Palette created by Ambino and Contributed by Ambino Community",
                     Geometry = "slaveDevice"
                 };
+                var lightingProfiles = new StoreCategory() {
+                    Name = "Lighting",
+                    DataType = typeof(LightingProfile),
+                    OnlineFolderPath = "/home/adrilight_enduser/ftp/files/LightingProfiles",
+                    LocalFolderPath = SupportedDeviceCollectionFolderPath,
+                    Description = "All Lighting Profiles created by Ambino and Contributed by Ambino Community",
+                    Geometry = "appProfile"
+                };
                 AvailableStoreCategories.Add(home);
                 AvailableStoreCategories.Add(palettes);
+                AvailableStoreCategories.Add(lightingProfiles);
                 AvailableStoreCategories.Add(chasingPatterns);
                 AvailableStoreCategories.Add(gif);
                 AvailableStoreCategories.Add(supportedDevices);
+
             }
         }
         private ObservableCollection<HomePageCarouselItem> _availableHomePageCarousel;
@@ -7323,69 +7353,6 @@ namespace adrilight.ViewModel
                 }
             }
         }
-        #region Control Mode Sharing
-
-        private string _newLightingProfileName;
-
-        public string NewLightingProfileName {
-            get { return _newLightingProfileName; }
-
-            set
-            {
-                _newLightingProfileName = value;
-            }
-        }
-        private string _newLightingProfileOwner;
-
-        public string NewLightingProfileOwner {
-            get { return _newLightingProfileOwner; }
-
-            set
-            {
-                _newLightingProfileOwner = value;
-            }
-        }
-        private string _newLightingProfileDescription;
-
-        public string NewLightingProfileDescription {
-            get { return _newLightingProfileDescription; }
-
-            set
-            {
-                _newLightingProfileDescription = value;
-            }
-        }
-        private void OpenShareCurrentControlModeWindow()
-        {
-            var shareControlMode = new ShareLightingProfileWindow();
-            shareControlMode.Owner = System.Windows.Application.Current.MainWindow;
-            shareControlMode.ShowDialog();
-        }
-        private void ShareCurrentControlMode()
-        {
-
-            SaveFileDialog Export = new SaveFileDialog();
-            Export.CreatePrompt = true;
-            Export.OverwritePrompt = true;
-            Export.Title = "Xuất dữ liệu";
-            Export.FileName = "xxx";
-            Export.CheckFileExists = false;
-            Export.CheckPathExists = true;
-            Export.InitialDirectory =
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            Export.RestoreDirectory = true;
-
-            if (Export.ShowDialog() == DialogResult.OK)
-            {
-                //deserialize to config
-                var effect = new LightingProfile();
-                var configjson = JsonConvert.SerializeObject(effect);
-                File.WriteAllText(Export.FileName, configjson);
-
-            }
-
-        }
-        #endregion
 
         #region color and palette edit properties
 
@@ -8712,7 +8679,14 @@ namespace adrilight.ViewModel
                 2500000,
             };
         }
-
+        private void LoadAvailableLightingProfiles()
+        {
+            AvailableLightingProfiles = new ObservableCollection<LightingProfile>();
+            foreach (var profile in LoadLightingProfileIfExist())
+            {
+                AvailableLightingProfiles.Add(profile);
+            }
+        }
         private void LoadAvailableProfiles()
         {
             AvailableProfiles = new ObservableCollection<AppProfile>();
@@ -8807,6 +8781,7 @@ namespace adrilight.ViewModel
             #region checking and creating resource folder path if not exist
             CreateColorCollectionFolder();
             CreatePaletteCollectionFolder();
+            CreateLightingProfilesCollection();
             CreateResourceCollectionFolder();
             CreateChasingPatternCollectionFolder();
             CreateGifCollectionFolder();
@@ -8820,6 +8795,7 @@ namespace adrilight.ViewModel
             #endregion
             LoadAvailableBaudRate();
             LoadAvailableProfiles();
+            LoadAvailableLightingProfiles();
             LoadAvailableAutomations();
             FilesQToRemove = new ObservableCollection<string>();
         }
@@ -8963,7 +8939,26 @@ namespace adrilight.ViewModel
                 //copy default chasing pattern from resource
             }
         }
-
+        public void CreateLightingProfilesCollection()
+        {
+            if (!Directory.Exists(LightingProfilesCollectionFolderPath))
+            {
+                Directory.CreateDirectory(LightingProfilesCollectionFolderPath);
+                var collectionFolder = Path.Combine(LightingProfilesCollectionFolderPath, "collection");
+                Directory.CreateDirectory(collectionFolder);
+                //var allResourceNames = "adrilight.Resources.Colors.ChasingPatterns.json";
+                var allResourceNames = ResourceHlprs.GetResourceFileNames();
+                foreach (var resourceName in allResourceNames.Where(r => r.EndsWith(".ALP")))
+                {
+                    var name = ResourceHlprs.GetResourceFileName(resourceName);
+                    ResourceHlprs.CopyResource(resourceName, Path.Combine(collectionFolder, name));
+                }
+                var config = new ResourceLoaderConfig(nameof(LightingProfile), DeserializeMethodEnum.MultiJson);
+                var configJson = JsonConvert.SerializeObject(config);
+                File.WriteAllText(Path.Combine(LightingProfilesCollectionFolderPath, "config.json"), configJson);
+                //copy default chasing pattern from resource
+            }
+        }
 
         public List<AppProfile> LoadAppProfileIfExist()
         {
@@ -8977,7 +8972,18 @@ namespace adrilight.ViewModel
             }
             return existedProfile;
         }
-
+        public List<LightingProfile> LoadLightingProfileIfExist()
+        {
+            var existedProfile = new List<LightingProfile>();
+            string[] files = Directory.GetFiles(Path.Combine(LightingProfilesCollectionFolderPath, "collection"));
+            foreach (var file in files)
+            {
+                var jsonData = File.ReadAllText(file);
+                var profile = JsonConvert.DeserializeObject<LightingProfile>(jsonData);
+                existedProfile.Add(profile);
+            }
+            return existedProfile;
+        }
         public List<AutomationSettings> LoadAutomationIfExist()
         {
             var loadedAutomations = new List<AutomationSettings>();

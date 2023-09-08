@@ -14,8 +14,8 @@ namespace adrilight_shared.Models.Lighting
         }
         public string Name { get; set; }
         public string Description { get; set; }
-        public string Ownder { get; set; }
-        IControlMode ControlMode { get; set; }
+        public string Owner { get; set; }
+        public LightingMode ControlMode { get; set; }
         public List<string> TargetDevicesUID { get; set; }
         [JsonIgnore]
         public ObservableCollection<IDeviceSettings> TargetDevices { get; set; }
