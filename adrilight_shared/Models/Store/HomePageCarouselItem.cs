@@ -1,6 +1,7 @@
 ﻿using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
-using System.Windows.Media.Imaging;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace adrilight_shared.Models.Store
 {
@@ -11,12 +12,14 @@ namespace adrilight_shared.Models.Store
         {
 
         }
-        private BitmapImage _image;
+        private ObservableCollection<OnlineItemModel> _carouselItems;
+        public int Order { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public string EmbeddedURL { get; set; }
+        public List<string> EmbeddedURL { get; set; }
         public string Path { get; set; }
+        public int TemplateSelector { get; set; }
         [JsonIgnore]
-        public BitmapImage Image { get => _image; set { Set(() => Image, ref _image, value); } }
+        public ObservableCollection<OnlineItemModel> CarouselItem { get => _carouselItems; set { Set(() => CarouselItem, ref _carouselItems, value); } }
     }
 }

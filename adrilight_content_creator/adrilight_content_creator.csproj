@@ -145,6 +145,9 @@
     <Reference Include="NuGet.Squirrel, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\squirrel.windows.2.0.1\lib\Net45\NuGet.Squirrel.dll</HintPath>
     </Reference>
+    <Reference Include="Renci.SshNet, Version=2020.0.2.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106, processorArchitecture=MSIL">
+      <HintPath>..\packages\SSH.NET.2020.0.2\lib\net40\Renci.SshNet.dll</HintPath>
+    </Reference>
     <Reference Include="RichCanvas, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\RichCanvas.2.4.2\lib\net472\RichCanvas.dll</HintPath>
     </Reference>
@@ -216,12 +219,18 @@
     <Compile Include="View\Adorners\LineHoverAdorner.cs" />
     <Compile Include="View\Adorners\ResizeAdorner.cs" />
     <Compile Include="View\Adorners\ResizeLineAdorner.cs" />
+    <Compile Include="View\FilterCreator.xaml.cs">
+      <DependentUpon>FilterCreator.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\CarouselCreator.xaml.cs">
       <DependentUpon>CarouselCreator.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\Helpers\CheckComBoBoxHelper.cs" />
     <Compile Include="View\Helpers\EventToCommand.cs" />
     <Compile Include="View\Helpers\GridHelpers.cs" />
+    <Compile Include="View\AddNewStringWindow.xaml.cs">
+      <DependentUpon>AddNewStringWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\NonClientAreaContent.xaml.cs">
       <DependentUpon>NonClientAreaContent.xaml</DependentUpon>
     </Compile>
@@ -255,7 +264,15 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="View\FilterCreator.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="View\CarouselCreator.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\AddNewStringWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -342,6 +359,10 @@
     <ProjectReference Include="..\adrilight_shared\adrilight_shared.csproj">
       <Project>{808cf0c2-f33b-4cfb-9d34-8ec8115cb2c2}</Project>
       <Name>adrilight_shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FTPServer\FTPServer.csproj">
+      <Project>{5B8BF436-7610-4335-80EB-809A7E7A655F}</Project>
+      <Name>FTPServer</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

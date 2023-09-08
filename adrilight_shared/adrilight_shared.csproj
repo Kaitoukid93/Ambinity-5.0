@@ -232,6 +232,7 @@
     <Compile Include="Models\KeyboardHook\IModifiersType.cs" />
     <Compile Include="Models\KeyboardHook\KeyModel.cs" />
     <Compile Include="Models\KeyboardHook\ModifiersType.cs" />
+    <Compile Include="Models\Lighting\LightingProfile.cs" />
     <Compile Include="Models\Preview\DesktopFrameCard.cs" />
     <Compile Include="Models\Preview\GifCard.cs" />
     <Compile Include="Models\SerialPortData\FakeSerialPort.cs" />

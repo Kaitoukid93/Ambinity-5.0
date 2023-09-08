@@ -221,6 +221,7 @@
     <Compile Include="Services\CaptureEngine\ICaptureEngine.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\MonitorEnumerationHelper.cs" />
     <Compile Include="View\Adorners\AttachedAdorner.cs" />
+    <Compile Include="View\Dialogs\ShareLightingProfileWindow.xaml.cs" />
     <Compile Include="View\Helpers\CheckComBoBoxHelper.cs" />
     <Compile Include="View\Helpers\EventToCommand.cs" />
     <Compile Include="Helpers\perSizeBindingHelper.cs" />
@@ -326,6 +327,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Properties\DesignTimeResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Dialogs\ShareLightingProfileWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

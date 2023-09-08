@@ -134,7 +134,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
                             switch (t)
                             {
                                 case nameof(ColorPalette):
-                                    OnlineCatergory = "Palette";
+                                    OnlineCatergory = "Colors";
                                     foreach (var file in files)
                                     {
                                         using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -219,7 +219,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
                             switch (t)
                             {
                                 case nameof(Gif):
-                                    OnlineCatergory = "Gif";
+                                    OnlineCatergory = "Gifs";
                                     foreach (var file in files)
                                     {
                                         var data = new Gif()
@@ -240,7 +240,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
                                     }
                                     break;
                                 case nameof(ChasingPattern):
-                                    OnlineCatergory = "Pattern";
+                                    OnlineCatergory = "Animations";
                                     foreach (var file in files)
                                     {
                                         var data = new ChasingPattern()

@@ -125,7 +125,7 @@
                                                         </ItemsControl.ItemsPanel>
                                                         <ItemsControl.ItemTemplate>
                                                             <DataTemplate>
-                                                                <Button Command="{Binding Path = DataContext.StoreDeviceTypeUpdateCmd,RelativeSource={RelativeSource AncestorType={x:Type local:OnlineItemDetailView}}}" CommandParameter="{Binding .}" Margin="2" Padding="5,0" Height="20" Style="{DynamicResource _lowProfileDefaultButton}" Content="{Binding Name}"/>
+                                                                <Button IsHitTestVisible="False" Command="{Binding Path = DataContext.StoreDeviceTypeUpdateCmd,RelativeSource={RelativeSource AncestorType={x:Type local:OnlineItemDetailView}}}" CommandParameter="{Binding .}" Margin="2" Padding="5,0" Height="20" Style="{DynamicResource _lowProfileDefaultButton}" Content="{Binding Name}"/>
                                                             </DataTemplate>
                                                         </ItemsControl.ItemTemplate>
                                                        
@@ -165,11 +165,51 @@
                             <Grid Grid.Column="2">
                                 <StackPanel Orientation="Horizontal">
                                     <hc:CircleProgressBar HorizontalAlignment="Right" VerticalAlignment="Top" IsIndeterminate="True" Visibility="{Binding CurrentSelectedOnlineItem.IsDownloading,Converter={StaticResource Boolean2VisibilityConverter}}" Padding="2" Margin="0,20" Height="30" Width="30" Value="{Binding Path=DataContext.CurrentDownloadProgress, RelativeSource={RelativeSource AncestorType=ListView}}" Maximum="{Binding Path=DataContext.CurrentItemSize, RelativeSource={RelativeSource AncestorType=ListView}}" FontSize="10"/>
-                                    <Button Margin="20" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="2" Width="150" Height="30" Foreground="{DynamicResource ReverseTextBrush}" BorderThickness="0" Content="Download" Command="{Binding DownloadCurrentItemCommand}" CommandParameter="{Binding CurrentSelectedOnlineItem}">
-                                        <Button.Background>
-                                            <SolidColorBrush Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="1"/>
-                                        </Button.Background>
+                                    <Button Margin="20" HorizontalAlignment="Right" VerticalAlignment="Top" Padding="2" Width="150" Height="30" BorderThickness="0" Command="{Binding DownloadCurrentItemCommand}" CommandParameter="{Binding CurrentSelectedOnlineItem}">
+                                        <Button.Style>
+                                            <Style TargetType="Button"
+                                                   BasedOn="{StaticResource ButtonDefault}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Path=DataContext.CurrentSelectedOnlineItem.IsLocalExisted,RelativeSource={RelativeSource AncestorType={x:Type local:OnlineItemDetailView}}}"
+                                                                 Value="True">
+                                                        <Setter Property="Content"
+                                                                Value="Owned" />
+                                                        <Setter Property="IsHitTestVisible"
+                                                                Value="False" />
+                                                        <Setter Property="Background"
+                                                                Value="{DynamicResource SecondaryRegionBrush}" />
+                                                        <Setter Property="Foreground"
+                                                                Value="{DynamicResource PrimaryTextBrush}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Path=DataContext.CurrentSelectedOnlineItem.IsLocalExisted,RelativeSource={RelativeSource AncestorType={x:Type local:OnlineItemDetailView}}}"
+                                                                 Value="False">
+                                                        <Setter Property="Content"
+                                                                Value="Download" />
+                                                        <Setter Property="IsHitTestVisible"
+                                                                Value="True" />
+                                                        <Setter Property="Background"
+                                                                Value="{DynamicResource PrimaryBrush}" />
+                                                        <Setter Property="Foreground"
+                                                                Value="{DynamicResource RegionBrush}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Path=DataContext.CurrentSelectedOnlineItem.IsUpgradeAvailable,RelativeSource={RelativeSource AncestorType={x:Type local:OnlineItemDetailView}}}"
+                                                                 Value="True">
+                                                        <Setter Property="Content"
+                                                                Value="Update" />
+                                                        <Setter Property="IsHitTestVisible"
+                                                                Value="True" />
+                                                        <Setter Property="Background"
+                                                                Value="{DynamicResource PrimaryBrush}" />
+                                                        <Setter Property="Foreground"
+                                                                Value="{DynamicResource RegionBrush}" />
+                                                        <Setter Property="Command"
+                                                                Value="{DynamicResource RegionBrush}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
                                     </Button>
+                                    
                                 </StackPanel>
                                
                             </Grid>

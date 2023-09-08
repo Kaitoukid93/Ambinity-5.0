@@ -20,5 +20,6 @@ namespace adrilight_shared.Models.Store
         public string DeviceTypeFilter { get; set; }
         public StoreCategory CatergoryFilter { get; set; }
         public string NameFilter { get; set; }
+        public HomePageCarouselItem Carousel { get; set; }
     }
 }

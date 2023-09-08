@@ -54,7 +54,7 @@
             <Button Padding="0" 
                     Command="{Binding OpenAmbinoStoreWindowCommand }" 
                     hc:IconElement.Geometry="{DynamicResource onlineStore}" 
-                    CommandParameter="store" BorderBrush="Transparent"  
+                    CommandParameter="Home" BorderBrush="Transparent"  
                     Margin="10,5" 
                     hc:IconElement.Width="18" 
                     hc:IconElement.Height="18" 

@@ -59,7 +59,7 @@
         <hc:SearchBar Effect="{DynamicResource EffectShadow1}" Style="{DynamicResource SearchBarPlus}" hc:InfoElement.Placeholder ="Gõ từ khóa để tìm kiếm một item, ví dụ : Ambino Basic"  Background="{DynamicResource MainContentBackgroundBrush}" Command="{Binding StoreSearchUpdateCmd}" BorderThickness="0" CommandParameter="{Binding Text,RelativeSource={RelativeSource Self}}" FontSize="14" Margin="50,10,50,5" MaxWidth="600" MinWidth="100" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         </hc:SearchBar>
     </Grid>
-    <Grid IsEnabled="{Binding CarouselImageLoading,Converter={StaticResource Boolean2BooleanReConverter}}" Grid.Column="2">
+    <!--<Grid IsEnabled="{Binding CarouselImageLoading,Converter={StaticResource Boolean2BooleanReConverter}}" Grid.Column="2">
         <Popup PlacementTarget="{Binding ElementName=userBadge}" Effect="{StaticResource EffectShadow1}" AllowsTransparency="True" Grid.ColumnSpan="2"  HorizontalOffset="15" x:Name="user_selection" VerticalOffset="5" StaysOpen="False">
             <hc:TransitioningContentControl Effect="{StaticResource EffectShadow3}" TransitionMode="Top2Bottom">
                 <Border  Margin="15,0,15,15" Background="{DynamicResource MainContentBackgroundBrush}" CornerRadius="4" BorderThickness="1">
@@ -151,7 +151,7 @@
             </Grid>
 
         </Border>
-    </Grid>
+    </Grid>-->
 
 
 </Grid>

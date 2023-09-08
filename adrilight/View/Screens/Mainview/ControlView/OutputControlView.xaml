@@ -852,7 +852,7 @@
                                                                                 <Border Width="86" Height="86" Effect="{DynamicResource EffectShadow1}" ToolTip="{Binding Name}" CornerRadius="2,2,2,2" Style="{StaticResource BorderClip}">
                                                                                     <Image Stretch="Uniform" Source="{Binding LocalPath}"/>
                                                                                 </Border>
-                                                                                <!--<CheckBox IsChecked="{Binding IsChecked}" Margin="2" Background="{DynamicResource PrimaryBrush}" BorderThickness="0" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                                                                <CheckBox IsChecked="{Binding IsChecked}" Margin="2" Background="{DynamicResource PrimaryBrush}" BorderThickness="0" HorizontalAlignment="Right" VerticalAlignment="Top">
                                                                                     <CheckBox.Style>
                                                                                         <Style TargetType="CheckBox" BasedOn="{StaticResource CheckBoxBaseStyle}">
                                                                                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -866,7 +866,7 @@
                                                                                             </Style.Triggers>
                                                                                         </Style>
                                                                                     </CheckBox.Style>
-                                                                                </CheckBox>-->
+                                                                                </CheckBox>
                                                                             </Grid>
                                                                         </DataTemplate>
                                                                         <DataTemplate DataType="{x:Type parameterValues:ChasingPattern}">
@@ -972,7 +972,7 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="{Binding SelectedControlZone.Name}" FontWeight="SemiBold" Style="{DynamicResource TextBlockDefaultPrimary}" />
-                                <!--<Button Grid.Column="1" HorizontalAlignment="Right" Command="{Binding OpenAdvanceSettingWindowCommand}" CommandParameter="advance" Margin="0,0,5,0" ToolTip="Advance Settings" hc:IconElement.Geometry="{DynamicResource ConfigGeometry}" />-->
+                                <Button Style="{DynamicResource _defaultIconButton}" Grid.Column="1" HorizontalAlignment="Right" Command="{Binding ShareCurrentControlModeCommand}" CommandParameter="advance" Margin="0,0,5,0" ToolTip="Share this effect" hc:IconElement.Geometry="{DynamicResource export}" />
                             </Grid>
                             <Grid Height="5">
                             </Grid>
