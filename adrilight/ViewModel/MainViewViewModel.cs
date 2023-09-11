@@ -4835,6 +4835,8 @@ namespace adrilight.ViewModel
 
             }
             var listItemAddress = await FTPHlprs.GetAllFilesAddressInFolder(carouselFolderPath);
+            if (listItemAddress == null)
+                return;
             foreach (var address in listItemAddress)
             {
                 try

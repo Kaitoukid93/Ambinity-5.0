@@ -299,7 +299,7 @@ namespace adrilight
             try
             {
                 double StartIndex = 0d;
-
+                var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
                 while (!token.IsCancellationRequested)
                 {
                     if (MainViewViewModel.IsRichCanvasWindowOpen)
@@ -307,7 +307,6 @@ namespace adrilight
                         Thread.Sleep(100);
                         continue;
                     }
-                    var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
                     StartIndex -= _speed;
                     if (StartIndex < 0)
                     {
@@ -321,7 +320,6 @@ namespace adrilight
                         }
 
                     }
-
                     lock (CurrentZone.Lock)
                     {
                         DimLED();
