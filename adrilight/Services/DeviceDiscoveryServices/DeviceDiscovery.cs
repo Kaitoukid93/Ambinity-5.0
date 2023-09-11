@@ -91,7 +91,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
                     {
                         // openRGB device scan only run once at startup
                         var openRGBDevices = (new List<IDeviceSettings>(), new List<string>());
-                        if (Settings.IsOpenRGBEnabled)
+                        if (Settings.IsOpenRGBEnabled && !_openRGBIsInit)
                         {
                             openRGBDevices = await ScanOpenRGBDevices();
                         }
@@ -139,9 +139,9 @@ namespace adrilight.Services.DeviceDiscoveryServices
                     {
                         var deviceName = openRGBDevice.Name.ToValidFileName();
                         var deviceUID = Guid.NewGuid().ToString();
-                        if (MainViewViewModel.AvailableDevices.Any(d => d.DeviceName + d.OutputPort == deviceName + openRGBDevice.Location))
+                        if (MainViewViewModel.AvailableDevices.Any(d => d.OutputPort == deviceName + openRGBDevice.Location))
                         {
-                            oldDeviceReconnected.Add(openRGBDevice.Location);
+                            oldDeviceReconnected.Add(deviceName + openRGBDevice.Location);
                             continue;
                         }
                         var convertedDevice = new SlaveDeviceHelpers().DefaultCreateOpenRGBDevice(openRGBDevice.Type, deviceName, openRGBDevice.Location, openRGBDevice.Serial, deviceUID);

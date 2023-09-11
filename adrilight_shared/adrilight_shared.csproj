@@ -354,7 +354,22 @@
     <EmbeddedResource Include="Tools\OpenRGB\OpenRGB.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resources\LightingProfiles\Color Palette Cool.ALP">
+    <EmbeddedResource Include="Resources\LightingProfiles\Autumn Leaves.ALP">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\LightingProfiles\Full Slow Rainbow.ALP">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\LightingProfiles\Gamma Green.ALP">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\LightingProfiles\Neon Wipe.ALP">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\LightingProfiles\One Summer%27s Day.ALP">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\LightingProfiles\Solid Blood.ALP">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>

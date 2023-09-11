@@ -60,6 +60,11 @@ namespace adrilight.View
                     dataSource.ShowMore = true;
             }
         }
+
+        private void ButtonExport_Click(object sender, RoutedEventArgs e)
+        {
+            PopupExport.IsOpen = true;
+        }
         //private void ToggleButton_MouseDown(object sender, MouseButtonEventArgs e)
         //{
 

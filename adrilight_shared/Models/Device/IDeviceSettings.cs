@@ -1,4 +1,5 @@
 ﻿using adrilight_shared.Enums;
+using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
 using adrilight_shared.Models.Device.Controller;
 using adrilight_shared.Models.Device.Group;
@@ -64,5 +65,6 @@ namespace adrilight_shared.Models.Device
         void ToggleOnOffLED();
         void SetStaticColor(ColorCard colors);
         void SetModeByEnumValue(LightingModeEnum value);
+        void ActivateControlMode(LightingMode lightingMode);
     }
 }

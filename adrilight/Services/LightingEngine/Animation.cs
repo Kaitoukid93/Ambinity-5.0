@@ -275,6 +275,10 @@ namespace adrilight.Services.LightingEngine
                 return;
             _frameIndex = 0;
             var pattern = value as ChasingPattern;
+            if (pattern.LocalPath == null)
+                return;
+            if (!File.Exists(pattern.LocalPath))
+                return;
             _motion = ReadMotionFromDisk(pattern.LocalPath);
             var numLED = CurrentZone.Spots.Count();
             var frameCount = 0;

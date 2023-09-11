@@ -104,6 +104,8 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
                     var files = new string[1] { string.Empty };
                     if (Directory.Exists(Path.Combine(path, "collection")))
                         files = Directory.GetFiles(Path.Combine(path, "collection"));
+                    var infoPath = Path.Combine(path, "info");
+
                     switch (m)
                     {
                         case DeserializeMethodEnum.SingleJson:
@@ -141,6 +143,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
                                         {
                                             var colorPalette = DeserializeFromStream<ColorPalette>(stream);
                                             colorPalette.LocalPath = file;
+                                            colorPalette.InfoPath = Path.Combine(infoPath, Path.GetFileNameWithoutExtension(file) + ".info");
                                             colorPalette.PropertyChanged += (_, __) =>
                                             {
                                                 if (__.PropertyName == nameof(colorPalette.IsChecked))
@@ -161,6 +164,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
                                         {
                                             var vidData = DeserializeFromStream<VIDDataModel>(stream);
                                             vidData.LocalPath = file;
+                                            vidData.InfoPath = Path.Combine(infoPath, Path.GetFileNameWithoutExtension(file) + ".info");
                                             vidData.PropertyChanged += (_, __) =>
                                             {
                                                 if (__.PropertyName == nameof(vidData.IsChecked))
@@ -180,6 +184,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
                                         {
                                             var midData = DeserializeFromStream<MIDDataModel>(stream);
                                             midData.LocalPath = file;
+                                            midData.InfoPath = Path.Combine(infoPath, Path.GetFileNameWithoutExtension(file) + ".info");
                                             midData.PropertyChanged += (_, __) =>
                                             {
                                                 if (__.PropertyName == nameof(midData.IsChecked))
@@ -224,9 +229,10 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
                                     {
                                         var data = new Gif()
                                         {
-                                            Name = Path.GetFileName(file),
+                                            Name = Path.GetFileNameWithoutExtension(file),
                                             Description = "Ambino Default Gif Collection",
-                                            LocalPath = file
+                                            LocalPath = file,
+                                            InfoPath = Path.Combine(infoPath, Path.GetFileNameWithoutExtension(file) + ".info")
                                         };
                                         data.PropertyChanged += (_, __) =>
                                         {
@@ -245,10 +251,11 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
                                     {
                                         var data = new ChasingPattern()
                                         {
-                                            Name = Path.GetFileName(file),
+                                            Name = Path.GetFileNameWithoutExtension(file),
                                             Description = "xxx",
                                             Type = ChasingPatternTypeEnum.BlacknWhite,
-                                            LocalPath = file
+                                            LocalPath = file,
+                                            InfoPath = Path.Combine(infoPath, Path.GetFileNameWithoutExtension(file) + ".info")
 
                                         };
                                         data.PropertyChanged += (_, __) =>

@@ -288,6 +288,7 @@ namespace adrilight
             OnVIDIntensityValueChanged(_vidDataControl.SubParams[0].Value);
             OnBrightnessValueChanged(_brightnessControl.Value);
             OnSpeedChanged(_speedControl.Value);
+            OnSystemSyncSpeedValueChanged(_systemSyncControl.SubParams[0].Value);
             OnSystemSyncValueChanged(_systemSyncControl.Value == 1 ? true : false);
         }
         public void Run(CancellationToken token)

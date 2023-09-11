@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -151,16 +152,15 @@ namespace adrilight.Services.LightingEngine
             {
                 if (gif.Frames == null)
                 {
+                    if (gif.LocalPath == null)
+                        return;
+                    if (!File.Exists(gif.LocalPath))
+                        return;
                     gif.LoadGifFromDisk(gif.LocalPath);
+
                 }
             }
 
-
-            if (gif.Frames == null)
-            {
-                HandyControl.Controls.MessageBox.Show("File GIF bị lỗi", "Gif error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
             lock (_lock)
             {
                 LoadedGifImage = gif.Frames;

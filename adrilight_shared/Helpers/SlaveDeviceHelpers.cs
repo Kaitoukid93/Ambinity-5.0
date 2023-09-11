@@ -25,7 +25,7 @@ namespace adrilight_shared.Helpers
             var newDevice = new DeviceSettings();
             newDevice.DeviceType = GetTypeFromOpenRGB(type);
             newDevice.DeviceName = deviceName;
-            newDevice.OutputPort = outputPort;
+            newDevice.OutputPort = deviceName + outputPort;
             newDevice.DeviceDescription = "Device Supported Throught Open RGB Client";
             newDevice.DeviceSerial = serial;
             newDevice.DeviceUID = uid;

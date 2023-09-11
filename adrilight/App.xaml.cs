@@ -355,7 +355,8 @@ namespace adrilight
                 var devices = kernel.GetAll<IDeviceSettings>();
                 foreach (var device in devices)
                 {
-                    DeviceHlprs.WriteSingleDeviceInfoJson(device);
+                    lock (device)
+                        DeviceHlprs.WriteSingleDeviceInfoJson(device);
                 }
                 MainViewViewModel.ExecuteShudownAutomationActions();
 

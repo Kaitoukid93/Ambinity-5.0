@@ -45,10 +45,15 @@ namespace adrilight.Manager
                 {
                     if (MainViewViewModel.DeviceHlprs == null)
                         return;
-                    foreach (var device in MainViewViewModel.AvailableDevices)
+                    lock (MainViewViewModel.AvailableDevices)
                     {
-                        MainViewViewModel.DeviceHlprs.WriteSingleDeviceInfoJson(device);
+                        foreach (var device in MainViewViewModel.AvailableDevices)
+                        {
+                            lock (device)
+                                MainViewViewModel.DeviceHlprs.WriteSingleDeviceInfoJson(device);
+                        }
                     }
+
                     if (MainViewViewModel.IsAppActivated)
                         Log.Information("Periodically App Data Saved!");
 

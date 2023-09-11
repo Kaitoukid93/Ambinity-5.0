@@ -271,8 +271,10 @@ namespace adrilight
             EnableChanged(_enableControl.Value == 1 ? true : false);
             OnIsBreathingValueChanged(_breathingControl.Value == 1 ? true : false);
             OnSystemSyncValueChanged(_breathingControl.SubParams[2].Value == 1 ? true : false);
+
             OnSelectedColorValueChanged(_colorControl.SelectedValue);
             OnBreathingSpeedValueChanged(_breathingControl.SubParams[0].Value);
+            OnSystemSyncBreathingSpeedValueChange(_breathingControl.SubParams[1].Value);
             OnBrightnessValueChanged(_brightnessControl.Value);
         }
         public void Run(CancellationToken token)

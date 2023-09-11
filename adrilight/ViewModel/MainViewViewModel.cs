@@ -245,6 +245,10 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        public ICommand CreateNewLightingProfileCommand { get; set; }
+        public ICommand DeleteSelectedLightingProfileCommand { get; set; }
+        public ICommand OpenCreateNewLightingProfileWindowCommand { get; set; }
+        public ICommand ActivateCurrentLightingProfileCommand { get; set; }
         public ICommand SaveDeviceInformationToDiskCommand { get; set; }
         public ICommand ImportDeviceFromFileCommand { get; set; }
         public ICommand BackToHomePageCommand { get; set; }
@@ -767,6 +771,7 @@ namespace adrilight.ViewModel
                             Log.Information("Adding device to Dashboard...", device.DeviceName);
                             SetSearchingScreenProgressText("Adding device to Dashboard...");
                             SetSearchingScreenHeaderText("Adding Device", true);
+
                             await Task.Run(() => RegisterDevice(device));
                             string finalInfo = "";
                             finalInfo += "Device: ";
@@ -1003,9 +1008,12 @@ namespace adrilight.ViewModel
         private async Task RegisterDevice(IDeviceSettings device)
         {
             //add device to default shutdown automation
-            CreateDeviceShutdownAction(device);
-            CreateDeviceMonitorSleepAction(device);
-            CreateDeviceMonitorWakeupAction(device);
+            await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                CreateDeviceShutdownAction(device);
+                CreateDeviceMonitorSleepAction(device);
+                CreateDeviceMonitorWakeupAction(device);
+            });
             device.PropertyChanged += (_, __) =>
             {
                 //WriteSingleDeviceInfoJson(device);
@@ -1310,9 +1318,34 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        private ObservableCollection<SftpFile> _possibleMatchedDevices;
+        public ObservableCollection<SftpFile> PossibleMatchedDevices {
+            get
+            {
+                return _possibleMatchedDevices;
+            }
+            set
+            {
+                _possibleMatchedDevices = value;
+                RaisePropertyChanged();
+            }
+        }
+        private SftpFile _selectedmatchedDevice;
+        public SftpFile SelectedMatchedDevice {
+            get
+            {
+                return _selectedmatchedDevice;
+            }
+            set
+            {
+                _selectedmatchedDevice = value;
+                RaisePropertyChanged();
+            }
+        }
         private async Task<bool> DownloadDeviceInfo(IDeviceSettings device)
         {
             bool result;
+            PossibleMatchedDevices = new ObservableCollection<SftpFile>();
             if (!Directory.Exists(CacheFolderPath))
             {
                 Directory.CreateDirectory(CacheFolderPath);
@@ -1334,35 +1367,54 @@ namespace adrilight.ViewModel
                     return await Task.FromResult(result);
                 }
             }
-            SftpFile matchedDevice = null;
-            string matchedDevicePath = "";
+            SftpFile matchedFile = null;
+            string deviceFolderPath = string.Empty;
             switch (device.DeviceType.ConnectionTypeEnum)
             {
                 case DeviceConnectionTypeEnum.OpenRGB:
-                    //search for device path
-                    matchedDevice = await FTPHlprs.GetFileByNameMatching(device.DeviceName + ".zip", openRGBDevicesFolderPath + "/" + device.DeviceType.Type.ToString());
-                    if (matchedDevice == null)
-                        return false;
-                    matchedDevicePath = openRGBDevicesFolderPath + "/" + device.DeviceType.Type.ToString() + "/" + matchedDevice.Name;
+                    matchedFile = await FTPHlprs.GetFileByNameMatching(device.DeviceName + ".zip", openRGBDevicesFolderPath + "/" + device.DeviceType.Type.ToString());
+                    deviceFolderPath = openRGBDevicesFolderPath + "/" + device.DeviceType.Type.ToString();
                     break;
                 case DeviceConnectionTypeEnum.Wired:
-                    //search for device path
-                    matchedDevice = await FTPHlprs.GetFileByNameMatching(device.DeviceName + ".zip", ambinoDevicesFolderPath + "/" + device.DeviceType.Type.ToString());
-                    if (matchedDevice == null)
-                        return false;
-                    matchedDevicePath = ambinoDevicesFolderPath + "/" + device.DeviceType.Type.ToString() + "/" + matchedDevice.Name;
+                    matchedFile = await FTPHlprs.GetFileByNameMatching(device.DeviceName + ".zip", ambinoDevicesFolderPath + "/" + device.DeviceType.Type.ToString());
+                    deviceFolderPath = ambinoDevicesFolderPath + "/" + device.DeviceType.Type.ToString();
                     break;
             }
-            if (matchedDevice == null)
+            if (matchedFile == null)
+            //return available device instead
+            {
+                var availableFiles = await FTPHlprs.GetAllFilesInFolder(deviceFolderPath);
+                foreach (var file in availableFiles)
+                {
+                    PossibleMatchedDevices.Add(file);
+                }
+                if (PossibleMatchedDevices != null && PossibleMatchedDevices.Count > 0)
+                {
+                    await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                    {
+                        possibleMatchedDeviceSelection = new PossibleMatchedDeviceSelectionWindow();
+                        possibleMatchedDeviceSelection.Owner = _searchingForDeviceScreen;
+                        bool? dialogResult = possibleMatchedDeviceSelection.ShowDialog();
+                        if (dialogResult == true)
+                        {
+                            matchedFile = SelectedMatchedDevice;
+                        }
+                    });
+                }
+            }
+            //if user decide to cancel or nothing exist
+            if (matchedFile == null)
             {
                 result = false;
                 return await Task.FromResult(result);
             }
-
-            FTPHlprs.DownloadFile(matchedDevicePath, Path.Combine(CacheFolderPath, matchedDevice.Name), DownloadProgresBar);
+            //if nothing wrong, download to cache
+            FTPHlprs.DownloadFile(matchedFile.FullName, Path.Combine(CacheFolderPath, matchedFile.Name), DownloadProgresBar);
+            device.DeviceName = Path.GetFileNameWithoutExtension(Path.Combine(CacheFolderPath, matchedFile.Name));
             result = true;
             return await Task.FromResult(result);
         }
+        private PossibleMatchedDeviceSelectionWindow possibleMatchedDeviceSelection { get; set; }
         public async Task FoundNewDevice(List<IDeviceSettings> newDevices)
         {
             if (IsLoadingProfile)
@@ -1387,7 +1439,11 @@ namespace adrilight.ViewModel
                         var downloadedDevice = ImportDevice(Path.Combine(CacheFolderPath, device.DeviceName + ".zip"));
                         if (downloadedDevice != null)
                         {
+                            //transplant
                             downloadedDevice.OutputPort = device.OutputPort;
+                            downloadedDevice.FirmwareVersion = device.FirmwareVersion;
+                            downloadedDevice.HardwareVersion = device.HardwareVersion;
+                            downloadedDevice.DeviceSerial = device.DeviceSerial;
                             device = downloadedDevice;
                         }
                     }
@@ -1399,9 +1455,9 @@ namespace adrilight.ViewModel
                     }
                     SetSearchingScreenProgressText("Writing device information...");
 
-                    await Task.Delay(TimeSpan.FromSeconds(2));
-
-                    WriteDeviceInfo(device);
+                    //await Task.Delay(TimeSpan.FromSeconds(2));
+                    lock (device)
+                        WriteDeviceInfo(device);
 
                     lock (AvailableDeviceLock)
                     {
@@ -1452,8 +1508,8 @@ namespace adrilight.ViewModel
                         //Thread.Sleep(500);
                         SetSearchingScreenProgressText("Connected: " + oldDevice.OutputPort);
 
-
-                        DeviceHlprs.WriteSingleDeviceInfoJson(oldDevice);
+                        lock (oldDevice)
+                            DeviceHlprs.WriteSingleDeviceInfoJson(oldDevice);
                     }
 
                 }
@@ -2159,6 +2215,8 @@ namespace adrilight.ViewModel
                     if (removeFileCount == totalFileCount - 1)
                         return;
                     FilesQToRemove.Add(item.LocalPath);
+                    if (File.Exists(item.InfoPath))
+                        File.Delete(item.InfoPath);
                     listParam.DeletedSelectedItem(item);
                     removeFileCount++;
                 }
@@ -2284,6 +2342,16 @@ namespace adrilight.ViewModel
                 IsLoadingProfile = true;
                 await Task.Run(() => { System.Windows.Application.Current.Dispatcher.InvokeAsync(() => ActivateSelectedProfile(p)); });
                 IsLoadingProfile = false;
+            }
+          );
+            ActivateCurrentLightingProfileCommand = new RelayCommand<LightingProfile>((p) =>
+            {
+                return true;
+            }, async (p) =>
+            {
+                //IsLoadingProfile = true;
+                await Task.Run(() => ActivateCurrentLightingProfile(p));
+                //IsLoadingProfile = false;
             }
           );
             DeleteAttachedProfileCommand = new RelayCommand<AppProfile>((p) =>
@@ -2625,6 +2693,30 @@ namespace adrilight.ViewModel
                 CreateNewProfile();
             }
             );
+            CreateNewLightingProfileCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                CreateNewLightingProfile();
+            }
+            );
+            DeleteSelectedLightingProfileCommand = new RelayCommand<LightingProfile>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                DeleteSelectedLightingProfile(p);
+            }
+            );
+            OpenCreateNewLightingProfileWindowCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                OpenCreateNewLightingProfileWindow();
+            }
+            );
             OpenProfileCreateCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -2775,16 +2867,16 @@ namespace adrilight.ViewModel
                 if (LiveViewItems.Where(p => p.IsSelected).Count() > 0)
                     ShowSelectedItemToolbar = true;
                 CanUnGroup = false;
-                CanGroup = false;
+                CanGroup = true;
 
                 if (LiveViewItems.Any(p => p.IsSelected && p is Border))
                 {
                     CanUnGroup = true;
                 }
-                if (LiveViewItems.Any(p => p.IsSelected && p is not Border))
-                {
-                    CanGroup = true;
-                }
+                //if (LiveViewItems.Any(p => p.IsSelected && p is not Border))
+                //{
+                //    CanGroup = true;
+                //}
 
             });
 
@@ -3412,6 +3504,7 @@ namespace adrilight.ViewModel
                 if (p == null)
                     return;
                 p.UpdateChildSize();
+                lock (p) ;
                 WriteDeviceInfo(p);
                 AvailableDevices.Add(p);
                 LoadAvailableDefaultDevices();
@@ -3638,10 +3731,10 @@ namespace adrilight.ViewModel
             {
                 case "Activate":
                     AutomationParamList = new ObservableCollection<object>();
-                    foreach (var profile in AvailableProfiles)
+                    foreach (var profile in AvailableLightingProfiles)
                     {
                         if (profile != null)
-                            AutomationParamList.Add(new ActionParameter { Geometry = profile.Geometry, Name = profile.Name, Type = "profile", Value = profile.Name });
+                            AutomationParamList.Add(new ActionParameter { Geometry = "brightness", Name = profile.Name, Type = "profile", Value = profile.ProfileUID });
                     }
                     break;
 
@@ -3889,7 +3982,8 @@ namespace adrilight.ViewModel
                         Name = CurrentItemForExport.Name,
                         Description = CurrentItemForExport.Description,
                         Owner = CurrentItemForExport.Owner,
-                        ControlMode = content as LightingMode
+                        ControlMode = content as LightingMode,
+                        ProfileUID = Guid.NewGuid().ToString()
                     };
 
                     contentjson = JsonConvert.SerializeObject(lightingProfile);
@@ -4106,6 +4200,8 @@ namespace adrilight.ViewModel
 
                 case "ARGBLEDSlaveDevice":
                     await SaveItemToLocalCollection<ARGBLEDSlaveDevice>(SupportedDeviceCollectionFolderPath, DeserializeMethodEnum.FolderStructure, o, string.Empty);
+                    if (SlaveDeviceSelection != null)
+                        RefreshLocalSlaveDeviceCollection();
                     break;
 
                 case "AppProfile":
@@ -4119,6 +4215,10 @@ namespace adrilight.ViewModel
                     break;
                 case "LightingProfile":
                     await SaveItemToLocalCollection<LightingProfile>(LightingProfilesCollectionFolderPath, DeserializeMethodEnum.MultiJson, o, ".ALP");
+                    await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                    {
+                        LoadAvailableLightingProfiles();
+                    });
                     break;
             }
         }
@@ -4945,13 +5045,7 @@ namespace adrilight.ViewModel
                 //Create directory to extract
                 Directory.CreateDirectory(CacheFolderPath);
                 //then extract
-                if (Directory.Exists(Path.Combine(CacheFolderPath, fileName)))
-                {
-                    goto import;
-                }
-
                 ZipFile.ExtractToDirectory(path, CacheFolderPath);
-            import:
                 var deviceJson = File.ReadAllText(Path.Combine(CacheFolderPath, fileName, "config.json"));
                 device = JsonConvert.DeserializeObject<DeviceSettings>(deviceJson);
                 if (device != null)
@@ -4959,11 +5053,14 @@ namespace adrilight.ViewModel
                     //create device info
                     //device.UpdateChildSize();
                     device.UpdateUID();
-                    WriteDeviceInfo(device);
                     //copy thumb
                     if (File.Exists(Path.Combine(CacheFolderPath, fileName, "thumbnail.png")) && !File.Exists(Path.Combine(ResourceFolderPath, device.DeviceName + "_thumb.png")))
                     {
                         File.Copy(Path.Combine(CacheFolderPath, fileName, "thumbnail.png"), Path.Combine(ResourceFolderPath, device.DeviceName + "_thumb.png"), true);
+                    }
+                    if (File.Exists(Path.Combine(CacheFolderPath, fileName, "outputmap.png")) && !File.Exists(Path.Combine(ResourceFolderPath, device.DeviceName + "_outputmap.png")))
+                    {
+                        File.Copy(Path.Combine(CacheFolderPath, fileName, "outputmap.png"), Path.Combine(ResourceFolderPath, device.DeviceName + "_outputmap.png"), true);
                     }
                     //copy required SlaveDevice
                     var dependenciesFiles = Path.Combine(CacheFolderPath, fileName, "dependencies");
@@ -5059,7 +5156,15 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-
+        public void ActivateCurrentLightingProfile(LightingProfile profile)
+        {
+            var lightingMode = ObjectHelpers.Clone<LightingMode>(profile.ControlMode as LightingMode);
+            foreach (var device in AvailableDevices)
+            {
+                device.ActivateControlMode(lightingMode);
+                Log.Information("Lighting Profile Activated: " + profile.Name + " for " + device.DeviceName);
+            }
+        }
         public void ActivateSelectedProfile(AppProfile profile)
         {
             if (profile == null)
@@ -5392,7 +5497,10 @@ namespace adrilight.ViewModel
                 return;
             foreach (var action in actions)
             {
+
                 var targetDevice = AvailableDevices.Where(x => x.DeviceUID == action.TargetDeviceUID).FirstOrDefault();
+                if (action.ActionType.Type == "Activate") // this type of action require no target 
+                    goto execute;
                 if (targetDevice == null)
                 {
                     //HandyControl.Controls.MessageBox.Show(action.TargetDeviceName + " Không thể thiết lập automation, thiết bị đã bị xóa hoặc thay đổi UID!!!", "Device is not available", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -5402,20 +5510,18 @@ namespace adrilight.ViewModel
                 }
                 if (!targetDevice.IsEnabled)
                     return;
+                execute:
                 switch (action.ActionType.Type)
                 {
-                    //case "Activate":
-                    //    var destinationProfile = AvailableProfiles.Where(x => x.ProfileUID == (string)action.ActionParameter.Value).FirstOrDefault();
-                    //    if (destinationProfile != null)
-                    //    {
-                    //        targetDevice.ActivateProfile(destinationProfile);
-                    //        //at this moment, selected profile for the target device changed but the UI know nothing about this
-                    //        //because the porperty changed event didnt fire
-                    //        //so we fire profile UID changed instead
-                    //        targetDevice.ActivatedProfileUID = destinationProfile.ProfileUID;
-                    //    }
 
-                    //    break;
+                    case "Activate":
+                        var destinationProfile = AvailableLightingProfiles.Where(x => x.ProfileUID == (string)action.ActionParameter.Value).FirstOrDefault();
+                        if (destinationProfile != null)
+                        {
+                            ActivateCurrentLightingProfile(destinationProfile);
+                        }
+
+                        break;
 
                     case "Increase":
                         switch (action.ActionParameter.Type)
@@ -7353,7 +7459,91 @@ namespace adrilight.ViewModel
                 }
             }
         }
+        #region ControlModeSharing
 
+
+        private string _newLightingProfileName = "New Profile";
+
+        public string NewLightingProfileName {
+            get
+            {
+                return _newLightingProfileName;
+            }
+
+            set
+            {
+                _newLightingProfileName = value;
+
+                RaisePropertyChanged();
+            }
+        }
+
+        private string _newLightingProfileOwner;
+
+        public string NewLightingProfileOwner {
+            get
+            {
+                return _newLightingProfileOwner;
+            }
+
+            set
+            {
+                _newLightingProfileOwner = value;
+
+                RaisePropertyChanged();
+            }
+        }
+
+        private string _newLightingProfileDescription;
+
+        public string NewLightingProfileDescription {
+            get
+            {
+                return _newLightingProfileDescription;
+            }
+
+            set
+            {
+                _newLightingProfileDescription = value;
+                RaisePropertyChanged();
+            }
+        }
+
+
+        private void DeleteSelectedLightingProfile(LightingProfile profile)
+        {
+            var filePath = Path.Combine(LightingProfilesCollectionFolderPath, "collection", profile.Name + ".ALP");
+            var infoPath = Path.Combine(LightingProfilesCollectionFolderPath, "info", profile.Name + ".info");
+            FilesQToRemove.Add(filePath);
+            if (File.Exists(infoPath))
+                File.Delete(infoPath);
+            AvailableLightingProfiles.Remove(profile);
+        }
+        private void OpenCreateNewLightingProfileWindow()
+        {
+            var window = new AddNewLightingProfileWindow();
+            window.Owner = System.Windows.Application.Current.MainWindow;
+            window.ShowDialog();
+        }
+
+        private void CreateNewLightingProfile()
+        {
+
+            var currentLightingMode = SelectedControlZone.CurrentActiveControlMode as LightingMode;
+            var lightingProfile = new LightingProfile() {
+                Name = NewLightingProfileName,
+                Description = NewLightingProfileDescription,
+                Owner = NewLightingProfileOwner,
+                ControlMode = ObjectHelpers.Clone<LightingMode>(currentLightingMode),
+                ProfileUID = Guid.NewGuid().ToString()
+            };
+            var contentjson = JsonConvert.SerializeObject(lightingProfile);
+            File.WriteAllText(Path.Combine(LightingProfilesCollectionFolderPath, "collection", NewLightingProfileName + ".ALP"), contentjson);
+            //reload collection
+            AvailableLightingProfiles.Add(lightingProfile);
+
+        }
+        #endregion
         #region color and palette edit properties
 
         /// <summary>

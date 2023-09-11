@@ -7,6 +7,7 @@ using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Settings;
 using GalaSoft.MvvmLight;
 using LibreHardwareMonitor.Hardware;
+using LiveCharts;
 using LiveCharts.Defaults;
 using MathNet.Numerics.Statistics;
 using Serilog;
@@ -279,6 +280,29 @@ namespace adrilight.Util
                         {
                             if (fan.CurrentActiveControlMode == null)
                                 fan.CurrentActiveControlMode = fan.AvailableControlMode.First();
+                            if (fan.LineValues == null)
+                            {
+                                fan.LineValues = new ChartValues<ObservableValue>
+                      {
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80)};
+                            }
                             var currentControlMode = fan.CurrentActiveControlMode as PWMMode;
                             int currentSpeed = 80;
                             if (currentControlMode.BasedOn == PWMModeEnum.auto)

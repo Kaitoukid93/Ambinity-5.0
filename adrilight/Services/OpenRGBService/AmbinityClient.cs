@@ -31,7 +31,7 @@ namespace adrilight.Services.OpenRGBService
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentException(nameof(mainViewViewModel));
             _retryPolicy = Policy
            .Handle<Exception>()
-           .WaitAndRetryAsync(10, _ => TimeSpan.FromSeconds(1));
+           .WaitAndRetryAsync(10, _ => TimeSpan.FromSeconds(5));
             GeneralSettings.PropertyChanged += UserSettings_PropertyChangedAsync;
             if (ResourceHlprs == null)
                 ResourceHlprs = new ResourceHelpers();

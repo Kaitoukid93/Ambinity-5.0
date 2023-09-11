@@ -30,6 +30,8 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
         public bool IsChecked { get => _isChecked; set { Set(() => IsChecked, ref _isChecked, value); } }
         public string LocalPath { get; set; }
         [JsonIgnore]
+        public string InfoPath { get; set; }
+        [JsonIgnore]
         public object Lock { get; } = new object();
         public void LoadGifFromDisk(string path)
         {

@@ -396,6 +396,36 @@ namespace adrilight_shared.Models.Device
             }
             return childItems;
         }
+        public void ActivateControlMode(LightingMode lightingMode)
+        {
+            if (lightingMode == null)
+                return;
+            foreach (var device in AvailableLightingDevices)//possible replace with method from IOutputSettings
+            {
+                var lightingDevice = device as ARGBLEDSlaveDevice;
+                lightingDevice.ActivateControlMode(lightingMode);
+            }
+            if (ControlZoneGroups != null)
+            {
+                foreach (var group in ControlZoneGroups)
+                {
+                    var lightingZone = group.MaskedControlZone as LEDSetup;
+                    if (lightingZone != null)
+                    {
+                        lightingZone.CurrentActiveControlMode = lightingMode;
+                        var zones = GetGroupChildItems(group);
+                        if (zones != null)
+                        {
+                            foreach (var zone in zones)
+                            {
+                                var ledZone = zone as LEDSetup;
+                                ledZone.CurrentActiveControlMode = lightingMode;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         public void SetModeByEnumValue(LightingModeEnum value)
         {
             foreach (var device in AvailableLightingDevices)//possible replace with method from IOutputSettings

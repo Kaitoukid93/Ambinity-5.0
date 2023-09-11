@@ -8,5 +8,6 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
         string Description { get; }
         bool IsChecked { get; set; }
         string LocalPath { get; set; }
+        string InfoPath { get; set; }
     }
 }

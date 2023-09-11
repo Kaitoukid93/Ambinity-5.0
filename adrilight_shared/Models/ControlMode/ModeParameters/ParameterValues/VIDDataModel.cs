@@ -15,5 +15,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
         public bool IsChecked { get => _isChecked; set { Set(() => IsChecked, ref _isChecked, value); } }
         [JsonIgnore]
         public string LocalPath { get; set; }
+        [JsonIgnore]
+        public string InfoPath { get; set; }
     }
 }

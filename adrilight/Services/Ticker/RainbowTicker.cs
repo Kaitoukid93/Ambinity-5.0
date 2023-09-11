@@ -171,8 +171,6 @@ namespace adrilight
             catch (OperationCanceledException)
             {
                 Log.Error("OperationCanceledException catched. returning.");
-
-
             }
             catch (Exception ex)
             {
@@ -183,7 +181,6 @@ namespace adrilight
             }
             finally
             {
-
                 Log.Information("Stopped Rainbow Ticking.");
                 IsRunning = false;
             }

@@ -93,7 +93,7 @@
                                         <ColumnDefinition Width="auto"/>
                                     </Grid.ColumnDefinitions>
                                     <Grid>
-                                        <TextBlock VerticalAlignment="Center" Margin="10,5" HorizontalAlignment="Left" Text="PROFILES"/>
+                                        <TextBlock VerticalAlignment="Center" Margin="10,5" HorizontalAlignment="Left" Text="CONFIGS"/>
                                     </Grid>
                                 </Grid>
 
@@ -123,15 +123,15 @@
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="auto"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <Path HorizontalAlignment="Left" Stretch="Uniform" Margin="5" Data="{DynamicResource appProfile}" 
+                                                    <Path HorizontalAlignment="Left" Stretch="Uniform" Margin="5" Data="{DynamicResource fromfile}" 
                                                           Width="20" 
                                                           Height="20" 
                                                           Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
                                                     <TextBlock HorizontalAlignment="Left" Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" Margin="5,0,20,0" Grid.Column="1" Text="{Binding Name}" Style="{StaticResource TextBlockDefault}"/>
                                                     <Grid Grid.Column="2">
                                                         <StackPanel Visibility="{Binding Path=IsActivated,Converter={StaticResource Boolean2BooleanReConverter}}" Orientation="Horizontal">
-                                                            <Button Width="25" Height="25" Background="Transparent" ToolTip="Activate" CommandParameter="{Binding .}" Command="{Binding Path=DataContext.ActivateSelectedProfileCommmand, RelativeSource={RelativeSource AncestorType=ListBox}}" hc:IconElement.Width="15" hc:IconElement.Height="15" Style="{DynamicResource ButtonDashed}" BorderBrush="Transparent" hc:IconElement.Geometry="{StaticResource playComposition}" Padding="0" Margin="2"/>
-                                                            <Button Width="25" Height="25" Background="Transparent"  ToolTip="Export Profile" CommandParameter="{Binding .}" Command="{Binding Path=DataContext.ExportItemForOnlineStoreCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" hc:IconElement.Width="15" hc:IconElement.Height="15" Style="{DynamicResource ButtonDashed}"   BorderBrush="Transparent" hc:IconElement.Geometry="{StaticResource export}" Padding="0" Margin="2"/>
+                                                            <Button Width="25" Height="25" Background="Transparent" ToolTip="Load" CommandParameter="{Binding .}" Command="{Binding Path=DataContext.ActivateSelectedProfileCommmand, RelativeSource={RelativeSource AncestorType=ListBox}}" hc:IconElement.Width="15" hc:IconElement.Height="15" Style="{DynamicResource ButtonDashed}" BorderBrush="Transparent" hc:IconElement.Geometry="{StaticResource playComposition}" Padding="0" Margin="2"/>
+                                                            <Button Width="25" Height="25" Background="Transparent"  ToolTip="Export Config" CommandParameter="{Binding .}" Command="{Binding Path=DataContext.ExportItemForOnlineStoreCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" hc:IconElement.Width="15" hc:IconElement.Height="15" Style="{DynamicResource ButtonDashed}"   BorderBrush="Transparent" hc:IconElement.Geometry="{StaticResource export}" Padding="0" Margin="2"/>
                                                             <Button Width="25" Height="25" Background="Transparent" ToolTip="Delete" CommandParameter="{Binding .}" Command="{Binding Path=DataContext.DeleteAttachedProfileCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" hc:IconElement.Width="15" hc:IconElement.Height="15"  Style="{DynamicResource ButtonDashed}"  BorderBrush="Transparent" hc:IconElement.Geometry="{StaticResource delete}" Padding="0" Margin="2"/>
                                                         </StackPanel>
                                                     </Grid>
@@ -143,7 +143,7 @@
                                     </ListView>
 
                                 </StackPanel>
-                                <TextBlock  Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Chưa có Profile nào được thêm">
+                                <TextBlock  Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Text="Chưa có Config nào được thêm">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock" BasedOn="{StaticResource TextBlockDefaultSecLight}">
                                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -157,10 +157,10 @@
                                 </TextBlock>
                                 <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
                                     <Button Command="{Binding OpenProfileCreateCommand}" Padding="0" Background="Transparent" BorderThickness="0">
-                                    <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="Create New Profile"/>
+                                    <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="Create New Config"/>
                                 </Button>
                                     <Button Command="{Binding ImportProfileCommand}" Padding="0" Background="Transparent" BorderThickness="0">
-                                        <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="Import Profile"/>
+                                        <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="Import Config"/>
                                     </Button>
                                 </StackPanel>
                             </StackPanel>
@@ -185,7 +185,7 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <Path Grid.Column="0" Width="20" Height="20" Margin="5,5,5,2" Data="{StaticResource profile}" Stretch="Uniform" >
+                                    <Path Grid.Column="0" Width="20" Height="20" Margin="5,5,5,2" Data="{DynamicResource fromfile}" Stretch="Uniform" >
                                         <Path.Style>
                                             <Style TargetType="Path">
                                                 <Setter Property="Fill" Value="{DynamicResource PrimaryBrush}"/>
@@ -193,7 +193,7 @@
                                         </Path.Style>
 
                                     </Path>
-                                    <TextBlock Grid.Column="1" Text="Profiles" Style="{DynamicResource TextBlockDefaultPrimary}" FontWeight="Bold"  Margin="5,0"/>
+                                    <TextBlock Grid.Column="1" Text="Configs" Style="{DynamicResource TextBlockDefaultPrimary}" FontWeight="Bold"  Margin="5,0"/>
                                     <ToggleButton Margin="0,2,0,0" Grid.Column="2" IsChecked="{Binding ElementName=profile_selection,Path=IsOpen,Mode=TwoWay}"  HorizontalAlignment="Right" Style="{DynamicResource ToggleButtonIconTransparent}" hc:IconSwitchElement.Geometry="{DynamicResource showMore}" hc:IconElement.Height="10" hc:IconElement.Width="10" hc:IconSwitchElement.GeometrySelected="{DynamicResource showLess}">
                                     </ToggleButton>
                                 </Grid>

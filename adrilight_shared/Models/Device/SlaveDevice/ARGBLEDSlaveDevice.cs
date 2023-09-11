@@ -227,6 +227,20 @@ namespace adrilight_shared.Models.Device.SlaveDevice
             }
             Log.Information("Change Lighting mode: " + value + " for " + Name);
         }
+        public void ActivateControlMode(LightingMode lightingMode)
+        {
+
+            foreach (var zone in ControlableZones)
+            {
+                var ledZone = zone as LEDSetup;
+                if (!ledZone.IsInControlGroup)
+                {
+                    //find static color mode
+                    ledZone.CurrentActiveControlMode = lightingMode;
+                }
+
+            }
+        }
         #endregion
         #region Graphic Related Method
         private int GetLEDsCount()

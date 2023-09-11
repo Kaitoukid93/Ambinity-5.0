@@ -3,7 +3,7 @@
   <metadata>
     <id>adrilightContentCreatorApp</id>
     <!-- version will be replaced by MSBuild -->
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <title>adrilight content creator</title>
     <authors>Ambinity</authors>
     <description>Simple App to create content for Adrilight</description>

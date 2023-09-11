@@ -113,7 +113,7 @@ namespace adrilight.Services.OpenRGBService
                             {
                                 var device = AmbinityClient.Client.GetControllerData(i);
                                 var deviceName = device.Name.ToValidFileName();
-                                if (DeviceSettings.DeviceName + DeviceSettings.OutputPort == deviceName + device.Location)
+                                if (DeviceSettings.OutputPort == deviceName + device.Location)
                                     //so we're at i
                                     index = i;
 
