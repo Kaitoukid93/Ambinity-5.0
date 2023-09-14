@@ -1384,9 +1384,17 @@ namespace adrilight.ViewModel
             //return available device instead
             {
                 var availableFiles = await FTPHlprs.GetAllFilesInFolder(deviceFolderPath);
+                if (availableFiles == null)
+                {
+                    result = false;
+                    return await Task.FromResult(result);
+                }
                 foreach (var file in availableFiles)
                 {
-                    PossibleMatchedDevices.Add(file);
+                    await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                    {
+                        PossibleMatchedDevices.Add(file);
+                    });
                 }
                 if (PossibleMatchedDevices != null && PossibleMatchedDevices.Count > 0)
                 {
@@ -3504,8 +3512,8 @@ namespace adrilight.ViewModel
                 if (p == null)
                     return;
                 p.UpdateChildSize();
-                lock (p) ;
-                WriteDeviceInfo(p);
+                lock (p)
+                    WriteDeviceInfo(p);
                 AvailableDevices.Add(p);
                 LoadAvailableDefaultDevices();
             });
@@ -4655,6 +4663,24 @@ namespace adrilight.ViewModel
         private async Task GetStoreItems(StoreFilterModel filter)
         {
             //init if null
+            if (FTPHlprs == null)
+            {
+                SFTPInit(GeneralSettings.CurrentAppUser);
+                await Task.Delay(1000);
+            }
+            if (!FTPHlprs.sFTP.IsConnected)
+            {
+                try
+                {
+                    SFTPConnect();
+                }
+                catch (Exception ex)
+                {
+                    CarouselImageLoading = false;
+                    return;
+                }
+
+            }
             CurrentStoreFilter = filter;
             var currentPageListItemAddress = new List<string>();
             var currentDeviceTypeFilter = filter.DeviceTypeFilter;
@@ -5047,6 +5073,7 @@ namespace adrilight.ViewModel
                 //Create directory to extract
                 Directory.CreateDirectory(CacheFolderPath);
                 //then extract
+                ClearCacheFolder();
                 ZipFile.ExtractToDirectory(path, CacheFolderPath);
                 var deviceJson = File.ReadAllText(Path.Combine(CacheFolderPath, fileName, "config.json"));
                 device = JsonConvert.DeserializeObject<DeviceSettings>(deviceJson);
@@ -5095,7 +5122,10 @@ namespace adrilight.ViewModel
                 var device = ImportDevice(deviceFile);
                 if (device != null)
                 {
-                    AvailableDevices.Insert(0, device);
+                    lock (AvailableDevices)
+                        AvailableDevices.Insert(0, device);
+                    lock (device)
+                        WriteDeviceInfo(device);
                 }
             }
         }
@@ -8525,7 +8555,7 @@ namespace adrilight.ViewModel
             WriteAutomationCollectionJson();
         }
 
-        private FTPServerHelpers FTPHlprs { get; set; }
+        public FTPServerHelpers FTPHlprs { get; set; }
 
         private AddNewPaletteWindow AddNewPaletteDialog;
 

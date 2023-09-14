@@ -248,12 +248,13 @@ namespace adrilight.View
         {
             base.OnContentRendered(e);
             NonClientAreaContent = new NonClientAreaContent();
-
         }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             var vm = DataContext as MainViewViewModel;
             vm.BackToDashboard();
+            if (vm.FTPHlprs != null && vm.FTPHlprs.sFTP.IsConnected)
+                vm.FTPHlprs.sFTP.Disconnect();
             e.Cancel = true;
             // Hide Window instead
             this.Visibility = Visibility.Collapsed;

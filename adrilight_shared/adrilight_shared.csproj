@@ -386,14 +386,6 @@
     <EmbeddedResource Include="Resources\Gifs\BitOcean.gif">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resources\Images\Ambino Basic_thumb.png" />
-    <EmbeddedResource Include="Resources\Images\Ambino EDGE_thumb.png" />
-    <EmbeddedResource Include="Resources\Images\Ambino FanHub_outputmap.png" />
-    <EmbeddedResource Include="Resources\Images\Ambino FanHub_thumb.png" />
-    <EmbeddedResource Include="Resources\Images\Ambino HubV2_outputmap.png" />
-    <EmbeddedResource Include="Resources\Images\Ambino HubV2_thumb.png" />
-    <EmbeddedResource Include="Resources\Images\Ambino HubV3_outputmap.png" />
-    <EmbeddedResource Include="Resources\Images\Ambino HubV3_thumb.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Gifs\Blob.gif">
@@ -459,6 +451,9 @@
     <EmbeddedResource Include="Tools\FWTools\vnproch55x.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\Images\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

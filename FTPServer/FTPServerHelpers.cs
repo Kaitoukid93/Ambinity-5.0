@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Renci.SshNet;
 using Renci.SshNet.Sftp;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -75,9 +76,10 @@ namespace FTPServer
                 return await Task.FromResult(file);
 
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine("An exception has been caught " + e.ToString());
+                Log.Warning(ex.ToString());
+                Console.WriteLine("An exception has been caught " + ex.ToString());
                 return null;
             }
         }
@@ -100,9 +102,10 @@ namespace FTPServer
                 return await Task.FromResult(listFiles);
 
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine("An exception has been caught " + e.ToString());
+                Console.WriteLine("An exception has been caught " + ex.ToString());
+                Log.Warning(ex.ToString());
                 return null;
             }
         }
@@ -120,9 +123,10 @@ namespace FTPServer
 
                 return await Task.FromResult(thumb);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine("An exception has been caught " + e.ToString());
+                Log.Warning(ex.ToString());
+                Console.WriteLine("An exception has been caught " + ex.ToString());
                 return null;
             }
         }
@@ -140,9 +144,10 @@ namespace FTPServer
 
                 return await Task.FromResult(thumb);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine("An exception has been caught " + e.ToString());
+                Log.Warning(ex.ToString());
+                Console.WriteLine("An exception has been caught " + ex.ToString());
                 return null;
             }
         }
@@ -167,13 +172,13 @@ namespace FTPServer
                 }
 
             }
-            catch (System.IO.IOException)
+            catch (System.IO.IOException ex)
             {
-
+                Log.Warning(ex.ToString());
             }
             catch (Exception ex)
             {
-
+                Log.Warning(ex.ToString());
             }
 
         }

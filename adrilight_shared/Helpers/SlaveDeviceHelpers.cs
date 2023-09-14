@@ -51,7 +51,7 @@ namespace adrilight_shared.Helpers
                     returnType.Type = DeviceTypeEnum.Motherboard;
                     break;
                 case OpenRGB.NET.Enums.DeviceType.Dram:
-                    returnType.Type = DeviceTypeEnum.Ram;
+                    returnType.Type = DeviceTypeEnum.Dram;
                     break;
                 case OpenRGB.NET.Enums.DeviceType.Cooler:
                     returnType.Type = DeviceTypeEnum.Cooler;
@@ -84,7 +84,10 @@ namespace adrilight_shared.Helpers
                     returnType.Type = DeviceTypeEnum.Ledstrip;
                     break;
                 case OpenRGB.NET.Enums.DeviceType.Gamepad:
-                    returnType.Type = DeviceTypeEnum.Motherboard;
+                    returnType.Type = DeviceTypeEnum.Gamepad;
+                    break;
+                case OpenRGB.NET.Enums.DeviceType.Virtual:
+                    returnType.Type = DeviceTypeEnum.Virtual;
                     break;
             }
             returnType.ConnectionTypeEnum = DeviceConnectionTypeEnum.OpenRGB;
