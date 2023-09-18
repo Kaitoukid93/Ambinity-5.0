@@ -193,11 +193,6 @@ namespace adrilight.Util
                             //dialog.header.Text = "OpenRGB is disabled"
                             dialog.question.Text = "Không đọc được thông tin Motherboard , thử khởi chạy lại ứng dụng với quyền Admin";
                             bool? result = dialog.ShowDialog();
-                            if (result == true)
-                            {
-                                // Enable OpenRGB
-                                GeneralSettings.IsOpenRGBEnabled = true;
-                            }
                             if (dialog.askagaincheckbox.IsChecked == true)
                             {
                                 GeneralSettings.HWMonitorAskAgain = false;
@@ -219,14 +214,8 @@ namespace adrilight.Util
                         System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
                         {
                             var dialog = new CommonInfoDialog();
-                            //dialog.header.Text = "OpenRGB is disabled"
                             dialog.question.Text = "Fan sẽ chạy với tốc độ mặc định hoặc điều chỉnh bằng tay";
                             bool? result = dialog.ShowDialog();
-                            if (result == true)
-                            {
-                                // Enable OpenRGB
-                                GeneralSettings.IsOpenRGBEnabled = true;
-                            }
                             if (dialog.askagaincheckbox.IsChecked == true)
                             {
                                 GeneralSettings.HWMonitorAskAgain = false;

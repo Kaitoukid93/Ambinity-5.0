@@ -121,7 +121,7 @@ namespace adrilight.Services.OpenRGBService
                     MainViewViewModel.SetSearchingScreenProgressText("Starting OpenRGB service...");
                     LaunchOpenRGBProcess();
                 }
-                await Task.Delay(3000);
+                await Task.Delay(5000);
                 try
                 {
                     if (Client != null)
@@ -164,13 +164,18 @@ namespace adrilight.Services.OpenRGBService
         }
         private void LaunchOpenRGBProcess()
         {
-            if (!File.Exists(ORGBExeFileNameAndPath))
+            var currentVersion = new Version(GeneralSettings.OpenRGBVersion);
+            var packedVersion = new Version("0.91");
+            if (!File.Exists(ORGBExeFileNameAndPath) || currentVersion < packedVersion)
             {
-
                 try
                 {
-                    Directory.CreateDirectory(ORGBPath);
-
+                    if (!Directory.Exists(ORGBPath))
+                        Directory.CreateDirectory(ORGBPath);
+                    else
+                    {
+                        LocalFileHelpers.ClearFolderContent(ORGBPath);
+                    }
                     ResourceHlprs.CopyResource("adrilight_shared.Tools.OpenRGB.OpenRGB.zip", Path.Combine(ORGBPath, "OpenRGB.zip"));
                     //Create directory to extract
                     Directory.CreateDirectory(ORGBExeFolderNameAndPath);
@@ -178,6 +183,7 @@ namespace adrilight.Services.OpenRGBService
                     ZipFile.ExtractToDirectory(Path.Combine(ORGBPath, "OpenRGB.zip"), ORGBExeFolderNameAndPath);
                     //then delete the zip to prevent further conflict
                     File.Delete(Path.Combine(ORGBPath, "OpenRGB.zip"));
+                    GeneralSettings.OpenRGBVersion = packedVersion.ToString();
                 }
                 catch (ArgumentException)
                 {

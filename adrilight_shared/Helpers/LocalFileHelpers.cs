@@ -101,6 +101,20 @@ namespace adrilight_shared.Helpers
             }
             return null;
         }
+        public static void ClearFolderContent(string folderPath)
+        {
+            if (!Directory.Exists(folderPath))
+                return;
+            System.IO.DirectoryInfo folder = new DirectoryInfo(folderPath);
+            foreach (FileInfo file in folder.EnumerateFiles())
+            {
+                file.Delete();
+            }
+            foreach (DirectoryInfo dir in folder.EnumerateDirectories())
+            {
+                dir.Delete(true);
+            }
+        }
         public static void CopyDirectory(string sourceDir, string destinationDir, bool recursive)
         {
             // Get information about the source directory

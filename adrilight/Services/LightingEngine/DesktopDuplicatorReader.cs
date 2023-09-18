@@ -34,7 +34,11 @@ namespace adrilight.Services.LightingEngine
             )
         {
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
-            DesktopFrame = desktopFrame.Where(d => d is DesktopFrame || d is DesktopFrameDXGI).First() ?? throw new ArgumentNullException(nameof(desktopFrame));
+            if (desktopFrame != null && desktopFrame.Count() > 0)
+            {
+                DesktopFrame = desktopFrame.Where(d => d is DesktopFrame || d is DesktopFrameDXGI).First() ?? throw new ArgumentNullException(nameof(desktopFrame));
+            }
+
             CurrentZone = zone as LEDSetup ?? throw new ArgumentNullException(nameof(zone));
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             _retryPolicy = Policy.Handle<Exception>().WaitAndRetryForever(ProvideDelayDuration);
@@ -182,6 +186,8 @@ namespace adrilight.Services.LightingEngine
         private CapturingRegionSelectionButtonParameter _regionControl;
         public void Refresh()
         {
+            if (DesktopFrame == null)
+                return;
             if (CurrentZone.CurrentActiveControlMode == null)
             {
                 return;

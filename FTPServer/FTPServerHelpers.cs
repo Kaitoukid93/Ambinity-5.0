@@ -163,6 +163,8 @@ namespace FTPServer
         }
         public void DownloadFile(string remotePath, string localPath, Action<ulong> donwloadCallback)  // this method get all file from dropbox adrilight App folder to temp folder
         {
+            if (File.Exists(localPath))
+                return;
 
             try
             {

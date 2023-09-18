@@ -1417,6 +1417,7 @@ namespace adrilight.ViewModel
                 return await Task.FromResult(result);
             }
             //if nothing wrong, download to cache
+            ClearCacheFolder();
             FTPHlprs.DownloadFile(matchedFile.FullName, Path.Combine(CacheFolderPath, matchedFile.Name), DownloadProgresBar);
             device.DeviceName = Path.GetFileNameWithoutExtension(Path.Combine(CacheFolderPath, matchedFile.Name));
             result = true;
@@ -4012,7 +4013,7 @@ namespace adrilight.ViewModel
                 File.WriteAllText(Path.Combine(Export.FileName, "info.json"), infoJson);
                 File.WriteAllText(Path.Combine(Export.FileName, "description.md"), OnlineItemMarkdownDescription);
                 //coppy image data
-                if (OnlineItemAvatar != null && OnlineItemAvatar != string.Empty)
+                if (OnlineItemAvatar != null && OnlineItemAvatar != string.Empty && CurrentItemForExport.AvatarType == OnlineItemAvatarTypeEnum.Image)
                     File.Copy(OnlineItemAvatar, Path.Combine(Export.FileName, "thumb.png"));
                 //copy thumbnail also
                 Directory.CreateDirectory(Path.Combine(Export.FileName, "screenshots"));
@@ -4706,13 +4707,14 @@ namespace adrilight.ViewModel
                 {
                     //get name
                     var itemName = FTPHlprs.GetFileOrFoldername(address).Name;
+                    if (itemName.Contains("filters"))
+                        continue;
                     //get description content
                     var descriptionPath = address + "/description.md";
                     var description = await FTPHlprs.GetStringContent(descriptionPath);
                     if (itemName.ToLower().Contains(lowerFilter) || lowerFilter == string.Empty || description.ToLower().Contains(lowerFilter))
                     {
-                        if (!itemName.Contains("filters"))
-                            filteredItemAddress.Add(address);
+                        filteredItemAddress.Add(address);
                     }
                 }
                 //get info
@@ -4744,8 +4746,12 @@ namespace adrilight.ViewModel
                 {
                     foreach (var item in AvailableOnlineItems)
                     {
-                        var thumbPath = item.Path + "/thumb.png";
-                        item.Thumb = FTPHlprs.GetThumb(thumbPath).Result;
+                        if (item.AvatarType == OnlineItemAvatarTypeEnum.Image)
+                        {
+                            var thumbPath = item.Path + "/thumb.png";
+                            item.Thumb = FTPHlprs.GetThumb(thumbPath).Result;
+                        }
+
                     }
                 }
 
@@ -5073,7 +5079,6 @@ namespace adrilight.ViewModel
                 //Create directory to extract
                 Directory.CreateDirectory(CacheFolderPath);
                 //then extract
-                ClearCacheFolder();
                 ZipFile.ExtractToDirectory(path, CacheFolderPath);
                 var deviceJson = File.ReadAllText(Path.Combine(CacheFolderPath, fileName, "config.json"));
                 device = JsonConvert.DeserializeObject<DeviceSettings>(deviceJson);
@@ -5190,9 +5195,11 @@ namespace adrilight.ViewModel
         }
         public void ActivateCurrentLightingProfile(LightingProfile profile)
         {
-            var lightingMode = ObjectHelpers.Clone<LightingMode>(profile.ControlMode as LightingMode);
+            if (profile == null)
+                return;
             foreach (var device in AvailableDevices)
             {
+                var lightingMode = ObjectHelpers.Clone<LightingMode>(profile.ControlMode as LightingMode);
                 device.ActivateControlMode(lightingMode);
                 Log.Information("Lighting Profile Activated: " + profile.Name + " for " + device.DeviceName);
             }

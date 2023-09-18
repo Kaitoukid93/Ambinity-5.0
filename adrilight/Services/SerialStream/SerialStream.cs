@@ -552,7 +552,7 @@ namespace adrilight
                             if (DeviceSettings.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV2)
                                 fastLedTime = ((192) / 3.0 * 0.030d);
                             else
-                                fastLedTime = ((streamLength - _messagePreamble.Length) / 3.0 * 0.030d);
+                                fastLedTime = ((streamLength - _messagePreamble.Length - 6) / 3.0 * 0.030d);
                             var serialTransferTime = outputBuffer.Length * 10 * 1000 / baudRate;
                             var minTimespan = (int)(fastLedTime + serialTransferTime) + 1;
                             Thread.Sleep(minTimespan);
@@ -563,7 +563,6 @@ namespace adrilight
                 catch (OperationCanceledException)
                 {
                     Log.Error("OperationCanceledException catched. returning.");
-
                     return;
                 }
                 catch (Exception ex)
@@ -584,7 +583,7 @@ namespace adrilight
                     }
                     serialPort?.Dispose();
                     //allow the system some time to recover
-                    Thread.Sleep(500);
+                    Thread.Sleep(1000);
                     DeviceSettings.IsTransferActive = false;
                 }
                 finally

@@ -33,35 +33,40 @@ namespace adrilight.Ninject
             Bind<DBmanager>().ToSelf().InSingletonScope();
 
 
-
-            if (generalSettings.ScreenCapturingMethod == 0)
+            if (generalSettings.ScreenCapturingEnabled)
             {
-                if (osBuild == "22000" || osBuild == "22621")
+                if (generalSettings.ScreenCapturingMethod == 0)
                 {
-                    Log.Information("This is Windows 11 Machine, Injecting WCG", osBuild);
-                    Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope();
+                    if (osBuild == "22000" || osBuild == "22621")
+                    {
+                        Log.Information("This is Windows 11 Machine, Injecting WCG", osBuild);
+                        Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope();
+                    }
+                    else
+                    {
+                        Log.Information("This is Windows 10 Machine, Injecting DXGI", osBuild);
+                        Bind<ICaptureEngine>().To<DesktopFrameDXGI>().InSingletonScope();
+                    }
                 }
-                else
+                else if (generalSettings.ScreenCapturingMethod == 1) //DXGI
                 {
-                    Log.Information("This is Windows 10 Machine, Injecting DXGI", osBuild);
+                    Log.Information("Manual Capturing Method Selection, Injecting DXGI", osBuild);
                     Bind<ICaptureEngine>().To<DesktopFrameDXGI>().InSingletonScope();
                 }
-            }
-            else if (generalSettings.ScreenCapturingMethod == 1) //DXGI
-            {
-                Log.Information("Manual Capturing Method Selection, Injecting DXGI", osBuild);
-                Bind<ICaptureEngine>().To<DesktopFrameDXGI>().InSingletonScope();
-            }
-            else if (generalSettings.ScreenCapturingMethod == 2) //WGC
-            {
-                Log.Information("Manual Capturing Method Selection, Injecting WCG", osBuild);
-                Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope();
+                else if (generalSettings.ScreenCapturingMethod == 2) //WGC
+                {
+                    Log.Information("Manual Capturing Method Selection, Injecting WCG", osBuild);
+                    Bind<ICaptureEngine>().To<DesktopFrame>().InSingletonScope();
+                }
             }
 
 
 
 
-            Bind<ICaptureEngine>().To<AudioFrame>().InSingletonScope();
+            if (generalSettings.AudioCapturingEnabled)
+                Bind<ICaptureEngine>().To<AudioFrame>().InSingletonScope();
+
+
             Bind<RainbowTicker>().ToSelf().InSingletonScope();
         }
 

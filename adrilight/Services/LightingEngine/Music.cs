@@ -32,7 +32,10 @@ namespace adrilight.Services.LightingEngine
             CurrentZone = zone as LEDSetup ?? throw new ArgumentNullException(nameof(zone));
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             RainbowTicker = rainbowTicker ?? throw new ArgumentNullException(nameof(rainbowTicker));
-            AudioFrame = audioFrame.Where(c => c is AudioFrame).FirstOrDefault();
+            if (audioFrame != null && audioFrame.Count() > 0)
+            {
+                AudioFrame = audioFrame.Where(c => c is AudioFrame).FirstOrDefault();
+            }
             GeneralSettings.PropertyChanged += PropertyChanged;
             CurrentZone.PropertyChanged += PropertyChanged;
             MainViewViewModel.PropertyChanged += PropertyChanged;
@@ -299,6 +302,8 @@ namespace adrilight.Services.LightingEngine
 
         public void Refresh()
         {
+            if (AudioFrame == null)
+                return;
             if (CurrentZone.CurrentActiveControlMode == null)
             {
                 return;

@@ -38,6 +38,9 @@ namespace adrilight_shared.Settings
         private bool _isBlackBarDetectionEnabled = true;
         private bool _isPowerLimitEnabled = true;
         private bool _showOpenRGB = true;
+        private bool _screenCapturingEnabled = true;
+        private bool _audioCapturingEnabled = true;
+        private string _openRGBVersion = "0.90";
         public GeneralSettings()
         {
 
@@ -75,6 +78,9 @@ namespace adrilight_shared.Settings
         public bool IsInBetaChanel { get => _isInBetaChanel; set { Set(() => IsInBetaChanel, ref _isInBetaChanel, value); } }
         public AppUser CurrentAppUser { get => _currentAppUser; set { Set(() => CurrentAppUser, ref _currentAppUser, value); } }
         public int ScreenCapturingMethod { get => _screenCapturingMethod; set { Set(() => ScreenCapturingMethod, ref _screenCapturingMethod, value); } }
+        public bool ScreenCapturingEnabled { get => _screenCapturingEnabled; set { Set(() => ScreenCapturingEnabled, ref _screenCapturingEnabled, value); } }
+        public bool AudioCapturingEnabled { get => _audioCapturingEnabled; set { Set(() => AudioCapturingEnabled, ref _audioCapturingEnabled, value); } }
+        public string OpenRGBVersion { get => _openRGBVersion; set { Set(() => OpenRGBVersion, ref _openRGBVersion, value); } }
 
     }
 }

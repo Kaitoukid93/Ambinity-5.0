@@ -503,7 +503,7 @@
                         </GroupBox>
                         <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Tắt tùy chọn này nếu bạn gặp vấn đề với bộ gõ và HotKey"/>
                     </Grid>
-                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
+                    <hc:Divider Visibility="Collapsed"  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                     </hc:Divider>
                     <Grid Visibility="Collapsed" Name="OpenRGBEnable">
@@ -526,60 +526,207 @@
                         </GroupBox>
                         <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Tắt tùy chọn này nếu bạn không muốn đồng bộ các thiết bị OpenRGB"/>
                     </Grid>
-                  
-                    <Grid Name="CapturingMethod">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="auto"/>
-                            <RowDefinition Height="auto"/>
-                        </Grid.RowDefinitions>
-                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="200" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
-                            <GroupBox.HeaderTemplate>
-                                <DataTemplate>
-                                    <TextBlock FontWeight="SemiBold" Text="CAPTURING API"/>
-                                </DataTemplate>
-                            </GroupBox.HeaderTemplate>
 
-                            <Grid  HorizontalAlignment="Right" >
-
-                                <ComboBox Width="110" Margin="0,0,5,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Right"   SelectedIndex="{Binding GeneralSettings.ScreenCapturingMethod}"   Style="{StaticResource ComboBoxBaseStyle}">
-                                    <ComboBoxItem>
-                                        Automatic
-                                    </ComboBoxItem>
-                                    <ComboBoxItem>
-                                        DXGI
-                                    </ComboBoxItem>
-                                    <ComboBoxItem>
-                                        WGC(Windows10 1903 and up)
-                                    </ComboBoxItem>
-                                </ComboBox>
-                            </Grid>
-
-
-                        </GroupBox>
-                        <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" MaxWidth="400" TextWrapping="Wrap" Text="Thay đổi phương pháp capture màn hình nếu chế độ sáng theo màn hình không hoạt động, sau đó khởi động lại App"/>
-                    </Grid>
-                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
+                 
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                                 Margin="5,10,5,10">
 
                     </hc:Divider>
-                    <Grid Visibility="Visible" Name="MultipleScreen">
+                    <Grid Visibility="Visible"
+                          Name="screencaptureEnable">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="auto"/>
-                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
                         </Grid.RowDefinitions>
-                        <GroupBox   VerticalAlignment="Center"   hc:TitleElement.TitleWidth="200" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
+                        <GroupBox   VerticalAlignment="Center"
+                                    hc:TitleElement.TitleWidth="200"
+                                    Margin="5"
+                                    Style="{StaticResource GroupBoxOriginal}"
+                                    HorizontalAlignment="Stretch"
+                                    hc:TitleElement.TitlePlacement="Left">
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
-                                    <TextBlock FontWeight="SemiBold" Text="MULTIPLE SCREEN SUPPORT"/>
+                                    <TextBlock FontWeight="SemiBold"
+                                               Text="SCREEN CAPTURE ENABLE" />
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
-                            <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding GeneralSettings.IsMultipleScreenEnable}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
+                            <ToggleButton HorizontalAlignment="Right"
+                                          x:Name="screenCaptureEnable"
+                                          IsChecked="{Binding GeneralSettings.ScreenCapturingEnabled}"
+                                          Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
 
                             </ToggleButton>
 
 
                         </GroupBox>
-                        <TextBlock TextWrapping="Wrap" Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Cho phép capture nhiều hơn một màn hình, tắt đi nếu gặp lỗi khi dùng nhiều màn hình"/>
+                        <TextBlock TextWrapping="Wrap"
+                                   Margin="5,0,0,0"
+                                   HorizontalAlignment="Left"
+                                   Style="{StaticResource TextBlockDefaultSecLight}"
+                                   Grid.Row="1"
+                                   Text="Cho phép capture screen" />
+                    </Grid>
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                                 Margin="50,10,5,10">
+                        <hc:Divider.Style>
+                            <Style TargetType="hc:Divider"
+                                   BasedOn="{StaticResource DividerBaseStyle}">
+                                <Setter Property="Visibility"
+                                        Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=screenCaptureEnable,Path=IsChecked}"
+                                                 Value="True">
+                                        <Setter Property="Visibility"
+                                                Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </hc:Divider.Style>
+                    </hc:Divider>
+                    <Grid Margin="50,0,0,0">
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility"
+                                        Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=screenCaptureEnable,Path=IsChecked}"
+                                                 Value="True">
+                                        <Setter Property="Visibility"
+                                                Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <StackPanel>
+                            <Grid Name="CapturingMethod">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                </Grid.RowDefinitions>
+                                <GroupBox   VerticalAlignment="Center"
+                                            hc:TitleElement.TitleWidth="200"
+                                            Margin="5"
+                                            Style="{StaticResource GroupBoxOriginal}"
+                                            HorizontalAlignment="Stretch"
+                                            hc:TitleElement.TitlePlacement="Left">
+                                    <GroupBox.HeaderTemplate>
+                                        <DataTemplate>
+                                            <TextBlock FontWeight="SemiBold"
+                                                       Text="CAPTURING API" />
+                                        </DataTemplate>
+                                    </GroupBox.HeaderTemplate>
+
+                                    <Grid  HorizontalAlignment="Right">
+
+                                        <ComboBox Width="110"
+                                                  Margin="0,0,5,0"
+                                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                                  ItemContainerStyle="{StaticResource _ComboboxItemStyle}"
+                                                  HorizontalAlignment="Right"
+                                                  SelectedIndex="{Binding GeneralSettings.ScreenCapturingMethod}"
+                                                  Style="{StaticResource ComboBoxBaseStyle}">
+                                            <ComboBoxItem>
+                                                Automatic
+                                            </ComboBoxItem>
+                                            <ComboBoxItem>
+                                                DXGI
+                                            </ComboBoxItem>
+                                            <ComboBoxItem>
+                                                WGC(Windows10 1903 and up)
+                                            </ComboBoxItem>
+                                        </ComboBox>
+                                    </Grid>
+
+
+                                </GroupBox>
+                                <TextBlock Margin="5,0,0,0"
+                                           HorizontalAlignment="Left"
+                                           Style="{StaticResource TextBlockDefaultSecLight}"
+                                           Grid.Row="1"
+                                           MaxWidth="400"
+                                           TextWrapping="Wrap"
+                                           Text="Thay đổi phương pháp capture màn hình nếu chế độ sáng theo màn hình không hoạt động, sau đó khởi động lại App" />
+                            </Grid>
+                            <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                                         Margin="5,10,5,10">
+
+                            </hc:Divider>
+                            <Grid Visibility="Visible"
+                                  Name="MultipleScreen">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                </Grid.RowDefinitions>
+                                <GroupBox   VerticalAlignment="Center"
+                                            hc:TitleElement.TitleWidth="200"
+                                            Margin="5"
+                                            Style="{StaticResource GroupBoxOriginal}"
+                                            HorizontalAlignment="Stretch"
+                                            hc:TitleElement.TitlePlacement="Left">
+                                    <GroupBox.HeaderTemplate>
+                                        <DataTemplate>
+                                            <TextBlock FontWeight="SemiBold"
+                                                       Text="MULTIPLE SCREEN SUPPORT" />
+                                        </DataTemplate>
+                                    </GroupBox.HeaderTemplate>
+
+                                    <ToggleButton HorizontalAlignment="Right"
+                                                  IsChecked="{Binding GeneralSettings.IsMultipleScreenEnable}"
+                                                  Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
+
+                                    </ToggleButton>
+
+
+                                </GroupBox>
+                                <TextBlock TextWrapping="Wrap"
+                                           Margin="5,0,0,0"
+                                           HorizontalAlignment="Left"
+                                           Style="{StaticResource TextBlockDefaultSecLight}"
+                                           Grid.Row="1"
+                                           Text="Cho phép capture nhiều hơn một màn hình, tắt đi nếu gặp lỗi khi dùng nhiều màn hình" />
+                            </Grid>
+                        </StackPanel>
+                     
+
+                    </Grid>
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                                 Margin="5,10,5,10">
+
+                    </hc:Divider>
+                    <Grid Visibility="Visible"
+                          Name="audioCapture">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                        </Grid.RowDefinitions>
+                        <GroupBox   VerticalAlignment="Center"
+                                    hc:TitleElement.TitleWidth="200"
+                                    Margin="5"
+                                    Style="{StaticResource GroupBoxOriginal}"
+                                    HorizontalAlignment="Stretch"
+                                    hc:TitleElement.TitlePlacement="Left">
+                            <GroupBox.HeaderTemplate>
+                                <DataTemplate>
+                                    <TextBlock FontWeight="SemiBold"
+                                               Text="AUDIO CAPTURE" />
+                                </DataTemplate>
+                            </GroupBox.HeaderTemplate>
+
+                            <ToggleButton HorizontalAlignment="Right"
+                                          IsChecked="{Binding GeneralSettings.AudioCapturingEnabled}"
+                                          Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
+
+                            </ToggleButton>
+
+
+                        </GroupBox>
+                        <TextBlock TextWrapping="Wrap"
+                                   Margin="5,0,0,0"
+                                   HorizontalAlignment="Left"
+                                   Style="{StaticResource TextBlockDefaultSecLight}"
+                                   Grid.Row="1"
+                                   Text="Cho phép capture nhiều hơn một màn hình, tắt đi nếu gặp lỗi khi dùng nhiều màn hình" />
                     </Grid>
                     <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
@@ -901,7 +1048,17 @@
                                       Height="100" 
                                       Fill="{DynamicResource PrimaryTextBrush}"/>
                                 <TextBlock Margin="0,20,0,5" Style="{DynamicResource TextBlockLargeBold}" Text="Ambinity 5.0.8"></TextBlock>
-                                <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Release date : 14/9/2023_b"></TextBlock>
+                                <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Release date : 16/9/2023_a"></TextBlock>
+                                <StackPanel HorizontalAlignment="Center" Margin="0,0,0,0"
+                                            Orientation="Horizontal">
+                                    <TextBlock Margin="0,0,0,5"
+                                               Style="{DynamicResource TextBlockDefault}"
+                                               Text="OpenRGB Version : "></TextBlock>
+                                    <TextBlock Margin="0,0,0,5"
+                                               Style="{DynamicResource TextBlockDefault}"
+                                               Text="{Binding GeneralSettings.OpenRGBVersion}"></TextBlock>
+                                </StackPanel>
+                               
                                 <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="Credit :"></TextBlock>
                                 <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="fabsenet for DesktopDuplicator"></TextBlock>
                                 <TextBlock Margin="0,0,0,5" Style="{DynamicResource TextBlockDefault}" Text="HandyControl for awesome UI"></TextBlock>

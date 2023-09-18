@@ -38,6 +38,9 @@ namespace adrilight_shared.Settings
         int SystemMusicMaxTick { get; set; }
         int BreathingSpeed { get; set; }
         AppUser CurrentAppUser { get; set; }
+        string OpenRGBVersion { get; set; }
+        bool ScreenCapturingEnabled { get; set; }
+        bool AudioCapturingEnabled { get; set; }
 
     }
 }
