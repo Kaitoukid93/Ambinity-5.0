@@ -185,6 +185,7 @@
     <Compile Include="Models\ControlMode\ModeParameters\ListSelectionParameter.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\ParameterValues\MIDDataModel.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\ModeDirection.cs" />
+    <Compile Include="Models\ControlMode\ModeParameters\ParameterValues\BrushData.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\PreviewableContent.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\PreviewableContentEnum.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\DancingModeParameterValue.cs" />

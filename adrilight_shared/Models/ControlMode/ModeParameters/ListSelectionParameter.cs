@@ -315,6 +315,10 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
                         {
                             JsonHelpers.WriteSimpleJson(item, Path.Combine(collectionFolderPath, item.Name + ".col"));
                         }
+                        if (item is VIDDataModel)
+                        {
+                            JsonHelpers.WriteSimpleJson(item, Path.Combine(collectionFolderPath, item.Name + ".json"));
+                        }
                         break;
                     case DeserializeMethodEnum.Files:
                         if (item is Gif)

@@ -206,7 +206,10 @@ namespace adrilight_shared.Models.Device.Zone.Spot
 
         public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }
         public double Height { get => _height; set { Set(() => Height, ref _height, value); OnHeightUpdated(); } }
-
+        [JsonIgnore]
+        public double OffsetX { get; set; }
+        [JsonIgnore]
+        public double OffsetY { get; set; }
         public VisualProperties VisualProperties { get => _visualProperties; set { Set(() => VisualProperties, ref _visualProperties, value); } }
 
         public bool IsSelectable { get => _isSelectable; set { Set(() => IsSelectable, ref _isSelectable, value); } }

@@ -114,7 +114,7 @@ namespace adrilight.Services.OpenRGBService
         {
             IsInitializing = true;
 
-            if (!IsInitialized && GeneralSettings.IsOpenRGBEnabled) // Only run OpenRGB Stream if User enable OpenRGB Utilities in General Settings
+            if (!IsInitialized && GeneralSettings.IsOpenRGBEnabled && GeneralSettings.UsingOpenRGB) // Only run OpenRGB Stream if User enable OpenRGB Utilities in General Settings
             {
                 if (ORGBProcess == null)
                 {

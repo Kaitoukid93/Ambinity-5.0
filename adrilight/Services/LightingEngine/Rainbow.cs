@@ -154,13 +154,13 @@ namespace adrilight
             {
                 _vidDataControl.SubParams[0].IsEnabled = true;
                 _vidDataControl.SubParams[1].IsEnabled = false;
-                //generate VID for this zone here
                 GenerateVID(value);
             }
             else
             {
                 _vidDataControl.SubParams[0].IsEnabled = false;
                 _vidDataControl.SubParams[1].IsEnabled = true;
+                ApplyPredefinedVID(value);
             }
 
 
@@ -168,7 +168,9 @@ namespace adrilight
         private void OnVIDIntensityValueChanged(int value)
         {
             _vidIntensity = value;
-            GenerateVID(_vidDataControl.SelectedValue as VIDDataModel);
+            var currentVID = _vidDataControl.SelectedValue as VIDDataModel;
+            if (currentVID.ExecutionType == VIDType.PositonGeneratedID)
+                GenerateVID(_vidDataControl.SelectedValue as VIDDataModel);
         }
         private void OnBrightnessValueChanged(int value)
         {
@@ -465,6 +467,28 @@ namespace adrilight
 
 
             // new update, create free amount of color????
+        }
+        private void ApplyPredefinedVID(IParameterValue parameterValue)
+        {
+            var currentVIDData = parameterValue as VIDDataModel;
+            if (currentVIDData == null)
+                return;
+            CurrentZone.ResetVIDStage();
+
+            for (var i = 0; i < currentVIDData.DrawingPath.Count(); i++)
+            {
+                var vid = currentVIDData.DrawingPath[i].ID;
+                var brush = currentVIDData.DrawingPath[i].Brush;
+                if (Rect.Intersect(CurrentZone.GetRect, brush).IsEmpty)
+                    continue;
+                var intersectRect = Rect.Intersect(CurrentZone.GetRect, brush);
+                intersectRect.Offset(0 - CurrentZone.GetRect.Left, 0 - CurrentZone.GetRect.Top);
+                foreach (var spot in CurrentZone.Spots)
+                {
+                    spot.GetVIDIfNeeded(vid, intersectRect, 0);
+                }
+            }
+
         }
         private void GenerateVID(IParameterValue value)
         {

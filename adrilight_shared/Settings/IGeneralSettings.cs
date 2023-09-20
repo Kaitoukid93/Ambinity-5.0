@@ -41,6 +41,6 @@ namespace adrilight_shared.Settings
         string OpenRGBVersion { get; set; }
         bool ScreenCapturingEnabled { get; set; }
         bool AudioCapturingEnabled { get; set; }
-
+        bool UsingOpenRGB { get; set; }
     }
 }

@@ -578,6 +578,7 @@ namespace adrilight
                         catch (Exception ex2)
                         {
                             ///
+                            Thread.Sleep(1000);
                         }
 
                     }

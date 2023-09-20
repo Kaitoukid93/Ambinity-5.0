@@ -1,16 +1,15 @@
 ﻿<UserControl x:Class="adrilight.View.IDEditToolBarView"
-           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-           xmlns:hc="https://handyorg.github.io/handycontrol"
-           xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-           xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
-           xmlns:local ="clr-namespace:adrilight.View"
-           mc:Ignorable="d"
-           d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
-           DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
-          >
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
+             xmlns:local="clr-namespace:adrilight.View"
+             mc:Ignorable="d"
+             d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
+             DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -20,31 +19,38 @@
                     <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
                     <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
                     <converters:ToUpperValueConverter x:Key="toUpperValueConverter" />
-                    <SolidColorBrush x:Key="primaryBackgroundBrush" Color ="{Binding Color, Source={StaticResource PrimaryBrush}}" Opacity="0.5"/>
-                    <Style x:Key="_listBoxVisualizerItemContainerStyle" TargetType="ListBoxItem">
+                    <SolidColorBrush x:Key="primaryBackgroundBrush"
+                                     Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
+                                     Opacity="0.5" />
+                    <Style x:Key="_listBoxVisualizerItemContainerStyle"
+                           TargetType="ListBoxItem">
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="ListBoxItem">
                                     <Border Name="_Border"
-                                Padding="0"
-                                Margin="0"
-                                Effect="{DynamicResource EffectShadow1}"
-                                Background="Transparent"   
-                                BorderBrush="{StaticResource DarkMaskBrush}"
-                                BorderThickness="0"
-                                SnapsToDevicePixels="true">
+                                            Padding="0"
+                                            Margin="0"
+                                            Effect="{DynamicResource EffectShadow1}"
+                                            Background="Transparent"
+                                            BorderBrush="{StaticResource DarkMaskBrush}"
+                                            BorderThickness="0"
+                                            SnapsToDevicePixels="true">
                                         <ContentPresenter />
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <MultiTrigger>
                                             <MultiTrigger.Conditions>
-                                                <Condition Property="Selector.IsSelectionActive" Value="True"/>
-                                                <Condition Property="IsSelected" Value="True"/>
+                                                <Condition Property="Selector.IsSelectionActive"
+                                                           Value="True" />
+                                                <Condition Property="IsSelected"
+                                                           Value="True" />
                                             </MultiTrigger.Conditions>
 
 
                                             <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}"/>-->
-                                            <Setter Property="Background" TargetName="_Border" Value="{DynamicResource PrimaryBrush }"/>
+                                            <Setter Property="Background"
+                                                    TargetName="_Border"
+                                                    Value="{DynamicResource PrimaryBrush }" />
 
 
 
@@ -52,21 +58,29 @@
 
                                         <MultiTrigger>
                                             <MultiTrigger.Conditions>
-                                                <Condition Property="Selector.IsSelectionActive" Value="False"/>
-                                                <Condition Property="IsSelected" Value="True"/>
+                                                <Condition Property="Selector.IsSelectionActive"
+                                                           Value="False" />
+                                                <Condition Property="IsSelected"
+                                                           Value="True" />
                                             </MultiTrigger.Conditions>
 
 
-                                            <Setter Property="Background" TargetName="_Border" Value="{DynamicResource PrimaryBrush }"/>
+                                            <Setter Property="Background"
+                                                    TargetName="_Border"
+                                                    Value="{DynamicResource PrimaryBrush }" />
                                             <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
                                         </MultiTrigger>
                                         <MultiTrigger>
                                             <MultiTrigger.Conditions>
-                                                <Condition Property="IsMouseOver" Value="True"/>
-                                                <Condition Property="IsSelected" Value="False"/>
+                                                <Condition Property="IsMouseOver"
+                                                           Value="True" />
+                                                <Condition Property="IsSelected"
+                                                           Value="False" />
                                             </MultiTrigger.Conditions>
 
-                                            <Setter Property="Background" TargetName="_Border" Value="{DynamicResource PrimaryBrush}"/>
+                                            <Setter Property="Background"
+                                                    TargetName="_Border"
+                                                    Value="{DynamicResource PrimaryBrush}" />
 
                                             <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
 
@@ -76,10 +90,13 @@
                             </Setter.Value>
                         </Setter>
 
-                        <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+                        <Setter Property="Foreground"
+                                Value="{StaticResource PrimaryTextBrush}" />
                         <Style.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}" />
+                            <Trigger Property="IsSelected"
+                                     Value="True">
+                                <Setter Property="Foreground"
+                                        Value="{StaticResource PrimaryBrush}" />
                             </Trigger>
                         </Style.Triggers>
 
@@ -87,14 +104,15 @@
                     <DataTemplate x:Key="_vidToolBar">
                         <Grid>
                             <StackPanel>
-                                <Border Background="{DynamicResource MainContentBackgroundBrush}" CornerRadius="7" BorderThickness="1">
-                                    <ListBox
-                              ItemContainerStyle="{DynamicResource _listBoxVerticalToolBarStyle}"  
-                              ItemsSource="{Binding AvailableTools}"
-                              SelectedIndex="{Binding SelectedToolIndex,Mode=TwoWay}"
-                              Background="Transparent"
-                              BorderThickness="0"
-                              Style="{DynamicResource WrapPanelVerticalListBox}">
+                                <Border Background="{DynamicResource MainContentBackgroundBrush}"
+                                        CornerRadius="7"
+                                        BorderThickness="1">
+                                    <ListBox ItemContainerStyle="{DynamicResource _listBoxVerticalToolBarStyle}"
+                                             ItemsSource="{Binding AvailableTools}"
+                                             SelectedIndex="{Binding SelectedToolIndex,Mode=TwoWay}"
+                                             Background="Transparent"
+                                             BorderThickness="0"
+                                             Style="{DynamicResource WrapPanelVerticalListBox}">
 
                                         <ListBox.ItemsPanel>
                                             <ItemsPanelTemplate>
@@ -106,42 +124,83 @@
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
                                                 <Grid>
-                                                    <Path ToolTip="{Binding Name}" Stretch="Uniform" Margin="0" Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}" 
-                                                          Width="20" 
-                                                          Height="20" 
-                                                          Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"/>
+                                                    <Path ToolTip="{Binding Name}"
+                                                          Stretch="Uniform"
+                                                          Margin="0"
+                                                          Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
+                                                          Width="20"
+                                                          Height="20"
+                                                          Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" />
                                                 </Grid>
                                             </DataTemplate>
                                         </ListBox.ItemTemplate>
                                     </ListBox>
                                 </Border>
-                                <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,5,5,5">
+                                <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}"
+                                            Margin="5,5,5,5">
 
                                 </hc:Divider>
 
-                                <Button hc:BorderElement.CornerRadius="2" Style="{DynamicResource _defaultIconButton}" Command="{Binding ResetAllItemsIDCommand}" ToolTip="Reset Brush ID" Width="40" Height="40" Margin="5" hc:IconElement.Width="20" hc:IconElement.Height="20" Padding="4" hc:IconElement.Geometry="{DynamicResource DeleteFillCircleGeometry}"/>
-
+                                <Button hc:BorderElement.CornerRadius="2"
+                                        Style="{DynamicResource _defaultIconButton}"
+                                        Command="{Binding ResetAllItemsIDCommand}"
+                                        ToolTip="Reset Brush ID"
+                                        Width="40"
+                                        Height="40"
+                                        Margin="5"
+                                        hc:IconElement.Width="20"
+                                        hc:IconElement.Height="20"
+                                        Padding="4"
+                                        hc:IconElement.Geometry="{DynamicResource DeleteFillCircleGeometry}" />
+                                <Button hc:BorderElement.CornerRadius="2"
+                                        Style="{DynamicResource _defaultIconButton}"
+                                        Command="{Binding OpenCreateNewVIDWindowCommand}"
+                                        ToolTip="Reset Brush ID"
+                                        Width="40"
+                                        Height="40"
+                                        Margin="5"
+                                        hc:IconElement.Width="20"
+                                        hc:IconElement.Height="20"
+                                        Padding="4"
+                                        hc:IconElement.Geometry="{DynamicResource newfile}" />
                             </StackPanel>
                         </Grid>
                     </DataTemplate>
                     <DataTemplate x:Key="_midToolBar">
-                        <Grid >
+                        <Grid>
                             <StackPanel>
                                 <Grid>
-                                    <GroupBox Margin="10"   HorizontalContentAlignment="Left"  Style="{StaticResource GroupBoxOriginal}"  hc:TitleElement.TitlePlacement="Left">
+                                    <GroupBox Margin="10"
+                                              HorizontalContentAlignment="Left"
+                                              Style="{StaticResource GroupBoxOriginal}"
+                                              hc:TitleElement.TitlePlacement="Left">
                                         <GroupBox.HeaderTemplate>
                                             <DataTemplate>
                                                 <StackPanel>
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="auto"/>
-                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="auto" />
+                                                            <ColumnDefinition Width="*" />
                                                         </Grid.ColumnDefinitions>
 
-                                                        <TextBlock HorizontalAlignment="Left"  FontWeight="SemiBold" Text="HƯỚNG DẪN SỬ DỤNG"/>
-                                                        <Button ToolTip="Tìm hiểu thêm" Grid.Column="1" HorizontalAlignment="Left"  Background="Transparent" Margin="10,0,0,0" hc:IconElement.Geometry="{DynamicResource infoCircle}" Style="{DynamicResource _defaultIconButtonSmall}"/>
+                                                        <TextBlock HorizontalAlignment="Left"
+                                                                   FontWeight="SemiBold"
+                                                                   Text="HƯỚNG DẪN SỬ DỤNG" />
+                                                        <Button ToolTip="Tìm hiểu thêm"
+                                                                Grid.Column="1"
+                                                                HorizontalAlignment="Left"
+                                                                Background="Transparent"
+                                                                Margin="10,0,0,0"
+                                                                hc:IconElement.Geometry="{DynamicResource infoCircle}"
+                                                                Style="{DynamicResource _defaultIconButtonSmall}" />
                                                     </Grid>
-                                                    <TextBlock MaxWidth="400" Margin="0,5,0,0" TextWrapping="Wrap"  HorizontalAlignment="Stretch" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="- Chọn một đối tượng (Zone) ở bên phải (click chuột trái) sau đó chọn vào cột tần số mà bạn muốn đặt cho đối tượng đó"/>
+                                                    <TextBlock MaxWidth="400"
+                                                               Margin="0,5,0,0"
+                                                               TextWrapping="Wrap"
+                                                               HorizontalAlignment="Stretch"
+                                                               Style="{StaticResource TextBlockDefaultSecLight}"
+                                                               Grid.Row="1"
+                                                               Text="- Chọn một đối tượng (Zone) ở bên phải (click chuột trái) sau đó chọn vào cột tần số mà bạn muốn đặt cho đối tượng đó" />
                                                 </StackPanel>
                                             </DataTemplate>
                                         </GroupBox.HeaderTemplate>
@@ -150,22 +209,41 @@
 
 
                                 <!--FrequencyPicker-->
-                                <hc:Divider Margin="0"  LineStroke="{DynamicResource RegionBrush}">
+                                <hc:Divider Margin="0"
+                                            LineStroke="{DynamicResource RegionBrush}">
 
                                 </hc:Divider>
                                 <Grid>
-                                    <ListBox Margin="10" SelectedIndex="{Binding CountMID,Mode=TwoWay}" Background="Transparent" BorderThickness="0" ItemContainerStyle="{DynamicResource _listBoxVisualizerItemContainerStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding CurrentVisualizer.Columns}">
+                                    <ListBox Margin="10"
+                                             SelectedIndex="{Binding CountMID,Mode=TwoWay}"
+                                             Background="Transparent"
+                                             BorderThickness="0"
+                                             ItemContainerStyle="{DynamicResource _listBoxVisualizerItemContainerStyle}"
+                                             HorizontalAlignment="Stretch"
+                                             VerticalAlignment="Stretch"
+                                             ItemsSource="{Binding CurrentVisualizer.Columns}">
                                         <ListBox.ItemsPanel>
                                             <ItemsPanelTemplate>
-                                                <UniformGrid Columns="32" Rows="1"/>
+                                                <UniformGrid Columns="32"
+                                                             Rows="1" />
                                             </ItemsPanelTemplate>
                                         </ListBox.ItemsPanel>
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
-                                                <ProgressBar Width="9" Minimum="0" Maximum="255" Margin="2" Style="{DynamicResource ProgressBarFlat}" Foreground="{DynamicResource primaryBackgroundBrush}" Background="{DynamicResource SecondaryRegionBrush}" Height="100" Orientation="Vertical" Value="{Binding Value,Mode=TwoWay}">
+                                                <ProgressBar Width="9"
+                                                             Minimum="0"
+                                                             Maximum="255"
+                                                             Margin="2"
+                                                             Style="{DynamicResource ProgressBarFlat}"
+                                                             Foreground="{DynamicResource primaryBackgroundBrush}"
+                                                             Background="{DynamicResource SecondaryRegionBrush}"
+                                                             Height="100"
+                                                             Orientation="Vertical"
+                                                             Value="{Binding Value,Mode=TwoWay}">
                                                     <i:Interaction.Triggers>
                                                         <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
-                                                            <i:InvokeCommandAction Command="{Binding DataContext.SetZoneMIDCommand,RelativeSource={RelativeSource AncestorType={x:Type local:IDEditToolBarView}}}" CommandParameter="{Binding Index}" />
+                                                            <i:InvokeCommandAction Command="{Binding DataContext.SetZoneMIDCommand,RelativeSource={RelativeSource AncestorType={x:Type local:IDEditToolBarView}}}"
+                                                                                   CommandParameter="{Binding Index}" />
                                                         </i:EventTrigger>
                                                     </i:Interaction.Triggers>
                                                 </ProgressBar>
@@ -174,18 +252,24 @@
                                     </ListBox>
                                 </Grid>
                                 <Grid>
-                                    <TextBlock Margin="10,0,10,10" Text="{Binding CurrentVisualizer.Name }"/>
+                                    <TextBlock Margin="10,0,10,10"
+                                               Text="{Binding CurrentVisualizer.Name }" />
                                 </Grid>
                             </StackPanel>
                         </Grid>
                     </DataTemplate>
-                    <Style x:Key="_toolBarStyle" TargetType="{x:Type ContentControl}">
+                    <Style x:Key="_toolBarStyle"
+                           TargetType="{x:Type ContentControl}">
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IdEditMode,Mode=TwoWay}" Value="0">
-                                <Setter Property="ContentTemplate" Value="{StaticResource _vidToolBar}" />
+                            <DataTrigger Binding="{Binding IdEditMode,Mode=TwoWay}"
+                                         Value="0">
+                                <Setter Property="ContentTemplate"
+                                        Value="{StaticResource _vidToolBar}" />
                             </DataTrigger>
-                            <DataTrigger Binding="{Binding IdEditMode,Mode=TwoWay}" Value="1">
-                                <Setter Property="ContentTemplate" Value="{StaticResource _midToolBar}" />
+                            <DataTrigger Binding="{Binding IdEditMode,Mode=TwoWay}"
+                                         Value="1">
+                                <Setter Property="ContentTemplate"
+                                        Value="{StaticResource _midToolBar}" />
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -197,7 +281,8 @@
     </UserControl.Resources>
 
     <Grid>
-        <ContentControl Content="{Binding .,UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource _toolBarStyle}"/>
+        <ContentControl Content="{Binding .,UpdateSourceTrigger=PropertyChanged}"
+                        Style="{StaticResource _toolBarStyle}" />
     </Grid>
 
 </UserControl>

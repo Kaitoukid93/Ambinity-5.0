@@ -41,6 +41,7 @@ namespace adrilight_shared.Settings
         private bool _screenCapturingEnabled = true;
         private bool _audioCapturingEnabled = true;
         private string _openRGBVersion = "0.90";
+        private bool _usingOpenRGB = true;
         public GeneralSettings()
         {
 
@@ -80,6 +81,7 @@ namespace adrilight_shared.Settings
         public int ScreenCapturingMethod { get => _screenCapturingMethod; set { Set(() => ScreenCapturingMethod, ref _screenCapturingMethod, value); } }
         public bool ScreenCapturingEnabled { get => _screenCapturingEnabled; set { Set(() => ScreenCapturingEnabled, ref _screenCapturingEnabled, value); } }
         public bool AudioCapturingEnabled { get => _audioCapturingEnabled; set { Set(() => AudioCapturingEnabled, ref _audioCapturingEnabled, value); } }
+        public bool UsingOpenRGB { get => _usingOpenRGB; set { Set(() => UsingOpenRGB, ref _usingOpenRGB, value); } }
         public string OpenRGBVersion { get => _openRGBVersion; set { Set(() => OpenRGBVersion, ref _openRGBVersion, value); } }
 
     }

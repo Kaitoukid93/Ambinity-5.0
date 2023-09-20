@@ -246,8 +246,10 @@ namespace adrilight.ViewModel
             }
         }
         public ICommand CreateNewLightingProfileCommand { get; set; }
+        public ICommand CreateNewVIDCommand { get; set; }
         public ICommand DeleteSelectedLightingProfileCommand { get; set; }
         public ICommand OpenCreateNewLightingProfileWindowCommand { get; set; }
+        public ICommand OpenCreateNewVIDWindowCommand { get; set; }
         public ICommand ActivateCurrentLightingProfileCommand { get; set; }
         public ICommand SaveDeviceInformationToDiskCommand { get; set; }
         public ICommand ImportDeviceFromFileCommand { get; set; }
@@ -1466,7 +1468,10 @@ namespace adrilight.ViewModel
 
                     //await Task.Delay(TimeSpan.FromSeconds(2));
                     lock (device)
+                    {
                         WriteDeviceInfo(device);
+                    }
+
 
                     lock (AvailableDeviceLock)
                     {
@@ -2710,6 +2715,14 @@ namespace adrilight.ViewModel
                 CreateNewLightingProfile();
             }
             );
+            CreateNewVIDCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                SaveVID();
+            }
+            );
             DeleteSelectedLightingProfileCommand = new RelayCommand<LightingProfile>((p) =>
             {
                 return true;
@@ -2726,6 +2739,14 @@ namespace adrilight.ViewModel
                 OpenCreateNewLightingProfileWindow();
             }
             );
+            OpenCreateNewVIDWindowCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                OpenCreateNewVIDWindow();
+            }
+          );
             OpenProfileCreateCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -9585,7 +9606,6 @@ namespace adrilight.ViewModel
             RegisterBrush(IDEditBrush);
             RegisterBrush(EraserBrush);
         }
-
         private void DrawVID(IDrawable brush)
         {
             //check if brush has moved more than 10 unit, consider as update interval
@@ -9621,6 +9641,7 @@ namespace adrilight.ViewModel
                                     break;
                             }
                         }
+
                     }
                 }
                 if (settedVIDCount > 0)
@@ -9640,7 +9661,80 @@ namespace adrilight.ViewModel
                 }
             }
         }
+        public VIDDataModel CurrentExportingVID { get; set; }
+        private string _vidName = "New VID";
 
+        public string VIDName {
+            get
+            {
+                return _vidName;
+            }
+
+            set
+            {
+                _vidName = value;
+
+                RaisePropertyChanged();
+            }
+        }
+        private string _vidDescription;
+
+        public string VIDDescription {
+            get
+            {
+                return _vidDescription;
+            }
+
+            set
+            {
+                _vidDescription = value;
+
+                RaisePropertyChanged();
+            }
+        }
+        private void OpenCreateNewVIDWindow()
+        {
+            var createNewVIDWindow = new AddNewVIDWindow();
+            createNewVIDWindow.Owner = System.Windows.Application.Current.MainWindow;
+            createNewVIDWindow.ShowDialog();
+        }
+        private void SaveVID()
+        {
+            var isValid = LiveViewItems != null && LiveViewItems.Any(i => i is LEDSetup);
+            if (!isValid)
+                return;
+            CurrentExportingVID = new VIDDataModel();
+            CurrentExportingVID.Name = VIDName;
+            CurrentExportingVID.Description = VIDDescription;
+            CurrentExportingVID.ExecutionType = VIDType.PredefinedID;
+            //get drawing path
+            //sort current drawing board spot by ID
+            //foreach spot, save ID and rect
+            var liveViewSpots = new List<IDeviceSpot>();
+            foreach (var zone in LiveViewItems.Where(z => z is LEDSetup))
+            {
+                (zone as LEDSetup).Spots.ToList().ForEach(s =>
+                {
+                    (s as DeviceSpot).OffsetX = zone.GetRect.Left;
+                    (s as DeviceSpot).OffsetY = zone.GetRect.Top;
+                    liveViewSpots.Add(s);
+
+                });
+            }
+            var reorderdLiveViewSpots = liveViewSpots.OrderBy(s => s.VID).ToList();
+            CurrentExportingVID.DrawingPath = new BrushData[reorderdLiveViewSpots.Count];
+            var spotCount = 0;
+            foreach (DeviceSpot spot in reorderdLiveViewSpots)
+            {
+                var spotAbsoluteLocation = new Rect(spot.GetRect.Left, spot.GetRect.Top, spot.GetRect.Width, spot.GetRect.Height);
+                spotAbsoluteLocation.Offset(spot.OffsetX, spot.OffsetY);
+                CurrentExportingVID.DrawingPath[spotCount++] = new BrushData(spot.VID, spotAbsoluteLocation);
+            }
+            var currentParam = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.VID).FirstOrDefault() as ListSelectionParameter;
+            if (currentParam == null)
+                return;
+            currentParam.AddItemToCollection(CurrentExportingVID);
+        }
         private void RegisterBrush(IDrawable brush)
         {
             brush.PropertyChanged += async (_, __) =>

@@ -8,6 +8,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
         public string Name { get; set; }
         public string Description { get; set; }
         public VIDType ExecutionType { get; set; }
+        public BrushData[] DrawingPath { get; set; }
         public string Geometry { get; set; }
         public VIDDirrection Dirrection { get; set; }
         private bool _isChecked = false;

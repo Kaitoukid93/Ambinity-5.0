@@ -25,14 +25,18 @@ namespace adrilight.Services.DeviceDiscoveryServices
         {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
             Context = context ?? throw new ArgumentNullException(nameof(context));
-            AmbinityClient = ambinityClient as AmbinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
-            AmbinityClient.PropertyChanged += (_, __) =>
+            if (Settings.UsingOpenRGB)
             {
-                if (__.PropertyName == nameof(AmbinityClient.IsInitialized))
+                AmbinityClient = ambinityClient as AmbinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
+                AmbinityClient.PropertyChanged += (_, __) =>
                 {
-                    AmbinityClientStateChanged();
-                }
-            };
+                    if (__.PropertyName == nameof(AmbinityClient.IsInitialized))
+                    {
+                        AmbinityClientStateChanged();
+                    }
+                };
+            }
+
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             MainViewViewModel.AvailableDevices.CollectionChanged += (_, __) => DeviceCollectionChanged();
             SerialDeviceDetector = new SerialDeviceDetection(MainViewViewModel.AvailableDevices.Where(p => p.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.Wired).ToList());
@@ -91,7 +95,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
                     {
                         // openRGB device scan only run once at startup
                         var openRGBDevices = (new List<IDeviceSettings>(), new List<string>());
-                        if (Settings.IsOpenRGBEnabled && !_openRGBIsInit)
+                        if (Settings.IsOpenRGBEnabled && !_openRGBIsInit && Settings.UsingOpenRGB)
                         {
                             openRGBDevices = await ScanOpenRGBDevices();
                         }
