@@ -1,5 +1,6 @@
 ﻿using adrilight_shared.Enums;
 using GalaSoft.MvvmLight;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace adrilight_shared.Models.ControlMode.ModeParameters
@@ -25,6 +26,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
         private bool _isEnabled = true;
         private List<string> _availableValue;
         public string Name { get; set; }
+        [JsonIgnore]
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); } }
         public ModeParameterTemplateEnum Template { get; set; }
         public string Description { get; set; }

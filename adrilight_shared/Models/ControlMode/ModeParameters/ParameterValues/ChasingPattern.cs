@@ -19,6 +19,9 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
         public string Description { get; set; }
         public Tick Tick { get => _tick; set { Set(() => Tick, ref _tick, value); } }
         private bool _isChecked = false;
+        private bool _isDeleteable = true;
+        [JsonIgnore]
+        public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsChecked, ref _isDeleteable, value); } }
         [JsonIgnore]
         public bool IsChecked { get => _isChecked; set { Set(() => IsChecked, ref _isChecked, value); } }
         public string LocalPath { get; set; }

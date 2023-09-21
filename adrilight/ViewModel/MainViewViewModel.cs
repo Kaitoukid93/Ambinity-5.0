@@ -8700,24 +8700,28 @@ namespace adrilight.ViewModel
                 var vidCollection = new List<VIDDataModel>();
                 var lef2Right = new VIDDataModel() {
                     Name = "Trái sang phải",
+                    IsDeleteable = false,
                     Description = "Màu chạy từ trái sang phải",
                     ExecutionType = VIDType.PositonGeneratedID,
                     Dirrection = VIDDirrection.left2right
                 };
                 var right2Left = new VIDDataModel() {
                     Name = "Phải sang trái",
+                    IsDeleteable = false,
                     Description = "Màu chạy từ phải sang trái",
                     ExecutionType = VIDType.PositonGeneratedID,
                     Dirrection = VIDDirrection.right2left
                 };
                 var up2Down = new VIDDataModel() {
                     Name = "Trên xuống dưới",
+                    IsDeleteable = false,
                     Description = "Màu chạy từ trên xuống dưới",
                     ExecutionType = VIDType.PositonGeneratedID,
                     Dirrection = VIDDirrection.top2bot
                 };
                 var down2Up = new VIDDataModel() {
                     Name = "Dưới lên trên",
+                    IsDeleteable = false,
                     Description = "Màu chạy từ dưới lên trên",
                     ExecutionType = VIDType.PositonGeneratedID,
                     Dirrection = VIDDirrection.bot2top
@@ -8728,16 +8732,10 @@ namespace adrilight.ViewModel
                     ExecutionType = VIDType.PositonGeneratedID,
                     Dirrection = VIDDirrection.linear
                 };
-                var custom = new VIDDataModel() {
-                    Name = "Custom",
-                    Description = "Drawing Custom Path",
-                    ExecutionType = VIDType.PredefinedID
-                };
                 vidCollection.Add(lef2Right);
                 vidCollection.Add(right2Left);
                 vidCollection.Add(up2Down);
                 vidCollection.Add(down2Up);
-                vidCollection.Add(custom);
                 vidCollection.Add(linear);
                 foreach (var vid in vidCollection)
                 {

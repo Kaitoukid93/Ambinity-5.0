@@ -153,13 +153,13 @@ namespace adrilight
             if (vid.ExecutionType == VIDType.PositonGeneratedID)
             {
                 _vidDataControl.SubParams[0].IsEnabled = true;
-                _vidDataControl.SubParams[1].IsEnabled = false;
+                //_vidDataControl.SubParams[1].IsEnabled = false;
                 GenerateVID(value);
             }
             else
             {
                 _vidDataControl.SubParams[0].IsEnabled = false;
-                _vidDataControl.SubParams[1].IsEnabled = true;
+                // _vidDataControl.SubParams[1].IsEnabled = true;
                 ApplyPredefinedVID(value);
             }
 
@@ -472,6 +472,8 @@ namespace adrilight
         {
             var currentVIDData = parameterValue as VIDDataModel;
             if (currentVIDData == null)
+                return;
+            if (currentVIDData.DrawingPath == null)
                 return;
             CurrentZone.ResetVIDStage();
 

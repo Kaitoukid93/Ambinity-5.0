@@ -164,6 +164,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
                                         {
                                             var vidData = DeserializeFromStream<VIDDataModel>(stream);
                                             vidData.LocalPath = file;
+                                            vidData.IsDeleteable = vidData.ExecutionType == VIDType.PositonGeneratedID ? false : true;
                                             vidData.InfoPath = Path.Combine(infoPath, Path.GetFileNameWithoutExtension(file) + ".info");
                                             vidData.PropertyChanged += (_, __) =>
                                             {

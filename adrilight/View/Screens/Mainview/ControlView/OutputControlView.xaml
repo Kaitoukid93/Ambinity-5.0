@@ -1139,21 +1139,46 @@
                                                                                                Style="{DynamicResource TextBlockDefault}"
                                                                                                Text="{Binding Name}" />
                                                                                 </Border>
-                                                                                <!--<CheckBox IsChecked="{Binding IsChecked}" Margin="2" Background="{DynamicResource PrimaryBrush}" BorderThickness="0" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                                                                <CheckBox IsChecked="{Binding IsChecked}"
+                                                                                          Margin="2"
+                                                                                          Background="{DynamicResource PrimaryBrush}"
+                                                                                          BorderThickness="0"
+                                                                                          HorizontalAlignment="Right"
+                                                                                          VerticalAlignment="Top">
                                                                                     <CheckBox.Style>
-                                                                                        <Style TargetType="CheckBox" BasedOn="{StaticResource CheckBoxBaseStyle}">
-                                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                        <Style TargetType="CheckBox"
+                                                                                               BasedOn="{StaticResource CheckBoxBaseStyle}">
+                                                                                            <Setter Property="Visibility"
+                                                                                                    Value="Collapsed" />
                                                                                             <Style.Triggers>
-                                                                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid,AncestorLevel=1}, Path=IsMouseOver}" Value="True">
-                                                                                                    <Setter Property="Visibility" Value="Visible" />
-                                                                                                </DataTrigger>
-                                                                                                <DataTrigger Binding="{Binding IsChecked}" Value="True">
-                                                                                                    <Setter Property="Visibility" Value="Visible" />
-                                                                                                </DataTrigger>
+                                                                                                <MultiDataTrigger>
+                                                                                                    <MultiDataTrigger.Conditions>
+                                                                                                        <Condition Binding="{Binding IsDeleteable}"
+                                                                                                                   Value="True" />
+                                                                                                        <Condition Binding="{Binding IsChecked}"
+                                                                                                                   Value="True" />
+                                                                                                    </MultiDataTrigger.Conditions>
+
+                                                                                                    <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}" />-->
+                                                                                                    <Setter Property="Visibility"
+                                                                                                            Value="Visible" />
+                                                                                                </MultiDataTrigger>
+                                                                                                <MultiDataTrigger>
+                                                                                                    <MultiDataTrigger.Conditions>
+                                                                                                        <Condition Binding="{Binding IsDeleteable}"
+                                                                                                                   Value="True" />
+                                                                                                        <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid,AncestorLevel=1}, Path=IsMouseOver}"
+                                                                                                                   Value="True" />
+                                                                                                    </MultiDataTrigger.Conditions>
+
+                                                                                                    <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}" />-->
+                                                                                                    <Setter Property="Visibility"
+                                                                                                            Value="Visible" />
+                                                                                                </MultiDataTrigger>
                                                                                             </Style.Triggers>
                                                                                         </Style>
                                                                                     </CheckBox.Style>
-                                                                                </CheckBox>-->
+                                                                                </CheckBox>
                                                                             </Grid>
                                                                         </DataTemplate>
                                                                         <DataTemplate DataType="{x:Type parameterValues:MIDDataModel}">
@@ -1441,7 +1466,9 @@
                                                             CommandParameter="save"
                                                             BorderThickness="0"
                                                             Content="Save as" />
-                                                    <hc:Divider Margin="0" Orientation="Vertical"  LineStroke="{StaticResource RegionBrush}">
+                                                    <hc:Divider Margin="0"
+                                                                Orientation="Vertical"
+                                                                LineStroke="{StaticResource RegionBrush}">
                                                     </hc:Divider>
                                                     <Button Background="Transparent"
                                                             BorderThickness="0"
