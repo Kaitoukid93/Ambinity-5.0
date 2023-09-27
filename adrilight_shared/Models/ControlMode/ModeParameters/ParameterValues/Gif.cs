@@ -5,6 +5,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 
@@ -41,26 +42,63 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
         public string InfoPath { get; set; }
         [JsonIgnore]
         public object Lock { get; } = new object();
-        private GifBitmapDecoder Decoder { get; set; }
+        private GifBitmapDecoder Decoder;
+        private CancellationTokenSource cancellationTokenSource;
+        private bool _isRunning;
         /// <summary>
         /// this function play gif single time
         /// </summary>
         public async Task PlayGif()
         {
+
+            if (_isRunning)
+                return;
             if (!File.Exists(LocalPath))
                 return;
-            if (Decoder == null)
+            Stream imageStreamSource = new FileStream(LocalPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            Decoder = new GifBitmapDecoder(imageStreamSource, BitmapCreateOptions.IgnoreColorProfile, BitmapCacheOption.OnLoad);
+            Bitmap = Decoder.Frames[0];
+            Bitmap.Freeze();
+            cancellationTokenSource = new CancellationTokenSource(5000);
+            try
             {
-                InitGif();
+                await RunGif(cancellationTokenSource.Token, Decoder);
+            }
+            catch (TaskCanceledException ex)
+            {
+                // Console.WriteLine($"{ex.Message}");
             }
 
-            for (int i = 0; i < Decoder.Frames.Count; i++)
-            {
-                Decoder.Frames[i].Freeze();
-                Bitmap = Decoder.Frames[i];
-                await (Task.Delay(TimeSpan.FromMilliseconds(30)));
-            }
 
+        }
+        private async Task RunGif(CancellationToken token, GifBitmapDecoder decoder)
+        {
+            _isRunning = true;
+            int frameCounter = 0;
+            try
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    decoder.Frames[frameCounter].Freeze();
+                    Bitmap = decoder.Frames[frameCounter];
+                    await (Task.Delay(TimeSpan.FromMilliseconds(30)));
+                    if (frameCounter < decoder.Frames.Count)
+                        frameCounter++;
+                    if (frameCounter == decoder.Frames.Count)
+                        frameCounter = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            finally
+            {
+                Bitmap = null;
+                decoder = null;
+                GC.Collect();
+
+            }
         }
         /// <summary>
         /// this function return original first gif image
@@ -68,18 +106,15 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
         public void DisposeGif()
         {
             // Decoder
+            _isRunning = false;
+            cancellationTokenSource.Cancel();
+            cancellationTokenSource = null;
+            Decoder = null;
+            GC.Collect();
         }
         /// <summary>
         /// this function load static image to display
         /// </summary>
-        public void InitGif()
-        {
-
-            Stream imageStreamSource = new FileStream(LocalPath, FileMode.Open, FileAccess.Read, FileShare.Read);
-            Decoder = new GifBitmapDecoder(imageStreamSource, BitmapCreateOptions.DelayCreation, BitmapCacheOption.OnDemand);
-            Bitmap = Decoder.Frames[0];
-
-        }
         public void LoadGifFromDisk(string path)
         {
             if (path == null || !File.Exists(path))

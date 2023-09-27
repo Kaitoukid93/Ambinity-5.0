@@ -2210,9 +2210,13 @@ namespace adrilight.ViewModel
             ListSelectionItemMouseLeaveCommand = new RelayCommand<IParameterValue>((p) =>
             {
                 return true;
-            }, async (p) =>
+            }, (p) =>
             {
-                //dispose gif here
+                if (p is Gif)
+                {
+                    var gif = p as Gif;
+                    gif.DisposeGif();
+                }
 
             });
             RefreshAudioDeviceCommand = new RelayCommand<string>((p) =>

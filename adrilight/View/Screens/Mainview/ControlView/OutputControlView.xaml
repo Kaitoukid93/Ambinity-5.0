@@ -1286,24 +1286,25 @@
                                                                         </DataTemplate>
                                                                         <DataTemplate DataType="{x:Type parameterValues:Gif}">
                                                                             <Grid>
+                                                                                <i:Interaction.Triggers>
+                                                                                    <i:EventTrigger EventName="MouseEnter">
+                                                                                        <i:InvokeCommandAction Command="{Binding DataContext.ListSelectionItemMouseEnterCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}"
+                                                                                                               CommandParameter="{Binding .}" />
+
+                                                                                    </i:EventTrigger>
+                                                                                    <i:EventTrigger EventName="MouseLeave">
+                                                                                        <i:InvokeCommandAction Command="{Binding DataContext.ListSelectionItemMouseLeaveCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}"
+                                                                                                               CommandParameter="{Binding .}" />
+
+                                                                                    </i:EventTrigger>
+                                                                                </i:Interaction.Triggers>
                                                                                 <Border Width="86"
                                                                                         Height="86"
                                                                                         Effect="{DynamicResource EffectShadow1}"
                                                                                         ToolTip="{Binding Name}"
                                                                                         CornerRadius="2,2,2,2"
                                                                                         Style="{StaticResource BorderClip}">
-                                                                                    <i:Interaction.Triggers>
-                                                                                        <i:EventTrigger EventName="MouseEnter">
-                                                                                            <i:InvokeCommandAction Command="{Binding DataContext.ListSelectionItemMouseEnterCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}"
-                                                                                                                   CommandParameter="{Binding .}" />
-                                                                                            
-                                                                                        </i:EventTrigger>
-                                                                                        <i:EventTrigger EventName="MouseLeave">
-                                                                                            <i:InvokeCommandAction Command="{Binding DataContext.ListSelectionItemMouseLeaveCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}"
-                                                                                                                   CommandParameter="{Binding .}" />
-
-                                                                                        </i:EventTrigger>
-                                                                                    </i:Interaction.Triggers>
+                                                                          
                                                                                     <Grid>
                                                                                         <Grid>
                                                                                             <Grid.Style>
