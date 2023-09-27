@@ -75,6 +75,7 @@ namespace adrilight_shared.Models.Device.Zone.Spot
         public byte Red { get; private set; }
         public byte Green { get; private set; }
         public byte Blue { get; private set; }
+        [JsonIgnore]
         public Rect GetRect => new Rect(Left, Top, Width, Height);
         public bool GetVIDIfNeeded(int vid, Rect rect, int mode)
         {

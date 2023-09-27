@@ -361,6 +361,8 @@ namespace adrilight.ViewModel
         public ICommand SetCurrentSelectedActionTypeColorValueCommand { get; set; }
         public ICommand OpenHardwareMonitorWindowCommand { get; set; }
         public ICommand RefreshCurrentCollectionCommand { get; set; }
+        public ICommand ListSelectionItemMouseEnterCommand { get; set; }
+        public ICommand ListSelectionItemMouseLeaveCommand { get; set; }
         public ICommand RefreshLocalSlaveDeviceCollectionCommand { get; set; }
         public ICommand DeleteSelectedItemFromCurrentCollectionCommand { get; set; }
         public ICommand CoppyColorCodeCommand { get; set; }
@@ -2192,6 +2194,26 @@ namespace adrilight.ViewModel
             {
                 var listParam = p as ListSelectionParameter;
                 listParam.LoadAvailableValues();
+            });
+            ListSelectionItemMouseEnterCommand = new RelayCommand<IParameterValue>((p) =>
+            {
+                return true;
+            }, async (p) =>
+            {
+                //play gif here
+                if (p is Gif)
+                {
+                    var gif = p as Gif;
+                    await gif.PlayGif();
+                }
+            });
+            ListSelectionItemMouseLeaveCommand = new RelayCommand<IParameterValue>((p) =>
+            {
+                return true;
+            }, async (p) =>
+            {
+                //dispose gif here
+
             });
             RefreshAudioDeviceCommand = new RelayCommand<string>((p) =>
             {
@@ -8701,6 +8723,7 @@ namespace adrilight.ViewModel
                 var lef2Right = new VIDDataModel() {
                     Name = "Trái sang phải",
                     IsDeleteable = false,
+                    Geometry = "left2right",
                     Description = "Màu chạy từ trái sang phải",
                     ExecutionType = VIDType.PositonGeneratedID,
                     Dirrection = VIDDirrection.left2right
@@ -8708,6 +8731,7 @@ namespace adrilight.ViewModel
                 var right2Left = new VIDDataModel() {
                     Name = "Phải sang trái",
                     IsDeleteable = false,
+                    Geometry = "right2left",
                     Description = "Màu chạy từ phải sang trái",
                     ExecutionType = VIDType.PositonGeneratedID,
                     Dirrection = VIDDirrection.right2left
@@ -8715,6 +8739,7 @@ namespace adrilight.ViewModel
                 var up2Down = new VIDDataModel() {
                     Name = "Trên xuống dưới",
                     IsDeleteable = false,
+                    Geometry = "topdown",
                     Description = "Màu chạy từ trên xuống dưới",
                     ExecutionType = VIDType.PositonGeneratedID,
                     Dirrection = VIDDirrection.top2bot
@@ -8722,12 +8747,14 @@ namespace adrilight.ViewModel
                 var down2Up = new VIDDataModel() {
                     Name = "Dưới lên trên",
                     IsDeleteable = false,
+                    Geometry = "bottomup",
                     Description = "Màu chạy từ dưới lên trên",
                     ExecutionType = VIDType.PositonGeneratedID,
                     Dirrection = VIDDirrection.bot2top
                 };
                 var linear = new VIDDataModel() {
                     Name = "Tuyến tính",
+                    Geometry = "back",
                     Description = "Màu chạy theo thứ tự LED",
                     ExecutionType = VIDType.PositonGeneratedID,
                     Dirrection = VIDDirrection.linear
@@ -9705,6 +9732,7 @@ namespace adrilight.ViewModel
             CurrentExportingVID.Name = VIDName;
             CurrentExportingVID.Description = VIDDescription;
             CurrentExportingVID.ExecutionType = VIDType.PredefinedID;
+            CurrentExportingVID.Geometry = "record";
             //get drawing path
             //sort current drawing board spot by ID
             //foreach spot, save ID and rect

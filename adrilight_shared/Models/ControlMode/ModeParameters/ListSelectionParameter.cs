@@ -243,6 +243,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
                                                 ShowDeleteButton = AvailableValues.Where(c => c.IsChecked).Count() > 0 ? true : false;
                                             }
                                         };
+                                        //data.InitGif();
                                         AvailableValues.Add(data);
                                     }
                                     break;

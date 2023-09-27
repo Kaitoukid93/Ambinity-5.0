@@ -5,6 +5,8 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 
 namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
 {
@@ -24,6 +26,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
         public string Type { get; set; }
         public string Description { get; set; }
         private bool _isDeleteable = true;
+        private BitmapSource _bitmap;
         [JsonIgnore]
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsChecked, ref _isDeleteable, value); } }
         [JsonIgnore]
@@ -33,9 +36,50 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
         public bool IsChecked { get => _isChecked; set { Set(() => IsChecked, ref _isChecked, value); } }
         public string LocalPath { get; set; }
         [JsonIgnore]
+        public BitmapSource Bitmap { get => _bitmap; set { Set(() => Bitmap, ref _bitmap, value); } }
+        [JsonIgnore]
         public string InfoPath { get; set; }
         [JsonIgnore]
         public object Lock { get; } = new object();
+        private GifBitmapDecoder Decoder { get; set; }
+        /// <summary>
+        /// this function play gif single time
+        /// </summary>
+        public async Task PlayGif()
+        {
+            if (!File.Exists(LocalPath))
+                return;
+            if (Decoder == null)
+            {
+                InitGif();
+            }
+
+            for (int i = 0; i < Decoder.Frames.Count; i++)
+            {
+                Decoder.Frames[i].Freeze();
+                Bitmap = Decoder.Frames[i];
+                await (Task.Delay(TimeSpan.FromMilliseconds(30)));
+            }
+
+        }
+        /// <summary>
+        /// this function return original first gif image
+        /// </summary>
+        public void DisposeGif()
+        {
+            // Decoder
+        }
+        /// <summary>
+        /// this function load static image to display
+        /// </summary>
+        public void InitGif()
+        {
+
+            Stream imageStreamSource = new FileStream(LocalPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            Decoder = new GifBitmapDecoder(imageStreamSource, BitmapCreateOptions.DelayCreation, BitmapCacheOption.OnDemand);
+            Bitmap = Decoder.Frames[0];
+
+        }
         public void LoadGifFromDisk(string path)
         {
             if (path == null || !File.Exists(path))
@@ -59,7 +103,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
 
                             var resizedBmp = new Bitmap(imageToLoad, imageToLoad.Width / 8, imageToLoad.Height / 8);
 
-                            var rect = new Rectangle(0, 0, resizedBmp.Width, resizedBmp.Height);
+                            var rect = new System.Drawing.Rectangle(0, 0, resizedBmp.Width, resizedBmp.Height);
                             BitmapData bmpData =
                                 resizedBmp.LockBits(rect, ImageLockMode.ReadWrite,
                                 resizedBmp.PixelFormat);
@@ -86,8 +130,9 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
                         imageToLoad.Dispose();
                         fs.Close();
                         GC.Collect();
-
                         Frames = gifFrames;
+
+
 
                     }
 

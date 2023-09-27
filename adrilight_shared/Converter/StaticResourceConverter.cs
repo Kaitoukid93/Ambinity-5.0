@@ -15,6 +15,8 @@ namespace adrilight_shared.Converter
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if (value == null)
+                return _target?.FindResource("binary") ?? Application.Current.FindResource("binary");
             var resourceKey = (string)value;
 
             return _target?.FindResource(resourceKey) ?? Application.Current.FindResource(resourceKey);

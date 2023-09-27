@@ -49,6 +49,7 @@ namespace adrilight_shared.Models.Drawable
         public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
 
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
+        [JsonIgnore]
         public Rect GetRect => new Rect(Left + OffsetX, Top + OffsetY, Width, Height);
         public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }
 

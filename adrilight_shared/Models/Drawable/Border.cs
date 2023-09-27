@@ -58,6 +58,7 @@ namespace adrilight_shared.Models.Drawable
         public bool ShouldBringIntoView { get => _shouldBringIntoView; set { Set(() => ShouldBringIntoView, ref _hasCustomBehavior, value); } }
 
         public Point Scale { get => _directionPoint; set { Set(() => Scale, ref _directionPoint, value); } }
+        [JsonIgnore]
         public Rect GetRect => new Rect(Left, Top, Width, Height);
         public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
         [JsonIgnore]

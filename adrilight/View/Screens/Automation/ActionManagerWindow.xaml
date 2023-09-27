@@ -247,8 +247,6 @@
                                                                     <DataTemplate DataType="{x:Type parameterValues:ColorCard}">
                                                                         <Grid>
                                                                             <StackPanel Orientation="Horizontal">
-
-
                                                                                 <Border CornerRadius="2" Width="20" Height="20">
                                                                                     <Border.Background>
                                                                                         <LinearGradientBrush StartPoint="0,1" EndPoint = "1,0">

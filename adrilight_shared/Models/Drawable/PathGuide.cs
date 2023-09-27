@@ -38,6 +38,7 @@ namespace adrilight_shared.Models.Drawable
         public double Angle { get => _angle; set { Set(() => Angle, ref _angle, value); OnRotationChanged(); } }
         public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
         public string Geometry { get => _geometry; set { Set(() => Geometry, ref _geometry, value); } }
+        [JsonIgnore]
         public Rect GetRect => new Rect(Left, Top, Width, Height);
         public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }

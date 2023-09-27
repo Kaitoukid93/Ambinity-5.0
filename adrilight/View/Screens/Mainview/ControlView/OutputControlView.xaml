@@ -11,6 +11,7 @@
              xmlns:viewmodel="clr-namespace:adrilight.ViewModel"
              xmlns:System="clr-namespace:System;assembly=mscorlib"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:gif="https://github.com/XamlAnimatedGif/XamlAnimatedGif"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              mc:Ignorable="d"
              x:Name="window"
@@ -760,7 +761,7 @@
                     <DataTemplate  x:Key="_listSelectionParamTemplate"
                                    DataType="{x:Type parameters:ListSelectionParameter}">
                         <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
-                            <Grid ToolTip="{Binding Description}"
+                            <Grid 
                                   Visibility="{Binding IsEnabled,Converter={StaticResource Boolean2VisibilityConverter}}">
                                 <StackPanel>
                                     <Border MouseDown="GroupBox_MouseDown"
@@ -919,11 +920,20 @@
                                                                         Effect="{DynamicResource EffectShadow1}"
                                                                         ToolTip="{Binding Description}"
                                                                         CornerRadius="2">
-                                                                    <TextBlock HorizontalAlignment="Center"
-                                                                               VerticalAlignment="Center"
-                                                                               Margin="5"
-                                                                               Style="{DynamicResource TextBlockDefault}"
-                                                                               Text="{Binding Name}" />
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <Path HorizontalAlignment="left"
+                                                                              Stretch="Uniform"
+                                                                              Margin="5,0,0,0"
+                                                                              Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
+                                                                              Width="20"
+                                                                              Height="20"
+                                                                              Fill="{StaticResource PrimaryTextBrush}" />
+                                                                        <TextBlock HorizontalAlignment="Center"
+                                                                                   VerticalAlignment="Center"
+                                                                                   Margin="5"
+                                                                                   Style="{DynamicResource TextBlockDefault}"
+                                                                                   Text="{Binding Name}" />
+                                                                    </StackPanel>
                                                                 </Border>
                                                             </Grid>
                                                         </DataTemplate>
@@ -1135,9 +1145,18 @@
                                                                                         Background="{DynamicResource SecondaryRegionBrush}"
                                                                                         ToolTip="{Binding Description}"
                                                                                         CornerRadius="2">
-                                                                                    <TextBlock Margin="5"
-                                                                                               Style="{DynamicResource TextBlockDefault}"
-                                                                                               Text="{Binding Name}" />
+                                                                                    <StackPanel Orientation="Horizontal">
+                                                                                        <Path HorizontalAlignment="left"
+                                                                                              Stretch="Uniform"
+                                                                                              Margin="5,0,0,0"
+                                                                                              Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
+                                                                                              Width="15"
+                                                                                              Height="15"
+                                                                                              Fill="{StaticResource PrimaryTextBrush}" />
+                                                                                        <TextBlock Margin="5"
+                                                                                                   Style="{DynamicResource TextBlockDefault}"
+                                                                                                   Text="{Binding Name}" />
+                                                                                    </StackPanel>
                                                                                 </Border>
                                                                                 <CheckBox IsChecked="{Binding IsChecked}"
                                                                                           Margin="2"
@@ -1273,8 +1292,58 @@
                                                                                         ToolTip="{Binding Name}"
                                                                                         CornerRadius="2,2,2,2"
                                                                                         Style="{StaticResource BorderClip}">
-                                                                                    <Image Stretch="Uniform"
-                                                                                           Source="{Binding LocalPath}" />
+                                                                                    <i:Interaction.Triggers>
+                                                                                        <i:EventTrigger EventName="MouseEnter">
+                                                                                            <i:InvokeCommandAction Command="{Binding DataContext.ListSelectionItemMouseEnterCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}"
+                                                                                                                   CommandParameter="{Binding .}" />
+                                                                                            
+                                                                                        </i:EventTrigger>
+                                                                                        <i:EventTrigger EventName="MouseLeave">
+                                                                                            <i:InvokeCommandAction Command="{Binding DataContext.ListSelectionItemMouseLeaveCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}"
+                                                                                                                   CommandParameter="{Binding .}" />
+
+                                                                                        </i:EventTrigger>
+                                                                                    </i:Interaction.Triggers>
+                                                                                    <Grid>
+                                                                                        <Grid>
+                                                                                            <Grid.Style>
+                                                                                                <Style TargetType="Grid">
+                                                                                                    <Setter Property="Visibility"
+                                                                                                            Value="Collapsed" />
+                                                                                                    <Style.Triggers>
+                                                                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Border,AncestorLevel=2}, Path=IsMouseOver}"
+                                                                                                                     Value="False">
+                                                                                                            <Setter Property="Visibility"
+                                                                                                                    Value="Visible" />
+                 
+                                                                                                        </DataTrigger>
+                                                                                                    </Style.Triggers>
+                                                                                                </Style>
+                                                                                            </Grid.Style>
+                                                                                            <Image Stretch="Uniform"
+                                                                                                   Source="{Binding LocalPath}" />
+                                                                                        </Grid>
+
+                                                                                        <Grid>
+                                                                                            <Grid.Style>
+                                                                                                <Style TargetType="Grid">
+                                                                                                    <Setter Property="Visibility"
+                                                                                                            Value="Collapsed" />
+                                                                                                    <Style.Triggers>
+                                                                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Border,AncestorLevel=2}, Path=IsMouseOver}"
+                                                                                                                     Value="True">
+                                                                                                            <Setter Property="Visibility"
+                                                                                                                    Value="Visible" />
+                                    
+                                                                                                        </DataTrigger>
+                                                                                                    </Style.Triggers>
+                                                                                                </Style>
+                                                                                            </Grid.Style>
+                                                                                            <Image Stretch="Uniform"
+                                                                                                   Source="{Binding Bitmap}"/>
+                                                                                        </Grid>
+                                                                                    </Grid>
+
                                                                                 </Border>
                                                                                 <CheckBox IsChecked="{Binding IsChecked}"
                                                                                           Margin="2"

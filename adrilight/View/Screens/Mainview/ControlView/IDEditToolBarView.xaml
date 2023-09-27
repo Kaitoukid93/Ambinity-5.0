@@ -155,7 +155,7 @@
                                 <Button hc:BorderElement.CornerRadius="2"
                                         Style="{DynamicResource _defaultIconButton}"
                                         Command="{Binding OpenCreateNewVIDWindowCommand}"
-                                        ToolTip="Reset Brush ID"
+                                        ToolTip="Save as"
                                         Width="40"
                                         Height="40"
                                         Margin="5"

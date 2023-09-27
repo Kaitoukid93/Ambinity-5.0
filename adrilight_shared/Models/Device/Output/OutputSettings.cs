@@ -283,6 +283,7 @@ namespace adrilight_shared.Models.Device.Output
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
         [JsonIgnore]
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
+        [JsonIgnore]
         public Rect GetRect => new Rect(Left, Top, Width, Height);
         protected virtual void OnLeftChanged(double delta) { }
 

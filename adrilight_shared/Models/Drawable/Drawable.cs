@@ -38,6 +38,7 @@ namespace adrilight_shared.Models.Drawable
         [JsonIgnore]
         public Type DataType => typeof(Drawable);
         public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
+        [JsonIgnore]
         public Rect GetRect => new Rect(Left, Top, Width, Height);
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
 

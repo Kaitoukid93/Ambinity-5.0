@@ -99,9 +99,6 @@
                     <DataTemplate DataType="{x:Type slaveDevice:ARGBLEDSlaveDevice}">
                         <Grid>
                             <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseDoubleClick">
-                                    <i:InvokeCommandAction Command="{Binding DataContext.LaunchPIDEditWindowCommand,RelativeSource={RelativeSource AncestorType={x:Type view:SurfaceEditorWindow}}}" CommandParameter="{Binding}" />
-                                </i:EventTrigger>
                                 <i:EventTrigger EventName="MouseLeftButtonDown">
                                     <i:InvokeCommandAction Command="{Binding DataContext.SelectSurfaceEditorItemCommand,RelativeSource={RelativeSource AncestorType={x:Type view:SurfaceEditorWindow}}}" CommandParameter="{Binding}" />
                                 </i:EventTrigger>
