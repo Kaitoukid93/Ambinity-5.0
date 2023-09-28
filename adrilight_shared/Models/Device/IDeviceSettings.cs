@@ -9,6 +9,7 @@ using adrilight_shared.Models.Device.Zone;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace adrilight_shared.Models.Device
@@ -41,6 +42,8 @@ namespace adrilight_shared.Models.Device
         string DeviceUID { get; set; }
         bool IsSelected { get; set; }
         bool IsSizeNeedUserDefine { get; set; }
+        bool IsIndicatorLEDOn { get; set; }
+        bool NoSignalLEDEnable { get; set; }
         int DashboardWidth { get; set; }
         int DashboardHeight { get; set; }
         ObservableCollection<ControlZoneGroup> ControlZoneGroups { get; set; }
@@ -66,5 +69,6 @@ namespace adrilight_shared.Models.Device
         void SetStaticColor(ColorCard colors);
         void SetModeByEnumValue(LightingModeEnum value);
         void ActivateControlMode(LightingMode lightingMode);
+        Task<bool> SendHardwareSettings();
     }
 }

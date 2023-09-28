@@ -333,6 +333,7 @@ namespace adrilight.ViewModel
         public ICommand OpenDebugWindowCommand { get; set; }
         public ICommand OpenLogFolderCommand { get; set; }
         public ICommand SelecFirmwareForCurrentDeviceCommand { get; set; }
+        public ICommand ApplyDeviceHardwareSettingsCommand { get; set; }
         public ICommand SetCurrentLEDSetupSentryColorCommand { get; set; }
         public ICommand SetAllOutputSelectedGradientColorCommand { get; set; }
         public ICommand UpdateCurrentSelectedDeviceFirmwareCommand { get; set; }
@@ -2044,44 +2045,12 @@ namespace adrilight.ViewModel
                 // lauch firmware upgrade
                 UpgradeIfAvailable(CurrentDevice);
             });
-            SetCurrentLEDSetupSentryColorCommand = new RelayCommand<string>((p) =>
+            ApplyDeviceHardwareSettingsCommand = new RelayCommand<string>((p) =>
             {
                 return true;
             }, (p) =>
             {
-                //foreach (var ledSetup in CurrentOutput.OutputLEDSetup)
-                //{
-                //    foreach (var spot in ledSetup.Spots)
-                //    {
-                //        spot.SetSentryColor(spot.Red, spot.Green, spot.Blue);
-                //        foreach (var color in DefaultColorCollection.snap)
-                //        {
-                //            spot.SetColor(color.R, color.G, color.B, true);
-                //        }
-                //    }
-                //}
-
-                //show snap effect
-            });
-            SetAllOutputSelectedSolidColorCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                //foreach (var output in CurrentDevice.AvailableOutputs)
-                //{
-                //    //output.OutputStaticColor = CurrentOutput.OutputStaticColor;
-                //}
-            });
-            SetAllOutputSelectedGradientColorCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                //foreach (var output in CurrentDevice.AvailableOutputs)
-                //{
-                //    //output.OutputSelectedGradient = CurrentOutput.OutputSelectedGradient;
-                //}
+                ApplyDeviceHardwareSettings(CurrentDevice);
             });
             UpdateCurrentSelectedDeviceFirmwareCommand = new RelayCommand<string>((p) =>
             {
@@ -2090,21 +2059,6 @@ namespace adrilight.ViewModel
             {
                 UpgradeIfAvailable(CurrentDevice);
             });
-
-            ResetAppCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                Reset();
-            });
-            OpenAboutWindowCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                OpenAboutWindow();
-            });
             OpenSurfaceEditorWindowCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -2112,7 +2066,6 @@ namespace adrilight.ViewModel
             {
                 OpenSurfaceEditorWindow();
             });
-
             OpenAddNewAutomationCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -5769,6 +5722,25 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        private bool isApplyingDeviceHardwareSettings;
+        public bool IsApplyingDeviceHardwareSettings {
+            get
+            {
+                return isApplyingDeviceHardwareSettings;
+            }
+            set
+            {
+                isApplyingDeviceHardwareSettings = value;
+                RaisePropertyChanged();
+            }
+        }
+        private async Task ApplyDeviceHardwareSettings(IDeviceSettings device)
+        {
+            IsApplyingDeviceHardwareSettings = true;
+            var result = await Task.Run(() => device.SendHardwareSettings());
+            IsApplyingDeviceHardwareSettings = false;
+        }
+
         public bool FrimwareUpgradeIsInProgress { get; set; }
         private async Task UpgradeIfAvailable(IDeviceSettings device)
         {

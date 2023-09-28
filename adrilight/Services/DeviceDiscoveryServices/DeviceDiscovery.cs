@@ -91,7 +91,8 @@ namespace adrilight.Services.DeviceDiscoveryServices
                     //    MainViewViewModel.SetSearchingScreenHeaderText("Searching for devices...", true);
                     //    MainViewViewModel.SetSearchingScreenProgressText("Scanning...");
                     //}
-                    if (Settings.DeviceDiscoveryMode == 0 && !MainViewViewModel.FrimwareUpgradeIsInProgress)
+                    var shouldBeRunning = !MainViewViewModel.FrimwareUpgradeIsInProgress && !MainViewViewModel.IsApplyingDeviceHardwareSettings;
+                    if (Settings.DeviceDiscoveryMode == 0 && shouldBeRunning)
                     {
                         // openRGB device scan only run once at startup
                         var openRGBDevices = (new List<IDeviceSettings>(), new List<string>());

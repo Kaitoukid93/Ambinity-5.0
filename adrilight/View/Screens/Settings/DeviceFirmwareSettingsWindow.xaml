@@ -5,6 +5,7 @@
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
+           xmlns:loadin="clr-namespace:LoadingIndicators.WPF;assembly=LoadingIndicators.WPF"
            mc:Ignorable="d"
            Background="{DynamicResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
@@ -12,7 +13,7 @@
            SizeToContent="Height"
            MaxHeight="1000" 
            Width="400" 
-           WindowStartupLocation="CenterOwner" 
+           WindowStartupLocation="CenterScreen" 
            Left="0" Top="0">
 
     <Window.Resources>
@@ -23,12 +24,20 @@
                     <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
                     <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
                 </ResourceDictionary>
-
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingWave.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingThreeDots.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingFlipPlane.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingPulse.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingDoubleBounce.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Colors.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles.xaml"></ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
 
         </ResourceDictionary>
     </Window.Resources>
-
+    <hc:ScrollViewer IsInertiaEnabled="True">
+        
+  
     <Grid Margin="10,0,10,10">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -47,7 +56,7 @@
             </TextBlock>
             <Grid Grid.Row="1">
                 <StackPanel>
-                    <Image Margin="50" RenderOptions.BitmapScalingMode="HighQuality" Source="{Binding CurrentDevice.DeviceThumbnail}">
+                    <Image Margin="50,20,50,30" RenderOptions.BitmapScalingMode="HighQuality" Source="{Binding CurrentDevice.DeviceThumbnail}">
                     </Image>
                     <TextBlock Margin="0,0,0,0" Style="{DynamicResource TextBlockLargeBold}" Text="{Binding CurrentDevice.DeviceName}"></TextBlock>
                     <Grid HorizontalAlignment="Center">
@@ -133,13 +142,109 @@
                 <Path   Fill="{StaticResource WarningBrush}" Width="20" Height="20" Margin="10,10" Data="{StaticResource colorchanged}" Stretch="Uniform" />
                 <TextBlock Margin="10" TextWrapping="Wrap" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultWarning}" Grid.Column="1" Text="Để thoát khỏi chế độ DFU, hãy rút USB của thiết bị ra và cắm lại"/>
             </Grid>
-           
-            
-          
+            <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                         Margin="5,10,5,10">
+
+            </hc:Divider>
+            <Grid Name="ledBehavior">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
+                <GroupBox   VerticalAlignment="Center"
+                            hc:TitleElement.TitleWidth="200"
+                            Margin="5"
+                            Style="{StaticResource GroupBoxOriginal}"
+                            HorizontalAlignment="Stretch"
+                            hc:TitleElement.TitlePlacement="Left">
+                    <GroupBox.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock FontWeight="SemiBold"
+                                       Text="TẮT LED KHI NGẮT KẾT NỐI" />
+                        </DataTemplate>
+                    </GroupBox.HeaderTemplate>
+
+                    <ToggleButton HorizontalAlignment="Right"
+                                  IsChecked="{Binding GeneralSettings.UpdaterAskAgain}"
+                                  Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
+
+                    </ToggleButton>
 
 
+                </GroupBox>
+                <TextBlock Margin="5,0,0,0"
+                           HorizontalAlignment="Left"
+                           Style="{StaticResource TextBlockDefaultSecLight}"
+                           Grid.Row="1"
+                           TextWrapping="Wrap"
+                           Text="Led sẽ tắt sau 3s kể từ khi thiết bị mất tín hiệu điều khiển" />
+            </Grid>
+            <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                         Margin="5,10,5,10">
 
-            <!--<Grid >
+            </hc:Divider>
+            <Grid Name="signalLED">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
+                <GroupBox   VerticalAlignment="Center"
+                            hc:TitleElement.TitleWidth="200"
+                            Margin="5"
+                            Style="{StaticResource GroupBoxOriginal}"
+                            HorizontalAlignment="Stretch"
+                            hc:TitleElement.TitlePlacement="Left">
+                    <GroupBox.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock FontWeight="SemiBold"
+                                       Text="BẬT HOẶC TẮT LED CHỈ THỊ" />
+                        </DataTemplate>
+                    </GroupBox.HeaderTemplate>
+
+                    <ToggleButton HorizontalAlignment="Right"
+                                  IsChecked="{Binding GeneralSettings.UpdaterAskAgain}"
+                                  Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
+
+                    </ToggleButton>
+
+
+                </GroupBox>
+                <TextBlock Margin="5,0,0,0"
+                           HorizontalAlignment="Left"
+                           Style="{StaticResource TextBlockDefaultSecLight}"
+                           Grid.Row="1"
+                           TextWrapping="Wrap"
+                           Text="Bật hoặc tắt led chỉ thị ( chỉ áp dụng với Ambino Basic và Ambino EDGE)" />
+            </Grid>
+
+                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                             Margin="5,10,5,10">
+
+                </hc:Divider>
+                <Grid>
+                    <StackPanel  HorizontalAlignment="Right"
+                                 Margin="5"
+                                 Orientation="Horizontal">
+                        <loadin:LoadingIndicator Visibility="{Binding IsApplyingDeviceHardwareSettings,Converter={StaticResource boolToVisibilityConvert}}"
+                                                 Width="32"
+                                                 Height="32"
+                                                 Margin="10,0"
+                                                 Name="Pulse"
+                                                 SpeedRatio="1"
+                                                 Foreground="{DynamicResource PrimaryBrush}"
+                                                 IsActive="True"
+                                                 Style="{DynamicResource LoadingIndicatorPulseStyle}"></loadin:LoadingIndicator>
+                        <Button Command="{Binding ApplyDeviceHardwareSettingsCommand}"
+                               
+                                Style="{DynamicResource _mediumProfileDefaultButton}"
+                                Content="Apply">
+                            
+                            </Button>
+                    </StackPanel>
+                  
+                </Grid>
+                
+                <!--<Grid >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
@@ -154,4 +259,5 @@
 
 
     </Grid>
+    </hc:ScrollViewer>
 </hc:Window>
