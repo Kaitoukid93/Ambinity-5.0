@@ -1285,7 +1285,7 @@
                                                                             </Grid>
                                                                         </DataTemplate>
                                                                         <DataTemplate DataType="{x:Type parameterValues:Gif}">
-                                                                            <Grid>
+                                                                            <Grid Background="Transparent">
                                                                                 <i:Interaction.Triggers>
                                                                                     <i:EventTrigger EventName="MouseEnter">
                                                                                         <i:InvokeCommandAction Command="{Binding DataContext.ListSelectionItemMouseEnterCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}"
@@ -1321,7 +1321,7 @@
                                                                                                     </Style.Triggers>
                                                                                                 </Style>
                                                                                             </Grid.Style>
-                                                                                            <Image Stretch="Uniform"
+                                                                                            <Image Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"
                                                                                                    Source="{Binding LocalPath}" />
                                                                                         </Grid>
 
@@ -1340,7 +1340,7 @@
                                                                                                     </Style.Triggers>
                                                                                                 </Style>
                                                                                             </Grid.Style>
-                                                                                            <Image Stretch="Uniform"
+                                                                                            <Image Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"
                                                                                                    Source="{Binding Bitmap}"/>
                                                                                         </Grid>
                                                                                     </Grid>

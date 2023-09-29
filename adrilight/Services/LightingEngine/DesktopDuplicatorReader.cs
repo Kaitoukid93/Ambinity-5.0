@@ -341,7 +341,7 @@ namespace adrilight.Services.LightingEngine
                     }
                     var frameTime = Stopwatch.StartNew();
                     var newImage = _retryPolicy.Execute(() => GetNextFrame(image));
-                    TraceFrameDetails(newImage);
+                    //TraceFrameDetails(newImage);
                     if (newImage == null)
                     {
                         //there was a timeout before there was the next frame, simply retry!
@@ -573,32 +573,35 @@ namespace adrilight.Services.LightingEngine
                     break;
                 }
             }
-
+            if (firstNonBlackXPixelIndex < 10) // sensitivity
+                firstNonBlackXPixelIndex = 0;
+            if (firstNonBlackYPixelIndex < 10) // sensitivity
+                firstNonBlackYPixelIndex = 0;
             if (firstNonBlackYPixelIndex != 0 || firstNonBlackXPixelIndex != 0)
             {
                 if (firstNonBlackXPixelIndex == -1)
                     firstNonBlackXPixelIndex = 0;
                 if (firstNonBlackYPixelIndex == -1)
                     firstNonBlackYPixelIndex = 0;
+                _currentColoredRegion = new Rectangle(firstNonBlackXPixelIndex, firstNonBlackYPixelIndex, frameWidth - 2 * firstNonBlackXPixelIndex, frameHeight - 2 * firstNonBlackYPixelIndex);
                 if (_currentVideoRatio == VideoRatio.Normal)
                 {
                     _currentVideoRatio = VideoRatio.LeterBox;
-                    Log.Information("BlackBarDetection kicked in, black bar height: " + firstNonBlackYPixelIndex);
+                    Log.Information("BlackBarDetection, current ratio: " + _currentVideoRatio.ToString() + "[" + _currentColoredRegion.Left + "-" + _currentColoredRegion.Top + "-" + _currentColoredRegion.Width + "-" + _currentColoredRegion.Height + "]");
 
                 }
-                _currentColoredRegion = new Rectangle(firstNonBlackXPixelIndex, firstNonBlackYPixelIndex, frameWidth - 2 * firstNonBlackXPixelIndex, frameHeight - 2 * firstNonBlackYPixelIndex);
             }
             else
             {
-                if (_currentVideoRatio == VideoRatio.LeterBox)
-                {
-                    _currentVideoRatio = VideoRatio.Normal;
-                    Log.Information("BlackBarDetection kicked in, current ratio: " + _currentVideoRatio.ToString());
-
-                }
                 frameWidth++;
                 frameHeight++;
                 _currentColoredRegion = new Rectangle(0, 0, frameWidth, frameHeight);
+                if (_currentVideoRatio == VideoRatio.LeterBox)
+                {
+                    _currentVideoRatio = VideoRatio.Normal;
+                    Log.Information("BlackBarDetection, current ratio: " + _currentVideoRatio.ToString() + "[" + _currentColoredRegion.Left + "-" + _currentColoredRegion.Top + "-" + _currentColoredRegion.Width + "-" + _currentColoredRegion.Height + "]");
+                }
+
             }
 
             //set area

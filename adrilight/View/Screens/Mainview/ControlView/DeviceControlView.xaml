@@ -702,8 +702,10 @@
                     <ColumnDefinition Width="auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal">
 
-                <Button Command="{Binding OpenDeviceFirmwareSettingsWindowCommand}"
+                    <hc:LoadingCircle Visibility="{Binding IsApplyingDeviceHardwareSettings,Converter={StaticResource boolToVisibilityConvert}}" Height="32" />
+                    <Button ToolTip="Open hardware settings" Command="{Binding OpenDeviceFirmwareSettingsWindowCommand}"
                         CommandParameter="connection"
                         hc:BorderElement.CornerRadius="7"
                         Margin="0,5,5,5"
@@ -785,6 +787,8 @@
                         </Grid>
                     </Grid>
                 </Button>
+                   
+                </StackPanel>
             </Grid>
             <Grid Margin="0,0,5,0"
                   Grid.Column="5">

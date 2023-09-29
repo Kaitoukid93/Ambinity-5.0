@@ -44,6 +44,7 @@ namespace adrilight_shared.Models.Device
         bool IsSizeNeedUserDefine { get; set; }
         bool IsIndicatorLEDOn { get; set; }
         bool NoSignalLEDEnable { get; set; }
+        bool DeviceHardwareControlEnable { get; }
         int DashboardWidth { get; set; }
         int DashboardHeight { get; set; }
         ObservableCollection<ControlZoneGroup> ControlZoneGroups { get; set; }
@@ -70,5 +71,6 @@ namespace adrilight_shared.Models.Device
         void SetModeByEnumValue(LightingModeEnum value);
         void ActivateControlMode(LightingMode lightingMode);
         Task<bool> SendHardwareSettings();
+        Task<bool> GetHardwareSettings();
     }
 }

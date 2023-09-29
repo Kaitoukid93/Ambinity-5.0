@@ -109,8 +109,8 @@ namespace adrilight_shared.Models.Device
         [JsonIgnore]
         public ISlaveDevice[] AvailablePWMDevices => GetSlaveDevices(ControllerTypeEnum.PWMController);
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); DeviceEnableChanged(); } }
-
-
+        [JsonIgnore]
+        public bool DeviceHardwareControlEnable => (DeviceType.Type == DeviceTypeEnum.AmbinoBasic || DeviceType.Type == DeviceTypeEnum.AmbinoEDGE);
         [JsonIgnore]
         public bool IsIndicatorLEDOn { get; set; }
         [JsonIgnore]
@@ -120,9 +120,94 @@ namespace adrilight_shared.Models.Device
             var outputStream = new byte[16];
             Buffer.BlockCopy(sendCommand, 0, outputStream, 0, sendCommand.Length);
             int counter = sendCommand.Length;
-            outputStream[counter++] = NoSignalLEDEnable == true ? (byte)15 : (byte)15;
-            outputStream[counter++] = IsIndicatorLEDOn == true ? (byte)15 : (byte)15;
+            outputStream[counter++] = NoSignalLEDEnable == true ? (byte)15 : (byte)12;
+            outputStream[counter++] = IsIndicatorLEDOn == true ? (byte)15 : (byte)12;
             return outputStream;
+        }
+        private byte[] GetEEPRomDataOutputStream()
+        {
+            var outputStream = new byte[16];
+            Buffer.BlockCopy(sendCommand, 0, outputStream, 0, sendCommand.Length);
+            return outputStream;
+        }
+        public async Task<bool> GetHardwareSettings()
+        {
+
+            ///////////////////// Hardware settings data table, will be wirte to device EEPRom /////////
+            /// [h,s,d,Led on/off,Signal LED On/off,Connection Type,Max Brightness,Show Welcome LED,Serial Timeout,0,0,0,0,0,0,0] ///////
+
+            IsTransferActive = false; // stop current serial stream attached to this device
+            var _serialPort = new SerialPort(OutputPort, 1000000);
+            _serialPort.DtrEnable = true;
+            _serialPort.ReadTimeout = 5000;
+            _serialPort.WriteTimeout = 1000;
+            try
+            {
+                _serialPort.Open();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return await Task.FromResult(false);
+            }
+
+            var outputStream = GetEEPRomDataOutputStream();
+            _serialPort.Write(outputStream, 0, outputStream.Length);
+            int retryCount = 0;
+            int offset = 0;
+            IDeviceSettings newDevice = new DeviceSettings();
+            while (offset < 3)
+            {
+
+
+                try
+                {
+                    byte header = (byte)_serialPort.ReadByte();
+                    if (header == expectedValidHeader[offset])
+                    {
+                        offset++;
+                    }
+                }
+                catch (TimeoutException)// retry until received valid header
+                {
+                    _serialPort.Write(outputStream, 0, outputStream.Length);
+                    retryCount++;
+                    if (retryCount == 3)
+                    {
+                        Console.WriteLine("timeout waiting for respond on serialport " + _serialPort.PortName);
+                        _serialPort.Close();
+                        _serialPort.Dispose();
+                        return await Task.FromResult(false);
+                    }
+                    Debug.WriteLine("no respond, retrying...");
+                }
+
+
+            }
+            if (offset == 3) //3 bytes header are valid continue to read next 13 byte of data
+            {
+
+                /// [15,12,93,Led on/off,Signal LED On/off,Connection Type,Max Brightness,Show Welcome LED,Serial Timeout,0,0,0,0,0,0,0] ///////
+                //led on off
+                var noDataLEDEnable = _serialPort.ReadByte();
+                NoSignalLEDEnable = noDataLEDEnable == 15 ? true : false;
+                Log.Information("Device EEPRom Data: " + noDataLEDEnable);
+                //signal led on off
+                var signalLEDEnable = _serialPort.ReadByte();
+                IsIndicatorLEDOn = signalLEDEnable == 15 ? true : false;
+                Log.Information("Device EEPRom Data: " + signalLEDEnable);
+                //discard buffer
+                _serialPort.DiscardInBuffer();
+            }
+
+
+            _serialPort.Close();
+            _serialPort.Dispose();
+            return await Task.FromResult(true);
+            //if (isValid)
+            //    newDevices.Add(newDevice);
+            //reboot serialStream
+            //IsTransferActive = true;
+            //RaisePropertyChanged(nameof(IsTransferActive));
         }
         public async Task<bool> SendHardwareSettings()
         {
@@ -675,8 +760,8 @@ namespace adrilight_shared.Models.Device
                     offset += readCount;
                     count -= readCount;
                 }
-                DeviceName = Encoding.ASCII.GetString(name, 0, name.Length);
-                RaisePropertyChanged(nameof(DeviceName));
+                // DeviceName = Encoding.ASCII.GetString(name, 0, name.Length);
+                // RaisePropertyChanged(nameof(DeviceName));
 
 
             }
@@ -699,8 +784,8 @@ namespace adrilight_shared.Models.Device
             //if (isValid)
             //    newDevices.Add(newDevice);
             //reboot serialStream
-            IsTransferActive = true;
-            RaisePropertyChanged(nameof(IsTransferActive));
+            // IsTransferActive = true;
+            //RaisePropertyChanged(nameof(IsTransferActive));
         }
 
     }

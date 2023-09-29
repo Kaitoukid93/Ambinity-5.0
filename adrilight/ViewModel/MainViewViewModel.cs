@@ -3433,10 +3433,10 @@ namespace adrilight.ViewModel
             OpenDeviceFirmwareSettingsWindowCommand = new RelayCommand<string>((p) =>
             {
                 return p != null;
-            }, (p) =>
+            }, async (p) =>
             {
                 //check for update
-                OpenDeviceFirmwareSettingsWindow();
+                await OpenDeviceFirmwareSettingsWindow();
             });
             OpenAdvanceSettingWindowCommand = new RelayCommand<string>((p) =>
             {
@@ -6219,9 +6219,30 @@ namespace adrilight.ViewModel
                 window.ShowDialog();
             }
         }
-
-        private void OpenDeviceFirmwareSettingsWindow()
+        private async Task OpenDeviceFirmwareSettingsWindow()
         {
+            //get device settings info
+            if (CurrentDevice.DeviceType.Type == DeviceTypeEnum.AmbinoBasic || CurrentDevice.DeviceType.Type == DeviceTypeEnum.AmbinoEDGE)
+            {
+                var deviceFWVersion = new Version(CurrentDevice.FirmwareVersion);
+                var requiredVersion = new Version();
+                if (CurrentDevice.DeviceType.Type == DeviceTypeEnum.AmbinoBasic)
+                {
+                    requiredVersion = new Version("1.0.8");
+                }
+                else if (CurrentDevice.DeviceType.Type == DeviceTypeEnum.AmbinoEDGE)
+                {
+                    requiredVersion = new Version("1.0.5");
+                }
+                if (deviceFWVersion >= requiredVersion)
+                {
+                    IsApplyingDeviceHardwareSettings = true;
+                    var result = await Task.Run(() => CurrentDevice.GetHardwareSettings());
+                    IsApplyingDeviceHardwareSettings = false;
+                }
+            }
+
+
             if (AssemblyHelper.CreateInternalInstance($"View.{"DeviceFirmwareSettingsWindow"}") is System.Windows.Window window)
             {
                 //reset progress and log display
@@ -6232,6 +6253,7 @@ namespace adrilight.ViewModel
                 window.Owner = System.Windows.Application.Current.MainWindow;
                 window.ShowDialog();
             }
+
         }
 
         private void OpenNameEditWindow(System.Windows.Window owner)
@@ -8814,7 +8836,7 @@ namespace adrilight.ViewModel
             };
             var ABR2e = new DeviceFirmware() {
                 Name = "ABR2e.hex",
-                Version = "1.0.7",
+                Version = "1.0.8",
                 TargetHardware = "ABR2e",
                 TargetDeviceType = DeviceTypeEnum.AmbinoBasic,
                 Geometry = "binary",
@@ -8830,7 +8852,7 @@ namespace adrilight.ViewModel
             };
             var AER2e = new DeviceFirmware() {
                 Name = "AER2e.hex",
-                Version = "1.0.4",
+                Version = "1.0.5",
                 TargetHardware = "AER2e",
                 TargetDeviceType = DeviceTypeEnum.AmbinoEDGE,
                 Geometry = "binary",

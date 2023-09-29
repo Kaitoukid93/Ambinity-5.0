@@ -1464,7 +1464,7 @@
                                            Text="Ambinity 5.0.8"></TextBlock>
                                 <TextBlock Margin="0,0,0,5"
                                            Style="{DynamicResource TextBlockDefault}"
-                                           Text="Release date : 23/9/2023_a"></TextBlock>
+                                           Text="Release date : 29/9/2023_a"></TextBlock>
                                 <StackPanel HorizontalAlignment="Center"
                                             Margin="0,0,0,0"
                                             Orientation="Horizontal">
