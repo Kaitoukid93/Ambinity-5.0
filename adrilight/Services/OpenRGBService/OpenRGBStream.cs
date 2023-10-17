@@ -32,6 +32,7 @@ namespace adrilight.Services.OpenRGBService
             switch (deviceSettings.DeviceType.Type)
             {
                 case DeviceTypeEnum.Ram:
+                case DeviceTypeEnum.Dram:
                     _frameRate = 20;
                     break;
                 default:
@@ -110,8 +111,12 @@ namespace adrilight.Services.OpenRGBService
                                 var device = AmbinityClient.Client.GetControllerData(i);
                                 var deviceName = device.Name.ToValidFileName();
                                 if (DeviceSettings.OutputPort == deviceName + device.Location)
+                                {
                                     //so we're at i
                                     index = i;
+                                    break;
+                                }
+                                   
 
                             }
                         }
