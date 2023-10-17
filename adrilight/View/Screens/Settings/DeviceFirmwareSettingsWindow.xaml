@@ -225,7 +225,7 @@
                                Grid.Column="1"
                                Text="Để thoát khỏi chế độ DFU, hãy rút USB của thiết bị ra và cắm lại" />
                 </Grid>
-              
+
                 <Grid Visibility="{Binding CurrentDevice.DeviceHardwareControlEnable,Converter={StaticResource boolToVisibilityConvert}}">
                     <StackPanel>
                         <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
@@ -310,27 +310,22 @@
                         <Grid>
                             <StackPanel  HorizontalAlignment="Right"
                                          Margin="5"
-                                         Orientation="Horizontal">
-                                <loadin:LoadingIndicator Visibility="{Binding IsApplyingDeviceHardwareSettings,Converter={StaticResource boolToVisibilityConvert}}"
-                                                         Width="32"
-                                                         Height="32"
-                                                         Margin="10,0"
-                                                         Name="Pulse"
-                                                         SpeedRatio="1"
-                                                         Foreground="{DynamicResource PrimaryBrush}"
-                                                         IsActive="True"
-                                                         Style="{DynamicResource LoadingIndicatorPulseStyle}"></loadin:LoadingIndicator>
+                                         Orientation="Vertical">
                                 <Button Command="{Binding ApplyDeviceHardwareSettingsCommand}"
                                         Style="{DynamicResource _mediumProfileDefaultButton}"
                                         Content="Apply">
-
                                 </Button>
+                                <ProgressBar Visibility="{Binding IsApplyingDeviceHardwareSettings,Converter={StaticResource boolToVisibilityConvert}}"
+                                             hc:BorderElement.CornerRadius="0"
+                                             IsIndeterminate="True"
+                                             Margin="0,5,0,0"
+                                             Height="4" />
                             </StackPanel>
 
                         </Grid>
                     </StackPanel>
                 </Grid>
-                
+
 
                 <!--<Grid >
                 <Grid.ColumnDefinitions>

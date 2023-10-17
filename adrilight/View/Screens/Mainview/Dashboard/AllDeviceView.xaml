@@ -134,14 +134,18 @@
             </Style>
             <DataTemplate x:Key="_horizontalCardItemTemplate"
                           DataType="{x:Type lighting:LightingProfile}">
-                <Border Width="300"
-                        x:Name="bd"
-                        BorderBrush="Transparent"
-                        Effect="{StaticResource EffectShadow2}"
-                        CornerRadius="7"
+                <Button Width="300"
                         Height="100"
+                        Padding="0"
                         Margin="5"
-                        Background="{DynamicResource MainContentBackgroundBrush}">
+                        hc:BorderElement.CornerRadius="7"
+                        Style="{DynamicResource _mediumProfileDefaultButton}"
+                        BorderThickness="0"
+                        Background="{DynamicResource MainContentBackgroundBrush}"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch"
+                        Command="{Binding Path=DataContext.ActivateCurrentLightingProfileCommand, RelativeSource={RelativeSource AncestorType={x:Type local:AllDeviceView}}}"
+                        CommandParameter="{Binding .}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="auto" />
@@ -184,20 +188,6 @@
                                                    Style="{DynamicResource TextBlockSubTitle}"
                                                    FontWeight="SemiBold"
                                                    TextTrimming="CharacterEllipsis" />
-                                        <Button Grid.Column="2"
-                                                Margin="5"
-                                                HorizontalAlignment="Right"
-                                                VerticalAlignment="Bottom"
-                                                Padding="2"
-                                                Width="50"
-                                                Height="25"
-                                                BorderThickness="0"
-                                                Content="Activate"
-                                                Foreground="{DynamicResource PrimaryBrush}"
-                                                Background="{DynamicResource primaryBackgroundBrush}"
-                                                Command="{Binding Path=DataContext.ActivateCurrentLightingProfileCommand, RelativeSource={RelativeSource AncestorType={x:Type local:AllDeviceView}}}"
-                                                CommandParameter="{Binding DataContext,ElementName=bd}">
-                                        </Button>
                                     </Grid>
                                     <StackPanel Orientation="Horizontal"
                                                 Margin="5,5,0,5">
@@ -238,7 +228,7 @@
                         </Grid>
 
                     </Grid>
-                </Border>
+                </Button>
             </DataTemplate>
             <Style x:Key="_listBoxGeneralModeSelectionStyle"
                    TargetType="ListViewItem">
@@ -490,11 +480,38 @@
                                                    HorizontalAlignment="Left" />
                                     </Grid>
                                     <Grid Margin="0">
-                                        <TextBlock Margin="15,0,10,20"
-                                                   Text="Tất cả các thiết bị sẽ tự động được dò ra và hiển thị ở đây"
-                                                   VerticalAlignment="Top"
-                                                   Style="{DynamicResource TextBlockDefaultSecLight}"
-                                                   HorizontalAlignment="Left" />
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Margin="15,0,0,20"
+                                                       Text="Tất cả các thiết bị sẽ tự động được dò ra và hiển thị ở đây."
+                                                       VerticalAlignment="Top"
+                                                       Style="{DynamicResource TextBlockDefaultSecLight}"
+                                                       HorizontalAlignment="Left" />
+                                            <Button Command="{Binding RequestingRescanDevicesCommand}"
+                                                    CommandParameter="Lighting"
+                                                    IsEnabled="{Binding IsRescanningDevices, Converter={StaticResource Boolean2BooleanReConverter}}"
+                                                    ToolTip="Dò lại các thiết bị nếu trình tự động không tìm ra"
+                                                    VerticalAlignment="Top"
+                                                    Padding="0"
+                                                    Height="15"
+                                                    Margin="5,0,5,0"
+                                                    Background="Transparent"
+                                                    BorderThickness="0">
+                                                <TextBlock Margin="0,0"
+                                                           VerticalAlignment="Top"
+                                                           HorizontalAlignment="Center"
+                                                           TextWrapping="Wrap"
+                                                           Style="{DynamicResource TextBlockDefaultPrimary}"
+                                                           Text="Rescan devices" />
+                                            </Button>
+                                            <ProgressBar Visibility="{Binding IsRescanningDevices,Converter={StaticResource boolToVisibilityConvert}}"
+                                                         hc:BorderElement.CornerRadius="2"
+                                                         VerticalAlignment="Top"
+                                                         IsIndeterminate="True"
+                                                         Margin="5,8,0,0"
+                                                         Width="100"
+                                                         Height="4" />
+                                        </StackPanel>
+                                        
                                     </Grid>
                                 </StackPanel>
                             </Grid>

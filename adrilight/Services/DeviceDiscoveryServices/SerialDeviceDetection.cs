@@ -29,7 +29,6 @@ namespace adrilight.Util
         public SerialDeviceDetection(List<IDeviceSettings> existedSerialDevice)
         {
             ExistedSerialDevice = existedSerialDevice;
-            Log.Information("SerialDetection");
         }
 
 
@@ -42,21 +41,16 @@ namespace adrilight.Util
             {
                 foreach (var port in CH55X)
                 {
+                    if (ExistedSerialDevice.Any(d => d.OutputPort == port && d.IsTransferActive == true))
+                        continue;
                     devices.Add(port);
                 }
                 foreach (var port in CH340)
                 {
+                    if (ExistedSerialDevice.Any(d => d.OutputPort == port && d.IsTransferActive == true))
+                        continue;
                     devices.Add(port);
                 }
-                //int counter = 0;
-                //foreach (String s in SerialPort.GetPortNames())
-                //{
-                //    if (CH55X.Contains(s) || CH340.Contains(s))
-                //    {
-                //        counter++;
-                //        devices.Add(s);
-                //    }
-                //}
             }
             else
             {

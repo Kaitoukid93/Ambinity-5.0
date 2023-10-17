@@ -7,7 +7,7 @@ using adrilight_shared.Models.Device.SlaveDevice;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.Device.Zone.Spot;
 using adrilight_shared.Settings;
-using NLog;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,9 +20,6 @@ namespace adrilight.Services.OpenRGBService
     internal sealed class OpenRGBStream : IDisposable, ISerialStream
     {
 
-
-        private ILogger _log = LogManager.GetCurrentClassLogger();
-
         public OpenRGBStream(IDeviceSettings deviceSettings, IGeneralSettings generalSettings, IAmbinityClient ambinityClient)
         {
             GeneralSettings = generalSettings ?? throw new ArgumentException(nameof(generalSettings));
@@ -32,17 +29,22 @@ namespace adrilight.Services.OpenRGBService
             // DeviceSpotSets = deviceSpotSets ?? throw new ArgumentNullException(nameof(deviceSpotSets));
             DeviceSettings.PropertyChanged += UserSettings_PropertyChanged;
             DeviceSettings.DeviceState = DeviceStateEnum.Normal;
+            switch (deviceSettings.DeviceType.Type)
+            {
+                case DeviceTypeEnum.Ram:
+                    _frameRate = 20;
+                    break;
+                default:
+                    _frameRate = 50;
+                    break;
+            }
             RefreshTransferState();
-
-            _log.Info($"OpenRGBStream created.");
-
-
         }
         //Dependency Injection//
         private IDeviceSettings DeviceSettings { get; set; }
         private IGeneralSettings GeneralSettings { get; set; }
         private IAmbinityClient AmbinityClient { get; }
-
+        private int _frameRate = 60;
         private void UserSettings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
@@ -93,18 +95,12 @@ namespace adrilight.Services.OpenRGBService
         }
         private void RefreshTransferState()
         {
-
-            if (DeviceSettings.IsTransferActive && DeviceSettings.DeviceState == DeviceStateEnum.Normal) // normal scenario
+            if (DeviceSettings.IsTransferActive) // normal scenario
             {
-                if (IsRunning)
-                {
-                    Stop(); // stop current running if worker thread is alive.
-                }
-                if (AmbinityClient.Client != null && AmbinityClient.Client.Connected)
-                {
 
-                    //start it
-                    //find out which position 
+                if (IsValid())
+                {
+                    //find which position this device is in the OpenRGB App
                     try
                     {
                         lock (AmbinityClient.Lock)
@@ -118,9 +114,9 @@ namespace adrilight.Services.OpenRGBService
                                     index = i;
 
                             }
-                            _log.Debug("starting the OpenRGB stream for device Name : " + DeviceSettings.DeviceName);
-                            Start();
                         }
+                        Log.Information("starting the OpenRGB stream for device Name : " + DeviceSettings.DeviceName);
+                        Start();
                     }
                     catch (Exception ex)
                     {
@@ -131,26 +127,15 @@ namespace adrilight.Services.OpenRGBService
                 else
                 {
                     DeviceSettings.IsTransferActive = false;
-
                 }
             }
 
             else if (!DeviceSettings.IsTransferActive && IsRunning) // user requesting for stop transfer state, this is due to changing comport or user intend to stop the serial stream.
             {
                 //stop it
-                _log.Debug("stopping the serial stream");
+                Log.Information("stopping the OpenRGB Stream");
                 Stop();
-            }
-            else if (DeviceSettings.IsTransferActive && DeviceSettings.DeviceState == DeviceStateEnum.Sleep) // computer susped or app exit, this could be an event from sleep button ( not available at the moment)
-            {
-                // this is handled by GetOutputStream at the moment.
-                // change output stream to black or sentry.
-                // stop the serial stream.
-            }
-            else if (DeviceSettings.IsTransferActive && DeviceSettings.DeviceState == DeviceStateEnum.DFU) // this is only requested by dfu or fwupgrade button.
-            {
-                Stop();
-                Thread.Sleep(1000);
+                Thread.Sleep(500);
             }
 
         }
@@ -164,7 +149,6 @@ namespace adrilight.Services.OpenRGBService
 
         public void Start()
         {
-            _log.Debug("Start called.");
             if (_workerThread != null) return;
 
             _cancellationTokenSource = new CancellationTokenSource();
@@ -182,7 +166,6 @@ namespace adrilight.Services.OpenRGBService
 
         public void Stop()
         {
-            _log.Debug("Stop called.");
             if (_workerThread == null) return;
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource = null;
@@ -286,7 +269,7 @@ namespace adrilight.Services.OpenRGBService
 
             if (AmbinityClient.Client == null)
             {
-                _log.Warn("Cannot start the socket sending because the Ambinity Client is null.");
+                Log.Warning("Cannot start the socket sending because the Ambinity Client is null.");
                 return;
             }
 
@@ -296,13 +279,9 @@ namespace adrilight.Services.OpenRGBService
             {
                 try
                 {
-
-
-
-
+                    var ledCount = AmbinityClient.Client.GetControllerData(index).Leds.Count();
                     while (!cancellationToken.IsCancellationRequested)
                     {
-
                         var deviceColors = new List<OpenRGB.NET.Models.Color>();
                         //send frame data
                         var outputColor = new List<OpenRGB.NET.Models.Color>();
@@ -325,25 +304,22 @@ namespace adrilight.Services.OpenRGBService
                         lock (AmbinityClient.Lock)
                         {
                             if (AmbinityClient.IsInitialized)
-                                AmbinityClient.Client.UpdateLeds(index, deviceColors.ToArray());
+                                AmbinityClient.Client.UpdateLeds(index, deviceColors.Take(ledCount).ToArray());
                         }
-                        Thread.Sleep(17);
+                        Thread.Sleep(1000 / _frameRate);
                     }
 
                 }
 
                 catch (OperationCanceledException)
                 {
-                    _log.Debug("OperationCanceledException catched. returning.");
+                    Log.Error("OperationCanceledException catched. returning.");
 
                     return;
                 }
                 catch (Exception ex)
                 {
-
-
-
-                    _log.Debug(ex, "Exception catched. OpenRGB proccess could be deleted");
+                    Log.Error(ex, "Exception catched. OpenRGB proccess could be deleted");
 
                     //allow the system some time to recover
                     Thread.Sleep(500);

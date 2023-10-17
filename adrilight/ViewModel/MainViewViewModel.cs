@@ -246,6 +246,7 @@ namespace adrilight.ViewModel
             }
         }
         public ICommand CreateNewLightingProfileCommand { get; set; }
+        public ICommand RequestingRescanDevicesCommand { get; set; }
         public ICommand CreateNewVIDCommand { get; set; }
         public ICommand DeleteSelectedLightingProfileCommand { get; set; }
         public ICommand OpenCreateNewLightingProfileWindowCommand { get; set; }
@@ -1429,6 +1430,24 @@ namespace adrilight.ViewModel
             return await Task.FromResult(result);
         }
         private PossibleMatchedDeviceSelectionWindow possibleMatchedDeviceSelection { get; set; }
+        private bool _isRescanningDevices;
+        public bool IsRescanningDevices {
+            get
+            {
+                return _isRescanningDevices;
+            }
+            set
+            {
+                _isRescanningDevices = value;
+                RaisePropertyChanged();
+            }
+        }
+        public event EventHandler RequestingDeviceRescanEvent;
+        public void OnRequestingDeviceRescanEvent()
+        {
+            EventHandler handler = RequestingDeviceRescanEvent;
+            if (null != handler) handler(this, EventArgs.Empty);
+        }
         public async Task FoundNewDevice(List<IDeviceSettings> newDevices)
         {
             if (IsLoadingProfile)
@@ -3504,6 +3523,13 @@ namespace adrilight.ViewModel
             }, (p) =>
             {
                 CloseSearchingScreen();
+            });
+            RequestingRescanDevicesCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                OnRequestingDeviceRescanEvent();
             });
             ManuallyAddSelectedDeviceToDashboard = new RelayCommand<IDeviceSettings>((p) =>
             {
@@ -6224,7 +6250,10 @@ namespace adrilight.ViewModel
             //get device settings info
             if (CurrentDevice.DeviceType.Type == DeviceTypeEnum.AmbinoBasic || CurrentDevice.DeviceType.Type == DeviceTypeEnum.AmbinoEDGE)
             {
-                var deviceFWVersion = new Version(CurrentDevice.FirmwareVersion);
+                string fwversion = CurrentDevice.FirmwareVersion;
+                if (fwversion == "unknown" || fwversion == string.Empty || fwversion == null)
+                    fwversion = "1.0.0";
+                var deviceFWVersion = new Version(fwversion);
                 var requiredVersion = new Version();
                 if (CurrentDevice.DeviceType.Type == DeviceTypeEnum.AmbinoBasic)
                 {

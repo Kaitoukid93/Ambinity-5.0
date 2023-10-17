@@ -702,9 +702,7 @@
                     <ColumnDefinition Width="auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal">
-
-                    <hc:LoadingCircle Visibility="{Binding IsApplyingDeviceHardwareSettings,Converter={StaticResource boolToVisibilityConvert}}" Height="32" />
+             
                     <Button ToolTip="Open hardware settings" Command="{Binding OpenDeviceFirmwareSettingsWindowCommand}"
                         CommandParameter="connection"
                         hc:BorderElement.CornerRadius="7"
@@ -733,62 +731,78 @@
                             </Style.Triggers>
                         </Style>
                     </Button.Style>
-                    <Grid Margin="5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Path Width="30"
-                              Height="30"
-                              Margin="5,10"
-                              Data="{StaticResource hardware}"
-                              Stretch="Uniform">
-                            <Path.Style>
-                                <Style TargetType="Path">
-                                    <Setter Property="Fill"
-                                            Value="{DynamicResource PrimaryBrush}" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding CurrentDevice.IsTransferActive}"
-                                                     Value="False">
-                                            <Setter Property="Fill"
-                                                    Value="{StaticResource SecondaryTextBrush}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Path.Style>
-                        </Path>
-
-                        <Grid HorizontalAlignment="Left"
-                              Grid.Column="1">
-                            <StackPanel HorizontalAlignment="Left">
-                                <TextBlock HorizontalAlignment="Left"
-                                           Text="{Binding CurrentDevice.DeviceType.Type}"
-                                           Style="{StaticResource TextBlockSubTitle}"
-                                           FontWeight="SemiBold"
-                                           Margin="5,2" />
-
-                                <Grid>
+                    <Grid>
+                        <Grid Margin="0" VerticalAlignment="Top">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="auto" />
                                         <ColumnDefinition Width="auto" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{Binding CurrentDevice.FirmwareVersion}"
-                                               Style="{StaticResource TextBlockDefaultPrimary}"
-                                               Margin="5,2"
-                                               HorizontalAlignment="Left" />
-                                    <TextBlock Grid.Column="2"
-                                               Text="{Binding CurrentDevice.HardwareVersion}"
-                                               Style="{StaticResource TextBlockDefaultPrimary}"
-                                               Margin="5,2"
-                                               HorizontalAlignment="Left" />
+                                    <Path Width="30"
+                                          Height="30"
+                                          Margin="10,10,5,10"
+                                          Data="{StaticResource hardware}"
+                                          Stretch="Uniform">
+                                        <Path.Style>
+                                            <Style TargetType="Path">
+                                                <Setter Property="Fill"
+                                                        Value="{DynamicResource PrimaryBrush}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding CurrentDevice.IsTransferActive}"
+                                                                 Value="False">
+                                                        <Setter Property="Fill"
+                                                                Value="{StaticResource SecondaryTextBrush}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Path.Style>
+                                    </Path>
+
+                                    <Grid HorizontalAlignment="Left"
+                                          Grid.Column="1">
+                                        <StackPanel HorizontalAlignment="Left">
+                                            <TextBlock HorizontalAlignment="Left"
+                                                       Text="{Binding CurrentDevice.DeviceType.Type}"
+                                                       Style="{StaticResource TextBlockSubTitle}"
+                                                       FontWeight="SemiBold"
+                                                       Margin="5,2,10,2" />
+
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="auto" />
+                                                    <ColumnDefinition Width="auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding CurrentDevice.FirmwareVersion}"
+                                                           Style="{StaticResource TextBlockDefaultPrimary}"
+                                                           Margin="5,2"
+                                                           HorizontalAlignment="Left" />
+                                                <TextBlock Grid.Column="2"
+                                                           Text="{Binding CurrentDevice.HardwareVersion}"
+                                                           Style="{StaticResource TextBlockDefaultPrimary}"
+                                                           Margin="5,2"
+                                                           HorizontalAlignment="Left" />
+                                            </Grid>
+                                        </StackPanel>
+                                    </Grid>
                                 </Grid>
-                            </StackPanel>
+                                <Grid Grid.Row="1">
+                                <ProgressBar Visibility="{Binding IsApplyingDeviceHardwareSettings,Converter={StaticResource boolToVisibilityConvert}}"
+                                             hc:BorderElement.CornerRadius="0"
+                                                 IsIndeterminate="True"
+                                                 Margin="0,5,0,0"
+                                                 Height="4" />
+                                </Grid>
                         </Grid>
+
                     </Grid>
                 </Button>
-                   
-                </StackPanel>
+                    
+             
             </Grid>
             <Grid Margin="0,0,5,0"
                   Grid.Column="5">

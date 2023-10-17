@@ -20,7 +20,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
 {
     internal class DeviceDiscovery
     {
-        private bool _openRGBIsInit = false;
+
         public DeviceDiscovery(IGeneralSettings settings, IContext context, IAmbinityClient ambinityClient, MainViewViewModel mainViewViewModel)
         {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
@@ -39,11 +39,16 @@ namespace adrilight.Services.DeviceDiscoveryServices
 
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             MainViewViewModel.AvailableDevices.CollectionChanged += (_, __) => DeviceCollectionChanged();
-            SerialDeviceDetector = new SerialDeviceDetection(MainViewViewModel.AvailableDevices.Where(p => p.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.Wired).ToList());
+            MainViewViewModel.RequestingDeviceRescanEvent += (_, __) => RescanOpenRGBDevices();
             StartThread();
 
         }
+        private bool _openRGBIsInit = false;
         private void AmbinityClientStateChanged()
+        {
+            _openRGBIsInit = false;
+        }
+        private void RescanOpenRGBDevices()
         {
             _openRGBIsInit = false;
         }
@@ -84,21 +89,23 @@ namespace adrilight.Services.DeviceDiscoveryServices
             {
                 try
                 {
-                    //show searching screen
-                    //if (!MainViewViewModel.IsDeviceDiscoveryInit)
-                    //{
-                    //    MainViewViewModel.ShowSearchingScreen();
-                    //    MainViewViewModel.SetSearchingScreenHeaderText("Searching for devices...", true);
-                    //    MainViewViewModel.SetSearchingScreenProgressText("Scanning...");
-                    //}
+                    //get the list of existed device
+                    // if device is existed and device is connected ( device.IstransferActive ) , remove from the list
+                    // if device is existed and device is connected, leave it available to reconnect
+                    var existedSerialDevices = MainViewViewModel.AvailableDevices.Where(d => d.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.Wired).ToList();
+                    var existedOpenRGBDevices = MainViewViewModel.AvailableDevices.Where(d => d.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.OpenRGB).ToList();
+                    SerialDeviceDetector = new SerialDeviceDetection(existedSerialDevices);
                     var shouldBeRunning = !MainViewViewModel.FrimwareUpgradeIsInProgress && !MainViewViewModel.IsApplyingDeviceHardwareSettings;
                     if (Settings.DeviceDiscoveryMode == 0 && shouldBeRunning)
                     {
-                        // openRGB device scan only run once at startup
+                        // openRGB device scan keep running until all existed device get connected
+                        // if openrgb devices is not transfer active, check if this device is in the list of openRGB software and reconnect
                         var openRGBDevices = (new List<IDeviceSettings>(), new List<string>());
                         if (Settings.IsOpenRGBEnabled && !_openRGBIsInit && Settings.UsingOpenRGB)
                         {
-                            openRGBDevices = await ScanOpenRGBDevices();
+                            MainViewViewModel.IsRescanningDevices = true;
+                            openRGBDevices = await ScanOpenRGBDevices(existedOpenRGBDevices);
+                            MainViewViewModel.IsRescanningDevices = false;
                         }
                         var serialDevices = await ScanSerialDevice();
                         var newDevices = new List<IDeviceSettings>();
@@ -126,9 +133,12 @@ namespace adrilight.Services.DeviceDiscoveryServices
             }
         }
 
-        private async Task<(List<IDeviceSettings>, List<string>)> ScanOpenRGBDevices()
+        private async Task<(List<IDeviceSettings>, List<string>)> ScanOpenRGBDevices(List<IDeviceSettings> existedDevice)
         {
-
+            //stop every existed device openrgb stream
+            existedDevice.ForEach(d => d.IsTransferActive = false);
+            //wait for all process to finish
+            Thread.Sleep(500);
             var newDevicesDetected = new List<IDeviceSettings>();
             var oldDeviceReconnected = new List<string>();
             if (!AmbinityClient.IsInitialized && !AmbinityClient.IsInitializing)
@@ -144,7 +154,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
                     {
                         var deviceName = openRGBDevice.Name.ToValidFileName();
                         var deviceUID = Guid.NewGuid().ToString();
-                        if (MainViewViewModel.AvailableDevices.Any(d => d.OutputPort == deviceName + openRGBDevice.Location))
+                        if (existedDevice.Any(d => d.OutputPort == deviceName + openRGBDevice.Location && d.IsTransferActive == false))
                         {
                             oldDeviceReconnected.Add(deviceName + openRGBDevice.Location);
                             continue;
@@ -187,11 +197,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
                 }
 
             }
-            if (newDevicesDetected.Count > 0 || oldDeviceReconnected.Count > 0)
-            {
-                _openRGBIsInit = true;
-            }
-
+            _openRGBIsInit = true;
             return await Task.FromResult((newDevicesDetected, oldDeviceReconnected));
         }
         private static object _syncRoot = new object();

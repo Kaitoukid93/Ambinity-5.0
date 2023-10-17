@@ -34,8 +34,9 @@ namespace adrilight.Services.LightingEngine
             )
         {
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
-            if (desktopFrame != null && desktopFrame.Count() > 0)
+            if (desktopFrame != null && desktopFrame.Count() > 0 && desktopFrame.Any(d => d is DesktopFrame || d is DesktopFrameDXGI))
             {
+                var frame = desktopFrame.Where(d => d is DesktopFrame || d is DesktopFrameDXGI).First();
                 DesktopFrame = desktopFrame.Where(d => d is DesktopFrame || d is DesktopFrameDXGI).First() ?? throw new ArgumentNullException(nameof(desktopFrame));
             }
 

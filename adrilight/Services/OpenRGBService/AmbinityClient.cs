@@ -1,5 +1,4 @@
-﻿using adrilight.ViewModel;
-using adrilight_shared.Helpers;
+﻿using adrilight_shared.Helpers;
 using adrilight_shared.Settings;
 using GalaSoft.MvvmLight;
 using OpenRGB.NET;
@@ -25,10 +24,9 @@ namespace adrilight.Services.OpenRGBService
         private string ORGBExeFolderNameAndPath => Path.Combine(ORGBPath, "OpenRGB\\");
         private string ORGBExeFileNameAndPath => Path.Combine(ORGBExeFolderNameAndPath, "OpenRGB Windows 64-bit\\OpenRGB.exe");
 
-        public AmbinityClient(IGeneralSettings generalSettings, MainViewViewModel mainViewViewModel)
+        public AmbinityClient(IGeneralSettings generalSettings)
         {
             GeneralSettings = generalSettings ?? throw new ArgumentException(nameof(generalSettings));
-            MainViewViewModel = mainViewViewModel ?? throw new ArgumentException(nameof(mainViewViewModel));
             _retryPolicy = Policy
            .Handle<Exception>()
            .WaitAndRetryAsync(10, _ => TimeSpan.FromSeconds(5));
@@ -39,7 +37,6 @@ namespace adrilight.Services.OpenRGBService
         }
         //Dependency Injection//
         private IGeneralSettings GeneralSettings { get; }
-        private MainViewViewModel MainViewViewModel { get; }
         public ResourceHelpers ResourceHlprs { get; set; }
         private Process _oRGBProcess;
         public Process ORGBProcess {
@@ -118,7 +115,6 @@ namespace adrilight.Services.OpenRGBService
             {
                 if (ORGBProcess == null)
                 {
-                    MainViewViewModel.SetSearchingScreenProgressText("Starting OpenRGB service...");
                     LaunchOpenRGBProcess();
                 }
                 await Task.Delay(5000);
@@ -126,11 +122,9 @@ namespace adrilight.Services.OpenRGBService
                 {
                     if (Client != null)
                         Client.Dispose();
-                    MainViewViewModel.SetSearchingScreenProgressText("Searching for OpenRGB devices...");
                     var result = await _retryPolicy.ExecuteAsync(async () => await RefreshOpenRGBDeviceState());
                     if (result)
                     {
-                        MainViewViewModel.SetSearchingScreenProgressText("Done!");
                         IsInitialized = true;
                         IsInitializing = false;
                     }
@@ -140,7 +134,6 @@ namespace adrilight.Services.OpenRGBService
                 {
                     HandyControl.Controls.MessageBox.Show("Không tìm thấy Server OpenRGB, Hãy thử thoát ứng dụng và mở lại");
                     IsInitialized = false;
-                    MainViewViewModel.SearchingForDevices = false;
                     IsInitializing = false;
                     //IsAvailable= false;
 

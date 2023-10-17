@@ -1,5 +1,6 @@
 ﻿using adrilight.ViewModel;
 using adrilight_shared.Enums;
+using adrilight_shared.Models.ControlMode;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.ControlMode.ModeParameters;
 using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
@@ -82,6 +83,7 @@ namespace adrilight.Services.LightingEngine
         private ListSelectionParameter _chasingPatternControl;
         private SliderParameter _brightnessControl;
         private SliderParameter _speedControl;
+        private SliderParameter _smoothControl;
         private ToggleParameter _enableControl;
 
         private enum DimMode { Up, Down };
@@ -91,6 +93,7 @@ namespace adrilight.Services.LightingEngine
         private Color[] _colorBank;
         private double _brightness;
         private int _speed;
+        private int _smoothFactor;
         private double _paletteSpeed;
         private Motion _motion;
         private bool _isEnable;
@@ -313,6 +316,11 @@ namespace adrilight.Services.LightingEngine
             _speed = value;
             UpdateTick(CurrentZone.IsInControlGroup);
         }
+        private void OnSmoothChanged(int value)
+        {
+            _smoothFactor = value;
+            //UpdateTick(CurrentZone.IsInControlGroup);
+        }
         #endregion
 
         public void Refresh()
@@ -376,6 +384,16 @@ namespace adrilight.Services.LightingEngine
             _speedControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Speed).FirstOrDefault() as SliderParameter;
             _speedControl.MaxValue = 20;
             _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.MixedColor).FirstOrDefault() as ListSelectionParameter;
+
+            _smoothControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Smoothing).FirstOrDefault() as SliderParameter;
+            if (_smoothControl == null)
+            {
+                var controlModeHelper = new ControlModeHelpers();
+                _smoothControl = controlModeHelper.GenericSmoothParameter as SliderParameter;
+                _currentLightingMode.Parameters.Add(_smoothControl);
+            }
+            _smoothControl.MaxValue = 7;
+            _smoothControl.MinValue = 0;
             _colorControl.PropertyChanged += (_, __) =>
             {
                 switch (__.PropertyName)
@@ -400,6 +418,7 @@ namespace adrilight.Services.LightingEngine
             _colorControl.SubParams[1].PropertyChanged += (_, __) => OnPaletteSpeedPropertyChanged(_colorControl.SubParams[1].Value);
             _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
             _speedControl.PropertyChanged += (_, __) => OnSpeedChanged(_speedControl.Value);
+            _smoothControl.PropertyChanged += (_, __) => OnSmoothChanged(_smoothControl.Value);
             _brightnessControl.PropertyChanged += (_, __) => OnBrightnessValueChanged(_brightnessControl.Value);
             _colorControl.LoadAvailableValues();
             _chasingPatternControl.LoadAvailableValues();
@@ -644,10 +663,11 @@ namespace adrilight.Services.LightingEngine
         private void ApplySmoothing(float r, float g, float b, out byte semifinalR, out byte semifinalG, out byte semifinalB,
            byte lastColorR, byte lastColorG, byte lastColorB)
         {
-            var smoothingFactor = 7;
-            semifinalR = (byte)((r + smoothingFactor * lastColorR) / (smoothingFactor + 1));
-            semifinalG = (byte)((g + smoothingFactor * lastColorG) / (smoothingFactor + 1));
-            semifinalB = (byte)((b + smoothingFactor * lastColorB) / (smoothingFactor + 1));
+            if (_smoothFactor > 7 || _smoothFactor < 0)
+                _smoothFactor = 2;
+            semifinalR = (byte)((r + _smoothFactor * lastColorR) / (_smoothFactor + 1));
+            semifinalG = (byte)((g + _smoothFactor * lastColorG) / (_smoothFactor + 1));
+            semifinalB = (byte)((b + _smoothFactor * lastColorB) / (_smoothFactor + 1));
         }
 
         private readonly byte[] _nonLinearFadingCache = Enumerable.Range(0, 2560)
