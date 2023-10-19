@@ -86,38 +86,44 @@ namespace adrilight.Services.OpenRGBService
 
         public void LoadDefaultProfile()
         {
-            //try
-            //{
-            //    var listProfile = Client.GetProfiles();
-            //    var defaultProfile = listProfile.Where(p => p.Contains("default")).FirstOrDefault();
-            //    if (defaultProfile != null)
-            //    {
-            //        Client.LoadProfile(defaultProfile);
-            //    }
-            //}
-            //catch(Exception ex)
-            //{
-
-            //}
             Client.LoadProfile("default");
-
         }
         public void SaveDefaultProfile()
         {
             Client.SaveProfile("default");
         }
+        private static bool isRunning(string name)
+        {
+            try
+            {
+                var processes = Process.GetProcessesByName(name);
+                if (processes.Count() == 0 || processes == null)
+                    return false;
+            }
+            catch (InvalidOperationException)
+            {
+                return false;
+            }
+            catch (ArgumentException)
+            {
+                return false;
+            }
 
+            return true;
+        }
         public async Task RefreshTransferState()
         {
             IsInitializing = true;
 
             if (!IsInitialized && GeneralSettings.IsOpenRGBEnabled && GeneralSettings.UsingOpenRGB) // Only run OpenRGB Stream if User enable OpenRGB Utilities in General Settings
             {
-                if (ORGBProcess == null)
+                //check if OpenRGB process is alive
+                if (!isRunning("OpenRGB"))
                 {
                     LaunchOpenRGBProcess();
+                    await Task.Delay(5000);
                 }
-                await Task.Delay(5000);
+
                 try
                 {
                     if (Client != null)
@@ -202,14 +208,24 @@ namespace adrilight.Services.OpenRGBService
             var AvailableOpenRGBDevices = new List<Device>();
             try
             {
-
                 if (Client != null && Client.Connected == true)
                 {
-
-                    var newOpenRGBDevices = Client.GetAllControllerData();
-
-                    foreach (var device in newOpenRGBDevices)
+                    var devices = Client.GetAllControllerData();
+                    //set all existed device mode to dirrect if supported
+                    var index = 0;
+                    foreach (var device in devices)
                     {
+                        for (var i = 0; i < device.Modes.Length; i++)
+                        {
+                            Log.Information(device.Modes[i].Name.ToString());
+                            if (device.Modes[i].Name == "Direct")
+                            {
+                                Client.SetMode(index, i);
+                                break;
+                            }
+                        }
+                        index++;
+                        Log.Information($"Device found : " + device.Name.ToString() + "At index: " + index);
                         AvailableOpenRGBDevices.Add(device);
                     }
                 }
@@ -238,33 +254,6 @@ namespace adrilight.Services.OpenRGBService
                 //create default profile if not exist
                 if (Client.GetControllerCount() > 0)
                 {
-                    var devices = Client.GetAllControllerData();
-                    var index = 0;
-                    var profiles = Client.GetProfiles();
-                    if (!profiles.Any(p => p == "default"))
-                    {
-                        foreach (var device in devices)
-                        {
-                            for (var i = 0; i < device.Modes.Length; i++)
-                            {
-                                Debug.WriteLine(device.Modes[i].Name.ToString());
-                                if (device.Modes[i].Name == "Direct")
-                                {
-                                    Client.SetMode(index, i);
-                                }
-                            }
-                            index++;
-
-                            Log.Information($"Device found : " + device.Name.ToString() + "At index: " + index);
-
-                        }
-                        Client.SaveProfile("default");
-                        Log.Information("Saving OpenRGB Default Profile");
-                    }
-
-                    Client.LoadProfile("default");
-                    await Task.Delay(500);
-                    Log.Information("Loading OpenRGB Default Profile");
                     return await Task.FromResult(true);
                 }
                 else // this could happen due to device scanning is in progress
@@ -274,8 +263,6 @@ namespace adrilight.Services.OpenRGBService
                     throw new Exception("ORGB busy");
                     // throw some type of exception , now retry policy will catch the exception and retry
                     // the thing is, how many retrying is enough before throwing message box "no device detected"??
-
-
                 }
             }
             return await Task.FromResult(false);
@@ -285,16 +272,16 @@ namespace adrilight.Services.OpenRGBService
         {
             if (Client != null)
                 Client.Dispose();
-            if (ORGBProcess != null)
-            {
-                try { ORGBProcess.Kill(); }
+            //if (ORGBProcess != null)
+            //{
+            //    try { ORGBProcess.Kill(); }
 
-                catch
-                {
+            //    catch
+            //    {
 
-                }
+            //    }
 
-            }
+            //}
             IsInitialized = false;
             GC.SuppressFinalize(this);
         }

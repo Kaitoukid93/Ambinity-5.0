@@ -116,8 +116,6 @@ namespace adrilight.Services.OpenRGBService
                                     index = i;
                                     break;
                                 }
-                                   
-
                             }
                         }
                         Log.Information("starting the OpenRGB stream for device Name : " + DeviceSettings.DeviceName);
@@ -144,7 +142,6 @@ namespace adrilight.Services.OpenRGBService
             }
 
         }
-
 
         private Thread _workerThread;
         private CancellationTokenSource _cancellationTokenSource;
@@ -179,10 +176,6 @@ namespace adrilight.Services.OpenRGBService
         }
 
         public bool IsRunning => _workerThread != null && _workerThread.IsAlive;
-
-
-
-
         private OpenRGB.NET.Models.Color[] GetOutputStream(ISlaveDevice device)
         {
             var currentDevice = device as ARGBLEDSlaveDevice;
@@ -261,12 +254,6 @@ namespace adrilight.Services.OpenRGBService
             }
             return reOrderedColor;
         }
-        public void DFU()
-
-        {
-            //nothing to do here
-        }
-
         public bool IsValid() => AmbinityClient.Client != null && AmbinityClient.Client.Connected;
         private void DoWork(object tokenObject)
         {
@@ -355,6 +342,8 @@ namespace adrilight.Services.OpenRGBService
                 Stop();
             }
         }
+
+        public void DFU() => throw new NotImplementedException();
     }
 }
 

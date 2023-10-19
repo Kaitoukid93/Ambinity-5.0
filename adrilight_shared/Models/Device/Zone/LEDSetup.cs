@@ -3,6 +3,7 @@ using adrilight_shared.Helpers;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.ControlMode.ModeParameters;
 using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
+using adrilight_shared.Models.Device.Group;
 using adrilight_shared.Models.Device.Zone.Spot;
 using adrilight_shared.Models.Drawable;
 using GalaSoft.MvvmLight;
@@ -164,6 +165,8 @@ namespace adrilight_shared.Models.Device.Zone
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
         [JsonIgnore]
         public Rect GetRect => new Rect(Left + OffsetX, Top + OffsetY, Width, Height);
+        [JsonIgnore]
+        public ControlZoneGroup Group { get; set; }
         public string Type { get; set; }
         private DrawableHelpers DrawableHlprs = new DrawableHelpers();
         #region Lighting Related Method

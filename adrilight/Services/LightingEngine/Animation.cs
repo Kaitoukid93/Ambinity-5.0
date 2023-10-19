@@ -85,6 +85,7 @@ namespace adrilight.Services.LightingEngine
         private SliderParameter _speedControl;
         private SliderParameter _smoothControl;
         private ToggleParameter _enableControl;
+        private ListSelectionParameter _vidDataControl;
 
         private enum DimMode { Up, Down };
         private DimMode _dimMode;
@@ -106,6 +107,8 @@ namespace adrilight.Services.LightingEngine
         private bool _shouldBeMoving;
         private int _frameRate = 60;
         private enum colorUseEnum { StaticPalette, MovingPalette, CyclicPalette };
+        private int _vidIntensity;
+        private int _vidSpaceSize;
 
         #region Properties changed event handler 
         private void EnableChanged(bool value)
@@ -257,7 +260,6 @@ namespace adrilight.Services.LightingEngine
                     _ticks[1].MaxTick = _colorBank != null ? _colorBank.Length : 1024;
                     _ticks[1].TickSpeed = _paletteSpeed / 5d;
                     _ticks[1].CurrentTick = 0;
-
                 }
             }
             else
@@ -293,10 +295,10 @@ namespace adrilight.Services.LightingEngine
                 }
                 _resizedFrames = new Frame[_motion.Frames.Length];
                 UpdateTick(CurrentZone.IsInControlGroup);
-
                 foreach (var frame in _motion.Frames)
                 {
                     //scale each frame
+                    //this is when VID comes to play
                     var resizedFrame = new Frame();
                     resizedFrame.BrightnessData = ResizeFrame(frame.BrightnessData, frame.BrightnessData.Length, numLED);
                     _resizedFrames[frameCount++] = resizedFrame;
@@ -304,7 +306,6 @@ namespace adrilight.Services.LightingEngine
                 }
             }
             //update tick
-
 
         }
         private void OnBrightnessValueChanged(int value)
@@ -320,6 +321,50 @@ namespace adrilight.Services.LightingEngine
         {
             _smoothFactor = value;
             //UpdateTick(CurrentZone.IsInControlGroup);
+        }
+        private void OnSelectedVIDDataChanged(IParameterValue value)
+        {
+            if (value == null)
+                return;
+            var vid = value as VIDDataModel;
+            if (vid.ExecutionType == VIDType.PositonGeneratedID)
+            {
+                _vidDataControl.SubParams[0].IsEnabled = true;
+                _vidDataControl.SubParams[1].IsEnabled = false;
+                var vidCount = GenerateVID(value);
+                if (vidCount <= 0)
+                {
+                    vidCount = 256;
+                }
+                //resize current motion
+                if (_motion == null)
+                    return;
+                var frameCount = 0;
+                foreach (var frame in _motion.Frames)
+                {
+                    //scale each frame
+                    //this is when VID comes to play
+                    var resizedFrame = new Frame();
+                    resizedFrame.BrightnessData = ResizeFrame(frame.BrightnessData, frame.BrightnessData.Length, vidCount);
+                    _resizedFrames[frameCount++] = resizedFrame;
+                }
+
+            }
+            else
+            {
+                _vidDataControl.SubParams[0].IsEnabled = false;
+                _vidDataControl.SubParams[1].IsEnabled = true;
+                //ApplyPredefinedVID(value);
+            }
+
+
+        }
+        private void OnVIDIntensityValueChanged(int value)
+        {
+            _vidIntensity = value;
+            var currentVID = _vidDataControl.SelectedValue as VIDDataModel;
+            //if (currentVID.ExecutionType == VIDType.PositonGeneratedID)
+            // GenerateVID(_vidDataControl.SelectedValue as VIDDataModel);
         }
         #endregion
 
@@ -413,6 +458,23 @@ namespace adrilight.Services.LightingEngine
                         break;
                 }
             };
+            _vidDataControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.VID).FirstOrDefault() as ListSelectionParameter;
+            if (_vidDataControl == null)
+            {
+                var controlModeHelper = new ControlModeHelpers();
+                _vidDataControl = controlModeHelper.GenericVIDSelectParameter as ListSelectionParameter;
+                _currentLightingMode.Parameters.Add(_vidDataControl);
+            }
+            _vidDataControl.PropertyChanged += (_, __) =>
+            {
+                switch (__.PropertyName)
+                {
+                    case nameof(_vidDataControl.SelectedValue):
+                        OnSelectedVIDDataChanged(_vidDataControl.SelectedValue);
+                        break;
+                }
+            };
+            _vidDataControl.SubParams[0].PropertyChanged += (_, __) => OnVIDIntensityValueChanged(_vidDataControl.SubParams[0].Value);
             _colorControl.SubParams[0].PropertyChanged += (_, __) => OnColorUsePropertyChanged(_colorControl.SubParams[0].Value);
             _colorControl.SubParams[2].PropertyChanged += (_, __) => OnPaletteIntensityPropertyChanged(_colorControl.SubParams[2].Value);
             _colorControl.SubParams[1].PropertyChanged += (_, __) => OnPaletteSpeedPropertyChanged(_colorControl.SubParams[1].Value);
@@ -422,6 +484,7 @@ namespace adrilight.Services.LightingEngine
             _brightnessControl.PropertyChanged += (_, __) => OnBrightnessValueChanged(_brightnessControl.Value);
             _colorControl.LoadAvailableValues();
             _chasingPatternControl.LoadAvailableValues();
+            _vidDataControl.LoadAvailableValues();
             #endregion
             //safety check
             if (_colorControl.SelectedValue == null)
@@ -433,11 +496,16 @@ namespace adrilight.Services.LightingEngine
             {
                 _chasingPatternControl.SelectedValue = _chasingPatternControl.AvailableValues.First();
             }
+            if (_vidDataControl.SelectedValue == null)
+            {
+                _vidDataControl.SelectedValue = _vidDataControl.AvailableValues.Last();
+            }
             EnableChanged(_enableControl.Value == 1 ? true : false);
             OnSelectedChasingPatternChanged(_chasingPatternControl.SelectedValue);
             OnColorUsePropertyChanged(_colorControl.SubParams[0].Value);
             OnPaletteIntensityPropertyChanged(_colorControl.SubParams[2].Value);
             OnPaletteSpeedPropertyChanged(_colorControl.SubParams[1].Value);
+            OnVIDIntensityValueChanged(_vidDataControl.SubParams[0].Value);
             OnSpeedChanged(_speedControl.Value);
             OnBrightnessValueChanged(_brightnessControl.Value);
         }
@@ -458,7 +526,7 @@ namespace adrilight.Services.LightingEngine
                     }
                     if (_resizedFrames == null)
                         continue;
-                    var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
+                    var startVID = CurrentZone.Spots.MinBy(s => s.VID).FirstOrDefault().VID;
                     NextTick();
                     lock (CurrentZone.Lock)
                     {
@@ -470,7 +538,7 @@ namespace adrilight.Services.LightingEngine
                             position %= _colorBank.Length;
                             lock (_lock)
                             {
-                                var index = spot.Index - startPID;
+                                var index = spot.VID - startVID;
                                 if (index >= _resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData.Length)
                                 {
                                     index = 0;
@@ -609,6 +677,134 @@ namespace adrilight.Services.LightingEngine
             colorList.Insert(0, from);
             return colorList;
 
+        }
+        private int GenerateVID(IParameterValue value)
+        {
+            var vid = value as VIDDataModel;
+            if (vid.ExecutionType == VIDType.PredefinedID)
+                return 0;
+            Rect vidSpace = new Rect();
+            if (CurrentZone.IsInControlGroup)
+            {
+                vidSpace = CurrentZone.GroupRect;
+            }
+            else
+            {
+                vidSpace = new Rect(CurrentZone.GetRect.Left, CurrentZone.GetRect.Top, CurrentZone.Width, CurrentZone.Height);
+            }
+            //get brush size
+            //brush rect will move as the dirrection, so intersect size increase
+            double vidSpaceWidth;
+            double vidSpaceHeight;
+            double zoneOffSetLeft;
+            double zoneOffSetTop;
+            int VIDCount = 0;
+            CurrentZone.ResetVIDStage();
+            switch (vid.Dirrection)
+            {
+                case VIDDirrection.left2right:
+                    vidSpaceWidth = vidSpace.Width;
+                    vidSpaceHeight = vidSpace.Height;
+                    zoneOffSetLeft = CurrentZone.GetRect.Left - vidSpace.Left;
+                    zoneOffSetTop = CurrentZone.GetRect.Top - vidSpace.Top;
+                    VIDCount = (int)zoneOffSetLeft;
+                    for (int x = 0; x < vidSpaceWidth; x += 5)
+                    {
+                        int settedVIDCount = 0;
+                        var brush = new Rect(0 - zoneOffSetLeft, 0 - zoneOffSetTop, x, vidSpaceHeight);
+                        foreach (var spot in CurrentZone.Spots)
+                        {
+                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
+                                settedVIDCount++;
+                        }
+                        if (settedVIDCount > 0)
+                        {
+                            VIDCount += _vidIntensity;
+                        }
+                        if (VIDCount > 1023)
+                            VIDCount = 0;
+                    }
+                    break;
+                case VIDDirrection.right2left:
+                    vidSpaceWidth = (int)vidSpace.Width;
+                    vidSpaceHeight = (int)vidSpace.Height;
+                    zoneOffSetLeft = CurrentZone.GetRect.Left - vidSpace.Left;
+                    zoneOffSetTop = CurrentZone.GetRect.Top - vidSpace.Top;
+                    VIDCount = (int)(vidSpaceWidth - zoneOffSetLeft);
+                    for (int x = (int)vidSpaceWidth; x > 0; x -= 5)
+                    {
+                        int settedVIDCount = 0;
+                        var brush = new Rect(x - zoneOffSetLeft, 0 - zoneOffSetTop, vidSpaceWidth - x, vidSpaceHeight);
+                        foreach (var spot in CurrentZone.Spots)
+                        {
+                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
+                                settedVIDCount++;
+                        }
+                        if (settedVIDCount > 0)
+                        {
+                            VIDCount += _vidIntensity;
+                        }
+                        if (VIDCount > 1023)
+                            VIDCount = 0;
+                    }
+                    break;
+                case VIDDirrection.bot2top:
+                    vidSpaceWidth = vidSpace.Width;
+                    vidSpaceHeight = vidSpace.Height;
+                    zoneOffSetLeft = CurrentZone.GetRect.Left - vidSpace.Left;
+                    zoneOffSetTop = CurrentZone.GetRect.Top - vidSpace.Top;
+                    VIDCount = (int)(vidSpaceHeight - zoneOffSetTop);
+                    for (int y = (int)vidSpaceHeight; y > 0; y -= 5)
+                    {
+                        int settedVIDCount = 0;
+                        var brush = new Rect(0 - zoneOffSetLeft, y - zoneOffSetTop, vidSpaceWidth, vidSpaceHeight - y);
+                        foreach (var spot in CurrentZone.Spots)
+                        {
+                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
+                                settedVIDCount++;
+                        }
+                        if (settedVIDCount > 0)
+                        {
+                            VIDCount += _vidIntensity;
+                        }
+                        if (VIDCount > 1023)
+                            VIDCount = 0;
+                    }
+                    break;
+                case VIDDirrection.top2bot:
+                    vidSpaceWidth = vidSpace.Width;
+                    vidSpaceHeight = vidSpace.Height;
+                    zoneOffSetLeft = CurrentZone.GetRect.Left - vidSpace.Left;
+                    zoneOffSetTop = CurrentZone.GetRect.Top - vidSpace.Top;
+                    VIDCount = (int)zoneOffSetTop;
+                    for (int y = 0; y < (int)vidSpaceHeight; y += 5)
+                    {
+                        int settedVIDCount = 0;
+                        var brush = new Rect(0 - zoneOffSetLeft, 0 - zoneOffSetTop, vidSpaceWidth, y);
+                        foreach (var spot in CurrentZone.Spots)
+                        {
+                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
+                                settedVIDCount++;
+                        }
+                        if (settedVIDCount > 0)
+                        {
+                            VIDCount += _vidIntensity;
+                        }
+                        if (VIDCount > 1023)
+                            VIDCount = 0;
+                    }
+                    break;
+                case VIDDirrection.linear:
+                    foreach (var spot in CurrentZone.Spots)
+                    {
+                        spot.SetVID(spot.Index * _vidIntensity);
+                        spot.HasVID = true;
+                    }
+                    break;
+
+
+            }
+            return VIDCount;
         }
         private byte[] ResizeFrame(byte[] pixels, int w1, int w2)
         {

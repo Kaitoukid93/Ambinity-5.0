@@ -1046,17 +1046,9 @@ namespace adrilight.ViewModel
             {
                 foreach (var group in device.ControlZoneGroups)
                 {
-                    var childItems = GetGroupChildItems(group, device);
-                    switch (group.Type)
-                    {
-                        case ControllerTypeEnum.LightingController:
-                            await Task.Run(() => RegisterGroupItem(childItems.Cast<LEDSetup>().ToList(), group));
-                            break;
-
-                        case ControllerTypeEnum.PWMController:
-                            await Task.Run(() => RegisterGroupItem(childItems.Cast<FanMotor>().ToList(), group));
-                            break;
-                    }
+                    //get group Items
+                    group.Init(device);
+                    await Task.Run(() => group.RegisterGroupItem());
                 }
             }
         }
@@ -1477,6 +1469,7 @@ namespace adrilight.ViewModel
                             downloadedDevice.FirmwareVersion = device.FirmwareVersion;
                             downloadedDevice.HardwareVersion = device.HardwareVersion;
                             downloadedDevice.DeviceSerial = device.DeviceSerial;
+                            downloadedDevice.DeviceType.ConnectionTypeEnum = device.DeviceType.ConnectionTypeEnum;
                             device = downloadedDevice;
                         }
                     }
@@ -3031,7 +3024,7 @@ namespace adrilight.ViewModel
                 return true;
             }, async (p) =>
             {
-                await AddZoneToGroup();
+                await MakeNewGroup();
             });
             SelectSlaveDeviceForCurrentOutputCommand = new RelayCommand<ARGBLEDSlaveDevice>((p) =>
             {
@@ -6437,45 +6430,9 @@ namespace adrilight.ViewModel
             set { _currentIDType = value; }
         }
 
-        private bool _isRegisteringGroup;
-
-        public bool IsRegisteringGroup {
-            get { return _isRegisteringGroup; }
-            set { _isRegisteringGroup = value; RaisePropertyChanged(); }
-        }
-
-        private async void RegisterGroupItem(List<LEDSetup> childItems, ControlZoneGroup group)
-        {
-            IsRegisteringGroup = true;
-            foreach (var item in childItems)
-            {
-                item.IsSelected = false;
-                item.IsSelectable = false;
-                item.IsInControlGroup = true;
-                item.GroupID = group.GroupUID;
-                await Task.Run(() => { item.CurrentActiveControlMode = group.MaskedControlZone.CurrentActiveControlMode; });
-            }
-            IsRegisteringGroup = false;
-        }
-
-        private async void RegisterGroupItem(List<FanMotor> childItems, ControlZoneGroup group)
-        {
-            IsRegisteringGroup = true;
-            foreach (var item in childItems)
-            {
-                item.IsSelected = false;
-                item.IsSelectable = false;
-                item.IsInControlGroup = true;
-                item.GroupID = group.GroupUID;
-                await Task.Run(() => { item.CurrentActiveControlMode = group.MaskedControlZone.CurrentActiveControlMode; });
-            }
-            IsRegisteringGroup = false;
-        }
-
         private void RemoveGroup(ControlZoneGroup group)
         {
             //turn on Isregistering group
-            IsRegisteringGroup = true;
             //remove border from canvas
             if (group == null)
                 return;
@@ -6498,13 +6455,11 @@ namespace adrilight.ViewModel
             //
             //remove group
             //turn off IsRegisteringGroup
-            IsRegisteringGroup = false;
         }
 
         private void UngroupZone()
         {
             //turn on Isregistering group
-            IsRegisteringGroup = true;
             //remove border from canvas
             var borderToRemove = LiveViewItems.Where(p => p.IsSelected && p is Border).ToList();
             if (borderToRemove == null)
@@ -6530,12 +6485,10 @@ namespace adrilight.ViewModel
                 CurrentDevice.ControlZoneGroups.Remove(currentGroup);
             }
             //turn off IsRegisteringGroup
-            IsRegisteringGroup = false;
         }
         private List<IDrawable> UngroupZone(List<IDrawable> groups)
         {
             //turn on Isregistering group
-            IsRegisteringGroup = true;
             //remove border from canvas
             var returnItems = new List<IDrawable>();
             if (groups == null)
@@ -6563,149 +6516,38 @@ namespace adrilight.ViewModel
             }
             //turn off IsRegisteringGroup
             return returnItems;
-            IsRegisteringGroup = false;
-        }
-        private List<IDrawable> GetGroupChildItems(ControlZoneGroup group, IDeviceSettings device)
-        {
-            List<IDrawable> childItems = new List<IDrawable>();
-            foreach (var zone in device.AvailableControlZones)
-            {
-                if (zone.GroupID == group.GroupUID)
-                {
-                    childItems.Add(zone as IDrawable);
-                }
-            }
-            return childItems;
         }
 
-        private Border GetGroupBorder(List<IDrawable> groupItems, ControlZoneGroup group)
-        {
-            if (DrawableHlprs == null)
-            {
-                DrawableHlprs = new DrawableHelpers();
-            }
-            if (groupItems.Count == 0)
-            {
-                //this could happen due to ledsetup changing
-                //remove this group
-                RemoveGroup(group);
-                return null;
-            }
 
-            var left = DrawableHlprs.GetRealBound(groupItems.ToArray()).Left;
-            var top = DrawableHlprs.GetRealBound(groupItems.ToArray()).Top;
-            var width = DrawableHlprs.GetRealBound(groupItems.ToArray()).Width;
-            var height = DrawableHlprs.GetRealBound(groupItems.ToArray()).Height;
-            var border = new Border() {
-                Name = group.Name,
-                Left = left,
-                Top = top,
-                Width = width,
-                Height = height,
-                IsSelectable = true,
-            };
-            if (group.Border != null)
-            {
-                group.Border.Name = border.Name;
-                group.Border.Left = border.Left;
-                group.Border.Top = border.Top;
-                group.Border.Width = border.Width;
-                group.Border.Height = border.Height;
-            }
-            else
-            {
-                group.Border = border;
-            }
-            foreach (var item in groupItems)
-            {
-                if (item is LEDSetup)
-                {
-                    var zone = item as LEDSetup;
-                    zone.GroupRect = new Rect(group.Border.Left, group.Border.Top, group.Border.Width, group.Border.Height);
-                }
-            }
-            (group.MaskedControlZone as IDrawable).Left = group.Border.Left;
-            (group.MaskedControlZone as IDrawable).Top = group.Border.Top;
-            (group.MaskedControlZone as IDrawable).Width = group.Border.Width;
-            (group.MaskedControlZone as IDrawable).Height = group.Border.Height;
-            return border;
-        }
-
-        private async Task AddZoneToGroup()
+        private async Task MakeNewGroup()
         {
-            //if (!File.Exists(Path.Combine(ResourceFolderPath, "Group_thumb.png")))
-            //{
-            //    Directory.CreateDirectory(ResourceFolderPath);
-            //    ResourceHlprs.CopyResource("adrilight.Resources.Thumbnails.Group_thumb.png", Path.Combine(ResourceFolderPath, "Group_thumb.png"));
-            //}
             if (CurrentDevice.ControlZoneGroups == null)
             {
                 CurrentDevice.ControlZoneGroups = new ObservableCollection<ControlZoneGroup>();
             }
             var selectedItems = LiveViewItems.Where(z => z.IsSelected && z is not ARGBLEDSlaveDevice).ToList();
+            //ungroup existed group
+            var existedGroup = selectedItems.Where(i => i is Border).ToList();
+            existedGroup.ForEach(i => selectedItems.Remove(i));
+            var ungroupedItems = UngroupZone(existedGroup);
+            if (ungroupedItems != null)
+            {
+                ungroupedItems.ForEach(i => selectedItems.Add(i));
+            }
             if (selectedItems != null && selectedItems.Count > 1)
             {
-                //more than 1 items get selected
-                var newGroup = new ControlZoneGroup();
-                newGroup.Name = "Group" + " " + (CurrentDevice.ControlZoneGroups.Count + 1).ToString();
-                newGroup.GroupUID = Guid.NewGuid().ToString();
-                //ungroup existed group
-                var existedGroup = selectedItems.Where(i => i is Border).ToList();
-                existedGroup.ForEach(i => selectedItems.Remove(i));
-                var ungroupedItems = UngroupZone(existedGroup);
-                if (ungroupedItems != null)
-                {
-                    ungroupedItems.ForEach(i => selectedItems.Add(i));
-                }
-                if (selectedItems.Any(i => i is FanMotor))
-                {
-                    newGroup.Type = ControllerTypeEnum.PWMController;
-                    newGroup.MaskedControlZone = ObjectHelpers.Clone<FanMotor>(selectedItems.First() as FanMotor);
-                    newGroup.MaskedControlZone.Name = newGroup.Name + " - " + "MultiFan";
-                    newGroup.MaskedControlZone.Description = "Masked Control for multiple fans selected";
-                    newGroup.MaskedSlaveDevice = new PWMMotorSlaveDevice() {
-                        Name = "Union Device",
-                        Description = "Thiết bị đại diện cho " + newGroup.Name,
-                        Owner = "System",
-                        //Thumbnail = Path.Combine(ResourceFolderPath, "Group_thumb.png")
-                    };
-                }
-                else if (selectedItems.Any(i => i is LEDSetup))
-                {
-                    newGroup.Type = ControllerTypeEnum.LightingController;
-                    newGroup.MaskedControlZone = ObjectHelpers.Clone<LEDSetup>(selectedItems.First() as LEDSetup);
-                    newGroup.MaskedControlZone.Name = newGroup.Name + " - " + "MultiZone";
-                    newGroup.MaskedControlZone.Description = "Masked Control for multizone selected";
-                    newGroup.MaskedSlaveDevice = new ARGBLEDSlaveDevice() {
-                        Name = "Union Device",
-                        Description = "Thiết bị đại diện cho " + newGroup.Name,
-                        Owner = "System",
-                    };
-                }
-
-                GetGroupBorder(selectedItems, newGroup);
-                newGroup.Border.IsSelected = true;
+                var newGroupName = "Group" + " " + (CurrentDevice.ControlZoneGroups.Count + 1).ToString();
+                var newGroup = new ControlZoneGroup(newGroupName);
+                await newGroup.AddZonesToGroup(selectedItems);
                 LiveViewItems.Add(newGroup.Border);
-                LiveViewSelectedItem = newGroup;
+                LiveViewSelectedItem = newGroup.Border;
                 SelectedControlZone = newGroup.MaskedControlZone;
                 SelectedControlZone.CurrentActiveControlMode = newGroup.MaskedControlZone.AvailableControlMode.First();
                 //set display slave device
                 SelectedSlaveDevice = newGroup.MaskedSlaveDevice;
-
                 CanUnGroup = true;
                 CanGroup = false;
                 CurrentDevice.ControlZoneGroups.Add(newGroup);
-                switch (newGroup.Type)
-                {
-                    case ControllerTypeEnum.LightingController:
-                        await Task.Run(() => RegisterGroupItem(selectedItems.Cast<LEDSetup>().ToList(), newGroup));
-                        break;
-
-                    case ControllerTypeEnum.PWMController:
-                        await Task.Run(() => RegisterGroupItem(selectedItems.Cast<FanMotor>().ToList(), newGroup));
-                        break;
-                }
-
             }
         }
 
@@ -6855,9 +6697,7 @@ namespace adrilight.ViewModel
             if (LiveViewSelectedItem is ControlZoneGroup)
             {
                 var group = LiveViewSelectedItem as ControlZoneGroup;
-
-                var zones = GetGroupChildItems(group, CurrentDevice);
-                foreach (var zone in zones)
+                foreach (var zone in group.ControlZones)
                 {
                     await Task.Run(() => { (zone as IControlZone).CurrentActiveControlMode = controlMode; });
                 }
@@ -7020,7 +6860,8 @@ namespace adrilight.ViewModel
             IDrawable lastSelectedItem = null;
             foreach (var item in CurrentDevice.CurrentLiveViewZones)
             {
-                (item as IDrawable).IsSelectable = true;
+                if (!item.IsInControlGroup)
+                    (item as IDrawable).IsSelectable = true;
                 LiveViewItems.Add(item as IDrawable);
                 if ((item as IDrawable).IsSelected)
                     lastSelectedItem = item as IDrawable;
@@ -7030,22 +6871,13 @@ namespace adrilight.ViewModel
                 var groupList = new List<ControlZoneGroup>();
                 foreach (var group in CurrentDevice.CurrentLiveViewGroup)
                 {
-                    //register group child to masked control
-                    //check group size and arrange
-                    var groupItems = GetGroupChildItems(group, CurrentDevice);
-                    if (GetGroupBorder(groupItems, group) != null)
+                    group.GetGroupBorder();
+                    if (group.Border != null)
                     {
-
                         if ((group.Border.IsSelected))
                             lastSelectedItem = group.Border;
-                        //disable selection items in group
-                        foreach (var item in groupItems)
-                        {
-                            (item as IDrawable).IsSelectable = false;
-                        }
                         groupList.Add(group);
                     }
-
                 }
                 var orderedGroups = groupList.OrderBy(o => o.Border.Width * o.Border.Height).ToList();
                 foreach (var group in orderedGroups)
@@ -8371,8 +8203,7 @@ namespace adrilight.ViewModel
             {
                 foreach (var group in device.ControlZoneGroups)
                 {
-                    var groupItems = GetGroupChildItems(group, device);
-                    GetGroupBorder(groupItems, group);
+                    group.GetGroupBorder();
                 }
             }
         }
@@ -9837,8 +9668,7 @@ namespace adrilight.ViewModel
                 else if (item is Border)
                 {
                     var group = CurrentDevice.ControlZoneGroups.Where(g => g.Border.Name == item.Name).FirstOrDefault();
-                    var childZone = GetGroupChildItems(group, CurrentDevice);
-                    foreach (var zone in childZone)
+                    foreach (var zone in group.ControlZones)
                     {
                         if (zone is LEDSetup)
                             LiveViewItems.Add(zone as LEDSetup);

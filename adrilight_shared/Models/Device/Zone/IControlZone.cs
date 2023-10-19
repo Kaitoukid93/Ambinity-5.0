@@ -1,4 +1,5 @@
 ﻿using adrilight_shared.Models.ControlMode.Mode;
+using adrilight_shared.Models.Device.Group;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Media.Imaging;
@@ -20,6 +21,7 @@ namespace adrilight_shared.Models.Device.Zone
         bool IsEnabled { get; set; }
         //int CurrentActiveControlModeIndex { get; set; }
         bool IsInControlGroup { get; set; }
+        ControlZoneGroup Group { get; set; }
         string GroupID { get; set; }
         void UpdateSizeByChild(bool withPoint);
     }

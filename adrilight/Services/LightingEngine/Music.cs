@@ -318,7 +318,8 @@ namespace adrilight.Services.LightingEngine
                 //stop this engine when any surface or editor open because this could cause capturing fail
                 MainViewViewModel.IsRichCanvasWindowOpen == false;
             ////registering group shoud be done
-            //MainViewViewModel.IsRegisteringGroup == false;
+            //MainViewViewModel.
+            //== false;
 
             // this is stop sign by one or some of the reason above
             if (isRunning && !shouldBeRunning)
