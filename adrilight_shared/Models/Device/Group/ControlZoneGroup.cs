@@ -1,6 +1,5 @@
 ﻿using adrilight_shared.Enums;
 using adrilight_shared.Helpers;
-using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
 using adrilight_shared.Models.Device.SlaveDevice;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.Drawable;
@@ -88,14 +87,12 @@ namespace adrilight_shared.Models.Device.Group
                     var ledZone = item as LEDSetup;
                     ledZone.IsSelected = false;
                     ledZone.IsSelectable = false;
-                    ledZone.Group = this;
                 }
                 else if (item is FanMotor)
                 {
                     var fanZone = item as FanMotor;
                     fanZone.IsSelected = false;
                     fanZone.IsSelectable = false;
-                    fanZone.Group = this;
                 }
                 item.IsInControlGroup = true;
                 item.GroupID = GroupUID;
@@ -165,126 +162,6 @@ namespace adrilight_shared.Models.Device.Group
                 }
             }
         }
-        public int GenerateVID(IParameterValue value, int intensity, IControlZone zone)
-        {
-            var vid = value as VIDDataModel;
-            if (vid.ExecutionType == VIDType.PredefinedID)
-                return 0;
-            Rect vidSpace = new Rect();
-            //get brush size
-            //brush rect will move as the dirrection, so intersect size increase
-            double vidSpaceWidth;
-            double vidSpaceHeight;
-            double zoneOffSetLeft;
-            double zoneOffSetTop;
-            int VIDCount = 0;
-            var ledZone = zone as LEDSetup;
-            ledZone.ResetVIDStage();
-            switch (vid.Dirrection)
-            {
-                case VIDDirrection.left2right:
-                    vidSpaceWidth = vidSpace.Width;
-                    vidSpaceHeight = vidSpace.Height;
-                    zoneOffSetLeft = ledZone.GetRect.Left - vidSpace.Left;
-                    zoneOffSetTop = ledZone.GetRect.Top - vidSpace.Top;
-                    VIDCount = (int)zoneOffSetLeft;
-                    for (int x = 0; x < vidSpaceWidth; x += 5)
-                    {
-                        int settedVIDCount = 0;
-                        var brush = new Rect(0 - zoneOffSetLeft, 0 - zoneOffSetTop, x, vidSpaceHeight);
-                        foreach (var spot in ledZone.Spots)
-                        {
-                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
-                                settedVIDCount++;
-                        }
-                        if (settedVIDCount > 0)
-                        {
-                            VIDCount += intensity;
-                        }
-                        if (VIDCount > 1023)
-                            VIDCount = 0;
-                    }
-                    break;
-                case VIDDirrection.right2left:
-                    vidSpaceWidth = (int)vidSpace.Width;
-                    vidSpaceHeight = (int)vidSpace.Height;
-                    zoneOffSetLeft = ledZone.GetRect.Left - vidSpace.Left;
-                    zoneOffSetTop = ledZone.GetRect.Top - vidSpace.Top;
-                    VIDCount = (int)(vidSpaceWidth - zoneOffSetLeft);
-                    for (int x = (int)vidSpaceWidth; x > 0; x -= 5)
-                    {
-                        int settedVIDCount = 0;
-                        var brush = new Rect(x - zoneOffSetLeft, 0 - zoneOffSetTop, vidSpaceWidth - x, vidSpaceHeight);
-                        foreach (var spot in ledZone.Spots)
-                        {
-                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
-                                settedVIDCount++;
-                        }
-                        if (settedVIDCount > 0)
-                        {
-                            VIDCount += intensity;
-                        }
-                        if (VIDCount > 1023)
-                            VIDCount = 0;
-                    }
-                    break;
-                case VIDDirrection.bot2top:
-                    vidSpaceWidth = vidSpace.Width;
-                    vidSpaceHeight = vidSpace.Height;
-                    zoneOffSetLeft = ledZone.GetRect.Left - vidSpace.Left;
-                    zoneOffSetTop = ledZone.GetRect.Top - vidSpace.Top;
-                    VIDCount = (int)(vidSpaceHeight - zoneOffSetTop);
-                    for (int y = (int)vidSpaceHeight; y > 0; y -= 5)
-                    {
-                        int settedVIDCount = 0;
-                        var brush = new Rect(0 - zoneOffSetLeft, y - zoneOffSetTop, vidSpaceWidth, vidSpaceHeight - y);
-                        foreach (var spot in ledZone.Spots)
-                        {
-                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
-                                settedVIDCount++;
-                        }
-                        if (settedVIDCount > 0)
-                        {
-                            VIDCount += intensity;
-                        }
-                        if (VIDCount > 1023)
-                            VIDCount = 0;
-                    }
-                    break;
-                case VIDDirrection.top2bot:
-                    vidSpaceWidth = vidSpace.Width;
-                    vidSpaceHeight = vidSpace.Height;
-                    zoneOffSetLeft = ledZone.GetRect.Left - vidSpace.Left;
-                    zoneOffSetTop = ledZone.GetRect.Top - vidSpace.Top;
-                    VIDCount = (int)zoneOffSetTop;
-                    for (int y = 0; y < (int)vidSpaceHeight; y += 5)
-                    {
-                        int settedVIDCount = 0;
-                        var brush = new Rect(0 - zoneOffSetLeft, 0 - zoneOffSetTop, vidSpaceWidth, y);
-                        foreach (var spot in ledZone.Spots)
-                        {
-                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
-                                settedVIDCount++;
-                        }
-                        if (settedVIDCount > 0)
-                        {
-                            VIDCount += intensity;
-                        }
-                        if (VIDCount > 1023)
-                            VIDCount = 0;
-                    }
-                    break;
-                case VIDDirrection.linear:
-                    foreach (var spot in ledZone.Spots)
-                    {
-                        spot.SetVID(spot.Index * intensity);
-                        spot.HasVID = true;
-                    }
-                    break;
 
-
-            }
-            return VIDCount;
-        }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using adrilight_shared.Enums;
 using adrilight_shared.Helpers;
 using adrilight_shared.Models.ControlMode.Mode;
-using adrilight_shared.Models.Device.Group;
 using adrilight_shared.Models.Drawable;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
@@ -129,8 +128,6 @@ namespace adrilight_shared.Models.Device.Zone
         public ICommand LeftChangedCommand => leftChangedCommand ??= new RelayCommand<double>(OnLeftChanged);
         [JsonIgnore]
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
-        [JsonIgnore]
-        public ControlZoneGroup Group { get; set; }
         public string Type { get; set; }
 
         private DrawableHelpers DrawableHlprs;

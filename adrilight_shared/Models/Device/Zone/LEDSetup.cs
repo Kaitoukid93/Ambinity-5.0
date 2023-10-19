@@ -3,7 +3,6 @@ using adrilight_shared.Helpers;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.ControlMode.ModeParameters;
 using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
-using adrilight_shared.Models.Device.Group;
 using adrilight_shared.Models.Device.Zone.Spot;
 using adrilight_shared.Models.Drawable;
 using GalaSoft.MvvmLight;
@@ -165,8 +164,6 @@ namespace adrilight_shared.Models.Device.Zone
         public ICommand TopChangedCommand => topChangedCommand ??= new RelayCommand<double>(OnTopChanged);
         [JsonIgnore]
         public Rect GetRect => new Rect(Left + OffsetX, Top + OffsetY, Width, Height);
-        [JsonIgnore]
-        public ControlZoneGroup Group { get; set; }
         public string Type { get; set; }
         private DrawableHelpers DrawableHlprs = new DrawableHelpers();
         #region Lighting Related Method
@@ -239,6 +236,154 @@ namespace adrilight_shared.Models.Device.Zone
                 spot.SetVID(0);
             }
         }
+        public int GenerateVID(IParameterValue value, int intensity)
+        {
+            var vid = value as VIDDataModel;
+            if (vid.ExecutionType == VIDType.PredefinedID)
+                return 0;
+            Rect vidSpace = new Rect();
+            if (IsInControlGroup)
+            {
+                vidSpace = GroupRect;
+            }
+            else
+            {
+                vidSpace = new Rect(GetRect.Left, GetRect.Top, Width, Height);
+            }
+            double vidSpaceWidth;
+            double vidSpaceHeight;
+            double zoneOffSetLeft;
+            double zoneOffSetTop;
+            int VIDCount = 0;
+            ResetVIDStage();
+            switch (vid.Dirrection)
+            {
+                case VIDDirrection.left2right:
+                    vidSpaceWidth = vidSpace.Width;
+                    vidSpaceHeight = vidSpace.Height;
+                    zoneOffSetLeft = GetRect.Left - vidSpace.Left;
+                    zoneOffSetTop = GetRect.Top - vidSpace.Top;
+                    VIDCount = (int)zoneOffSetLeft;
+                    for (int x = 0; x < vidSpaceWidth; x += 5)
+                    {
+                        int settedVIDCount = 0;
+                        var brush = new Rect(0 - zoneOffSetLeft, 0 - zoneOffSetTop, x, vidSpaceHeight);
+                        foreach (var spot in Spots)
+                        {
+                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
+                                settedVIDCount++;
+                        }
+                        if (settedVIDCount > 0)
+                        {
+                            VIDCount += intensity;
+                        }
+                        if (VIDCount > 1023)
+                            VIDCount = 0;
+                    }
+                    break;
+                case VIDDirrection.right2left:
+                    vidSpaceWidth = (int)vidSpace.Width;
+                    vidSpaceHeight = (int)vidSpace.Height;
+                    zoneOffSetLeft = GetRect.Left - vidSpace.Left;
+                    zoneOffSetTop = GetRect.Top - vidSpace.Top;
+                    VIDCount = (int)(vidSpaceWidth - zoneOffSetLeft);
+                    for (int x = (int)vidSpaceWidth; x > 0; x -= 5)
+                    {
+                        int settedVIDCount = 0;
+                        var brush = new Rect(x - zoneOffSetLeft, 0 - zoneOffSetTop, vidSpaceWidth - x, vidSpaceHeight);
+                        foreach (var spot in Spots)
+                        {
+                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
+                                settedVIDCount++;
+                        }
+                        if (settedVIDCount > 0)
+                        {
+                            VIDCount += intensity;
+                        }
+                        if (VIDCount > 1023)
+                            VIDCount = 0;
+                    }
+                    break;
+                case VIDDirrection.bot2top:
+                    vidSpaceWidth = vidSpace.Width;
+                    vidSpaceHeight = vidSpace.Height;
+                    zoneOffSetLeft = GetRect.Left - vidSpace.Left;
+                    zoneOffSetTop = GetRect.Top - vidSpace.Top;
+                    VIDCount = (int)(vidSpaceHeight - zoneOffSetTop);
+                    for (int y = (int)vidSpaceHeight; y > 0; y -= 5)
+                    {
+                        int settedVIDCount = 0;
+                        var brush = new Rect(0 - zoneOffSetLeft, y - zoneOffSetTop, vidSpaceWidth, vidSpaceHeight - y);
+                        foreach (var spot in Spots)
+                        {
+                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
+                                settedVIDCount++;
+                        }
+                        if (settedVIDCount > 0)
+                        {
+                            VIDCount += intensity;
+                        }
+                        if (VIDCount > 1023)
+                            VIDCount = 0;
+                    }
+                    break;
+                case VIDDirrection.top2bot:
+                    vidSpaceWidth = vidSpace.Width;
+                    vidSpaceHeight = vidSpace.Height;
+                    zoneOffSetLeft = GetRect.Left - vidSpace.Left;
+                    zoneOffSetTop = GetRect.Top - vidSpace.Top;
+                    VIDCount = (int)zoneOffSetTop;
+                    for (int y = 0; y < (int)vidSpaceHeight; y += 5)
+                    {
+                        int settedVIDCount = 0;
+                        var brush = new Rect(0 - zoneOffSetLeft, 0 - zoneOffSetTop, vidSpaceWidth, y);
+                        foreach (var spot in Spots)
+                        {
+                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
+                                settedVIDCount++;
+                        }
+                        if (settedVIDCount > 0)
+                        {
+                            VIDCount += intensity;
+                        }
+                        if (VIDCount > 1023)
+                            VIDCount = 0;
+                    }
+                    break;
+                case VIDDirrection.linear:
+                    foreach (var spot in Spots)
+                    {
+                        spot.SetVID(spot.Index * intensity);
+                        spot.HasVID = true;
+                    }
+                    break;
+            }
+            return VIDCount;
+        }
+        public void ApplyPredefinedVID(IParameterValue parameterValue)
+        {
+            var currentVIDData = parameterValue as VIDDataModel;
+            if (currentVIDData == null)
+                return;
+            if (currentVIDData.DrawingPath == null)
+                return;
+            ResetVIDStage();
+
+            for (var i = 0; i < currentVIDData.DrawingPath.Count(); i++)
+            {
+                var vid = currentVIDData.DrawingPath[i].ID;
+                var brush = currentVIDData.DrawingPath[i].Brush;
+                if (Rect.Intersect(GetRect, brush).IsEmpty)
+                    continue;
+                var intersectRect = Rect.Intersect(GetRect, brush);
+                intersectRect.Offset(0 - GetRect.Left, 0 - GetRect.Top);
+                foreach (var spot in Spots)
+                {
+                    spot.GetVIDIfNeeded(vid, intersectRect, 0);
+                }
+            }
+
+        }
         public void UpdateSizeByChild(bool withPoint)
         {
             //get all child and set size
@@ -250,7 +395,6 @@ namespace adrilight_shared.Models.Device.Zone
                 Left = boundRct.Left;
                 Top = boundRct.Top;
             }
-
 
         }
         private static Point ReflectPointVertical(Point pointToReflect, double center)

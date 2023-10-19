@@ -12,7 +12,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Windows;
 using Color = System.Windows.Media.Color;
 
 namespace adrilight
@@ -154,13 +153,13 @@ namespace adrilight
             {
                 _vidDataControl.SubParams[0].IsEnabled = true;
                 //_vidDataControl.SubParams[1].IsEnabled = false;
-                GenerateVID(value);
+                CurrentZone.GenerateVID(value, _vidIntensity);
             }
             else
             {
                 _vidDataControl.SubParams[0].IsEnabled = false;
                 // _vidDataControl.SubParams[1].IsEnabled = true;
-                ApplyPredefinedVID(value);
+                CurrentZone.ApplyPredefinedVID(value);
             }
 
 
@@ -170,7 +169,7 @@ namespace adrilight
             _vidIntensity = value;
             var currentVID = _vidDataControl.SelectedValue as VIDDataModel;
             if (currentVID.ExecutionType == VIDType.PositonGeneratedID)
-                GenerateVID(_vidDataControl.SelectedValue as VIDDataModel);
+                CurrentZone.GenerateVID(_vidDataControl.SelectedValue as VIDDataModel, _vidIntensity);
         }
         private void OnBrightnessValueChanged(int value)
         {
@@ -464,163 +463,7 @@ namespace adrilight
             int remainTick = colorNum - colors.Count();
             colors = colors.Concat(colors.Take(remainTick).ToList()).ToList();
             return colors;
-
-
             // new update, create free amount of color????
-        }
-        private void ApplyPredefinedVID(IParameterValue parameterValue)
-        {
-            var currentVIDData = parameterValue as VIDDataModel;
-            if (currentVIDData == null)
-                return;
-            if (currentVIDData.DrawingPath == null)
-                return;
-            CurrentZone.ResetVIDStage();
-
-            for (var i = 0; i < currentVIDData.DrawingPath.Count(); i++)
-            {
-                var vid = currentVIDData.DrawingPath[i].ID;
-                var brush = currentVIDData.DrawingPath[i].Brush;
-                if (Rect.Intersect(CurrentZone.GetRect, brush).IsEmpty)
-                    continue;
-                var intersectRect = Rect.Intersect(CurrentZone.GetRect, brush);
-                intersectRect.Offset(0 - CurrentZone.GetRect.Left, 0 - CurrentZone.GetRect.Top);
-                foreach (var spot in CurrentZone.Spots)
-                {
-                    spot.GetVIDIfNeeded(vid, intersectRect, 0);
-                }
-            }
-
-        }
-        private void GenerateVID(IParameterValue value)
-        {
-            var vid = value as VIDDataModel;
-            if (vid.ExecutionType == VIDType.PredefinedID)
-                return;
-            Rect vidSpace = new Rect();
-            if (CurrentZone.IsInControlGroup)
-            {
-                vidSpace = CurrentZone.GroupRect;
-            }
-            else
-            {
-                vidSpace = new Rect(CurrentZone.GetRect.Left, CurrentZone.GetRect.Top, CurrentZone.Width, CurrentZone.Height);
-            }
-            //get brush size
-            //brush rect will move as the dirrection, so intersect size increase
-            //this is moving left to right
-
-            double vidSpaceWidth;
-            double vidSpaceHeight;
-            double zoneOffSetLeft;
-            double zoneOffSetTop;
-            int VIDCount;
-            CurrentZone.ResetVIDStage();
-            switch (vid.Dirrection)
-            {
-                case VIDDirrection.left2right:
-                    vidSpaceWidth = vidSpace.Width;
-                    vidSpaceHeight = vidSpace.Height;
-                    zoneOffSetLeft = CurrentZone.GetRect.Left - vidSpace.Left;
-                    zoneOffSetTop = CurrentZone.GetRect.Top - vidSpace.Top;
-                    VIDCount = (int)zoneOffSetLeft;
-                    for (int x = 0; x < vidSpaceWidth; x += 5)
-                    {
-                        int settedVIDCount = 0;
-                        var brush = new Rect(0 - zoneOffSetLeft, 0 - zoneOffSetTop, x, vidSpaceHeight);
-                        foreach (var spot in CurrentZone.Spots)
-                        {
-                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
-                                settedVIDCount++;
-                        }
-                        if (settedVIDCount > 0)
-                        {
-                            VIDCount += _vidIntensity;
-                        }
-                        if (VIDCount > 1023)
-                            VIDCount = 0;
-                    }
-                    break;
-                case VIDDirrection.right2left:
-                    vidSpaceWidth = (int)vidSpace.Width;
-                    vidSpaceHeight = (int)vidSpace.Height;
-                    zoneOffSetLeft = CurrentZone.GetRect.Left - vidSpace.Left;
-                    zoneOffSetTop = CurrentZone.GetRect.Top - vidSpace.Top;
-                    VIDCount = (int)(vidSpaceWidth - zoneOffSetLeft);
-                    for (int x = (int)vidSpaceWidth; x > 0; x -= 5)
-                    {
-                        int settedVIDCount = 0;
-                        var brush = new Rect(x - zoneOffSetLeft, 0 - zoneOffSetTop, vidSpaceWidth - x, vidSpaceHeight);
-                        foreach (var spot in CurrentZone.Spots)
-                        {
-                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
-                                settedVIDCount++;
-                        }
-                        if (settedVIDCount > 0)
-                        {
-                            VIDCount += _vidIntensity;
-                        }
-                        if (VIDCount > 1023)
-                            VIDCount = 0;
-                    }
-                    break;
-                case VIDDirrection.bot2top:
-                    vidSpaceWidth = vidSpace.Width;
-                    vidSpaceHeight = vidSpace.Height;
-                    zoneOffSetLeft = CurrentZone.GetRect.Left - vidSpace.Left;
-                    zoneOffSetTop = CurrentZone.GetRect.Top - vidSpace.Top;
-                    VIDCount = (int)(vidSpaceHeight - zoneOffSetTop);
-                    for (int y = (int)vidSpaceHeight; y > 0; y -= 5)
-                    {
-                        int settedVIDCount = 0;
-                        var brush = new Rect(0 - zoneOffSetLeft, y - zoneOffSetTop, vidSpaceWidth, vidSpaceHeight - y);
-                        foreach (var spot in CurrentZone.Spots)
-                        {
-                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
-                                settedVIDCount++;
-                        }
-                        if (settedVIDCount > 0)
-                        {
-                            VIDCount += _vidIntensity;
-                        }
-                        if (VIDCount > 1023)
-                            VIDCount = 0;
-                    }
-                    break;
-                case VIDDirrection.top2bot:
-                    vidSpaceWidth = vidSpace.Width;
-                    vidSpaceHeight = vidSpace.Height;
-                    zoneOffSetLeft = CurrentZone.GetRect.Left - vidSpace.Left;
-                    zoneOffSetTop = CurrentZone.GetRect.Top - vidSpace.Top;
-                    VIDCount = (int)zoneOffSetTop;
-                    for (int y = 0; y < (int)vidSpaceHeight; y += 5)
-                    {
-                        int settedVIDCount = 0;
-                        var brush = new Rect(0 - zoneOffSetLeft, 0 - zoneOffSetTop, vidSpaceWidth, y);
-                        foreach (var spot in CurrentZone.Spots)
-                        {
-                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
-                                settedVIDCount++;
-                        }
-                        if (settedVIDCount > 0)
-                        {
-                            VIDCount += _vidIntensity;
-                        }
-                        if (VIDCount > 1023)
-                            VIDCount = 0;
-                    }
-                    break;
-                case VIDDirrection.linear:
-                    foreach (var spot in CurrentZone.Spots)
-                    {
-                        spot.SetVID(spot.Index * _vidIntensity);
-                        spot.HasVID = true;
-                    }
-                    break;
-
-
-            }
-
         }
 
         public static IEnumerable<Color> GetColorGradientfromPaletteWithFixedColorPerGap(Color[] colorCollection)

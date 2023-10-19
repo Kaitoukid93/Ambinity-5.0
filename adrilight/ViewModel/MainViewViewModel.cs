@@ -6540,7 +6540,7 @@ namespace adrilight.ViewModel
                 var newGroup = new ControlZoneGroup(newGroupName);
                 await newGroup.AddZonesToGroup(selectedItems);
                 LiveViewItems.Add(newGroup.Border);
-                LiveViewSelectedItem = newGroup.Border;
+                LiveViewSelectedItem = newGroup;
                 SelectedControlZone = newGroup.MaskedControlZone;
                 SelectedControlZone.CurrentActiveControlMode = newGroup.MaskedControlZone.AvailableControlMode.First();
                 //set display slave device
