@@ -5,6 +5,7 @@ using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.ControlMode.ModeParameters;
 using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
 using adrilight_shared.Models.Device.Zone;
+using adrilight_shared.Models.Drawable;
 using adrilight_shared.Models.FrameData;
 using adrilight_shared.Models.TickData;
 using adrilight_shared.Settings;
@@ -97,6 +98,7 @@ namespace adrilight.Services.LightingEngine
         private int _smoothFactor;
         private double _paletteSpeed;
         private Motion _motion;
+        private int _frameWidth = 256;
         private bool _isEnable;
         private Frame[] _resizedFrames;
         private colorUseEnum _colorUse = colorUseEnum.MovingPalette;
@@ -300,7 +302,7 @@ namespace adrilight.Services.LightingEngine
                     //scale each frame
                     //this is when VID comes to play
                     var resizedFrame = new Frame();
-                    resizedFrame.BrightnessData = ResizeFrame(frame.BrightnessData, frame.BrightnessData.Length, numLED);
+                    resizedFrame.BrightnessData = ResizeFrame(frame.BrightnessData, frame.BrightnessData.Length, _frameWidth);
                     _resizedFrames[frameCount++] = resizedFrame;
 
                 }
@@ -327,25 +329,39 @@ namespace adrilight.Services.LightingEngine
             if (value == null)
                 return;
             var vid = value as VIDDataModel;
+            if (_motion == null)
+                return;
             if (vid.ExecutionType == VIDType.PositonGeneratedID)
             {
                 _vidDataControl.SubParams[0].IsEnabled = true;
                 _vidDataControl.SubParams[1].IsEnabled = false;
-                var vidCount = GenerateVID(value);
-                if (vidCount <= 0)
+                var minSpotWidth = CurrentZone.Spots.MinBy(s => (s as IDrawable).Width).First();
+                var minSpotHeight = CurrentZone.Spots.MinBy(s => (s as IDrawable).Height).First();
+                if (vid.Dirrection == VIDDirrection.left2right || vid.Dirrection == VIDDirrection.right2left)
                 {
-                    vidCount = 256;
+                    //_frameWidth = (int)(CurrentZone.GroupRect.Width / (minSpotWidth as IDrawable).Width);
+                    //CurrentZone.GenerateVID(value, 1, (int)(minSpotWidth as IDrawable).Width);
                 }
+
+                if (vid.Dirrection == VIDDirrection.top2bot || vid.Dirrection == VIDDirrection.bot2top)
+                {
+                    //_frameWidth = (int)(CurrentZone.GroupRect.Height / (minSpotHeight as IDrawable).Height);
+                    //CurrentZone.GenerateVID(value, 1, (int)(minSpotWidth as IDrawable).Height);
+                }
+                else
+                {
+                    _frameWidth = CurrentZone.Spots.Count();
+                    CurrentZone.GenerateVID(value, 1, 1);
+                }
+
                 //resize current motion
-                if (_motion == null)
-                    return;
                 var frameCount = 0;
                 foreach (var frame in _motion.Frames)
                 {
                     //scale each frame
                     //this is when VID comes to play
                     var resizedFrame = new Frame();
-                    resizedFrame.BrightnessData = ResizeFrame(frame.BrightnessData, frame.BrightnessData.Length, vidCount);
+                    resizedFrame.BrightnessData = ResizeFrame(frame.BrightnessData, frame.BrightnessData.Length, _frameWidth);
                     _resizedFrames[frameCount++] = resizedFrame;
                 }
 
@@ -354,7 +370,19 @@ namespace adrilight.Services.LightingEngine
             {
                 _vidDataControl.SubParams[0].IsEnabled = false;
                 _vidDataControl.SubParams[1].IsEnabled = true;
-                //ApplyPredefinedVID(value);
+                var frameCount = 0;
+                var minVID = vid.DrawingPath.MinBy(b => b.ID).First().ID;
+                var maxVID = vid.DrawingPath.MaxBy(b => b.ID).First().ID;
+                _frameWidth = maxVID - minVID;
+                CurrentZone.ApplyPredefinedVID(value, minVID);
+                foreach (var frame in _motion.Frames)
+                {
+                    //scale each frame
+                    //this is when VID comes to play
+                    var resizedFrame = new Frame();
+                    resizedFrame.BrightnessData = ResizeFrame(frame.BrightnessData, frame.BrightnessData.Length, _frameWidth);
+                    _resizedFrames[frameCount++] = resizedFrame;
+                }
             }
 
 
@@ -498,10 +526,11 @@ namespace adrilight.Services.LightingEngine
             }
             if (_vidDataControl.SelectedValue == null)
             {
-                _vidDataControl.SelectedValue = _vidDataControl.AvailableValues.Last();
+                _vidDataControl.SelectedValue = _vidDataControl.AvailableValues.First();
             }
             EnableChanged(_enableControl.Value == 1 ? true : false);
             OnSelectedChasingPatternChanged(_chasingPatternControl.SelectedValue);
+            OnSelectedVIDDataChanged(_vidDataControl.SelectedValue);
             OnColorUsePropertyChanged(_colorControl.SubParams[0].Value);
             OnPaletteIntensityPropertyChanged(_colorControl.SubParams[2].Value);
             OnPaletteSpeedPropertyChanged(_colorControl.SubParams[1].Value);
@@ -526,7 +555,7 @@ namespace adrilight.Services.LightingEngine
                     }
                     if (_resizedFrames == null)
                         continue;
-                    var startVID = CurrentZone.Spots.MinBy(s => s.VID).FirstOrDefault().VID;
+
                     NextTick();
                     lock (CurrentZone.Lock)
                     {
@@ -538,11 +567,11 @@ namespace adrilight.Services.LightingEngine
                             position %= _colorBank.Length;
                             lock (_lock)
                             {
-                                var index = spot.VID - startVID;
-                                if (index >= _resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData.Length)
-                                {
-                                    index = 0;
-                                }
+                                //var index = spot.VID - startVID;
+                                //if (index >= _resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData.Length)
+                                //{
+                                //    index = 0;
+                                //}
                                 byte colorR = 0;
                                 byte colorG = 0;
                                 byte colorB = 0;
@@ -560,10 +589,19 @@ namespace adrilight.Services.LightingEngine
                                     colorG = _colorBank[position].G;
                                     colorB = _colorBank[position].B;
                                 }
-                                var brightness = _resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData[index] * (float)_brightness / 255;
-                                ApplySmoothing((float)(brightness * colorR * _dimFactor), (float)(brightness * colorG * _dimFactor), (float)(brightness * colorB * _dimFactor), out var FinalR, out var FinalG, out var FinalB, spot.Red, spot.Green, spot.Blue);
-                                spot.SetColor(FinalR, FinalG, FinalB, false);
-
+                                if (spot.HasVID)
+                                {
+                                    int index = spot.VID;
+                                    if (spot.VID >= _resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData.Length)
+                                        index = 0;
+                                    var brightness = _resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData[index] * (float)_brightness / 255;
+                                    ApplySmoothing((float)(brightness * colorR * _dimFactor), (float)(brightness * colorG * _dimFactor), (float)(brightness * colorB * _dimFactor), out var FinalR, out var FinalG, out var FinalB, spot.Red, spot.Green, spot.Blue);
+                                    spot.SetColor(FinalR, FinalG, FinalB, false);
+                                }
+                                else
+                                {
+                                    spot.SetColor(0, 0, 0, false);
+                                }
 
                             }
                         }
@@ -677,134 +715,6 @@ namespace adrilight.Services.LightingEngine
             colorList.Insert(0, from);
             return colorList;
 
-        }
-        private int GenerateVID(IParameterValue value)
-        {
-            var vid = value as VIDDataModel;
-            if (vid.ExecutionType == VIDType.PredefinedID)
-                return 0;
-            Rect vidSpace = new Rect();
-            if (CurrentZone.IsInControlGroup)
-            {
-                vidSpace = CurrentZone.GroupRect;
-            }
-            else
-            {
-                vidSpace = new Rect(CurrentZone.GetRect.Left, CurrentZone.GetRect.Top, CurrentZone.Width, CurrentZone.Height);
-            }
-            //get brush size
-            //brush rect will move as the dirrection, so intersect size increase
-            double vidSpaceWidth;
-            double vidSpaceHeight;
-            double zoneOffSetLeft;
-            double zoneOffSetTop;
-            int VIDCount = 0;
-            CurrentZone.ResetVIDStage();
-            switch (vid.Dirrection)
-            {
-                case VIDDirrection.left2right:
-                    vidSpaceWidth = vidSpace.Width;
-                    vidSpaceHeight = vidSpace.Height;
-                    zoneOffSetLeft = CurrentZone.GetRect.Left - vidSpace.Left;
-                    zoneOffSetTop = CurrentZone.GetRect.Top - vidSpace.Top;
-                    VIDCount = (int)zoneOffSetLeft;
-                    for (int x = 0; x < vidSpaceWidth; x += 5)
-                    {
-                        int settedVIDCount = 0;
-                        var brush = new Rect(0 - zoneOffSetLeft, 0 - zoneOffSetTop, x, vidSpaceHeight);
-                        foreach (var spot in CurrentZone.Spots)
-                        {
-                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
-                                settedVIDCount++;
-                        }
-                        if (settedVIDCount > 0)
-                        {
-                            VIDCount += _vidIntensity;
-                        }
-                        if (VIDCount > 1023)
-                            VIDCount = 0;
-                    }
-                    break;
-                case VIDDirrection.right2left:
-                    vidSpaceWidth = (int)vidSpace.Width;
-                    vidSpaceHeight = (int)vidSpace.Height;
-                    zoneOffSetLeft = CurrentZone.GetRect.Left - vidSpace.Left;
-                    zoneOffSetTop = CurrentZone.GetRect.Top - vidSpace.Top;
-                    VIDCount = (int)(vidSpaceWidth - zoneOffSetLeft);
-                    for (int x = (int)vidSpaceWidth; x > 0; x -= 5)
-                    {
-                        int settedVIDCount = 0;
-                        var brush = new Rect(x - zoneOffSetLeft, 0 - zoneOffSetTop, vidSpaceWidth - x, vidSpaceHeight);
-                        foreach (var spot in CurrentZone.Spots)
-                        {
-                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
-                                settedVIDCount++;
-                        }
-                        if (settedVIDCount > 0)
-                        {
-                            VIDCount += _vidIntensity;
-                        }
-                        if (VIDCount > 1023)
-                            VIDCount = 0;
-                    }
-                    break;
-                case VIDDirrection.bot2top:
-                    vidSpaceWidth = vidSpace.Width;
-                    vidSpaceHeight = vidSpace.Height;
-                    zoneOffSetLeft = CurrentZone.GetRect.Left - vidSpace.Left;
-                    zoneOffSetTop = CurrentZone.GetRect.Top - vidSpace.Top;
-                    VIDCount = (int)(vidSpaceHeight - zoneOffSetTop);
-                    for (int y = (int)vidSpaceHeight; y > 0; y -= 5)
-                    {
-                        int settedVIDCount = 0;
-                        var brush = new Rect(0 - zoneOffSetLeft, y - zoneOffSetTop, vidSpaceWidth, vidSpaceHeight - y);
-                        foreach (var spot in CurrentZone.Spots)
-                        {
-                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
-                                settedVIDCount++;
-                        }
-                        if (settedVIDCount > 0)
-                        {
-                            VIDCount += _vidIntensity;
-                        }
-                        if (VIDCount > 1023)
-                            VIDCount = 0;
-                    }
-                    break;
-                case VIDDirrection.top2bot:
-                    vidSpaceWidth = vidSpace.Width;
-                    vidSpaceHeight = vidSpace.Height;
-                    zoneOffSetLeft = CurrentZone.GetRect.Left - vidSpace.Left;
-                    zoneOffSetTop = CurrentZone.GetRect.Top - vidSpace.Top;
-                    VIDCount = (int)zoneOffSetTop;
-                    for (int y = 0; y < (int)vidSpaceHeight; y += 5)
-                    {
-                        int settedVIDCount = 0;
-                        var brush = new Rect(0 - zoneOffSetLeft, 0 - zoneOffSetTop, vidSpaceWidth, y);
-                        foreach (var spot in CurrentZone.Spots)
-                        {
-                            if (spot.GetVIDIfNeeded(VIDCount, brush, 0))
-                                settedVIDCount++;
-                        }
-                        if (settedVIDCount > 0)
-                        {
-                            VIDCount += _vidIntensity;
-                        }
-                        if (VIDCount > 1023)
-                            VIDCount = 0;
-                    }
-                    break;
-                case VIDDirrection.linear:
-                    foreach (var spot in CurrentZone.Spots)
-                    {
-                        spot.SetVID(spot.Index * _vidIntensity);
-                        spot.HasVID = true;
-                    }
-                    break;
-
-
-            }
-            return VIDCount;
         }
         private byte[] ResizeFrame(byte[] pixels, int w1, int w2)
         {

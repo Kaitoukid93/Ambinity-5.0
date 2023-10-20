@@ -10,5 +10,6 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
         string LocalPath { get; set; }
         string InfoPath { get; set; }
         bool IsDeleteable { get; set; }
+        bool IsVisible { get; set; }
     }
 }

@@ -138,7 +138,29 @@
                                                     </Viewbox.Style>
                                                     <TextBlock Visibility="{Binding IsEnabled,Mode=TwoWay,Converter={StaticResource boolToVisibilityConvert}}" Margin="5" Foreground="White" Text="{Binding Index}" Style="{DynamicResource TextBlockSubTitleBold}"/>
                                                 </Viewbox>
-                                              
+                                                <Viewbox Width="{Binding Width,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                                         Height="{Binding Height,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                                                         RenderTransformOrigin="0.5,0.5"
+                                                         Stretch="Uniform">
+                                                    <Viewbox.Style>
+                                                        <Style TargetType="{x:Type Viewbox}">
+                                                            <Setter Property="RenderTransform">
+                                                                <Setter.Value>
+                                                                    <TransformGroup>
+                                                                        <ScaleTransform />
+                                                                        <TranslateTransform />
+                                                                        <RotateTransform Angle="{Binding Angle}" />
+                                                                    </TransformGroup>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </Style>
+                                                    </Viewbox.Style>
+                                                    <TextBlock 
+                                                               Margin="5"
+                                                               Foreground="White"
+                                                               Text="{Binding VID}"
+                                                               Style="{DynamicResource TextBlockSubTitleBold}" />
+                                                </Viewbox>
                                             </Grid>
                                         </DataTemplate>
 

@@ -13,7 +13,6 @@ namespace adrilight_shared.Models.DataVisualizer
         private readonly SolidColorBrush _penBrush;
         public Geometry DisplayGeometry { get; private set; }
         public DeviceSpot Spot { get; }
-
         public LEDVisualizer(DeviceSpot spot)
         {
             _fillBrush = new SolidColorBrush();

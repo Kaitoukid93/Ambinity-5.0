@@ -152,14 +152,13 @@ namespace adrilight
             if (vid.ExecutionType == VIDType.PositonGeneratedID)
             {
                 _vidDataControl.SubParams[0].IsEnabled = true;
-                //_vidDataControl.SubParams[1].IsEnabled = false;
-                CurrentZone.GenerateVID(value, _vidIntensity);
+                CurrentZone.GenerateVID(value, _vidIntensity, 5);
             }
             else
             {
                 _vidDataControl.SubParams[0].IsEnabled = false;
                 // _vidDataControl.SubParams[1].IsEnabled = true;
-                CurrentZone.ApplyPredefinedVID(value);
+                CurrentZone.ApplyPredefinedVID(value, 0);
             }
 
 
@@ -169,7 +168,7 @@ namespace adrilight
             _vidIntensity = value;
             var currentVID = _vidDataControl.SelectedValue as VIDDataModel;
             if (currentVID.ExecutionType == VIDType.PositonGeneratedID)
-                CurrentZone.GenerateVID(_vidDataControl.SelectedValue as VIDDataModel, _vidIntensity);
+                CurrentZone.GenerateVID(_vidDataControl.SelectedValue as VIDDataModel, _vidIntensity, 5);
         }
         private void OnBrightnessValueChanged(int value)
         {

@@ -236,7 +236,7 @@ namespace adrilight_shared.Models.Device.Zone
                 spot.SetVID(0);
             }
         }
-        public int GenerateVID(IParameterValue value, int intensity)
+        public int GenerateVID(IParameterValue value, int intensity, int brushSize)
         {
             var vid = value as VIDDataModel;
             if (vid.ExecutionType == VIDType.PredefinedID)
@@ -264,7 +264,7 @@ namespace adrilight_shared.Models.Device.Zone
                     zoneOffSetLeft = GetRect.Left - vidSpace.Left;
                     zoneOffSetTop = GetRect.Top - vidSpace.Top;
                     VIDCount = (int)zoneOffSetLeft;
-                    for (int x = 0; x < vidSpaceWidth; x += 5)
+                    for (int x = 0; x < vidSpaceWidth; x += brushSize)
                     {
                         int settedVIDCount = 0;
                         var brush = new Rect(0 - zoneOffSetLeft, 0 - zoneOffSetTop, x, vidSpaceHeight);
@@ -287,7 +287,7 @@ namespace adrilight_shared.Models.Device.Zone
                     zoneOffSetLeft = GetRect.Left - vidSpace.Left;
                     zoneOffSetTop = GetRect.Top - vidSpace.Top;
                     VIDCount = (int)(vidSpaceWidth - zoneOffSetLeft);
-                    for (int x = (int)vidSpaceWidth; x > 0; x -= 5)
+                    for (int x = (int)vidSpaceWidth; x > 0; x -= brushSize)
                     {
                         int settedVIDCount = 0;
                         var brush = new Rect(x - zoneOffSetLeft, 0 - zoneOffSetTop, vidSpaceWidth - x, vidSpaceHeight);
@@ -310,7 +310,7 @@ namespace adrilight_shared.Models.Device.Zone
                     zoneOffSetLeft = GetRect.Left - vidSpace.Left;
                     zoneOffSetTop = GetRect.Top - vidSpace.Top;
                     VIDCount = (int)(vidSpaceHeight - zoneOffSetTop);
-                    for (int y = (int)vidSpaceHeight; y > 0; y -= 5)
+                    for (int y = (int)vidSpaceHeight; y > 0; y -= brushSize)
                     {
                         int settedVIDCount = 0;
                         var brush = new Rect(0 - zoneOffSetLeft, y - zoneOffSetTop, vidSpaceWidth, vidSpaceHeight - y);
@@ -323,7 +323,7 @@ namespace adrilight_shared.Models.Device.Zone
                         {
                             VIDCount += intensity;
                         }
-                        if (VIDCount > 1023)
+                        if (VIDCount > 1023 || VIDCount < 0)
                             VIDCount = 0;
                     }
                     break;
@@ -333,7 +333,7 @@ namespace adrilight_shared.Models.Device.Zone
                     zoneOffSetLeft = GetRect.Left - vidSpace.Left;
                     zoneOffSetTop = GetRect.Top - vidSpace.Top;
                     VIDCount = (int)zoneOffSetTop;
-                    for (int y = 0; y < (int)vidSpaceHeight; y += 5)
+                    for (int y = 0; y < (int)vidSpaceHeight; y += brushSize)
                     {
                         int settedVIDCount = 0;
                         var brush = new Rect(0 - zoneOffSetLeft, 0 - zoneOffSetTop, vidSpaceWidth, y);
@@ -351,16 +351,18 @@ namespace adrilight_shared.Models.Device.Zone
                     }
                     break;
                 case VIDDirrection.linear:
+                    var offSetIndex = Spots.MinBy(s => s.Index).FirstOrDefault().Index;
                     foreach (var spot in Spots)
                     {
-                        spot.SetVID(spot.Index * intensity);
+
+                        spot.SetVID((spot.Index - offSetIndex) * intensity);
                         spot.HasVID = true;
                     }
                     break;
             }
             return VIDCount;
         }
-        public void ApplyPredefinedVID(IParameterValue parameterValue)
+        public void ApplyPredefinedVID(IParameterValue parameterValue, int offSet)
         {
             var currentVIDData = parameterValue as VIDDataModel;
             if (currentVIDData == null)
@@ -379,7 +381,7 @@ namespace adrilight_shared.Models.Device.Zone
                 intersectRect.Offset(0 - GetRect.Left, 0 - GetRect.Top);
                 foreach (var spot in Spots)
                 {
-                    spot.GetVIDIfNeeded(vid, intersectRect, 0);
+                    spot.GetVIDIfNeeded(vid - offSet, intersectRect, 0);
                 }
             }
 
