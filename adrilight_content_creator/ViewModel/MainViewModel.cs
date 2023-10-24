@@ -556,9 +556,27 @@ namespace adrilight_content_creator.ViewModel
                     RefreshExistedDeviceCollectionCommand.Execute("refresh");
 
                 }
+                if(value.ViewPartName == "Excel+")
+                {
+                     MyCurrentView = new ExcelItemCreatorHomeViewModel();
+                }
 
             }
         }
+        private BaseViewModel _myCurrentView;
+        public BaseViewModel MyCurrentView
+        {
+            get
+            {
+                return _myCurrentView;
+            }
+            set
+            {
+                _myCurrentView = value;
+                RaisePropertyChanged();
+            }
+        }
+        
         #region HomePage+ Viewmodel Region
         private string _carouselDescription;
         public string CarouselDescription

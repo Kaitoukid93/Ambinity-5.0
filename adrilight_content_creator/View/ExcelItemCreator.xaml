@@ -1,0 +1,52 @@
+﻿<UserControl x:Class="adrilight_content_creator.View.ExcelItemCreator"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
+             mc:Ignorable="d"
+             xmlns:view="clr-namespace:adrilight_content_creator.View"
+             x:Name="window"
+             xmlns:ViewModels ="clr-namespace:adrilight_content_creator.ViewModel"
+             xmlns:store="clr-namespace:adrilight_shared.Models.Store;assembly=adrilight_shared"
+             xmlns:dataVisualizer="clr-namespace:adrilight_shared.Models.DataVisualizer;assembly=adrilight_shared"
+             xmlns:devices="clr-namespace:adrilight_shared.Models.Device;assembly=adrilight_shared"
+             xmlns:zone="clr-namespace:adrilight_shared.Models.Device.Zone;assembly=adrilight_shared"
+             Background="{DynamicResource RegionBrush}"
+             d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewModel}"
+             DataContext="{Binding Source={StaticResource Locator}, Path=MainViewModel}">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
+            <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
+            <converters:Inverseboolvisibility x:Key="InverseBoolToVisConverter" />
+            <DropShadowEffect x:Key="Item.SelectedActive.Border.Shadow"
+                              BlurRadius="20"
+                              RenderingBias="Quality"
+                              ShadowDepth="1"
+                              Color="{Binding Color, Source={StaticResource PrimaryBrush}}" />
+            <DropShadowEffect x:Key="Item.MouseOver.Border.Shadow"
+                              BlurRadius="20"
+                              RenderingBias="Quality"
+                              ShadowDepth="1"
+                              Color="{Binding Color, Source={StaticResource DarkMaskBrush}}" />
+            
+           
+          
+         
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <ContentControl Content="{Binding MyCurrentView}">
+            <ContentControl.Resources>
+                <DataTemplate DataType="{x:Type ViewModels:ExcelItemCreatorHomeViewModel}">
+                    <view:ExcelCreatorHomeView/>
+                </DataTemplate>
+            </ContentControl.Resources>
+            
+        </ContentControl>
+    </Grid>
+</UserControl>
