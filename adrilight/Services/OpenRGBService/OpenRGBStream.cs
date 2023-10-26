@@ -13,6 +13,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace adrilight.Services.OpenRGBService
 {
@@ -24,7 +26,7 @@ namespace adrilight.Services.OpenRGBService
         {
             GeneralSettings = generalSettings ?? throw new ArgumentException(nameof(generalSettings));
             DeviceSettings = deviceSettings ?? throw new ArgumentNullException(nameof(deviceSettings));
-            AmbinityClient = ambinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
+            AmbinityClient = ambinityClient as AmbinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
 
             // DeviceSpotSets = deviceSpotSets ?? throw new ArgumentNullException(nameof(deviceSpotSets));
             DeviceSettings.PropertyChanged += UserSettings_PropertyChanged;
@@ -39,20 +41,20 @@ namespace adrilight.Services.OpenRGBService
                     _frameRate = 50;
                     break;
             }
-            RefreshTransferState();
+            //RefreshTransferState();
         }
         //Dependency Injection//
         private IDeviceSettings DeviceSettings { get; set; }
         private IGeneralSettings GeneralSettings { get; set; }
-        private IAmbinityClient AmbinityClient { get; }
+        private AmbinityClient AmbinityClient { get; }
         private int _frameRate = 60;
-        private void UserSettings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private async void UserSettings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
                 case nameof(DeviceSettings.IsTransferActive):
                 case nameof(DeviceSettings.OutputPort):
-                    RefreshTransferState();
+                    await RefreshTransferState();
                     break;
                 case nameof(DeviceSettings.DeviceState):
                     DeviceStateChanged();
@@ -94,15 +96,19 @@ namespace adrilight.Services.OpenRGBService
                 _dimFactor = 1.00;
             }
         }
-        private void RefreshTransferState()
+        private async Task RefreshTransferState()
         {
             if (DeviceSettings.IsTransferActive) // normal scenario
             {
 
+                if (!IsValid())
+                {
+                    await AmbinityClient.RefreshTransferState();
+                }
                 if (IsValid())
                 {
-                    //find which position this device is in the OpenRGB App
-                    try
+                //find which position this device is in the OpenRGB App
+                try
                     {
                         lock (AmbinityClient.Lock)
                         {

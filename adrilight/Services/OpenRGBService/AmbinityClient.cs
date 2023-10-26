@@ -113,7 +113,13 @@ namespace adrilight.Services.OpenRGBService
         }
         public async Task RefreshTransferState()
         {
+
+            //this client is being hold by another process
+            if(IsInitializing) return;
+
+            //turn on this flag to preven multiple thread access
             IsInitializing = true;
+
 
             if (!IsInitialized && GeneralSettings.IsOpenRGBEnabled && GeneralSettings.UsingOpenRGB) // Only run OpenRGB Stream if User enable OpenRGB Utilities in General Settings
             {

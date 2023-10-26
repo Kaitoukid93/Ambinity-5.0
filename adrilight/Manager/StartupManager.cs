@@ -45,11 +45,10 @@ namespace adrilight.Manager
             TaskDefinition td = ts.NewTask();
             td.Principal.RunLevel = TaskRunLevel.Highest;
             //td.Triggers.AddNew(TaskTriggerType.Logon);          
-            td.Triggers.AddNew(TaskTriggerType.Logon);   // 
             string program_path = "\"" + System.Reflection.Assembly.GetExecutingAssembly().Location + "\""; // you can have it dynamic
-            BootTrigger bt = new BootTrigger();
-            bt.Delay = TimeSpan.FromSeconds(delaySecond);
-            td.Triggers.Add(bt);                                                                                             //even of user choice giving an interface in win-form or wpf application
+            LogonTrigger lg = new LogonTrigger();
+            lg.Delay = TimeSpan.FromSeconds(delaySecond);
+            td.Triggers.Add(lg); //even of user choice giving an interface in win-form or wpf application
             td.Actions.Add(new ExecAction(program_path, null));
             ts.RootFolder.RegisterTaskDefinition("Ambinity Service", td);
         }
