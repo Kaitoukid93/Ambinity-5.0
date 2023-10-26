@@ -265,7 +265,6 @@ namespace adrilight.Services.OpenRGBService
                 return;
             }
 
-
             //retry after exceptions...
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -321,7 +320,6 @@ namespace adrilight.Services.OpenRGBService
                 finally
                 {
                     //do nothing at the moment because AmbinityCilent is holding the Client
-
 
                 }
 
