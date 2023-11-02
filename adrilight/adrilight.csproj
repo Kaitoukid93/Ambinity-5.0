@@ -206,6 +206,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Manager\DBManager.cs" />
+    <Compile Include="Services\LightingEngine\RunStateEnum.cs" />
     <Compile Include="ViewModel\ColorEditingObject.cs" />
     <Compile Include="View\Adorners\HoverAdorner.cs" />
     <Compile Include="View\Adorners\LineHoverAdorner.cs" />

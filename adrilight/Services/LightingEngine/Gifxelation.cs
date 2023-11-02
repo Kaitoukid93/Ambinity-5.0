@@ -238,7 +238,7 @@ namespace adrilight.Services.LightingEngine
         private int _speed;
         private object _lock = new object();
         private Rectangle _currentCapturingRegion;
-
+        private RunStateEnum _runState = RunStateEnum.Stop;
         private enum DimMode { Up, Down };
         private DimMode _dimMode;
         private double _dimFactor;
@@ -255,10 +255,10 @@ namespace adrilight.Services.LightingEngine
             {
                 return;
             }
-            var isRunning = _cancellationTokenSource != null;
+            var isRunning = _cancellationTokenSource != null && _runState != RunStateEnum.Stop;
 
             _currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
-            GetTick(CurrentZone.IsInControlGroup);
+
             var shouldBeRunning =
                 _currentLightingMode.BasedOn == LightingModeEnum.Gifxelation &&
                 //this zone has to be enable, this could be done by stop setting the spots, but the this thread still alive, so...
@@ -269,31 +269,22 @@ namespace adrilight.Services.LightingEngine
             if (isRunning && !shouldBeRunning)
             {
                 //stop it!
-                Log.Information("Stop Gifxelation due to Mode Changing");
                 _dimMode = DimMode.Down;
                 _dimFactor = 1.00;
-                _cancellationTokenSource.Cancel();
-                _cancellationTokenSource = null;
+                _runState = RunStateEnum.Pause;
+                // Stop();
 
             }
             // this is start sign
             else if (!isRunning && shouldBeRunning)
             {
-                //start it
-                Log.Information("Starting the Gifxelation Engine");
-                _dimMode = DimMode.Down;
-                _dimFactor = 1.00;
-                Init();
-                _cancellationTokenSource = new CancellationTokenSource();
-                _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
-                    IsBackground = true,
-                    Priority = ThreadPriority.BelowNormal,
-                    Name = "DesktopDuplicatorReader"
-                };
-                _workerThread.Start();
+                _runState = RunStateEnum.Run;
+                //check if thread alive
+                Start();
             }
             else if (isRunning && shouldBeRunning)
             {
+                _runState = RunStateEnum.Run;
                 Init();
             }
         }
@@ -367,118 +358,133 @@ namespace adrilight.Services.LightingEngine
             var bitmapData = new BitmapData();
             IsRunning = true;
             Log.Information("Gifxelation is running");
+            int _idleCounter = 0;
             try
             {
                 var updateIntervalCounter = 0;
 
                 while (!token.IsCancellationRequested)
                 {
-                    if (MainViewViewModel.IsRichCanvasWindowOpen)
+                    if (_runState == RunStateEnum.Run)
                     {
-                        Thread.Sleep(100);
-                        continue;
-                    }
-                    //this indicator that user is opening this device and we need raise event when color update on each spot
-                    if (LoadedGifImage == null)
-                        continue;
-                    var frameTime = Stopwatch.StartNew();
-                    var isPreviewRunning = MainViewViewModel.IsRegionSelectionOpen;
-                    var newImage = _retryPolicy.Execute(() => GetNextFrame(image, (int)_tick.CurrentTick, isPreviewRunning));
-                    TraceFrameDetails(newImage);
-                    if (newImage == null)
-                    {
-                        //there was a timeout before there was the next frame, simply retry!
-                        continue;
-                    }
-                    if (image != null && (newImage.Width != image.Width || newImage.Height != image.Height))
-                    {
-                        OnCapturingRegionChanged(_regionControl.CapturingRegion);
-                    }
-                    else
-                    {
-                        OnCapturingRegionChanged(_regionControl.CapturingRegion);
-                    }
-
-                    image = newImage;
-                    try
-                    {
-                        image.LockBits(_currentCapturingRegion, ImageLockMode.ReadOnly, PixelFormat.Format32bppRgb, bitmapData);
-                    }
-
-                    catch (ArgumentException)
-                    {
-                        //usually the rectangle is jumping out of the image due to new profile, we recreate the rectangle based on the scale
-                        // or simply dispose the image and let GetNextFrame handle the rectangle recreation
-                        image = null;
-                        continue;
-                    }
-                    NextTick();
-
-                    lock (CurrentZone.Lock)
-                    {
-                        DimLED();
-                        foreach (var spot in CurrentZone.Spots)
+                        if (MainViewViewModel.IsRichCanvasWindowOpen)
                         {
-                            var left = (spot as DeviceSpot).Left / CurrentZone.Width * _currentCapturingRegion.Width;
-                            var top = (spot as DeviceSpot).Top / CurrentZone.Height * _currentCapturingRegion.Height;
-                            var width = Math.Max(1, (spot as DeviceSpot).Width / CurrentZone.Width * _currentCapturingRegion.Width);
-                            var height = Math.Max(1, (spot as DeviceSpot).Height / CurrentZone.Height * _currentCapturingRegion.Height);
-                            const int numberOfSteps = 15;
-                            var stepx = Math.Max(1, (int)width / numberOfSteps);
-                            var stepy = Math.Max(1, (int)height / numberOfSteps);
-                            var actualRectangle = new Rectangle(
-                                (int)left,
-                                (int)top,
-                                (int)width,
-                                (int)height);
-                            GetAverageColorOfRectangularRegion(actualRectangle, stepy, stepx, bitmapData,
-                                out var sumR, out var sumG, out var sumB, out var count);
+                            Thread.Sleep(100);
+                            continue;
+                        }
+                        //this indicator that user is opening this device and we need raise event when color update on each spot
+                        if (LoadedGifImage == null)
+                            continue;
+                        var frameTime = Stopwatch.StartNew();
+                        var isPreviewRunning = MainViewViewModel.IsRegionSelectionOpen;
+                        var newImage = _retryPolicy.Execute(() => GetNextFrame(image, (int)_tick.CurrentTick, isPreviewRunning));
+                        TraceFrameDetails(newImage);
+                        if (newImage == null)
+                        {
+                            //there was a timeout before there was the next frame, simply retry!
+                            continue;
+                        }
+                        if (image != null && (newImage.Width != image.Width || newImage.Height != image.Height))
+                        {
+                            OnCapturingRegionChanged(_regionControl.CapturingRegion);
+                        }
+                        else
+                        {
+                            OnCapturingRegionChanged(_regionControl.CapturingRegion);
+                        }
 
-                            var countInverse = 1f / count;
-                            var r = sumR * countInverse;
-                            var g = sumG * countInverse;
-                            var b = sumB * countInverse;
-                            byte finalR = 0;
-                            byte finalG = 0;
-                            byte finalB = 0;
+                        image = newImage;
+                        try
+                        {
+                            image.LockBits(_currentCapturingRegion, ImageLockMode.ReadOnly, PixelFormat.Format32bppRgb, bitmapData);
+                        }
 
-                            if (_dimMode == DimMode.Down)
+                        catch (ArgumentException)
+                        {
+                            //usually the rectangle is jumping out of the image due to new profile, we recreate the rectangle based on the scale
+                            // or simply dispose the image and let GetNextFrame handle the rectangle recreation
+                            image = null;
+                            continue;
+                        }
+                        NextTick();
+
+                        lock (CurrentZone.Lock)
+                        {
+                            DimLED();
+                            foreach (var spot in CurrentZone.Spots)
                             {
-                                //keep same last color
-                                finalR = spot.Red;
-                                finalG = spot.Green;
-                                finalB = spot.Blue;
+                                var left = (spot as DeviceSpot).Left / CurrentZone.Width * _currentCapturingRegion.Width;
+                                var top = (spot as DeviceSpot).Top / CurrentZone.Height * _currentCapturingRegion.Height;
+                                var width = Math.Max(1, (spot as DeviceSpot).Width / CurrentZone.Width * _currentCapturingRegion.Width);
+                                var height = Math.Max(1, (spot as DeviceSpot).Height / CurrentZone.Height * _currentCapturingRegion.Height);
+                                const int numberOfSteps = 15;
+                                var stepx = Math.Max(1, (int)width / numberOfSteps);
+                                var stepy = Math.Max(1, (int)height / numberOfSteps);
+                                var actualRectangle = new Rectangle(
+                                    (int)left,
+                                    (int)top,
+                                    (int)width,
+                                    (int)height);
+                                GetAverageColorOfRectangularRegion(actualRectangle, stepy, stepx, bitmapData,
+                                    out var sumR, out var sumG, out var sumB, out var count);
+
+                                var countInverse = 1f / count;
+                                var r = sumR * countInverse;
+                                var g = sumG * countInverse;
+                                var b = sumB * countInverse;
+                                byte finalR = 0;
+                                byte finalG = 0;
+                                byte finalB = 0;
+
+                                if (_dimMode == DimMode.Down)
+                                {
+                                    //keep same last color
+                                    finalR = spot.Red;
+                                    finalG = spot.Green;
+                                    finalB = spot.Blue;
+                                }
+                                else if (_dimMode == DimMode.Up)
+                                {
+                                    finalR = (byte)r;
+                                    finalG = (byte)g;
+                                    finalB = (byte)b;
+                                }
+                                ApplySmoothing(
+                                 (float)(finalR * _brightness * _dimFactor),
+                                 (float)(finalG * _brightness * _dimFactor),
+                                 (float)(finalB * _brightness * _dimFactor),
+                                 out var RealfinalR,
+                                 out var RealfinalG,
+                                 out var RealfinalB,
+                              spot.Red,
+                              spot.Green,
+                              spot.Blue);
+                                spot.SetColor(RealfinalR, RealfinalG, RealfinalB, false);
+
                             }
-                            else if (_dimMode == DimMode.Up)
-                            {
-                                finalR = (byte)r;
-                                finalG = (byte)g;
-                                finalB = (byte)b;
-                            }
-                            ApplySmoothing(
-                             (float)(finalR * _brightness * _dimFactor),
-                             (float)(finalG * _brightness * _dimFactor),
-                             (float)(finalB * _brightness * _dimFactor),
-                             out var RealfinalR,
-                             out var RealfinalG,
-                             out var RealfinalB,
-                          spot.Red,
-                          spot.Green,
-                          spot.Blue);
-                            spot.SetColor(RealfinalR, RealfinalG, RealfinalB, false);
 
                         }
 
+                        image.UnlockBits(bitmapData);
+                        var minFrameTimeInMs = 1000 / _frameRate;
+                        var elapsedMs = (int)frameTime.ElapsedMilliseconds;
+                        if (elapsedMs < minFrameTimeInMs)
+                        {
+                            Thread.Sleep(minFrameTimeInMs - elapsedMs);
+                        }
+                        updateIntervalCounter++;
+                    }
+                    else
+                    {
+                        Thread.Sleep(10);
+                        _idleCounter++;
+                        if (_idleCounter >= 1000)
+                        {
+                            _runState = RunStateEnum.Stop;
+                            break;
+                        }
                     }
 
-                    image.UnlockBits(bitmapData);
-                    var minFrameTimeInMs = 1000 / _frameRate;
-                    var elapsedMs = (int)frameTime.ElapsedMilliseconds;
-                    if (elapsedMs < minFrameTimeInMs)
-                    {
-                        Thread.Sleep(minFrameTimeInMs - elapsedMs);
-                    }
-                    updateIntervalCounter++;
                 }
             }
             catch (Exception ex)
@@ -623,7 +629,21 @@ namespace adrilight.Services.LightingEngine
                 return null;
             }
         }
-
+        public void Start()
+        {
+            Log.Information("Starting the Gifxelation Engine");
+            _dimMode = DimMode.Down;
+            _dimFactor = 1.00;
+            GetTick(CurrentZone.IsInControlGroup);
+            Init();
+            _cancellationTokenSource = new CancellationTokenSource();
+            _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
+                IsBackground = true,
+                Priority = ThreadPriority.BelowNormal,
+                Name = "DesktopDuplicatorReader"
+            };
+            _workerThread.Start();
+        }
         public void Stop()
         {
             Log.Information("Stop called for Gifxelation Engine");

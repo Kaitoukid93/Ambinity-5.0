@@ -13,8 +13,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace adrilight.Services.OpenRGBService
 {
@@ -54,7 +52,7 @@ namespace adrilight.Services.OpenRGBService
             {
                 case nameof(DeviceSettings.IsTransferActive):
                 case nameof(DeviceSettings.OutputPort):
-                    await RefreshTransferState();
+                    RefreshTransferState();
                     break;
                 case nameof(DeviceSettings.DeviceState):
                     DeviceStateChanged();
@@ -96,19 +94,21 @@ namespace adrilight.Services.OpenRGBService
                 _dimFactor = 1.00;
             }
         }
-        private async Task RefreshTransferState()
+        private void RefreshTransferState()
         {
             if (DeviceSettings.IsTransferActive) // normal scenario
             {
 
                 if (!IsValid())
                 {
-                    await AmbinityClient.RefreshTransferState();
+                    DeviceSettings.IsTransferActive = false;
+                    return;
+                    // await AmbinityClient.RefreshTransferState();
                 }
                 if (IsValid())
                 {
-                //find which position this device is in the OpenRGB App
-                try
+                    //find which position this device is in the OpenRGB App
+                    try
                     {
                         lock (AmbinityClient.Lock)
                         {

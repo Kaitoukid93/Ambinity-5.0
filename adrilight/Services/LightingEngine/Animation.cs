@@ -91,7 +91,7 @@ namespace adrilight.Services.LightingEngine
         private enum DimMode { Up, Down };
         private DimMode _dimMode;
         private double _dimFactor;
-
+        private RunStateEnum _runState = RunStateEnum.Stop;
         private Color[] _colorBank;
         private double _brightness;
         private int _speed;
@@ -402,48 +402,35 @@ namespace adrilight.Services.LightingEngine
             {
                 return;
             }
-            var isRunning = _cancellationTokenSource != null;
+            var isRunning = _cancellationTokenSource != null && _runState != RunStateEnum.Stop;
 
             _currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
-            GetTick(CurrentZone.IsInControlGroup);
+
             var shouldBeRunning =
                 _currentLightingMode.BasedOn == LightingModeEnum.Animation &&
                 //this zone has to be enable, this could be done by stop setting the spots, but the this thread still alive, so...
                 CurrentZone.IsEnabled == true &&
                 //stop this engine when any surface or editor open because this could cause capturing fail
                 MainViewViewModel.IsRichCanvasWindowOpen == false;
-            ////registering group shoud be done
-            //MainViewViewModel.IsRegisteringGroup == false;
-
             // this is stop sign by one or some of the reason above
             if (isRunning && !shouldBeRunning)
             {
                 //stop it!
-                Log.Information("stopping the Animation Engine");
                 _dimMode = DimMode.Down;
                 _dimFactor = 1.00;
-                _cancellationTokenSource.Cancel();
-                _cancellationTokenSource = null;
+                _runState = RunStateEnum.Pause;
+                // Stop();
 
             }
             // this is start sign
             else if (!isRunning && shouldBeRunning)
             {
-                //start it
-                Log.Information("starting the Animation Color Engine");
-                _dimMode = DimMode.Down;
-                _dimFactor = 1.00;
-                Init();
-                _cancellationTokenSource = new CancellationTokenSource();
-                _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
-                    IsBackground = true,
-                    Priority = ThreadPriority.BelowNormal,
-                    Name = "Animation"
-                };
-                _workerThread.Start();
+                _runState = RunStateEnum.Run;
+                Start();
             }
             else if (isRunning && shouldBeRunning)
             {
+                _runState = RunStateEnum.Run;
                 Init();
             }
 
@@ -542,74 +529,89 @@ namespace adrilight.Services.LightingEngine
         {
             IsRunning = true;
             Log.Information("Animation engine is running");
+            int _idleCounter = 0;
             try
             {
 
                 var updateIntervalCounter = 0;
                 while (!token.IsCancellationRequested)
                 {
-                    if (MainViewViewModel.IsRichCanvasWindowOpen)
+                    if (_runState == RunStateEnum.Run)
                     {
-                        Thread.Sleep(100);
-                        continue;
-                    }
-                    if (_resizedFrames == null)
-                        continue;
-
-                    NextTick();
-                    lock (CurrentZone.Lock)
-                    {
-                        DimLED();
-                        foreach (var spot in CurrentZone.Spots)
+                        if (MainViewViewModel.IsRichCanvasWindowOpen)
                         {
-                            var position = 0;
-                            position = Convert.ToInt32(Math.Floor(_ticks[1].CurrentTick + spot.Index));
-                            position %= _colorBank.Length;
-                            lock (_lock)
-                            {
-                                //var index = spot.VID - startVID;
-                                //if (index >= _resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData.Length)
-                                //{
-                                //    index = 0;
-                                //}
-                                byte colorR = 0;
-                                byte colorG = 0;
-                                byte colorB = 0;
-
-                                if (_dimMode == DimMode.Down)
-                                {
-                                    //keep same last color
-                                    colorR = spot.Red;
-                                    colorG = spot.Green;
-                                    colorB = spot.Blue;
-                                }
-                                else if (_dimMode == DimMode.Up)
-                                {
-                                    colorR = _colorBank[position].R;
-                                    colorG = _colorBank[position].G;
-                                    colorB = _colorBank[position].B;
-                                }
-                                if (spot.HasVID)
-                                {
-                                    int index = spot.VID;
-                                    if (spot.VID >= _resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData.Length)
-                                        index = 0;
-                                    var brightness = _resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData[index] * (float)_brightness / 255;
-                                    ApplySmoothing((float)(brightness * colorR * _dimFactor), (float)(brightness * colorG * _dimFactor), (float)(brightness * colorB * _dimFactor), out var FinalR, out var FinalG, out var FinalB, spot.Red, spot.Green, spot.Blue);
-                                    spot.SetColor(FinalR, FinalG, FinalB, false);
-                                }
-                                else
-                                {
-                                    spot.SetColor(0, 0, 0, false);
-                                }
-
-                            }
+                            Thread.Sleep(100);
+                            continue;
                         }
+                        if (_resizedFrames == null)
+                            continue;
 
+                        NextTick();
+                        lock (CurrentZone.Lock)
+                        {
+                            DimLED();
+                            foreach (var spot in CurrentZone.Spots)
+                            {
+                                var position = 0;
+                                position = Convert.ToInt32(Math.Floor(_ticks[1].CurrentTick + spot.Index));
+                                position %= _colorBank.Length;
+                                lock (_lock)
+                                {
+                                    //var index = spot.VID - startVID;
+                                    //if (index >= _resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData.Length)
+                                    //{
+                                    //    index = 0;
+                                    //}
+                                    byte colorR = 0;
+                                    byte colorG = 0;
+                                    byte colorB = 0;
+
+                                    if (_dimMode == DimMode.Down)
+                                    {
+                                        //keep same last color
+                                        colorR = spot.Red;
+                                        colorG = spot.Green;
+                                        colorB = spot.Blue;
+                                    }
+                                    else if (_dimMode == DimMode.Up)
+                                    {
+                                        colorR = _colorBank[position].R;
+                                        colorG = _colorBank[position].G;
+                                        colorB = _colorBank[position].B;
+                                    }
+                                    if (spot.HasVID)
+                                    {
+                                        int index = spot.VID;
+                                        if (spot.VID >= _resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData.Length)
+                                            index = 0;
+                                        var brightness = _resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData[index] * (float)_brightness / 255;
+                                        ApplySmoothing((float)(brightness * colorR * _dimFactor), (float)(brightness * colorG * _dimFactor), (float)(brightness * colorB * _dimFactor), out var FinalR, out var FinalG, out var FinalB, spot.Red, spot.Green, spot.Blue);
+                                        spot.SetColor(FinalR, FinalG, FinalB, false);
+                                    }
+                                    else
+                                    {
+                                        spot.SetColor(0, 0, 0, false);
+                                    }
+
+                                }
+                            }
+
+                        }
+                        var sleepTime = 1000 / _frameRate;
+                        Thread.Sleep(sleepTime);
+                        updateIntervalCounter++;
                     }
-                    var sleepTime = 1000 / _frameRate;
-                    Thread.Sleep(sleepTime);
-                    updateIntervalCounter++;
+                    else
+                    {
+                        Thread.Sleep(10);
+                        _idleCounter++;
+                        if (_idleCounter >= 1000)
+                        {
+                            _runState = RunStateEnum.Stop;
+                            break;
+                        }
+                    }
+
                 }
             }
             catch (Exception ex)
@@ -807,6 +809,22 @@ namespace adrilight.Services.LightingEngine
             }
 
             return motion;
+        }
+        public void Start()
+        {
+            //start it
+            Log.Information("starting the Animation Color Engine");
+            _dimMode = DimMode.Down;
+            _dimFactor = 1.00;
+            GetTick(CurrentZone.IsInControlGroup);
+            Init();
+            _cancellationTokenSource = new CancellationTokenSource();
+            _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
+                IsBackground = true,
+                Priority = ThreadPriority.BelowNormal,
+                Name = "Animation"
+            };
+            _workerThread.Start();
         }
         public void Stop()
         {

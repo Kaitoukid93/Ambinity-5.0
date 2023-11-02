@@ -203,11 +203,10 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
                 {
                     return false;
                 }
-
                 Log.Warning("Failed to acquire next frame.", ex);
-                throw new Exception("Failed to acquire next frame.", ex);
+                throw new Exception(ex.ToString());
             }
-            // if (desktopResource == null) throw new Exception("desktopResource is null");
+            //if (desktopResource == null) throw new Exception("desktopResource is null");
             try
             {
                 if (_smallerTexture == null)

@@ -29,6 +29,15 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
         public DesktopFrame(IGeneralSettings userSettings, MainViewViewModel mainViewViewModel)
         {
             UserSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
+            UserSettings.PropertyChanged += (s, e) =>
+            {
+                switch (e.PropertyName)
+                {
+                    case nameof(UserSettings.ScreenCapturingEnabled):
+                        RefreshCapturingState();
+                        break;
+                }
+            };
             MainViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             MainViewModel.AvailableBitmaps.CollectionChanged += (s, e) =>
             {
@@ -48,7 +57,7 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
         #region private field
         private List<Thread> _workerThreads;
         private enum RunningState { Capturing, Waiting, Canceling };
-        private RunningState _state = RunningState.Waiting;
+        private RunningState _state = RunningState.Canceling;
         #endregion
 
         #region public properties
@@ -59,29 +68,21 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
         private DrawableHelpers DrHlprs { get; set; }
         private CancellationTokenSource _cancellationTokenSource;
         public object Lock { get; } = new object();
+        private int _serviceRequired;
+        public int ServiceRequired {
+            get { return _serviceRequired; }
+            set
+            {
+                if ((_serviceRequired == 0 && value == 1) || (_serviceRequired == 1 && value == 0))
+                {
+                    _serviceRequired = value;
+                    RefreshCapturingState();
+                }
+                _serviceRequired = value;
+            }
+        }
         #endregion
-        //void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e)
-        //{
 
-        //    Stop();
-        //    _workerThreads = new List<Thread>();
-        //    Log.Information("starting WCG");
-        //    IEnumerable<MonitorInfo> monitors = MonitorEnumerationHelper.GetMonitors();
-        //    Frames = new ByteFrame[monitors.Count()];
-        //    _captures = new BasicCapture[monitors.Count()];
-        //    int index = 0;
-        //    foreach (var monitor in monitors)
-        //    {
-        //        Thread workerThread = new Thread(() => Run(monitor, index++)) {
-        //            IsBackground = true,
-        //            Priority = ThreadPriority.BelowNormal,
-        //            Name = "WCG" + monitor.DeviceName
-        //        };
-        //        _state = RunningState.Capturing;
-        //        workerThread.Start();
-        //        _workerThreads.Add(workerThread);
-        //    }
-        //}
         private void ScreenSetupChanged()
         {
             Stop();
@@ -106,27 +107,55 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
         public void RefreshCapturingState()
         {
 
-            //start it
-            //_device?.Dispose();
-            _workerThreads = new List<Thread>();
-            _cancellationTokenSource = new CancellationTokenSource();
-            Log.Information("starting WCG");
+            var isRunning = _state != RunningState.Canceling;
+            var shouldBeRunning = UserSettings.ScreenCapturingEnabled && ServiceRequired > 0;
             IEnumerable<MonitorInfo> monitors = MonitorEnumerationHelper.GetMonitors();
             Frames = new ByteFrame[monitors.Count()];
-            _device = Direct3D11Helper.CreateDevice();
-            _captures = new BasicCapture[monitors.Count()];
-            var index = 0;
-            foreach (var monitor in monitors)
+
+            if (isRunning && !shouldBeRunning)
             {
-                var workerThread = new Thread(() => Run(monitor, index++)) {
-                    IsBackground = true,
-                    Priority = ThreadPriority.BelowNormal,
-                    Name = "WCG" + monitor.DeviceName
-                };
-                _state = RunningState.Capturing;
-                workerThread.Start();
-                _workerThreads.Add(workerThread);
+                //stop it!
+                Log.Information("DesktopFrameWGC is disabled,waiting for instruction");
+                var index = 0;
+                foreach (var monitor in monitors)
+                {
+                    _captures[index++].StopProcessing();
+                }
+                _state = RunningState.Waiting;
+                //Stop();
+
             }
+            // this is start sign
+            else if (!isRunning && shouldBeRunning)
+            {
+                _workerThreads = new List<Thread>();
+                _cancellationTokenSource = new CancellationTokenSource();
+                Log.Information("starting WCG");
+                _device = Direct3D11Helper.CreateDevice();
+                _captures = new BasicCapture[monitors.Count()];
+                var index = 0;
+                foreach (var monitor in monitors)
+                {
+                    var workerThread = new Thread(() => Run(monitor, index++)) {
+                        IsBackground = true,
+                        Priority = ThreadPriority.BelowNormal,
+                        Name = "WCG" + monitor.DeviceName
+                    };
+                    _state = RunningState.Capturing;
+                    workerThread.Start();
+                    _workerThreads.Add(workerThread);
+                }
+            }
+            else if (isRunning && shouldBeRunning)
+            {
+                var index = 0;
+                foreach (var monitor in monitors)
+                {
+                    _captures[index++].ResumeProcessing();
+                }
+                _state = RunningState.Capturing;
+            }
+
 
         }
 
@@ -141,7 +170,6 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
         private MainViewViewModel MainViewModel { get; set; }
         private IDirect3DDevice _device;
         private BasicCapture[] _captures;
-
         private readonly Policy _retryPolicy;
 
         private TimeSpan ProvideDelayDuration(int index)
@@ -161,30 +189,37 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
         }
         public async void Run(MonitorInfo monitor, int screenIndex)
         {
-            IsRunning = true;
             NeededRefreshing = false;
             Log.Information("WCG is running for screen :" + monitor.DeviceName);
             Frames[screenIndex] = new ByteFrame();
             try
             {
                 await StartHmonCapture(monitor, screenIndex);
-                while (_state == RunningState.Capturing)
+                while (true)
                 {
-                    var frameTime = Stopwatch.StartNew();
-                    lock (_captures[screenIndex].Lock)
+                    if (_state == RunningState.Capturing)
                     {
-                        Frames[screenIndex] = _captures[screenIndex].CurrentFrame;
+                        var frameTime = Stopwatch.StartNew();
+                        lock (_captures[screenIndex].Lock)
+                        {
+                            Frames[screenIndex] = _captures[screenIndex].CurrentFrame;
+                        }
+                        if (MainViewModel.IsRegionSelectionOpen)
+                        {
+                            MainViewModel.DesktopsPreviewUpdate(Frames[screenIndex], screenIndex);
+                        }
+                        var minFrameTimeInMs = 1000 / 30;
+                        var elapsedMs = (int)frameTime.ElapsedMilliseconds;
+                        if (elapsedMs < minFrameTimeInMs)
+                        {
+                            Thread.Sleep(minFrameTimeInMs - elapsedMs);
+                        }
                     }
-                    if (MainViewModel.IsRegionSelectionOpen)
+                    else
                     {
-                        MainViewModel.DesktopsPreviewUpdate(Frames[screenIndex], screenIndex);
+                        Thread.Sleep(100);
                     }
-                    var minFrameTimeInMs = 1000 / 30;
-                    var elapsedMs = (int)frameTime.ElapsedMilliseconds;
-                    if (elapsedMs < minFrameTimeInMs)
-                    {
-                        Thread.Sleep(minFrameTimeInMs - elapsedMs);
-                    }
+
                 }
             }
             catch (Exception ex)
@@ -197,6 +232,7 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
         {
             Log.Information("Stop called for WCG");
             _state = RunningState.Canceling;
+            IsRunning = false;
             for (var i = 0; i < _workerThreads.Count(); i++)
             {
                 if (_workerThreads[i] == null) return;
@@ -249,7 +285,6 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
             _captures[screenIndex]?.Dispose();
             Log.Information("HmonCapture Dispose for Screen index " + screenIndex);
         }
-
 
     }
 }

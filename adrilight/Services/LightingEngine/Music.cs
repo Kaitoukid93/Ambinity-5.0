@@ -85,7 +85,7 @@ namespace adrilight.Services.LightingEngine
         private SliderParameter _brightnessControl;
         private ListSelectionParameter _midDataControl;
         private ToggleParameter _enableControl;
-
+        private RunStateEnum _runState = RunStateEnum.Stop;
         private AudioDeviceSelectionButtonParameter _audioDeviceSelectionControl;
         private enum DimMode { Up, Down };
         private DimMode _dimMode;
@@ -308,9 +308,8 @@ namespace adrilight.Services.LightingEngine
             {
                 return;
             }
-            var isRunning = _cancellationTokenSource != null;
+            var isRunning = _cancellationTokenSource != null && _runState != RunStateEnum.Stop;
             _currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
-            GetTick(CurrentZone.IsInControlGroup);
             var shouldBeRunning =
                 _currentLightingMode.BasedOn == LightingModeEnum.MusicCapturing &&
                 //this zone has to be enable, this could be done by stop setting the spots, but the this thread still alive, so...
@@ -325,31 +324,24 @@ namespace adrilight.Services.LightingEngine
             if (isRunning && !shouldBeRunning)
             {
                 //stop it!
-                Log.Information("Stop Music Engine due to Mode changing");
                 _dimMode = DimMode.Down;
                 _dimFactor = 1.00;
-                _cancellationTokenSource.Cancel();
-                _cancellationTokenSource = null;
-
+                _runState = RunStateEnum.Pause;
+                if (AudioFrame.ServiceRequired > 0)
+                    AudioFrame.ServiceRequired--;
+                //Stop();
             }
             // this is start sign
             else if (!isRunning && shouldBeRunning)
             {
-                //start it
-                Log.Information("starting the Music Engine");
-                _dimMode = DimMode.Down;
-                _dimFactor = 1.00;
-                Init();
-                _cancellationTokenSource = new CancellationTokenSource();
-                _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
-                    IsBackground = true,
-                    Priority = ThreadPriority.BelowNormal,
-                    Name = "Music"
-                };
-                _workerThread.Start();
+                _runState = RunStateEnum.Run;
+                AudioFrame.ServiceRequired++;
+                Start();
             }
             else if (isRunning && shouldBeRunning)
             {
+                _runState = RunStateEnum.Run;
+                AudioFrame.ServiceRequired++;
                 Init();
             }
 
@@ -424,70 +416,85 @@ namespace adrilight.Services.LightingEngine
 
             IsRunning = true;
             Log.Information("Music Engine is running.");
+            int _idleCounter = 0;
             try
             {
 
                 var updateIntervalCounter = 0;
                 while (!token.IsCancellationRequested)
                 {
-                    if (MainViewViewModel.IsRichCanvasWindowOpen)
+                    if (_runState == RunStateEnum.Run)
                     {
-                        Thread.Sleep(100);
-                        continue;
-                    }
-                    var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
-                    NextTick();
-                    var ledCount = CurrentZone.Spots.Count();
-                    var offset = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
-                    var id = CurrentZone.Spots[0].MID;
-                    if (id > 31)
-                        id = 0;
-                    var currentFrame = BrightnessMapCreator(id, CurrentZone.Spots.Count());
-                    if (currentFrame == null)
-                    {
-                        Thread.Sleep(1000);
-                        continue;
-                    }
-
-                    lock (CurrentZone.Lock)
-                    {
-                        DimLED();
-                        foreach (var spot in CurrentZone.Spots)
+                        if (MainViewViewModel.IsRichCanvasWindowOpen)
                         {
-                            var position = 0;
-                            var translatedIndex = spot.Index - offset;
-                            position = Convert.ToInt32(Math.Floor(_ticks[0].CurrentTick + spot.Index));
-                            position %= _colorBank.Length;
-                            //get brightness using MID and audioFrame
-                            var columnIndex = spot.MID;
-                            if (columnIndex >= 32)
-                                columnIndex = 0;
-                            byte colorR = 0;
-                            byte colorG = 0;
-                            byte colorB = 0;
-                            if (_dimMode == DimMode.Down)
-                            {
-                                //keep same last color
-                                colorR = spot.Red;
-                                colorG = spot.Green;
-                                colorB = spot.Blue;
-                            }
-                            else if (_dimMode == DimMode.Up)
-                            {
-                                colorR = _colorBank[position].R;
-                                colorG = _colorBank[position].G;
-                                colorB = _colorBank[position].B;
-                            }
-                            var brightness = (float)_brightness * (currentFrame[translatedIndex] / 255f) * (float)_dimFactor;
-                            ApplySmoothing(brightness * colorR, brightness * colorG, brightness * colorB, out var FinalR, out var FinalG, out var FinalB, spot.Red, spot.Green, spot.Blue);
-                            spot.SetColor(FinalR, FinalG, FinalB, false);
-
+                            Thread.Sleep(100);
+                            continue;
+                        }
+                        var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
+                        NextTick();
+                        var ledCount = CurrentZone.Spots.Count();
+                        var offset = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
+                        var id = CurrentZone.Spots[0].MID;
+                        if (id > 31)
+                            id = 0;
+                        var currentFrame = BrightnessMapCreator(id, CurrentZone.Spots.Count());
+                        if (currentFrame == null)
+                        {
+                            Thread.Sleep(1000);
+                            continue;
                         }
 
+                        lock (CurrentZone.Lock)
+                        {
+                            DimLED();
+                            foreach (var spot in CurrentZone.Spots)
+                            {
+                                var position = 0;
+                                var translatedIndex = spot.Index - offset;
+                                position = Convert.ToInt32(Math.Floor(_ticks[0].CurrentTick + spot.Index));
+                                position %= _colorBank.Length;
+                                //get brightness using MID and audioFrame
+                                var columnIndex = spot.MID;
+                                if (columnIndex >= 32)
+                                    columnIndex = 0;
+                                byte colorR = 0;
+                                byte colorG = 0;
+                                byte colorB = 0;
+                                if (_dimMode == DimMode.Down)
+                                {
+                                    //keep same last color
+                                    colorR = spot.Red;
+                                    colorG = spot.Green;
+                                    colorB = spot.Blue;
+                                }
+                                else if (_dimMode == DimMode.Up)
+                                {
+                                    colorR = _colorBank[position].R;
+                                    colorG = _colorBank[position].G;
+                                    colorB = _colorBank[position].B;
+                                }
+                                var brightness = (float)_brightness * (currentFrame[translatedIndex] / 255f) * (float)_dimFactor;
+                                ApplySmoothing(brightness * colorR, brightness * colorG, brightness * colorB, out var FinalR, out var FinalG, out var FinalB, spot.Red, spot.Green, spot.Blue);
+                                spot.SetColor(FinalR, FinalG, FinalB, false);
+
+                            }
+
+                        }
+                        var sleepTime = 1000 / _frameRate;
+                        Thread.Sleep(sleepTime);
+                        updateIntervalCounter++;
                     }
-                    var sleepTime = 1000 / _frameRate;
-                    Thread.Sleep(sleepTime);
-                    updateIntervalCounter++;
+                    else
+                    {
+                        Thread.Sleep(10);
+                        _idleCounter++;
+                        if (_idleCounter >= 1000)
+                        {
+                            _runState = RunStateEnum.Stop;
+                            break;
+                        }
+                    }
+
                 }
             }
             catch (Exception ex)
@@ -773,6 +780,22 @@ namespace adrilight.Services.LightingEngine
         {
             const float factor = 80f;
             return (byte)(256f * ((float)Math.Pow(factor, color / 256f) - 1f) / (factor - 1));
+        }
+        public void Start()
+        {
+            //start it
+            Log.Information("starting the Music Engine");
+            _dimMode = DimMode.Down;
+            _dimFactor = 1.00;
+            GetTick(CurrentZone.IsInControlGroup);
+            Init();
+            _cancellationTokenSource = new CancellationTokenSource();
+            _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
+                IsBackground = true,
+                Priority = ThreadPriority.BelowNormal,
+                Name = "Music"
+            };
+            _workerThread.Start();
         }
         public void Stop()
         {

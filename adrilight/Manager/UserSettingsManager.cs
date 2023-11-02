@@ -37,6 +37,8 @@ namespace adrilight.Manager
             try
             {
                 var generalSettings = JsonConvert.DeserializeObject<GeneralSettings>(json);
+                if (generalSettings == null)
+                    return null;
                 generalSettings.PropertyChanged += (_, __) => SaveSettings(generalSettings);
 
                 HandleAutostart(generalSettings);

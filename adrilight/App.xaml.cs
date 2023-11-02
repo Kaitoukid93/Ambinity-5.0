@@ -400,22 +400,26 @@ namespace adrilight
                             await (desktopFrame as DesktopFrame).StartHmonCapture(monitor, count++);
                         }
                     }
-                    var ambinityClient = kernel.Get<IAmbinityClient>() as AmbinityClient;
-                    ambinityClient.IsInitialized = false;
-                    await ambinityClient.RefreshTransferState();
-                    foreach (var openRGBStream in kernel.GetAll<ISerialStream>().Where(s => s is OpenRGBStream))
-                    {
-                        openRGBStream.Start();
-                    }
+                    var deviceDiscovery = kernel.GetAll<DeviceDiscovery>().FirstOrDefault();
+                    deviceDiscovery.Start();
 
                 }
                 else if (e.Mode == PowerModes.Suspend)
                 {
 
-                    foreach (var openRGBStream in kernel.GetAll<ISerialStream>().Where(s => s is OpenRGBStream))
+                    //foreach (var openRGBStream in kernel.GetAll<ISerialStream>().Where(s => s is OpenRGBStream))
+                    //{
+                    //    openRGBStream.Stop();
+                    //}
+                    var devices = kernel.GetAll<IDeviceSettings>();
+                    var deviceDiscovery = kernel.GetAll<DeviceDiscovery>().FirstOrDefault();
+                    deviceDiscovery.Stop();
+                    foreach (var device in devices)
                     {
-                        openRGBStream.Stop();
+                        device.IsTransferActive = false;
                     }
+                    var ambinityClient = kernel.GetAll<IAmbinityClient>().FirstOrDefault();
+                    ambinityClient.Dispose();
                     Log.Information("System suspended!");
                 }
             };

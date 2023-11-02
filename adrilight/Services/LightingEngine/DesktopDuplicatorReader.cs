@@ -61,7 +61,7 @@ namespace adrilight.Services.LightingEngine
         private ICaptureEngine DesktopFrame { get; }
         public bool IsRunning { get; private set; }
         private LEDSetup CurrentZone { get; }
-
+        private RunStateEnum _runState = RunStateEnum.Stop;
         private MainViewViewModel MainViewViewModel { get; }
         public LightingModeEnum Type { get; } = LightingModeEnum.ScreenCapturing;
 
@@ -193,7 +193,7 @@ namespace adrilight.Services.LightingEngine
             {
                 return;
             }
-            var isRunning = _cancellationTokenSource != null;
+            var isRunning = _cancellationTokenSource != null && _runState != RunStateEnum.Stop;
 
             _currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
 
@@ -211,32 +211,24 @@ namespace adrilight.Services.LightingEngine
             // this is stop sign by one or some of the reason above
             if (isRunning && !shouldBeRunning)
             {
-                //stop it!
-                Log.Information("Stop the capturing due to mode changing");
                 _dimMode = DimMode.Down;
                 _dimFactor = 1.00;
-                _cancellationTokenSource.Cancel();
-                _cancellationTokenSource = null;
-
+                _runState = RunStateEnum.Pause;
+                if (DesktopFrame.ServiceRequired > 0)
+                    DesktopFrame.ServiceRequired--;
+                //Stop();
             }
             // this is start sign
             else if (!isRunning && shouldBeRunning)
             {
-                //start it
-                Log.Information("starting the capturing");
-                _dimMode = DimMode.Down;
-                _dimFactor = 1.00;
-                Init();
-                _cancellationTokenSource = new CancellationTokenSource();
-                _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
-                    IsBackground = true,
-                    Priority = ThreadPriority.BelowNormal,
-                    Name = "DesktopDuplicatorReader"
-                };
-                _workerThread.Start();
+                _runState = RunStateEnum.Run;
+                DesktopFrame.ServiceRequired++;
+                Start();
             }
             else if (isRunning && shouldBeRunning)
             {
+                _runState = RunStateEnum.Run;
+                DesktopFrame.ServiceRequired++;
                 Init();
             }
         }
@@ -330,119 +322,133 @@ namespace adrilight.Services.LightingEngine
                 //var zoneWidth = (int)(CurrentZone.Width / 8.0) >= 1 ? (int)(CurrentZone.Width / 8.0) : 1;
                 //var zoneHeight = (int)(CurrentZone.Height / 8.0) >= 1 ? (int)(CurrentZone.Height / 8.0) : 1;
                 var updateIntervalCounter = 0;
+                int _idleCounter = 0;
                 while (!token.IsCancellationRequested)
                 {
-
                     //this indicator that user is opening this device and we need raise event when color update on each spot
-
-                    if (MainViewViewModel.IsRichCanvasWindowOpen)
+                    if (_runState == RunStateEnum.Run)
                     {
-                        Thread.Sleep(100);
-                        continue;
-                    }
-                    var frameTime = Stopwatch.StartNew();
-                    var newImage = _retryPolicy.Execute(() => GetNextFrame(image));
-                    //TraceFrameDetails(newImage);
-                    if (newImage == null)
-                    {
-                        //there was a timeout before there was the next frame, simply retry!
-                        continue;
-                    }
 
-                    OnCapturingRegionChanged(_regionControl.CapturingRegion);
-
-                    image = newImage;
-                    try
-                    {
-                        //calculate current capturing region blackbar
-
-                        image.LockBits(_currentCapturingRegion, ImageLockMode.ReadOnly, PixelFormat.Format32bppRgb, bitmapData);
-                    }
-
-                    catch (ArgumentException)
-                    {
-                        //usually the rectangle is jumping out of the image due to new profile, we recreate the rectangle based on the scale
-                        // or simply dispose the image and let GetNextFrame handle the rectangle recreation
-                        image = null;
-                        continue;
-                    }
-
-
-
-                    lock (CurrentZone.Lock)
-                    {
-                        DimLED();
-                        foreach (var spot in CurrentZone.Spots)
+                        if (MainViewViewModel.IsRichCanvasWindowOpen)
                         {
-                            var left = (spot as DeviceSpot).Left / CurrentZone.Width * _currentCapturingRegion.Width;
-                            var top = (spot as DeviceSpot).Top / CurrentZone.Height * _currentCapturingRegion.Height;
-                            var width = Math.Max(1, (spot as DeviceSpot).Width / CurrentZone.Width * _currentCapturingRegion.Width);
-                            var height = Math.Max(1, (spot as DeviceSpot).Height / CurrentZone.Height * _currentCapturingRegion.Height);
-                            const int numberOfSteps = 15;
-                            var stepx = Math.Max(1, (int)width / numberOfSteps);
-                            var stepy = Math.Max(1, (int)height / numberOfSteps);
-                            var actualRectangle = new Rectangle(
-                                (int)left,
-                                (int)top,
-                                (int)width,
-                                (int)height);
-                            GetAverageColorOfRectangularRegion(actualRectangle, stepy, stepx, bitmapData,
-                                out var sumR, out var sumG, out var sumB, out var count);
+                            Thread.Sleep(100);
+                            continue;
+                        }
+                        var frameTime = Stopwatch.StartNew();
+                        var newImage = _retryPolicy.Execute(() => GetNextFrame(image));
+                        //TraceFrameDetails(newImage);
+                        if (newImage == null)
+                        {
+                            //there was a timeout before there was the next frame, simply retry!
+                            continue;
+                        }
 
-                            var countInverse = 1f / count;
-                            var r = sumR * countInverse;
-                            var g = sumG * countInverse;
-                            var b = sumB * countInverse;
-                            byte finalR = 0;
-                            byte finalG = 0;
-                            byte finalB = 0;
-                            if (_dimMode == DimMode.Down)
+                        OnCapturingRegionChanged(_regionControl.CapturingRegion);
+
+                        image = newImage;
+                        try
+                        {
+                            //calculate current capturing region blackbar
+
+                            image.LockBits(_currentCapturingRegion, ImageLockMode.ReadOnly, PixelFormat.Format32bppRgb, bitmapData);
+                        }
+
+                        catch (ArgumentException)
+                        {
+                            //usually the rectangle is jumping out of the image due to new profile, we recreate the rectangle based on the scale
+                            // or simply dispose the image and let GetNextFrame handle the rectangle recreation
+                            image = null;
+                            continue;
+                        }
+
+
+
+                        lock (CurrentZone.Lock)
+                        {
+                            DimLED();
+                            foreach (var spot in CurrentZone.Spots)
                             {
-                                //keep same last color
-                                finalR = spot.Red;
-                                finalG = spot.Green;
-                                finalB = spot.Blue;
-                            }
-                            else if (_dimMode == DimMode.Up)
-                            {
-                                if (!_useLinearLighting)
+                                var left = (spot as DeviceSpot).Left / CurrentZone.Width * _currentCapturingRegion.Width;
+                                var top = (spot as DeviceSpot).Top / CurrentZone.Height * _currentCapturingRegion.Height;
+                                var width = Math.Max(1, (spot as DeviceSpot).Width / CurrentZone.Width * _currentCapturingRegion.Width);
+                                var height = Math.Max(1, (spot as DeviceSpot).Height / CurrentZone.Height * _currentCapturingRegion.Height);
+                                const int numberOfSteps = 15;
+                                var stepx = Math.Max(1, (int)width / numberOfSteps);
+                                var stepy = Math.Max(1, (int)height / numberOfSteps);
+                                var actualRectangle = new Rectangle(
+                                    (int)left,
+                                    (int)top,
+                                    (int)width,
+                                    (int)height);
+                                GetAverageColorOfRectangularRegion(actualRectangle, stepy, stepx, bitmapData,
+                                    out var sumR, out var sumG, out var sumB, out var count);
+
+                                var countInverse = 1f / count;
+                                var r = sumR * countInverse;
+                                var g = sumG * countInverse;
+                                var b = sumB * countInverse;
+                                byte finalR = 0;
+                                byte finalG = 0;
+                                byte finalB = 0;
+                                if (_dimMode == DimMode.Down)
                                 {
-                                    finalR = FadeNonLinear(r);
-                                    finalG = FadeNonLinear(g);
-                                    finalB = FadeNonLinear(b);
+                                    //keep same last color
+                                    finalR = spot.Red;
+                                    finalG = spot.Green;
+                                    finalB = spot.Blue;
                                 }
-                                else
+                                else if (_dimMode == DimMode.Up)
                                 {
-                                    finalR = (byte)r;
-                                    finalG = (byte)g;
-                                    finalB = (byte)b;
+                                    if (!_useLinearLighting)
+                                    {
+                                        finalR = FadeNonLinear(r);
+                                        finalG = FadeNonLinear(g);
+                                        finalB = FadeNonLinear(b);
+                                    }
+                                    else
+                                    {
+                                        finalR = (byte)r;
+                                        finalG = (byte)g;
+                                        finalB = (byte)b;
+                                    }
                                 }
+
+                                var spotColor = new OpenRGB.NET.Models.Color(finalR, finalG, finalB);
+                                ApplySmoothing(
+                                    (float)(finalR * _brightness * _dimFactor),
+                                     (float)(finalG * _brightness * _dimFactor),
+                                     (float)(finalB * _brightness * _dimFactor),
+                                    out var RealfinalR,
+                                    out var RealfinalG,
+                                    out var RealfinalB,
+                                 spot.Red,
+                                 spot.Green,
+                                 spot.Blue);
+                                spot.SetColor(RealfinalR, RealfinalG, RealfinalB, false);
                             }
 
-                            var spotColor = new OpenRGB.NET.Models.Color(finalR, finalG, finalB);
-                            ApplySmoothing(
-                                (float)(finalR * _brightness * _dimFactor),
-                                 (float)(finalG * _brightness * _dimFactor),
-                                 (float)(finalB * _brightness * _dimFactor),
-                                out var RealfinalR,
-                                out var RealfinalG,
-                                out var RealfinalB,
-                             spot.Red,
-                             spot.Green,
-                             spot.Blue);
-                            spot.SetColor(RealfinalR, RealfinalG, RealfinalB, false);
+                        }
+
+                        image.UnlockBits(bitmapData);
+                        var minFrameTimeInMs = 1000 / _frameRate;
+                        var elapsedMs = (int)frameTime.ElapsedMilliseconds;
+                        if (elapsedMs < minFrameTimeInMs)
+                        {
+                            Thread.Sleep(minFrameTimeInMs - elapsedMs);
+                        }
+                        updateIntervalCounter++;
+                    }
+                    else
+                    {
+                        Thread.Sleep(10);
+                        _idleCounter++;
+                        if (_idleCounter >= 1000)
+                        {
+                            _runState = RunStateEnum.Stop;
+                            break;
                         }
 
                     }
-
-                    image.UnlockBits(bitmapData);
-                    var minFrameTimeInMs = 1000 / _frameRate;
-                    var elapsedMs = (int)frameTime.ElapsedMilliseconds;
-                    if (elapsedMs < minFrameTimeInMs)
-                    {
-                        Thread.Sleep(minFrameTimeInMs - elapsedMs);
-                    }
-                    updateIntervalCounter++;
                 }
             }
             catch (Exception ex)
@@ -688,6 +694,21 @@ namespace adrilight.Services.LightingEngine
             }
 
             return outputPixels;
+        }
+        public void Start()
+        {
+            //start it
+            Log.Information("starting the capturing");
+            _dimMode = DimMode.Down;
+            _dimFactor = 1.00;
+            Init();
+            _cancellationTokenSource = new CancellationTokenSource();
+            _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
+                IsBackground = true,
+                Priority = ThreadPriority.BelowNormal,
+                Name = "DesktopDuplicatorReader"
+            };
+            _workerThread.Start();
         }
         public void Stop()
         {

@@ -21,7 +21,6 @@ namespace adrilight
         {
 
             GeneralSettings = generalSettings ?? throw new ArgumentException(nameof(generalSettings));
-            GeneralSettings.PropertyChanged += PropertyChanged;
             MainViewModel = mainViewModel ?? throw new ArgumentException(nameof(mainViewModel));
             MainViewModel.AvailableAudioDevices.CollectionChanged += (s, e) =>
             {
@@ -38,7 +37,7 @@ namespace adrilight
         }
         #region private field
         private CancellationTokenSource _cancellationTokenSource;
-
+        private bool _bassInitialized;
         public object Lock { get; } = new object();
         #endregion
 
@@ -55,21 +54,22 @@ namespace adrilight
         private List<Thread> _workerThreads;
         private AudioCaptureBasic[] _audioCaptures;
         private enum RunningState { Capturing, Waiting, Canceling };
-        private RunningState _state = RunningState.Waiting;
+        private RunningState _state = RunningState.Canceling;
+        private int _serviceRequired;
+        public int ServiceRequired {
+            get { return _serviceRequired; }
+            set
+            {
+                if ((_serviceRequired == 0 && value == 1) || (_serviceRequired == 1 && value == 0))
+                {
+                    _serviceRequired = value;
+                    RefreshCapturingState();
+                }
+                _serviceRequired = value;
+            }
+        }
         #endregion
 
-        private void PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-
-                // case nameof(GeneralSettings.SelectedAudioDevice):
-                //   Log.Information("Audio Device Changing to: " + GeneralSettings.SelectedAudioDevice);
-                //  RefreshCapturingState();
-                //break;
-            }
-
-        }
         private void AudioDeviceChanged()
         {
             Stop();
@@ -97,25 +97,39 @@ namespace adrilight
         }
         public void RefreshCapturingState()
         {
-
-            Init();
-            Log.Information("starting BassAudioCapturing");
-            List<AudioDevice> audioDevices = GetAvailableAudioDevices();
-            _workerThreads = new List<Thread>();
-            Frames = new ByteFrame[audioDevices.Count()];
-            _audioCaptures = new AudioCaptureBasic[audioDevices.Count()];
-            Frames = new ByteFrame[audioDevices.Count()];
-            int index = 0;
-            foreach (var device in audioDevices)
+            var isRunning = _state != RunningState.Canceling;
+            var shouldBeRunning = GeneralSettings.AudioCapturingEnabled && ServiceRequired > 0;
+            if (isRunning && !shouldBeRunning)
             {
-                Thread workerThread = new Thread(() => Run(device, index++)) {
-                    IsBackground = true,
-                    Priority = ThreadPriority.BelowNormal,
-                    Name = "AudioCapture" + device.Name
-                };
+                //stop it!
+                Log.Information("AudioFrame is disabled");
+                _state = RunningState.Waiting;
+
+            }
+            else if (!isRunning && shouldBeRunning)
+            {
+                Init();
+                Log.Information("starting BassAudioCapturing");
+                List<AudioDevice> audioDevices = GetAvailableAudioDevices();
+                _workerThreads = new List<Thread>();
+                Frames = new ByteFrame[audioDevices.Count()];
+                _audioCaptures = new AudioCaptureBasic[audioDevices.Count()];
+                int index = 0;
+                foreach (var device in audioDevices)
+                {
+                    Thread workerThread = new Thread(() => Run(device, index++)) {
+                        IsBackground = true,
+                        Priority = ThreadPriority.BelowNormal,
+                        Name = "AudioCapture" + device.Name
+                    };
+                    _state = RunningState.Capturing;
+                    workerThread.Start();
+                    _workerThreads.Add(workerThread);
+                }
+            }
+            else if (isRunning && shouldBeRunning)
+            {
                 _state = RunningState.Capturing;
-                workerThread.Start();
-                _workerThreads.Add(workerThread);
             }
         }
 
@@ -136,31 +150,37 @@ namespace adrilight
                 Frames[index].Frame = new byte[32];
                 _audioCaptures[index] = new AudioCaptureBasic(device);
                 _audioCaptures[index].StartBassWasapi();
-                while (_state == RunningState.Capturing)
+                while (true)
                 {
-                    var isPreviewWindowOpen = MainViewModel.IsInIDEditStage && MainViewModel.IdEditMode == MainViewViewModel.IDMode.FID || MainViewModel.IsAudioSelectionOpen;
-                    //var result = GetCurrentFFTFrame(32, Frames[index].Frame);
-
-                    lock (Lock)
+                    if (_state == RunningState.Capturing)
                     {
-                        var result = _audioCaptures[index].GetCurrentFFTFrame(32, Frames[index].Frame);
-                        if (!result)
+                        var isPreviewWindowOpen = MainViewModel.IsInIDEditStage && MainViewModel.IdEditMode == MainViewViewModel.IDMode.FID || MainViewModel.IsAudioSelectionOpen;
+                        //var result = GetCurrentFFTFrame(32, Frames[index].Frame);
+                        lock (Lock)
                         {
-                            Frames[index].Frame = new byte[32];
+                            var result = _audioCaptures[index].GetCurrentFFTFrame(32, Frames[index].Frame);
+                            if (!result)
+                            {
+                                Frames[index].Frame = new byte[32];
+                            }
                         }
+                        if (isPreviewWindowOpen)
+                        {
+                            lock (MainViewModel.AudioUpdateLock)
+                            {
+                                MainViewModel.AudioVisualizerUpdate(Frames[index], index);
+                            }
+
+                        }
+                        Thread.Sleep(25); // take 100 sample per second
+                    }
+                    else
+                    {
+                        Thread.Sleep(100);
                     }
 
 
 
-                    if (isPreviewWindowOpen)
-                    {
-                        lock (MainViewModel.AudioUpdateLock)
-                        {
-                            MainViewModel.AudioVisualizerUpdate(Frames[index], index);
-                        }
-
-                    }
-                    Thread.Sleep(25); // take 100 sample per second
                 }
             }
 
@@ -215,8 +235,14 @@ namespace adrilight
         {
             //BassWasapi.BASS_WASAPI_Free();
             //Bass.BASS_Free();
+            if (_bassInitialized)
+                return;
             Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_UPDATETHREADS, false);
             var result = Bass.BASS_Init(0, 44100, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero);
+            if (result)
+            {
+                _bassInitialized = true;
+            }
             if (!result) throw new Exception("Init Error");
         }
 

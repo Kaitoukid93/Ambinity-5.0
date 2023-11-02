@@ -40,7 +40,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             MainViewViewModel.AvailableDevices.CollectionChanged += (_, __) => DeviceCollectionChanged();
             MainViewViewModel.RequestingDeviceRescanEvent += (_, __) => RescanOpenRGBDevices();
-            StartThread();
+            Start();
 
         }
         private bool _openRGBIsInit = false;
@@ -58,12 +58,11 @@ namespace adrilight.Services.DeviceDiscoveryServices
         }
         private Thread _workerThread;
         private CancellationTokenSource _cancellationTokenSource;
-        private static CancellationTokenSource tokenSource = new CancellationTokenSource();
-        CancellationToken token = tokenSource.Token;
-        public void StartThread()
+        public void Start()
         {
             //if (App.IsPrivateBuild) return;
             _cancellationTokenSource = new CancellationTokenSource();
+            _openRGBIsInit = false;
             _workerThread = new Thread(() => StartDiscovery(_cancellationTokenSource.Token)) {
                 Name = "Device Discovery",
                 IsBackground = true,
@@ -207,8 +206,6 @@ namespace adrilight.Services.DeviceDiscoveryServices
             if (_workerThread == null) return;
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource = null;
-            tokenSource?.Cancel();
-            tokenSource = null;
             _workerThread?.Join();
             _workerThread = null;
         }
@@ -217,6 +214,8 @@ namespace adrilight.Services.DeviceDiscoveryServices
         {
             var newDevicesDetected = new List<IDeviceSettings>();
             var oldDeviceReconnected = new List<string>();
+            var tokenSource = new CancellationTokenSource();
+            var token = tokenSource.Token;
             _isSerialScanCompelete = false;
             var jobTask = Task.Run(() =>
             {

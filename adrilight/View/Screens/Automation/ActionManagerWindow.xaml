@@ -360,11 +360,72 @@
                     </GroupBox>
                     <Grid>
                         <StackPanel Margin="20">
+                            <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                                         Margin="5,10,5,10">
+
+                            </hc:Divider>
+                            <Grid Name="Icon">
+                                <GroupBox VerticalAlignment="Center"
+                                          Style="{StaticResource GroupBoxOriginal}"
+                                          hc:TitleElement.TitlePlacement="Left">
+                                    <GroupBox.HeaderTemplate>
+                                        <DataTemplate>
+                                            <StackPanel>
+                                                <TextBlock Margin="5,5,5,5"
+                                                           FontWeight="SemiBold"
+                                                           Text="BIỂU TƯỢNG HIỂN THỊ" />
+                                                <TextBlock Margin="5,5,5,5"
+                                                           HorizontalAlignment="Left"
+                                                           Style="{StaticResource TextBlockDefaultSecLight}"
+                                                           Grid.Row="1"
+                                                           Text="Biểu tượng đại diện cho mục đích của phím tắt này" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </GroupBox.HeaderTemplate>
+                                    <Grid Margin="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid Margin="5"
+                                              HorizontalAlignment="Left">
+                                            <ComboBox Height="32" Width="150"
+                                                      ItemContainerStyle="{DynamicResource _ComboboxItemStyle}"
+                                                      SelectedItem="{Binding CurrentSelectedAutomation.Geometry}"
+                                                      ItemsSource="{Binding SelectableIcons}">
+                                                <ComboBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Path HorizontalAlignment="Left"
+                                                                  VerticalAlignment="Center"
+                                                                  Fill="{DynamicResource PrimaryBrush}"
+                                                                  Width="15"
+                                                                  Height="15"
+                                                                  Margin="5,5"
+                                                                  Data="{Binding .,Converter={converters:StaticResourceConverter}}"
+                                                                  Stretch="Uniform">
+
+                                                            </Path>
+                                                            <TextBlock HorizontalAlignment="Left"
+                                                                       Margin="5"
+                                                                       Text="{Binding .}"
+                                                                       Style="{DynamicResource TextBlockDefault}" />
+
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ComboBox.ItemTemplate>
+                                            </ComboBox>
+                                        </Grid>
+                                    </Grid>
+
+
+                                </GroupBox>
+                            </Grid>
                             <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 
                             </hc:Divider>
                             <Grid Name="Condition">
-                                <GroupBox VerticalAlignment="Center"  Header="SPEED" Style="{StaticResource GroupBoxOriginal}" hc:TitleElement.TitlePlacement="Top">
+                                <GroupBox VerticalAlignment="Center" Style="{StaticResource GroupBoxOriginal}" hc:TitleElement.TitlePlacement="Top">
                                     <GroupBox.HeaderTemplate>
                                         <DataTemplate>
                                             <StackPanel>

@@ -26,6 +26,7 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
         private IDirect3DDevice device;
         private SharpDX.Direct3D11.Device d3dDevice;
         private SwapChain1 swapChain;
+        private bool _shouldBeRuning = false;
         private const int mipMapLevel = 3;
         private const int scalingFactor = 1 << mipMapLevel;
         public object Lock { get; } = new object();
@@ -34,7 +35,7 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
             item = i;
             device = d;
             d3dDevice = Direct3D11Helper.CreateSharpDXDevice(device);
-
+            _shouldBeRuning = true;
             var dxgiFactory = new Factory2();
             var description = new SwapChainDescription1() {
                 Width = item.Size.Width,
@@ -67,13 +68,19 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
 
         public void Dispose()
         {
-
             session?.Dispose();
             framePool?.Dispose();
             swapChain?.Dispose();
             d3dDevice?.Dispose();
         }
-
+        public void StopProcessing()
+        {
+            _shouldBeRuning = false;
+        }
+        public void ResumeProcessing()
+        {
+            _shouldBeRuning = true;
+        }
         public void StartCaptureWithBorder()
         {
             session.IsCursorCaptureEnabled = false;
@@ -202,6 +209,7 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
         }
         private void OnFrameArrived(Direct3D11CaptureFramePool sender, object args)
         {
+
             var newSize = false;
 
             using (var frame = framePool.TryGetNextFrame())
@@ -250,10 +258,16 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
                     2,
                     lastSize);
             }
-            lock (Lock)
+            if (_shouldBeRuning)
             {
-                CurrentFrame = ProcessFrame();
+                lock (Lock)
+                {
+                    CurrentFrame = ProcessFrame();
+                }
             }
+
+
         }
+
     }
 }

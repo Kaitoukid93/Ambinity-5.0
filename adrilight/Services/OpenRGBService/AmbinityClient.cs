@@ -115,7 +115,7 @@ namespace adrilight.Services.OpenRGBService
         {
 
             //this client is being hold by another process
-            if(IsInitializing) return;
+            if (IsInitializing) return;
 
             //turn on this flag to preven multiple thread access
             IsInitializing = true;
@@ -242,7 +242,6 @@ namespace adrilight.Services.OpenRGBService
                 //something could happen to openRGB client
                 Client.Dispose();
                 IsInitialized = false;
-
             }
             return AvailableOpenRGBDevices;
         }

@@ -85,7 +85,7 @@ namespace adrilight
         private CancellationTokenSource _cancellationTokenSource;
         private Thread _workerThread;
         private LightingMode _currentLightingMode;
-
+        private RunStateEnum _runState = RunStateEnum.Stop;
         private ListSelectionParameter _colorControl;
         private ToggleParameter _breathingControl;
         private SliderParameter _brightnessControl;
@@ -193,7 +193,7 @@ namespace adrilight
             {
                 return;
             }
-            var isRunning = _cancellationTokenSource != null;
+            var isRunning = _cancellationTokenSource != null && _runState != RunStateEnum.Stop;
 
             _currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
 
@@ -210,31 +210,21 @@ namespace adrilight
             if (isRunning && !shouldBeRunning)
             {
                 //stop it!
-                Log.Information("stopping the Static Color Engine");
                 _dimMode = DimMode.Down;
                 _dimFactor = 1.00;
-                _cancellationTokenSource.Cancel();
-                _cancellationTokenSource = null;
+                _runState = RunStateEnum.Stop;
+                // Stop();
 
             }
             // this is start sign
             else if (!isRunning && shouldBeRunning)
             {
-                //start it
-                Log.Information("starting the Static Color Engine");
-                _dimMode = DimMode.Down;
-                _dimFactor = 1.00;
-                Init();
-                _cancellationTokenSource = new CancellationTokenSource();
-                _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
-                    IsBackground = true,
-                    Priority = ThreadPriority.BelowNormal,
-                    Name = "StaticColor"
-                };
-                _workerThread.Start();
+                _runState = RunStateEnum.Run;
+                Start();
             }
             else if (isRunning && shouldBeRunning)
             {
+                _runState = RunStateEnum.Run;
                 Init();
             }
 
@@ -284,79 +274,93 @@ namespace adrilight
             IsRunning = true;
             Log.Information("Static Color Engine Is Running");
             int updateIntervalCounter = 0;
+            int _idleCounter = 0;
             try
             {
 
                 while (!token.IsCancellationRequested)
                 {
-
-                    if (MainViewViewModel.IsRichCanvasWindowOpen)
+                    if (_runState == RunStateEnum.Run)
                     {
-                        Thread.Sleep(100);
-                        continue;
-                    }
-                    var startIndex = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
-
-                    if (_isBreathing)
-                    {
-                        if (_isSystemSync)
+                        if (MainViewViewModel.IsRichCanvasWindowOpen)
                         {
-                            _brightness = RainbowTicker.BreathingBrightnessValue;
-
+                            Thread.Sleep(100);
+                            continue;
                         }
-                        else
+                        var startIndex = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
+
+                        if (_isBreathing)
                         {
-                            float smoothness_pts = (float)_breathingSpeed;
-                            double pwm_val = 255.0 * (1.0 - Math.Abs((2.0 * (ii++ / smoothness_pts)) - 1.0));
-                            if (ii > smoothness_pts)
-                                ii = 0f;
-
-                            _brightness = pwm_val / 255d;
-                        }
-
-                    }
-
-                    if (updateIntervalCounter > 0)
-                    {
-
-                    }
-                    lock (CurrentZone.Lock)
-                    {
-                        DimLED();
-                        foreach (var spot in CurrentZone.Spots)
-                        {
-                            var index = spot.Index - startIndex;
-                            if (index >= _colors.Length)
+                            if (_isSystemSync)
                             {
-                                index = 0;
+                                _brightness = RainbowTicker.BreathingBrightnessValue;
+
                             }
-                            byte colorR = 0;
-                            byte colorG = 0;
-                            byte colorB = 0;
-                            if (_dimMode == DimMode.Down)
+                            else
                             {
-                                //keep same last color
-                                colorR = spot.Red;
-                                colorG = spot.Green;
-                                colorB = spot.Blue;
+                                float smoothness_pts = (float)_breathingSpeed;
+                                double pwm_val = 255.0 * (1.0 - Math.Abs((2.0 * (ii++ / smoothness_pts)) - 1.0));
+                                if (ii > smoothness_pts)
+                                    ii = 0f;
+
+                                _brightness = pwm_val / 255d;
                             }
-                            else if (_dimMode == DimMode.Up)
-                            {
-                                colorR = _colors[index].R;
-                                colorG = _colors[index].G;
-                                colorB = _colors[index].B;
-                            }
-                            ApplySmoothing((float)(colorR * _brightness * _dimFactor), (float)(colorG * _brightness * _dimFactor), (float)(colorB * _brightness * _dimFactor), out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
-                            spot.SetColor(FinalR, FinalG, FinalB, false);
 
                         }
 
+                        if (updateIntervalCounter > 0)
+                        {
+
+                        }
+                        lock (CurrentZone.Lock)
+                        {
+                            DimLED();
+                            foreach (var spot in CurrentZone.Spots)
+                            {
+                                var index = spot.Index - startIndex;
+                                if (index >= _colors.Length)
+                                {
+                                    index = 0;
+                                }
+                                byte colorR = 0;
+                                byte colorG = 0;
+                                byte colorB = 0;
+                                if (_dimMode == DimMode.Down)
+                                {
+                                    //keep same last color
+                                    colorR = spot.Red;
+                                    colorG = spot.Green;
+                                    colorB = spot.Blue;
+                                }
+                                else if (_dimMode == DimMode.Up)
+                                {
+                                    colorR = _colors[index].R;
+                                    colorG = _colors[index].G;
+                                    colorB = _colors[index].B;
+                                }
+                                ApplySmoothing((float)(colorR * _brightness * _dimFactor), (float)(colorG * _brightness * _dimFactor), (float)(colorB * _brightness * _dimFactor), out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
+                                spot.SetColor(FinalR, FinalG, FinalB, false);
+
+                            }
+
+                        }
+
+                        //threadSleep for static mode is 1s, for breathing is 10ms
+                        var sleepTime = 1000 / _frameRate;
+                        Thread.Sleep(sleepTime);
+                        updateIntervalCounter++;
+                    }
+                    else
+                    {
+                        Thread.Sleep(10);
+                        _idleCounter++;
+                        if (_idleCounter >= 1000)
+                        {
+                            _runState = RunStateEnum.Stop;
+                            break;
+                        }
                     }
 
-                    //threadSleep for static mode is 1s, for breathing is 10ms
-                    var sleepTime = 1000 / _frameRate;
-                    Thread.Sleep(sleepTime);
-                    updateIntervalCounter++;
                 }
             }
             catch (Exception ex)
@@ -449,7 +453,21 @@ namespace adrilight
             const float factor = 80f;
             return (byte)(256f * ((float)Math.Pow(factor, color / 256f) - 1f) / (factor - 1));
         }
-
+        public void Start()
+        {
+            //start it
+            Log.Information("starting the Static Color Engine");
+            _dimMode = DimMode.Down;
+            _dimFactor = 1.00;
+            Init();
+            _cancellationTokenSource = new CancellationTokenSource();
+            _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
+                IsBackground = true,
+                Priority = ThreadPriority.BelowNormal,
+                Name = "StaticColor"
+            };
+            _workerThread.Start();
+        }
         public void Stop()
         {
             Log.Information("Stop called for Static Color Engine");

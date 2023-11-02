@@ -20,6 +20,15 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
         public DesktopFrameDXGI(IGeneralSettings userSettings, MainViewViewModel mainViewViewModel)
         {
             UserSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
+            UserSettings.PropertyChanged += (s, e) =>
+            {
+                switch (e.PropertyName)
+                {
+                    case nameof(UserSettings.ScreenCapturingEnabled):
+                        RefreshCapturingState();
+                        break;
+                }
+            };
             MainViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             MainViewModel.AvailableBitmaps.CollectionChanged += async (s, e) =>
             {
@@ -36,13 +45,26 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
         #region private field
         private List<Thread> _workerThreads;
         private enum RunningState { Capturing, Waiting, Canceling };
-        private RunningState _state = RunningState.Waiting;
+        private RunningState _state = RunningState.Canceling;
         private DesktopDuplicator[] _desktopDuplicators;
         private CancellationTokenSource _cancellationTokenSource;
         #endregion
 
         #region public properties
         public bool IsRunning { get; private set; } = false;
+        private int _serviceRequired;
+        public int ServiceRequired {
+            get { return _serviceRequired; }
+            set
+            {
+                if ((_serviceRequired == 0 && value == 1) || (_serviceRequired == 1 && value == 0))
+                {
+                    _serviceRequired = value;
+                    RefreshCapturingState();
+                }
+                _serviceRequired = value;
+            }
+        }
         public ByteFrame Frame { get; set; }
         public ByteFrame[] Frames { get; set; }
         private DrawableHelpers DrHlprs { get; set; }
@@ -81,25 +103,50 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
         public void RefreshCapturingState()
         {
             //start it
-            _workerThreads = new List<Thread>();
-            _cancellationTokenSource = new CancellationTokenSource();
-            Log.Information("starting DXGI");
+            var isRunning = _state != RunningState.Canceling;
+            var shouldBeRunning = UserSettings.ScreenCapturingEnabled && ServiceRequired > 0;
             IEnumerable<MonitorInfo> monitors = MonitorEnumerationHelper.GetMonitors();
             Frames = new ByteFrame[monitors.Count()];
-            _desktopDuplicators = new DesktopDuplicator[monitors.Count()];
-            var index = 0;
-            foreach (var monitor in monitors)
-            {
-                var workerThread = new Thread(() => Run(index++, _cancellationTokenSource.Token)) {
-                    IsBackground = true,
-                    Priority = ThreadPriority.BelowNormal,
-                    Name = "DXGI" + monitor.DeviceName
-                };
-                _state = RunningState.Capturing;
-                workerThread.Start();
-                _workerThreads.Add(workerThread);
-            }
 
+            if (isRunning && !shouldBeRunning)
+            {
+                //stop it!
+                Log.Information("DesktopFrameDXGI is disabled");
+                _state = RunningState.Waiting;
+
+            }
+            // this is start sign
+            else if (!isRunning && shouldBeRunning)
+            {
+                _workerThreads = new List<Thread>();
+                _cancellationTokenSource = new CancellationTokenSource();
+                Log.Information("starting DXGI");
+                if (_desktopDuplicators != null)
+                {
+                    for (var i = 0; i < _desktopDuplicators.Length; i++)
+                    {
+                        _desktopDuplicators[i]?.Dispose();
+                        _desktopDuplicators[i] = null;
+                    }
+                }
+                _desktopDuplicators = new DesktopDuplicator[monitors.Count()];
+                var index = 0;
+                foreach (var monitor in monitors)
+                {
+                    var workerThread = new Thread(() => Run(index++, _cancellationTokenSource.Token)) {
+                        IsBackground = true,
+                        Priority = ThreadPriority.BelowNormal,
+                        Name = "DXGI" + monitor.DeviceName
+                    };
+                    _state = RunningState.Capturing;
+                    workerThread.Start();
+                    _workerThreads.Add(workerThread);
+                }
+            }
+            else if (isRunning && shouldBeRunning)
+            {
+                _state = RunningState.Capturing;
+            }
         }
         private bool CheckRectangle(Rect parrentRect, Rect childRect)
         {
@@ -144,27 +191,34 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
             {
                 while (!token.IsCancellationRequested)
                 {
-                    var frameTime = Stopwatch.StartNew();
-                    var frame = _retryPolicy.Execute((ctx, ct) => GetNextFrame(screenIndex), policyContext, _cancellationTokenSource.Token);
-                    if (frame == null)
+                    if (_state == RunningState.Capturing)
                     {
-                        //there was a timeout before there was the next frame, simply retry!
-                        continue;
-                    }
+                        var frameTime = Stopwatch.StartNew();
+                        var frame = _retryPolicy.Execute((ctx, ct) => GetNextFrame(screenIndex), policyContext, _cancellationTokenSource.Token);
+                        if (frame == null)
+                        {
+                            //there was a timeout before there was the next frame, simply retry!
+                            continue;
+                        }
 
-                    lock (Lock)
-                    {
-                        Frames[screenIndex] = frame;
+                        lock (Lock)
+                        {
+                            Frames[screenIndex] = frame;
+                        }
+                        if (MainViewModel.IsRegionSelectionOpen)
+                        {
+                            MainViewModel.DesktopsPreviewUpdate(Frames[screenIndex], screenIndex);
+                        }
+                        var minFrameTimeInMs = 1000 / 30;
+                        var elapsedMs = (int)frameTime.ElapsedMilliseconds;
+                        if (elapsedMs < minFrameTimeInMs)
+                        {
+                            Thread.Sleep(minFrameTimeInMs - elapsedMs);
+                        }
                     }
-                    if (MainViewModel.IsRegionSelectionOpen)
+                    else
                     {
-                        MainViewModel.DesktopsPreviewUpdate(Frames[screenIndex], screenIndex);
-                    }
-                    var minFrameTimeInMs = 1000 / 30;
-                    var elapsedMs = (int)frameTime.ElapsedMilliseconds;
-                    if (elapsedMs < minFrameTimeInMs)
-                    {
-                        Thread.Sleep(minFrameTimeInMs - elapsedMs);
+                        Thread.Sleep(100);
                     }
                 }
             }

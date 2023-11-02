@@ -10,5 +10,6 @@ namespace adrilight.Services.CaptureEngine
         void Stop();
         void RefreshCapturingState();
         object Lock { get; }
+        int ServiceRequired { get; set; }
     }
 }

@@ -8,6 +8,7 @@
              xmlns:local="clr-namespace:adrilight.View"
              xmlns:device="clr-namespace:adrilight_shared.Models.Device;assembly=adrilight_shared"
              xmlns:lighting="clr-namespace:adrilight_shared.Models.Lighting;assembly=adrilight_shared"
+             xmlns:automation ="clr-namespace:adrilight_shared.Models.Automation;assembly=adrilight_shared"
              Background="{StaticResource RegionBrush}"
              xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
              mc:Ignorable="d"
@@ -132,6 +133,96 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            <DataTemplate x:Key="_automationDashboardTemplate"
+                          DataType="{x:Type automation:AutomationSettings}">
+                <Button Width="300"
+                        Height="60"
+                        Padding="0"
+                        Margin="5"
+                        hc:BorderElement.CornerRadius="7"
+                        Style="{DynamicResource _mediumProfileDefaultButton}"
+                        BorderThickness="0"
+                        Background="{DynamicResource MainContentBackgroundBrush}"
+                        HorizontalContentAlignment="Stretch"
+                        Command="{Binding Path=DataContext.ExecuteAutomationFromManagerCommand, RelativeSource={RelativeSource AncestorType={x:Type local:AllDeviceView}}}"
+                        CommandParameter="{Binding .}"
+                        VerticalContentAlignment="Stretch">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="50"
+                                CornerRadius="4"
+                                Margin="5"
+                                Background="{DynamicResource SecondaryRegionBrush}">
+                            <Path Fill="{DynamicResource PrimaryBrush}"
+                                  Width="25"
+                                  Height="25"
+                                  Margin="10,10"
+                                  Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
+                                  Stretch="Uniform">
+
+                            </Path>
+
+                        </Border>
+                        <Grid Grid.Column="1">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="auto" />
+                                </Grid.RowDefinitions>
+                                <StackPanel Orientation="Vertical">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock HorizontalAlignment="Left"
+                                                   Text="{Binding Name}"
+                                                   Grid.Column="1"
+                                                   Margin="5"
+                                                   Style="{DynamicResource TextBlockSubTitle}"
+                                                   FontWeight="SemiBold"
+                                                   TextTrimming="CharacterEllipsis" />
+                                    </Grid>
+                                    <StackPanel Orientation="Horizontal"
+                                                Margin="5,5,0,5">
+                                        <TextBlock Text="{Binding ControlMode.BasedOn}"
+                                                   HorizontalAlignment="Left"
+                                                   Margin="0,0,0,5"
+                                                   Style="{DynamicResource TextBlockDefaultSecLight}"
+                                                   FontWeight="SemiBold" />
+                                    </StackPanel>
+
+                                </StackPanel>
+                                <Grid Grid.Row="1">
+                                    <Grid>
+                                        <Button Width="25"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Bottom"
+                                                Height="25"
+                                                Background="Transparent"
+                                                ToolTip="Unpin"
+                                                hc:IconElement.Width="15"
+                                                hc:IconElement.Height="15"
+                                                Style="{DynamicResource ButtonDashed}"
+                                                BorderBrush="Transparent"
+                                                hc:IconElement.Geometry="{DynamicResource unpin}"
+                                                Command="{Binding Path=DataContext.UnpinAutomationFromDashboardCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding .}"
+                                                Padding="0"
+                                                Margin="5">
+                                        </Button>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+
+                    </Grid>
+                </Button>
+            </DataTemplate>
             <DataTemplate x:Key="_horizontalCardItemTemplate"
                           DataType="{x:Type lighting:LightingProfile}">
                 <Button Width="300"
@@ -607,6 +698,62 @@
                                           VerticalAlignment="Top"
                                           ItemTemplate="{DynamicResource _horizontalCardItemTemplate}"
                                           ItemsSource="{Binding AvailableLightingProfiles}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </Grid>
+                    </Grid>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <StackPanel>
+                            <Grid Margin="0">
+                                <TextBlock Margin="15,10,10,5"
+                                           Text="AUTOMATIONS"
+                                           VerticalAlignment="Top"
+                                           FontWeight="SemiBold"
+                                           Style="{DynamicResource TextBlockSubTitle}"
+                                           HorizontalAlignment="Left" />
+                            </Grid>
+                            <Grid Margin="0">
+                                <StackPanel Orientation="Horizontal"
+                                            Margin="15,0,10,20">
+
+
+                                    <TextBlock Margin="0,0"
+                                               Text="Khi được kích hoạt, các hành động đã được thêm trong automation sẽ lần lượt được thực hiện. Để chỉnh sửa các hành động, hãy truy cập"
+                                               VerticalAlignment="Top"
+                                               Style="{DynamicResource TextBlockDefaultSecLight}"
+                                               HorizontalAlignment="Left" />
+                                    <Button Command="{Binding OpenAutomationManagerWindowCommand}"
+                                            CommandParameter="Lighting"
+                                            Height="15"
+                                            Padding="0"
+                                            Margin="5,0,5,0"
+                                            Background="Transparent"
+                                            BorderThickness="0">
+                                        <TextBlock Margin="0,0"
+                                                   VerticalAlignment="Top"
+                                                   HorizontalAlignment="Center"
+                                                   TextWrapping="Wrap"
+                                                   Style="{DynamicResource TextBlockDefaultPrimary}"
+                                                   Text="Automation" />
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+
+                        <Grid Grid.Row="1">
+                            <ItemsControl Margin="10,0,10,10"
+                                          HorizontalAlignment="Left"
+                                          VerticalAlignment="Top"
+                                          ItemTemplate="{DynamicResource _automationDashboardTemplate}"
+                                          ItemsSource="{Binding DashboardPinnedAutomation}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <WrapPanel Orientation="Horizontal" />

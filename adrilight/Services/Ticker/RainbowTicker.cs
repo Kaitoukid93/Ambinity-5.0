@@ -126,9 +126,6 @@ namespace adrilight
             Log.Information("Rainbow Ticker is Running");
             try
             {
-
-                float gamma = 0.14f; // affects the width of peak (more or less darkness)
-                float beta = 0.5f; // shifts the gaussian to be symmetric
                 float ii = 0f;
                 while (!token.IsCancellationRequested)
                 {

@@ -320,6 +320,7 @@ namespace adrilight.ViewModel
         public ICommand AglignSelectedItemstoTopCommand { get; set; }
         public ICommand ExitCurrentRunningAppCommand { get; set; }
         public ICommand ExecuteAutomationFromManagerCommand { get; set; }
+        public ICommand UnpinAutomationFromDashboardCommand { get; set; }
         public ICommand UpdateAppCommand { get; set; }
         public ICommand OpenLEDSteupSelectionWindowsCommand { get; set; }
         public ICommand OpenAvailableUpdateListWindowCommand { get; set; }
@@ -548,6 +549,15 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        private ObservableCollection<string> _selectableIcons;
+        public ObservableCollection<string> SelectableIcons {
+            get { return _selectableIcons; }
+            set
+            {
+                _selectableIcons = value;
+                RaisePropertyChanged();
+            }
+        }
         private ObservableCollection<AutomationSettings> _availableAutomations;
 
         public ObservableCollection<AutomationSettings> AvailableAutomations {
@@ -561,6 +571,7 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        public List<AutomationSettings> DashboardPinnedAutomation => AvailableAutomations?.Where(a => a.IsPinned == true).ToList();
         private ObservableCollection<AppUser> _availableAppUser;
 
         public ObservableCollection<AppUser> AvailableAppUser {
@@ -3191,6 +3202,14 @@ namespace adrilight.ViewModel
             {
                 ExecuteAutomationActions(p.Actions);
             });
+            UnpinAutomationFromDashboardCommand = new RelayCommand<AutomationSettings>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                p.IsPinned = false;
+                RaisePropertyChanged(nameof(DashboardPinnedAutomation));
+            });
             DeleteSelectedActionFromListCommand = new RelayCommand<ActionSettings>((p) =>
             {
                 return true;
@@ -3583,7 +3602,7 @@ namespace adrilight.ViewModel
                 CurrentSelectedAutomation = selectedautomation;
                 AvailableActionsforCurrentDevice = new ObservableCollection<ActionType>();
                 //init action
-                AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Kích hoạt", Description = "Kích hoạt một Profile có sẵn", Geometry = "apply", Type = "Activate", LinkText = "", IsValueDisplayed = false, IsTargetDeviceDisplayed = false });
+                AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Kích hoạt", Description = "Kích hoạt một Profile có sẵn", Geometry = "apply", Type = "Activate", LinkText = "Cho thiết bị", IsValueDisplayed = false, IsTargetDeviceDisplayed = true });
                 AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Tăng", Description = "Tăng giá trị của một thuộc tính", Geometry = "apply", Type = "Increase", LinkText = "Của thiết bị", IsValueDisplayed = false, IsTargetDeviceDisplayed = true });
                 AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Giảm", Description = "Giảm giá trị của một thuộc tính", Geometry = "apply", Type = "Decrease", LinkText = "Của thiết bị", IsValueDisplayed = false, IsTargetDeviceDisplayed = true });
                 AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Bật", Description = "Bật một tính năng", Geometry = "apply", Type = "On", LinkText = "Của thiết bị", IsValueDisplayed = false, IsTargetDeviceDisplayed = true });
@@ -5223,6 +5242,16 @@ namespace adrilight.ViewModel
                 Log.Information("Lighting Profile Activated: " + profile.Name + " for " + device.DeviceName);
             }
         }
+        public void ActivateCurrentLightingProfileForSpecificDevice(LightingProfile profile, IDeviceSettings targetDevice)
+        {
+            if (profile == null)
+                return;
+
+            var lightingMode = ObjectHelpers.Clone<LightingMode>(profile.ControlMode as LightingMode);
+            targetDevice.ActivateControlMode(lightingMode);
+            Log.Information("Lighting Profile Activated: " + profile.Name + " for " + targetDevice.DeviceName);
+
+        }
         public void ActivateSelectedProfile(AppProfile profile)
         {
             if (profile == null)
@@ -5371,11 +5400,7 @@ namespace adrilight.ViewModel
         private void SaveAllAutomation()
         {
             WriteAutomationCollectionJson();
-            //AvailableAutomations = new ObservableCollection<AutomationSettings>();
-            //foreach (var automation in LoadAutomationIfExist())
-            //{
-            //    AvailableAutomations.Add(automation);
-            //}
+            RaisePropertyChanged(nameof(DashboardPinnedAutomation));
             if (GeneralSettings.HotkeyEnable)
             {
                 Unregister();
@@ -5557,15 +5582,14 @@ namespace adrilight.ViewModel
             {
 
                 var targetDevice = AvailableDevices.Where(x => x.DeviceUID == action.TargetDeviceUID).FirstOrDefault();
-                if (action.ActionType.Type == "Activate") // this type of action require no target 
-                    goto execute;
                 if (targetDevice == null)
                 {
-                    //HandyControl.Controls.MessageBox.Show(action.TargetDeviceName + " Không thể thiết lập automation, thiết bị đã bị xóa hoặc thay đổi UID!!!", "Device is not available", MessageBoxButton.OK, MessageBoxImage.Error);
-                    // actions.Remove(action);
                     WriteAutomationCollectionJson();
                     continue;
                 }
+                if (action.ActionType.Type == "Activate") // this type of action require no target 
+                    goto execute;
+
                 if (!targetDevice.IsEnabled)
                     return;
                 execute:
@@ -5576,7 +5600,8 @@ namespace adrilight.ViewModel
                         var destinationProfile = AvailableLightingProfiles.Where(x => x.ProfileUID == (string)action.ActionParameter.Value).FirstOrDefault();
                         if (destinationProfile != null)
                         {
-                            ActivateCurrentLightingProfile(destinationProfile);
+                            targetDevice.TurnOnLED();
+                            ActivateCurrentLightingProfileForSpecificDevice(destinationProfile, targetDevice);
                         }
 
                         break;
@@ -5621,6 +5646,7 @@ namespace adrilight.ViewModel
                         break;
                     case "Change":
                         //just change solid color and activate static mode
+                        targetDevice.TurnOnLED();
                         switch (action.ActionParameter.Type)
                         {
                             case "color":
@@ -8696,7 +8722,7 @@ namespace adrilight.ViewModel
             };
             var ABR2e = new DeviceFirmware() {
                 Name = "ABR2e.hex",
-                Version = "1.0.8",
+                Version = "1.0.9",
                 TargetHardware = "ABR2e",
                 TargetDeviceType = DeviceTypeEnum.AmbinoBasic,
                 Geometry = "binary",
@@ -8712,7 +8738,7 @@ namespace adrilight.ViewModel
             };
             var AER2e = new DeviceFirmware() {
                 Name = "AER2e.hex",
-                Version = "1.0.5",
+                Version = "1.0.6",
                 TargetHardware = "AER2e",
                 TargetDeviceType = DeviceTypeEnum.AmbinoEDGE,
                 Geometry = "binary",
@@ -8925,6 +8951,7 @@ namespace adrilight.ViewModel
             CreateProfileCollectionFolder();
             CreateSupportedDevicesCollectionFolder();
             LoadAvailableDefaultDevices();
+            LoadSelectableIcons();
             #endregion
             LoadAvailableBaudRate();
             LoadAvailableProfiles();
@@ -8954,6 +8981,27 @@ namespace adrilight.ViewModel
             {
                 GeneralSettings.CurrentAppUser = AvailableAppUser.First();
             }
+        }
+        private void LoadSelectableIcons()
+        {
+            SelectableIcons = new ObservableCollection<string>() {
+                 "Shortcut",
+                 "Youtube",
+                 "Gaming",
+                 "Reading",
+                 "Still Image",
+                 "Boost",
+                 "Study",
+                 "Fire",
+                 "Spotlight",
+                 "Eye Open",
+                 "Eye Close",
+                 "Meeting",
+                 "Coding",
+                 "Lightbulb",
+                 "Switch On",
+                 "Switch Off"
+            };
         }
         private void LoadAvailableAutomations()
         {
