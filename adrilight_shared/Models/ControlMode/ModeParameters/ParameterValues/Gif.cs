@@ -32,7 +32,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
         [JsonIgnore]
         public bool IsVisible { get => _isVisible; set { Set(() => IsVisible, ref _isVisible, value); } }
         [JsonIgnore]
-        public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsChecked, ref _isDeleteable, value); } }
+        public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         [JsonIgnore]
         public ByteFrame[] Frames { get; set; }
         private bool _isChecked = false;

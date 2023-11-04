@@ -1,0 +1,29 @@
+﻿<Grid x:Class="adrilight.View.LightingProfileManagerNonClientAreaContent"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Height="50"
+      DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}">
+    <Grid.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Grid.Resources>
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+    </Grid.ColumnDefinitions>
+    <Grid Grid.Column="0">
+        <StackPanel Orientation="Horizontal">
+      
+            <Path HorizontalAlignment="left"  Stretch="Uniform" Margin="5,5,10,0" Data="{DynamicResource profileManager}" 
+                                      Width="20" 
+                                      Height="20" 
+                                      Fill="{StaticResource PrimaryTextBrush}"/>
+            <TextBlock Margin="5,5,0,0" VerticalAlignment="Center" Text="Adrilight  |  Lighting Profile Manager"/>
+        </StackPanel>
+
+    </Grid>
+</Grid>

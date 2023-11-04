@@ -651,59 +651,66 @@
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <StackPanel>
-                            <Grid Margin="0">
-                                <TextBlock Margin="15,10,10,5"
-                                           Text="LIGHTING PROFILE"
-                                           VerticalAlignment="Top"
-                                           FontWeight="SemiBold"
-                                           Style="{DynamicResource TextBlockSubTitle}"
-                                           HorizontalAlignment="Left" />
-                            </Grid>
-                            <Grid Margin="0">
-                                <StackPanel Orientation="Horizontal"
-                                            Margin="15,0,10,20">
-
-
-                                    <TextBlock Margin="0,0"
-                                               Text="Khi được kích hoạt, tất cả các thiết bị sẽ đồng bộ với nhau trừ những thiết bị đã bị tắt"
-                                               VerticalAlignment="Top"
-                                               Style="{DynamicResource TextBlockDefaultSecLight}"
+                            <Grid Margin="0,0,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Margin="15,0,10,0"
+                                               Text="LIGHTING PROFILE"
+                                               VerticalAlignment="Center"
+                                               FontWeight="SemiBold"
+                                               Style="{DynamicResource TextBlockSubTitle}"
                                                HorizontalAlignment="Left" />
-                                    <Button Command="{Binding OpenAmbinoStoreWindowCommand}"
-                                            CommandParameter="Lighting"
-                                            Height="15"
-                                            Padding="0"
-                                            Margin="5,0,5,0"
-                                            Background="Transparent"
-                                            BorderThickness="0">
-                                        <TextBlock Margin="0,0"
-                                                   VerticalAlignment="Top"
-                                                   HorizontalAlignment="Center"
-                                                   TextWrapping="Wrap"
-                                                   Style="{DynamicResource TextBlockDefaultPrimary}"
-                                                   Text="Truy cập Adrilight Store" />
+                                    <Button Command="{Binding OpenLightingProfileManagerWindowCommand}" hc:IconElement.Geometry="{DynamicResource profileManager}" Margin="5" BorderBrush="Transparent" Content="Manage">
                                     </Button>
-                                    <TextBlock Margin="0,0"
-                                               Text="để tải thêm nhiều Profile"
-                                               VerticalAlignment="Top"
-                                               Style="{DynamicResource TextBlockDefaultSecLight}"
-                                               HorizontalAlignment="Left" />
                                 </StackPanel>
+                                
                             </Grid>
+                           
                         </StackPanel>
 
                         <Grid Grid.Row="1">
-                            <ItemsControl Margin="10,0,10,10"
-                                          HorizontalAlignment="Left"
-                                          VerticalAlignment="Top"
-                                          ItemTemplate="{DynamicResource _horizontalCardItemTemplate}"
-                                          ItemsSource="{Binding AvailableLightingProfiles}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel Orientation="Horizontal" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                            </ItemsControl>
+                            <StackPanel>
+                                <Grid Margin="0">
+                                    <StackPanel Orientation="Horizontal"
+                                                Margin="15,0,10,20">
+                                        <TextBlock Margin="0,0"
+                                                   Text="Khi được kích hoạt, tất cả các thiết bị sẽ đồng bộ với nhau trừ những thiết bị đã bị tắt"
+                                                   VerticalAlignment="Top"
+                                                   Style="{DynamicResource TextBlockDefaultSecLight}"
+                                                   HorizontalAlignment="Left" />
+                                        <Button Command="{Binding OpenAmbinoStoreWindowCommand}"
+                                                CommandParameter="Lighting"
+                                                Height="15"
+                                                Padding="0"
+                                                Margin="5,0,5,0"
+                                                Background="Transparent"
+                                                BorderThickness="0">
+                                            <TextBlock Margin="0,0"
+                                                       VerticalAlignment="Top"
+                                                       HorizontalAlignment="Center"
+                                                       TextWrapping="Wrap"
+                                                       Style="{DynamicResource TextBlockDefaultPrimary}"
+                                                       Text="Truy cập Adrilight Store" />
+                                        </Button>
+                                        <TextBlock Margin="0,0"
+                                                   Text="để tải thêm nhiều Profile"
+                                                   VerticalAlignment="Top"
+                                                   Style="{DynamicResource TextBlockDefaultSecLight}"
+                                                   HorizontalAlignment="Left" />
+                                    </StackPanel>
+                                </Grid>
+                                <ItemsControl Margin="10,0,10,10"
+                                              HorizontalAlignment="Left"
+                                              VerticalAlignment="Top"
+                                              ItemTemplate="{DynamicResource _horizontalCardItemTemplate}"
+                                              ItemsSource="{Binding AvailableLightingProfiles}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                </ItemsControl>
+                            </StackPanel>
+                       
                         </Grid>
                     </Grid>
                     <Grid>

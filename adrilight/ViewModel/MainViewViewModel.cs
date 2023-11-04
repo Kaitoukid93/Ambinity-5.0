@@ -62,6 +62,7 @@ using System.Windows.Media.Imaging;
 using System.Xml;
 using TimeLineTool;
 using Un4seen.BassWasapi;
+using Application = System.Windows.Application;
 using Bitmap = System.Drawing.Bitmap;
 using Color = System.Windows.Media.Color;
 using File = System.IO.File;
@@ -245,6 +246,7 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        public ICommand OpenLightingProfileManagerWindowCommand { get; set; }
         public ICommand CreateNewLightingProfileCommand { get; set; }
         public ICommand RequestingRescanDevicesCommand { get; set; }
         public ICommand CreateNewVIDCommand { get; set; }
@@ -2707,6 +2709,14 @@ namespace adrilight.ViewModel
             }, (p) =>
             {
                 CreateNewProfile();
+            }
+            );
+            OpenLightingProfileManagerWindowCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                OpenLightingProfileManagerWindow();
             }
             );
             CreateNewLightingProfileCommand = new RelayCommand<string>((p) =>
@@ -7475,7 +7485,20 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        private bool _showProfileManagerToolbar;
 
+        public bool ShowProfileManagerToolbar {
+            get
+            {
+                return _showProfileManagerToolbar;
+            }
+
+            set
+            {
+                _showProfileManagerToolbar = value;
+                RaisePropertyChanged();
+            }
+        }
 
         private void DeleteSelectedLightingProfile(LightingProfile profile)
         {
@@ -7492,7 +7515,27 @@ namespace adrilight.ViewModel
             window.Owner = System.Windows.Application.Current.MainWindow;
             window.ShowDialog();
         }
-
+        private LightingProfileManagerWindow _lightingProfileManagerWindow { get; set; }
+        private void OpenLightingProfileManagerWindow()
+        {
+            //init available profiles
+            AvailableLightingProfiles = new ObservableCollection<LightingProfile>();
+            foreach (var profile in LoadLightingProfileIfExist())
+            {
+                profile.PropertyChanged += (_, __) =>
+                {
+                    if (__.PropertyName == nameof(profile.IsChecked))
+                    {
+                        //show deletebutton
+                        ShowProfileManagerToolbar = AvailableLightingProfiles.Where(p => p.IsChecked).Count() > 0 ? true : false;
+                    }
+                };
+                AvailableLightingProfiles.Add(profile);
+            }
+            _lightingProfileManagerWindow = new LightingProfileManagerWindow();
+            _lightingProfileManagerWindow.Owner = Application.Current.MainWindow;
+            _lightingProfileManagerWindow.ShowDialog();
+        }
         private void CreateNewLightingProfile()
         {
 
