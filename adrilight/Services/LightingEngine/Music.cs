@@ -1,4 +1,5 @@
 ﻿using adrilight.Services.CaptureEngine;
+using adrilight.Ticker;
 using adrilight.ViewModel;
 using adrilight_shared.Enums;
 using adrilight_shared.Models.ControlMode.Mode;
@@ -308,7 +309,6 @@ namespace adrilight.Services.LightingEngine
             {
                 return;
             }
-            var isRunning = _cancellationTokenSource != null && _runState != RunStateEnum.Stop;
             _currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
             var shouldBeRunning =
                 _currentLightingMode.BasedOn == LightingModeEnum.MusicCapturing &&
@@ -321,9 +321,8 @@ namespace adrilight.Services.LightingEngine
             //== false;
 
             // this is stop sign by one or some of the reason above
-            if (isRunning && !shouldBeRunning)
+            if (_runState == RunStateEnum.Run && !shouldBeRunning)
             {
-                //stop it!
                 _dimMode = DimMode.Down;
                 _dimFactor = 1.00;
                 _runState = RunStateEnum.Pause;
@@ -332,13 +331,13 @@ namespace adrilight.Services.LightingEngine
                 //Stop();
             }
             // this is start sign
-            else if (!isRunning && shouldBeRunning)
+            else if (_runState == RunStateEnum.Stop && shouldBeRunning)
             {
                 _runState = RunStateEnum.Run;
                 AudioFrame.ServiceRequired++;
                 Start();
             }
-            else if (isRunning && shouldBeRunning)
+            else if (_runState == RunStateEnum.Pause && shouldBeRunning)
             {
                 _runState = RunStateEnum.Run;
                 AudioFrame.ServiceRequired++;

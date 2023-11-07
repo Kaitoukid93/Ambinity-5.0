@@ -12,7 +12,7 @@ using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace adrilight
+namespace adrilight.Ticker
 {
     internal class RainbowTicker
     {

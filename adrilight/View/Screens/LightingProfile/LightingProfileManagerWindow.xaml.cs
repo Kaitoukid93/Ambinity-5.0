@@ -30,10 +30,5 @@ namespace adrilight.View
             NonClientAreaContent = new LightingProfileManagerNonClientAreaContent();
 
         }
-
-        private void AddToButton_Click(object sender, RoutedEventArgs e)
-        {
-            PopUpAddTo.IsOpen = true;
-        }
     }
 }

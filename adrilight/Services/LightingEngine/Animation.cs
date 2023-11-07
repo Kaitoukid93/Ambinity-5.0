@@ -1,4 +1,5 @@
-﻿using adrilight.ViewModel;
+﻿using adrilight.Ticker;
+using adrilight.ViewModel;
 using adrilight_shared.Enums;
 using adrilight_shared.Models.ControlMode;
 using adrilight_shared.Models.ControlMode.Mode;

@@ -5,6 +5,7 @@ using adrilight.Services.SerialStream;
 using adrilight.View;
 using adrilight_shared.Enums;
 using adrilight_shared.Helpers;
+using adrilight_shared.Models;
 using adrilight_shared.Models.AppProfile;
 using adrilight_shared.Models.AppUser;
 using adrilight_shared.Models.Audio;
@@ -247,11 +248,15 @@ namespace adrilight.ViewModel
             }
         }
         public ICommand OpenLightingProfileManagerWindowCommand { get; set; }
+        public ICommand PlaySelectedPlaylistCommand { get; set; }
+        public ICommand GotoCurrentPlaylistEditorCommand { get; set; }
         public ICommand CreateNewLightingProfileCommand { get; set; }
+        public ICommand CreateNewLightingProfileFromSelectedProfilesCommand { get; set; }
         public ICommand RequestingRescanDevicesCommand { get; set; }
         public ICommand CreateNewVIDCommand { get; set; }
         public ICommand DeleteSelectedLightingProfileCommand { get; set; }
         public ICommand OpenCreateNewLightingProfileWindowCommand { get; set; }
+        public ICommand OpenCreateNewLightingProfilePlayListWindowCommand { get; set; }
         public ICommand OpenCreateNewVIDWindowCommand { get; set; }
         public ICommand ActivateCurrentLightingProfileCommand { get; set; }
         public ICommand SaveDeviceInformationToDiskCommand { get; set; }
@@ -385,6 +390,8 @@ namespace adrilight.ViewModel
         public ICommand OpenDeviceConnectionSettingsWindowCommand { get; set; }
         public ICommand OpenDeviceFirmwareSettingsWindowCommand { get; set; }
         public ICommand RenameSelectedItemCommand { get; set; }
+        public ICommand OpenRenameDialogCommand { get; set; }
+        public ICommand OpenDeleteDialogCommand { get; set; }
         public ICommand SetSelectedItemScaleFactorCommand { get; set; }
         public ICommand SetSelectedItemRotateFactorCommand { get; set; }
         public ICommand OpenAdvanceSettingWindowCommand { get; set; }
@@ -510,19 +517,6 @@ namespace adrilight.ViewModel
             {
                 if (_availableProfiles == value) return;
                 _availableProfiles = value;
-
-                RaisePropertyChanged();
-            }
-        }
-        private ObservableCollection<LightingProfile> _availableLightingProfiles;
-
-        public ObservableCollection<LightingProfile> AvailableLightingProfiles {
-            get { return _availableLightingProfiles; }
-
-            set
-            {
-                if (_availableLightingProfiles == value) return;
-                _availableLightingProfiles = value;
 
                 RaisePropertyChanged();
             }
@@ -2367,7 +2361,11 @@ namespace adrilight.ViewModel
                 return true;
             }, async (p) =>
             {
-                //IsLoadingProfile = true;
+                //stop current running playlist
+                if (CurrentSelectedPlaylist != null && CurrentSelectedPlaylist.IsPlaying)
+                {
+                    CurrentSelectedPlaylist.IsPlaying = false;
+                }
                 await Task.Run(() => ActivateCurrentLightingProfile(p));
                 //IsLoadingProfile = false;
             }
@@ -2719,12 +2717,36 @@ namespace adrilight.ViewModel
                 OpenLightingProfileManagerWindow();
             }
             );
+            GotoCurrentPlaylistEditorCommand = new RelayCommand<LightingProfilePlaylist>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                GotoPlayListEditorView(p);
+            }
+            );
+            PlaySelectedPlaylistCommand = new RelayCommand<LightingProfilePlaylist>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                PlaySelectedPlaylist(p);
+            }
+            );
             CreateNewLightingProfileCommand = new RelayCommand<string>((p) =>
             {
                 return true;
             }, (p) =>
             {
                 CreateNewLightingProfile();
+            }
+            );
+            CreateNewLightingProfileFromSelectedProfilesCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                CreateNewLightingProfileFromSelectedProfiles();
             }
             );
             CreateNewVIDCommand = new RelayCommand<string>((p) =>
@@ -2751,6 +2773,14 @@ namespace adrilight.ViewModel
                 OpenCreateNewLightingProfileWindow();
             }
             );
+            OpenCreateNewLightingProfilePlayListWindowCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                OpenCreateNewLightingProfilePlayListWindow();
+            }
+           );
             OpenCreateNewVIDWindowCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -3456,6 +3486,38 @@ namespace adrilight.ViewModel
                     }
                 }
             });
+            OpenRenameDialogCommand = new RelayCommand<IGenericCollectionItem>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                var vm = new RenameDialogViewModel("Rename", p);
+                var renameDialog = new RenameDialog();
+                renameDialog.DataContext = vm;
+                renameDialog.Owner = Application.Current.MainWindow;
+                renameDialog.ShowDialog();
+
+            });
+            OpenDeleteDialogCommand = new RelayCommand<DataCollection>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                //current object to delete
+                //current collection to delete from
+                var vm = new DeleteDialogViewModel("Delete", p);
+                var deleteDialog = new DeleteDialog();
+                deleteDialog.DataContext = vm;
+                deleteDialog.Owner = Application.Current.MainWindow;
+                var rslt = deleteDialog.ShowDialog();
+                if ((bool)rslt)
+                {
+                    ShowLightingProfilePlaylistsManagerToolbar = false;
+                    CurrentPlaylistView = "collection";
+                }
+
+
+            });
             ShowNameEditWindow = new RelayCommand<string>((p) =>
             {
                 return p != null;
@@ -3788,10 +3850,10 @@ namespace adrilight.ViewModel
             {
                 case "Activate":
                     AutomationParamList = new ObservableCollection<object>();
-                    foreach (var profile in AvailableLightingProfiles)
+                    foreach (var profile in AvailableLightingProfiles.Items)
                     {
                         if (profile != null)
-                            AutomationParamList.Add(new ActionParameter { Geometry = "brightness", Name = profile.Name, Type = "profile", Value = profile.ProfileUID });
+                            AutomationParamList.Add(new ActionParameter { Geometry = "brightness", Name = profile.Name, Type = "profile", Value = (profile as LightingProfile).ProfileUID });
                     }
                     break;
 
@@ -5241,27 +5303,7 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-        public void ActivateCurrentLightingProfile(LightingProfile profile)
-        {
-            if (profile == null)
-                return;
-            foreach (var device in AvailableDevices)
-            {
-                var lightingMode = ObjectHelpers.Clone<LightingMode>(profile.ControlMode as LightingMode);
-                device.ActivateControlMode(lightingMode);
-                Log.Information("Lighting Profile Activated: " + profile.Name + " for " + device.DeviceName);
-            }
-        }
-        public void ActivateCurrentLightingProfileForSpecificDevice(LightingProfile profile, IDeviceSettings targetDevice)
-        {
-            if (profile == null)
-                return;
 
-            var lightingMode = ObjectHelpers.Clone<LightingMode>(profile.ControlMode as LightingMode);
-            targetDevice.ActivateControlMode(lightingMode);
-            Log.Information("Lighting Profile Activated: " + profile.Name + " for " + targetDevice.DeviceName);
-
-        }
         public void ActivateSelectedProfile(AppProfile profile)
         {
             if (profile == null)
@@ -5607,7 +5649,7 @@ namespace adrilight.ViewModel
                 {
 
                     case "Activate":
-                        var destinationProfile = AvailableLightingProfiles.Where(x => x.ProfileUID == (string)action.ActionParameter.Value).FirstOrDefault();
+                        var destinationProfile = AvailableLightingProfiles.Items.Where(x => (x as LightingProfile).ProfileUID == (string)action.ActionParameter.Value).FirstOrDefault() as LightingProfile;
                         if (destinationProfile != null)
                         {
                             targetDevice.TurnOnLED();
@@ -7436,9 +7478,32 @@ namespace adrilight.ViewModel
                 }
             }
         }
-        #region ControlModeSharing
+        #region ControlModeSharing, Lighting Profiles
 
+        private DataCollection _availableLightingProfiles;
 
+        public DataCollection AvailableLightingProfiles {
+            get { return _availableLightingProfiles; }
+
+            set
+            {
+                if (_availableLightingProfiles == value) return;
+                _availableLightingProfiles = value;
+
+                RaisePropertyChanged();
+            }
+        }
+        private DataCollection _availableLightingProfilePlayLists;
+
+        public DataCollection AvailableLightingProfilePlayLists {
+            get { return _availableLightingProfilePlayLists; }
+
+            set
+            {
+                _availableLightingProfilePlayLists = value;
+                RaisePropertyChanged();
+            }
+        }
         private string _newLightingProfileName = "New Profile";
 
         public string NewLightingProfileName {
@@ -7454,7 +7519,21 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        private string _newLightingProfilePlayListName = "New PlayList";
 
+        public string NewLightingProfilePlayListName {
+            get
+            {
+                return _newLightingProfilePlayListName;
+            }
+
+            set
+            {
+                _newLightingProfilePlayListName = value;
+
+                RaisePropertyChanged();
+            }
+        }
         private string _newLightingProfileOwner;
 
         public string NewLightingProfileOwner {
@@ -7507,7 +7586,7 @@ namespace adrilight.ViewModel
             FilesQToRemove.Add(filePath);
             if (File.Exists(infoPath))
                 File.Delete(infoPath);
-            AvailableLightingProfiles.Remove(profile);
+            //AvailableLightingProfiles.RemoveItems(profile);
         }
         private void OpenCreateNewLightingProfileWindow()
         {
@@ -7515,11 +7594,18 @@ namespace adrilight.ViewModel
             window.Owner = System.Windows.Application.Current.MainWindow;
             window.ShowDialog();
         }
+        private void OpenCreateNewLightingProfilePlayListWindow()
+        {
+            var window = new AddNewLightingProfilePlayListWindow();
+            window.Owner = System.Windows.Application.Current.MainWindow;
+            window.ShowDialog();
+        }
         private LightingProfileManagerWindow _lightingProfileManagerWindow { get; set; }
         private void OpenLightingProfileManagerWindow()
         {
             //init available profiles
-            AvailableLightingProfiles = new ObservableCollection<LightingProfile>();
+            CurrentPlaylistView = "collection";
+            AvailableLightingProfiles = new DataCollection("Lighting Profiles");
             foreach (var profile in LoadLightingProfileIfExist())
             {
                 profile.PropertyChanged += (_, __) =>
@@ -7527,10 +7613,10 @@ namespace adrilight.ViewModel
                     if (__.PropertyName == nameof(profile.IsChecked))
                     {
                         //show deletebutton
-                        ShowProfileManagerToolbar = AvailableLightingProfiles.Where(p => p.IsChecked).Count() > 0 ? true : false;
+                        ShowProfileManagerToolbar = AvailableLightingProfiles.Items.Where(p => p.IsChecked).Count() > 0 ? true : false;
                     }
                 };
-                AvailableLightingProfiles.Add(profile);
+                AvailableLightingProfiles.AddItems(profile);
             }
             _lightingProfileManagerWindow = new LightingProfileManagerWindow();
             _lightingProfileManagerWindow.Owner = Application.Current.MainWindow;
@@ -7550,7 +7636,118 @@ namespace adrilight.ViewModel
             var contentjson = JsonConvert.SerializeObject(lightingProfile);
             File.WriteAllText(Path.Combine(LightingProfilesCollectionFolderPath, "collection", NewLightingProfileName + ".ALP"), contentjson);
             //reload collection
-            AvailableLightingProfiles.Add(lightingProfile);
+            AvailableLightingProfiles.AddItems(lightingProfile);
+
+        }
+        private void CreateNewLightingProfileFromSelectedProfiles()
+        {
+            var selectedProfiles = AvailableLightingProfiles.Items.Where(p => p.IsChecked == true).ToList();
+            var lightingProfilePlaylist = new LightingProfilePlaylist(NewLightingProfilePlayListName);
+            foreach (var profile in selectedProfiles)
+            {
+                lightingProfilePlaylist.LightingProfiles.AddItems(profile);
+            }
+            lightingProfilePlaylist.PropertyChanged += (_, __) =>
+            {
+                switch (__.PropertyName)
+                {
+                    case nameof(lightingProfilePlaylist.IsChecked):
+                        ShowLightingProfilePlaylistsManagerToolbar = AvailableLightingProfilePlayLists.Items.Where(p => p.IsChecked).Count() > 0 ? true : false;
+                        break;
+                }
+            };
+            //reload collection
+            if (AvailableLightingProfilePlayLists == null)
+                AvailableLightingProfilePlayLists = new DataCollection("Lighting Profile Playlists");
+            AvailableLightingProfilePlayLists.AddItems(lightingProfilePlaylist);
+
+        }
+        private int _currentPlayingTimePercentage;
+        public int CurrentPlayingTimePercentage {
+            get
+            {
+                return _currentPlayingTimePercentage;
+            }
+            set
+            {
+                _currentPlayingTimePercentage = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private LightingProfilePlaylist _currentSelectedPlaylist;
+        public LightingProfilePlaylist CurrentSelectedPlaylist {
+            get
+            {
+                return _currentSelectedPlaylist;
+            }
+            set
+            {
+                _currentSelectedPlaylist = value;
+                RaisePropertyChanged();
+            }
+        }
+        private LightingProfile _currentSelectedLightingProfile;
+        public LightingProfile CurrentSelectedLightingProfile {
+            get
+            {
+                return _currentSelectedLightingProfile;
+            }
+            set
+            {
+                _currentSelectedLightingProfile = value;
+                RaisePropertyChanged();
+            }
+        }
+        private bool _playlistIsRunning;
+        public bool PlaylistIsRunning {
+            get
+            {
+                return _playlistIsRunning;
+            }
+            set
+            {
+                _playlistIsRunning = value;
+                RaisePropertyChanged();
+            }
+        }
+        private void GotoPlayListEditorView(LightingProfilePlaylist playlist)
+        {
+            playlist.IsEditing = true;
+            CurrentSelectedPlaylist = playlist;
+            CurrentPlaylistView = "editor";
+        }
+        private void PlaySelectedPlaylist(LightingProfilePlaylist playlist)
+        {
+            foreach (var list in AvailableLightingProfilePlayLists.Items)
+            {
+                (list as LightingProfilePlaylist).ResetProfilesPlayingState();
+                (list as LightingProfilePlaylist).IsPlaying = false;
+            }
+            playlist.CurrentPlayingProfileIndex = 0;
+            CurrentSelectedPlaylist = playlist;
+            CurrentSelectedPlaylist.IsPlaying = true;
+        }
+        public void ActivateCurrentLightingProfile(LightingProfile profile)
+        {
+            if (profile == null)
+                return;
+            CurrentSelectedLightingProfile = profile;
+            foreach (var device in AvailableDevices)
+            {
+                var lightingMode = ObjectHelpers.Clone<LightingMode>(profile.ControlMode as LightingMode);
+                device.ActivateControlMode(lightingMode);
+                Log.Information("Lighting Profile Activated: " + profile.Name + " for " + device.DeviceName);
+            }
+        }
+        public void ActivateCurrentLightingProfileForSpecificDevice(LightingProfile profile, IDeviceSettings targetDevice)
+        {
+            if (profile == null)
+                return;
+
+            var lightingMode = ObjectHelpers.Clone<LightingMode>(profile.ControlMode as LightingMode);
+            targetDevice.ActivateControlMode(lightingMode);
+            Log.Information("Lighting Profile Activated: " + profile.Name + " for " + targetDevice.DeviceName);
 
         }
         #endregion
@@ -8883,10 +9080,10 @@ namespace adrilight.ViewModel
         }
         private void LoadAvailableLightingProfiles()
         {
-            AvailableLightingProfiles = new ObservableCollection<LightingProfile>();
+            AvailableLightingProfiles = new DataCollection();
             foreach (var profile in LoadLightingProfileIfExist())
             {
-                AvailableLightingProfiles.Add(profile);
+                AvailableLightingProfiles.AddItems(profile);
             }
         }
         private void LoadAvailableProfiles()

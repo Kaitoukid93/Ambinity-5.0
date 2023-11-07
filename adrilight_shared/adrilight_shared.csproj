@@ -199,6 +199,7 @@
     <Compile Include="Models\ControlMode\Mode\LightingMode.cs" />
     <Compile Include="Models\ControlMode\Mode\PWMMode.cs" />
     <Compile Include="Models\ControlMode\ResourceLoaderConfig.cs" />
+    <Compile Include="Models\DataCollection.cs" />
     <Compile Include="Models\DataVisualizer\LEDVisualizer.cs" />
     <Compile Include="Models\DataVisualizer\ZoneVisualizer.cs" />
     <Compile Include="Models\Device\Controller\DeviceController.cs" />
@@ -231,12 +232,16 @@
     <Compile Include="Models\FrameData\Frame.cs" />
     <Compile Include="Models\FrameData\Motion.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\ParameterValues\Gif.cs" />
+    <Compile Include="Models\IGenericCollectionItem.cs" />
     <Compile Include="Models\KeyboardHook\IModifiersType.cs" />
     <Compile Include="Models\KeyboardHook\KeyModel.cs" />
     <Compile Include="Models\KeyboardHook\ModifiersType.cs" />
+    <Compile Include="Models\DashboardItem\IDashboardItem.cs" />
     <Compile Include="Models\Lighting\LightingProfile.cs" />
+    <Compile Include="Models\Lighting\LightingProfilePlaylist.cs" />
     <Compile Include="Models\Preview\DesktopFrameCard.cs" />
     <Compile Include="Models\Preview\GifCard.cs" />
+    <Compile Include="Models\RelayCommand\RelayCommand.cs" />
     <Compile Include="Models\SerialPortData\FakeSerialPort.cs" />
     <Compile Include="Models\SerialPortData\FpsLogger.cs" />
     <Compile Include="Models\SerialPortData\ISerialPortWrapper.cs" />

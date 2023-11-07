@@ -6,6 +6,7 @@ using adrilight.Services.DeviceDiscoveryServices;
 using adrilight.Services.LightingEngine;
 using adrilight.Services.OpenRGBService;
 using adrilight.Services.SerialStream;
+using adrilight.Ticker;
 using adrilight.Util;
 using adrilight.View;
 using adrilight.ViewModel;
@@ -133,6 +134,7 @@ namespace adrilight
             .BindAllInterfaces());
             var captureEngines = kernel.GetAll<ICaptureEngine>();
             var rainbowTicker = kernel.Get<RainbowTicker>();
+            var playlistDecoder = kernel.Get<PlaylistDecoder>();
             var hwMonitor = kernel.Get<HWMonitor>();
 
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>

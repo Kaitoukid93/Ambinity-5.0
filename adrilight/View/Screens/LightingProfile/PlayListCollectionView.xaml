@@ -1,0 +1,391 @@
+﻿<UserControl x:Class="adrilight.View.PlayListCollectionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
+             xmlns:store="clr-namespace:adrilight_shared.Models.Store;assembly=adrilight_shared"
+             xmlns:enums="clr-namespace:adrilight_shared.Enums;assembly=adrilight_shared"
+             xmlns:local="clr-namespace:adrilight.View"
+             xmlns:lighting="clr-namespace:adrilight_shared.Models.Lighting;assembly=adrilight_shared"
+             mc:Ignorable="d"
+             xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
+             Background="{StaticResource RegionBrush}"
+             d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
+             DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary>
+
+                    <DataTemplate x:Key="_collectionView">
+                        <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <Border  Margin="15,10"
+                                         Visibility="{Binding ShowLightingProfilePlaylistsManagerToolbar,Converter={StaticResource Boolean2VisibilityReConverter}}"
+                                         Height="50"
+                                         CornerRadius="7"
+                                         Background="Transparent">
+                                    <Grid>
+
+                                        <StackPanel HorizontalAlignment="Left"
+                                                    Orientation="Horizontal">
+                                            <Button BorderThickness="0"
+                                                    Height="32"
+                                                    Foreground="{DynamicResource RegionBrush}"
+                                                    Style="{DynamicResource ButtonPrimary}"
+                                                    hc:IconElement.Geometry="{DynamicResource addTo}"
+                                                    Margin="0"
+                                                    hc:IconElement.Height="20"
+                                                    Content="New playlist" />
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                                <hc:TransitioningContentControl Visibility="{Binding ShowLightingProfilePlaylistsManagerToolbar,Converter={StaticResource Boolean2VisibilityConverter}}"
+                                                                TransitionMode="Top2BottomWithFade">
+                                    <Border  Margin="15,10"
+                                             Height="50"
+                                             CornerRadius="7"
+                                             Effect="{DynamicResource EffectShadow1}"
+                                             Background="{DynamicResource MainContentBackgroundBrush}">
+                                        <Grid>
+
+                                            <StackPanel HorizontalAlignment="Right"
+                                                        Orientation="Horizontal">
+                                                <Button BorderThickness="0"
+                                                        Background="{DynamicResource SecondaryRegionBrush}"
+                                                        hc:IconElement.Geometry="{DynamicResource remove}"
+                                                        Margin="10,5"
+                                                        Height="32"
+                                                        Command="{Binding OpenDeleteDialogCommand}"
+                                                        CommandParameter="{Binding AvailableLightingProfilePlayLists}"
+                                                        hc:IconElement.Height="15"
+                                                        Content="Remove" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </hc:TransitioningContentControl>
+                                <hc:ScrollViewer Grid.Row="1"
+                                                 IsInertiaEnabled="True">
+                                    <ItemsControl Margin="10,10,10,10"
+                                                  ItemTemplate="{DynamicResource _lightingProfilePlayListTemplate}"
+                                                  ItemsSource="{Binding AvailableLightingProfilePlayLists.Items}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <WrapPanel Orientation="Horizontal" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                    </ItemsControl>
+                                </hc:ScrollViewer>
+                            </Grid>
+                        </hc:TransitioningContentControl>
+                    </DataTemplate>
+                    <DataTemplate x:Key="_editorView">
+                        <hc:TransitioningContentControl TransitionMode="Right2LeftWithFade">
+                            <Grid DataContext="{Binding CurrentSelectedPlaylist}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <!--header-->
+                                <Grid>
+                                    <Border Margin="20"
+                                            Height="200"
+                                            CornerRadius="10"
+                                            Background="{DynamicResource MainContentBackgroundBrush}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid>
+                                                <Border Width="180"
+                                                        Background="{DynamicResource SecondaryRegionBrush}"
+                                                        CornerRadius="4"
+                                                        Margin="10">
+                                                    <Path HorizontalAlignment="Center"
+                                                          Stretch="Uniform"
+                                                          Width="100"
+                                                          Height="100"
+                                                          Data="{StaticResource profilePlaylist}"
+                                                          Fill="{DynamicResource PrimaryTextBrush}" />
+                                                </Border>
+                                            </Grid>
+                                            <Grid Grid.Column="1">
+                                                <StackPanel Margin="10,20">
+                                                    <TextBlock HorizontalAlignment="Left"
+                                                               FontSize="32"
+                                                               FontWeight="SemiBold"
+                                                               Style="{DynamicResource TextBlockLarge}"
+                                                               Text="{Binding Name}" />
+                                                    <StackPanel Margin="0,10,0,10"
+                                                                Orientation="Horizontal">
+                                                        <TextBlock Margin="0,0,0,10"
+                                                                   FontSize="15"
+                                                                   Text="{Binding LightingProfiles.Items.Count}"
+                                                                   Style="{DynamicResource TextBlockDefaultSecLight}" />
+                                                        <TextBlock Margin="5,0,0,10"
+                                                                   Text="profiles"
+                                                                   FontSize="15"
+                                                                   Style="{DynamicResource TextBlockDefaultSecLight}" />
+                                                    </StackPanel>
+                                                    <StackPanel HorizontalAlignment="Left"
+                                                                Orientation="Horizontal">
+                                                        <Button BorderThickness="0"
+                                                                Height="32"
+                                                                Style="{DynamicResource ButtonPrimary}"
+                                                                Foreground="{DynamicResource RegionBrush}"
+                                                                hc:IconElement.Geometry="{DynamicResource playComposition}"
+                                                                Margin="0,5,10,5"
+                                                                Command="{Binding Path=DataContext.PlaySelectedPlaylistCommand, RelativeSource={RelativeSource AncestorType={x:Type local:PlayListCollectionView}}}"
+                                                                CommandParameter="{Binding .}"
+                                                                hc:IconElement.Height="15"
+                                                                Content="Play all" />
+                                                        <Button BorderThickness="0"
+                                                                Background="{DynamicResource SecondaryRegionBrush}"
+                                                                hc:IconElement.Geometry="{DynamicResource rename}"
+                                                                Command="{Binding Path=DataContext.OpenRenameDialogCommand, RelativeSource={RelativeSource AncestorType={x:Type local:PlayListCollectionView}}}"
+                                                                CommandParameter="{Binding .}"
+                                                                Margin="10,5"
+                                                                Height="32"
+                                                                hc:IconElement.Height="15"
+                                                                Content="Rename" />
+                                                        <Button BorderThickness="0"
+                                                                Background="{DynamicResource SecondaryRegionBrush}"
+                                                                hc:IconElement.Geometry="{DynamicResource delete}"
+                                                                Margin="10,5"
+                                                                Height="32"
+                                                                Command="{Binding Path=DataContext.OpenDeleteDialogCommand, RelativeSource={RelativeSource AncestorType={x:Type local:PlayListCollectionView}}}"
+                                                                CommandParameter="{Binding Path=DataContext.AvailableLightingProfilePlayLists, RelativeSource={RelativeSource AncestorType={x:Type local:PlayListCollectionView}}}"
+                                                                hc:IconElement.Height="15"
+                                                                Content="Remove" />
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+                                <!--list-->
+                                <Grid Grid.Row="1">
+                                    <hc:ScrollViewer IsInertiaEnabled="True">
+                                        <ItemsControl Margin="20"
+                                                      AlternationCount="2"
+                                                      ItemTemplate="{DynamicResource _profileTemplate}"
+                                                      BorderThickness="0"
+                                                      Background="Transparent"
+                                                      ItemsSource="{Binding LightingProfiles.Items}">
+                                        </ItemsControl>
+                                    </hc:ScrollViewer>
+                                </Grid>
+                            </Grid>
+                        </hc:TransitioningContentControl>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type lighting:LightingProfile}"
+                                  x:Key="_profileTemplate">
+                        <Border Margin="0,3,0,3"
+                                CornerRadius="7">
+                            <Border.Style>
+                                <Style TargetType="{x:Type Border}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=(ItemsControl.AlternationIndex), 
+                                                   RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}}"
+                                                     Value="0">
+                                            <Setter Property="Background"
+                                                    Value="Transparent" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Path=(ItemsControl.AlternationIndex), 
+                                                   RelativeSource={RelativeSource AncestorType={x:Type ContentPresenter}}}"
+                                                     Value="1">
+                                            <Setter Property="Background"
+                                                    Value="{DynamicResource MainContentBackgroundBrush}" />
+                                            <Setter Property="Effect"
+                                                    Value="{DynamicResource EffectShadow1}" />
+                                        </DataTrigger>
+                                        <Trigger Property="Border.IsMouseOver"
+                                                 Value="True">
+                                            <Setter Property="Background"
+                                                    Value="{DynamicResource MainContentBackgroundBrush}" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Grid>
+                                <hc:Row Margin="0,0,0,0"
+                                        Gutter="10">
+                                    <hc:Col Layout="2,2,2,2,2">
+                                        <Border Background="Transparent"
+                                                Height="40"
+                                                CornerRadius="4">
+                                            <Grid>
+                                                <Grid>
+                                                    <Grid.Style>
+                                                        <Style TargetType="Grid">
+                                                            <Setter Property="Visibility"
+                                                                    Value="Collapsed" />
+                                                            <Style.Triggers>
+                                                                <MultiDataTrigger>
+                                                                    <MultiDataTrigger.Conditions>
+                                                                        <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid,AncestorLevel=2}, Path=IsMouseOver}"
+                                                                                   Value="True" />
+                                                                    </MultiDataTrigger.Conditions>
+
+                                                                    <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}" />-->
+                                                                    <Setter Property="Visibility"
+                                                                            Value="Visible" />
+                                                                </MultiDataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Grid.Style>
+                                                    <Button Background="Transparent"
+                                                            Visibility="{Binding IsPlaying,Converter={StaticResource Boolean2VisibilityReConverter}}"
+                                                            hc:IconElement.Height="15"
+                                                            BorderThickness="0"
+                                                            Command="{Binding Path=DataContext.PlaySelectedProfileFromListCommand, RelativeSource={RelativeSource AncestorType=Border,AncestorLevel=3, Mode=FindAncestor}}"
+                                                            CommandParameter="{Binding .}"
+                                                            hc:IconElement.Geometry="{DynamicResource playOutline}" />
+                                                </Grid>
+                                                <Grid>
+                                                    <Button Background="Transparent"
+                                                            Visibility="{Binding IsPlaying,Converter={StaticResource Boolean2VisibilityConverter}}"
+                                                            hc:IconElement.Height="15"
+                                                            BorderThickness="0"
+                                                            Foreground="{DynamicResource PrimaryBrush}"
+                                                            hc:IconElement.Geometry="{DynamicResource playComposition}" />
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+                                    </hc:Col>
+                                    <hc:Col Layout="10,10,10,10,10">
+                                        <Border Background="Transparent"
+                                                Height="50"
+                                                CornerRadius="4">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <hc:Gravatar Width="32"
+                                                             Margin="0,0,10,0"
+                                                             Background="Transparent"
+                                                             Height="32"
+                                                             Id="{Binding Name}" />
+                                                <TextBlock Grid.Column="1"
+                                                           HorizontalAlignment="Left"
+                                                           VerticalAlignment="Center"
+                                                           Text="{Binding Name}"
+                                                           TextTrimming="CharacterEllipsis" />
+                                            </Grid>
+                                        </Border>
+                                    </hc:Col>
+                                    <hc:Col Layout="3,4,4,4,4">
+                                        <Border Background="Transparent"
+                                                Height="50"
+                                                CornerRadius="4">
+                                            <TextBlock Grid.Column="1"
+                                                       HorizontalAlignment="Left"
+                                                       VerticalAlignment="Center"
+                                                       Text="{Binding ControlMode.BasedOn}" />
+                                        </Border>
+                                    </hc:Col>
+                                    <hc:Col  Layout="3,4,4,4,4">
+                                        <Border Background="Transparent"
+                                                Height="50"
+                                                CornerRadius="4">
+                                            <TextBlock Margin="0,0,15,0"
+                                                       HorizontalAlignment="Right"
+                                                       VerticalAlignment="Center"
+                                                       Text="{Binding Duration, StringFormat={}{0:hh':'mm':'ss}}" />
+                                        </Border>
+                                    </hc:Col>
+                                    <hc:Col  Layout="6,4,4,4,4">
+                                        <Border Background="Transparent"
+                                                Height="50"
+                                                CornerRadius="4">
+                                            <Grid>
+                                                <Grid.Style>
+                                                    <Style TargetType="Grid">
+                                                        <Setter Property="Visibility"
+                                                                Value="Collapsed" />
+                                                        <Style.Triggers>
+                                                            <MultiDataTrigger>
+                                                                <MultiDataTrigger.Conditions>
+                                                                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=IsMouseOver}"
+                                                                               Value="True" />
+                                                                </MultiDataTrigger.Conditions>
+
+                                                                <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}" />-->
+                                                                <Setter Property="Visibility"
+                                                                        Value="Visible" />
+                                                            </MultiDataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Grid.Style>
+                                                <StackPanel HorizontalAlignment="Right"
+                                                            Margin="0,0,5,0"
+                                                            Orientation="Horizontal">
+                                                    <Button VerticalAlignment="Center"
+                                                            Background="Transparent"
+                                                            Padding="5"
+                                                            HorizontalAlignment="Right"
+                                                            hc:IconElement.Width="15"
+                                                            BorderThickness="0"
+                                                            hc:IconElement.Geometry="{DynamicResource moveDown}" />
+                                                    <Button VerticalAlignment="Center"
+                                                            Background="Transparent"
+                                                            Padding="5"
+                                                            HorizontalAlignment="Right"
+                                                            hc:IconElement.Width="15"
+                                                            BorderThickness="0"
+                                                            hc:IconElement.Geometry="{DynamicResource moveUp}" />
+                                                    <Button VerticalAlignment="Center"
+                                                            Background="Transparent"
+                                                            Padding="5"
+                                                            HorizontalAlignment="Right"
+                                                            hc:IconElement.Width="15"
+                                                            BorderThickness="0"
+                                                            hc:IconElement.Geometry="{DynamicResource DeleteFillCircleGeometry}" />
+                                                </StackPanel>
+                                            </Grid>
+
+                                        </Border>
+                                    </hc:Col>
+                                </hc:Row>
+                            </Grid>
+                        </Border>
+
+
+                    </DataTemplate>
+                    <Style x:Key="_playListView"
+                           TargetType="{x:Type ContentControl}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CurrentPlaylistView}"
+                                         Value="collection">
+                                <Setter Property="ContentTemplate"
+                                        Value="{StaticResource _collectionView}" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding CurrentPlaylistView}"
+                                         Value="editor">
+                                <Setter Property="ContentTemplate"
+                                        Value="{StaticResource _editorView}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ResourceDictionary>
+
+            </ResourceDictionary.MergedDictionaries>
+
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <ContentControl Content="{Binding .,UpdateSourceTrigger=PropertyChanged}"
+                        Style="{StaticResource _playListView}">
+        </ContentControl>
+    </Grid>
+</UserControl>

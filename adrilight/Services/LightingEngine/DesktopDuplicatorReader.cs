@@ -193,10 +193,7 @@ namespace adrilight.Services.LightingEngine
             {
                 return;
             }
-            var isRunning = _cancellationTokenSource != null && _runState != RunStateEnum.Stop;
-
             _currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
-
             var shouldBeRunning =
                 _currentLightingMode.BasedOn == LightingModeEnum.ScreenCapturing &&
                 //this zone has to be enable, this could be done by stop setting the spots, but the this thread still alive, so...
@@ -209,7 +206,7 @@ namespace adrilight.Services.LightingEngine
             //MainViewViewModel.IsRegisteringGroup == false;
 
             // this is stop sign by one or some of the reason above
-            if (isRunning && !shouldBeRunning)
+            if (_runState == RunStateEnum.Run && !shouldBeRunning)
             {
                 _dimMode = DimMode.Down;
                 _dimFactor = 1.00;
@@ -219,13 +216,13 @@ namespace adrilight.Services.LightingEngine
                 //Stop();
             }
             // this is start sign
-            else if (!isRunning && shouldBeRunning)
+            else if (_runState == RunStateEnum.Stop && shouldBeRunning)
             {
                 _runState = RunStateEnum.Run;
                 DesktopFrame.ServiceRequired++;
                 Start();
             }
-            else if (isRunning && shouldBeRunning)
+            else if (_runState == RunStateEnum.Pause && shouldBeRunning)
             {
                 _runState = RunStateEnum.Run;
                 DesktopFrame.ServiceRequired++;
