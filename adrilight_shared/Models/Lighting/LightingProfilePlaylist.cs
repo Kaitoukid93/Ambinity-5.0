@@ -9,6 +9,7 @@ namespace adrilight_shared.Models.Lighting
 {
     public class LightingProfilePlaylist : ViewModelBase, IDashboardItem, IGenericCollectionItem
     {
+        #region Construct
         public LightingProfilePlaylist()
         {
 
@@ -16,26 +17,16 @@ namespace adrilight_shared.Models.Lighting
         public LightingProfilePlaylist(string name)
         {
             Name = name;
-            LightingProfiles = new DataCollection("profiles");
             CommandSetup();
         }
+        #endregion
+        #region Commands
         [JsonIgnore]
         public ICommand PlaySelectedProfileFromListCommand { get; set; }
+        [JsonIgnore]
         public ICommand PlayCommand { get; set; }
-        private void CommandSetup()
-        {
-            PlaySelectedProfileFromListCommand = new Models.RelayCommand.RelayCommand<LightingProfile>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                CurrentPlayingProfileIndex = LightingProfiles.Items.IndexOf(p);
-                RaisePropertyChanged(nameof(IsPlaying));
-            }
-
-         );
-
-        }
+        #endregion
+        #region Properties
         private bool _isPinned = false;
         public bool IsPinned { get => _isPinned; set { Set(() => IsPinned, ref _isPinned, value); } }
         private string _name;
@@ -67,6 +58,22 @@ namespace adrilight_shared.Models.Lighting
         public bool IsChecked { get => _isChecked; set { Set(() => IsChecked, ref _isChecked, value); } }
         [JsonIgnore]
         public LightingProfile CurrentPlayingLightingProfile => LightingProfiles.Items[CurrentPlayingProfileIndex] as LightingProfile;
+        #endregion
+        #region Methods
+        private void CommandSetup()
+        {
+            PlaySelectedProfileFromListCommand = new Models.RelayCommand.RelayCommand<LightingProfile>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                CurrentPlayingProfileIndex = LightingProfiles.Items.IndexOf(p);
+                RaisePropertyChanged(nameof(IsPlaying));
+            }
+
+         );
+
+        }
         public void LoadLightingProfiles(ObservableCollection<LightingProfile> availableProfiles)
         {
             LightingProfiles = new DataCollection();
@@ -92,6 +99,7 @@ namespace adrilight_shared.Models.Lighting
                 (item as LightingProfile).IsPlaying = false;
             }
         }
+        #endregion
 
     }
 }

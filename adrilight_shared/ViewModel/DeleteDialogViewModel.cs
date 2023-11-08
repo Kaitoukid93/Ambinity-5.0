@@ -1,7 +1,8 @@
 ﻿using adrilight_shared.Models;
+using adrilight_shared.Models.RelayCommand;
 using System.Windows.Input;
 
-namespace adrilight.ViewModel
+namespace adrilight_shared.ViewModel
 {
     public class DeleteDialogViewModel
     {

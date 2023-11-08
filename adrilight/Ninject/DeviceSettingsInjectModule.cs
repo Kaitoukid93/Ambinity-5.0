@@ -8,6 +8,7 @@ using adrilight.Ticker;
 using adrilight.Util;
 using adrilight.View;
 using adrilight.ViewModel;
+using adrilight_shared.Services;
 using adrilight_shared.Settings;
 using Microsoft.Win32;
 using Ninject.Modules;
@@ -32,6 +33,7 @@ namespace adrilight.Ninject
             Bind<IContext>().To<WpfContext>().InSingletonScope();
             Bind<DeviceDiscovery>().ToSelf().InSingletonScope();
             Bind<DBmanager>().ToSelf().InSingletonScope();
+            Bind<IDialogService>().To<DialogService>().InSingletonScope();
             if (generalSettings.ScreenCapturingMethod == 0)
             {
                 if (osBuild == "22000" || osBuild == "22621")

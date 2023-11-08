@@ -13,26 +13,26 @@ namespace adrilight.Ticker
     internal class PlaylistDecoder : ViewModelBase
     {
 
-        public PlaylistDecoder(IGeneralSettings generaSettings, MainViewViewModel mainViewViewModel)
+        public PlaylistDecoder(IGeneralSettings generaSettings, LightingProfileManagerViewModel viewModel)
         {
             GeneralSettings = generaSettings ?? throw new ArgumentNullException(nameof(generaSettings));
 
-            MainViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
-            MainViewModel.PropertyChanged += (s, e) =>
+            ViewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+            ViewModel.PropertyChanged += (s, e) =>
             {
-                switch (e.PropertyName)
-                {
-                    case nameof(MainViewModel.CurrentSelectedPlaylist):
-                        //Init();
-                        if (_selectedPlaylist != null)
-                        {
-                            _selectedPlaylist.PropertyChanged -= SelectedPlaylistChanged;
-                            // _selectedPlaylist.ResetPlayingState();
-                        }
-                        _selectedPlaylist = MainViewModel.CurrentSelectedPlaylist;
-                        _selectedPlaylist.PropertyChanged += SelectedPlaylistChanged;
-                        break;
-                }
+                //switch (e.PropertyName)
+                //{
+                //    case nameof(ViewModel.CurrentSelectedPlaylist):
+                //        //Init();
+                //        if (_selectedPlaylist != null)
+                //        {
+                //            _selectedPlaylist.PropertyChanged -= SelectedPlaylistChanged;
+                //            // _selectedPlaylist.ResetPlayingState();
+                //        }
+                //        _selectedPlaylist = MainViewModel.CurrentSelectedPlaylist;
+                //        _selectedPlaylist.PropertyChanged += SelectedPlaylistChanged;
+                //        break;
+                //}
             };
             //Init();
         }
@@ -76,8 +76,8 @@ namespace adrilight.Ticker
             _selectedPlaylist.CurrentPlayingLightingProfile.IsPlaying = true;
             Log.Information("Current Playing Profile :" +
                              _selectedPlaylist.CurrentPlayingLightingProfile.Name);
-            MainViewModel.CurrentPlayingTimePercentage = 0;
-            MainViewModel.ActivateCurrentLightingProfile(_selectedPlaylist.CurrentPlayingLightingProfile);
+            ViewModel.CurrentProfileTime = 0;
+            //MainViewModel.ActivateCurrentLightingProfile(_selectedPlaylist.CurrentPlayingLightingProfile);
 
         }
         private void StopTimer()
@@ -91,7 +91,7 @@ namespace adrilight.Ticker
             _subTimer?.Start();
         }
         private IGeneralSettings GeneralSettings { get; set; }
-        private static MainViewViewModel MainViewModel { get; set; }
+        private static LightingProfileManagerViewModel ViewModel { get; set; }
         private static System.Timers.Timer _timer;
         private static System.Timers.Timer _subTimer;
         private static TimeSpan _currentTimeSpan;
@@ -128,7 +128,7 @@ namespace adrilight.Ticker
         {
             Log.Information("Current Profile time left: " + _currentTimeSpan.Subtract(TimeSpan.FromSeconds(1)));
             _currentTimeSpan = _currentTimeSpan.Subtract(TimeSpan.FromSeconds(1));
-            MainViewModel.CurrentPlayingTimePercentage = (int)((MainViewModel.CurrentSelectedPlaylist.CurrentPlayingLightingProfile.Duration.TotalMilliseconds - _currentTimeSpan.TotalMilliseconds) * 100 / MainViewModel.CurrentSelectedPlaylist.CurrentPlayingLightingProfile.Duration.TotalMilliseconds);
+            // ViewModel.CurrentProfileTime = (int)((MainViewModel.CurrentSelectedPlaylist.CurrentPlayingLightingProfile.Duration.TotalMilliseconds - _currentTimeSpan.TotalMilliseconds) * 100 / MainViewModel.CurrentSelectedPlaylist.CurrentPlayingLightingProfile.Duration.TotalMilliseconds);
         }
         private void OnTimedEvent(Object source, ElapsedEventArgs e)
         {

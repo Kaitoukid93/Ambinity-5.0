@@ -1,17 +1,16 @@
 ﻿using System.Windows;
 
-namespace adrilight.View
+namespace adrilight_shared.View.Dialogs
 {
     /// <summary>
-    /// Interaction logic for PaletteEditWindow.xaml
+    /// Interaction logic for Window1.xaml
     /// </summary>
-    public partial class DeleteDialog
+    public partial class DialogWindow
     {
-        public DeleteDialog()
+        public DialogWindow()
         {
             InitializeComponent();
         }
-
         private void Button_OK_Click(object sender, RoutedEventArgs e)
         {
             this.DialogResult = true;
@@ -21,11 +20,6 @@ namespace adrilight.View
         {
             this.DialogResult = false;
             //this.Close();
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-
         }
     }
 }

@@ -7,11 +7,12 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:lighting="clr-namespace:adrilight_shared.Models.Lighting;assembly=adrilight_shared"
            xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
-           mc:Ignorable="d"
+           xmlns:vm ="clr-namespace:adrilight.ViewModel"
            xmlns:local="clr-namespace:adrilight.View"
+           xmlns:model="clr-namespace:adrilight_shared.Models;assembly=adrilight_shared"
            Background="{DynamicResource RegionBrush}"
-           d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
-           DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
+           mc:Ignorable="d"
+           d:DataContext="{d:DesignInstance vm:LightingProfileManagerViewModel, IsDesignTimeCreatable=True}"
            x:Name="window"
            Width="645"
            Height="800"
@@ -27,95 +28,6 @@
                     <SolidColorBrush x:Key="primaryBackgroundBrush"
                                      Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
                                      Opacity="0.15" />
-                    <DropShadowEffect x:Key="Item.SelectedActive.Border.Shadow"
-                                      BlurRadius="10"
-                                      RenderingBias="Quality"
-                                      ShadowDepth="1"
-                                      Color="{Binding Color, Source={StaticResource PrimaryBrush}}" />
-                    <DropShadowEffect x:Key="Item.MouseOver.Border.Shadow"
-                                      BlurRadius="10"
-                                      RenderingBias="Quality"
-                                      ShadowDepth="1"
-                                      Color="{Binding Color, Source={StaticResource DarkMaskBrush}}" />
-                    <Style x:Key="ListViewContainerStyle"
-                           TargetType="{x:Type ListViewItem}">
-                        <Setter Property="SnapsToDevicePixels"
-                                Value="True" />
-                        <Setter Property="Padding"
-                                Value="0" />
-                        <Setter Property="Background"
-                                Value="{DynamicResource MainContentBackgroundBrush}" />
-                        <Setter Property="BorderBrush"
-                                Value="Transparent" />
-                        <Setter Property="BorderThickness"
-                                Value="4" />
-                        <Setter Property="FocusVisualStyle"
-                                Value="{StaticResource FocusVisual}" />
-                        <Setter Property="Width"
-                                Value="auto" />
-                        <Setter Property="Height"
-                                Value="auto" />
-                        <Setter Property="Focusable"
-                                Value="False" />
-                        <Setter Property="VerticalContentAlignment"
-                                Value="Stretch" />
-                        <Setter Property="HorizontalAlignment"
-                                Value="Stretch" />
-                        <Setter Property="Tag"
-                                Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="{x:Type ListViewItem}">
-                                    <Border x:Name="Bd"
-                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                            Margin="2"
-                                            CornerRadius="9"
-                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                            Background="{TemplateBinding Background}"
-                                            Padding="{TemplateBinding Padding}"
-                                            Effect="{DynamicResource EffectShadow1}"
-                                            SnapsToDevicePixels="true">
-                                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
-                                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="IsMouseOver"
-                                                           Value="True" />
-                                            </MultiTrigger.Conditions>
-                                            <Setter Property="Background"
-                                                    TargetName="Bd"
-                                                    Value="{DynamicResource HoverBrush}" />
-                                        </MultiTrigger>
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="Selector.IsSelectionActive"
-                                                           Value="False" />
-                                                <Condition Property="IsSelected"
-                                                           Value="True" />
-                                            </MultiTrigger.Conditions>
-                                        </MultiTrigger>
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="Selector.IsSelectionActive"
-                                                           Value="True" />
-                                                <Condition Property="IsSelected"
-                                                           Value="True" />
-                                            </MultiTrigger.Conditions>
-                                        </MultiTrigger>
-                                        <Trigger Property="IsEnabled"
-                                                 Value="False">
-                                            <Setter Property="TextElement.Foreground"
-                                                    TargetName="Bd"
-                                                    Value="{StaticResource {x:Static SystemColors.GrayTextBrushKey}}" />
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
                     <DataTemplate x:Key="_lightingProfilePlayListTemplate"
                                   DataType="{x:Type lighting:LightingProfilePlaylist}">
                         <Button Width="150"
@@ -225,7 +137,7 @@
                                                    Style="{DynamicResource TextBlockSubTitle}" />
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Margin="10,0,0,10"
-                                                       Text="{Binding LightingProfiles.Count}"
+                                                       Text="{Binding LightingProfiles.Items.Count}"
                                                        Style="{DynamicResource TextBlockDefaultSecLight}" />
                                             <TextBlock Margin="5,0,0,10"
                                                        Text="profiles"
@@ -269,186 +181,7 @@
                             </Grid>
                         </Button>
                     </DataTemplate>
-                    <DataTemplate x:Key="_horizontalCardItemTemplate"
-                                  DataType="{x:Type lighting:LightingProfile}">
-                        <Button Width="300"
-                                Height="100"
-                                Padding="0"
-                                Margin="5"
-                                hc:BorderElement.CornerRadius="7"
-                                Style="{DynamicResource _mediumProfileDefaultButton}"
-                                BorderThickness="0"
-                                Background="{DynamicResource MainContentBackgroundBrush}"
-                                HorizontalContentAlignment="Stretch"
-                                VerticalContentAlignment="Stretch">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="auto" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <Border Width="90"
-                                        CornerRadius="4"
-                                        Margin="5"
-                                        Background="{DynamicResource SecondaryRegionBrush}">
-                                    <hc:Gravatar Id="{Binding Name}">
-
-                                    </hc:Gravatar>
-
-                                </Border>
-                                <Grid Grid.Column="1">
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="*" />
-                                            <RowDefinition Height="auto" />
-                                        </Grid.RowDefinitions>
-                                        <StackPanel Orientation="Vertical">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock HorizontalAlignment="Left"
-                                                           Text="{Binding Name}"
-                                                           Grid.Column="0"
-                                                           Margin="5"
-                                                           Style="{DynamicResource TextBlockSubTitle}"
-                                                           FontWeight="SemiBold"
-                                                           TextTrimming="CharacterEllipsis" />
-                                                <CheckBox IsChecked="{Binding IsChecked}"
-                                                          Margin="5"
-                                                          BorderBrush="{DynamicResource SecondaryTextBrush}"
-                                                          BorderThickness="1"
-                                                          Grid.Column="1"
-                                                          HorizontalAlignment="Right"
-                                                          VerticalAlignment="Top">
-                                                    <CheckBox.Style>
-                                                        <Style TargetType="CheckBox"
-                                                               BasedOn="{StaticResource CheckBoxBaseStyle}">
-                                                            <Setter Property="Visibility"
-                                                                    Value="Collapsed" />
-                                                            <Setter Property="Background"
-                                                                    Value="Transparent" />
-                                                            <Style.Triggers>
-                                                                <MultiDataTrigger>
-                                                                    <MultiDataTrigger.Conditions>
-                                                                        <Condition Binding="{Binding IsDeleteable}"
-                                                                                   Value="True" />
-                                                                        <Condition Binding="{Binding IsChecked}"
-                                                                                   Value="True" />
-                                                                    </MultiDataTrigger.Conditions>
-
-                                                                    <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}" />-->
-                                                                    <Setter Property="Visibility"
-                                                                            Value="Visible" />
-                                                                    <Setter Property="Background"
-                                                                            Value="{DynamicResource PrimaryBrush}" />
-                                                                </MultiDataTrigger>
-                                                                <MultiDataTrigger>
-                                                                    <MultiDataTrigger.Conditions>
-                                                                        <Condition Binding="{Binding IsDeleteable}"
-                                                                                   Value="True" />
-                                                                        <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=IsMouseOver}"
-                                                                                   Value="True" />
-                                                                    </MultiDataTrigger.Conditions>
-
-                                                                    <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}" />-->
-                                                                    <Setter Property="Visibility"
-                                                                            Value="Visible" />
-                                                                </MultiDataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </CheckBox.Style>
-                                                </CheckBox>
-                                            </Grid>
-                                            <StackPanel Orientation="Horizontal"
-                                                        Margin="5,0,0,5">
-                                                <TextBlock Text="Engine: "
-                                                           HorizontalAlignment="Left"
-                                                           Margin="0,0,0,5"
-                                                           Style="{DynamicResource TextBlockDefaultSecLight}"
-                                                           FontWeight="SemiBold" />
-                                                <TextBlock Text="{Binding ControlMode.BasedOn}"
-                                                           HorizontalAlignment="Left"
-                                                           Margin="0,0,0,5"
-                                                           Style="{DynamicResource TextBlockDefaultSecLight}"
-                                                           FontWeight="SemiBold" />
-                                            </StackPanel>
-
-                                        </StackPanel>
-                                        <Grid Grid.Row="1">
-                                            <Grid>
-                                                <StackPanel HorizontalAlignment="Right"
-                                                            Orientation="Horizontal">
-                                                    <Button Width="25"
-                                                            HorizontalAlignment="Right"
-                                                            VerticalAlignment="Bottom"
-                                                            Height="25"
-                                                            Background="Transparent"
-                                                            ToolTip="Activate"
-                                                            hc:IconElement.Width="15"
-                                                            hc:IconElement.Height="15"
-                                                            Style="{DynamicResource ButtonDashed}"
-                                                            BorderBrush="Transparent"
-                                                            hc:IconElement.Geometry="{DynamicResource addTo}"
-                                                            Padding="0"
-                                                            Margin="5">
-                                                    </Button>
-                                                    <ToggleButton Background="Transparent"
-                                                                  IsChecked="{Binding IsPinned}"
-                                                                  hc:IconElement.Width="15"
-                                                                  hc:IconElement.Height="15"
-                                                                  Padding="0"
-                                                                  BorderThickness="0"
-                                                                  Width="25"
-                                                                  Height="25"
-                                                                  Margin="5"
-                                                                  hc:IconSwitchElement.Geometry="{DynamicResource pin}"
-                                                                  hc:IconSwitchElement.GeometrySelected="{DynamicResource pinned}">
-                                                        <ToggleButton.Style>
-                                                            <Style TargetType="ToggleButton"
-                                                                   BasedOn="{StaticResource ToggleButtonIcon}">
-                                                                <Setter Property="Foreground"
-                                                                        Value="White" />
-                                                                <Setter Property="ToolTip"
-                                                                        Value="Pin to Dashboard" />
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding IsPinned}"
-                                                                                 Value="True">
-                                                                        <Setter Property="Foreground"
-                                                                                Value="{DynamicResource PrimaryBrush}" />
-                                                                        <Setter Property="ToolTip"
-                                                                                Value="Unpin from Dashboard" />
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </ToggleButton.Style>
-                                                    </ToggleButton>
-                                                    <Button Width="25"
-                                                            HorizontalAlignment="Right"
-                                                            VerticalAlignment="Bottom"
-                                                            Height="25"
-                                                            Background="Transparent"
-                                                            ToolTip="Activate"
-                                                            Command="{Binding Path=DataContext.DeleteSelectedLightingProfileCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                            CommandParameter="{Binding .}"
-                                                            hc:IconElement.Width="15"
-                                                            hc:IconElement.Height="15"
-                                                            Style="{DynamicResource ButtonDashed}"
-                                                            BorderBrush="Transparent"
-                                                            hc:IconElement.Geometry="{DynamicResource delete}"
-                                                            Padding="0"
-                                                            Margin="5">
-                                                    </Button>
-                                                </StackPanel>
-
-                                            </Grid>
-                                        </Grid>
-                                    </Grid>
-                                </Grid>
-
-                            </Grid>
-                        </Button>
-                    </DataTemplate>
+                    
                 </ResourceDictionary>
 
             </ResourceDictionary.MergedDictionaries>
@@ -461,20 +194,16 @@
                     SelectedIndex="0"
                     Style="{DynamicResource TabControlInLine}">
             <TabItem Header="Profiles">
-                <local:ProfileCollectionView />
+                <local:ProfileCollectionView DataContext="{Binding AvailableLightingProfiles}" />
             </TabItem>
-            <TabItem Header="PlayLists">
-                <local:PlayListCollectionView />
+            <TabItem Header="Playlists">
+                <local:PlayListCollectionView DataContext="{Binding AvailableLightingProfilePlaylists}" />
             </TabItem>
         </TabControl>
         <Grid VerticalAlignment="Bottom">
             <StackPanel>
-                <hc:Divider  LineStroke="{StaticResource DarkMaskBrush}"
-                             Margin="0,5,0,5">
-
-                </hc:Divider>
                 <Grid>
-                    <Border Background="{DynamicResource DarkOpacityBrush}"
+                    <Border Effect="{DynamicResource EffectShadow1}" Background="{DynamicResource MainContentBackgroundBrush}"
                             Height="100"
                             Margin="0">
                         <Grid>
@@ -498,7 +227,11 @@
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
                                 <Grid Grid.Row="0">
-                                    <ProgressBar IsIndeterminate="False" Value="{Binding CurrentPlayingTimePercentage}" Style="{DynamicResource ProgressBarFlat}" Margin="0,20,10,20" Height="2" />
+                                    <ProgressBar IsIndeterminate="False"
+                                                 Value="{Binding CurrentPlayingTimePercentage}"
+                                                 Style="{DynamicResource ProgressBarFlat}"
+                                                 Margin="0,20,10,20"
+                                                 Height="2" />
                                 </Grid>
                                 <Grid Grid.Row="1">
                                     <StackPanel>

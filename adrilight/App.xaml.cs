@@ -15,7 +15,10 @@ using adrilight_shared.Helpers;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.Device;
 using adrilight_shared.Models.Device.Zone;
+using adrilight_shared.Services;
 using adrilight_shared.Settings;
+using adrilight_shared.View.Dialogs;
+using adrilight_shared.ViewModel;
 using HandyControl.Themes;
 using HandyControl.Tools.Extension;
 using Microsoft.ApplicationInsights;
@@ -92,6 +95,9 @@ namespace adrilight
             _splashScreen.Header.Text = "Adrilight is loading";
             _splashScreen.status.Text = "LOADING KERNEL...";
             kernel = await Task.Run(() => SetupDependencyInjection(false));
+            var dialogService = kernel.Get<IDialogService>();
+            dialogService.RegisterDialog<DeleteDialog, DeleteDialogViewModel>();
+            dialogService.RegisterDialog<RenameDialog, RenameDialogViewModel>();
             //close splash screen and open dashboard
             this.Resources["Locator"] = new ViewModelLocator(kernel);
             _telemetryClient = kernel.Get<TelemetryClient>();

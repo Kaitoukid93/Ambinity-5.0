@@ -209,8 +209,7 @@
     <Compile Include="Services\LightingEngine\RunStateEnum.cs" />
     <Compile Include="Services\Ticker\PlaylistDecoder.cs" />
     <Compile Include="ViewModel\ColorEditingObject.cs" />
-    <Compile Include="ViewModel\DeleteDialogViewModel.cs" />
-    <Compile Include="ViewModel\RenameDialogViewModel.cs" />
+    <Compile Include="ViewModel\LightingProfileManagerViewModel.cs" />
     <Compile Include="View\Adorners\HoverAdorner.cs" />
     <Compile Include="View\Adorners\LineHoverAdorner.cs" />
     <Compile Include="View\Adorners\ResizeAdorner.cs" />
@@ -228,8 +227,6 @@
     <Compile Include="Services\CaptureEngine\ICaptureEngine.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\MonitorEnumerationHelper.cs" />
     <Compile Include="View\Adorners\AttachedAdorner.cs" />
-    <Compile Include="View\Dialogs\DeleteDialog.xaml.cs" />
-    <Compile Include="View\Dialogs\RenameDialog.xaml.cs" />
     <Compile Include="View\Dialogs\AddNewLightingProfilePlayListWindow.xaml.cs" />
     <Compile Include="View\Dialogs\AddNewVIDWindow.xaml.cs" />
     <Compile Include="View\Dialogs\AddNewLightingProfileWindow.xaml.cs" />
@@ -344,14 +341,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Properties\DesignTimeResources.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\Dialogs\DeleteDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\Dialogs\RenameDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
