@@ -3,7 +3,6 @@ using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows.Input;
 
 namespace adrilight_shared.Models.Lighting
 {
@@ -17,14 +16,7 @@ namespace adrilight_shared.Models.Lighting
         public LightingProfilePlaylist(string name)
         {
             Name = name;
-            CommandSetup();
         }
-        #endregion
-        #region Commands
-        [JsonIgnore]
-        public ICommand PlaySelectedProfileFromListCommand { get; set; }
-        [JsonIgnore]
-        public ICommand PlayCommand { get; set; }
         #endregion
         #region Properties
         private bool _isPinned = false;
@@ -60,20 +52,6 @@ namespace adrilight_shared.Models.Lighting
         public LightingProfile CurrentPlayingLightingProfile => LightingProfiles.Items[CurrentPlayingProfileIndex] as LightingProfile;
         #endregion
         #region Methods
-        private void CommandSetup()
-        {
-            PlaySelectedProfileFromListCommand = new Models.RelayCommand.RelayCommand<LightingProfile>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                CurrentPlayingProfileIndex = LightingProfiles.Items.IndexOf(p);
-                RaisePropertyChanged(nameof(IsPlaying));
-            }
-
-         );
-
-        }
         public void LoadLightingProfiles(ObservableCollection<LightingProfile> availableProfiles)
         {
             LightingProfiles = new DataCollection();
@@ -100,6 +78,5 @@ namespace adrilight_shared.Models.Lighting
             }
         }
         #endregion
-
     }
 }

@@ -6,9 +6,9 @@ namespace adrilight_shared.View.Dialogs
     /// <summary>
     /// Interaction logic for Delete.xaml
     /// </summary>
-    public partial class RenameDialog : UserControl
+    public partial class AddNewDialog : UserControl
     {
-        public RenameDialog()
+        public AddNewDialog()
         {
             InitializeComponent();
         }

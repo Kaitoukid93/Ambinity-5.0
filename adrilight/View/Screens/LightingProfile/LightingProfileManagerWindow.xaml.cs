@@ -1,4 +1,6 @@
-﻿using System;
+﻿using adrilight_shared.View.NonClientAreaContent;
+using adrilight_shared.ViewModel;
+using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -26,8 +28,9 @@ namespace adrilight.View
         {
             base.OnContentRendered(e);
 
-
-            NonClientAreaContent = new LightingProfileManagerNonClientAreaContent();
+            var vm = new NonClientAreaContentViewModel("Adrilight  |  Lighting Profile Manager", "profileManager");
+            NonClientAreaContent = new NonClientArea();
+            (NonClientAreaContent as FrameworkElement).DataContext = vm;
 
         }
     }

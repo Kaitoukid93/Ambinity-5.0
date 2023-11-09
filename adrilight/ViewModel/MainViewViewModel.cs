@@ -2,6 +2,7 @@
 using adrilight.Manager;
 using adrilight.Services.NetworkStream;
 using adrilight.Services.SerialStream;
+using adrilight.Ticker;
 using adrilight.View;
 using adrilight_shared.Enums;
 using adrilight_shared.Helpers;
@@ -27,6 +28,7 @@ using adrilight_shared.Models.KeyboardHook;
 using adrilight_shared.Models.Lighting;
 using adrilight_shared.Models.Preview;
 using adrilight_shared.Models.Store;
+using adrilight_shared.Models.Stores;
 using adrilight_shared.Services;
 using adrilight_shared.Settings;
 using FTPServer;
@@ -252,7 +254,6 @@ namespace adrilight.ViewModel
         public ICommand PlaySelectedPlaylistCommand { get; set; }
         public ICommand GotoCurrentPlaylistEditorCommand { get; set; }
         public ICommand CreateNewLightingProfileCommand { get; set; }
-        public ICommand CreateNewLightingProfileFromSelectedProfilesCommand { get; set; }
         public ICommand RequestingRescanDevicesCommand { get; set; }
         public ICommand CreateNewVIDCommand { get; set; }
         public ICommand DeleteSelectedLightingProfileCommand { get; set; }
@@ -735,6 +736,8 @@ namespace adrilight.ViewModel
         public DeviceHelpers DeviceHlprs { get; private set; }
         public LocalFileHelpers LocalFileHlprs { get; private set; }
         public IGeneralSettings GeneralSettings { get; }
+        public LightingProfileManagerViewModel LightingProfileManagerViewModel { get; set; }
+        public CollectionItemStore ItemStore { get; set; }
         public IDialogService DialogService { get; }
         public ISerialStream[] SerialStreams { get; }
 
@@ -757,12 +760,19 @@ namespace adrilight.ViewModel
             }
         }
 
-        public MainViewViewModel(IGeneralSettings generalSettings, IList<ISelectableViewPart> selectableViewParts, IDialogService dialogService
+        public MainViewViewModel(IGeneralSettings generalSettings,
+            IList<ISelectableViewPart> selectableViewParts,
+            IDialogService dialogService,
+            LightingProfileManagerViewModel lightingProfileManagerViewModel,
+            CollectionItemStore collectionItemStore,
+            PlaylistDecoder playlistDecoder
             )
         {
             #region load Params
             DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
+            LightingProfileManagerViewModel = lightingProfileManagerViewModel ?? throw new ArgumentNullException(nameof(lightingProfileManagerViewModel));
+            ItemStore = collectionItemStore ?? throw new ArgumentNullException(nameof(collectionItemStore));
             SelectableViewParts = selectableViewParts.OrderBy(p => p.Order)
                 .ToList();
             SelectedViewPart = SelectableViewParts.First();
@@ -2356,20 +2366,7 @@ namespace adrilight.ViewModel
                 IsLoadingProfile = false;
             }
           );
-            ActivateCurrentLightingProfileCommand = new RelayCommand<LightingProfile>((p) =>
-            {
-                return true;
-            }, async (p) =>
-            {
-                //stop current running playlist
-                //if (CurrentSelectedPlaylist != null && CurrentSelectedPlaylist.IsPlaying)
-                //{
-                //    CurrentSelectedPlaylist.IsPlaying = false;
-                //}
-                await Task.Run(() => ActivateCurrentLightingProfile(p));
-                //IsLoadingProfile = false;
-            }
-          );
+
             DeleteAttachedProfileCommand = new RelayCommand<AppProfile>((p) =>
             {
                 return true;
@@ -2733,14 +2730,7 @@ namespace adrilight.ViewModel
                 CreateNewLightingProfile();
             }
             );
-            CreateNewLightingProfileFromSelectedProfilesCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                CreateNewLightingProfileFromSelectedProfiles();
-            }
-            );
+
             CreateNewVIDCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -7565,22 +7555,23 @@ namespace adrilight.ViewModel
         {
             //init available profiles
 
-            AvailableLightingProfiles = new DataCollection("Lighting Profiles", DialogService, "LightingProfiles");
+            AvailableLightingProfiles = new DataCollection("Lighting Profiles", DialogService, "profile", ItemStore);
             foreach (var profile in LoadLightingProfileIfExist())
             {
                 AvailableLightingProfiles.AddItems(profile);
             }
-            AvailableLightingProfilePlayLists = new DataCollection("Lighting Profile Playlists", DialogService, "LightingProfilePlayLists");
+            AvailableLightingProfilePlayLists = new DataCollection("Lighting Profile Playlists", DialogService, "profilePlaylist", ItemStore);
             var demoPlaylist = new LightingProfilePlaylist("playlist1");
-            demoPlaylist.LightingProfiles = new DataCollection("profiles", DialogService, "LightingProfiles");
+            demoPlaylist.LightingProfiles = new DataCollection("profiles", DialogService, "profile", ItemStore);
             foreach (var profile in AvailableLightingProfiles.Items)
             {
                 demoPlaylist.LightingProfiles.AddItems(profile);
             }
             AvailableLightingProfilePlayLists.AddItems(demoPlaylist);
-            var vm = new LightingProfileManagerViewModel(AvailableLightingProfiles, AvailableLightingProfilePlayLists);
+            LightingProfileManagerViewModel.AvailableLightingProfilePlaylists = AvailableLightingProfilePlayLists;
+            LightingProfileManagerViewModel.AvailableLightingProfiles = AvailableLightingProfiles;
             _lightingProfileManagerWindow = new LightingProfileManagerWindow();
-            _lightingProfileManagerWindow.DataContext = vm;
+            _lightingProfileManagerWindow.DataContext = LightingProfileManagerViewModel;
             _lightingProfileManagerWindow.Owner = Application.Current.MainWindow;
             _lightingProfileManagerWindow.Show();
         }
@@ -7633,18 +7624,7 @@ namespace adrilight.ViewModel
             //CurrentSelectedPlaylist = playlist;
             //CurrentSelectedPlaylist.IsPlaying = true;
         }
-        public void ActivateCurrentLightingProfile(LightingProfile profile)
-        {
-            //if (profile == null)
-            //    return;
-            //CurrentSelectedLightingProfile = profile;
-            //foreach (var device in AvailableDevices)
-            //{
-            //    var lightingMode = ObjectHelpers.Clone<LightingMode>(profile.ControlMode as LightingMode);
-            //    device.ActivateControlMode(lightingMode);
-            //    Log.Information("Lighting Profile Activated: " + profile.Name + " for " + device.DeviceName);
-            //}
-        }
+
         public void ActivateCurrentLightingProfileForSpecificDevice(LightingProfile profile, IDeviceSettings targetDevice)
         {
             if (profile == null)

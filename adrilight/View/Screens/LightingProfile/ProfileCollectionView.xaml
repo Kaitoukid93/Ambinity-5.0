@@ -8,6 +8,7 @@
              xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
              xmlns:store="clr-namespace:adrilight_shared.Models.Store;assembly=adrilight_shared"
              xmlns:enums="clr-namespace:adrilight_shared.Enums;assembly=adrilight_shared"
+             xmlns:local="clr-namespace:adrilight.View"
              xmlns:lighting="clr-namespace:adrilight_shared.Models.Lighting;assembly=adrilight_shared"
              mc:Ignorable="d"
              xmlns:model="clr-namespace:adrilight_shared.Models;assembly=adrilight_shared"
@@ -26,6 +27,8 @@
                                 Height="100"
                                 Padding="0"
                                 Margin="5"
+                                Command="{Binding Path=DataContext.SelectItem, RelativeSource={RelativeSource AncestorType={x:Type local:ProfileCollectionView}}}"
+                                CommandParameter="{Binding .}"
                                 hc:BorderElement.CornerRadius="7"
                                 Style="{DynamicResource _mediumProfileDefaultButton}"
                                 BorderThickness="0"
@@ -66,6 +69,8 @@
                                                            FontWeight="SemiBold"
                                                            TextTrimming="CharacterEllipsis" />
                                                 <CheckBox IsChecked="{Binding IsChecked}"
+                                                          Command="{Binding Path=DataContext.ItemCheckUncheckCommand, RelativeSource={RelativeSource AncestorType={x:Type local:ProfileCollectionView}}}"
+                                                          CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"
                                                           Margin="5"
                                                           BorderBrush="{DynamicResource SecondaryTextBrush}"
                                                           BorderThickness="1"
@@ -130,7 +135,7 @@
                                             <Grid>
                                                 <StackPanel HorizontalAlignment="Right"
                                                             Orientation="Horizontal">
-                                                    <Button Width="25"
+                                                    <!--<Button Width="25"
                                                             HorizontalAlignment="Right"
                                                             VerticalAlignment="Bottom"
                                                             Height="25"
@@ -143,7 +148,7 @@
                                                             hc:IconElement.Geometry="{DynamicResource addTo}"
                                                             Padding="0"
                                                             Margin="5">
-                                                    </Button>
+                                                    </Button>-->
                                                     <ToggleButton Background="Transparent"
                                                                   IsChecked="{Binding IsPinned}"
                                                                   hc:IconElement.Width="15"
@@ -174,7 +179,7 @@
                                                             </Style>
                                                         </ToggleButton.Style>
                                                     </ToggleButton>
-                                                    <Button Width="25"
+                                                    <!--<Button Width="25"
                                                             HorizontalAlignment="Right"
                                                             VerticalAlignment="Bottom"
                                                             Height="25"
@@ -189,7 +194,7 @@
                                                             hc:IconElement.Geometry="{DynamicResource delete}"
                                                             Padding="0"
                                                             Margin="5">
-                                                    </Button>
+                                                    </Button>-->
                                                 </StackPanel>
 
                                             </Grid>
@@ -231,6 +236,8 @@
                                 <Button hc:IconElement.Geometry="{DynamicResource playComposition}"
                                         hc:IconElement.Height="15"
                                         Height="32"
+                                        Command="{Binding SelectItems}"
+                                        CommandParameter=""
                                         Background="Transparent"
                                         HorizontalAlignment="Left"
                                         BorderThickness="0"
@@ -245,16 +252,18 @@
                                         Background="Transparent"
                                         HorizontalAlignment="Left"
                                         BorderThickness="0"
-                                        Command="{Binding OpenCreateNewLightingProfilePlayListWindowCommand}"
+                                        Command="{Binding CreateNewCollectionFromSelectedItemsCommand}"
                                         Content="Add new playList" />
                                 <ItemsControl Margin="20,0,0,0"
                                               Background="Transparent"
                                               BorderThickness="0"
-                                              ItemsSource="{Binding Items}">
+                                              ItemsSource="{Binding Path = DataContext.AvailableLightingProfilePlaylists.Items,RelativeSource={RelativeSource AncestorType={x:Type local:LightingProfileManagerWindow}}}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Button HorizontalAlignment="Left"
                                                     Background="Transparent"
+                                                    Command="{Binding Path = DataContext.SelectItems,RelativeSource={RelativeSource AncestorType={x:Type local:ProfileCollectionView}}}"
+                                                    CommandParameter="{Binding Name}"
                                                     BorderThickness="0">
                                                 <TextBlock Text="{Binding Name}"
                                                            MaxWidth="100"
@@ -298,13 +307,13 @@
 
                             <StackPanel HorizontalAlignment="Right"
                                         Orientation="Horizontal">
-                                <Button BorderThickness="0"
+                                <!--<Button BorderThickness="0"
                                         Height="32"
                                         Background="{DynamicResource SecondaryRegionBrush}"
                                         hc:IconElement.Geometry="{DynamicResource lightingProfilePlayNext}"
                                         Margin="10,5"
                                         hc:IconElement.Height="20"
-                                        Content="Play next" />
+                                        Content="Play next" />-->
                                 <Button BorderThickness="0"
                                         x:Name="addToButton"
                                         Click="AddToButton_Click"
@@ -318,6 +327,7 @@
                                         Background="{DynamicResource SecondaryRegionBrush}"
                                         hc:IconElement.Geometry="{DynamicResource remove}"
                                         Command="{Binding OpenDeleteDialogCommand}"
+                                        CommandParameter=""
                                         Margin="10,5"
                                         Height="32"
                                         hc:IconElement.Height="15"
@@ -328,9 +338,10 @@
                 </hc:TransitioningContentControl>
 
             </Grid>
-            <hc:ScrollViewer Grid.Row="1" Margin="5,5,5,105"
+            <hc:ScrollViewer Grid.Row="1"
+                             Margin="5,5,5,105"
                              IsInertiaEnabled="True">
-                <ItemsControl Margin="0"
+                <ItemsControl Margin="5,10,0,10"
                               HorizontalAlignment="Stretch"
                               VerticalAlignment="Stretch"
                               ItemTemplate="{DynamicResource _horizontalCardItemTemplate}"

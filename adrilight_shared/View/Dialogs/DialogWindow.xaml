@@ -9,8 +9,8 @@
            xmlns:vm="clr-namespace:adrilight_shared.ViewModel;assembly=adrilight_shared"
            Background="{StaticResource MainContentBackgroundBrush}"
            ResizeMode="NoResize"
-           SizeToContent="Height"
-           Width="400"
+           Height="350"
+           Width="350"
            WindowStartupLocation="CenterOwner"
            Left="0"
            Top="0">

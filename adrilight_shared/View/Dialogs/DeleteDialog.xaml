@@ -4,9 +4,54 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:adrilight_shared.View.Dialogs"
+             xmlns:viewmodel="clr-namespace:adrilight_shared.ViewModel"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             d:DataContext="{d:DesignInstance Type=viewmodel:DeleteDialogViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <TextBlock Text="Delete" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <TextBlock Margin="5,5,5,20"
+                       Style="{DynamicResource TextBlockLarge}"
+                       Text="{Binding Header}" />
+            <Grid Height="20" />
+            <Path HorizontalAlignment="Center"
+                  Stretch="Uniform"
+                  Width="50"
+                  Height="50"
+                  Margin="10"
+                  Data="{DynamicResource delete}"
+                  Fill="{DynamicResource DangerBrush}" />
+            <Grid Height="20" />
+            <TextBlock Margin="10" FontWeight="SemiBold" FontSize="13" HorizontalAlignment="Center"
+                       Text="{Binding Content}" />
+            <TextBlock Margin="0" Style="{DynamicResource TextBlockDefaultSecLight}"
+                       HorizontalAlignment="Center"
+                       Text="Các nội dung đã xoá sẽ không thể khôi phục" />
+        </StackPanel>
+        <Grid Grid.Row="2">
+            <StackPanel HorizontalAlignment="Right"
+                        Orientation="Horizontal">
+                <Button Click="Button_Cancel_Click"
+                        Style="{DynamicResource _lowProfileDefaultButton}"
+                        Margin="10,10,10,20"
+                        Content="Cancel">
+
+                </Button>
+                <Button Click="Button_OK_Click"
+                        Style="{DynamicResource ButtonPrimary}"
+                        Foreground="{DynamicResource RegionBrush}"
+                        Width="72"
+                        Margin="10,10,20,20"
+                        Grid.Column="1"
+                        Content="Ok">
+                </Button>
+            </StackPanel>
+
+        </Grid>
     </Grid>
 </UserControl>

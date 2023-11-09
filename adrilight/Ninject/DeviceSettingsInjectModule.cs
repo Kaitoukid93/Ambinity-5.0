@@ -8,6 +8,7 @@ using adrilight.Ticker;
 using adrilight.Util;
 using adrilight.View;
 using adrilight.ViewModel;
+using adrilight_shared.Models.Stores;
 using adrilight_shared.Services;
 using adrilight_shared.Settings;
 using Microsoft.Win32;
@@ -26,6 +27,7 @@ namespace adrilight.Ninject
             string osBuild = Registry.GetValue(HKLMWinNTCurrent, "CurrentBuildNumber", "").ToString();
             Bind<IGeneralSettings>().ToConstant(generalSettings);
             Bind<MainViewViewModel>().ToSelf().InSingletonScope();
+            Bind<LightingProfileManagerViewModel>().ToSelf().InSingletonScope();
             Bind<MainView>().ToSelf().InSingletonScope();
             Bind<IAmbinityClient>().To<AmbinityClient>().InSingletonScope();
             Bind<SerialDeviceDetection>().ToSelf().InSingletonScope();
@@ -34,6 +36,7 @@ namespace adrilight.Ninject
             Bind<DeviceDiscovery>().ToSelf().InSingletonScope();
             Bind<DBmanager>().ToSelf().InSingletonScope();
             Bind<IDialogService>().To<DialogService>().InSingletonScope();
+            Bind<CollectionItemStore>().ToSelf().InSingletonScope();
             if (generalSettings.ScreenCapturingMethod == 0)
             {
                 if (osBuild == "22000" || osBuild == "22621")

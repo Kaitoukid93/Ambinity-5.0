@@ -42,5 +42,10 @@ namespace adrilight_shared.Models.Lighting
         public bool IsChecked { get => _isChecked; set { Set(() => IsChecked, ref _isChecked, value); } }
         [JsonIgnore]
         public bool IsEditing { get => _isEditing; set { Set(() => IsEditing, ref _isEditing, value); } }
+        public void Stop()
+        {
+            if (IsPlaying)
+                IsPlaying = false;
+        }
     }
 }

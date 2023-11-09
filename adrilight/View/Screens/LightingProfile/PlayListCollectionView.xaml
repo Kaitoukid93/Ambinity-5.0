@@ -75,6 +75,8 @@
                                             hc:IconElement.Geometry="{DynamicResource playComposition}" />
                                 </Grid>
                                 <CheckBox IsChecked="{Binding IsChecked}"
+                                          Command="{Binding Path=DataContext.ItemCheckUncheckCommand, RelativeSource={RelativeSource AncestorType={x:Type local:PlayListCollectionView}}}"
+                                          CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"
                                           Margin="5"
                                           BorderBrush="{DynamicResource SecondaryTextBrush}"
                                           BorderThickness="1"
@@ -192,6 +194,8 @@
                                             <Button BorderThickness="0"
                                                     Height="32"
                                                     Foreground="{DynamicResource RegionBrush}"
+                                                    Command="{Binding OpenAddNewDialogCommand}"
+                                                    CommandParameter=""
                                                     Style="{DynamicResource ButtonPrimary}"
                                                     hc:IconElement.Geometry="{DynamicResource addTo}"
                                                     Margin="0"
@@ -239,7 +243,8 @@
                             </Grid>
                         </hc:TransitioningContentControl>
                     </DataTemplate>
-                    <DataTemplate x:Key="_editorView" DataType="{x:Type model:DataCollection}">
+                    <DataTemplate x:Key="_editorView"
+                                  DataType="{x:Type model:DataCollection}">
                         <hc:TransitioningContentControl TransitionMode="Right2LeftWithFade">
                             <Grid DataContext="{Binding CurrentSelectedItem}">
                                 <Grid.RowDefinitions>
@@ -271,11 +276,13 @@
                                                 </Border>
                                             </Grid>
                                             <Grid Grid.Column="1">
-                                                <StackPanel Margin="10,20">
+                                                <StackPanel Margin="10,10">
                                                     <TextBlock HorizontalAlignment="Left"
                                                                FontSize="32"
                                                                FontWeight="SemiBold"
                                                                Style="{DynamicResource TextBlockLarge}"
+                                                               MaxWidth="350"
+                                                               TextTrimming="CharacterEllipsis"
                                                                Text="{Binding Name}" />
                                                     <StackPanel Margin="0,10,0,10"
                                                                 Orientation="Horizontal">
@@ -296,8 +303,8 @@
                                                                 Foreground="{DynamicResource RegionBrush}"
                                                                 hc:IconElement.Geometry="{DynamicResource playComposition}"
                                                                 Margin="0,5,10,5"
-                                                                Command="{Binding Path=DataContext.PlaySelectedPlaylistCommand, RelativeSource={RelativeSource AncestorType={x:Type local:PlayListCollectionView}}}"
-                                                                CommandParameter="{Binding .}"
+                                                                Command="{Binding Path=DataContext.SelectItem, RelativeSource={RelativeSource AncestorType={x:Type local:PlayListCollectionView}}}"
+                                                                CommandParameter="{Binding Path=DataContext.CurrentSelectedItem, RelativeSource={RelativeSource AncestorType={x:Type local:PlayListCollectionView}}}"
                                                                 hc:IconElement.Height="15"
                                                                 Content="Play all" />
                                                         <Button BorderThickness="0"
@@ -319,6 +326,28 @@
                                                                 hc:IconElement.Height="15"
                                                                 Content="Remove" />
                                                     </StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <ToggleButton Margin="0,15,10,5"
+                                                                      IsChecked="{Binding Shuffle}"
+                                                                      Height="17"
+                                                                      Width="17"
+                                                                      Padding="0"
+                                                                      Background="Transparent"
+                                                                      BorderThickness="0"
+                                                                      Style="{DynamicResource ToggleButtonIcon}"
+                                                                      hc:IconSwitchElement.Geometry="{DynamicResource non_Shuffle}"
+                                                                      hc:IconSwitchElement.GeometrySelected="{DynamicResource shuffle}" />
+                                                        <ToggleButton Margin="10,15,10,5"
+                                                                      IsChecked="{Binding Repeat}"
+                                                                      Height="17"
+                                                                      Width="17"
+                                                                      Padding="0"
+                                                                      Background="Transparent"
+                                                                      BorderThickness="0"
+                                                                      Style="{DynamicResource ToggleButtonIcon}"
+                                                                      hc:IconSwitchElement.Geometry="{DynamicResource repeat_off }"
+                                                                      hc:IconSwitchElement.GeometrySelected="{DynamicResource repeat_all}" />
+                                                    </StackPanel>
                                                 </StackPanel>
                                             </Grid>
                                         </Grid>
@@ -326,7 +355,8 @@
                                 </Grid>
                                 <!--list-->
                                 <Grid Grid.Row="1">
-                                    <hc:ScrollViewer Margin="5,5,5,100" IsInertiaEnabled="True">
+                                    <hc:ScrollViewer Margin="5,5,5,100"
+                                                     IsInertiaEnabled="True">
                                         <ItemsControl Margin="15"
                                                       AlternationCount="2"
                                                       ItemTemplate="{DynamicResource _profileTemplate}"
@@ -399,7 +429,7 @@
                                                             Visibility="{Binding IsPlaying,Converter={StaticResource Boolean2VisibilityReConverter}}"
                                                             hc:IconElement.Height="15"
                                                             BorderThickness="0"
-                                                            Command="{Binding Path=DataContext.PlaySelectedProfileFromListCommand, RelativeSource={RelativeSource AncestorType=Border,AncestorLevel=3, Mode=FindAncestor}}"
+                                                            Command="{Binding Path=DataContext.SelectItem, RelativeSource={RelativeSource AncestorType={x:Type local:PlayListCollectionView}}}"
                                                             CommandParameter="{Binding .}"
                                                             hc:IconElement.Geometry="{DynamicResource playOutline}" />
                                                 </Grid>

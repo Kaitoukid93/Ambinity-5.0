@@ -124,6 +124,7 @@
     <Compile Include="Converter\ThicknessToDoubleConverter.cs" />
     <Compile Include="Converter\ToUpperValueConverter.cs" />
     <Compile Include="Models\DataViewMode.cs" />
+    <Compile Include="Models\Stores\CollectionItemStore.cs" />
     <Compile Include="Services\DialogService.cs" />
     <Compile Include="Enums\OnlineItemAvatarTypeEnum.cs" />
     <Compile Include="Enums\ChasingPatternTypeEnum.cs" />
@@ -272,8 +273,13 @@
     <Compile Include="Helpers\LEDSetupHelpers.cs" />
     <Compile Include="Settings\GeneralSettings.cs" />
     <Compile Include="Settings\IGeneralSettings.cs" />
+    <Compile Include="ViewModel\AddNewDialogViewModel.cs" />
     <Compile Include="ViewModel\DeleteDialogViewModel.cs" />
+    <Compile Include="ViewModel\NonClientAreaContentViewModel.cs" />
     <Compile Include="ViewModel\RenameDialogViewModel.cs" />
+    <Compile Include="View\Dialogs\AddNewDialog.xaml.cs">
+      <DependentUpon>AddNewDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Dialogs\RenameDialog.xaml.cs">
       <DependentUpon>RenameDialog.xaml</DependentUpon>
     </Compile>
@@ -282,6 +288,9 @@
     </Compile>
     <Compile Include="View\Dialogs\DialogWindow.xaml.cs">
       <DependentUpon>DialogWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\NonClientAreaContent\NonClientArea.xaml.cs">
+      <DependentUpon>NonClientArea.xaml</DependentUpon>
     </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -475,6 +484,10 @@
     <Folder Include="Resources\Images\" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="View\Dialogs\AddNewDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="View\Dialogs\RenameDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -486,6 +499,10 @@
     <Page Include="View\Dialogs\DialogWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\NonClientAreaContent\NonClientArea.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

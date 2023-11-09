@@ -1,23 +1,15 @@
-﻿using adrilight_shared.Models;
-using adrilight_shared.Models.RelayCommand;
-using System.Windows.Input;
+﻿using GalaSoft.MvvmLight;
 
 namespace adrilight_shared.ViewModel
 {
-    public class DeleteDialogViewModel
+    public class DeleteDialogViewModel : ViewModelBase
     {
-        public DeleteDialogViewModel(string header, DataCollection collection)
+        public DeleteDialogViewModel(string header, string content)
         {
-            CurrentDeleteHeader = header;
-            CurrentDeleteAceptCommand = new RelayCommand<string>((p) =>
-            {
-                return p != null;
-            }, (p) =>
-            {
-                collection.RemoveItems();
-            });
+            Header = header;
+            Content = content;
         }
-        public string CurrentDeleteHeader { get; set; }
-        public ICommand CurrentDeleteAceptCommand { get; set; }
+        public string Content { get; set; }
+        public string Header { get; set; }
     }
 }

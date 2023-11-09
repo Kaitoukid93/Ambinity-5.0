@@ -281,7 +281,6 @@
     <Compile Include="View\Screens\Automation\ActionManagerWindow.xaml.cs" />
     <Compile Include="View\Screens\Automation\AutomationNonClientAreaContent.xaml.cs" />
     <Compile Include="View\Screens\Debug\DebugWindow.xaml.cs" />
-    <Compile Include="View\Screens\LightingProfile\LightingProfileManagerNonClientAreaContent.xaml.cs" />
     <Compile Include="View\Screens\LightingProfile\LightingProfileManagerWindow.xaml.cs" />
     <Compile Include="View\Screens\LightingProfile\ProfileCollectionView.xaml.cs" />
     <Compile Include="View\Screens\LightingProfile\PlayListCollectionView.xaml.cs" />
@@ -373,10 +372,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\Screens\Debug\DebugWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\Screens\LightingProfile\LightingProfileManagerNonClientAreaContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

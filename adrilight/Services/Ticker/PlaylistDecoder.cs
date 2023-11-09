@@ -1,45 +1,35 @@
 ﻿using adrilight.ViewModel;
+using adrilight_shared.Helpers;
+using adrilight_shared.Models.ControlMode.Mode;
+using adrilight_shared.Models.Device;
 using adrilight_shared.Models.Lighting;
 using adrilight_shared.Settings;
 using GalaSoft.MvvmLight;
 using Serilog;
 using System;
-using System.ComponentModel;
+using System.Collections.ObjectModel;
 using System.Threading;
 using System.Timers;
 
 namespace adrilight.Ticker
 {
-    internal class PlaylistDecoder : ViewModelBase
+    public class PlaylistDecoder : ViewModelBase
     {
 
-        public PlaylistDecoder(IGeneralSettings generaSettings, LightingProfileManagerViewModel viewModel)
+        public PlaylistDecoder(IGeneralSettings generaSettings, IDeviceSettings[] devices)
         {
             GeneralSettings = generaSettings ?? throw new ArgumentNullException(nameof(generaSettings));
-
-            ViewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
-            ViewModel.PropertyChanged += (s, e) =>
+            AvailableDevices = new ObservableCollection<IDeviceSettings>();
+            foreach (var device in devices)
             {
-                //switch (e.PropertyName)
-                //{
-                //    case nameof(ViewModel.CurrentSelectedPlaylist):
-                //        //Init();
-                //        if (_selectedPlaylist != null)
-                //        {
-                //            _selectedPlaylist.PropertyChanged -= SelectedPlaylistChanged;
-                //            // _selectedPlaylist.ResetPlayingState();
-                //        }
-                //        _selectedPlaylist = MainViewModel.CurrentSelectedPlaylist;
-                //        _selectedPlaylist.PropertyChanged += SelectedPlaylistChanged;
-                //        break;
-                //}
-            };
-            //Init();
+                AvailableDevices.Add(device);
+            }
         }
 
         #region private field
         private LightingProfilePlaylist _selectedPlaylist;
         private CancellationTokenSource _cancellationTokenSource;
+        public ObservableCollection<IDeviceSettings> AvailableDevices { get; }
         #endregion
 
         #region public properties
@@ -47,38 +37,26 @@ namespace adrilight.Ticker
         public bool NeededRefreshing { get; private set; } = false;
         public object Lock { get; } = new object();
         #endregion
-        private void SelectedPlaylistChanged(object s, PropertyChangedEventArgs e)
+        public void Play(LightingProfilePlaylist playlist)
         {
-            switch (e.PropertyName)
-            {
-                case nameof(_selectedPlaylist.IsPlaying):
-                    if (!_selectedPlaylist.IsPlaying)
-                        Stop();
-                    else
-                        Play();
-                    break;
-
-            }
-        }
-        private void Play()
-        {
-            if (_selectedPlaylist == null)
+            if (playlist == null)
                 return;
+            _selectedPlaylist = playlist;
+            _selectedPlaylist.IsPlaying = true;
             _selectedPlaylist.ResetProfilesPlayingState();
-            if (_timer == null)
-                SetTimer(_selectedPlaylist.CurrentPlayingLightingProfile.Duration);
-            else
-            {
-                _timer.Interval = _selectedPlaylist.CurrentPlayingLightingProfile.Duration.TotalMilliseconds;
-                StartTimer();
-            }
-            _currentTimeSpan = _selectedPlaylist.CurrentPlayingLightingProfile.Duration;
-            _selectedPlaylist.CurrentPlayingLightingProfile.IsPlaying = true;
+            _selectedPlaylist.CurrentPlayingProfileIndex = 0;
             Log.Information("Current Playing Profile :" +
                              _selectedPlaylist.CurrentPlayingLightingProfile.Name);
-            ViewModel.CurrentProfileTime = 0;
+            //ViewModel.CurrentProfileTime = 0;
             //MainViewModel.ActivateCurrentLightingProfile(_selectedPlaylist.CurrentPlayingLightingProfile);
+            _currentPlayingProfile?.Stop();
+            ActivateCurrentLightingProfile(_selectedPlaylist.CurrentPlayingLightingProfile, true);
 
+        }
+        public void Play(LightingProfile profile)
+        {
+            _currentPlayingProfile?.Stop();
+            ActivateCurrentLightingProfile(profile, false);
         }
         private void StopTimer()
         {
@@ -95,6 +73,7 @@ namespace adrilight.Ticker
         private static System.Timers.Timer _timer;
         private static System.Timers.Timer _subTimer;
         private static TimeSpan _currentTimeSpan;
+        private LightingProfile _currentPlayingProfile;
         private void SetTimer(TimeSpan profileDuration)
         {
             _timer?.Stop();
@@ -132,21 +111,35 @@ namespace adrilight.Ticker
         }
         private void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
-            if (_selectedPlaylist.CurrentPlayingProfileIndex < _selectedPlaylist.LightingProfiles.Items.Count - 1)
-                _selectedPlaylist.CurrentPlayingProfileIndex++;
+            //_selectedPlaylist.CurrentPlayingLightingProfile.IsPlaying = false;
+            if (_selectedPlaylist.Shuffle)
+            {
+                Random r = new Random();
+                _selectedPlaylist.CurrentPlayingProfileIndex = r.Next(0, _selectedPlaylist.LightingProfiles.Items.Count - 1);
+            }
             else
             {
-                if (_selectedPlaylist.Repeat)
-                    _selectedPlaylist.CurrentPlayingProfileIndex = 0;
+
+                if (_selectedPlaylist.CurrentPlayingProfileIndex < _selectedPlaylist.LightingProfiles.Items.Count - 1)
+                    _selectedPlaylist.CurrentPlayingProfileIndex++;
                 else
                 {
-                    _selectedPlaylist.CurrentPlayingLightingProfile.IsPlaying = false;
-                    _timer.Stop();
-                    _subTimer.Stop();
-                    return;
+                    if (_selectedPlaylist.Repeat)
+                        _selectedPlaylist.CurrentPlayingProfileIndex = 0;
+                    else
+                    {
+                        _selectedPlaylist.IsPlaying = false;
+                        _selectedPlaylist.CurrentPlayingLightingProfile.IsPlaying = false;
+                        _timer.Stop();
+                        _subTimer.Stop();
+                        return;
+                    }
                 }
             }
-            Play();
+
+
+            _currentPlayingProfile?.Stop();
+            ActivateCurrentLightingProfile(_selectedPlaylist.CurrentPlayingLightingProfile, true);
         }
         public void Stop()
         {
@@ -154,6 +147,35 @@ namespace adrilight.Ticker
             _timer?.Stop();
             _subTimer?.Stop();
         }
-
+        private void ActivateCurrentLightingProfile(LightingProfile profile, bool isQeued)
+        {
+            if (profile == null)
+                return;
+            profile.IsPlaying = true;
+            _currentPlayingProfile = profile;
+            if (isQeued)
+            {
+                //use timer
+                if (_timer == null)
+                    SetTimer(profile.Duration);
+                else
+                {
+                    StopTimer();
+                    _timer.Interval = profile.Duration.TotalMilliseconds;
+                    StartTimer();
+                }
+                _currentTimeSpan = profile.Duration;
+            }
+            else
+            {
+                StopTimer();
+            }
+            foreach (var device in AvailableDevices)
+            {
+                var lightingMode = ObjectHelpers.Clone<LightingMode>(profile.ControlMode as LightingMode);
+                device.ActivateControlMode(lightingMode);
+                Log.Information("Lighting Profile Activated: " + profile.Name + " for " + device.DeviceName);
+            }
+        }
     }
 }

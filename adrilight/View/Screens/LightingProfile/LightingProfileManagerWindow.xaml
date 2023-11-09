@@ -16,6 +16,7 @@
            x:Name="window"
            Width="645"
            Height="800"
+           NonClientAreaContent="{Binding NonClientAreaContent,Mode=TwoWay}"
            WindowStartupLocation="CenterScreen">
 
     <Window.Resources>

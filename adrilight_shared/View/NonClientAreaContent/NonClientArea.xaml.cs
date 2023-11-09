@@ -1,13 +1,13 @@
 ﻿using System.Windows.Controls;
 
-namespace adrilight.View
+namespace adrilight_shared.View.NonClientAreaContent
 {
     /// <summary>
     /// Interaction logic for NonClientAreaContent.xaml
     /// </summary>
-    public partial class LightingProfileManagerNonClientAreaContent : Grid
+    public partial class NonClientArea : Grid
     {
-        public LightingProfileManagerNonClientAreaContent()
+        public NonClientArea()
         {
             InitializeComponent();
         }

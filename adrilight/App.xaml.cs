@@ -98,6 +98,7 @@ namespace adrilight
             var dialogService = kernel.Get<IDialogService>();
             dialogService.RegisterDialog<DeleteDialog, DeleteDialogViewModel>();
             dialogService.RegisterDialog<RenameDialog, RenameDialogViewModel>();
+            dialogService.RegisterDialog<AddNewDialog, AddNewDialogViewModel>();
             //close splash screen and open dashboard
             this.Resources["Locator"] = new ViewModelLocator(kernel);
             _telemetryClient = kernel.Get<TelemetryClient>();
@@ -170,6 +171,8 @@ namespace adrilight
                             //now inject
                             InjectingDevice(kernel, device);
                             device.DeviceEnableChanged();
+                            var playlistDecoder = kernel.Get<PlaylistDecoder>();
+                            playlistDecoder.AvailableDevices.Add(device);
                             //since openRGBStream is single instance, we need to manually add device then refresh
                         }
                         break;
