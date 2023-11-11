@@ -99,6 +99,7 @@ namespace adrilight
             dialogService.RegisterDialog<DeleteDialog, DeleteDialogViewModel>();
             dialogService.RegisterDialog<RenameDialog, RenameDialogViewModel>();
             dialogService.RegisterDialog<AddNewDialog, AddNewDialogViewModel>();
+            dialogService.RegisterDialog<NumberInputDialog, NumberInputDialogViewModel>();
             //close splash screen and open dashboard
             this.Resources["Locator"] = new ViewModelLocator(kernel);
             _telemetryClient = kernel.Get<TelemetryClient>();
@@ -374,12 +375,7 @@ namespace adrilight
                 var hwMonitor = kernel.GetAll<HWMonitor>().FirstOrDefault();
                 var ambinityClient = kernel.GetAll<IAmbinityClient>().FirstOrDefault();
                 var deviceDiscovery = kernel.GetAll<DeviceDiscovery>().FirstOrDefault();
-                foreach (var file in MainViewViewModel.FilesQToRemove)
-                {
-                    if (File.Exists(file))
-                        File.Delete(file);
-                    Log.Information("Delete File :" + file);
-                }
+                //dbmanager delete file
                 Thread.Sleep(2000);
                 deviceDiscovery.Stop();
                 GeneralSettings.IsOpenRGBEnabled = false;

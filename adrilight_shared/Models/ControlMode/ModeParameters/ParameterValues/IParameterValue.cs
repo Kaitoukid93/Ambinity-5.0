@@ -2,13 +2,13 @@
 
 namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
 {
-    public interface IParameterValue : INotifyPropertyChanged
+    public interface IParameterValue : INotifyPropertyChanged, IGenericCollectionItem
     {
-        string Name { get; }
+        new string Name { get; }
         string Description { get; }
-        bool IsChecked { get; set; }
-        string LocalPath { get; set; }
-        string InfoPath { get; set; }
+        new bool IsChecked { get; set; }
+        new string LocalPath { get; set; }
+        new string InfoPath { get; set; }
         bool IsDeleteable { get; set; }
         bool IsVisible { get; set; }
     }

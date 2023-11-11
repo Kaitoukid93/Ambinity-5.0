@@ -15,7 +15,7 @@ namespace adrilight.Ticker
 {
     public class PlaylistDecoder : ViewModelBase
     {
-
+        public event Action<LightingProfile> CurrentPlayingProfileChanged;
         public PlaylistDecoder(IGeneralSettings generaSettings, IDeviceSettings[] devices)
         {
             GeneralSettings = generaSettings ?? throw new ArgumentNullException(nameof(generaSettings));
@@ -39,7 +39,8 @@ namespace adrilight.Ticker
         #endregion
         public void Play(LightingProfilePlaylist playlist)
         {
-            if (playlist == null)
+            var valid = playlist != null && playlist.LightingProfiles != null && playlist.LightingProfiles.Items != null && playlist.LightingProfiles.Items.Count > 0;
+            if (!valid)
                 return;
             _selectedPlaylist = playlist;
             _selectedPlaylist.IsPlaying = true;
@@ -58,6 +59,11 @@ namespace adrilight.Ticker
             _currentPlayingProfile?.Stop();
             ActivateCurrentLightingProfile(profile, false);
         }
+        public void Play(LightingProfile profile, IDeviceSettings device)
+        {
+            _currentPlayingProfile?.Stop();
+            ActivateCurrentLightingProfileForSpecificDevice(profile, device);
+        }
         private void StopTimer()
         {
             _timer?.Stop();
@@ -73,7 +79,18 @@ namespace adrilight.Ticker
         private static System.Timers.Timer _timer;
         private static System.Timers.Timer _subTimer;
         private static TimeSpan _currentTimeSpan;
-        private LightingProfile _currentPlayingProfile;
+        private static LightingProfile _currentPlayingProfile;
+        //public LightingProfile CurrentPlayingProfile {
+        //    get
+        //    {
+        //        return _currentPlayingProfile;
+        //    }
+        //    set
+        //    {
+        //        _currentPlayingProfile = value;
+        //        RaisePropertyChanged();
+        //    }
+        //}
         private void SetTimer(TimeSpan profileDuration)
         {
             _timer?.Stop();
@@ -107,7 +124,7 @@ namespace adrilight.Ticker
         {
             Log.Information("Current Profile time left: " + _currentTimeSpan.Subtract(TimeSpan.FromSeconds(1)));
             _currentTimeSpan = _currentTimeSpan.Subtract(TimeSpan.FromSeconds(1));
-            // ViewModel.CurrentProfileTime = (int)((MainViewModel.CurrentSelectedPlaylist.CurrentPlayingLightingProfile.Duration.TotalMilliseconds - _currentTimeSpan.TotalMilliseconds) * 100 / MainViewModel.CurrentSelectedPlaylist.CurrentPlayingLightingProfile.Duration.TotalMilliseconds);
+            _currentPlayingProfile.CurrentPlayingProgress = (int)((_currentPlayingProfile.Duration.TotalMilliseconds - _currentTimeSpan.TotalMilliseconds) * 100 / _currentPlayingProfile.Duration.TotalMilliseconds);
         }
         private void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
@@ -147,12 +164,22 @@ namespace adrilight.Ticker
             _timer?.Stop();
             _subTimer?.Stop();
         }
+        private void ActivateCurrentLightingProfileForSpecificDevice(LightingProfile profile, IDeviceSettings device)
+        {
+            if (!device.IsEnabled)
+                return;
+            StopTimer();
+            var lightingMode = ObjectHelpers.Clone<LightingMode>(profile.ControlMode as LightingMode);
+            device.ActivateControlMode(lightingMode);
+            Log.Information("Lighting Profile Activated: " + profile.Name + " for " + device.DeviceName);
+        }
         private void ActivateCurrentLightingProfile(LightingProfile profile, bool isQeued)
         {
             if (profile == null)
                 return;
             profile.IsPlaying = true;
             _currentPlayingProfile = profile;
+            CurrentPlayingProfileChanged?.Invoke(_currentPlayingProfile);
             if (isQeued)
             {
                 //use timer
@@ -172,6 +199,9 @@ namespace adrilight.Ticker
             }
             foreach (var device in AvailableDevices)
             {
+                if (!device.IsEnabled)
+                    continue;
+                device.TurnOnLED();
                 var lightingMode = ObjectHelpers.Clone<LightingMode>(profile.ControlMode as LightingMode);
                 device.ActivateControlMode(lightingMode);
                 Log.Information("Lighting Profile Activated: " + profile.Name + " for " + device.DeviceName);

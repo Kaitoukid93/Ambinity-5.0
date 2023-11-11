@@ -13,6 +13,7 @@ namespace adrilight_shared.Models
 {
     public class DataCollection : ViewModelBase
     {
+        #region Construct
         public DataCollection()
         {
 
@@ -27,11 +28,22 @@ namespace adrilight_shared.Models
             _collectionItemStore.Navigated += OnCollectionViewNavigated;
             CommandSetup();
         }
+        #endregion
 
+
+        #region Event
         private void OnCollectionViewNavigated(IGenericCollectionItem item, DataViewMode mode)
         {
             CurrentView = mode;
+            if (mode == DataViewMode.Collection)
+            {
+                if (item != null)
+                    item.IsEditing = false;
+            }
+
         }
+        #endregion
+
 
         #region Properties
         public ObservableCollection<IGenericCollectionItem> Items { get; set; }
@@ -95,6 +107,16 @@ namespace adrilight_shared.Models
             }
 
         );
+            UnpinItem = new RelayCommand<IGenericCollectionItem>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                p.IsPinned = false;
+                _collectionItemStore.ChangeItemPinStatus(p);
+            }
+
+     );
             SelectItem = new RelayCommand<IGenericCollectionItem>((p) =>
             {
                 return true;
@@ -142,6 +164,15 @@ namespace adrilight_shared.Models
             }
 
        );
+            ItemPinUnPinCommand = new RelayCommand<IGenericCollectionItem>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                _collectionItemStore.ChangeItemPinStatus(p);
+            }
+
+);
             OpenRenameDialogCommand = new RelayCommand<IGenericCollectionItem>((p) =>
             {
                 return p != null;
@@ -168,6 +199,14 @@ namespace adrilight_shared.Models
                 }, vm);
 
             });
+            RemoveItemCommand = new RelayCommand<IGenericCollectionItem>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                RemoveItems(p, true);
+
+            });
             OpenDeleteDialogCommand = new RelayCommand<string>((p) =>
             {
                 return p != null;
@@ -178,8 +217,8 @@ namespace adrilight_shared.Models
                 {
                     if (result == "True")
                     {
-                        RemoveItems();
-                        CurrentView = DataViewMode.Collection;
+                        RemoveItems(true);
+                        _collectionItemStore.BackToCollectionView(null);
                     }
 
 
@@ -210,6 +249,7 @@ namespace adrilight_shared.Models
             }
             return newCollection;
         }
+
         private void GotoDetailView(IGenericCollectionItem item)
         {
             item.IsEditing = true;
@@ -217,7 +257,7 @@ namespace adrilight_shared.Models
             CurrentView = DataViewMode.Detail;
             _collectionItemStore.GotoSelectedItemDetail(item, CurrentView);
         }
-        public void RemoveItems()
+        public void RemoveItems(bool notify)
         {
             if (Items == null)
                 return;
@@ -233,6 +273,19 @@ namespace adrilight_shared.Models
                 Items.Remove(item);
             }
 
+            if (notify)
+            {
+                _collectionItemStore.RemoveItems(itemsToRemove);
+            }
+
+        }
+        public void RemoveItems(IGenericCollectionItem item, bool notify)
+        {
+            Items.Remove(item);
+            if (notify)
+            {
+                _collectionItemStore.RemoveItems(new List<IGenericCollectionItem>() { item });
+            }
         }
         public void AddItems(IGenericCollectionItem item)
         {
@@ -249,10 +302,20 @@ namespace adrilight_shared.Models
             (newItem as IGenericCollectionItem).Name = name;
             Items.Add(newItem as IGenericCollectionItem);
         }
+        public void ResetSelectionStage()
+        {
+            foreach (var item in Items)
+                if (item.IsChecked)
+                {
+                    item.IsChecked = false;
+                }
+            RefreshToolBarState();
+        }
         #endregion
 
 
         #region Commands
+        public ICommand RemoveItemCommand { get; set; }
         public ICommand GotoCurrentItemDetailViewCommand { get; set; }
         public ICommand CreateNewCollectionFromSelectedItemsCommand { get; set; }
         public ICommand SelectItems { get; set; }
@@ -261,6 +324,8 @@ namespace adrilight_shared.Models
         public ICommand OpenDeleteDialogCommand { get; set; }
         public ICommand ItemCheckUncheckCommand { get; set; }
         public ICommand SelectItem { get; set; }
+        public ICommand UnpinItem { get; set; }
+        public ICommand ItemPinUnPinCommand { get; set; }
         #endregion
 
 

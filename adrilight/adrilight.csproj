@@ -227,7 +227,6 @@
     <Compile Include="Services\CaptureEngine\ICaptureEngine.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\MonitorEnumerationHelper.cs" />
     <Compile Include="View\Adorners\AttachedAdorner.cs" />
-    <Compile Include="View\Dialogs\AddNewLightingProfilePlayListWindow.xaml.cs" />
     <Compile Include="View\Dialogs\AddNewVIDWindow.xaml.cs" />
     <Compile Include="View\Dialogs\AddNewLightingProfileWindow.xaml.cs" />
     <Compile Include="View\Dialogs\PossibleMatchedDeviceSelectionWindow.xaml.cs" />
@@ -282,6 +281,7 @@
     <Compile Include="View\Screens\Automation\AutomationNonClientAreaContent.xaml.cs" />
     <Compile Include="View\Screens\Debug\DebugWindow.xaml.cs" />
     <Compile Include="View\Screens\LightingProfile\LightingProfileManagerWindow.xaml.cs" />
+    <Compile Include="View\Screens\LightingProfile\LightingProfileDashboardView.xaml.cs" />
     <Compile Include="View\Screens\LightingProfile\ProfileCollectionView.xaml.cs" />
     <Compile Include="View\Screens\LightingProfile\PlayListCollectionView.xaml.cs" />
     <Compile Include="View\Screens\Mainview\ControlView\GifRegionSelectionWindow.xaml.cs" />
@@ -343,10 +343,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Dialogs\AddNewLightingProfilePlayListWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="View\Dialogs\AddNewVIDWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -376,6 +372,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\Screens\LightingProfile\LightingProfileManagerWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Screens\LightingProfile\LightingProfileDashboardView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

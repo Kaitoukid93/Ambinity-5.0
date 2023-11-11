@@ -44,6 +44,13 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
         public string LocalPath { get; set; }
         [JsonIgnore]
         public string InfoPath { get; set; }
+        [JsonIgnore]
+        public bool IsSelected { get; set; }
+        [JsonIgnore]
+        public bool IsEditing { get; set; }
+        [JsonIgnore]
+        public bool IsPinned { get; set; }
+
         public void SetColor(int index, System.Windows.Media.Color color)
         {
             Colors[index] = color;

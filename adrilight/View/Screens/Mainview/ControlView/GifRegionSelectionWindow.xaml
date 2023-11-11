@@ -259,7 +259,7 @@
                         <Viewbox>
                             <Border BorderThickness="1" BorderBrush="{DynamicResource SecondaryBorderBrush}">
                                 <Canvas HorizontalAlignment="Center" VerticalAlignment="Center" Width="{Binding ElementName=sourceList,Path=SelectedItem.Width}" Height="{Binding ElementName=sourceList,Path=SelectedItem.Height}">
-                                    <Image x:Name="bitmap" Stretch="Uniform" Source="{Binding ElementName=sourceList,Path=SelectedItem.Path}">
+                                    <Image x:Name="bitmap" Stretch="Uniform" Source="{Binding ElementName=sourceList,Path=SelectedItem.Gif.Bitmap}">
                                     </Image>
                                     <ContentControl 
                                         MinHeight="20" 

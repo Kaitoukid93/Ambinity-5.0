@@ -7,8 +7,9 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:lighting="clr-namespace:adrilight_shared.Models.Lighting;assembly=adrilight_shared"
            xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
-           xmlns:vm ="clr-namespace:adrilight.ViewModel"
+           xmlns:vm="clr-namespace:adrilight.ViewModel"
            xmlns:local="clr-namespace:adrilight.View"
+           xmlns:behavior="clr-namespace:adrilight_shared.Behavior;assembly=adrilight_shared"
            xmlns:model="clr-namespace:adrilight_shared.Models;assembly=adrilight_shared"
            Background="{DynamicResource RegionBrush}"
            mc:Ignorable="d"
@@ -182,7 +183,7 @@
                             </Grid>
                         </Button>
                     </DataTemplate>
-                    
+
                 </ResourceDictionary>
 
             </ResourceDictionary.MergedDictionaries>
@@ -204,9 +205,18 @@
         <Grid VerticalAlignment="Bottom">
             <StackPanel>
                 <Grid>
-                    <Border Effect="{DynamicResource EffectShadow1}" Background="{DynamicResource MainContentBackgroundBrush}"
-                            Height="100"
-                            Margin="0">
+                    <Border Margin="10"
+                            CornerRadius="10"
+                            
+                            Background="{DynamicResource MainContentBackgroundBrush}"
+                            Height="100">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="10"
+                                              Color="Black"
+                                              Opacity="0.8"
+                                              ShadowDepth="2"
+                                              Direction="0"/>
+                        </Border.Effect>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="auto" />
@@ -218,7 +228,7 @@
                                              Width="80"
                                              Height="80"
                                              Margin="10"
-                                             Id="{Binding CurrentSelectedLightingProfile.Name}">
+                                             Id="{Binding CurrentPlayingProfile.Name}">
 
                                 </hc:Gravatar>
                             </Grid>
@@ -229,9 +239,9 @@
                                 </Grid.RowDefinitions>
                                 <Grid Grid.Row="0">
                                     <ProgressBar IsIndeterminate="False"
-                                                 Value="{Binding CurrentPlayingTimePercentage}"
+                                                 behavior:ProgressBarSmoother.SmoothValue="{Binding  CurrentPlayingProfile.CurrentPlayingProgress}"
                                                  Style="{DynamicResource ProgressBarFlat}"
-                                                 Margin="0,20,10,20"
+                                                 Margin="0,20,10,10"
                                                  Height="2" />
                                 </Grid>
                                 <Grid Grid.Row="1">
@@ -240,10 +250,17 @@
                                                    VerticalAlignment="Top"
                                                    FontWeight="SemiBold"
                                                    Style="{DynamicResource TextBlockTitle}"
-                                                   Text="{Binding CurrentSelectedLightingProfile.Name}" />
-                                        <TextBlock HorizontalAlignment="Left"
-                                                   Style="{DynamicResource TextBlockDefaultSecLight}"
-                                                   Text="{Binding CurrentSelectedLightingProfile.ControlMode.BasedOn}" />
+                                                   Text="{Binding CurrentPlayingProfile.Name}" />
+                                        <Border Margin="0,5"
+                                                HorizontalAlignment="Left"
+                                                Background="{DynamicResource SecondaryRegionBrush}"
+                                                CornerRadius="2">
+                                            <TextBlock Text="{Binding CurrentPlayingProfile.ControlMode.BasedOn}"
+                                                       HorizontalAlignment="Left"
+                                                       Margin="5,2"
+                                                       Style="{DynamicResource TextBlockDefaultSecLight}"
+                                                       FontWeight="SemiBold" />
+                                        </Border>
                                     </StackPanel>
                                 </Grid>
                             </Grid>

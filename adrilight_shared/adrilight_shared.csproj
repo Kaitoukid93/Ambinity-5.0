@@ -113,6 +113,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Behavior\ProgressBarSmoother.cs" />
     <Compile Include="Converter\BoolToBorderThicknessConverter.cs" />
     <Compile Include="Converter\BrushToHexConverter.cs" />
     <Compile Include="Converter\ColorToBrushConverter.cs" />
@@ -276,9 +277,13 @@
     <Compile Include="ViewModel\AddNewDialogViewModel.cs" />
     <Compile Include="ViewModel\DeleteDialogViewModel.cs" />
     <Compile Include="ViewModel\NonClientAreaContentViewModel.cs" />
+    <Compile Include="ViewModel\NumberInputDialogViewModel.cs" />
     <Compile Include="ViewModel\RenameDialogViewModel.cs" />
     <Compile Include="View\Dialogs\AddNewDialog.xaml.cs">
       <DependentUpon>AddNewDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Dialogs\NumberInputDialog.xaml.cs">
+      <DependentUpon>NumberInputDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\Dialogs\RenameDialog.xaml.cs">
       <DependentUpon>RenameDialog.xaml</DependentUpon>
@@ -379,6 +384,9 @@
     <EmbeddedResource Include="Resources\Colors\ColorCollection.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="Tools\OpenRGB\OpenRGB.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Resources\LightingProfiles\Autumn Leaves.ALP">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -395,9 +403,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\LightingProfiles\Solid Blood.ALP">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Tools\OpenRGB\OpenRGB.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
@@ -485,6 +490,10 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="View\Dialogs\AddNewDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Dialogs\NumberInputDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

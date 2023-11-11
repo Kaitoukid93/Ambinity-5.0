@@ -63,6 +63,7 @@ namespace adrilight_shared.Models.Device.Zone
         private bool _isEnabled = true;
         private bool _isInsideScreen = true;
         private bool _isInControlGroup;
+        [JsonIgnore]
         public bool IsInControlGroup { get => _isInControlGroup; set { Set(() => IsInControlGroup, ref _isInControlGroup, value); } }
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); } }
         //private IControlMode _maskedControlMode;
@@ -139,7 +140,7 @@ namespace adrilight_shared.Models.Device.Zone
         public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
 
         public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
-
+        [JsonIgnore]
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); } }
         public string ZoneWarningText { get => _zoneWarningText; set { Set(() => ZoneWarningText, ref _zoneWarningText, value); } }
         public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }
@@ -148,7 +149,7 @@ namespace adrilight_shared.Models.Device.Zone
 
 
         public VisualProperties VisualProperties { get => _visualProperties; set { Set(() => VisualProperties, ref _visualProperties, value); } }
-
+        [JsonIgnore]
         public bool IsSelectable { get => _isSelectable; set { Set(() => IsSelectable, ref _isSelectable, value); } }
 
         public bool IsDraggable { get => _isDraggable; set { Set(() => IsDraggable, ref _isDraggable, value); } }

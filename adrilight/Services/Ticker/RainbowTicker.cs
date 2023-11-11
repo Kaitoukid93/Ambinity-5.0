@@ -162,7 +162,6 @@ namespace adrilight.Ticker
                         BreathingBrightnessValue = pwm_val / 255d;
                     }
                     Thread.Sleep(10);
-
                 }
             }
             catch (OperationCanceledException)

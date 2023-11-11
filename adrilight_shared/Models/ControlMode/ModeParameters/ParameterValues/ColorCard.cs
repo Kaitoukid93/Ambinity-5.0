@@ -34,5 +34,11 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
         public System.Windows.Media.Color StopColor { get; set; }
         [JsonIgnore]
         public string[] ColorCode => new string[2] { StartColor.ToString(), StopColor.ToString() };
+        [JsonIgnore]
+        public bool IsSelected { get; set; }
+        [JsonIgnore]
+        public bool IsEditing { get; set; }
+        [JsonIgnore]
+        public bool IsPinned { get; set; }
     }
 }

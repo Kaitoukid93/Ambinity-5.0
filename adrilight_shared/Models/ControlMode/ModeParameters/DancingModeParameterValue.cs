@@ -23,5 +23,11 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
         public string LocalPath { get; set; }
         [JsonIgnore]
         public string InfoPath { get; set; }
+        [JsonIgnore]
+        public bool IsSelected { get; set; }
+        [JsonIgnore]
+        public bool IsEditing { get; set; }
+        [JsonIgnore]
+        public bool IsPinned { get; set; }
     }
 }

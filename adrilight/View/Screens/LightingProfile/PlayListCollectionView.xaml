@@ -39,12 +39,32 @@
                                     <RowDefinition Height="auto" />
                                 </Grid.RowDefinitions>
                                 <Grid>
-                                    <Path HorizontalAlignment="Center"
-                                          Stretch="Uniform"
-                                          Width="50"
-                                          Height="50"
-                                          Data="{StaticResource profilePlaylist}"
-                                          Fill="{DynamicResource PrimaryTextBrush}" />
+                                    <Border 
+                                            CornerRadius="4"
+                                            Margin="5"
+                                            Background="{DynamicResource MainContentBackgroundBrush}">
+                                        <Grid>
+                                            <ItemsControl HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"
+                                                          ItemsSource="{Binding CollectionName}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <hc:Gravatar Width="60"
+                                                                     Height="60"
+                                                                     Background="Transparent"
+                                                                     Id="{Binding .}">
+                                                        </hc:Gravatar>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel Orientation="Vertical" />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                            </ItemsControl>
+                                   
+                                        </Grid>
+                                    </Border>
                                 </Grid>
                                 <Grid>
                                     <Grid.Style>
@@ -66,9 +86,12 @@
                                         </Style>
                                     </Grid.Style>
                                     <Button hc:BorderElement.CornerRadius="5"
-                                            BorderThickness="0"
+                                            Command="{Binding Path=DataContext.SelectItem, RelativeSource={RelativeSource AncestorType={x:Type local:PlayListCollectionView}}}"
+                                            CommandParameter="{Binding .}"
                                             ToolTip="Play"
-                                            Background="{DynamicResource DarkOpacityBrush}"
+                                            BorderThickness="1"
+                                            Background="Black"
+                                            Opacity="0.8"
                                             HorizontalAlignment="Left"
                                             VerticalAlignment="Bottom"
                                             Margin="10"
@@ -139,6 +162,8 @@
                                     </StackPanel>
                                     <ToggleButton Background="Transparent"
                                                   IsChecked="{Binding IsPinned}"
+                                                  Command="{Binding Path=DataContext.ItemPinUnPinCommand, RelativeSource={RelativeSource AncestorType={x:Type local:PlayListCollectionView}}}"
+                                                  CommandParameter="{Binding .}"
                                                   hc:IconElement.Width="15"
                                                   hc:IconElement.Height="15"
                                                   Padding="0"
@@ -157,6 +182,8 @@
                                                         Value="White" />
                                                 <Setter Property="ToolTip"
                                                         Value="Pin to Dashboard" />
+                                                <Setter Property="Visibility"
+                                                        Value="Collapsed" />
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsPinned}"
                                                                  Value="True">
@@ -165,6 +192,14 @@
                                                         <Setter Property="ToolTip"
                                                                 Value="Unpin from Dashboard" />
                                                     </DataTrigger>
+                                                    <MultiDataTrigger>
+                                                        <MultiDataTrigger.Conditions>
+                                                            <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=IsMouseOver}"
+                                                                       Value="True" />
+                                                        </MultiDataTrigger.Conditions>
+                                                        <Setter Property="Visibility"
+                                                                Value="Visible" />
+                                                    </MultiDataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </ToggleButton.Style>
@@ -255,7 +290,7 @@
                                 <Grid>
                                     <Border Margin="20"
                                             Height="200"
-                                            CornerRadius="10"
+                                            CornerRadius="15"
                                             Background="{DynamicResource MainContentBackgroundBrush}">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
@@ -263,16 +298,32 @@
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
                                             <Grid>
-                                                <Border Width="180"
-                                                        Background="{DynamicResource SecondaryRegionBrush}"
-                                                        CornerRadius="4"
-                                                        Margin="10">
-                                                    <Path HorizontalAlignment="Center"
-                                                          Stretch="Uniform"
-                                                          Width="100"
-                                                          Height="100"
-                                                          Data="{StaticResource profilePlaylist}"
-                                                          Fill="{DynamicResource PrimaryTextBrush}" />
+                                                <Border CornerRadius="7"
+                                                        Width="180"
+                                                        Height="180"
+                                                        Margin="10"
+                                                        Background="{DynamicResource DarkMaskBrush}">
+                                                    <Grid>
+                                                        <ItemsControl HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center"
+                                                                      ItemsSource="{Binding CollectionName}">
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <hc:Gravatar Width="80"
+                                                                                 Height="80"
+                                                                                 Background="Transparent"
+                                                                                 Id="{Binding .}">
+                                                                    </hc:Gravatar>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                            <ItemsControl.ItemsPanel>
+                                                                <ItemsPanelTemplate>
+                                                                    <WrapPanel Orientation="Vertical" />
+                                                                </ItemsPanelTemplate>
+                                                            </ItemsControl.ItemsPanel>
+                                                        </ItemsControl>
+
+                                                    </Grid>
                                                 </Border>
                                             </Grid>
                                             <Grid Grid.Column="1">
@@ -306,6 +357,7 @@
                                                                 Command="{Binding Path=DataContext.SelectItem, RelativeSource={RelativeSource AncestorType={x:Type local:PlayListCollectionView}}}"
                                                                 CommandParameter="{Binding Path=DataContext.CurrentSelectedItem, RelativeSource={RelativeSource AncestorType={x:Type local:PlayListCollectionView}}}"
                                                                 hc:IconElement.Height="15"
+                                                                ToolTip="Play from the start"
                                                                 Content="Play all" />
                                                         <Button BorderThickness="0"
                                                                 Background="{DynamicResource SecondaryRegionBrush}"
@@ -314,6 +366,7 @@
                                                                 CommandParameter="{Binding .}"
                                                                 Margin="10,5"
                                                                 Height="32"
+                                                                ToolTip="Rename this playlist"
                                                                 hc:IconElement.Height="15"
                                                                 Content="Rename" />
                                                         <Button BorderThickness="0"
@@ -321,6 +374,8 @@
                                                                 hc:IconElement.Geometry="{DynamicResource delete}"
                                                                 Margin="10,5"
                                                                 Height="32"
+                                                                ToolTip="Delete this playlist"
+                                                                IsEnabled="{Binding IsDeleteable}"
                                                                 Command="{Binding Path=DataContext.OpenDeleteDialogCommand, RelativeSource={RelativeSource AncestorType={x:Type local:PlayListCollectionView}}}"
                                                                 CommandParameter="delete"
                                                                 hc:IconElement.Height="15"
@@ -332,6 +387,7 @@
                                                                       Height="17"
                                                                       Width="17"
                                                                       Padding="0"
+                                                                      ToolTip="Shuffle"
                                                                       Background="Transparent"
                                                                       BorderThickness="0"
                                                                       Style="{DynamicResource ToggleButtonIcon}"
@@ -342,11 +398,21 @@
                                                                       Height="17"
                                                                       Width="17"
                                                                       Padding="0"
+                                                                      ToolTip="Repeat"
                                                                       Background="Transparent"
                                                                       BorderThickness="0"
                                                                       Style="{DynamicResource ToggleButtonIcon}"
                                                                       hc:IconSwitchElement.Geometry="{DynamicResource repeat_off }"
                                                                       hc:IconSwitchElement.GeometrySelected="{DynamicResource repeat_all}" />
+                                                        <Button Content="Set time"
+                                                                Background="{DynamicResource SecondaryRegionBrush}"
+                                                                Height="25"
+                                                                Margin="10,15,10,5"
+                                                                ToolTip="Set Time"
+                                                                Padding="5,0"
+                                                                Command="{Binding Path=DataContext.ChangePlaylistProfileDurationCommand, RelativeSource={RelativeSource AncestorType={x:Type local:LightingProfileManagerWindow}}}"
+                                                                CommandParameter="{Binding .}"
+                                                                hc:IconElement.Geometry="{DynamicResource stop_clock}" />
                                                     </StackPanel>
                                                 </StackPanel>
                                             </Grid>
@@ -387,8 +453,10 @@
                                                      Value="1">
                                             <Setter Property="Background"
                                                     Value="{DynamicResource MainContentBackgroundBrush}" />
-                                            <Setter Property="Effect"
-                                                    Value="{DynamicResource EffectShadow1}" />
+                                            <Setter Property="BorderBrush"
+                                                    Value="{DynamicResource DarkOpacityBrush}" />
+                                            <Setter Property="BorderThickness"
+                                                    Value="1" />
                                         </DataTrigger>
                                         <Trigger Property="Border.IsMouseOver"
                                                  Value="True">
@@ -429,6 +497,7 @@
                                                             Visibility="{Binding IsPlaying,Converter={StaticResource Boolean2VisibilityReConverter}}"
                                                             hc:IconElement.Height="15"
                                                             BorderThickness="0"
+                                                            ToolTip="Play this profile"
                                                             Command="{Binding Path=DataContext.SelectItem, RelativeSource={RelativeSource AncestorType={x:Type local:PlayListCollectionView}}}"
                                                             CommandParameter="{Binding .}"
                                                             hc:IconElement.Geometry="{DynamicResource playOutline}" />
@@ -473,6 +542,7 @@
                                             <TextBlock Grid.Column="1"
                                                        HorizontalAlignment="Left"
                                                        VerticalAlignment="Center"
+                                                       Style="{DynamicResource TextBlockDefaultSecLight}"
                                                        Text="{Binding ControlMode.BasedOn}" />
                                         </Border>
                                     </hc:Col>
@@ -512,7 +582,7 @@
                                                 <StackPanel HorizontalAlignment="Right"
                                                             Margin="0,0,5,0"
                                                             Orientation="Horizontal">
-                                                    <Button VerticalAlignment="Center"
+                                                    <!--<Button VerticalAlignment="Center"
                                                             Background="Transparent"
                                                             Padding="5"
                                                             HorizontalAlignment="Right"
@@ -525,13 +595,16 @@
                                                             HorizontalAlignment="Right"
                                                             hc:IconElement.Width="15"
                                                             BorderThickness="0"
-                                                            hc:IconElement.Geometry="{DynamicResource moveUp}" />
+                                                            hc:IconElement.Geometry="{DynamicResource moveUp}" />-->
                                                     <Button VerticalAlignment="Center"
                                                             Background="Transparent"
                                                             Padding="5"
+                                                            Command="{Binding Path=DataContext.LightingProfiles.RemoveItemCommand, RelativeSource={RelativeSource AncestorType=Grid,AncestorLevel=4}}"
+                                                            CommandParameter="{Binding .}"
                                                             HorizontalAlignment="Right"
                                                             hc:IconElement.Width="15"
                                                             BorderThickness="0"
+                                                            ToolTip="Remove from playlist"
                                                             hc:IconElement.Geometry="{DynamicResource DeleteFillCircleGeometry}" />
                                                 </StackPanel>
                                             </Grid>

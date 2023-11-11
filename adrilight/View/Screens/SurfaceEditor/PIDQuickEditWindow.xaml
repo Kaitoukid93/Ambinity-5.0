@@ -158,7 +158,7 @@
                                                     <TextBlock 
                                                                Margin="5"
                                                                Foreground="White"
-                                                               Text="{Binding VID}"
+                                                               Text="{Binding Index}"
                                                                Style="{DynamicResource TextBlockSubTitleBold}" />
                                                 </Viewbox>
                                             </Grid>

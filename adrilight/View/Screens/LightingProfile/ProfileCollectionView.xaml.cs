@@ -17,7 +17,10 @@ namespace adrilight.View
         {
             PopUpAddTo.IsOpen = true;
         }
-
+        private void Close_Popup_Button_Click(object sender, RoutedEventArgs e)
+        {
+            PopUpAddTo.IsOpen = false;
+        }
 
 
     }

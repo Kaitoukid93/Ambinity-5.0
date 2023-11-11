@@ -27,9 +27,14 @@ namespace adrilight_shared.Models.Lighting
         private bool _isDeleteable = true;
         private bool _isPlaying;
         private TimeSpan _duration = TimeSpan.FromSeconds(60);
+        private int _currentPlayingProgress;
         public LightingMode ControlMode { get; set; }
         public List<string> TargetDevicesUID { get; set; }
         public TimeSpan Duration { get => _duration; set { Set(() => Duration, ref _duration, value); } }
+        [JsonIgnore]
+        public string LocalPath { get; set; }
+        [JsonIgnore]
+        public int CurrentPlayingProgress { get => _currentPlayingProgress; set { Set(() => CurrentPlayingProgress, ref _currentPlayingProgress, value); } }
         [JsonIgnore]
         public ObservableCollection<IDeviceSettings> TargetDevices { get; set; }
         [JsonIgnore]
@@ -42,6 +47,9 @@ namespace adrilight_shared.Models.Lighting
         public bool IsChecked { get => _isChecked; set { Set(() => IsChecked, ref _isChecked, value); } }
         [JsonIgnore]
         public bool IsEditing { get => _isEditing; set { Set(() => IsEditing, ref _isEditing, value); } }
+        [JsonIgnore]
+        public string InfoPath { get; set; }
+
         public void Stop()
         {
             if (IsPlaying)

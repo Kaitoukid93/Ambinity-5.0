@@ -116,19 +116,16 @@
                                                     </CheckBox.Style>
                                                 </CheckBox>
                                             </Grid>
-                                            <StackPanel Orientation="Horizontal"
-                                                        Margin="5,0,0,5">
-                                                <TextBlock Text="Engine: "
-                                                           HorizontalAlignment="Left"
-                                                           Margin="0,0,0,5"
-                                                           Style="{DynamicResource TextBlockDefaultSecLight}"
-                                                           FontWeight="SemiBold" />
+                                            <Border Margin="5"
+                                                    HorizontalAlignment="Left"
+                                                    Background="{DynamicResource SecondaryRegionBrush}"
+                                                    CornerRadius="2">
                                                 <TextBlock Text="{Binding ControlMode.BasedOn}"
                                                            HorizontalAlignment="Left"
-                                                           Margin="0,0,0,5"
+                                                           Margin="5,2"
                                                            Style="{DynamicResource TextBlockDefaultSecLight}"
                                                            FontWeight="SemiBold" />
-                                            </StackPanel>
+                                            </Border>
 
                                         </StackPanel>
                                         <Grid Grid.Row="1">
@@ -153,6 +150,8 @@
                                                                   IsChecked="{Binding IsPinned}"
                                                                   hc:IconElement.Width="15"
                                                                   hc:IconElement.Height="15"
+                                                                  Command="{Binding Path=DataContext.ItemPinUnPinCommand, RelativeSource={RelativeSource AncestorType={x:Type local:ProfileCollectionView}}}"
+                                                                  CommandParameter="{Binding .}"
                                                                   Padding="0"
                                                                   BorderThickness="0"
                                                                   Width="25"
@@ -233,28 +232,21 @@
                                 Background="{DynamicResource MainContentBackgroundBrush}"
                                 CornerRadius="4">
                             <StackPanel Orientation="Vertical">
-                                <Button hc:IconElement.Geometry="{DynamicResource playComposition}"
-                                        hc:IconElement.Height="15"
-                                        Height="32"
-                                        Command="{Binding SelectItems}"
-                                        CommandParameter=""
-                                        Background="Transparent"
-                                        HorizontalAlignment="Left"
-                                        BorderThickness="0"
-                                        Content="Current playList" />
-                                <hc:Divider Margin="0"
-                                            Orientation="Horizontal"
-                                            LineStroke="{StaticResource RegionBrush}">
-                                </hc:Divider>
+                               
                                 <Button hc:IconElement.Geometry="{DynamicResource addnew}"
-                                        Height="32"
+                                        Height="40"
                                         hc:IconElement.Height="15"
                                         Background="Transparent"
+                                        Click="Close_Popup_Button_Click"
                                         HorizontalAlignment="Left"
                                         BorderThickness="0"
                                         Command="{Binding CreateNewCollectionFromSelectedItemsCommand}"
                                         Content="Add new playList" />
-                                <ItemsControl Margin="20,0,0,0"
+                                <hc:Divider Margin="0"
+                                            Orientation="Horizontal"
+                                            LineStroke="{StaticResource RegionBrush}">
+                                </hc:Divider>
+                                <ItemsControl Margin="0,0,0,0"
                                               Background="Transparent"
                                               BorderThickness="0"
                                               ItemsSource="{Binding Path = DataContext.AvailableLightingProfilePlaylists.Items,RelativeSource={RelativeSource AncestorType={x:Type local:LightingProfileManagerWindow}}}">
@@ -262,6 +254,10 @@
                                         <DataTemplate>
                                             <Button HorizontalAlignment="Left"
                                                     Background="Transparent"
+                                                    Height="40"
+                                                    Click="Close_Popup_Button_Click"
+                                                    hc:IconElement.Height="20"
+                                                    hc:IconElement.Geometry="{DynamicResource profilePlaylist}"
                                                     Command="{Binding Path = DataContext.SelectItems,RelativeSource={RelativeSource AncestorType={x:Type local:ProfileCollectionView}}}"
                                                     CommandParameter="{Binding Name}"
                                                     BorderThickness="0">

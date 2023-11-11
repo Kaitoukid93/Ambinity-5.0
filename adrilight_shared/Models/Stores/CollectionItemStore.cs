@@ -10,6 +10,8 @@ namespace adrilight_shared.Models.Stores
         public event Action<IGenericCollectionItem> SelectedItemChanged;
         public event Action<List<IGenericCollectionItem>, string> SelectedItemsChanged;
         public event Action<IGenericCollectionItem, DataViewMode> Navigated;
+        public event Action<IGenericCollectionItem> ItemPinStatusChanged;
+        public event Action<List<IGenericCollectionItem>> ItemsRemoved;
         public void CreateItem(IGenericCollectionItem item)
         {
             ItemCreated?.Invoke(item);
@@ -30,9 +32,17 @@ namespace adrilight_shared.Models.Stores
         {
             Navigated?.Invoke(item, lastViewMode);
         }
-        public void BackToCollectionView()
+        public void BackToCollectionView(IGenericCollectionItem item)
         {
-            Navigated?.Invoke(null, DataViewMode.Collection);
+            Navigated?.Invoke(item, DataViewMode.Collection);
+        }
+        public void ChangeItemPinStatus(IGenericCollectionItem item)
+        {
+            ItemPinStatusChanged?.Invoke(item);
+        }
+        public void RemoveItems(List<IGenericCollectionItem> items)
+        {
+            ItemsRemoved?.Invoke(items);
         }
     }
 }

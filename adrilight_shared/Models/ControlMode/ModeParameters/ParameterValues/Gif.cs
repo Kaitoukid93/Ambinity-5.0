@@ -45,13 +45,20 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
         public string InfoPath { get; set; }
         [JsonIgnore]
         public object Lock { get; } = new object();
+        [JsonIgnore]
+        public bool IsSelected { get; set; }
+        [JsonIgnore]
+        public bool IsEditing { get; set; }
+        [JsonIgnore]
+        public bool IsPinned { get; set; }
+
         private GifBitmapDecoder Decoder;
         private CancellationTokenSource cancellationTokenSource;
         private bool _isRunning;
         /// <summary>
         /// this function play gif single time
         /// </summary>
-        public async Task PlayGif()
+        public async Task PlayGif(int duration)
         {
 
             if (_isRunning)
@@ -62,7 +69,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
             Decoder = new GifBitmapDecoder(imageStreamSource, BitmapCreateOptions.IgnoreColorProfile, BitmapCacheOption.OnLoad);
             Bitmap = Decoder.Frames[0];
             Bitmap.Freeze();
-            cancellationTokenSource = new CancellationTokenSource(5000);
+            cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(duration));
             try
             {
                 await RunGif(cancellationTokenSource.Token, Decoder);
@@ -110,7 +117,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
         {
             // Decoder
             _isRunning = false;
-            cancellationTokenSource.Cancel();
+            cancellationTokenSource?.Cancel();
             cancellationTokenSource = null;
             Decoder = null;
             GC.Collect();

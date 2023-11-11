@@ -8,7 +8,7 @@
              xmlns:local="clr-namespace:adrilight.View"
              xmlns:device="clr-namespace:adrilight_shared.Models.Device;assembly=adrilight_shared"
              xmlns:lighting="clr-namespace:adrilight_shared.Models.Lighting;assembly=adrilight_shared"
-             xmlns:automation ="clr-namespace:adrilight_shared.Models.Automation;assembly=adrilight_shared"
+             xmlns:automation="clr-namespace:adrilight_shared.Models.Automation;assembly=adrilight_shared"
              Background="{StaticResource RegionBrush}"
              xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
              mc:Ignorable="d"
@@ -602,7 +602,7 @@
                                                          Width="100"
                                                          Height="4" />
                                         </StackPanel>
-                                        
+
                                     </Grid>
                                 </StackPanel>
                             </Grid>
@@ -650,23 +650,24 @@
                             <RowDefinition Height="auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <StackPanel>
-                            <Grid Margin="0,0,0,0">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Margin="15,0,10,0"
-                                               Text="LIGHTING PROFILE"
-                                               VerticalAlignment="Center"
-                                               FontWeight="SemiBold"
-                                               Style="{DynamicResource TextBlockSubTitle}"
-                                               HorizontalAlignment="Left" />
-                                    <Button Command="{Binding OpenLightingProfileManagerWindowCommand}" hc:IconElement.Geometry="{DynamicResource profileManager}" Margin="5" BorderBrush="Transparent" Content="Manage">
-                                    </Button>
-                                </StackPanel>
-                                
-                            </Grid>
-                           
-                        </StackPanel>
+                        <Grid Margin="0,0,0,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Margin="15,0,10,0"
+                                           Text="LIGHTING PROFILE"
+                                           VerticalAlignment="Center"
+                                           FontWeight="SemiBold"
+                                           Style="{DynamicResource TextBlockSubTitle}"
+                                           HorizontalAlignment="Left" />
+                                <Button ToolTip="Quản lý Profile và Playlist"
+                                        Command="{Binding OpenLightingProfileManagerWindowCommand}"
+                                        hc:IconElement.Geometry="{DynamicResource profileManager}"
+                                        Margin="5"
+                                        BorderBrush="Transparent"
+                                        Content="Manage">
+                                </Button>
+                            </StackPanel>
 
+                        </Grid>
                         <Grid Grid.Row="1">
                             <StackPanel>
                                 <Grid Margin="0">
@@ -698,19 +699,13 @@
                                                    HorizontalAlignment="Left" />
                                     </StackPanel>
                                 </Grid>
-                                <ItemsControl Margin="10,0,10,10"
-                                              HorizontalAlignment="Left"
-                                              VerticalAlignment="Top"
-                                              ItemTemplate="{DynamicResource _horizontalCardItemTemplate}"
-                                              ItemsSource="{Binding AvailableLightingProfiles}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel Orientation="Horizontal" />
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                </ItemsControl>
+                                <Grid>
+                                    <local:LightingProfileDashboardView DataContext="{Binding LightingProfileManagerViewModel}">
+
+                                    </local:LightingProfileDashboardView>
+                                </Grid>
                             </StackPanel>
-                       
+
                         </Grid>
                     </Grid>
                     <Grid>
@@ -720,12 +715,23 @@
                         </Grid.RowDefinitions>
                         <StackPanel>
                             <Grid Margin="0">
-                                <TextBlock Margin="15,10,10,5"
-                                           Text="AUTOMATIONS"
-                                           VerticalAlignment="Top"
-                                           FontWeight="SemiBold"
-                                           Style="{DynamicResource TextBlockSubTitle}"
-                                           HorizontalAlignment="Left" />
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Margin="15,10,10,0"
+                                               Text="AUTOMATIONS"
+                                               VerticalAlignment="Top"
+                                               FontWeight="SemiBold"
+                                               Style="{DynamicResource TextBlockSubTitle}"
+                                               HorizontalAlignment="Left" />
+                                    <Button ToolTip="Quản lý Profile và Playlist"
+                                            Command="{Binding OpenAutomationManagerWindowCommand}"
+                                            hc:IconElement.Geometry="{DynamicResource auto}"
+                                            Margin="5"
+                                            BorderBrush="Transparent"
+                                            Content="Manage">
+                                    </Button>
+                                </StackPanel>
+                              
+                                
                             </Grid>
                             <Grid Margin="0">
                                 <StackPanel Orientation="Horizontal"
@@ -733,11 +739,11 @@
 
 
                                     <TextBlock Margin="0,0"
-                                               Text="Khi được kích hoạt, các hành động đã được thêm trong automation sẽ lần lượt được thực hiện. Để chỉnh sửa các hành động, hãy truy cập"
+                                               Text="Khi được kích hoạt, các hành động đã được thêm trong automation sẽ lần lượt được thực hiện."
                                                VerticalAlignment="Top"
                                                Style="{DynamicResource TextBlockDefaultSecLight}"
                                                HorizontalAlignment="Left" />
-                                    <Button Command="{Binding OpenAutomationManagerWindowCommand}"
+                                    <!--<Button Command="{Binding OpenAutomationManagerWindowCommand}"
                                             CommandParameter="Lighting"
                                             Height="15"
                                             Padding="0"
@@ -750,7 +756,8 @@
                                                    TextWrapping="Wrap"
                                                    Style="{DynamicResource TextBlockDefaultPrimary}"
                                                    Text="Automation" />
-                                    </Button>
+                                    </Button>-->
+
                                 </StackPanel>
                             </Grid>
                         </StackPanel>

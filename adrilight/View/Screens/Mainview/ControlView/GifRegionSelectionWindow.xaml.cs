@@ -1,4 +1,5 @@
 ﻿using adrilight.ViewModel;
+using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
 using adrilight_shared.Models.Preview;
 using System.Drawing;
 using System.Windows;
@@ -17,6 +18,7 @@ namespace adrilight.View
             InitializeComponent();
 
         }
+        private Gif _currentSelectedGif;
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             //if (adjustingRect.Height + Canvas.GetTop(adjustingRect) > ViewModel.CanvasHeight || adjustingRect.Width + Canvas.GetLeft(adjustingRect) > ViewModel.CanvasWidth || Canvas.GetLeft(adjustingRect) < 0 || Canvas.GetTop(adjustingRect) < 0)
@@ -49,7 +51,7 @@ namespace adrilight.View
             //}
         }
 
-        private void SourceIndexChanged(object sender, SelectionChangedEventArgs e)
+        private async void SourceIndexChanged(object sender, SelectionChangedEventArgs e)
         {
             var viewModel = this.DataContext as MainViewViewModel;
             if (viewModel.ClickedRegionButtonParameter == null)
@@ -60,6 +62,13 @@ namespace adrilight.View
             var selectedBitmap = new Bitmap((sourceList.SelectedItem as GifCard).Path);
             viewModel.CalculateAdjustingRectangle(selectedBitmap, viewModel.ClickedRegionButtonParameter.CapturingRegion);
             selectedBitmap.Dispose();
+
+            _currentSelectedGif = (sourceList.SelectedItem as GifCard).Gif;
+            if (_currentSelectedGif != null)
+                _currentSelectedGif.DisposeGif();
+            await _currentSelectedGif.PlayGif(30);
+
+
 
         }
     }
