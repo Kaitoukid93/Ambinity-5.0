@@ -42,6 +42,7 @@ namespace adrilight.Ticker
             var valid = playlist != null && playlist.LightingProfiles != null && playlist.LightingProfiles.Items != null && playlist.LightingProfiles.Items.Count > 0;
             if (!valid)
                 return;
+            _selectedPlaylist?.StopPlaylist();
             _selectedPlaylist = playlist;
             _selectedPlaylist.IsPlaying = true;
             _selectedPlaylist.ResetProfilesPlayingState();
@@ -122,7 +123,6 @@ namespace adrilight.Ticker
         }
         private static void SubTimerElapsed(Object source, ElapsedEventArgs e)
         {
-            Log.Information("Current Profile time left: " + _currentTimeSpan.Subtract(TimeSpan.FromSeconds(1)));
             _currentTimeSpan = _currentTimeSpan.Subtract(TimeSpan.FromSeconds(1));
             _currentPlayingProfile.CurrentPlayingProgress = (int)((_currentPlayingProfile.Duration.TotalMilliseconds - _currentTimeSpan.TotalMilliseconds) * 100 / _currentPlayingProfile.Duration.TotalMilliseconds);
         }
@@ -145,10 +145,7 @@ namespace adrilight.Ticker
                         _selectedPlaylist.CurrentPlayingProfileIndex = 0;
                     else
                     {
-                        _selectedPlaylist.IsPlaying = false;
-                        _selectedPlaylist.CurrentPlayingLightingProfile.IsPlaying = false;
-                        _timer.Stop();
-                        _subTimer.Stop();
+                        Stop();
                         return;
                     }
                 }
@@ -160,9 +157,10 @@ namespace adrilight.Ticker
         }
         public void Stop()
         {
-            Log.Information("Current running playlist paused");
-            _timer?.Stop();
-            _subTimer?.Stop();
+            _selectedPlaylist?.StopPlaylist();
+            _selectedPlaylist.CurrentPlayingLightingProfile.IsPlaying = false;
+            _timer.Stop();
+            _subTimer.Stop();
         }
         private void ActivateCurrentLightingProfileForSpecificDevice(LightingProfile profile, IDeviceSettings device)
         {

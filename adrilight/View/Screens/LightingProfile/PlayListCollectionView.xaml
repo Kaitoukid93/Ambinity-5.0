@@ -86,7 +86,7 @@
                                         </Style>
                                     </Grid.Style>
                                     <Button hc:BorderElement.CornerRadius="5"
-                                            Command="{Binding Path=DataContext.SelectItem, RelativeSource={RelativeSource AncestorType={x:Type local:PlayListCollectionView}}}"
+                                            Command="{Binding Path=DataContext.PlaySelectedItemCommand, RelativeSource={RelativeSource AncestorType={x:Type local:LightingProfileManagerWindow}}}"
                                             CommandParameter="{Binding .}"
                                             ToolTip="Play"
                                             BorderThickness="1"
@@ -350,15 +350,34 @@
                                                                 Orientation="Horizontal">
                                                         <Button BorderThickness="0"
                                                                 Height="32"
-                                                                Style="{DynamicResource ButtonPrimary}"
                                                                 Foreground="{DynamicResource RegionBrush}"
-                                                                hc:IconElement.Geometry="{DynamicResource playComposition}"
                                                                 Margin="0,5,10,5"
-                                                                Command="{Binding Path=DataContext.SelectItem, RelativeSource={RelativeSource AncestorType={x:Type local:PlayListCollectionView}}}"
-                                                                CommandParameter="{Binding Path=DataContext.CurrentSelectedItem, RelativeSource={RelativeSource AncestorType={x:Type local:PlayListCollectionView}}}"
+                                                                CommandParameter="{Binding .}"
                                                                 hc:IconElement.Height="15"
-                                                                ToolTip="Play from the start"
-                                                                Content="Play all" />
+                                                                ToolTip="Play from the start">
+                                                            <Button.Style>
+                                                                <Style TargetType="Button"
+                                                                       BasedOn="{StaticResource ButtonPrimary}">
+                                                                    <Setter Property="Content"
+                                                                            Value="Play" />
+                                                                    <Setter Property="hc:IconElement.Geometry"
+                                                                            Value="{DynamicResource playComposition}" />
+                                                                    <Setter Property="Command"
+                                                                            Value="{Binding Path=DataContext.PlaySelectedItemCommand, RelativeSource={RelativeSource AncestorType={x:Type local:LightingProfileManagerWindow}}}" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsPlaying}"
+                                                                                     Value="True">
+                                                                            <Setter Property="Content"
+                                                                                    Value="Stop" />
+                                                                            <Setter Property="hc:IconElement.Geometry"
+                                                                                    Value="{DynamicResource stopComposition}" />
+                                                                            <Setter Property="Command"
+                                                                                    Value="{Binding Path=DataContext.StopSelectedItemCommand, RelativeSource={RelativeSource AncestorType={x:Type local:LightingProfileManagerWindow}}}" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Button.Style>
+                                                        </Button>
                                                         <Button BorderThickness="0"
                                                                 Background="{DynamicResource SecondaryRegionBrush}"
                                                                 hc:IconElement.Geometry="{DynamicResource rename}"

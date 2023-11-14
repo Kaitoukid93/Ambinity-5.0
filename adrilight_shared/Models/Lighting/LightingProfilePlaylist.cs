@@ -89,6 +89,16 @@ namespace adrilight_shared.Models.Lighting
 
             }
         }
+        public void GetProfilesUID()
+        {
+            if (LightingProfiles == null || LightingProfiles.Items == null)
+                return;
+            LightingProfilesUID = new ObservableCollection<string>();
+            foreach (LightingProfile item in LightingProfiles.Items)
+            {
+                LightingProfilesUID.Add(item.ProfileUID);
+            }
+        }
         private ObservableCollection<string> GetCollectionName()
         {
             var names = new ObservableCollection<string>();
@@ -127,6 +137,10 @@ namespace adrilight_shared.Models.Lighting
             {
                 (item as LightingProfile).IsPlaying = false;
             }
+        }
+        public void StopPlaylist()
+        {
+            IsPlaying = false;
         }
         #endregion
     }

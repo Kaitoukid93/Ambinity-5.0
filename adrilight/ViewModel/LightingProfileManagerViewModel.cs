@@ -84,10 +84,22 @@ namespace adrilight.ViewModel
                 foreach (var item in list)
                     (targetPlaylist as LightingProfilePlaylist).LightingProfiles.AddItems(item);
             }
+            (targetPlaylist as LightingProfilePlaylist).GetProfilesUID();
             AvailableLightingProfiles.ResetSelectionStage();
             AvailableLightingProfilePlaylists.ResetSelectionStage();
         }
         private void OnSelectedItemChanged(IGenericCollectionItem item)
+        {
+            //if (item is LightingProfilePlaylist)
+            //{
+            //    _player.Play(item as LightingProfilePlaylist);
+            //}
+            //else if (item is LightingProfile)
+            //{
+            //    _player.Play(item as LightingProfile);
+            //}
+        }
+        private void PlaySelectedItem(IGenericCollectionItem item)
         {
             if (item is LightingProfilePlaylist)
             {
@@ -98,10 +110,15 @@ namespace adrilight.ViewModel
                 _player.Play(item as LightingProfile);
             }
         }
+        private void StopSelectedItem(IGenericCollectionItem item)
+        {
+            _player.Stop();
+        }
         private void OnCollectionCreated(DataCollection collection)
         {
             var newPlaylist = new LightingProfilePlaylist(collection.Name);
             newPlaylist.LightingProfiles = collection;
+            newPlaylist.GetProfilesUID();
             AvailableLightingProfilePlaylists.AddItems(newPlaylist);
             AvailableLightingProfiles.ResetSelectionStage();
             AvailableLightingProfilePlaylists.ResetSelectionStage();
@@ -234,6 +251,22 @@ namespace adrilight.ViewModel
                 }, vm);
 
             });
+            PlaySelectedItemCommand = new RelayCommand<IGenericCollectionItem>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                PlaySelectedItem(p);
+
+            });
+            StopSelectedItemCommand = new RelayCommand<IGenericCollectionItem>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                StopSelectedItem(p);
+
+            });
         }
         public void SaveData()
         {
@@ -282,7 +315,7 @@ namespace adrilight.ViewModel
             {
                 AvailableLightingProfilePlaylists.AddItems(playlist);
                 if (playlist.IsPlaying)
-                    OnSelectedItemChanged(playlist);
+                    PlaySelectedItem(playlist);
             }
 
             RefreshDashboardItems();
@@ -338,6 +371,8 @@ namespace adrilight.ViewModel
 
         #region Commands
         public ICommand ChangePlaylistProfileDurationCommand { get; set; }
+        public ICommand PlaySelectedItemCommand { get; set; }
+        public ICommand StopSelectedItemCommand { get; set; }
         #endregion
 
 
