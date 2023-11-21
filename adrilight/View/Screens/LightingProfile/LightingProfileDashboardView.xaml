@@ -125,7 +125,23 @@
                                         </StackPanel>
                                         <Grid Grid.Row="1">
                                             <Grid>
-                                                <StackPanel HorizontalAlignment="Right"
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <Border Margin="5"
+                                                        Height="20"
+                                                        Visibility="{Binding IsPlaying,Converter={StaticResource Boolean2VisibilityConverter}}"
+                                                        HorizontalAlignment="Left"
+                                                        Background="{DynamicResource primaryBackgroundBrush}"
+                                                        CornerRadius="2">
+                                                    <TextBlock Text="Playing"
+                                                               HorizontalAlignment="Left"
+                                                               Margin="5,2"
+                                                               Style="{DynamicResource TextBlockDefaultPrimary}"
+                                                               FontWeight="SemiBold" />
+                                                </Border>
+                                                <StackPanel Grid.Column="1" HorizontalAlignment="Right"
                                                             Orientation="Horizontal">
                                                     <Button Width="25"
                                                             HorizontalAlignment="Right"
@@ -216,9 +232,26 @@
                                         </StackPanel>
                                         <Grid Grid.Row="1">
                                             <Grid>
-                                                <StackPanel HorizontalAlignment="Right"
-                                                            Orientation="Horizontal">
-                                                    <Button Width="25"
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <Border Margin="5"
+                                                        Height="20"
+                                                        Visibility="{Binding IsPlaying,Converter={StaticResource Boolean2VisibilityConverter}}"
+                                                        HorizontalAlignment="Left"
+                                                        Background="{DynamicResource primaryBackgroundBrush}"
+                                                        CornerRadius="2">
+                                                    <TextBlock Text="Playing"
+                                                               HorizontalAlignment="Left"
+                                                               Margin="5,2"
+                                                               Style="{DynamicResource TextBlockDefaultPrimary}"
+                                                               FontWeight="SemiBold" />
+                                                </Border>
+                                                <Grid Grid.Column="1">
+                                                    <StackPanel HorizontalAlignment="Right"
+                                                                Orientation="Horizontal">
+                                                        <Button Width="25"
                                                             HorizontalAlignment="Right"
                                                             VerticalAlignment="Bottom"
                                                             Height="25"
@@ -236,6 +269,7 @@
                                                     </Button>
                                                 </StackPanel>
 
+                                            </Grid>
                                             </Grid>
                                         </Grid>
                                     </Grid>

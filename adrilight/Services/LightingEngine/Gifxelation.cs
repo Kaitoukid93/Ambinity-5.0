@@ -358,7 +358,7 @@ namespace adrilight.Services.LightingEngine
             Bitmap image = null;
             var bitmapData = new BitmapData();
             IsRunning = true;
-            Log.Information("Gifxelation is running");
+            //Log.Information("Gifxelation is running");
             int _idleCounter = 0;
             try
             {
@@ -496,7 +496,7 @@ namespace adrilight.Services.LightingEngine
             {
                 image?.Dispose();
 
-                Log.Information("Stopped Gifxelation Engine");
+                // Log.Information("Stopped Gifxelation Engine");
                 IsRunning = false;
                 GC.Collect();
             }
@@ -544,9 +544,9 @@ namespace adrilight.Services.LightingEngine
                 if (_lastObservedHeight != null && _lastObservedWidth != null
                     && (_lastObservedHeight != image.Height || _lastObservedWidth != image.Width))
                 {
-                    Log.Information("The gif size changed from {0}x{1} to {2}x{3}"
-                        , _lastObservedWidth, _lastObservedHeight
-                        , image.Width, image.Height);
+                    //Log.Information("The gif size changed from {0}x{1} to {2}x{3}"
+                    //    , _lastObservedWidth, _lastObservedHeight
+                    //    , image.Width, image.Height);
 
                 }
                 _lastObservedWidth = image.Width;
@@ -632,7 +632,7 @@ namespace adrilight.Services.LightingEngine
         }
         public void Start()
         {
-            Log.Information("Starting the Gifxelation Engine");
+            // Log.Information("Starting the Gifxelation Engine");
             _dimMode = DimMode.Down;
             _dimFactor = 1.00;
             GetTick(CurrentZone.IsInControlGroup);
@@ -647,7 +647,7 @@ namespace adrilight.Services.LightingEngine
         }
         public void Stop()
         {
-            Log.Information("Stop called for Gifxelation Engine");
+            // Log.Information("Stop called for Gifxelation Engine");
             //CurrentZone.FillSpotsColor(Color.FromRgb(0, 0, 0));
             if (_workerThread == null) return;
 

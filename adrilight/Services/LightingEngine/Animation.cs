@@ -529,7 +529,7 @@ namespace adrilight.Services.LightingEngine
         public void Run(CancellationToken token)
         {
             IsRunning = true;
-            Log.Information("Animation engine is running");
+            //Log.Information("Animation engine is running");
             int _idleCounter = 0;
             try
             {
@@ -621,7 +621,7 @@ namespace adrilight.Services.LightingEngine
             }
             finally
             {
-                Log.Information("Stopped the Animation Engine");
+                //Log.Information("Stopped the Animation Engine");
                 IsRunning = false;
                 GC.Collect();
             }
@@ -814,7 +814,7 @@ namespace adrilight.Services.LightingEngine
         public void Start()
         {
             //start it
-            Log.Information("starting the Animation Color Engine");
+            // Log.Information("starting the Animation Color Engine");
             _dimMode = DimMode.Down;
             _dimFactor = 1.00;
             GetTick(CurrentZone.IsInControlGroup);
@@ -829,7 +829,7 @@ namespace adrilight.Services.LightingEngine
         }
         public void Stop()
         {
-            Log.Information("Stop called for Animation Engine");
+            // Log.Information("Stop called for Animation Engine");
             //CurrentZone.FillSpotsColor(Color.FromRgb(0, 0, 0));
             if (_workerThread == null) return;
             _cancellationTokenSource?.Cancel();

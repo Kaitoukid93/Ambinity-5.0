@@ -414,7 +414,7 @@ namespace adrilight.Services.LightingEngine
         {
 
             IsRunning = true;
-            Log.Information("Music Engine is running.");
+            //Log.Information("Music Engine is running.");
             int _idleCounter = 0;
             try
             {
@@ -502,7 +502,7 @@ namespace adrilight.Services.LightingEngine
             }
             finally
             {
-                Log.Information("Stopped the Music Engine");
+                // Log.Information("Stopped the Music Engine");
                 IsRunning = false;
                 GC.Collect();
             }
@@ -783,7 +783,7 @@ namespace adrilight.Services.LightingEngine
         public void Start()
         {
             //start it
-            Log.Information("starting the Music Engine");
+            // Log.Information("starting the Music Engine");
             _dimMode = DimMode.Down;
             _dimFactor = 1.00;
             GetTick(CurrentZone.IsInControlGroup);
@@ -798,7 +798,7 @@ namespace adrilight.Services.LightingEngine
         }
         public void Stop()
         {
-            Log.Information("Stop called for Music engine");
+            // Log.Information("Stop called for Music engine");
             //CurrentZone.FillSpotsColor(Color.FromRgb(0, 0, 0));
             if (_workerThread == null) return;
             _cancellationTokenSource?.Cancel();

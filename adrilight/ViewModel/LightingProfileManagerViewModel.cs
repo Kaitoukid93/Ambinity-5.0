@@ -28,8 +28,8 @@ namespace adrilight.ViewModel
         public LightingProfileManagerViewModel(CollectionItemStore store, PlaylistDecoder player, DialogService service)
         {
             //load profile and playlist
-            _player = player;
-            _player.CurrentPlayingProfileChanged += OnCurrentPlayingProfileChanged;
+            Player = player;
+            Player.CurrentPlayingProfileChanged += OnCurrentPlayingProfileChanged;
 
             _collectionItemStore = store;
             _collectionItemStore.CollectionCreated += OnCollectionCreated;
@@ -103,16 +103,17 @@ namespace adrilight.ViewModel
         {
             if (item is LightingProfilePlaylist)
             {
-                _player.Play(item as LightingProfilePlaylist);
+                Player.Play(item as LightingProfilePlaylist);
+                CurrentRunningPlaylist = item as LightingProfilePlaylist;
             }
             else if (item is LightingProfile)
             {
-                _player.Play(item as LightingProfile);
+                Player.Play(item as LightingProfile);
             }
         }
         private void StopSelectedItem(IGenericCollectionItem item)
         {
-            _player.Stop();
+            Player.Stop();
         }
         private void OnCollectionCreated(DataCollection collection)
         {
@@ -155,7 +156,7 @@ namespace adrilight.ViewModel
 
         #region Properties
         public NonClientArea NonClientAreaContent { get; set; }
-        private PlaylistDecoder _player;
+        public PlaylistDecoder Player { get; set; }
         private readonly CollectionItemStore _collectionItemStore;
         public List<LightingProfile> LoadLightingProfileIfExist()
         {
@@ -209,6 +210,7 @@ namespace adrilight.ViewModel
         public DataCollection AvailableLightingProfilePlaylists { get; set; }
         private DialogService _dialogService;
         private LightingProfile _currentPlayingProfile;
+        private LightingProfilePlaylist _currentRunningPlaylist;
         public LightingProfile CurrentPlayingProfile {
             get
             {
@@ -217,6 +219,17 @@ namespace adrilight.ViewModel
             set
             {
                 _currentPlayingProfile = value;
+                RaisePropertyChanged();
+            }
+        }
+        public LightingProfilePlaylist CurrentRunningPlaylist {
+            get
+            {
+                return _currentRunningPlaylist;
+            }
+            set
+            {
+                _currentRunningPlaylist = value;
                 RaisePropertyChanged();
             }
         }
@@ -265,6 +278,22 @@ namespace adrilight.ViewModel
             }, (p) =>
             {
                 StopSelectedItem(p);
+
+            });
+            WindowClosing = new RelayCommand<string>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                Player.WindowsStatusChanged(false);
+
+            });
+            WindowOpen = new RelayCommand<string>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                Player.WindowsStatusChanged(true);
 
             });
         }
@@ -373,6 +402,8 @@ namespace adrilight.ViewModel
         public ICommand ChangePlaylistProfileDurationCommand { get; set; }
         public ICommand PlaySelectedItemCommand { get; set; }
         public ICommand StopSelectedItemCommand { get; set; }
+        public ICommand WindowClosing { get; private set; }
+        public ICommand WindowOpen { get; private set; }
         #endregion
 
 

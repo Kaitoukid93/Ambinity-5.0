@@ -305,7 +305,7 @@ namespace adrilight.Services.LightingEngine
         public void Run(CancellationToken token)
         {
 
-            Log.Information("Desktop Duplicator Reader is Running");
+            // Log.Information("Desktop Duplicator Reader is Running");
             Bitmap image = null;
             var bitmapData = new BitmapData();
             IsRunning = true;
@@ -456,7 +456,7 @@ namespace adrilight.Services.LightingEngine
             {
                 image?.Dispose();
 
-                Log.Information("Stopped Desktop Duplication Reader.");
+                //Log.Information("Stopped Desktop Duplication Reader.");
                 IsRunning = false;
                 GC.Collect();
             }
@@ -490,9 +490,9 @@ namespace adrilight.Services.LightingEngine
                 if (_lastObservedHeight != null && _lastObservedWidth != null
                     && (_lastObservedHeight != image.Height || _lastObservedWidth != image.Width))
                 {
-                    Log.Information("The desktop size changed from {0}x{1} to {2}x{3}"
-                        , _lastObservedWidth, _lastObservedHeight
-                        , image.Width, image.Height);
+                    //Log.Information("The desktop size changed from {0}x{1} to {2}x{3}"
+                    //    , _lastObservedWidth, _lastObservedHeight
+                    //    , image.Width, image.Height);
 
                 }
                 _lastObservedWidth = image.Width;
@@ -591,7 +591,7 @@ namespace adrilight.Services.LightingEngine
                 if (_currentVideoRatio == VideoRatio.Normal)
                 {
                     _currentVideoRatio = VideoRatio.LeterBox;
-                    Log.Information("BlackBarDetection, current ratio: " + _currentVideoRatio.ToString() + "[" + _currentColoredRegion.Left + "-" + _currentColoredRegion.Top + "-" + _currentColoredRegion.Width + "-" + _currentColoredRegion.Height + "]");
+                    //Log.Information("BlackBarDetection, current ratio: " + _currentVideoRatio.ToString() + "[" + _currentColoredRegion.Left + "-" + _currentColoredRegion.Top + "-" + _currentColoredRegion.Width + "-" + _currentColoredRegion.Height + "]");
 
                 }
             }
@@ -603,7 +603,7 @@ namespace adrilight.Services.LightingEngine
                 if (_currentVideoRatio == VideoRatio.LeterBox)
                 {
                     _currentVideoRatio = VideoRatio.Normal;
-                    Log.Information("BlackBarDetection, current ratio: " + _currentVideoRatio.ToString() + "[" + _currentColoredRegion.Left + "-" + _currentColoredRegion.Top + "-" + _currentColoredRegion.Width + "-" + _currentColoredRegion.Height + "]");
+                    // Log.Information("BlackBarDetection, current ratio: " + _currentVideoRatio.ToString() + "[" + _currentColoredRegion.Left + "-" + _currentColoredRegion.Top + "-" + _currentColoredRegion.Width + "-" + _currentColoredRegion.Height + "]");
                 }
 
             }
@@ -695,7 +695,7 @@ namespace adrilight.Services.LightingEngine
         public void Start()
         {
             //start it
-            Log.Information("starting the capturing");
+            // Log.Information("starting the capturing");
             _dimMode = DimMode.Down;
             _dimFactor = 1.00;
             Init();
@@ -709,7 +709,7 @@ namespace adrilight.Services.LightingEngine
         }
         public void Stop()
         {
-            Log.Information("Stop called for Desktop Duplicator Reader");
+            // Log.Information("Stop called for Desktop Duplicator Reader");
             //CurrentZone.FillSpotsColor(Color.FromRgb(0, 0, 0));
             if (_workerThread == null) return;
 

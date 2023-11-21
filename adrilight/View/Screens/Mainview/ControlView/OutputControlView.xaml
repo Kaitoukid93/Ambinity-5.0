@@ -761,8 +761,7 @@
                     <DataTemplate  x:Key="_listSelectionParamTemplate"
                                    DataType="{x:Type parameters:ListSelectionParameter}">
                         <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
-                            <Grid 
-                                  Visibility="{Binding IsEnabled,Converter={StaticResource Boolean2VisibilityConverter}}">
+                            <Grid Visibility="{Binding IsEnabled,Converter={StaticResource Boolean2VisibilityConverter}}">
                                 <StackPanel>
                                     <Border MouseDown="GroupBox_MouseDown"
                                             Effect="{DynamicResource EffectShadow1}"
@@ -1304,7 +1303,7 @@
                                                                                         ToolTip="{Binding Name}"
                                                                                         CornerRadius="2,2,2,2"
                                                                                         Style="{StaticResource BorderClip}">
-                                                                          
+
                                                                                     <Grid>
                                                                                         <Grid>
                                                                                             <Grid.Style>
@@ -1316,12 +1315,13 @@
                                                                                                                      Value="False">
                                                                                                             <Setter Property="Visibility"
                                                                                                                     Value="Visible" />
-                 
+
                                                                                                         </DataTrigger>
                                                                                                     </Style.Triggers>
                                                                                                 </Style>
                                                                                             </Grid.Style>
-                                                                                            <Image Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"
+                                                                                            <Image Stretch="Uniform"
+                                                                                                   RenderOptions.BitmapScalingMode="HighQuality"
                                                                                                    Source="{Binding LocalPath}" />
                                                                                         </Grid>
 
@@ -1335,13 +1335,14 @@
                                                                                                                      Value="True">
                                                                                                             <Setter Property="Visibility"
                                                                                                                     Value="Visible" />
-                                    
+
                                                                                                         </DataTrigger>
                                                                                                     </Style.Triggers>
                                                                                                 </Style>
                                                                                             </Grid.Style>
-                                                                                            <Image Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"
-                                                                                                   Source="{Binding Bitmap}"/>
+                                                                                            <Image Stretch="Uniform"
+                                                                                                   RenderOptions.BitmapScalingMode="HighQuality"
+                                                                                                   Source="{Binding Bitmap}" />
                                                                                         </Grid>
                                                                                     </Grid>
 
@@ -1496,198 +1497,356 @@
                              Padding="10"
                              CornerRadius="4"
                              Background="{DynamicResource MainContentBackgroundBrush}">
-                        <StackPanel>
+                        <Grid>
                             <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="auto" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="{Binding SelectedControlZone.Name}"
-                                           FontWeight="SemiBold"
-                                           Style="{DynamicResource TextBlockDefaultPrimary}" />
-                                <Grid Grid.Column="1">
-                                    <Button Style="{DynamicResource _defaultIconButton}"
-                                            Grid.Column="1"
-                                            Background="{DynamicResource SecondaryRegionBrush}"
-                                            HorizontalAlignment="Right"
-                                            Click="ButtonExport_Click"
-                                            x:Name="ExportButton"
-                                            Margin="0,0,5,0"
-                                            ToolTip="Share this effect"
-                                            hc:IconElement.Geometry="{DynamicResource export}" />
-                                    <Popup Effect="{DynamicResource EffectShadow1}"
-                                           Placement="Right"
-                                           PlacementTarget="{Binding ElementName=ExportButton}"
-                                           AllowsTransparency="True"
-                                           Grid.Column="2"
-                                           Grid.ColumnSpan="2"
-                                           HorizontalOffset="-10"
-                                           x:Name="PopupExport"
-                                           VerticalOffset="-15"
-                                           StaysOpen="False">
-                                        <hc:TransitioningContentControl Effect="{DynamicResource EffectShadow1}"
-                                                                        TransitionMode="Right2Left">
-                                            <Border Margin="15,15,5,15"
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Setter Property="Visibility"
+                                                Value="Collapsed">
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ShowPlayerWarning}"
+                                                         Value="False">
+                                                <Setter Property="Visibility"
+                                                        Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+                                <StackPanel>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{Binding SelectedControlZone.Name}"
+                                                   FontWeight="SemiBold"
+                                                   Style="{DynamicResource TextBlockDefaultPrimary}" />
+                                        <Grid Grid.Column="1">
+                                            <Button Style="{DynamicResource _defaultIconButton}"
+                                                    Grid.Column="1"
                                                     Background="{DynamicResource SecondaryRegionBrush}"
-                                                    CornerRadius="4">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <Button Background="Transparent"
-                                                            Command="{Binding OpenCreateNewLightingProfileWindowCommand}"
-                                                            CommandParameter="save"
-                                                            BorderThickness="0"
-                                                            Content="Save as" />
-                                                    <hc:Divider Margin="0"
-                                                                Orientation="Vertical"
-                                                                LineStroke="{StaticResource RegionBrush}">
-                                                    </hc:Divider>
-                                                    <Button Background="Transparent"
-                                                            BorderThickness="0"
-                                                            Command="{Binding ExportItemForOnlineStoreCommand}"
-                                                            CommandParameter="{Binding SelectedControlZone.CurrentActiveControlMode}"
-                                                            Content="Store Export" />
-                                                </StackPanel>
-                                            </Border>
-                                        </hc:TransitioningContentControl>
-                                    </Popup>
+                                                    HorizontalAlignment="Right"
+                                                    Click="ButtonExport_Click"
+                                                    x:Name="ExportButton"
+                                                    Margin="0,0,5,0"
+                                                    ToolTip="Share this effect"
+                                                    hc:IconElement.Geometry="{DynamicResource export}" />
+                                            <Popup Effect="{DynamicResource EffectShadow1}"
+                                                   Placement="Right"
+                                                   PlacementTarget="{Binding ElementName=ExportButton}"
+                                                   AllowsTransparency="True"
+                                                   Grid.Column="2"
+                                                   Grid.ColumnSpan="2"
+                                                   HorizontalOffset="-10"
+                                                   x:Name="PopupExport"
+                                                   VerticalOffset="-15"
+                                                   StaysOpen="False">
+                                                <hc:TransitioningContentControl Effect="{DynamicResource EffectShadow1}"
+                                                                                TransitionMode="Right2Left">
+                                                    <Border Margin="15,15,5,15"
+                                                            Background="{DynamicResource SecondaryRegionBrush}"
+                                                            CornerRadius="4">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Button Background="Transparent"
+                                                                    Command="{Binding OpenCreateNewLightingProfileWindowCommand}"
+                                                                    CommandParameter="save"
+                                                                    BorderThickness="0"
+                                                                    Content="Save as" />
+                                                            <hc:Divider Margin="0"
+                                                                        Orientation="Vertical"
+                                                                        LineStroke="{StaticResource RegionBrush}">
+                                                            </hc:Divider>
+                                                            <Button Background="Transparent"
+                                                                    BorderThickness="0"
+                                                                    Command="{Binding ExportItemForOnlineStoreCommand}"
+                                                                    CommandParameter="{Binding SelectedControlZone.CurrentActiveControlMode}"
+                                                                    Content="Store Export" />
+                                                        </StackPanel>
+                                                    </Border>
+                                                </hc:TransitioningContentControl>
+                                            </Popup>
+                                        </Grid>
+                                    </Grid>
+                                    <Grid Height="5">
+                                    </Grid>
+                                    <Grid Name="AvailableControlMode">
+                                        <GroupBox  Style="{StaticResource GroupBoxOriginal}"
+                                                   hc:TitleElement.TitlePlacement="Left">
+                                            <GroupBox.HeaderTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel>
+                                                        <TextBlock FontWeight="SemiBold"
+                                                                   Text="HIỆU ỨNG ĐANG CHẠY" />
+                                                        <TextBlock MaxWidth="150"
+                                                                   Margin="0,5,0,0"
+                                                                   HorizontalAlignment="Left"
+                                                                   TextWrapping="Wrap"
+                                                                   Style="{StaticResource TextBlockDefaultSecLight}"
+                                                                   Text="{Binding DataContext.SelectedControlZone.CurrentActiveControlMode.Description, RelativeSource={RelativeSource AncestorType=GroupBox}}" />
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </GroupBox.HeaderTemplate>
+                                            <Grid HorizontalAlignment="Right"
+                                                  x:Name="mode_selection">
+                                                <Button  MaxHeight="60"
+                                                         Effect="{DynamicResource EffectShadow1}"
+                                                         Background="{DynamicResource SecondaryRegionBrush}"
+                                                         Padding="10,10"
+                                                         hc:BorderElement.CornerRadius="4"
+                                                         Margin="0,5,5,5"
+                                                         Click="ButtonMode_OnClick"
+                                                         BorderThickness="0"
+                                                         hc:BackgroundSwitchElement.MouseHoverBackground="{DynamicResource ButtonHoverBrush}"
+                                                         hc:BackgroundSwitchElement.MouseDownBackground="{DynamicResource HoverBrush}"
+                                                         Style="{DynamicResource ButtonCustom}">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="auto" />
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Border Effect="{DynamicResource EffectShadow1}"
+                                                                CornerRadius="4"
+                                                                Background="{DynamicResource ButtonHoverBrush}">
+                                                            <Path Stretch="Uniform"
+                                                                  Margin="5"
+                                                                  Data="{Binding SelectedControlZone.CurrentActiveControlMode.Geometry,Converter={converters:StaticResourceConverter}}"
+                                                                  Width="25"
+                                                                  Height="25"
+                                                                  Fill="{DynamicResource PrimaryTextBrush}" />
+                                                        </Border>
+                                                        <TextBlock  Style="{DynamicResource TextBlockSubTitle}"
+                                                                    Margin="10,0,5,0"
+                                                                    Grid.Column="1"
+                                                                    Text="{Binding SelectedControlZone.CurrentActiveControlMode.Name}" />
+                                                        <ToggleButton Margin="0,2,0,0"
+                                                                      IsHitTestVisible="False"
+                                                                      Grid.Column="2"
+                                                                      IsChecked="{Binding ElementName=PopupMode,Path=IsOpen}"
+                                                                      HorizontalAlignment="Right"
+                                                                      Style="{DynamicResource ToggleButtonIconTransparent}"
+                                                                      hc:IconSwitchElement.Geometry="{DynamicResource showMore}"
+                                                                      hc:IconElement.Height="10"
+                                                                      hc:IconElement.Width="10"
+                                                                      hc:IconSwitchElement.GeometrySelected="{DynamicResource showLess}">
+                                                        </ToggleButton>
+                                                        <Popup Effect="{DynamicResource EffectShadow1}"
+                                                               AllowsTransparency="True"
+                                                               Grid.Column="2"
+                                                               Grid.ColumnSpan="2"
+                                                               HorizontalOffset="15"
+                                                               Name="PopupMode"
+                                                               VerticalOffset="6"
+                                                               StaysOpen="False">
+                                                            <hc:TransitioningContentControl Effect="{DynamicResource EffectShadow1}"
+                                                                                            TransitionMode="Top2Bottom">
+                                                                <Border Margin="15,15,5,15"
+                                                                        Background="{DynamicResource SecondaryRegionBrush}"
+                                                                        CornerRadius="7">
+                                                                    <ListBox     SelectionChanged="NewModeSelected"
+                                                                                 x:Name="lightingmode_selection"
+                                                                                 ItemContainerStyle="{DynamicResource _listBoxGeneralModeSelectionStyle}"
+                                                                                 Background="Transparent"
+                                                                                 BorderThickness="0"
+                                                                                 Margin="0,0,0,7"
+                                                                                 ItemsSource="{Binding SelectedControlZone.AvailableControlMode,Mode=TwoWay}"
+                                                                                 Style="{DynamicResource StackPanelVerticalListBox}">
+                                                                        <ListBox.ItemsPanel>
+                                                                            <ItemsPanelTemplate>
+                                                                                <StackPanel>
+                                                                                </StackPanel>
+                                                                            </ItemsPanelTemplate>
+                                                                        </ListBox.ItemsPanel>
+                                                                        <ListBox.ItemTemplate>
+                                                                            <DataTemplate>
+                                                                                <Grid>
+                                                                                    <Grid.ColumnDefinitions>
+                                                                                        <ColumnDefinition Width="auto" />
+                                                                                        <ColumnDefinition Width="*" />
+                                                                                    </Grid.ColumnDefinitions>
+                                                                                    <Path HorizontalAlignment="Left"
+                                                                                          Stretch="Uniform"
+                                                                                          Margin="10"
+                                                                                          Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
+                                                                                          Width="25"
+                                                                                          Height="25"
+                                                                                          Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" />
+                                                                                    <StackPanel Grid.Column="1">
+                                                                                        <TextBlock HorizontalAlignment="Left"
+                                                                                                   Margin="5,10,10,2"
+                                                                                                   Text="{Binding Name}"
+                                                                                                   FontSize="14"
+                                                                                                   FontWeight="SemiBold"
+                                                                                                   Style="{DynamicResource TextBlockDefault}" />
+                                                                                        <TextBlock HorizontalAlignment="Left"
+                                                                                                   Margin="5,0,10,10"
+                                                                                                   Text="{Binding Description}"
+                                                                                                   FontSize="13"
+                                                                                                   Style="{DynamicResource TextBlockDefaultSecLight}" />
+                                                                                    </StackPanel>
+
+
+
+                                                                                </Grid>
+                                                                            </DataTemplate>
+                                                                        </ListBox.ItemTemplate>
+                                                                    </ListBox>
+                                                                </Border>
+                                                            </hc:TransitioningContentControl>
+                                                        </Popup>
+                                                    </Grid>
+                                                </Button>
+                                            </Grid>
+                                        </GroupBox>
+                                    </Grid>
+                                </StackPanel>
+                            </Grid>
+                            <Grid>
+                                <Grid.Style>
+                                    <Style TargetType="Grid">
+                                        <Setter Property="Visibility"
+                                                Value="Collapsed">
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ShowPlayerWarning}"
+                                                         Value="True">
+                                                <Setter Property="Visibility"
+                                                        Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Style>
+                                <Grid DataContext="{Binding LightingProfileManagerViewModel.CurrentRunningPlaylist}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="100"
+                                            Height="100"
+                                            CornerRadius="4"
+                                            Margin="5"
+                                            VerticalAlignment="Top"
+                                            Background="{DynamicResource SecondaryRegionBrush}">
+                                        <Grid>
+                                            <ItemsControl HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"
+                                                          ItemsSource="{Binding CollectionName}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <hc:Gravatar Width="40"
+                                                                     Height="40"
+                                                                     Background="Transparent"
+                                                                     Id="{Binding .}">
+                                                        </hc:Gravatar>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel Orientation="Vertical" />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                            </ItemsControl>
+                                        </Grid>
+                                    </Border>
+                                    <Grid Grid.Column="1">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="*" />
+                                                <RowDefinition Height="auto" />
+                                            </Grid.RowDefinitions>
+                                            <StackPanel Orientation="Vertical">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock HorizontalAlignment="Left"
+                                                               Text="{Binding Name}"
+                                                               Grid.Column="0"
+                                                               Margin="5"
+                                                               Style="{DynamicResource TextBlockSubTitle}"
+                                                               FontWeight="SemiBold"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                </Grid>
+
+                                                <Border Margin="5"
+                                                        HorizontalAlignment="Left"
+                                                        Background="{DynamicResource SecondaryRegionBrush}"
+                                                        CornerRadius="2">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding LightingProfiles.Items.Count}"
+                                                                   HorizontalAlignment="Left"
+                                                                   Margin="5,2"
+                                                                   Style="{DynamicResource TextBlockDefaultSecLight}"
+                                                                   FontWeight="SemiBold" />
+                                                        <TextBlock Text="Profiles"
+                                                                   HorizontalAlignment="Left"
+                                                                   Margin="0,2,5,2"
+                                                                   Style="{DynamicResource TextBlockDefaultSecLight}"
+                                                                   FontWeight="SemiBold" />
+                                                    </StackPanel>
+
+                                                </Border>
+                                            </StackPanel>
+
+                                        </Grid>
+                                    </Grid>
+
                                 </Grid>
                             </Grid>
-                            <Grid Height="5">
+                        </Grid>
+                    </Border>
+                    <Border Effect="{DynamicResource EffectShadow1}"
+                            Visibility="{Binding ShowPlayerWarning,Converter={StaticResource Boolean2VisibilityConverter}}"
+                            Background="{DynamicResource warningBackgroundBrush}"
+                            CornerRadius="4"
+                            Height="50">
+                        <Grid DataContext="{Binding LightingProfileManagerViewModel.CurrentRunningPlaylist}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid>
+                                <Path HorizontalAlignment="Right"
+                                      Stretch="Uniform"
+                                      Margin="15,10,5,10"
+                                      Data="{DynamicResource warning_Fill}"
+                                      Width="18"
+                                      Height="18"
+                                      Fill="{DynamicResource WarningBrush}" />
                             </Grid>
-                            <Grid Name="AvailableControlMode">
-                                <GroupBox  Style="{StaticResource GroupBoxOriginal}"
-                                           hc:TitleElement.TitlePlacement="Left">
-                                    <GroupBox.HeaderTemplate>
-                                        <DataTemplate>
-                                            <StackPanel>
-                                                <TextBlock FontWeight="SemiBold"
-                                                           Text="HIỆU ỨNG ĐANG CHẠY" />
-                                                <TextBlock MaxWidth="150"
-                                                           Margin="0,5,0,0"
-                                                           HorizontalAlignment="Left"
-                                                           TextWrapping="Wrap"
-                                                           Style="{StaticResource TextBlockDefaultSecLight}"
-                                                           Text="{Binding DataContext.SelectedControlZone.CurrentActiveControlMode.Description, RelativeSource={RelativeSource AncestorType=GroupBox}}" />
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </GroupBox.HeaderTemplate>
-                                    <Grid HorizontalAlignment="Right"
-                                          x:Name="mode_selection">
-                                        <Button  MaxHeight="60"
-                                                 Effect="{DynamicResource EffectShadow1}"
-                                                 Background="{DynamicResource SecondaryRegionBrush}"
-                                                 Padding="10,10"
-                                                 hc:BorderElement.CornerRadius="4"
-                                                 Margin="0,5,5,5"
-                                                 Click="ButtonMode_OnClick"
-                                                 BorderThickness="0"
-                                                 hc:BackgroundSwitchElement.MouseHoverBackground="{DynamicResource ButtonHoverBrush}"
-                                                 hc:BackgroundSwitchElement.MouseDownBackground="{DynamicResource HoverBrush}"
-                                                 Style="{DynamicResource ButtonCustom}">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="auto" />
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <Border Effect="{DynamicResource EffectShadow1}"
-                                                        CornerRadius="4"
-                                                        Background="{DynamicResource ButtonHoverBrush}">
-                                                    <Path Stretch="Uniform"
-                                                          Margin="5"
-                                                          Data="{Binding SelectedControlZone.CurrentActiveControlMode.Geometry,Converter={converters:StaticResourceConverter}}"
-                                                          Width="25"
-                                                          Height="25"
-                                                          Fill="{DynamicResource PrimaryTextBrush}" />
-                                                </Border>
-                                                <TextBlock  Style="{DynamicResource TextBlockSubTitle}"
-                                                            Margin="10,0,5,0"
-                                                            Grid.Column="1"
-                                                            Text="{Binding SelectedControlZone.CurrentActiveControlMode.Name}" />
-                                                <ToggleButton Margin="0,2,0,0"
-                                                              IsHitTestVisible="False"
-                                                              Grid.Column="2"
-                                                              IsChecked="{Binding ElementName=PopupMode,Path=IsOpen}"
-                                                              HorizontalAlignment="Right"
-                                                              Style="{DynamicResource ToggleButtonIconTransparent}"
-                                                              hc:IconSwitchElement.Geometry="{DynamicResource showMore}"
-                                                              hc:IconElement.Height="10"
-                                                              hc:IconElement.Width="10"
-                                                              hc:IconSwitchElement.GeometrySelected="{DynamicResource showLess}">
-                                                </ToggleButton>
-                                                <Popup Effect="{DynamicResource EffectShadow1}"
-                                                       AllowsTransparency="True"
-                                                       Grid.Column="2"
-                                                       Grid.ColumnSpan="2"
-                                                       HorizontalOffset="15"
-                                                       Name="PopupMode"
-                                                       VerticalOffset="6"
-                                                       StaysOpen="False">
-                                                    <hc:TransitioningContentControl Effect="{DynamicResource EffectShadow1}"
-                                                                                    TransitionMode="Top2Bottom">
-                                                        <Border Margin="15,15,5,15"
-                                                                Background="{DynamicResource SecondaryRegionBrush}"
-                                                                CornerRadius="7">
-                                                            <ListBox     SelectionChanged="NewModeSelected"
-                                                                         x:Name="lightingmode_selection"
-                                                                         ItemContainerStyle="{DynamicResource _listBoxGeneralModeSelectionStyle}"
-                                                                         Background="Transparent"
-                                                                         BorderThickness="0"
-                                                                         Margin="0,0,0,7"
-                                                                         ItemsSource="{Binding SelectedControlZone.AvailableControlMode,Mode=TwoWay}"
-                                                                         Style="{DynamicResource StackPanelVerticalListBox}">
-                                                                <ListBox.ItemsPanel>
-                                                                    <ItemsPanelTemplate>
-                                                                        <StackPanel>
-                                                                        </StackPanel>
-                                                                    </ItemsPanelTemplate>
-                                                                </ListBox.ItemsPanel>
-                                                                <ListBox.ItemTemplate>
-                                                                    <DataTemplate>
-                                                                        <Grid>
-                                                                            <Grid.ColumnDefinitions>
-                                                                                <ColumnDefinition Width="auto" />
-                                                                                <ColumnDefinition Width="*" />
-                                                                            </Grid.ColumnDefinitions>
-                                                                            <Path HorizontalAlignment="Left"
-                                                                                  Stretch="Uniform"
-                                                                                  Margin="10"
-                                                                                  Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
-                                                                                  Width="25"
-                                                                                  Height="25"
-                                                                                  Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}" />
-                                                                            <StackPanel Grid.Column="1">
-                                                                                <TextBlock HorizontalAlignment="Left"
-                                                                                           Margin="5,10,10,2"
-                                                                                           Text="{Binding Name}"
-                                                                                           FontSize="14"
-                                                                                           FontWeight="SemiBold"
-                                                                                           Style="{DynamicResource TextBlockDefault}" />
-                                                                                <TextBlock HorizontalAlignment="Left"
-                                                                                           Margin="5,0,10,10"
-                                                                                           Text="{Binding Description}"
-                                                                                           FontSize="13"
-                                                                                           Style="{DynamicResource TextBlockDefaultSecLight}" />
-                                                                            </StackPanel>
-
-
-
-                                                                        </Grid>
-                                                                    </DataTemplate>
-                                                                </ListBox.ItemTemplate>
-                                                            </ListBox>
-                                                        </Border>
-                                                    </hc:TransitioningContentControl>
-                                                </Popup>
-                                            </Grid>
-                                        </Button>
-                                    </Grid>
-                                </GroupBox>
+                            <TextBlock Grid.Column="1"
+                                       HorizontalAlignment="Left"
+                                       Margin="5,5"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"
+                                       Style="{DynamicResource TextBlockDefault}"
+                                       Text="Để có thể sửa hiệu ứng, bạn cần phải dừng playlist" />
+                            <Grid Grid.Column="2">
+                                <Button Width="50"
+                                        Effect="{DynamicResource EffectShadow1}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Height="30"
+                                        Content="Stop"
+                                        ToolTip="Dừng playlist"
+                                        Command="{Binding Path=DataContext.LightingProfileManagerViewModel.StopSelectedItemCommand, RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}"
+                                        CommandParameter="{Binding .}"
+                                        BorderBrush="Transparent"
+                                        Background="{DynamicResource warningBackgroundBrush}"
+                                        Margin="10">
+                                </Button>
                             </Grid>
-                        </StackPanel>
+                        </Grid>
+
                     </Border>
                     <Grid>
                         <ItemsControl x:Name="paramList"
                                       Margin="0,0,0,0"
+                                      Visibility="{Binding ShowPlayerWarning,Converter={StaticResource Boolean2VisibilityReConverter}}"
                                       ItemsSource="{Binding SelectedControlZone.CurrentActiveControlMode.Parameters,Mode=TwoWay,IsAsync=True}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>

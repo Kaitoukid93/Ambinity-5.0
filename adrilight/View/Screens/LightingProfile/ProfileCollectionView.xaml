@@ -27,7 +27,7 @@
                                 Height="100"
                                 Padding="0"
                                 Margin="5"
-                                Command="{Binding Path=DataContext.SelectItem, RelativeSource={RelativeSource AncestorType={x:Type local:ProfileCollectionView}}}"
+                                Command="{Binding Path=DataContext.PlaySelectedItemCommand, RelativeSource={RelativeSource AncestorType={x:Type local:LightingProfileManagerWindow}}}"
                                 CommandParameter="{Binding .}"
                                 hc:BorderElement.CornerRadius="7"
                                 Style="{DynamicResource _mediumProfileDefaultButton}"
@@ -232,7 +232,7 @@
                                 Background="{DynamicResource MainContentBackgroundBrush}"
                                 CornerRadius="4">
                             <StackPanel Orientation="Vertical">
-                               
+
                                 <Button hc:IconElement.Geometry="{DynamicResource addnew}"
                                         Height="40"
                                         hc:IconElement.Height="15"

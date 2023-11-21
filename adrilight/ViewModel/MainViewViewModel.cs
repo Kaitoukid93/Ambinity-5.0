@@ -47,6 +47,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -735,6 +736,12 @@ namespace adrilight.ViewModel
         public IGeneralSettings GeneralSettings { get; }
         public LightingProfileManagerViewModel LightingProfileManagerViewModel { get; set; }
         public PlaylistDecoder LightingPlayer { get; set; }
+        public bool ShowPlayerWarning {
+            get
+            {
+                return LightingPlayer.IsRunning && CurrentDevice.CurrentActiveController.Type == ControllerTypeEnum.LightingController;
+            }
+        }
         public CollectionItemStore ItemStore { get; set; }
         public IDialogService DialogService { get; }
         public ISerialStream[] SerialStreams { get; }
@@ -771,6 +778,7 @@ namespace adrilight.ViewModel
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
             LightingProfileManagerViewModel = lightingProfileManagerViewModel ?? throw new ArgumentNullException(nameof(lightingProfileManagerViewModel));
             LightingPlayer = playlistDecoder ?? throw new ArgumentNullException(nameof(playlistDecoder));
+            LightingPlayer.PropertyChanged += LightingPlayerPropertyChanged;
             ItemStore = collectionItemStore ?? throw new ArgumentNullException(nameof(collectionItemStore));
             SelectableViewParts = selectableViewParts.OrderBy(p => p.Order)
                 .ToList();
@@ -827,6 +835,16 @@ namespace adrilight.ViewModel
             CreateFWToolsFolderAndFiles();
 
             #endregion Create Resource and Collections Folder
+        }
+
+        private void LightingPlayerPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(LightingPlayer.IsRunning):
+                    RaisePropertyChanged(nameof(ShowPlayerWarning));
+                    break;
+            }
         }
 
         public void SetGifxelationPreviewImage(ByteFrame frame)

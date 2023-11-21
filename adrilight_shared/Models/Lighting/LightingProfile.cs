@@ -52,6 +52,7 @@ namespace adrilight_shared.Models.Lighting
 
         public void Stop()
         {
+            _currentPlayingProgress = 0;
             if (IsPlaying)
                 IsPlaying = false;
         }

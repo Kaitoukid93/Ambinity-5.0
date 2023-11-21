@@ -16,6 +16,12 @@
                 <Setter Property="NonClientAreaForeground" Value="White"/>
                 <Setter Property="CloseButtonForeground" Value="White"/>
             </Style>
+            <SolidColorBrush x:Key="primaryBackgroundBrush"
+                             Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
+                             Opacity="0.15" />
+            <SolidColorBrush x:Key="warningBackgroundBrush"
+                             Color="{DynamicResource WarningColor}"
+                             Opacity="0.15" />
             <Style x:Key="_lowProfileDefaultButton" TargetType="Button" BasedOn="{StaticResource ButtonCustom}">
                 <Setter Property="Effect" Value="{DynamicResource EffectShadow1}"/>
                 <Setter Property="Padding" Value="10,0"/>

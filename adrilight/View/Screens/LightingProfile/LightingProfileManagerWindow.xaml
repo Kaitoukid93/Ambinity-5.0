@@ -11,6 +11,7 @@
            xmlns:local="clr-namespace:adrilight.View"
            xmlns:behavior="clr-namespace:adrilight_shared.Behavior;assembly=adrilight_shared"
            xmlns:model="clr-namespace:adrilight_shared.Models;assembly=adrilight_shared"
+           xmlns:command="clr-namespace:adrilight.Helpers"
            Background="{DynamicResource RegionBrush}"
            mc:Ignorable="d"
            d:DataContext="{d:DesignInstance vm:LightingProfileManagerViewModel, IsDesignTimeCreatable=True}"
@@ -19,7 +20,16 @@
            Height="800"
            NonClientAreaContent="{Binding NonClientAreaContent,Mode=TwoWay}"
            WindowStartupLocation="CenterScreen">
-
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction Command="{Binding WindowClosing}"
+                                   CommandParameter="" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding WindowOpen}"
+                                   CommandParameter="" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -251,16 +261,33 @@
                                                    FontWeight="SemiBold"
                                                    Style="{DynamicResource TextBlockTitle}"
                                                    Text="{Binding CurrentPlayingProfile.Name}" />
-                                        <Border Margin="0,5"
-                                                HorizontalAlignment="Left"
-                                                Background="{DynamicResource SecondaryRegionBrush}"
-                                                CornerRadius="2">
-                                            <TextBlock Text="{Binding CurrentPlayingProfile.ControlMode.BasedOn}"
-                                                       HorizontalAlignment="Left"
-                                                       Margin="5,2"
-                                                       Style="{DynamicResource TextBlockDefaultSecLight}"
-                                                       FontWeight="SemiBold" />
-                                        </Border>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Border Margin="0,5"
+                                                    HorizontalAlignment="Left"
+                                                    Background="{DynamicResource SecondaryRegionBrush}"
+                                                    CornerRadius="2">
+                                                <TextBlock Text="{Binding CurrentPlayingProfile.ControlMode.BasedOn}"
+                                                           HorizontalAlignment="Left"
+                                                           Margin="5,2"
+                                                           Style="{DynamicResource TextBlockDefaultSecLight}"
+                                                           FontWeight="SemiBold" />
+                                            </Border>
+                                            <hc:Divider Margin="10,5"
+                                                        Orientation="Vertical"
+                                                        Visibility="{Binding Player.IsRunning,Converter={StaticResource Boolean2VisibilityConverter}}"
+                                                        LineStrokeThickness="1" />
+                                            <Border Margin="0,5"
+                                                    Visibility="{Binding Player.IsRunning,Converter={StaticResource Boolean2VisibilityConverter}}"
+                                                    HorizontalAlignment="Left"
+                                                    Background="{DynamicResource SecondaryRegionBrush}"
+                                                    CornerRadius="2">
+                                                <TextBlock Text="{Binding CurrentRunningPlaylist.Name}"
+                                                           HorizontalAlignment="Left"
+                                                           Margin="5,2"
+                                                           Style="{DynamicResource TextBlockDefaultSecLight}"
+                                                           FontWeight="SemiBold" />
+                                            </Border>
+                                        </StackPanel>
                                     </StackPanel>
                                 </Grid>
                             </Grid>

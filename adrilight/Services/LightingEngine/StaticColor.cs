@@ -273,7 +273,7 @@ namespace adrilight
             //wait other thread finishing
             Thread.Sleep(500);
             IsRunning = true;
-            Log.Information("Static Color Engine Is Running");
+            //Log.Information("Static Color Engine Is Running");
             int updateIntervalCounter = 0;
             int _idleCounter = 0;
             try
@@ -371,7 +371,7 @@ namespace adrilight
             finally
             {
 
-                Log.Information("Stopped the Static Color Engine");
+                // Log.Information("Stopped the Static Color Engine");
                 IsRunning = false;
                 GC.Collect();
             }
@@ -457,7 +457,7 @@ namespace adrilight
         public void Start()
         {
             //start it
-            Log.Information("starting the Static Color Engine");
+            // Log.Information("starting the Static Color Engine");
             _dimMode = DimMode.Down;
             _dimFactor = 1.00;
             Init();
@@ -471,7 +471,7 @@ namespace adrilight
         }
         public void Stop()
         {
-            Log.Information("Stop called for Static Color Engine");
+            // Log.Information("Stop called for Static Color Engine");
             //CurrentZone.FillSpotsColor(Color.FromRgb(0, 0, 0));
             if (_workerThread == null) return;
             _cancellationTokenSource?.Cancel();

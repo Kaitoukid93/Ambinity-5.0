@@ -30,10 +30,22 @@ namespace adrilight.Ticker
         private LightingProfilePlaylist _selectedPlaylist;
         private CancellationTokenSource _cancellationTokenSource;
         public ObservableCollection<IDeviceSettings> AvailableDevices { get; }
+        private static bool _isWindowOpen;
         #endregion
 
         #region public properties
-        public bool IsRunning { get; private set; } = false;
+        private bool _isRunning;
+        public bool IsRunning {
+            get
+            {
+                return _isRunning;
+            }
+            set
+            {
+                _isRunning = value;
+                RaisePropertyChanged();
+            }
+        }
         public bool NeededRefreshing { get; private set; } = false;
         public object Lock { get; } = new object();
         #endregion
@@ -53,16 +65,21 @@ namespace adrilight.Ticker
             //MainViewModel.ActivateCurrentLightingProfile(_selectedPlaylist.CurrentPlayingLightingProfile);
             _currentPlayingProfile?.Stop();
             ActivateCurrentLightingProfile(_selectedPlaylist.CurrentPlayingLightingProfile, true);
+            IsRunning = true;
 
         }
         public void Play(LightingProfile profile)
         {
             _currentPlayingProfile?.Stop();
+            _selectedPlaylist?.StopPlaylist();
             ActivateCurrentLightingProfile(profile, false);
+            IsRunning = false;
         }
         public void Play(LightingProfile profile, IDeviceSettings device)
         {
             _currentPlayingProfile?.Stop();
+            _selectedPlaylist?.StopPlaylist();
+            IsRunning = false;
             ActivateCurrentLightingProfileForSpecificDevice(profile, device);
         }
         private void StopTimer()
@@ -124,7 +141,8 @@ namespace adrilight.Ticker
         private static void SubTimerElapsed(Object source, ElapsedEventArgs e)
         {
             _currentTimeSpan = _currentTimeSpan.Subtract(TimeSpan.FromSeconds(1));
-            _currentPlayingProfile.CurrentPlayingProgress = (int)((_currentPlayingProfile.Duration.TotalMilliseconds - _currentTimeSpan.TotalMilliseconds) * 100 / _currentPlayingProfile.Duration.TotalMilliseconds);
+            if (_isWindowOpen)
+                _currentPlayingProfile.CurrentPlayingProgress = (int)((_currentPlayingProfile.Duration.TotalMilliseconds - _currentTimeSpan.TotalMilliseconds) * 100 / _currentPlayingProfile.Duration.TotalMilliseconds);
         }
         private void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
@@ -161,6 +179,7 @@ namespace adrilight.Ticker
             _selectedPlaylist.CurrentPlayingLightingProfile.IsPlaying = false;
             _timer.Stop();
             _subTimer.Stop();
+            IsRunning = false;
         }
         private void ActivateCurrentLightingProfileForSpecificDevice(LightingProfile profile, IDeviceSettings device)
         {
@@ -204,6 +223,13 @@ namespace adrilight.Ticker
                 device.ActivateControlMode(lightingMode);
                 Log.Information("Lighting Profile Activated: " + profile.Name + " for " + device.DeviceName);
             }
+        }
+        public void WindowsStatusChanged(bool status)
+        {
+            if (status)
+                _isWindowOpen = true;
+            else
+                _isWindowOpen = false;
         }
     }
 }

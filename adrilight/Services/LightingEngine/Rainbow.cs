@@ -283,7 +283,7 @@ namespace adrilight
         public void Run(CancellationToken token)
         {
             Thread.Sleep(500);
-            Log.Information("Rainbow Engine Is Running");
+            //Log.Information("Rainbow Engine Is Running");
             IsRunning = true;
             try
             {
@@ -373,7 +373,7 @@ namespace adrilight
             finally
             {
 
-                Log.Information("Stopped the Rainbow Engine");
+                // Log.Information("Stopped the Rainbow Engine");
                 IsRunning = false;
                 GC.Collect();
             }
@@ -510,7 +510,7 @@ namespace adrilight
         public void Start()
         {
             //start it
-            Log.Information("starting the Static Color Engine");
+            //Log.Information("starting the Static Color Engine");
             _dimMode = DimMode.Down;
             _dimFactor = 1.00;
             Init();
@@ -524,7 +524,7 @@ namespace adrilight
         }
         public void Stop()
         {
-            Log.Information("Stop called for Rainbow Engine");
+            //Log.Information("Stop called for Rainbow Engine");
             //CurrentZone.FillSpotsColor(Color.FromRgb(0, 0, 0));
             if (_workerThread == null) return;
             _cancellationTokenSource?.Cancel();
