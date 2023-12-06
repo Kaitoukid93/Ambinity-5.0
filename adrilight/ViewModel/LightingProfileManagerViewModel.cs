@@ -166,6 +166,8 @@ namespace adrilight.ViewModel
             {
                 var jsonData = File.ReadAllText(file);
                 var profile = JsonConvert.DeserializeObject<LightingProfile>(jsonData);
+                if (profile == null)
+                    continue;
                 profile.LocalPath = file;
                 existedProfile.Add(profile);
             }
@@ -179,6 +181,8 @@ namespace adrilight.ViewModel
             {
                 var jsonData = File.ReadAllText(file);
                 var playlist = JsonConvert.DeserializeObject<LightingProfilePlaylist>(jsonData);
+                if (playlist == null)
+                    continue;
                 playlist.LocalPath = file;
                 if (playlist != null)
                 {

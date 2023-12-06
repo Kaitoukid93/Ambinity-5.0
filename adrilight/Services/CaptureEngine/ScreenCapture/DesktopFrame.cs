@@ -39,12 +39,12 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
                 }
             };
             MainViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
-            MainViewModel.AvailableBitmaps.CollectionChanged += (s, e) =>
+            MainViewModel.AvailableBitmaps.CollectionChanged += async (s, e) =>
             {
                 switch (e.Action)
                 {
                     case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
-                        ScreenSetupChanged();
+                        await Task.Run(() => ScreenSetupChanged());
                         break;
                 }
             };
@@ -87,6 +87,7 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
         {
             Stop();
             _workerThreads = new List<Thread>();
+            _cancellationTokenSource = new CancellationTokenSource();
             Log.Information("starting WCG");
             IEnumerable<MonitorInfo> monitors = MonitorEnumerationHelper.GetMonitors();
             Frames = new ByteFrame[monitors.Count()];
@@ -94,7 +95,7 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
             var index = 0;
             foreach (var monitor in monitors)
             {
-                var workerThread = new Thread(() => Run(monitor, index++)) {
+                var workerThread = new Thread(() => Run(monitor, index++, _cancellationTokenSource.Token)) {
                     IsBackground = true,
                     Priority = ThreadPriority.BelowNormal,
                     Name = "WCG" + monitor.DeviceName
@@ -136,7 +137,7 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
                 var index = 0;
                 foreach (var monitor in monitors)
                 {
-                    var workerThread = new Thread(() => Run(monitor, index++)) {
+                    var workerThread = new Thread(() => Run(monitor, index++, _cancellationTokenSource.Token)) {
                         IsBackground = true,
                         Priority = ThreadPriority.BelowNormal,
                         Name = "WCG" + monitor.DeviceName
@@ -187,7 +188,7 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
             }
             return TimeSpan.FromMilliseconds(1000);
         }
-        public async void Run(MonitorInfo monitor, int screenIndex)
+        public async void Run(MonitorInfo monitor, int screenIndex, CancellationToken token)
         {
             NeededRefreshing = false;
             Log.Information("WCG is running for screen :" + monitor.DeviceName);
@@ -195,7 +196,7 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
             try
             {
                 await StartHmonCapture(monitor, screenIndex);
-                while (true)
+                while (!token.IsCancellationRequested)
                 {
                     if (_state == RunningState.Capturing)
                     {
@@ -231,6 +232,11 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
         public void Stop()
         {
             Log.Information("Stop called for WCG");
+            if (_cancellationTokenSource != null)
+            {
+                _cancellationTokenSource?.Cancel();
+                _cancellationTokenSource = null;
+            }
             _state = RunningState.Canceling;
             IsRunning = false;
             for (var i = 0; i < _workerThreads.Count(); i++)

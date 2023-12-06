@@ -264,7 +264,7 @@ namespace adrilight_shared.Models.Device.Zone
                     vidSpaceHeight = vidSpace.Height;
                     zoneOffSetLeft = GetRect.Left - vidSpace.Left;
                     zoneOffSetTop = GetRect.Top - vidSpace.Top;
-                    VIDCount = (int)zoneOffSetLeft;
+                    VIDCount = (int)(zoneOffSetLeft);
                     for (int x = 0; x < vidSpaceWidth; x += brushSize)
                     {
                         int settedVIDCount = 0;
@@ -278,8 +278,10 @@ namespace adrilight_shared.Models.Device.Zone
                         {
                             VIDCount += intensity;
                         }
+                        // int n = 0;
                         if (VIDCount > 1023)
                             VIDCount = 0;
+                        // VIDCount -= n * 1023; // run with VID
                     }
                     break;
                 case VIDDirrection.right2left:

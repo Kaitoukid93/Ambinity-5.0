@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Un4seen.Bass;
 using Un4seen.BassWasapi;
 
@@ -22,12 +23,12 @@ namespace adrilight
 
             GeneralSettings = generalSettings ?? throw new ArgumentException(nameof(generalSettings));
             MainViewModel = mainViewModel ?? throw new ArgumentException(nameof(mainViewModel));
-            MainViewModel.AvailableAudioDevices.CollectionChanged += (s, e) =>
+            MainViewModel.AvailableAudioDevices.CollectionChanged += async (s, e) =>
             {
                 switch (e.Action)
                 {
                     case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
-                        AudioDeviceChanged();
+                        await Task.Run(() => AudioDeviceChanged());
                         break;
                 }
             };
@@ -79,13 +80,14 @@ namespace adrilight
             }
             Log.Information("starting BassAudioCapturing");
             List<AudioDevice> audioDevices = GetAvailableAudioDevices();
+            _cancellationTokenSource = new CancellationTokenSource();
             _workerThreads = new List<Thread>();
             Frames = new ByteFrame[audioDevices.Count()];
             _audioCaptures = new AudioCaptureBasic[audioDevices.Count()];
             int index = 0;
             foreach (var device in audioDevices)
             {
-                Thread workerThread = new Thread(() => Run(device, index++)) {
+                Thread workerThread = new Thread(() => Run(device, index++, _cancellationTokenSource.Token)) {
                     IsBackground = true,
                     Priority = ThreadPriority.BelowNormal,
                     Name = "AudioCapture" + device.Name
@@ -111,13 +113,14 @@ namespace adrilight
                 Init();
                 Log.Information("starting BassAudioCapturing");
                 List<AudioDevice> audioDevices = GetAvailableAudioDevices();
+                _cancellationTokenSource = new CancellationTokenSource();
                 _workerThreads = new List<Thread>();
                 Frames = new ByteFrame[audioDevices.Count()];
                 _audioCaptures = new AudioCaptureBasic[audioDevices.Count()];
                 int index = 0;
                 foreach (var device in audioDevices)
                 {
-                    Thread workerThread = new Thread(() => Run(device, index++)) {
+                    Thread workerThread = new Thread(() => Run(device, index++, _cancellationTokenSource.Token)) {
                         IsBackground = true,
                         Priority = ThreadPriority.BelowNormal,
                         Name = "AudioCapture" + device.Name
@@ -136,7 +139,7 @@ namespace adrilight
 
 
 
-        public void Run(AudioDevice device, int index)
+        public void Run(AudioDevice device, int index, CancellationToken token)
 
         {
             // if (IsRunning) throw new Exception(" AudioFrame is already running!");
@@ -150,7 +153,7 @@ namespace adrilight
                 Frames[index].Frame = new byte[32];
                 _audioCaptures[index] = new AudioCaptureBasic(device);
                 _audioCaptures[index].StartBassWasapi();
-                while (true)
+                while (!token.IsCancellationRequested)
                 {
                     if (_state == RunningState.Capturing)
                     {
@@ -265,7 +268,12 @@ namespace adrilight
         {
             if (_workerThreads == null)
                 return;
-            Log.Error("Stop called for Audio Capture");
+            Log.Information("Stop called for Audio Capture");
+            if (_cancellationTokenSource != null)
+            {
+                _cancellationTokenSource?.Cancel();
+                _cancellationTokenSource = null;
+            }
             _state = RunningState.Canceling;
             for (int i = 0; i < _workerThreads.Count(); i++)
             {

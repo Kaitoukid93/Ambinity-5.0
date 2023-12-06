@@ -101,7 +101,7 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel>
-                                    <ListBox Margin="10" IsHitTestVisible="False" SelectedIndex="{Binding CountMID,Mode=TwoWay}" Background="Transparent" BorderThickness="0" ItemContainerStyle="{DynamicResource _listBoxVisualizerItemContainerStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Columns}">
+                                    <ListBox Margin="10" IsHitTestVisible="False" Background="Transparent" BorderThickness="0" ItemContainerStyle="{DynamicResource _listBoxVisualizerItemContainerStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ItemsSource="{Binding Columns}">
                                         <ListBox.ItemsPanel>
                                             <ItemsPanelTemplate>
                                                 <UniformGrid Columns="32" Rows="1"/>
@@ -109,7 +109,7 @@
                                         </ListBox.ItemsPanel>
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
-                                                <ProgressBar  Minimum="0" Maximum="255" Margin="2" Style="{DynamicResource ProgressBarFlat}" Foreground="{DynamicResource primaryBackgroundBrush}" Background="{DynamicResource SecondaryRegionBrush}" Height="50" Orientation="Vertical" Value="{Binding Value,Mode=TwoWay}">
+                                                <ProgressBar  Minimum="0" Maximum="255" Margin="2" Style="{DynamicResource ProgressBarFlat}" Background="{DynamicResource SecondaryRegionBrush}" Height="50" Orientation="Vertical" Value="{Binding Value}">
                                                 </ProgressBar>
                                             </DataTemplate>
                                         </ListBox.ItemTemplate>

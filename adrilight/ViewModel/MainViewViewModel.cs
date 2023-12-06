@@ -1590,16 +1590,10 @@ namespace adrilight.ViewModel
         {
             if (AudioVisualizers == null)
                 return;
-            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            foreach (var column in AudioVisualizers[index].Columns)
             {
-
-                foreach (var column in AudioVisualizers[index].Columns)
-                {
-                    column.SetValue(frame.Frame[column.Index]);
-                }
-
-
-            });
+                column.SetValue(frame.Frame[column.Index]);
+            }
         }
 
         private ObservableCollection<AudioDevice> _availableAudioDevices;
@@ -9043,23 +9037,28 @@ namespace adrilight.ViewModel
         }
 
         private void CreateAudioDevicesCollection()
+
         {
-            if (AudioVisualizers == null)
+            lock (AudioUpdateLock)
             {
-                AudioVisualizers = new ObservableCollection<VisualizerDataModel>();
-            }
-            if (AvailableAudioDevices == null)
-            {
-                AvailableAudioDevices = new ObservableCollection<AudioDevice>();
+                if (AudioVisualizers == null)
+                {
+                    AudioVisualizers = new ObservableCollection<VisualizerDataModel>();
+                }
+                if (AvailableAudioDevices == null)
+                {
+                    AvailableAudioDevices = new ObservableCollection<AudioDevice>();
+                }
+
+                AvailableAudioDevices.Clear();
+                AudioVisualizers.Clear();
+                foreach (var device in GetAvailableAudioDevices())
+                {
+                    AvailableAudioDevices.Add(device);
+                    AudioVisualizers.Add(new VisualizerDataModel(32, device.Name));
+                }
             }
 
-            AvailableAudioDevices.Clear();
-            AudioVisualizers.Clear();
-            foreach (var device in GetAvailableAudioDevices())
-            {
-                AvailableAudioDevices.Add(device);
-                AudioVisualizers.Add(new VisualizerDataModel(32, device.Name));
-            }
         }
 
         public void CreateChasingPatternCollectionFolder()
