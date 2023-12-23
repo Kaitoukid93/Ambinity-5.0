@@ -5,6 +5,7 @@ using adrilight_shared.Enums;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.ControlMode.ModeParameters;
 using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
+using adrilight_shared.Models.Device;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Settings;
 using MoreLinq;
@@ -24,11 +25,13 @@ namespace adrilight
             IGeneralSettings generalSettings,
             MainViewViewModel mainViewViewModel,
             IControlZone zone,
+            IDeviceSettings device,
             RainbowTicker rainbowTicker
             )
         {
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
             CurrentZone = zone as LEDSetup ?? throw new ArgumentNullException(nameof(zone));
+            CurrentDevice = device as DeviceSettings ?? throw new ArgumentNullException(nameof(device));
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             RainbowTicker = rainbowTicker ?? throw new ArgumentNullException(nameof(rainbowTicker));
             GeneralSettings.PropertyChanged += PropertyChanged;
@@ -44,6 +47,7 @@ namespace adrilight
         private LEDSetup CurrentZone { get; }
         private MainViewViewModel MainViewViewModel { get; }
         private RainbowTicker RainbowTicker { get; }
+        private DeviceSettings CurrentDevice { get; }
         private RunStateEnum _runState = RunStateEnum.Stop;
         public LightingModeEnum Type { get; } = LightingModeEnum.Rainbow;
         /// <summary>
@@ -154,7 +158,27 @@ namespace adrilight
             if (vid.ExecutionType == VIDType.PositonGeneratedID)
             {
                 _vidDataControl.SubParams[0].IsEnabled = true;
-                CurrentZone.GenerateVID(value, _vidIntensity, 5);
+                if (CurrentZone.IsInControlGroup)
+                {
+                    //acquire this ground this zone belongs to
+                    var group = CurrentDevice.ControlZoneGroups.Where(g => g.GroupUID == CurrentZone.GroupID).FirstOrDefault();
+                    if (group == null)
+                        return;
+                    if (Monitor.TryEnter(group.IDGeneratingLock))
+                    {
+                        try
+                        {
+                            group.GenerateVID(value, _vidIntensity, 5, CurrentDevice);
+                        }
+                        finally
+                        {
+                            Monitor.Exit(group.IDGeneratingLock);
+                        }
+                    }
+
+                }
+                else
+                    CurrentZone.GenerateVID(0, value, _vidIntensity, 5);
             }
             else
             {
@@ -169,8 +193,27 @@ namespace adrilight
         {
             _vidIntensity = value;
             var currentVID = _vidDataControl.SelectedValue as VIDDataModel;
-            if (currentVID.ExecutionType == VIDType.PositonGeneratedID)
-                CurrentZone.GenerateVID(_vidDataControl.SelectedValue as VIDDataModel, _vidIntensity, 5);
+            if (CurrentZone.IsInControlGroup)
+            {
+                //acquire this ground this zone belongs to
+                var group = CurrentDevice.ControlZoneGroups.Where(g => g.GroupUID == CurrentZone.GroupID).FirstOrDefault();
+                if (group == null)
+                    return;
+                if (Monitor.TryEnter(group.IDGeneratingLock))
+                {
+                    try
+                    {
+                        group.GenerateVID(_vidDataControl.SelectedValue as VIDDataModel, _vidIntensity, 5, CurrentDevice);
+                    }
+                    finally
+                    {
+                        Monitor.Exit(group.IDGeneratingLock);
+                    }
+                }
+
+            }
+            else
+                CurrentZone.GenerateVID(0, _vidDataControl.SelectedValue as VIDDataModel, _vidIntensity, 5);
         }
         private void OnBrightnessValueChanged(int value)
         {

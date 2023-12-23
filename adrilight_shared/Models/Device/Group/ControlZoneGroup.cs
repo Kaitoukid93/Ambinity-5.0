@@ -1,9 +1,11 @@
 ﻿using adrilight_shared.Enums;
 using adrilight_shared.Helpers;
+using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
 using adrilight_shared.Models.Device.SlaveDevice;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.Drawable;
 using GalaSoft.MvvmLight;
+using MoreLinq;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -149,6 +151,139 @@ namespace adrilight_shared.Models.Device.Group
             (MaskedControlZone as IDrawable).Top = Border.Top;
             (MaskedControlZone as IDrawable).Width = Border.Width;
             (MaskedControlZone as IDrawable).Height = Border.Height;
+        }
+        [JsonIgnore]
+        public Object IDGeneratingLock { get; set; } = new Object();
+        public int GenerateVID(IParameterValue value, int intensity, int brushSize, IDeviceSettings device)
+        {
+            if (ControlZones == null)
+                Init(device);
+            var startVID = 0;
+            var vid = value as VIDDataModel;
+            foreach (var zone in ControlZones)
+            {
+                var ledZone = zone as LEDSetup;
+                ledZone.ResetVIDStage();
+            }
+            switch (vid.Dirrection)
+            {
+                case VIDDirrection.left2right:
+                    for (int x = 0; x < Border.Width; x += brushSize)
+                    {
+                        int settedVIDCount = 0;
+                        foreach (var zone in ControlZones)
+                        {
+                            var ledZone = zone as LEDSetup;
+                            var zoneOffSetLeft = ledZone.GetRect.Left - Border.Left;
+                            var zoneOffSetTop = ledZone.GetRect.Top - Border.Top;
+                            var brush = new Rect(0 - zoneOffSetLeft, 0 - zoneOffSetTop, x, Border.Height);
+                            foreach (var spot in ledZone.Spots)
+                            {
+                                if (spot.GetVIDIfNeeded(startVID, brush, 0))
+                                    settedVIDCount++;
+                            }
+                        }
+                        if (settedVIDCount > 0)
+                        {
+                            startVID += intensity;
+                        }
+                    }
+                    break;
+                case VIDDirrection.right2left:
+                    for (int x = (int)Border.Width; x > 0; x -= brushSize)
+                    {
+                        int settedVIDCount = 0;
+                        foreach (var zone in ControlZones)
+                        {
+                            var ledZone = zone as LEDSetup;
+                            var zoneOffSetLeft = ledZone.GetRect.Left - Border.Left;
+                            var zoneOffSetTop = ledZone.GetRect.Top - Border.Top;
+                            var brush = new Rect(x - zoneOffSetLeft, 0 - zoneOffSetTop, Border.Width - x, Border.Height);
+                            foreach (var spot in ledZone.Spots)
+                            {
+                                if (spot.GetVIDIfNeeded(startVID, brush, 0))
+                                    settedVIDCount++;
+                            }
+                            // int n = 0;
+                            // if (VIDCount > 1023)
+                            // VIDCount = 0;
+                            // VIDCount -= n * 1023; // run with VID
+                        }
+                        if (settedVIDCount > 0)
+                        {
+                            startVID += intensity;
+                        }
+                    }
+                    break;
+                case VIDDirrection.bot2top:
+                    for (int y = (int)Border.Height; y > 0; y -= brushSize)
+                    {
+                        int settedVIDCount = 0;
+                        foreach (var zone in ControlZones)
+                        {
+                            var ledZone = zone as LEDSetup;
+                            var zoneOffSetLeft = ledZone.GetRect.Left - Border.Left;
+                            var zoneOffSetTop = ledZone.GetRect.Top - Border.Top;
+                            var brush = new Rect(0 - zoneOffSetLeft, y - zoneOffSetTop, Border.Width, Border.Height - y);
+                            foreach (var spot in ledZone.Spots)
+                            {
+                                if (spot.GetVIDIfNeeded(startVID, brush, 0))
+                                    settedVIDCount++;
+                            }
+
+                        }
+                        if (settedVIDCount > 0)
+                        {
+                            startVID += intensity;
+                        }
+                    }
+                    break;
+                case VIDDirrection.top2bot:
+                    for (int y = 0; y < (int)Border.Height; y += brushSize)
+                    {
+                        int settedVIDCount = 0;
+                        foreach (var zone in ControlZones)
+                        {
+                            var ledZone = zone as LEDSetup;
+                            var zoneOffSetLeft = ledZone.GetRect.Left - Border.Left;
+                            var zoneOffSetTop = ledZone.GetRect.Top - Border.Top;
+                            var brush = new Rect(0 - zoneOffSetLeft, 0 - zoneOffSetTop, Border.Width, y);
+                            foreach (var spot in ledZone.Spots)
+                            {
+                                if (spot.GetVIDIfNeeded(startVID, brush, 0))
+                                    settedVIDCount++;
+                            }
+
+                        }
+                        if (settedVIDCount > 0)
+                        {
+                            startVID += intensity;
+                        }
+                    }
+                    break;
+                case VIDDirrection.linear:
+                    for (int y = 0; y < (int)Border.Height; y += brushSize)
+                    {
+                        foreach (var zone in ControlZones)
+                        {
+
+                            var ledZone = zone as LEDSetup;
+                            var offSetIndex = ledZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
+                            var zoneOffSetLeft = ledZone.GetRect.Left - Border.Left;
+                            var zoneOffSetTop = ledZone.GetRect.Top - Border.Top;
+                            var brush = new Rect(0 - zoneOffSetLeft, 0 - zoneOffSetTop, Border.Width, y);
+                            foreach (var spot in ledZone.Spots)
+                            {
+                                spot.SetVID((spot.Index - offSetIndex) * intensity);
+                                spot.HasVID = true;
+                            }
+
+                        }
+                    }
+
+                    break;
+            }
+            return startVID;
         }
         //get group Items from device
         public void Init(IDeviceSettings device)

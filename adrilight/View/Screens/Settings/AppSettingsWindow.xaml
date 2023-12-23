@@ -765,6 +765,46 @@
                                  Margin="5,10,5,10">
 
                     </hc:Divider>
+                    <Grid 
+                          Name="HWMonitorEnable">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                        </Grid.RowDefinitions>
+                        <GroupBox   VerticalAlignment="Center"
+                                    hc:TitleElement.TitleWidth="200"
+                                    Header="SPEED"
+                                    Margin="5"
+                                    Style="{StaticResource GroupBoxOriginal}"
+                                    HorizontalAlignment="Stretch"
+                                    hc:TitleElement.TitlePlacement="Left">
+                            <GroupBox.HeaderTemplate>
+                                <DataTemplate>
+                                    <TextBlock FontWeight="SemiBold"
+                                               Text="ENABLE HARDWAR MONITOR" />
+                                </DataTemplate>
+                            </GroupBox.HeaderTemplate>
+
+                            <ToggleButton HorizontalAlignment="Right"
+                                          IsChecked="{Binding GeneralSettings.IsHWMonitorEnabled}"
+                                          Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
+
+                            </ToggleButton>
+
+
+                        </GroupBox>
+                        <TextBlock Margin="5,0,0,0"
+                                   HorizontalAlignment="Left"
+                                   Style="{StaticResource TextBlockDefaultSecLight}"
+                                   Grid.Row="1"
+                                   Text="Tắt tùy chọn này nếu bạn không muốn app đọc thông tin phần cứng máy tính" />
+                    </Grid>
+
+
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                                 Margin="5,10,5,10">
+
+                    </hc:Divider>
                     <Grid Visibility="Visible"
                           Name="screencaptureEnable">
                         <Grid.RowDefinitions>
@@ -1464,7 +1504,7 @@
                                            Text="Ambinity 5.0.8"></TextBlock>
                                 <TextBlock Margin="0,0,0,5"
                                            Style="{DynamicResource TextBlockDefault}"
-                                           Text="Release date : 30/11/2023_a"></TextBlock>
+                                           Text="Release date : 22/12/2023_a"></TextBlock>
                                 <StackPanel HorizontalAlignment="Center"
                                             Margin="0,0,0,0"
                                             Orientation="Horizontal">

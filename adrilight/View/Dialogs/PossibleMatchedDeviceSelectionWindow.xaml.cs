@@ -27,5 +27,10 @@ namespace adrilight.View
         {
             this.DialogResult = false;
         }
+
+        private void window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            this.DialogResult = true;
+        }
     }
 }

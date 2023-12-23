@@ -5,8 +5,8 @@ using adrilight_shared.Models.ControlMode;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.ControlMode.ModeParameters;
 using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
+using adrilight_shared.Models.Device;
 using adrilight_shared.Models.Device.Zone;
-using adrilight_shared.Models.Drawable;
 using adrilight_shared.Models.FrameData;
 using adrilight_shared.Models.TickData;
 using adrilight_shared.Settings;
@@ -32,11 +32,13 @@ namespace adrilight.Services.LightingEngine
             IGeneralSettings generalSettings,
             MainViewViewModel mainViewViewModel,
             IControlZone zone,
+            IDeviceSettings device,
             RainbowTicker rainbowTicker
             )
         {
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
             CurrentZone = zone as LEDSetup ?? throw new ArgumentNullException(nameof(zone));
+            CurrentDevice = device as DeviceSettings ?? throw new ArgumentNullException(nameof(device));
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             RainbowTicker = rainbowTicker ?? throw new ArgumentNullException(nameof(rainbowTicker));
             GeneralSettings.PropertyChanged += PropertyChanged;
@@ -53,6 +55,7 @@ namespace adrilight.Services.LightingEngine
         private LEDSetup CurrentZone { get; }
         private MainViewViewModel MainViewViewModel { get; }
         private RainbowTicker RainbowTicker { get; }
+        private DeviceSettings CurrentDevice { get; }
         public LightingModeEnum Type { get; } = LightingModeEnum.Animation;
         /// <summary>
         /// property changed event catching
@@ -332,30 +335,56 @@ namespace adrilight.Services.LightingEngine
             var vid = value as VIDDataModel;
             if (_motion == null)
                 return;
+
+
             if (vid.ExecutionType == VIDType.PositonGeneratedID)
             {
-                _vidDataControl.SubParams[0].IsEnabled = true;
-                _vidDataControl.SubParams[1].IsEnabled = false;
-                var minSpotWidth = CurrentZone.Spots.MinBy(s => (s as IDrawable).Width).First();
-                var minSpotHeight = CurrentZone.Spots.MinBy(s => (s as IDrawable).Height).First();
-                if (vid.Dirrection == VIDDirrection.left2right || vid.Dirrection == VIDDirrection.right2left)
+                _vidDataControl.SubParams[0].IsEnabled = false;
+                _vidDataControl.SubParams[1].IsEnabled = true;
+                _vidDataControl.WarningMessageVisible = false;
+                if (CurrentZone.IsInControlGroup)
                 {
-                    //_frameWidth = (int)(CurrentZone.GroupRect.Width / (minSpotWidth as IDrawable).Width);
-                    //CurrentZone.GenerateVID(value, 1, (int)(minSpotWidth as IDrawable).Width);
-                }
+                    //acquire this ground this zone belongs to
+                    var group = CurrentDevice.ControlZoneGroups.Where(g => g.GroupUID == CurrentZone.GroupID).FirstOrDefault();
+                    if (group == null)
+                        return;
+                    if (Monitor.TryEnter(group.IDGeneratingLock))
+                    {
+                        try
+                        {
+                            _frameWidth = group.GenerateVID(value, 1, 1, CurrentDevice);
+                            if (_frameWidth < CurrentZone.Spots.Count)
+                            {
+                                //display warning message
+                                _frameWidth = CurrentZone.Spots.Count;
+                                _vidDataControl.WarningMessage = "Hình dạng sản phẩm có thể không phù hợp cho chiều chạy này ";
+                                _vidDataControl.WarningMessageVisible = true;
 
-                if (vid.Dirrection == VIDDirrection.top2bot || vid.Dirrection == VIDDirrection.bot2top)
-                {
-                    //_frameWidth = (int)(CurrentZone.GroupRect.Height / (minSpotHeight as IDrawable).Height);
-                    //CurrentZone.GenerateVID(value, 1, (int)(minSpotWidth as IDrawable).Height);
+                            }
+
+                        }
+                        finally
+                        {
+                            Monitor.Exit(group.IDGeneratingLock);
+                        }
+                    }
+
                 }
                 else
                 {
                     _frameWidth = CurrentZone.Spots.Count();
-                    CurrentZone.GenerateVID(value, 1, 1);
+                    var val = CurrentZone.GenerateVID(0, value, 1, 1);
+                    if (val < CurrentZone.Spots.Count)
+                    {
+                        //display warning message
+                        _frameWidth = CurrentZone.Spots.Count;
+                        _vidDataControl.WarningMessage = "Hình dạng sản phẩm có thể không phù hợp cho chiều chạy này ";
+                        _vidDataControl.WarningMessageVisible = true;
+
+                    }
                 }
 
-                //resize current motion
+
                 var frameCount = 0;
                 foreach (var frame in _motion.Frames)
                 {
@@ -365,7 +394,6 @@ namespace adrilight.Services.LightingEngine
                     resizedFrame.BrightnessData = ResizeFrame(frame.BrightnessData, frame.BrightnessData.Length, _frameWidth);
                     _resizedFrames[frameCount++] = resizedFrame;
                 }
-
             }
             else
             {
@@ -374,7 +402,7 @@ namespace adrilight.Services.LightingEngine
                 var frameCount = 0;
                 var minVID = vid.DrawingPath.MinBy(b => b.ID).First().ID;
                 var maxVID = vid.DrawingPath.MaxBy(b => b.ID).First().ID;
-                _frameWidth = maxVID - minVID;
+                _frameWidth = maxVID - minVID + 1;
                 CurrentZone.ApplyPredefinedVID(value, minVID);
                 foreach (var frame in _motion.Frames)
                 {
@@ -580,7 +608,7 @@ namespace adrilight.Services.LightingEngine
                                         colorG = _colorBank[position].G;
                                         colorB = _colorBank[position].B;
                                     }
-                                    if (spot.HasVID)
+                                    if (spot.HasVID && !MainViewViewModel.IsInIDEditStage)
                                     {
                                         int index = spot.VID;
                                         if (spot.VID >= _resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData.Length)

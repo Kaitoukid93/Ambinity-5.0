@@ -221,12 +221,12 @@ namespace adrilight
                 MainViewViewModel.IsAppActivated = false;
         }
 
-        private static void InjectingZone(IKernel kernel, IControlZone zone)
+        private static void InjectingZone(IKernel kernel, IControlZone zone, IDeviceSettings device)
         {
             kernel.Bind<ILightingEngine>().To<DesktopDuplicatorReader>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
             kernel.Bind<ILightingEngine>().To<StaticColor>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
-            kernel.Bind<ILightingEngine>().To<Rainbow>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
-            kernel.Bind<ILightingEngine>().To<Animation>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
+            kernel.Bind<ILightingEngine>().To<Rainbow>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID)).WithConstructorArgument("device", device);
+            kernel.Bind<ILightingEngine>().To<Animation>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID)).WithConstructorArgument("device", device);
             kernel.Bind<ILightingEngine>().To<Music>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
             kernel.Bind<ILightingEngine>().To<Gifxelation>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
             var availableLightingModes = kernel.GetAll<ILightingEngine>(zone.ZoneUID);
@@ -292,7 +292,7 @@ namespace adrilight
                                 //new zone added, inject
                                 var ledZone = zone as LEDSetup; ;
                                 kernel.Bind<IControlZone>().ToConstant(ledZone).Named((ledZone).ZoneUID);
-                                InjectingZone(kernel, zone as IControlZone);
+                                InjectingZone(kernel, zone as IControlZone, device);
                             }
                             break;
                     }
@@ -307,7 +307,7 @@ namespace adrilight
                             {
                                 var ledZone = zone as LEDSetup;
                                 kernel.Bind<IControlZone>().ToConstant(zone as IControlZone).Named((zone as IControlZone).ZoneUID);
-                                InjectingZone(kernel, zone as IControlZone);
+                                InjectingZone(kernel, zone as IControlZone, device);
                             }
                             output.SlaveDevice.ControlableZones.CollectionChanged += (s, e) =>
                             {
@@ -320,7 +320,7 @@ namespace adrilight
                                             //new zone added, inject
                                             var ledZone = zone as LEDSetup; ;
                                             kernel.Bind<IControlZone>().ToConstant(ledZone).Named((ledZone).ZoneUID);
-                                            InjectingZone(kernel, zone as IControlZone);
+                                            InjectingZone(kernel, zone as IControlZone, device);
                                         }
                                         break;
                                 }
@@ -333,7 +333,7 @@ namespace adrilight
                 {
                     var ledZone = zone as LEDSetup;
                     kernel.Bind<IControlZone>().ToConstant(ledZone).Named((ledZone).ZoneUID);
-                    InjectingZone(kernel, zone as IControlZone);
+                    InjectingZone(kernel, zone as IControlZone, device);
                 }
             }
             var connectionType = device.DeviceType.ConnectionTypeEnum;

@@ -27,6 +27,8 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
         }
         private string _name;
         private string _description;
+        private string _warningMessage;
+        private bool _warningMessageVisible;
         private ModeParameterTemplateEnum _template;
         private ModeParameterEnum _paramType;
         private int _minValue;
@@ -45,6 +47,10 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
         public ObservableCollection<IParameterValue> AvailableValues { get => _availableValues; set { Set(() => AvailableValues, ref _availableValues, value); } }
         public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
         public string Description { get => _description; set { Set(() => Description, ref _description, value); } }
+        [JsonIgnore]
+        public string WarningMessage { get => _warningMessage; set { Set(() => WarningMessage, ref _warningMessage, value); } }
+        [JsonIgnore]
+        public bool WarningMessageVisible { get => _warningMessageVisible; set { Set(() => WarningMessageVisible, ref _warningMessageVisible, value); } }
         public IParameterValue SelectedValue { get => _selectedValue; set { Set(() => SelectedValue, ref _selectedValue, value); } }
         public ModeParameterTemplateEnum Template { get => _template; set { Set(() => Template, ref _template, value); } }
         public ModeParameterEnum ParamType { get => _paramType; set { Set(() => ParamType, ref _paramType, value); } }

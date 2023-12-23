@@ -237,7 +237,7 @@ namespace adrilight_shared.Models.Device.Zone
                 spot.SetVID(0);
             }
         }
-        public int GenerateVID(IParameterValue value, int intensity, int brushSize)
+        public int GenerateVID(int startVID, IParameterValue value, int intensity, int brushSize)
         {
             var vid = value as VIDDataModel;
             if (vid.ExecutionType == VIDType.PredefinedID)
@@ -255,7 +255,7 @@ namespace adrilight_shared.Models.Device.Zone
             double vidSpaceHeight;
             double zoneOffSetLeft;
             double zoneOffSetTop;
-            int VIDCount = 0;
+            int VIDCount = startVID;
             ResetVIDStage();
             switch (vid.Dirrection)
             {
@@ -264,7 +264,6 @@ namespace adrilight_shared.Models.Device.Zone
                     vidSpaceHeight = vidSpace.Height;
                     zoneOffSetLeft = GetRect.Left - vidSpace.Left;
                     zoneOffSetTop = GetRect.Top - vidSpace.Top;
-                    VIDCount = (int)(zoneOffSetLeft);
                     for (int x = 0; x < vidSpaceWidth; x += brushSize)
                     {
                         int settedVIDCount = 0;
@@ -279,8 +278,8 @@ namespace adrilight_shared.Models.Device.Zone
                             VIDCount += intensity;
                         }
                         // int n = 0;
-                        if (VIDCount > 1023)
-                            VIDCount = 0;
+                        // if (VIDCount > 1023)
+                        // VIDCount = 0;
                         // VIDCount -= n * 1023; // run with VID
                     }
                     break;
@@ -289,7 +288,6 @@ namespace adrilight_shared.Models.Device.Zone
                     vidSpaceHeight = (int)vidSpace.Height;
                     zoneOffSetLeft = GetRect.Left - vidSpace.Left;
                     zoneOffSetTop = GetRect.Top - vidSpace.Top;
-                    VIDCount = (int)(vidSpaceWidth - zoneOffSetLeft);
                     for (int x = (int)vidSpaceWidth; x > 0; x -= brushSize)
                     {
                         int settedVIDCount = 0;
@@ -303,8 +301,8 @@ namespace adrilight_shared.Models.Device.Zone
                         {
                             VIDCount += intensity;
                         }
-                        if (VIDCount > 1023)
-                            VIDCount = 0;
+                        // if (VIDCount > 1023)
+                        // VIDCount = 0;
                     }
                     break;
                 case VIDDirrection.bot2top:
@@ -312,7 +310,6 @@ namespace adrilight_shared.Models.Device.Zone
                     vidSpaceHeight = vidSpace.Height;
                     zoneOffSetLeft = GetRect.Left - vidSpace.Left;
                     zoneOffSetTop = GetRect.Top - vidSpace.Top;
-                    VIDCount = (int)(vidSpaceHeight - zoneOffSetTop);
                     for (int y = (int)vidSpaceHeight; y > 0; y -= brushSize)
                     {
                         int settedVIDCount = 0;
@@ -335,7 +332,6 @@ namespace adrilight_shared.Models.Device.Zone
                     vidSpaceHeight = vidSpace.Height;
                     zoneOffSetLeft = GetRect.Left - vidSpace.Left;
                     zoneOffSetTop = GetRect.Top - vidSpace.Top;
-                    VIDCount = (int)zoneOffSetTop;
                     for (int y = 0; y < (int)vidSpaceHeight; y += brushSize)
                     {
                         int settedVIDCount = 0;
@@ -355,6 +351,7 @@ namespace adrilight_shared.Models.Device.Zone
                     break;
                 case VIDDirrection.linear:
                     var offSetIndex = Spots.MinBy(s => s.Index).FirstOrDefault().Index;
+                    VIDCount = Spots.Count;
                     foreach (var spot in Spots)
                     {
 

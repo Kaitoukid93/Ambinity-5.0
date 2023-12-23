@@ -57,7 +57,7 @@ namespace adrilight.Util
         private void RefreshHWState()
         {
             var isRunning = _cancellationTokenSource != null && IsRunning;
-            var shouldBeRunning = true;
+            var shouldBeRunning = GeneralSettings.IsHWMonitorEnabled;
             if (isRunning && !shouldBeRunning)
             {
                 //stop it!
@@ -74,6 +74,19 @@ namespace adrilight.Util
                 Log.Information("Starting the HWMonitor");
                 _cancellationTokenSource = new CancellationTokenSource();
                 var thread = new Thread(() => Run(_cancellationTokenSource.Token)) {
+                    IsBackground = true,
+                    Priority = ThreadPriority.BelowNormal,
+                    Name = "HWMonitor"
+                };
+                thread.Start();
+            }
+            else if (!isRunning && !shouldBeRunning)
+            {
+                //start it
+                // Init();
+                //Log.Information("Starting the HWMonitor");
+                _cancellationTokenSource = new CancellationTokenSource();
+                var thread = new Thread(() => RunWithoutHWMOnitor(_cancellationTokenSource.Token)) {
                     IsBackground = true,
                     Priority = ThreadPriority.BelowNormal,
                     Name = "HWMonitor"
@@ -99,7 +112,87 @@ namespace adrilight.Util
             }
             return availableFan;
         }
+        public void RunWithoutHWMOnitor(CancellationToken token)
+        {
+            IsRunning = true;
+            try
+            {
+                availableFan = GetAvailableFans();
+                while (!token.IsCancellationRequested)
+                {
+                    //get median fan control speed value
+                    List<double> speeds = new List<double>();
 
+                    speeds.Add(80d);
+
+                    lock (availableFan)
+                    {
+                        foreach (var fan in availableFan)
+                        {
+                            if (fan.CurrentActiveControlMode == null)
+                                fan.CurrentActiveControlMode = fan.AvailableControlMode.First();
+                            if (fan.LineValues == null)
+                            {
+                                fan.LineValues = new ChartValues<ObservableValue>
+                      {
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80),
+                        new ObservableValue(80)};
+                            }
+                            var currentControlMode = fan.CurrentActiveControlMode as PWMMode;
+                            int currentSpeed = 80;
+                            if (currentControlMode.BasedOn == PWMModeEnum.auto)
+                            {
+                                currentSpeed = 80;
+                            }
+                            else if (currentControlMode.BasedOn == PWMModeEnum.manual)
+                            {
+                                currentSpeed = (currentControlMode.SpeedParameter as SliderParameter).Value;
+                            }
+                            if (MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated)
+                            {
+                                fan.LineValues.Add(new ObservableValue(currentSpeed));
+                                fan.LineValues.RemoveAt(0);
+                            }
+                            fan.CurrentPWMValue = currentSpeed;
+                        }
+                    }
+                    Thread.Sleep(1000);
+                }
+            }
+            catch (OperationCanceledException ex)
+            {
+                Log.Error(ex, "OperationCanceledException catched");
+
+                return;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Exception catched.");
+
+                Thread.Sleep(500);
+            }
+            finally
+            {
+                Log.Information("Stopped HW Monitoring!!!");
+                IsRunning = false;
+            }
+        }
         public void Run(CancellationToken token)//static color creator
         {
             IsRunning = true;
@@ -261,7 +354,7 @@ namespace adrilight.Util
                     {
                         speeds.Add(80d);
                     }
-                    var medianSpeed = speeds.Median();
+                    var medianSpeed = speeds.Mean();
 
                     lock (availableFan)
                     {
@@ -360,7 +453,7 @@ namespace adrilight.Util
 
         public void Dispose()
         {
-            computer.Close();
+            computer?.Close();
         }
 
 

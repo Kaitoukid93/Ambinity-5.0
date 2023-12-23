@@ -6,6 +6,7 @@
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
            mc:Ignorable="d"
+           Closing="window_Closing"
            Background="{DynamicResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
@@ -46,6 +47,7 @@
                          Margin="5"
                          hc:ScrollViewer.IsInertiaEnabled="True"
                          x:Name="deviceList"
+                         SelectedIndex="0"
                          ItemsSource="{Binding PossibleMatchedDevices}"
                          VerticalAlignment="Top"
                          hc:ScrollViewerAttach.Orientation="Vertical"
@@ -93,16 +95,17 @@
                     <ColumnDefinition Width="auto" />
                 </Grid.ColumnDefinitions>
                 <Button Click="Button_OK_Click"
+                        IsEnabled="{Binding ElementName=deviceList, Path=SelectedItems.Count}"
                         Margin="10"
                         Style="{StaticResource ButtonPrimary}"
                         Grid.Column="2"
                         Content="Done" />
-                <Button Click="Button_Cancel_Click"
+                <!--<Button Click="Button_Cancel_Click"
                         Background="Transparent"
                         Margin="10"
                         Style="{StaticResource ButtonPrimary}"
                         Grid.Column="1"
-                        Content="Sử dụng mặc định" />
+                        Content="Sử dụng mặc định" />-->
             </Grid>
 
         </StackPanel>

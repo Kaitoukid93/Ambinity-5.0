@@ -1423,6 +1423,28 @@
                                                                 </ListBox>
                                                             </Border>
                                                         </Grid>
+                                                        <!--warning message-->
+                                                        <Grid Visibility="{Binding WarningMessageVisible,Converter={StaticResource Boolean2VisibilityConverter}}">
+                                                            <Border CornerRadius="4" Background="{DynamicResource warningBackgroundBrush}" Margin="15,10,15,0">
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="auto" />
+                                                                        <ColumnDefinition Width="*" />
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <Grid>
+                                                                        <Path Margin="10" HorizontalAlignment="Center"
+                                                                              Stretch="Uniform"
+                                                                              Width="15"
+                                                                              Height="15"
+                                                                              Data="{DynamicResource warning_Fill}"
+                                                                              Fill="{DynamicResource WarningBrush}" />
+                                                                    </Grid>
+                                                                    <TextBlock Margin="5,10" Grid.Column="1" Text="{Binding WarningMessage}" />
+                                                                </Grid>
+                                                               
+                                                            </Border>
+                                                           
+                                                        </Grid>
                                                         <!--subParam-->
                                                         <Grid Margin="10,0,15,10"
                                                               Visibility="{Binding ShowMore,Converter={StaticResource Boolean2VisibilityConverter}}">

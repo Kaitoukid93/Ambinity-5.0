@@ -11,6 +11,7 @@ namespace adrilight_shared.Settings
         private bool _isOpenRGBEnabled = false;
         private bool _isInBetaChanel = false;
         private bool _openRGBConfigRequested = true;
+        private bool _isHardwareMonitorEnabled = true;
         private bool _autostart = true;
         private int _systemRainbowSpeed = 10;
         private int _systemFramePlaybackSpeed = 1;
@@ -46,6 +47,7 @@ namespace adrilight_shared.Settings
         {
 
         }
+        public bool IsHWMonitorEnabled { get => _isHardwareMonitorEnabled; set { Set(() => IsHWMonitorEnabled, ref _isHardwareMonitorEnabled, value); } }
         public bool ShowOpenRGB { get => _showOpenRGB; set { Set(() => ShowOpenRGB, ref _showOpenRGB, value); } }
         public int StartupDelaySecond { get => _startupDelaySecond; set { Set(() => StartupDelaySecond, ref _startupDelaySecond, value); } }
         public bool IsMultipleScreenEnable { get => _isMultipleScreenEnable; set { Set(() => IsMultipleScreenEnable, ref _isMultipleScreenEnable, value); } }

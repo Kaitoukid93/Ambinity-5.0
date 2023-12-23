@@ -25,6 +25,7 @@ namespace adrilight_shared.Settings
         bool AudioDeviceAskAgain { get; set; }
         int StartupDelaySecond { get; set; }
         bool IsOpenRGBEnabled { get; set; }
+        bool IsHWMonitorEnabled { get; set; }
         bool IsProfileLoading { get; set; }
         bool StartMinimized { get; set; }
         bool HotkeyEnable { get; set; }
