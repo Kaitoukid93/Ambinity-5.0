@@ -1,5 +1,6 @@
 ﻿using adrilight_shared.Enums;
 using Newtonsoft.Json;
+using System;
 using System.Windows;
 
 namespace adrilight_shared.Models.ControlMode.ModeParameters
@@ -13,7 +14,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
         public CapturingRegionSelectionButtonParameter()
         {
 
-        }
+        }  
         public CapturingRegionSelectionButtonParameter(CapturingRegion defaultRegion, string commandParameter)
         {
             CommandParameter = commandParameter;

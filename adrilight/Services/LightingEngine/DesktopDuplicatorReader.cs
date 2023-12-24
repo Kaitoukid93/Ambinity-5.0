@@ -133,6 +133,10 @@ namespace adrilight.Services.LightingEngine
             var top = region.ScaleY * _currentColoredRegion.Height;
             var width = region.ScaleWidth * _currentColoredRegion.Width;
             var height = region.ScaleHeight * _currentColoredRegion.Height;
+            if (_currentColoredRegion.Height != 135)
+            {
+
+            }
             var zoneParrent = new Rect();
             if (CurrentZone.IsInControlGroup)
             {
@@ -179,6 +183,9 @@ namespace adrilight.Services.LightingEngine
         private double _dimFactor;
         private Rectangle _currentCapturingRegion;
         private Rectangle _currentColoredRegion;//for blackbar detection
+        private Rectangle _lastCOloredRegion;
+        private byte[] cropPixelData;
+        private int _blackBarFrameCounter;
 
         private SliderParameter _brightnessControl;
         private SliderParameter _smoothingControl;
@@ -339,8 +346,6 @@ namespace adrilight.Services.LightingEngine
                             //there was a timeout before there was the next frame, simply retry!
                             continue;
                         }
-
-                        OnCapturingRegionChanged(_regionControl.CapturingRegion);
 
                         image = newImage;
                         try
@@ -522,7 +527,7 @@ namespace adrilight.Services.LightingEngine
             const float factor = 80f;
             return (byte)(256f * ((float)Math.Pow(factor, color / 256f) - 1f) / (factor - 1));
         }
-        private int _blackborderThreshold = 10;
+        private int _blackborderThreshold = 2;
         private bool isBlack(Color color)
         {
             return color.R < _blackborderThreshold && color.G < _blackborderThreshold && color.B < _blackborderThreshold;
@@ -530,20 +535,21 @@ namespace adrilight.Services.LightingEngine
         /// <summary>
         /// Algorithm from Hyperion github
         /// </summary>
-        private void GetCurrentColoredRegion(byte[] frame, int frameWidth, int frameHeight)
+        private Rectangle GetCurrentColoredRegion(byte[] frame, int frameWidth, int frameHeight)
         {
             if (!GeneralSettings.IsBlackBarDetectionEnabled)
             {
-                _currentColoredRegion = new Rectangle(0, 0, frameWidth, frameHeight);
-                return;
+                return new Rectangle(0, 0, frameWidth, frameHeight);
             }
+            Rectangle newRegion = new Rectangle(0, 0, frameWidth, frameHeight);
             // find X position at height33 and height66 we check from the left side, Ycenter will check from right side
             // then we try to find a pixel at this X position from top and bottom and right side from top
             var width33percent = frameWidth / 3;
             var height33percent = frameHeight / 3;
             var height66percent = height33percent * 2;
             var yCenter = frameHeight / 2;
-
+            var width25percent = frameWidth / 4;
+            var width75percent = frameWidth * 3 / 4;
 
             var firstNonBlackXPixelIndex = -1;
             var firstNonBlackYPixelIndex = -1;
@@ -568,10 +574,10 @@ namespace adrilight.Services.LightingEngine
             for (var y = 0; y < height33percent; ++y)
             {
                 // left side top + left side bottom + right side top  +  right side bottom
-                if (!isBlack(GetPixel(x, y, frame, frameWidth, frameHeight))
-                  || !isBlack(GetPixel(x, frameHeight - y, frame, frameWidth, frameHeight))
-                  || !isBlack(GetPixel(frameWidth - x, y, frame, frameWidth, frameHeight))
-                  || !isBlack(GetPixel(frameWidth - x, frameHeight - y, frame, frameWidth, frameHeight)))
+                if (!isBlack(GetPixel(width25percent, y, frame, frameWidth, frameHeight))
+                  || !isBlack(GetPixel(width25percent, frameHeight - y, frame, frameWidth, frameHeight))
+                  || !isBlack(GetPixel(width75percent, y, frame, frameWidth, frameHeight))
+                  || !isBlack(GetPixel(width75percent, frameHeight - y, frame, frameWidth, frameHeight)))
                 {
                     firstNonBlackYPixelIndex = y;
                     break;
@@ -581,33 +587,23 @@ namespace adrilight.Services.LightingEngine
                 firstNonBlackXPixelIndex = 0;
             if (firstNonBlackYPixelIndex < 10) // sensitivity
                 firstNonBlackYPixelIndex = 0;
-            if (firstNonBlackYPixelIndex != 0 || firstNonBlackXPixelIndex != 0)
+            if ((firstNonBlackYPixelIndex != 0 && firstNonBlackXPixelIndex == 0)|| firstNonBlackYPixelIndex == 0 && firstNonBlackXPixelIndex != 0)
             {
                 if (firstNonBlackXPixelIndex == -1)
                     firstNonBlackXPixelIndex = 0;
                 if (firstNonBlackYPixelIndex == -1)
                     firstNonBlackYPixelIndex = 0;
-                _currentColoredRegion = new Rectangle(firstNonBlackXPixelIndex, firstNonBlackYPixelIndex, frameWidth - 2 * firstNonBlackXPixelIndex, frameHeight - 2 * firstNonBlackYPixelIndex);
-                if (_currentVideoRatio == VideoRatio.Normal)
-                {
-                    _currentVideoRatio = VideoRatio.LeterBox;
-                    //Log.Information("BlackBarDetection, current ratio: " + _currentVideoRatio.ToString() + "[" + _currentColoredRegion.Left + "-" + _currentColoredRegion.Top + "-" + _currentColoredRegion.Width + "-" + _currentColoredRegion.Height + "]");
+                newRegion = new Rectangle(firstNonBlackXPixelIndex, firstNonBlackYPixelIndex, frameWidth - 2 * firstNonBlackXPixelIndex, frameHeight - 2 * firstNonBlackYPixelIndex);
 
-                }
             }
             else
             {
                 frameWidth++;
                 frameHeight++;
-                _currentColoredRegion = new Rectangle(0, 0, frameWidth, frameHeight);
-                if (_currentVideoRatio == VideoRatio.LeterBox)
-                {
-                    _currentVideoRatio = VideoRatio.Normal;
-                    // Log.Information("BlackBarDetection, current ratio: " + _currentVideoRatio.ToString() + "[" + _currentColoredRegion.Left + "-" + _currentColoredRegion.Top + "-" + _currentColoredRegion.Width + "-" + _currentColoredRegion.Height + "]");
-                }
+                newRegion = new Rectangle(0, 0, frameWidth, frameHeight);
 
             }
-
+            return newRegion;
             //set area
 
         }
@@ -636,33 +632,67 @@ namespace adrilight.Services.LightingEngine
                     }
                     else
                     {
-                        GetCurrentColoredRegion(CurrentFrame.Frame, CurrentFrame.FrameWidth, CurrentFrame.FrameHeight);
-                        if (ReusableBitmap != null && ReusableBitmap.Width == _currentColoredRegion.Width && ReusableBitmap.Height == _currentColoredRegion.Height)
+                        //calculate colored area
+                        if (_lastCOloredRegion.Width == 0 || _lastCOloredRegion.Height == 0)
+                        {
+                            _lastCOloredRegion.Width = CurrentFrame.FrameWidth;
+                            _lastCOloredRegion.Height = CurrentFrame.FrameHeight;
+                            _currentColoredRegion = _lastCOloredRegion;
+                            OnCapturingRegionChanged(_regionControl.CapturingRegion);
+                        }
+                        var newColoredRegion = GetCurrentColoredRegion(CurrentFrame.Frame, CurrentFrame.FrameWidth, CurrentFrame.FrameHeight);
+                        if (Math.Abs(newColoredRegion.Width - _lastCOloredRegion.Width) >= 10 || Math.Abs(newColoredRegion.Height - _lastCOloredRegion.Height) >= 10)
+                        {
+                            //there is significant change in the black border
+                            _blackBarFrameCounter++;
+                            if (_blackBarFrameCounter >= 180)
+                            {
+                                _blackBarFrameCounter = 0;
+                                _lastCOloredRegion = newColoredRegion;
+                                _currentColoredRegion = newColoredRegion;
+                                OnCapturingRegionChanged(_regionControl.CapturingRegion);
+                                // Log.Information(_currentColoredRegion.Width.ToString() + _currentColoredRegion.Height.ToString());
+                                // Log.Information("changing region");
+                            }
+                        }
+                        else
+                        {
+                            _currentColoredRegion = _lastCOloredRegion;
+                            // Log.Information(_currentColoredRegion.Width.ToString() + _currentColoredRegion.Height.ToString());
+                            //Log.Information("changing region");
+                        }
+                        //if (_currentColoredRegion.Width != CurrentFrame.FrameWidth || _currentColoredRegion.Height != CurrentFrame.FrameHeight)
+                        //{
+                        if (ReusableBitmap != null && ReusableBitmap.Width == CurrentFrame.FrameWidth && ReusableBitmap.Height == CurrentFrame.FrameHeight)
                         {
                             DesktopImage = ReusableBitmap;
 
                         }
-                        else if (ReusableBitmap != null && (ReusableBitmap.Width != _currentColoredRegion.Width || ReusableBitmap.Height != _currentColoredRegion.Height))
+                        else if (ReusableBitmap != null && (ReusableBitmap.Width != CurrentFrame.FrameWidth || ReusableBitmap.Height != CurrentFrame.FrameHeight))
                         {
-                            DesktopImage = new Bitmap(_currentColoredRegion.Width, _currentColoredRegion.Height, PixelFormat.Format32bppRgb);
+                            DesktopImage = new Bitmap(CurrentFrame.FrameWidth, CurrentFrame.FrameHeight, PixelFormat.Format32bppRgb);
                         }
                         else //this is when app start
                         {
-                            DesktopImage = new Bitmap(_currentColoredRegion.Width, _currentColoredRegion.Height, PixelFormat.Format32bppRgb);
+                            DesktopImage = new Bitmap(CurrentFrame.FrameWidth, CurrentFrame.FrameHeight, PixelFormat.Format32bppRgb);
                         }
-
-                        //calculate colored area
-                        var DesktopImageBitmapData = DesktopImage.LockBits(new Rectangle(0, 0, _currentColoredRegion.Width, _currentColoredRegion.Height), ImageLockMode.WriteOnly, DesktopImage.PixelFormat);
+                        var DesktopImageBitmapData = DesktopImage.LockBits(new Rectangle(0, 0, CurrentFrame.FrameWidth, CurrentFrame.FrameHeight), ImageLockMode.WriteOnly, DesktopImage.PixelFormat);
                         IntPtr pixelAddress = DesktopImageBitmapData.Scan0;
-                        if (_currentColoredRegion.Width != CurrentFrame.FrameWidth || _currentColoredRegion.Height != CurrentFrame.FrameHeight)
-                        {
-                            var cropPixelData = CropImageArray(CurrentFrame.Frame, CurrentFrame.FrameWidth, 32, _currentColoredRegion);
-                            Marshal.Copy(cropPixelData, 0, pixelAddress, cropPixelData.Length);
-                        }
-                        else
-                        {
-                            Marshal.Copy(CurrentFrame.Frame, 0, pixelAddress, CurrentFrame.Frame.Length);
-                        }
+                        //if (CurrentFrame.FrameWidth == _currentColoredRegion.Width && CurrentFrame.FrameHeight == _currentColoredRegion.Height)
+                        //{
+                        //    cropPixelData = CurrentFrame.Frame;
+                        //}
+                        //else
+                        //{
+                        //    cropPixelData = CropImageArray(CurrentFrame.Frame, CurrentFrame.FrameWidth, 32, _currentColoredRegion);
+                        //}
+                        Marshal.Copy(CurrentFrame.Frame, 0, pixelAddress, CurrentFrame.Frame.Length);
+                        //}
+
+                        //else
+                        //{
+                        //    Marshal.Copy(CurrentFrame.Frame, 0, pixelAddress, CurrentFrame.Frame.Length);
+                        //}
 
                         DesktopImage.UnlockBits(DesktopImageBitmapData);
                         return DesktopImage;
