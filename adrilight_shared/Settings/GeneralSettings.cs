@@ -22,6 +22,7 @@ namespace adrilight_shared.Settings
         private bool _startMinimized = false;
         private bool _notificationEnabled = true;
         private int _selectedAudioDevice = 0;
+        private int _blackBarDetectionDelayTime = 3;
         private Color _accentColor = Color.FromArgb(255, 185, 130, 251);
         private int _deviceDiscoveryMode = 0;
         private bool _openRGBAskAgain = true;
@@ -86,5 +87,6 @@ namespace adrilight_shared.Settings
         public bool UsingOpenRGB { get => _usingOpenRGB; set { Set(() => UsingOpenRGB, ref _usingOpenRGB, value); } }
         public string OpenRGBVersion { get => _openRGBVersion; set { Set(() => OpenRGBVersion, ref _openRGBVersion, value); } }
 
+        public int BlackBarDetectionDelayTime { get => _blackBarDetectionDelayTime; set { Set(() => BlackBarDetectionDelayTime, ref _blackBarDetectionDelayTime, value); } }
     }
 }

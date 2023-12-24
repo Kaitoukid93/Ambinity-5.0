@@ -5067,7 +5067,7 @@ namespace adrilight.ViewModel
                 //init app acent color selection
                 AccentColorSelection = new ListSelectionParameter(ModeParameterEnum.Color) {
                     Name = "Màu chủ đề",
-                    Description = "Chọn màu chủ đạo cho ứng dụng, Sau khi chọn màu, bạn nên khởi động lại ứng dụng",
+                    Description = "Chọn màu chủ đạo cho ứng dụng. Sau khi chọn màu, bạn nên khởi động lại ứng dụng",
                     DataSourceLocaFolderNames = new List<string>() { "Colors" }
                 };
                 AccentColorSelection.LoadAvailableValues();

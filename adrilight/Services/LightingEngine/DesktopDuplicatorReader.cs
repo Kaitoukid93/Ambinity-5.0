@@ -20,7 +20,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
+using Windows.Foundation;
 using Color = System.Windows.Media.Color;
+using Rect = System.Windows.Rect;
 using Rectangle = System.Drawing.Rectangle;
 
 namespace adrilight.Services.LightingEngine
@@ -129,14 +131,10 @@ namespace adrilight.Services.LightingEngine
             }
 
 
-            var left = region.ScaleX * _currentColoredRegion.Width;
-            var top = region.ScaleY * _currentColoredRegion.Height;
+            var left = region.ScaleX * _currentColoredRegion.Width + _currentColoredRegion.Left;
+            var top = region.ScaleY * _currentColoredRegion.Height + _currentColoredRegion.Top;
             var width = region.ScaleWidth * _currentColoredRegion.Width;
             var height = region.ScaleHeight * _currentColoredRegion.Height;
-            if (_currentColoredRegion.Height != 135)
-            {
-
-            }
             var zoneParrent = new Rect();
             if (CurrentZone.IsInControlGroup)
             {
@@ -182,10 +180,11 @@ namespace adrilight.Services.LightingEngine
         private DimMode _dimMode;
         private double _dimFactor;
         private Rectangle _currentCapturingRegion;
-        private Rectangle _currentColoredRegion;//for blackbar detection
-        private Rectangle _lastCOloredRegion;
+        private Rect _currentColoredRegion;//for blackbar detection
+        private Rect _lastBorder;
         private byte[] cropPixelData;
-        private int _blackBarFrameCounter;
+        private int _consistantBorderCnt;
+        private int _inconsistantBorderCnt;
 
         private SliderParameter _brightnessControl;
         private SliderParameter _smoothingControl;
@@ -535,13 +534,13 @@ namespace adrilight.Services.LightingEngine
         /// <summary>
         /// Algorithm from Hyperion github
         /// </summary>
-        private Rectangle GetCurrentColoredRegion(byte[] frame, int frameWidth, int frameHeight)
+        private Rect GetCurrentColoredRegion(byte[] frame, int frameWidth, int frameHeight)
         {
             if (!GeneralSettings.IsBlackBarDetectionEnabled)
             {
-                return new Rectangle(0, 0, frameWidth, frameHeight);
+                return new Rect(0, 0, frameWidth, frameHeight);
             }
-            Rectangle newRegion = new Rectangle(0, 0, frameWidth, frameHeight);
+            Rect newRegion = new Rect(0, 0, frameWidth, frameHeight);
             // find X position at height33 and height66 we check from the left side, Ycenter will check from right side
             // then we try to find a pixel at this X position from top and bottom and right side from top
             var width33percent = frameWidth / 3;
@@ -587,20 +586,20 @@ namespace adrilight.Services.LightingEngine
                 firstNonBlackXPixelIndex = 0;
             if (firstNonBlackYPixelIndex < 10) // sensitivity
                 firstNonBlackYPixelIndex = 0;
-            if ((firstNonBlackYPixelIndex != 0 && firstNonBlackXPixelIndex == 0)|| firstNonBlackYPixelIndex == 0 && firstNonBlackXPixelIndex != 0)
+            if (firstNonBlackYPixelIndex != 0 || firstNonBlackXPixelIndex != 0)
             {
                 if (firstNonBlackXPixelIndex == -1)
                     firstNonBlackXPixelIndex = 0;
                 if (firstNonBlackYPixelIndex == -1)
                     firstNonBlackYPixelIndex = 0;
-                newRegion = new Rectangle(firstNonBlackXPixelIndex, firstNonBlackYPixelIndex, frameWidth - 2 * firstNonBlackXPixelIndex, frameHeight - 2 * firstNonBlackYPixelIndex);
+                newRegion = new Rect(firstNonBlackXPixelIndex, firstNonBlackYPixelIndex, frameWidth - 2 * firstNonBlackXPixelIndex, frameHeight - 2 * firstNonBlackYPixelIndex);
 
             }
             else
             {
                 frameWidth++;
                 frameHeight++;
-                newRegion = new Rectangle(0, 0, frameWidth, frameHeight);
+                newRegion = new Rect(0, 0, frameWidth, frameHeight);
 
             }
             return newRegion;
@@ -614,6 +613,7 @@ namespace adrilight.Services.LightingEngine
             {
                 ByteFrame CurrentFrame = null;
                 Bitmap DesktopImage;
+                bool borderChanged = false;
                 if (_currentScreenIndex >= DesktopFrame.Frames.Length)
                 {
                     HandyControl.Controls.MessageBox.Show("màn hình không khả dụng", "Sáng theo màn hình", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -633,36 +633,52 @@ namespace adrilight.Services.LightingEngine
                     else
                     {
                         //calculate colored area
-                        if (_lastCOloredRegion.Width == 0 || _lastCOloredRegion.Height == 0)
+                        if (_currentColoredRegion.Width == 0 || _currentColoredRegion.Height == 0)
                         {
-                            _lastCOloredRegion.Width = CurrentFrame.FrameWidth;
-                            _lastCOloredRegion.Height = CurrentFrame.FrameHeight;
-                            _currentColoredRegion = _lastCOloredRegion;
+                            _currentColoredRegion = new Rect(0, 0, CurrentFrame.FrameWidth, CurrentFrame.FrameHeight);
                             OnCapturingRegionChanged(_regionControl.CapturingRegion);
                         }
                         var newColoredRegion = GetCurrentColoredRegion(CurrentFrame.Frame, CurrentFrame.FrameWidth, CurrentFrame.FrameHeight);
-                        if (Math.Abs(newColoredRegion.Width - _lastCOloredRegion.Width) >= 10 || Math.Abs(newColoredRegion.Height - _lastCOloredRegion.Height) >= 10)
+
+                        //if new colored region is the same as current colored region. Ignore the image processing
+
+                        var currentBorder = new Rect(0, 0, (CurrentFrame.FrameWidth - newColoredRegion.Width) / 2, (CurrentFrame.FrameHeight - newColoredRegion.Height) / 2);
+                        if (!Rect.Equals(currentBorder, _lastBorder))
                         {
-                            //there is significant change in the black border
-                            _blackBarFrameCounter++;
-                            if (_blackBarFrameCounter >= 180)
+                            ++_inconsistantBorderCnt;
+                            if (_inconsistantBorderCnt <= 10)
                             {
-                                _blackBarFrameCounter = 0;
-                                _lastCOloredRegion = newColoredRegion;
-                                _currentColoredRegion = newColoredRegion;
-                                OnCapturingRegionChanged(_regionControl.CapturingRegion);
-                                // Log.Information(_currentColoredRegion.Width.ToString() + _currentColoredRegion.Height.ToString());
-                                // Log.Information("changing region");
+                                borderChanged = false;
                             }
+                            _lastBorder = currentBorder;
+                            _consistantBorderCnt = 0;
+
                         }
                         else
                         {
-                            _currentColoredRegion = _lastCOloredRegion;
-                            // Log.Information(_currentColoredRegion.Width.ToString() + _currentColoredRegion.Height.ToString());
-                            //Log.Information("changing region");
+                            ++_consistantBorderCnt;
+                            _inconsistantBorderCnt = 0;
                         }
-                        //if (_currentColoredRegion.Width != CurrentFrame.FrameWidth || _currentColoredRegion.Height != CurrentFrame.FrameHeight)
+                        if (Rect.Equals(_currentColoredRegion, newColoredRegion))
+                        {
+                            // No change required
+                            _inconsistantBorderCnt = 0;
+                            borderChanged = false;
+                        }
+                        //else
                         //{
+                        //    borderChanged = true;
+                        //}
+                        if (_consistantBorderCnt == GeneralSettings.BlackBarDetectionDelayTime * 60)
+                        {
+                            borderChanged = true;
+                        }
+                        if (borderChanged)
+                        {
+                            _currentColoredRegion = newColoredRegion;
+                            OnCapturingRegionChanged(_regionControl.CapturingRegion);
+                            //borderChanged = false;
+                        }
                         if (ReusableBitmap != null && ReusableBitmap.Width == CurrentFrame.FrameWidth && ReusableBitmap.Height == CurrentFrame.FrameHeight)
                         {
                             DesktopImage = ReusableBitmap;
@@ -671,6 +687,8 @@ namespace adrilight.Services.LightingEngine
                         else if (ReusableBitmap != null && (ReusableBitmap.Width != CurrentFrame.FrameWidth || ReusableBitmap.Height != CurrentFrame.FrameHeight))
                         {
                             DesktopImage = new Bitmap(CurrentFrame.FrameWidth, CurrentFrame.FrameHeight, PixelFormat.Format32bppRgb);
+                            _currentColoredRegion = newColoredRegion;
+                            OnCapturingRegionChanged(_regionControl.CapturingRegion);
                         }
                         else //this is when app start
                         {

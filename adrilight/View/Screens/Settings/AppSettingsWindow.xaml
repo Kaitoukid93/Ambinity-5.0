@@ -625,7 +625,7 @@
                                                       hc:InfoElement.TitleWidth="50"
                                                       hc:InfoElement.Title="Delay"
                                                       hc:InfoElement.TitlePlacement="Left"
-                                                      Margin="10"
+                                                      Margin="10,5"
                                                       Value="{Binding GeneralSettings.StartupDelaySecond}" />
 
                                     <ToggleButton HorizontalAlignment="Right"
@@ -644,7 +644,7 @@
                                    HorizontalAlignment="Left"
                                    Style="{StaticResource TextBlockDefaultSecLight}"
                                    Grid.Row="1"
-                                   Text="Tự khời động cùng Windows" />
+                                   Text="Tự khởi động cùng Windows" />
                     </Grid>
                     <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
                                  Margin="5,10,5,10">
@@ -1285,7 +1285,7 @@
                                    HorizontalAlignment="Left"
                                    Style="{StaticResource TextBlockDefaultSecLight}"
                                    Grid.Row="1"
-                                   Text="Cho phép sử dụng OpenRGB Plugin(yêu cầu HUBV3 kết nối)" />
+                                   Text="Cho phép sử dụng OpenRGB Plugin (yêu cầu HUBV3 kết nối)" />
                     </Grid>
                     <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
                                  Margin="50,10,5,10">
@@ -1348,7 +1348,7 @@
                                            HorizontalAlignment="Left"
                                            Style="{StaticResource TextBlockDefaultSecLight}"
                                            Grid.Row="1"
-                                           Text="Hiển thị OpenRGB Process ở System Tray ( yêu cầu khởi động lại ứn dụng)" />
+                                           Text="Hiển thị OpenRGB Process ở System Tray (yêu cầu khởi động lại ứn dụng)" />
                             </Grid>
                         </StackPanel>
 

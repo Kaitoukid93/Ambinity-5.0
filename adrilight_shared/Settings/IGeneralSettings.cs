@@ -11,6 +11,7 @@ namespace adrilight_shared.Settings
         bool Autostart { get; set; }
         bool ShowOpenRGB { get; set; }
         bool IsBlackBarDetectionEnabled { get; set; }
+        int BlackBarDetectionDelayTime { get; set; }
         bool IsPowerLimitEnabled { get; set; }
         int ScreenCapturingMethod { get; set; }
         bool NotificationEnabled { get; set; }
