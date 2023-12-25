@@ -112,9 +112,13 @@ namespace adrilight_shared.Models.Device
         [JsonIgnore]
         public bool DeviceHardwareControlEnable => (DeviceType.Type == DeviceTypeEnum.AmbinoBasic || DeviceType.Type == DeviceTypeEnum.AmbinoEDGE);
         [JsonIgnore]
+        public bool DeviceFanSpeedControlEnable => (DeviceType.Type == DeviceTypeEnum.AmbinoFanHub);
+        [JsonIgnore]
         public bool IsIndicatorLEDOn { get; set; }
         [JsonIgnore]
         public bool NoSignalLEDEnable { get; set; }
+        [JsonIgnore]
+        public int NoSignalFanSpeed { get; set; }
         private byte[] GetSettingOutputStream()
         {
             var outputStream = new byte[16];
@@ -122,6 +126,11 @@ namespace adrilight_shared.Models.Device
             int counter = sendCommand.Length;
             outputStream[counter++] = NoSignalLEDEnable == true ? (byte)15 : (byte)12;
             outputStream[counter++] = IsIndicatorLEDOn == true ? (byte)15 : (byte)12;
+            outputStream[counter++] = 0;
+            outputStream[counter++] = 0;
+            outputStream[counter++] = 0;
+            outputStream[counter++] = 0;
+            outputStream[counter++] = (byte)NoSignalFanSpeed;
             return outputStream;
         }
         private byte[] GetEEPRomDataOutputStream()
@@ -173,7 +182,7 @@ namespace adrilight_shared.Models.Device
                     retryCount++;
                     if (retryCount == 3)
                     {
-                        Console.WriteLine("timeout waiting for respond on serialport " + _serialPort.PortName);
+                        Log.Warning("timeout waiting for respond on serialport " + _serialPort.PortName);
                         _serialPort.Close();
                         _serialPort.Dispose();
                         return await Task.FromResult(false);
@@ -186,28 +195,42 @@ namespace adrilight_shared.Models.Device
             if (offset == 3) //3 bytes header are valid continue to read next 13 byte of data
             {
 
-                /// [15,12,93,Led on/off,Signal LED On/off,Connection Type,Max Brightness,Show Welcome LED,Serial Timeout,0,0,0,0,0,0,0] ///////
-                //led on off
-                var noDataLEDEnable = _serialPort.ReadByte();
-                NoSignalLEDEnable = noDataLEDEnable == 15 ? true : false;
-                Log.Information("Device EEPRom Data: " + noDataLEDEnable);
-                //signal led on off
-                var signalLEDEnable = _serialPort.ReadByte();
-                IsIndicatorLEDOn = signalLEDEnable == 15 ? true : false;
-                Log.Information("Device EEPRom Data: " + signalLEDEnable);
-                //discard buffer
-                _serialPort.DiscardInBuffer();
+                /// [15,12,93,Led on/off,Signal LED On/off,Connection Type,Max Brightness,Show Welcome LED,Serial Timeout,No Signal Fan Speed,0,0,0,0,0,0] ///////
+                try
+                {
+                    //led on off
+                    var noDataLEDEnable = _serialPort.ReadByte();
+                    NoSignalLEDEnable = noDataLEDEnable == 15 ? true : false;
+                    Log.Information("Device EEPRom Data: " + noDataLEDEnable);
+                    //signal led on off
+                    var signalLEDEnable = _serialPort.ReadByte();
+                    IsIndicatorLEDOn = signalLEDEnable == 15 ? true : false;
+                    Log.Information("Device EEPRom Data: " + signalLEDEnable);
+                    var connectionType = _serialPort.ReadByte();
+                    var maxBrightness = _serialPort.ReadByte();
+                    var showWelcomeLED = _serialPort.ReadByte();
+                    var serialTimeout = _serialPort.ReadByte();
+                    var noSignalFanSpeed = _serialPort.ReadByte();
+                    NoSignalFanSpeed = noSignalFanSpeed < 20 ? 20 : noSignalFanSpeed;
+                    Log.Information("Device EEPRom Data: " + noSignalFanSpeed);
+                  
+                }
+                catch(TimeoutException ex)
+                {
+                    //discard buffer
+                    _serialPort.DiscardInBuffer();
+                    _serialPort.Close();
+                    _serialPort.Dispose();
+                    return await Task.FromResult(true);
+                }
+           
+                
             }
-
-
+            //discard buffer
+            _serialPort.DiscardInBuffer();
             _serialPort.Close();
             _serialPort.Dispose();
             return await Task.FromResult(true);
-            //if (isValid)
-            //    newDevices.Add(newDevice);
-            //reboot serialStream
-            //IsTransferActive = true;
-            //RaisePropertyChanged(nameof(IsTransferActive));
         }
         public async Task<bool> SendHardwareSettings()
         {
@@ -696,7 +719,10 @@ namespace adrilight_shared.Models.Device
             {
                 return;
             }
-
+            catch (Exception ex)
+            {
+                return;
+            }
             //write request info command
             _serialPort.Write(requestCommand, 0, 3);
             int retryCount = 0;

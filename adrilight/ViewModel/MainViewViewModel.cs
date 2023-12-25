@@ -6251,7 +6251,13 @@ namespace adrilight.ViewModel
         private async Task OpenDeviceFirmwareSettingsWindow()
         {
             //get device settings info
-            if (CurrentDevice.DeviceType.Type == DeviceTypeEnum.AmbinoBasic || CurrentDevice.DeviceType.Type == DeviceTypeEnum.AmbinoEDGE)
+            if(!CurrentDevice.IsTransferActive)
+            {
+                return;
+            }
+            IsApplyingDeviceHardwareSettings = true;
+            await Task.Run(() => CurrentDevice.RefreshFirmwareVersion());           
+            if (CurrentDevice.DeviceHardwareControlEnable || CurrentDevice.DeviceFanSpeedControlEnable)
             {
                 string fwversion = CurrentDevice.FirmwareVersion;
                 if (fwversion == "unknown" || fwversion == string.Empty || fwversion == null)
@@ -6266,9 +6272,13 @@ namespace adrilight.ViewModel
                 {
                     requiredVersion = new Version("1.0.5");
                 }
+                else if (CurrentDevice.DeviceType.Type == DeviceTypeEnum.AmbinoFanHub)
+                {
+                    requiredVersion = new Version("1.0.8");
+                }
                 if (deviceFWVersion >= requiredVersion)
                 {
-                    IsApplyingDeviceHardwareSettings = true;
+
                     var result = await Task.Run(() => CurrentDevice.GetHardwareSettings());
                     IsApplyingDeviceHardwareSettings = false;
                 }
@@ -6285,7 +6295,7 @@ namespace adrilight.ViewModel
                 window.Owner = System.Windows.Application.Current.MainWindow;
                 window.ShowDialog();
             }
-
+            
         }
 
         private void OpenNameEditWindow(System.Windows.Window owner)
@@ -8764,7 +8774,7 @@ namespace adrilight.ViewModel
             };
             var AFR3g = new DeviceFirmware() {
                 Name = "AFR3g.hex",
-                Version = "1.0.6",
+                Version = "1.0.8",
                 TargetHardware = "AFR3g",
                 TargetDeviceType = DeviceTypeEnum.AmbinoFanHub,
                 Geometry = "binary",

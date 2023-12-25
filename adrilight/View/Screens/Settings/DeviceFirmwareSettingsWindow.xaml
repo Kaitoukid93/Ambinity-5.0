@@ -325,7 +325,73 @@
                         </Grid>
                     </StackPanel>
                 </Grid>
+                <Grid Visibility="{Binding CurrentDevice.DeviceFanSpeedControlEnable,Converter={StaticResource boolToVisibilityConvert}}">
+                    <StackPanel>
+                        <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                                     Margin="5,10,5,10">
 
+                        </hc:Divider>
+                        <Grid Name="fanbehavior">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
+                            </Grid.RowDefinitions>
+                            <GroupBox   VerticalAlignment="Center"
+                                        hc:TitleElement.TitleWidth="150"
+                                        Margin="5"
+                                        Style="{StaticResource GroupBoxOriginal}"
+                                        HorizontalAlignment="Stretch"
+                                        hc:TitleElement.TitlePlacement="Left">
+                                <GroupBox.HeaderTemplate>
+                                    <DataTemplate>
+                                        <TextBlock FontWeight="SemiBold"
+                                                   Text="TỐC ĐỘ FAN OFFLINE" />
+                                    </DataTemplate>
+                                </GroupBox.HeaderTemplate>
+                                <hc:PreviewSlider HorizontalAlignment="Right"
+                                                  Width="200"
+                                                  Minimum="20"
+                                                  Maximum="255"
+                                                  Value="{Binding CurrentDevice.NoSignalFanSpeed}">
+                                    <hc:PreviewSlider.PreviewContent>
+                                        <Label Style="{StaticResource LabelPrimary}"
+                                               Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}"
+                                               ContentStringFormat="#0" />
+                                    </hc:PreviewSlider.PreviewContent>
+                                </hc:PreviewSlider>
+
+
+                            </GroupBox>
+                            <TextBlock Margin="5,0,0,0"
+                                       HorizontalAlignment="Left"
+                                       Style="{StaticResource TextBlockDefaultSecLight}"
+                                       Grid.Row="1"
+                                       TextWrapping="Wrap"
+                                       Text="HUB Fan sẽ điều khiển fan chạy với tốc độ này khi không kết nối với app" />
+                        </Grid>
+                        <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                                     Margin="5,10,5,10">
+
+                        </hc:Divider>
+
+                        <Grid>
+                            <StackPanel  HorizontalAlignment="Right"
+                                         Margin="5"
+                                         Orientation="Vertical">
+                                <Button Command="{Binding ApplyDeviceHardwareSettingsCommand}"
+                                        Style="{DynamicResource _mediumProfileDefaultButton}"
+                                        Content="Apply">
+                                </Button>
+                                <ProgressBar Visibility="{Binding IsApplyingDeviceHardwareSettings,Converter={StaticResource boolToVisibilityConvert}}"
+                                             hc:BorderElement.CornerRadius="0"
+                                             IsIndeterminate="True"
+                                             Margin="0,5,0,0"
+                                             Height="4" />
+                            </StackPanel>
+
+                        </Grid>
+                    </StackPanel>
+                </Grid>
 
                 <!--<Grid >
                 <Grid.ColumnDefinitions>

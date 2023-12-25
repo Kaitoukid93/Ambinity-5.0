@@ -44,7 +44,9 @@ namespace adrilight_shared.Models.Device
         bool IsSizeNeedUserDefine { get; set; }
         bool IsIndicatorLEDOn { get; set; }
         bool NoSignalLEDEnable { get; set; }
-        bool DeviceHardwareControlEnable { get; }
+        bool DeviceHardwareControlEnable { get; } 
+        bool DeviceFanSpeedControlEnable { get; }
+        int NoSignalFanSpeed { get; set; }
         int DashboardWidth { get; set; }
         int DashboardHeight { get; set; }
         ObservableCollection<ControlZoneGroup> ControlZoneGroups { get; set; }
