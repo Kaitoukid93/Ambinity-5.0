@@ -658,7 +658,7 @@ namespace adrilight.Services.LightingEngine
                 var gradient = GetColorGradient(colorCollection[i], colorCollection[i + 1], colorPerGap);
                 colors = colors.Concat(gradient).ToList();
             }
-            var lastGradient = GetColorGradient(colorCollection[15], colorCollection[0], colorPerGap);
+            var lastGradient = GetColorGradient(colorCollection[colorCollection.Length - 1], colorCollection[0], colorPerGap);
             colors = colors.Concat(lastGradient).ToList();
             return colors;
 

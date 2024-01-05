@@ -7755,7 +7755,9 @@ namespace adrilight.ViewModel
         private void AddNewPaletteToCollection(ColorPalette source)
         {
             var currentParam = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Palette).FirstOrDefault() as ListSelectionParameter;
-            currentParam.AddItemToCollection(source);
+            var result = currentParam.AddItemToCollection(source);
+            if (!result)
+                return;
             AddNewPaletteDialog?.Close();
         }
         private void AddNewChasingPatternToCollection(ChasingPattern source)

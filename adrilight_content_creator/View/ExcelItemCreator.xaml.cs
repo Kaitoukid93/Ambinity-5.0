@@ -14,7 +14,7 @@ namespace adrilight_content_creator.View
         {
             InitializeComponent();
         }
-        public class ExcelItemCreatorSelectableViewPart : ISelectableViewPart
+        public class ExcelItemCreatorSelectableViewPart
         {
             private readonly Lazy<ExcelItemCreator> lazyContent;
 

@@ -135,11 +135,7 @@ namespace adrilight
             var kernel = new StandardKernel(new DeviceSettingsInjectModule());
             GeneralSettings = kernel.Get<IGeneralSettings>();
             //Load setting từ file Json//
-            var settingsManager = new UserSettingsManager();
-            kernel.Bind(x => x.FromThisAssembly()
-            .SelectAllClasses()
-            .InheritedFrom<ISelectableViewPart>()
-            .BindAllInterfaces());
+            var settingsManager = new UserSettingsManager();       
             var captureEngines = kernel.GetAll<ICaptureEngine>();
             var rainbowTicker = kernel.Get<RainbowTicker>();
             var playlistDecoder = kernel.Get<PlaylistDecoder>();

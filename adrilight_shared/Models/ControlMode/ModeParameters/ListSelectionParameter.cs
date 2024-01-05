@@ -291,14 +291,14 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
             }
 
         }
-        public void AddItemToCollection(IParameterValue item)
+        public bool AddItemToCollection(IParameterValue item)
         {
             if (item.Name != null)
             {
                 if (AvailableValues.Any(p => p.Name == item.Name))
                 {
-                    HandyControl.Controls.MessageBox.Show("File đã tồn tại, " + item.Name + "vui lòng chọn tên khác!", "file already exists", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
+                    HandyControl.Controls.MessageBox.Show("File đã tồn tại, " + item.Name + " vui lòng chọn tên khác!", "file already exists", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return false;
                 }
             }
             AvailableValues.Insert(0, item);
@@ -342,7 +342,8 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
                         break;
                 }
             }
-            catch { }
+            catch { return false; }
+            return true;
         }
         private static T DeserializeFromStream<T>(Stream stream)
         {

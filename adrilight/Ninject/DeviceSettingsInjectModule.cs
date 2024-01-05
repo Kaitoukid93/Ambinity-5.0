@@ -14,6 +14,8 @@ using adrilight_shared.Settings;
 using Microsoft.Win32;
 using Ninject.Modules;
 using Serilog;
+using static adrilight.View.AllDeviceView;
+using static adrilight.View.DeviceControlView;
 
 namespace adrilight.Ninject
 {
@@ -37,6 +39,10 @@ namespace adrilight.Ninject
             Bind<DBmanager>().ToSelf().InSingletonScope();
             Bind<IDialogService>().To<DialogService>().InSingletonScope();
             Bind<CollectionItemStore>().ToSelf().InSingletonScope();
+
+            //binding view
+            Bind<ISelectableViewPart>().To<DeviceControlViewSelectableViewPart>();
+            Bind<ISelectableViewPart>().To<AllDeviceViewSelectableViewPart>();
             if (generalSettings.ScreenCapturingMethod == 0)
             {
                 if (osBuild == "22000" || osBuild == "22621")

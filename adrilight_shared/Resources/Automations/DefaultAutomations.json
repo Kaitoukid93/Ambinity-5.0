@@ -63,7 +63,8 @@
             "$type": "adrilight.Util.ColorCard, adrilight",
             "Name": null,
             "Description": null,
-            "StartColor": "#FF00FF08",
+            "
+              ": "#FF00FF08",
             "StopColor": "#FF00FF08",
             "IsInDesignMode": false
           },

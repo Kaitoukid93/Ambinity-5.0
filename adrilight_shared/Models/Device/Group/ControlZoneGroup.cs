@@ -154,6 +154,7 @@ namespace adrilight_shared.Models.Device.Group
         }
         [JsonIgnore]
         public Object IDGeneratingLock { get; set; } = new Object();
+
         public int GenerateVID(IParameterValue value, int intensity, int brushSize, IDeviceSettings device)
         {
             if (ControlZones == null)

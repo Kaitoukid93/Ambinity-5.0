@@ -918,6 +918,7 @@ namespace adrilight_content_creator.ViewModel
             newDevice.UpdateChildSize();
             AvailableAddedDevices.Add(newDevice);
         }
+
         public Task<List<DeviceSettings>> LoadDeviceIfExists()
         {
             var devices = new List<DeviceSettings>();

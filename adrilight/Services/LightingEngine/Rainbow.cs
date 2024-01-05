@@ -160,7 +160,7 @@ namespace adrilight
                 _vidDataControl.SubParams[0].IsEnabled = true;
                 if (CurrentZone.IsInControlGroup)
                 {
-                    //acquire this ground this zone belongs to
+                    //acquire this group this zone belongs to
                     var group = CurrentDevice.ControlZoneGroups.Where(g => g.GroupUID == CurrentZone.GroupID).FirstOrDefault();
                     if (group == null)
                         return;
