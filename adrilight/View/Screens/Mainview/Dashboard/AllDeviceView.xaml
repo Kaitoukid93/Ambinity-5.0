@@ -556,12 +556,16 @@
                                                Text="Mở cài đặt App" />
                                 </Button>
                             </StackPanel>
-
                         </Grid>
                         <StackPanel>
-                            <Grid Margin="0"
+                            <Grid Grid.Row="1"
+                                  Margin="0"
                                   x:Name="Header">
-                                <StackPanel>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <StackPanel Orientation="Horizontal">
                                     <Grid Margin="0">
                                         <TextBlock Margin="15,10,10,5"
                                                    Text="DEVICES"
@@ -570,41 +574,49 @@
                                                    Style="{DynamicResource TextBlockSubTitle}"
                                                    HorizontalAlignment="Left" />
                                     </Grid>
-                                    <Grid Margin="0">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Margin="15,0,0,20"
-                                                       Text="Tất cả các thiết bị sẽ tự động được dò ra và hiển thị ở đây."
-                                                       VerticalAlignment="Top"
-                                                       Style="{DynamicResource TextBlockDefaultSecLight}"
-                                                       HorizontalAlignment="Left" />
-                                            <Button Command="{Binding RequestingRescanDevicesCommand}"
-                                                    CommandParameter="Lighting"
-                                                    IsEnabled="{Binding IsRescanningDevices, Converter={StaticResource Boolean2BooleanReConverter}}"
-                                                    ToolTip="Dò lại các thiết bị nếu trình tự động không tìm ra"
-                                                    VerticalAlignment="Top"
-                                                    Padding="0"
-                                                    Height="15"
-                                                    Margin="5,0,5,0"
-                                                    Background="Transparent"
-                                                    BorderThickness="0">
-                                                <TextBlock Margin="0,0"
-                                                           VerticalAlignment="Top"
-                                                           HorizontalAlignment="Center"
-                                                           TextWrapping="Wrap"
-                                                           Style="{DynamicResource TextBlockDefaultPrimary}"
-                                                           Text="Rescan devices" />
-                                            </Button>
-                                            <ProgressBar Visibility="{Binding IsRescanningDevices,Converter={StaticResource boolToVisibilityConvert}}"
-                                                         hc:BorderElement.CornerRadius="2"
-                                                         VerticalAlignment="Top"
-                                                         IsIndeterminate="True"
-                                                         Margin="5,8,0,0"
-                                                         Width="100"
-                                                         Height="4" />
-                                        </StackPanel>
+                                    <Button ToolTip="Quản lý các thiết bị"
+                                            Command="{Binding OpenDeviceManagerWindowCommand}"
+                                            hc:IconElement.Geometry="{DynamicResource slaveDevice}"
+                                            Margin="5,5,5,5"
+                                            BorderBrush="Transparent"
+                                            Content="Manage">
+                                    </Button>
 
-                                    </Grid>
                                 </StackPanel>
+                                <Grid Margin="0" Grid.Row="1">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Margin="15,0,0,20"
+                                                   Text="Click vào từng thiết bị để cài đặt riêng biệt"
+                                                   VerticalAlignment="Top"
+                                                   Style="{DynamicResource TextBlockDefaultSecLight}"
+                                                   HorizontalAlignment="Left" />
+                                        <!--<Button Command="{Binding RequestingRescanDevicesCommand}"
+                                                CommandParameter="Lighting"
+                                                IsEnabled="{Binding IsRescanningDevices, Converter={StaticResource Boolean2BooleanReConverter}}"
+                                                ToolTip="Dò lại các thiết bị nếu trình tự động không tìm ra"
+                                                VerticalAlignment="Top"
+                                                Padding="0"
+                                                Height="15"
+                                                Margin="5,0,5,0"
+                                                Background="Transparent"
+                                                BorderThickness="0">
+                                            <TextBlock Margin="0,0"
+                                                       VerticalAlignment="Top"
+                                                       HorizontalAlignment="Center"
+                                                       TextWrapping="Wrap"
+                                                       Style="{DynamicResource TextBlockDefaultPrimary}"
+                                                       Text="Rescan devices" />
+                                        </Button>-->
+                                        <ProgressBar Visibility="{Binding IsRescanningDevices,Converter={StaticResource boolToVisibilityConvert}}"
+                                                     hc:BorderElement.CornerRadius="2"
+                                                     VerticalAlignment="Top"
+                                                     IsIndeterminate="True"
+                                                     Margin="5,8,0,0"
+                                                     Width="100"
+                                                     Height="4" />
+                                    </StackPanel>
+
+                                </Grid>
                             </Grid>
                             <Grid x:Name="AllDevicesPanel">
                                 <!-- all devices-->

@@ -70,7 +70,7 @@ namespace adrilight.Manager
             {
                 try
                 {
-                    SaveFile();
+                    await SaveFile();
                     if (MainViewViewModel.IsAppActivated)
                         Log.Information("Periodically App Data Saved!");
 
@@ -84,10 +84,10 @@ namespace adrilight.Manager
                 await Task.Delay(TimeSpan.FromSeconds(30));
             }
         }
-        public void SaveFile()
+        public Task SaveFile()
         {
             if (MainViewViewModel.DeviceHlprs == null)
-                return;
+                return Task.FromResult(false);
             lock (MainViewViewModel.AvailableDevices)
             {
                 foreach (var device in MainViewViewModel.AvailableDevices)
@@ -97,6 +97,7 @@ namespace adrilight.Manager
                 }
             }
             MainViewViewModel.LightingProfileManagerViewModel.SaveData();
+            return Task.FromResult(true);
         }
         private static object _syncRoot = new object();
         public void Stop()

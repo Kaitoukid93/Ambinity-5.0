@@ -135,7 +135,7 @@ namespace adrilight
             var kernel = new StandardKernel(new DeviceSettingsInjectModule());
             GeneralSettings = kernel.Get<IGeneralSettings>();
             //Load setting từ file Json//
-            var settingsManager = new UserSettingsManager();       
+            var deviceManager = kernel.Get<DeviceManagerViewModel>();   
             var captureEngines = kernel.GetAll<ICaptureEngine>();
             var rainbowTicker = kernel.Get<RainbowTicker>();
             var playlistDecoder = kernel.Get<PlaylistDecoder>();
@@ -187,13 +187,13 @@ namespace adrilight
                         break;
                 }
             };
-            if (settingsManager.LoadDeviceIfExists() is not null)
+            if (deviceManager.AvailableDevices!=null)
             {
-                foreach (var device in settingsManager.LoadDeviceIfExists())
+                foreach (var device in deviceManager.AvailableDevices.Items)
                 {
                     lock (MainViewViewModel.AvailableDeviceLock)
                     {
-                        MainViewViewModel.AvailableDevices.Insert(0, device);
+                        MainViewViewModel.AvailableDevices.Insert(0, device as DeviceSettings);
                     }
                 }
             }

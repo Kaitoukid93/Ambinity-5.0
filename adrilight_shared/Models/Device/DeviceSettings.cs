@@ -3,6 +3,7 @@ using adrilight_shared.Helpers;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.ControlMode.ModeParameters;
 using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
+using adrilight_shared.Models.DashboardItem;
 using adrilight_shared.Models.Device.Controller;
 using adrilight_shared.Models.Device.Group;
 using adrilight_shared.Models.Device.Output;
@@ -26,7 +27,7 @@ using System.Windows;
 
 namespace adrilight_shared.Models.Device
 {
-    public class DeviceSettings : ViewModelBase, IDeviceSettings
+    public class DeviceSettings : ViewModelBase, IDeviceSettings, IDashboardItem, IGenericCollectionItem
     {
         private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
         private string DevicesCollectionFolderPath => Path.Combine(JsonPath, "Devices");
@@ -62,6 +63,21 @@ namespace adrilight_shared.Models.Device
         private IDeviceController _currentActiveController;
         public int DashboardWidth { get => _dashboardWidth; set { Set(() => DashboardWidth, ref _dashboardWidth, value); } }
         public int DashboardHeight { get => _dashboardHeight; set { Set(() => DashboardHeight, ref _dashboardHeight, value); } }
+
+        //dashboard display param
+        private bool _isPinned = false;
+        private bool _isChecked = false;
+        public bool IsPinned { get => _isPinned; set { Set(() => IsPinned, ref _isPinned, value); } }
+        public string Name { get; set; }
+        [JsonIgnore]
+        public bool IsEditing { get; set; }
+        [JsonIgnore]
+        public bool IsChecked { get => _isChecked; set { Set(() => IsChecked, ref _isChecked, value); } }
+        public string LocalPath { get; set; }
+        public string InfoPath { get; set; }
+
+
+
         [JsonIgnore]
         public string DeviceThumbnail => File.Exists(Path.Combine(ResourceCollectionFolderPath, DeviceName + "_thumb.png")) ? Path.Combine(ResourceCollectionFolderPath, DeviceName + "_thumb.png") : Path.Combine(ResourceCollectionFolderPath, DeviceType.Name + "_thumb.png");
         [JsonIgnore]
@@ -383,7 +399,7 @@ namespace adrilight_shared.Models.Device
         }
         public int CurrentActiveControlerIndex { get => _currentActiveControllerIndex; set { if (value >= 0) Set(() => CurrentActiveControlerIndex, ref _currentActiveControllerIndex, value); OnActiveControllerChanged(); } }
 
-
+   
         private void OnActiveControllerChanged()
         {
             if (AvailableControllers != null)

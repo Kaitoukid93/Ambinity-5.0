@@ -253,6 +253,7 @@ namespace adrilight.ViewModel
             }
         }
         public ICommand OpenLightingProfileManagerWindowCommand { get; set; }
+        public ICommand OpenDeviceManagerWindowCommand { get; set; }
         public ICommand CreateNewLightingProfileCommand { get; set; }
         public ICommand RequestingRescanDevicesCommand { get; set; }
         public ICommand CreateNewVIDCommand { get; set; }
@@ -735,6 +736,7 @@ namespace adrilight.ViewModel
         public LocalFileHelpers LocalFileHlprs { get; private set; }
         public IGeneralSettings GeneralSettings { get; }
         public LightingProfileManagerViewModel LightingProfileManagerViewModel { get; set; }
+        public DeviceManagerViewModel DeviceManagerViewModel { get; set; }
         public PlaylistDecoder LightingPlayer { get; set; }
         public bool ShowPlayerWarning {
             get
@@ -769,6 +771,7 @@ namespace adrilight.ViewModel
             IList<ISelectableViewPart> selectableViewParts,
             IDialogService dialogService,
             LightingProfileManagerViewModel lightingProfileManagerViewModel,
+            DeviceManagerViewModel deviceManagerViewModel,
             CollectionItemStore collectionItemStore,
             PlaylistDecoder playlistDecoder
             )
@@ -777,12 +780,13 @@ namespace adrilight.ViewModel
             DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
             LightingProfileManagerViewModel = lightingProfileManagerViewModel ?? throw new ArgumentNullException(nameof(lightingProfileManagerViewModel));
+            DeviceManagerViewModel = deviceManagerViewModel ?? throw new ArgumentNullException(nameof(deviceManagerViewModel));
             LightingPlayer = playlistDecoder ?? throw new ArgumentNullException(nameof(playlistDecoder));
             LightingPlayer.PropertyChanged += LightingPlayerPropertyChanged;
             ItemStore = collectionItemStore ?? throw new ArgumentNullException(nameof(collectionItemStore));
             SelectableViewParts = selectableViewParts.OrderBy(p => p.Order)
                 .ToList();
-            SelectedViewPart = SelectableViewParts.First();
+            SelectedViewPart = SelectableViewParts.Where(v=>v.ViewPartName == "All Device View").First();
             ReadData();
             #endregion load Params
 
@@ -2725,6 +2729,14 @@ namespace adrilight.ViewModel
                 OpenLightingProfileManagerWindow();
             }
             );
+            OpenDeviceManagerWindowCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                OpenDeviceManagerWindow();
+            }
+            );
             CreateNewLightingProfileCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -3478,6 +3490,7 @@ namespace adrilight.ViewModel
             {
                 //check for update
                 await OpenDeviceFirmwareSettingsWindow();
+                IsApplyingDeviceHardwareSettings = false;
             });
             OpenAdvanceSettingWindowCommand = new RelayCommand<string>((p) =>
             {
@@ -5265,7 +5278,7 @@ namespace adrilight.ViewModel
                 compatibleDevices.AddRange(AvailableDevices.ToList());
                 AvailableDevices.Clear();//reset the collection so kernel can be unbind
                 compatibleDevices.ForEach(d => AvailableDevices.Add(d));
-                SelectedViewPart = SelectableViewParts[0];
+                SelectedViewPart  = SelectableViewParts.Where(v => v.ViewPartName == "All Device View").First();
                 if (counter == 0)
                 {
                     HandyControl.Controls.MessageBox.Show("Profile không thích hợp với bất kỳ thiết bị nào hiện có", "No Device Compatible", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -6280,6 +6293,10 @@ namespace adrilight.ViewModel
                 {
 
                     var result = await Task.Run(() => CurrentDevice.GetHardwareSettings());
+                    IsApplyingDeviceHardwareSettings = false;
+                }
+                else
+                {
                     IsApplyingDeviceHardwareSettings = false;
                 }
             }
@@ -7495,6 +7512,14 @@ namespace adrilight.ViewModel
             var window = new AddNewLightingProfileWindow();
             window.Owner = System.Windows.Application.Current.MainWindow;
             window.ShowDialog();
+        }
+        private DeviceManagerWindow _deviceManagerWindow { get; set; }
+        private void OpenDeviceManagerWindow()
+        {
+            _deviceManagerWindow = new DeviceManagerWindow();
+            _deviceManagerWindow.DataContext = DeviceManagerViewModel;
+            _deviceManagerWindow.Owner = Application.Current.MainWindow;
+            _deviceManagerWindow.Show();
         }
         private LightingProfileManagerWindow _lightingProfileManagerWindow { get; set; }
         private void OpenLightingProfileManagerWindow()
@@ -9216,7 +9241,7 @@ namespace adrilight.ViewModel
             CarouselImageLoading = false;
         }
 
-        public bool IsLiveViewOpen => SelectedViewPart == SelectableViewParts[1];
+        public bool IsLiveViewOpen => SelectedViewPart.ViewPartName == "Device Control View";
         private bool _isAppActivated;
 
         public bool IsAppActivated {
@@ -9657,7 +9682,7 @@ namespace adrilight.ViewModel
 
         public void GotoChild(IDeviceSettings selectedDevice)
         {
-            SelectedViewPart = SelectableViewParts[1];
+            SelectedViewPart = SelectableViewParts.Where(v=>v.ViewPartName == "Device Control View").First();
             Log.Information("Navigating to Device Control");
             CurrentDevice = selectedDevice;
             GetItemsForLiveView();
@@ -9678,7 +9703,7 @@ namespace adrilight.ViewModel
 
         public void BackToDashboard()
         {
-            SelectedViewPart = SelectableViewParts[0];
+            SelectedViewPart = SelectableViewParts.Where(v => v.ViewPartName == "All Device View").First(); ;
             Log.Information("Navigating to Dashboard");
         }
 

@@ -30,6 +30,7 @@ namespace adrilight.Ninject
             Bind<IGeneralSettings>().ToConstant(generalSettings);
             Bind<MainViewViewModel>().ToSelf().InSingletonScope();
             Bind<LightingProfileManagerViewModel>().ToSelf().InSingletonScope();
+            Bind<DeviceManagerViewModel>().ToSelf().InSingletonScope();
             Bind<MainView>().ToSelf().InSingletonScope();
             Bind<IAmbinityClient>().To<AmbinityClient>().InSingletonScope();
             Bind<SerialDeviceDetection>().ToSelf().InSingletonScope();
@@ -43,6 +44,8 @@ namespace adrilight.Ninject
             //binding view
             Bind<ISelectableViewPart>().To<DeviceControlViewSelectableViewPart>();
             Bind<ISelectableViewPart>().To<AllDeviceViewSelectableViewPart>();
+            Bind<ISelectablePage>().To<DeviceCollectionViewPage>();
+            Bind<ISelectablePage>().To<DeviceAdvanceSettingsViewPage>();
             if (generalSettings.ScreenCapturingMethod == 0)
             {
                 if (osBuild == "22000" || osBuild == "22621")

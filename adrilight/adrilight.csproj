@@ -230,6 +230,8 @@
     <Compile Include="Services\LightingEngine\RunStateEnum.cs" />
     <Compile Include="Services\Ticker\PlaylistDecoder.cs" />
     <Compile Include="ViewModel\ColorEditingObject.cs" />
+    <Compile Include="ViewModel\DeviceManagerViewModel.cs" />
+    <Compile Include="ViewModel\ISelectablePage.cs" />
     <Compile Include="ViewModel\LightingProfileManagerViewModel.cs" />
     <Compile Include="View\Adorners\HoverAdorner.cs" />
     <Compile Include="View\Adorners\LineHoverAdorner.cs" />
@@ -301,6 +303,9 @@
     <Compile Include="View\Screens\Automation\ActionManagerWindow.xaml.cs" />
     <Compile Include="View\Screens\Automation\AutomationNonClientAreaContent.xaml.cs" />
     <Compile Include="View\Screens\Debug\DebugWindow.xaml.cs" />
+    <Compile Include="View\Screens\Devices\DeviceAdvanceSettingsView.xaml.cs" />
+    <Compile Include="View\Screens\Devices\DeviceManagerWindow.xaml.cs" />
+    <Compile Include="View\Screens\Devices\DeviceCollectionView.xaml.cs" />
     <Compile Include="View\Screens\LightingProfile\LightingProfileManagerWindow.xaml.cs" />
     <Compile Include="View\Screens\LightingProfile\LightingProfileDashboardView.xaml.cs" />
     <Compile Include="View\Screens\LightingProfile\ProfileCollectionView.xaml.cs" />
@@ -389,6 +394,18 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\Screens\Debug\DebugWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Screens\Devices\DeviceAdvanceSettingsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Screens\Devices\DeviceManagerWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Screens\Devices\DeviceCollectionView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
