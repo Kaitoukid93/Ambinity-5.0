@@ -3482,16 +3482,7 @@ namespace adrilight.ViewModel
             }, (p) =>
             {
                 OpenDeviceConnectionSettingsWindow();
-            });
-            OpenDeviceFirmwareSettingsWindowCommand = new RelayCommand<string>((p) =>
-            {
-                return p != null;
-            }, async (p) =>
-            {
-                //check for update
-                await OpenDeviceFirmwareSettingsWindow();
-                IsApplyingDeviceHardwareSettings = false;
-            });
+            });    
             OpenAdvanceSettingWindowCommand = new RelayCommand<string>((p) =>
             {
                 return p != null;
@@ -5729,18 +5720,6 @@ namespace adrilight.ViewModel
             }
         }
 
-        private bool _effectLoadingVissible = false;
-
-        public bool EffectLoadingVissible {
-            get { return _effectLoadingVissible; }
-
-            set
-            {
-                _effectLoadingVissible = value;
-                RaisePropertyChanged();
-            }
-        }
-
         private string _fwUploadOutputLog;
 
         public string FwUploadOutputLog {
@@ -5764,23 +5743,12 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-        private bool isApplyingDeviceHardwareSettings;
-        public bool IsApplyingDeviceHardwareSettings {
-            get
-            {
-                return isApplyingDeviceHardwareSettings;
-            }
-            set
-            {
-                isApplyingDeviceHardwareSettings = value;
-                RaisePropertyChanged();
-            }
-        }
+      
         private async Task ApplyDeviceHardwareSettings(IDeviceSettings device)
         {
-            IsApplyingDeviceHardwareSettings = true;
+           // IsApplyingDeviceHardwareSettings = true;
             var result = await Task.Run(() => device.SendHardwareSettings());
-            IsApplyingDeviceHardwareSettings = false;
+           // IsApplyingDeviceHardwareSettings = false;
         }
 
         public bool FrimwareUpgradeIsInProgress { get; set; }
@@ -6261,59 +6229,7 @@ namespace adrilight.ViewModel
                 window.ShowDialog();
             }
         }
-        private async Task OpenDeviceFirmwareSettingsWindow()
-        {
-            //get device settings info
-            if(!CurrentDevice.IsTransferActive)
-            {
-                return;
-            }
-            IsApplyingDeviceHardwareSettings = true;
-            await Task.Run(() => CurrentDevice.RefreshFirmwareVersion());           
-            if (CurrentDevice.DeviceHardwareControlEnable || CurrentDevice.DeviceFanSpeedControlEnable)
-            {
-                string fwversion = CurrentDevice.FirmwareVersion;
-                if (fwversion == "unknown" || fwversion == string.Empty || fwversion == null)
-                    fwversion = "1.0.0";
-                var deviceFWVersion = new Version(fwversion);
-                var requiredVersion = new Version();
-                if (CurrentDevice.DeviceType.Type == DeviceTypeEnum.AmbinoBasic)
-                {
-                    requiredVersion = new Version("1.0.8");
-                }
-                else if (CurrentDevice.DeviceType.Type == DeviceTypeEnum.AmbinoEDGE)
-                {
-                    requiredVersion = new Version("1.0.5");
-                }
-                else if (CurrentDevice.DeviceType.Type == DeviceTypeEnum.AmbinoFanHub)
-                {
-                    requiredVersion = new Version("1.0.8");
-                }
-                if (deviceFWVersion >= requiredVersion)
-                {
-
-                    var result = await Task.Run(() => CurrentDevice.GetHardwareSettings());
-                    IsApplyingDeviceHardwareSettings = false;
-                }
-                else
-                {
-                    IsApplyingDeviceHardwareSettings = false;
-                }
-            }
-
-
-            if (AssemblyHelper.CreateInternalInstance($"View.{"DeviceFirmwareSettingsWindow"}") is System.Windows.Window window)
-            {
-                //reset progress and log display
-                FwUploadPercentVissible = false;
-                percentCount = 0;
-                FwUploadPercent = 0;
-                FwUploadOutputLog = String.Empty;
-                window.Owner = System.Windows.Application.Current.MainWindow;
-                window.ShowDialog();
-            }
-            
-        }
+       
 
         private void OpenNameEditWindow(System.Windows.Window owner)
         {

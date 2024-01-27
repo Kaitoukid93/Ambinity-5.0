@@ -21,7 +21,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
     internal class DeviceDiscovery
     {
 
-        public DeviceDiscovery(IGeneralSettings settings, IContext context, IAmbinityClient ambinityClient, MainViewViewModel mainViewViewModel)
+        public DeviceDiscovery(IGeneralSettings settings, IContext context, IAmbinityClient ambinityClient, MainViewViewModel mainViewViewModel, DeviceManagerViewModel deviceManager)
         {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
             Context = context ?? throw new ArgumentNullException(nameof(context));
@@ -36,7 +36,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
                     }
                 };
             }
-
+            DeviceManager = deviceManager ?? throw new ArgumentNullException(nameof(deviceManager));
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             MainViewViewModel.AvailableDevices.CollectionChanged += (_, __) => DeviceCollectionChanged();
             MainViewViewModel.RequestingDeviceRescanEvent += (_, __) => RescanOpenRGBDevices();
@@ -80,6 +80,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
         public ObservableCollection<IDeviceSettings> AvailableSerialDevices { get; set; }
         public MainViewViewModel MainViewViewModel { get; set; }
         private AmbinityClient AmbinityClient { get; }
+        private DeviceManagerViewModel DeviceManager { get; }
         private bool _isAllDeviceConnected => !MainViewViewModel.AvailableDevices.Any(d => d.IsTransferActive == false);
         private async void StartDiscovery(CancellationToken token)
         {
@@ -94,7 +95,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
                     var existedSerialDevices = MainViewViewModel.AvailableDevices.Where(d => d.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.Wired).ToList();
                     var existedOpenRGBDevices = MainViewViewModel.AvailableDevices.Where(d => d.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.OpenRGB).ToList();
                     SerialDeviceDetector = new SerialDeviceDetection(existedSerialDevices);
-                    var shouldBeRunning = !MainViewViewModel.FrimwareUpgradeIsInProgress && !MainViewViewModel.IsApplyingDeviceHardwareSettings;
+                    var shouldBeRunning = !MainViewViewModel.FrimwareUpgradeIsInProgress && !DeviceManager.IsApplyingDeviceHardwareSettings;
                     if (Settings.DeviceDiscoveryMode == 0 && shouldBeRunning)
                     {
                         // openRGB device scan keep running until all existed device get connected

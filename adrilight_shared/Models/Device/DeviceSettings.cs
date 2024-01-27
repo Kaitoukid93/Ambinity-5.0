@@ -155,12 +155,49 @@ namespace adrilight_shared.Models.Device
             Buffer.BlockCopy(sendCommand, 0, outputStream, 0, sendCommand.Length);
             return outputStream;
         }
+        private bool IsFirmwareValid()
+        {
+            if (DeviceHardwareControlEnable || DeviceFanSpeedControlEnable)
+            {
+                string fwversion = FirmwareVersion;
+                if (fwversion == "unknown" || fwversion == string.Empty || fwversion == null)
+                    fwversion = "1.0.0";
+                var deviceFWVersion = new Version(fwversion);
+                var requiredVersion = new Version();
+                if (DeviceType.Type == DeviceTypeEnum.AmbinoBasic)
+                {
+                    requiredVersion = new Version("1.0.8");
+                }
+                else if (DeviceType.Type == DeviceTypeEnum.AmbinoEDGE)
+                {
+                    requiredVersion = new Version("1.0.5");
+                }
+                else if (DeviceType.Type == DeviceTypeEnum.AmbinoFanHub)
+                {
+                    requiredVersion = new Version("1.0.8");
+                }
+                if (deviceFWVersion >= requiredVersion)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            { return false; }
+        }
         public async Task<bool> GetHardwareSettings()
         {
 
             ///////////////////// Hardware settings data table, will be wirte to device EEPRom /////////
             /// [h,s,d,Led on/off,Signal LED On/off,Connection Type,Max Brightness,Show Welcome LED,Serial Timeout,0,0,0,0,0,0,0] ///////
-
+            await Task.Run(() => RefreshFirmwareVersion());
+            if(!IsFirmwareValid())
+            {
+                return false;
+            }
             IsTransferActive = false; // stop current serial stream attached to this device
             var _serialPort = new SerialPort(OutputPort, 1000000);
             _serialPort.DtrEnable = true;
@@ -229,9 +266,9 @@ namespace adrilight_shared.Models.Device
                     var noSignalFanSpeed = _serialPort.ReadByte();
                     NoSignalFanSpeed = noSignalFanSpeed < 20 ? 20 : noSignalFanSpeed;
                     Log.Information("Device EEPRom Data: " + noSignalFanSpeed);
-                  
+
                 }
-                catch(TimeoutException ex)
+                catch (TimeoutException ex)
                 {
                     //discard buffer
                     _serialPort.DiscardInBuffer();
@@ -239,8 +276,8 @@ namespace adrilight_shared.Models.Device
                     _serialPort.Dispose();
                     return await Task.FromResult(true);
                 }
-           
-                
+
+
             }
             //discard buffer
             _serialPort.DiscardInBuffer();
@@ -399,7 +436,7 @@ namespace adrilight_shared.Models.Device
         }
         public int CurrentActiveControlerIndex { get => _currentActiveControllerIndex; set { if (value >= 0) Set(() => CurrentActiveControlerIndex, ref _currentActiveControllerIndex, value); OnActiveControllerChanged(); } }
 
-   
+
         private void OnActiveControllerChanged()
         {
             if (AvailableControllers != null)

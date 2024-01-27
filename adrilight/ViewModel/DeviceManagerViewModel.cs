@@ -1,4 +1,5 @@
-﻿using adrilight.Ticker;
+﻿using adrilight.Helpers;
+using adrilight.Ticker;
 using adrilight.View;
 using adrilight_shared.Enums;
 using adrilight_shared.Helpers;
@@ -20,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -60,11 +62,11 @@ namespace adrilight.ViewModel
         private void OnCollectionPinStatusChanged(IGenericCollectionItem item)
         {
             // RefreshDashboardItems();
-          
+
         }
         private void OnSelectedItemsChanged(List<IGenericCollectionItem> list, string target)
         {
-           
+
         }
         private void OnSelectedItemChanged(IGenericCollectionItem item)
         {
@@ -77,15 +79,24 @@ namespace adrilight.ViewModel
             //    _player.Play(item as LightingProfile);
             //}
         }
-  
-    
 
-        private void OnCollectionViewNavigated(IGenericCollectionItem item, DataViewMode mode)
+
+
+        private async void OnCollectionViewNavigated(IGenericCollectionItem item, DataViewMode mode)
         {
             //show button if needed
-            var nonClientVm = NonClientAreaContent.DataContext as NonClientAreaContentViewModel;
-            if (mode == DataViewMode.Detail)
+            if (item == null)
             {
+                return;
+            }
+            CurrentDevice = item as DeviceSettings;
+            var nonClientVm = NonClientAreaContent.DataContext as NonClientAreaContentViewModel;
+            if (mode == DataViewMode.Loading)
+            {
+                //aquire device advance info
+
+                await RefreshDeviceHardwareInfo();
+                IsApplyingDeviceHardwareSettings = false;
                 //show button
                 nonClientVm.ShowBackButton = true;
                 nonClientVm.BackButtonCommand = new RelayCommand<string>((p) =>
@@ -96,6 +107,11 @@ namespace adrilight.ViewModel
                     _collectionItemStore.BackToCollectionView(item);
                 }
                 );
+                AvailableDevices.GotoCurrentItemDetailViewCommand.Execute(CurrentDevice);
+            }
+            else if(mode == DataViewMode.Detail)
+            {
+                nonClientVm.ShowBackButton = true;
             }
             else
             {
@@ -108,6 +124,19 @@ namespace adrilight.ViewModel
 
         #region Properties
         public NonClientArea NonClientAreaContent { get; set; }
+        public DeviceSettings CurrentDevice { get; set; }
+        private bool isApplyingDeviceHardwareSettings;
+        public bool IsApplyingDeviceHardwareSettings {
+            get
+            {
+                return isApplyingDeviceHardwareSettings;
+            }
+            set
+            {
+                isApplyingDeviceHardwareSettings = value;
+                RaisePropertyChanged();
+            }
+        }
         private readonly CollectionItemStore _collectionItemStore;
         public List<DeviceSettings> LoadDeviceIfExists()
         {
@@ -262,11 +291,10 @@ namespace adrilight.ViewModel
             }, (p) =>
             {
                 //Player.WindowsStatusChanged(true);
-
             });
         }
         public void SaveData()
-        { 
+        {
 
         }
         private void LoadNonClientAreaData()
@@ -289,14 +317,36 @@ namespace adrilight.ViewModel
             }
 
         }
-      
+        private async Task<bool> RefreshDeviceHardwareInfo()
+        {
+            //get device settings info
+            if (!CurrentDevice.IsTransferActive)
+            {
+                return false;
+            }
+            IsApplyingDeviceHardwareSettings = true;
+            var rslt = await Task.Run(() => CurrentDevice.GetHardwareSettings());
+
+            return true;
+
+
+
+            //if (AssemblyHelper.CreateInternalInstance($"View.{"DeviceFirmwareSettingsWindow"}") is System.Windows.Window window)
+            //{
+            //    //reset progress and log display
+            //    FwUploadPercentVissible = false;
+            //    percentCount = 0;
+            //    FwUploadPercent = 0;
+            //    FwUploadOutputLog = String.Empty;
+            //    window.Owner = System.Windows.Application.Current.MainWindow;
+            //    window.ShowDialog();
+            //}
+
+        }
         #endregion
 
 
         #region Commands
-        public ICommand ChangePlaylistProfileDurationCommand { get; set; }
-        public ICommand PlaySelectedItemCommand { get; set; }
-        public ICommand StopSelectedItemCommand { get; set; }
         public ICommand WindowClosing { get; private set; }
         public ICommand WindowOpen { get; private set; }
         #endregion

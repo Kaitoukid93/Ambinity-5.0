@@ -103,20 +103,31 @@ namespace adrilight_shared.Models
                 return true;
             }, (p) =>
             {
+                //send signal back to
                 GotoDetailView(p);
             }
 
         );
-            UnpinItem = new RelayCommand<IGenericCollectionItem>((p) =>
+            ShowLoadingScreenCommand = new RelayCommand<IGenericCollectionItem>((p) =>
             {
                 return true;
             }, (p) =>
             {
-                p.IsPinned = false;
-                _collectionItemStore.ChangeItemPinStatus(p);
+                //send signal back to
+                ShowLoadingView(p);
             }
+        );
 
-     );
+            UnpinItem = new RelayCommand<IGenericCollectionItem>((p) =>
+               {
+                   return true;
+               }, (p) =>
+               {
+                   p.IsPinned = false;
+                   _collectionItemStore.ChangeItemPinStatus(p);
+               }
+
+        );
             SelectItem = new RelayCommand<IGenericCollectionItem>((p) =>
             {
                 return true;
@@ -257,6 +268,13 @@ namespace adrilight_shared.Models
             CurrentView = DataViewMode.Detail;
             _collectionItemStore.GotoSelectedItemDetail(item, CurrentView);
         }
+        private void ShowLoadingView(IGenericCollectionItem item)
+        {
+            item.IsEditing = true;
+            CurrentSelectedItem = item;
+            CurrentView = DataViewMode.Loading;
+            _collectionItemStore.ShowLoadingScreen(item, CurrentView);
+        }
         public void RemoveItems(bool notify)
         {
             if (Items == null)
@@ -317,6 +335,7 @@ namespace adrilight_shared.Models
         #region Commands
         public ICommand RemoveItemCommand { get; set; }
         public ICommand GotoCurrentItemDetailViewCommand { get; set; }
+        public ICommand ShowLoadingScreenCommand { get; set; }
         public ICommand CreateNewCollectionFromSelectedItemsCommand { get; set; }
         public ICommand SelectItems { get; set; }
         public ICommand OpenAddNewDialogCommand { get; set; }

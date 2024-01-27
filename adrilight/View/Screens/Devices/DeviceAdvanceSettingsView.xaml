@@ -49,7 +49,7 @@
                 </TextBlock>
                 <Grid Grid.Row="1">
                     <StackPanel>
-                        <Image Margin="50,20,50,30"
+                        <Image Width="200" Margin="50,20,50,30"
                                RenderOptions.BitmapScalingMode="HighQuality"
                                Source="{Binding DeviceThumbnail}">
                         </Image>
@@ -135,6 +135,22 @@
                                        Margin="5,0,0,5"
                                        Style="{DynamicResource TextBlockDefault}"
                                        Text="{Binding AvailableLightingOutputs.Length}"></TextBlock>
+                        </Grid>
+                        <Grid HorizontalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock HorizontalAlignment="Center"
+                                       Margin="0,0,0,5"
+                                       Style="{DynamicResource TextBlockDefault}"
+                                       Text="Address:"></TextBlock>
+                            <TextBlock Foreground="{DynamicResource PrimaryBrush}"
+                                       HorizontalAlignment="Left"
+                                       Grid.Column="1"
+                                       Margin="5,0,0,5"
+                                       Style="{DynamicResource TextBlockDefault}"
+                                       Text="{Binding OutputPort}"></TextBlock>
                         </Grid>
                     </StackPanel>
 

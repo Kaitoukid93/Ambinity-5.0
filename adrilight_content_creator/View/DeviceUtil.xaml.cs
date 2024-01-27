@@ -37,7 +37,7 @@ namespace adrilight_content_creator.View
 
         private void ListBox2_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            existedDeviceList.SelectedIndex = -1;
+           // existedDeviceList.SelectedIndex = -1;
         }
     }
 }

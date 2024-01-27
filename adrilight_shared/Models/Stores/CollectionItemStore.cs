@@ -32,6 +32,10 @@ namespace adrilight_shared.Models.Stores
         {
             Navigated?.Invoke(item, lastViewMode);
         }
+        public void ShowLoadingScreen(IGenericCollectionItem item, DataViewMode lastViewMode)
+        {
+            Navigated?.Invoke(item, lastViewMode);
+        }
         public void BackToCollectionView(IGenericCollectionItem item)
         {
             Navigated?.Invoke(item, DataViewMode.Collection);

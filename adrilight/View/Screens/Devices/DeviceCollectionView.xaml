@@ -29,7 +29,7 @@
                                 Margin="5"
                                 hc:BorderElement.CornerRadius="7"
                                 Style="{DynamicResource _mediumProfileDefaultButton}"
-                                Command="{Binding Path=DataContext.GotoCurrentItemDetailViewCommand, RelativeSource={RelativeSource AncestorType={x:Type local:DeviceCollectionView}}}"
+                                Command="{Binding Path=DataContext.ShowLoadingScreenCommand, RelativeSource={RelativeSource AncestorType={x:Type local:DeviceCollectionView}}}"
                                 CommandParameter="{Binding .}"
                                 BorderThickness="0"
                                 Background="{DynamicResource MainContentBackgroundBrush}"

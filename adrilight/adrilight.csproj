@@ -304,6 +304,7 @@
     <Compile Include="View\Screens\Automation\AutomationNonClientAreaContent.xaml.cs" />
     <Compile Include="View\Screens\Debug\DebugWindow.xaml.cs" />
     <Compile Include="View\Screens\Devices\DeviceAdvanceSettingsView.xaml.cs" />
+    <Compile Include="View\Screens\Devices\DeviceLoadingView.xaml.cs" />
     <Compile Include="View\Screens\Devices\DeviceManagerWindow.xaml.cs" />
     <Compile Include="View\Screens\Devices\DeviceCollectionView.xaml.cs" />
     <Compile Include="View\Screens\LightingProfile\LightingProfileManagerWindow.xaml.cs" />
@@ -398,6 +399,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\Screens\Devices\DeviceAdvanceSettingsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Screens\Devices\DeviceLoadingView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

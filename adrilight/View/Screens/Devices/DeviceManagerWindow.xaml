@@ -40,7 +40,7 @@
                     <SolidColorBrush x:Key="primaryBackgroundBrush"
                                      Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
                                      Opacity="0.15" />
-                    <DataTemplate DataType="{x:Type model:DataCollection}"
+                    <DataTemplate 
                                   x:Key="_collectionView">
                         <hc:TransitioningContentControl TransitionMode="Left2Right">
                             <local:DeviceCollectionView DataContext="{Binding Path=DataContext.AvailableDevices, RelativeSource={RelativeSource AncestorType={x:Type local:DeviceManagerWindow}}}">
@@ -48,12 +48,18 @@
                             </local:DeviceCollectionView>
                         </hc:TransitioningContentControl>
                     </DataTemplate>
-                    <DataTemplate x:Key="_editorView"
-                                  DataType="{x:Type model:DataCollection}">
+                    <DataTemplate x:Key="_editorView">
                         <hc:TransitioningContentControl TransitionMode="Right2Left">
                             <local:DeviceAdvanceSettingsView DataContext="{Binding Path=DataContext.AvailableDevices.CurrentSelectedItem, RelativeSource={RelativeSource AncestorType={x:Type local:DeviceManagerWindow}}}">
                                 
                             </local:DeviceAdvanceSettingsView>
+                        </hc:TransitioningContentControl>
+                    </DataTemplate>
+                    <DataTemplate x:Key="_loadingView">
+                        <hc:TransitioningContentControl TransitionMode="Right2Left">
+                            <local:DeviceLoadingView DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type local:DeviceManagerWindow}}}">
+
+                            </local:DeviceLoadingView>
                         </hc:TransitioningContentControl>
                     </DataTemplate>
                     <Style x:Key="_devicemanagerView"
@@ -68,6 +74,11 @@
                                          Value="{x:Static model:DataViewMode.Detail}">
                                 <Setter Property="ContentTemplate"
                                         Value="{StaticResource _editorView}" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding AvailableDevices.CurrentView}"
+                                         Value="{x:Static model:DataViewMode.Loading}">
+                                <Setter Property="ContentTemplate"
+                                        Value="{StaticResource _loadingView}" />
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
