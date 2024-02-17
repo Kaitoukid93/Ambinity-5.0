@@ -103,9 +103,8 @@ namespace adrilight
                 {
                     Stop();
                     Thread.Sleep(1000);
-                    DFU();
                 }
-
+                DFU();
             }
         }
         #endregion

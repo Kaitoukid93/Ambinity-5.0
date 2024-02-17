@@ -1,0 +1,914 @@
+﻿using adrilight.Helpers;
+using adrilight.Ticker;
+using adrilight.View;
+using adrilight_shared.Enums;
+using adrilight_shared.Helpers;
+using adrilight_shared.Models;
+using adrilight_shared.Models.ControlMode;
+using adrilight_shared.Models.Device;
+using adrilight_shared.Models.Device.Controller;
+using adrilight_shared.Models.Device.Output;
+using adrilight_shared.Models.Device.SlaveDevice;
+using adrilight_shared.Models.Lighting;
+using adrilight_shared.Models.Stores;
+using adrilight_shared.Services;
+using adrilight_shared.View.NonClientAreaContent;
+using adrilight_shared.ViewModel;
+using CSCore.CoreAudioAPI;
+using GalaSoft.MvvmLight;
+using Newtonsoft.Json;
+using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
+using System.IO.Ports;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Input;
+using System.Xml.Linq;
+
+namespace adrilight.ViewModel
+{
+    public class DeviceAdvanceSettingsViewModel : ViewModelBase
+    {
+        #region Construct
+        private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
+        private string DevicesCollectionFolderPath => Path.Combine(JsonPath, "Devices");
+        private string JsonFWToolsFileNameAndPath => Path.Combine(JsonPath, "FWTools");
+        private string JsonFWToolsFWListFileNameAndPath => Path.Combine(JsonFWToolsFileNameAndPath, "adrilight-fwlist.json");
+        public DeviceAdvanceSettingsViewModel(DialogService service, IDeviceSettings device)
+        {
+            Device = device ?? throw new ArgumentNullException(nameof(device));
+            if (device.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV2)
+            {
+                UpdateButtonContent = "Enter DFU";
+                UpdateInstructionContent = "HUBV2 cần sử dụng FlyMCU để nạp firmware";
+            }
+
+            _dialogService = service ?? throw new ArgumentNullException(nameof(service));
+            ResourceHlprs = new ResourceHelpers();
+            LocalFileHlprs = new LocalFileHelpers();
+            CommandSetup();
+        }
+        #endregion
+
+        #region Properties
+        public IDeviceSettings Device { get; set; }
+        private DialogService _dialogService;
+        private ResourceHelpers ResourceHlprs;
+        private LocalFileHelpers LocalFileHlprs;
+        private static byte[] requestCommand = { (byte)'d', (byte)'i', (byte)'r' };
+        private static byte[] sendCommand = { (byte)'h', (byte)'s', (byte)'d' };
+        private static byte[] expectedValidHeader = { 15, 12, 93 };
+        private bool isApplyingDeviceHardwareSettings;
+        public bool IsApplyingDeviceHardwareSettings {
+            get
+            {
+                return isApplyingDeviceHardwareSettings;
+            }
+            set
+            {
+                isApplyingDeviceHardwareSettings = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        #endregion
+
+
+        #region Methods
+        private void CommandSetup()
+        {
+
+            SelecFirmwareForCurrentDeviceCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                var file = LocalFileHlprs.OpenImportFileDialog(".hex", "hex Files (.HEX)|*.hex");
+                if (file != null)
+                {
+                    CurrentSelectedFirmware = file;
+                }
+
+                // lauch firmware upgrade
+            });
+            ApplyDeviceHardwareSettingsCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, async (p) =>
+            {
+                await ApplyDeviceHardwareSettings();
+            });
+            UpdateCurrentSelectedDeviceFirmwareCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, async (p) =>
+            {
+                switch (Device.DeviceType.Type)
+                {
+                    case DeviceTypeEnum.AmbinoHUBV2:
+                        await EnterDFU();
+                        break;
+                    default:
+                        if (UpdateAvailable)
+                        {
+                            await UpdateNow();
+                        }
+                        else
+                        {
+                            await CheckForUpdate();
+                        }
+
+                        break;
+                }
+
+            });
+            WindowClosing = new RelayCommand<string>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                //Player.WindowsStatusChanged(false);
+
+            });
+            WindowOpen = new RelayCommand<string>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                //Player.WindowsStatusChanged(true);
+            });
+        }
+        private Visibility _hardwareSettingsEnable;
+        public Visibility HardwareSettingsEnable {
+            get
+            {
+                return _hardwareSettingsEnable;
+            }
+
+            set
+            {
+                _hardwareSettingsEnable = value;
+                RaisePropertyChanged();
+            }
+        }
+        public async Task<bool> RefreshDeviceHardwareInfo()
+        {
+            //get device settings info
+            if (!Device.IsTransferActive)
+            {
+                return false;
+            }
+            IsApplyingDeviceHardwareSettings = true;
+            var rslt = await Task.Run(() => GetHardwareSettings());
+            if (!rslt)
+            {
+                HardwareSettingsEnable = Visibility.Collapsed;
+            }
+            else
+            {
+                HardwareSettingsEnable = Visibility.Visible;
+            }
+            return true;
+
+
+
+            //if (AssemblyHelper.CreateInternalInstance($"View.{"DeviceFirmwareSettingsWindow"}") is System.Windows.Window window)
+            //{
+            //    //reset progress and log display
+            //    FwUploadPercentVissible = false;
+            //    percentCount = 0;
+            //    FwUploadPercent = 0;
+            //    FwUploadOutputLog = String.Empty;
+            //    window.Owner = System.Windows.Application.Current.MainWindow;
+            //    window.ShowDialog();
+            //}
+
+        }
+        #endregion
+
+
+        #region Commands
+        public ICommand WindowClosing { get; private set; }
+        public ICommand WindowOpen { get; private set; }
+        public ICommand SelecFirmwareForCurrentDeviceCommand { get; set; }
+        public ICommand UpdateCurrentSelectedDeviceFirmwareCommand { get; set; }
+        public ICommand ApplyDeviceHardwareSettingsCommand { get; set; }
+        #endregion
+
+
+        #region Hardware Related Properties and Method
+        private byte[] GetSettingOutputStream()
+        {
+            var outputStream = new byte[16];
+            Buffer.BlockCopy(sendCommand, 0, outputStream, 0, sendCommand.Length);
+            int counter = sendCommand.Length;
+            outputStream[counter++] = Device.NoSignalLEDEnable == true ? (byte)15 : (byte)12;
+            outputStream[counter++] = Device.IsIndicatorLEDOn == true ? (byte)15 : (byte)12;
+            outputStream[counter++] = 0;
+            outputStream[counter++] = 0;
+            outputStream[counter++] = 0;
+            outputStream[counter++] = 0;
+            outputStream[counter++] = (byte)Device.NoSignalFanSpeed;
+            return outputStream;
+        }
+        private byte[] GetEEPRomDataOutputStream()
+        {
+            var outputStream = new byte[16];
+            Buffer.BlockCopy(sendCommand, 0, outputStream, 0, sendCommand.Length);
+            return outputStream;
+        }
+        private bool IsFirmwareValid()
+        {
+            if (Device.DeviceType.Type == DeviceTypeEnum.AmbinoBasic || Device.DeviceType.Type == DeviceTypeEnum.AmbinoEDGE || Device.DeviceType.Type == DeviceTypeEnum.AmbinoFanHub)
+            {
+                string fwversion = Device.FirmwareVersion;
+                if (fwversion == "unknown" || fwversion == string.Empty || fwversion == null)
+                    fwversion = "1.0.0";
+                var deviceFWVersion = new Version(fwversion);
+                var requiredVersion = new Version();
+                if (Device.DeviceType.Type == DeviceTypeEnum.AmbinoBasic)
+                {
+                    requiredVersion = new Version("1.0.8");
+                }
+                else if (Device.DeviceType.Type == DeviceTypeEnum.AmbinoEDGE)
+                {
+                    requiredVersion = new Version("1.0.5");
+                }
+                else if (Device.DeviceType.Type == DeviceTypeEnum.AmbinoFanHub)
+                {
+                    requiredVersion = new Version("1.0.8");
+                }
+                if (deviceFWVersion >= requiredVersion)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            { return false; }
+        }
+        public async Task<bool> GetHardwareSettings()
+        {
+
+            ///////////////////// Hardware settings data table, will be wirte to device EEPRom /////////
+            /// [h,s,d,Led on/off,Signal LED On/off,Connection Type,Max Brightness,Show Welcome LED,Serial Timeout,0,0,0,0,0,0,0] ///////
+            await Task.Run(() => RefreshFirmwareVersion());
+            if (!IsFirmwareValid())
+            {
+                return false;
+            }
+            Device.IsTransferActive = false; // stop current serial stream attached to this device
+            var _serialPort = new SerialPort(Device.OutputPort, 1000000);
+            _serialPort.DtrEnable = true;
+            _serialPort.ReadTimeout = 5000;
+            _serialPort.WriteTimeout = 1000;
+            try
+            {
+                _serialPort.Open();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return await Task.FromResult(false);
+            }
+
+            var outputStream = GetEEPRomDataOutputStream();
+            _serialPort.Write(outputStream, 0, outputStream.Length);
+            int retryCount = 0;
+            int offset = 0;
+            IDeviceSettings newDevice = new DeviceSettings();
+            while (offset < 3)
+            {
+
+
+                try
+                {
+                    byte header = (byte)_serialPort.ReadByte();
+                    if (header == expectedValidHeader[offset])
+                    {
+                        offset++;
+                    }
+                }
+                catch (TimeoutException)// retry until received valid header
+                {
+                    _serialPort.Write(outputStream, 0, outputStream.Length);
+                    retryCount++;
+                    if (retryCount == 3)
+                    {
+                        Log.Warning("timeout waiting for respond on serialport " + _serialPort.PortName);
+                        _serialPort.Close();
+                        _serialPort.Dispose();
+                        return await Task.FromResult(false);
+                    }
+                    Debug.WriteLine("no respond, retrying...");
+                }
+
+
+            }
+            if (offset == 3) //3 bytes header are valid continue to read next 13 byte of data
+            {
+
+                /// [15,12,93,Led on/off,Signal LED On/off,Connection Type,Max Brightness,Show Welcome LED,Serial Timeout,No Signal Fan Speed,0,0,0,0,0,0] ///////
+                try
+                {
+                    //led on off
+                    var noDataLEDEnable = _serialPort.ReadByte();
+                    Device.NoSignalLEDEnable = noDataLEDEnable == 15 ? true : false;
+                    Log.Information("Device EEPRom Data: " + noDataLEDEnable);
+                    //signal led on off
+                    var signalLEDEnable = _serialPort.ReadByte();
+                    Device.IsIndicatorLEDOn = signalLEDEnable == 15 ? true : false;
+                    Log.Information("Device EEPRom Data: " + signalLEDEnable);
+                    var connectionType = _serialPort.ReadByte();
+                    var maxBrightness = _serialPort.ReadByte();
+                    var showWelcomeLED = _serialPort.ReadByte();
+                    var serialTimeout = _serialPort.ReadByte();
+                    var noSignalFanSpeed = _serialPort.ReadByte();
+                    Device.NoSignalFanSpeed = noSignalFanSpeed < 20 ? 20 : noSignalFanSpeed;
+                    Log.Information("Device EEPRom Data: " + noSignalFanSpeed);
+
+                }
+                catch (TimeoutException ex)
+                {
+                    //discard buffer
+                    _serialPort.DiscardInBuffer();
+                    _serialPort.Close();
+                    _serialPort.Dispose();
+                    return await Task.FromResult(true);
+                }
+
+
+            }
+            //discard buffer
+            _serialPort.DiscardInBuffer();
+            _serialPort.Close();
+            _serialPort.Dispose();
+            return await Task.FromResult(true);
+        }
+        public async Task<bool> SendHardwareSettings()
+        {
+
+            ///////////////////// Hardware settings data table, will be wirte to device EEPRom /////////
+            /// [h,s,d,Led on/off,Signal LED On/off,Connection Type,Max Brightness,Show Welcome LED,Serial Timeout,0,0,0,0,0,0,0] ///////
+
+            Device.IsTransferActive = false; // stop current serial stream attached to this device
+            var _serialPort = new SerialPort(Device.OutputPort, 1000000);
+            _serialPort.DtrEnable = true;
+            _serialPort.ReadTimeout = 5000;
+            _serialPort.WriteTimeout = 1000;
+            try
+            {
+                _serialPort.Open();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return await Task.FromResult(false);
+            }
+
+            var outputStream = GetSettingOutputStream();
+            _serialPort.Write(outputStream, 0, outputStream.Length);
+            int retryCount = 0;
+            int offset = 0;
+            IDeviceSettings newDevice = new DeviceSettings();
+            while (offset < 3)
+            {
+
+
+                try
+                {
+                    byte header = (byte)_serialPort.ReadByte();
+                    if (header == expectedValidHeader[offset])
+                    {
+                        offset++;
+                    }
+                }
+                catch (TimeoutException)// retry until received valid header
+                {
+                    _serialPort.Write(outputStream, 0, outputStream.Length);
+                    retryCount++;
+                    if (retryCount == 3)
+                    {
+                        Console.WriteLine("timeout waiting for respond on serialport " + _serialPort.PortName);
+                        _serialPort.Close();
+                        _serialPort.Dispose();
+                        return await Task.FromResult(false);
+                    }
+                    Debug.WriteLine("no respond, retrying...");
+                }
+
+
+            }
+            if (offset == 3) //3 bytes header are valid continue to read next 13 byte of data
+            {
+
+                /// [15,12,93,Led on/off,Signal LED On/off,Connection Type,Max Brightness,Show Welcome LED,Serial Timeout,0,0,0,0,0,0,0] ///////
+                //led on off
+                var noDataLEDEnable = _serialPort.ReadByte();
+                Log.Information("Device EEPRom Data: " + noDataLEDEnable);
+                //signal led on off
+                var signalLEDEnable = _serialPort.ReadByte();
+                Log.Information("Device EEPRom Data: " + signalLEDEnable);
+                //discard buffer
+                _serialPort.DiscardInBuffer();
+            }
+
+
+            _serialPort.Close();
+            _serialPort.Dispose();
+            return await Task.FromResult(true);
+            //if (isValid)
+            //    newDevices.Add(newDevice);
+            //reboot serialStream
+            //IsTransferActive = true;
+            //RaisePropertyChanged(nameof(IsTransferActive));
+        }
+        private ObservableCollection<DeviceFirmware> _availableFirmware;
+        public ObservableCollection<DeviceFirmware> AvailableFirmware {
+            get { return _availableFirmware; }
+
+            set
+            {
+                if (_availableFirmware == value) return;
+                _availableFirmware = value;
+
+                RaisePropertyChanged();
+            }
+        }
+        private bool _reloadDeviceLoadingVissible = false;
+        public bool ReloadDeviceLoadingVissible {
+            get { return _reloadDeviceLoadingVissible; }
+
+            set
+            {
+                _reloadDeviceLoadingVissible = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private string _fwUploadOutputLog;
+        public string FwUploadOutputLog {
+            get { return _fwUploadOutputLog; }
+
+            set
+            {
+                _fwUploadOutputLog = value;
+                RaisePropertyChanged();
+            }
+        }
+        private bool _isDownloadingFirmware;
+        public bool IsDownloadingFirmware {
+            get
+            {
+                return _isDownloadingFirmware;
+            }
+            set
+            {
+                _isDownloadingFirmware = value;
+                RaisePropertyChanged();
+            }
+        }
+        private int _fwUploadPercent;
+        public int FwUploadPercent {
+            get { return _fwUploadPercent; }
+
+            set
+            {
+                _fwUploadPercent = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private bool _fwUploadPercentVissible = false;
+        public bool FwUploadPercentVissible {
+            get { return _fwUploadPercentVissible; }
+
+            set
+            {
+                _fwUploadPercentVissible = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private async Task UpgradeSelectedDeviceFirmware(IDeviceSettings device, string fwPath, ProgressDialogViewModel vm)
+        {
+            //if (GeneralSettings.DriverRequested)
+            //{
+            //    await Task.Run(() => PromptDriverInstaller());
+            //    return;
+            //}
+            //put device in dfu state
+            device.DeviceState = DeviceStateEnum.DFU;
+            // wait for device to enter dfu
+            Thread.Sleep(1000);
+            vm.ProgressBarVisibility = Visibility.Visible;
+            var startInfo = new System.Diagnostics.ProcessStartInfo {
+                WorkingDirectory = JsonFWToolsFileNameAndPath,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                FileName = "cmd.exe",
+                Arguments = "/C vnproch55x " + fwPath
+            };
+            var proc = new Process() {
+                StartInfo = startInfo,
+                EnableRaisingEvents = true
+            };
+
+            // see below for output handler
+            proc.ErrorDataReceived += (sender, e) => proc_DataReceived(sender, e, vm);
+            proc.OutputDataReceived += (sender, e) => proc_DataReceived(sender, e, vm);
+
+            proc.Start();
+
+            proc.BeginErrorReadLine();
+            proc.BeginOutputReadLine();
+            proc.Exited += (sender, e) => proc_FinishUploading(sender, e, vm); ;
+        }
+        private void proc_FinishUploading(object sender, System.EventArgs e, ProgressDialogViewModel vm)
+        {
+            //FwUploadPercent = 0;
+            ////clear loading bar
+            //FwUploadOutputLog = String.Empty;
+            ////clear text box
+            //percentCount = 0;
+            ReloadDeviceLoadingVissible = true;
+
+            Thread.Sleep(5000);
+            Device.DeviceState = DeviceStateEnum.Normal;
+
+            if (FwUploadOutputLog.Split('\n').Last() == "Found no CH55x USB")
+            {
+                //there is a chance of missing driver so first we install CH375 driver first
+                //execute CH375 driver
+
+                //try to restart uploading by resetting the state
+
+                HandyControl.Controls.MessageBox.Show("Update firmware không thành công, Không tìm thấy thiết bị ở trạng thái DFU", "Firmware uploading", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            else
+            {
+                // check for current device actual firmware version
+                RefreshFirmwareVersion();
+                // reset loading bar
+                percentCount = 0;
+                vm.Value = 0;
+                vm.ProgressBarVisibility = Visibility.Collapsed;
+                vm.SuccessMessage = "Update thành công!Phiên bản" + " " + Device.FirmwareVersion;
+                vm.SuccessMesageVisibility = Visibility.Visible;
+                vm.SecondaryActionButtonContent = "Close";
+                vm.PrimaryActionButtonContent = "Show Log";
+                UpdateAvailable = false;
+                UpdateButtonContent = "Check for update";
+                NewFirmwareVersionContent = "";
+                FwUploadOutputLog = string.Empty;
+                ReloadDeviceLoadingVissible = false;
+                FrimwareUpgradeIsInProgress = false;
+            }
+        }
+
+        private int percentCount = 0;
+
+        private void proc_DataReceived(object sender, DataReceivedEventArgs e, ProgressDialogViewModel vm)
+        {
+            if (e.Data != null)
+            {
+                if (e.Data.Contains("[2K"))//clear current line
+                {
+                    percentCount++;
+                    FwUploadPercent = percentCount * 100 / 308;
+                    vm.Value = FwUploadPercent;
+
+                    //Dispatcher.BeginInvoke(new Action(() => Prog.Value = percent));
+                    //Dispatcher.BeginInvoke(new Action(() => Output.Text += (Environment.NewLine + percentCount)));
+                    //Dispatcher.BeginInvoke(new Action(() => Output.Text += (e.Data)));
+                }
+                else
+                {
+                    FwUploadOutputLog += Environment.NewLine + e.Data;
+                }
+            }
+        }
+        private async Task ApplyDeviceHardwareSettings()
+        {
+            IsApplyingDeviceHardwareSettings = true;
+            var result = await Task.Run(() => SendHardwareSettings());
+            IsApplyingDeviceHardwareSettings = false;
+        }
+
+        public bool FrimwareUpgradeIsInProgress { get; set; }
+        private string _currentSelectedFirmware;
+
+        public string CurrentSelectedFirmware {
+            get
+            {
+                return _currentSelectedFirmware;
+            }
+
+            set
+            {
+                _currentSelectedFirmware = value;
+                RaisePropertyChanged();
+            }
+        }
+        private string _updateButtonContent = "Check for update";
+
+        public string UpdateButtonContent {
+            get
+            {
+                return _updateButtonContent;
+            }
+
+            set
+            {
+                _updateButtonContent = value;
+                RaisePropertyChanged();
+            }
+        }
+        private string _updateInstructionContent = "Kiểm tra bản cập nhật nếu có";
+        public string UpdateInstructionContent {
+            get
+            {
+                return _updateInstructionContent;
+            }
+
+            set
+            {
+                _updateInstructionContent = value;
+                RaisePropertyChanged();
+            }
+        }
+        private string _newFirmwareVersionContent;
+        public string NewFirmwareVersionContent {
+            get
+            {
+                return _newFirmwareVersionContent;
+            }
+            set
+            {
+                _newFirmwareVersionContent = value;
+                RaisePropertyChanged();
+            }
+        }
+        private bool _updateAvailable;
+        public bool UpdateAvailable {
+            get
+            {
+                return _updateAvailable;
+            }
+            set
+            {
+                _updateAvailable = value;
+                RaisePropertyChanged();
+            }
+        }
+        private DeviceFirmware FirmwareToUpdate;
+        private async Task UpdateNow()
+        {
+            //download newest firmware
+            if (FirmwareToUpdate == null) return;
+            var fwOutputLocation = Path.Combine(JsonFWToolsFileNameAndPath, FirmwareToUpdate.Name);
+            try
+            {
+                ResourceHlprs.CopyResource(FirmwareToUpdate.ResourceName, fwOutputLocation);
+            }
+            catch (ArgumentException)
+            {
+                //show messagebox no firmware found for this device
+                return;
+            }
+            var vm = new ProgressDialogViewModel("Flashing Firmware", "123", "usbIcon");
+            IsDownloadingFirmware = true;
+            await Task.Run(() => UpgradeSelectedDeviceFirmware(Device, fwOutputLocation, vm));
+            _dialogService.ShowDialog<ProgressDialogViewModel>(result =>
+            {
+                //if (result == "True")
+                //{
+                //    var newCollection = CreateDataCollectionFromSelectedItem(vm.Content, p);
+                //    _collectionItemStore.CreateCollection(newCollection);
+                //}
+
+            }, vm);
+
+            IsDownloadingFirmware = false;
+        }
+        private async Task EnterDFU()
+        {
+            Device.DeviceState = DeviceStateEnum.DFU;
+            Thread.Sleep(5000);
+            Device.DeviceState = DeviceStateEnum.Normal;
+            HandyControl.Controls.MessageBox.Show("Đã gửi thông tin đến Device, mở FlyMCU để tiếp tục nạp firmware sau đó bật lại kết nối", "DFU", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        private async Task CheckForUpdate()
+        {
+            if (Device == null)
+                return;
+            FrimwareUpgradeIsInProgress = true;
+            if (Device.HardwareVersion == "unknown") // old firmware or not supported
+            {
+                // show message box : unknown hardware version, please update firmware manually by chosing one of these firmware file in the list below
+                HandyControl.Controls.MessageBox.Show("Thiết bị đang ở firmware cũ hoặc phần cứng không hỗ trợ! Sử dụng trình sửa lỗi firmware để cập nhật", "Unknown hardware version", MessageBoxButton.OK, MessageBoxImage.Warning);
+                //if (result == MessageBoxResult.Yes)
+                //{
+                //    //grab available firmware for current device type
+                //    var json = File.ReadAllText(JsonFWToolsFWListFileNameAndPath);
+                //    var availableFirmware = JsonConvert.DeserializeObject<List<DeviceFirmware>>(json);
+                //    AvailableFirmware = new ObservableCollection<DeviceFirmware>();
+                //    foreach (var firmware in availableFirmware)
+                //    {
+                //        if (firmware.TargetDeviceType == device.DeviceType.Type)
+                //            AvailableFirmware.Add(firmware);
+                //    }
+
+                //    // show list selected firmware
+                //    //OpenFirmwareSelectionWindow();
+                //}
+            }
+            else
+            {
+                // regconize this device, find the compatible firmware
+                var json = File.ReadAllText(JsonFWToolsFWListFileNameAndPath);
+                var requiredFwVersion = JsonConvert.DeserializeObject<List<DeviceFirmware>>(json);
+
+                var currentDeviceFirmwareInfo = requiredFwVersion.Where(p => p.TargetHardware == Device.HardwareVersion).FirstOrDefault();
+                if (currentDeviceFirmwareInfo == null)
+                {
+                    //not supported hardware
+
+                    var result = HandyControl.Controls.MessageBox.Show("Phần cứng không còn được hỗ trợ hoặc không nhận ra: " + Device.HardwareVersion + " Sử dụng trình sửa lỗi firmware để cập nhật", "Firmware uploading", MessageBoxButton.OK, MessageBoxImage.Error);
+                    //if (result == MessageBoxResult.Yes)
+                    //{
+                    //    var fwjson = File.ReadAllText(JsonFWToolsFWListFileNameAndPath);
+                    //    var availableFirmware = JsonConvert.DeserializeObject<List<DeviceFirmware>>(fwjson);
+                    //    AvailableFirmware = new ObservableCollection<DeviceFirmware>();
+                    //    foreach (var firmware in availableFirmware)
+                    //    {
+                    //        if (firmware.TargetDeviceType == device.DeviceType.Type)
+                    //            AvailableFirmware.Add(firmware);
+                    //    }
+
+                    //    // show list selected firmware
+                    //    //OpenFirmwareSelectionWindow();
+                    //}
+                }
+                else
+                {
+                    var currentVersion = new Version(Device.FirmwareVersion);
+                    var newVersion = new Version(currentDeviceFirmwareInfo.Version);
+                    if (newVersion > currentVersion)
+                    {
+                        //coppy hex file to FWTools folder
+                        NewFirmwareVersionContent = "--> Update available: " + newVersion;
+                        UpdateAvailable = true;
+                        UpdateButtonContent = "Update now";
+                        FirmwareToUpdate = currentDeviceFirmwareInfo;
+                    }
+                    else
+                    {
+                        UpdateAvailable = false;
+                        UpdateButtonContent = "Check for update";
+                        NewFirmwareVersionContent = "Thiết bị đang chạy firmware mới nhất!";
+                        //if (result == MessageBoxResult.Yes)
+                        //{
+                        //    IsDownloadingFirmware = true;
+                        //    await Task.Run(() => UpgradeSelectedDeviceFirmware(Device, fwOutputLocation));
+                        //    IsDownloadingFirmware = false;
+                        //}
+                        //FrimwareUpgradeIsInProgress = false;
+                    }
+                }
+            }
+
+        }
+        public void RefreshFirmwareVersion()
+        {
+
+            byte[] id = new byte[256];
+            byte[] name = new byte[256];
+            byte[] fw = new byte[256];
+
+            bool isValid = false;
+
+
+            Device.IsTransferActive = false; // stop current serial stream attached to this device
+
+            var _serialPort = new SerialPort(Device.OutputPort, 1000000);
+            _serialPort.DtrEnable = true;
+            _serialPort.ReadTimeout = 5000;
+            _serialPort.WriteTimeout = 1000;
+            try
+            {
+                _serialPort.Open();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return;
+            }
+            catch (Exception ex)
+            {
+                return;
+            }
+            //write request info command
+            _serialPort.Write(requestCommand, 0, 3);
+            int retryCount = 0;
+            int offset = 0;
+            int idLength = 0; // Expected response length of valid deviceID 
+            int nameLength = 0; // Expected response length of valid deviceName 
+            int fwLength = 0;
+            IDeviceSettings newDevice = new DeviceSettings();
+            while (offset < 3)
+            {
+
+
+                try
+                {
+                    byte header = (byte)_serialPort.ReadByte();
+                    if (header == expectedValidHeader[offset])
+                    {
+                        offset++;
+                    }
+                }
+                catch (TimeoutException)// retry until received valid header
+                {
+                    _serialPort.Write(requestCommand, 0, 3);
+                    retryCount++;
+                    if (retryCount == 3)
+                    {
+                        Console.WriteLine("timeout waiting for respond on serialport " + _serialPort.PortName);
+                        HandyControl.Controls.MessageBox.Show("Thiết bị ở " + _serialPort.PortName + "Không có thông tin về Firmware, vui lòng liên hệ Ambino trước khi cập nhật firmware thủ công", "Device is not responding", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        isValid = false;
+                        break;
+                    }
+                    Debug.WriteLine("no respond, retrying...");
+                }
+
+
+            }
+            if (offset == 3) //3 bytes header are valid
+            {
+                idLength = (byte)_serialPort.ReadByte();
+                int count = idLength;
+                id = new byte[count];
+                while (count > 0)
+                {
+                    var readCount = _serialPort.Read(id, 0, count);
+                    offset += readCount;
+                    count -= readCount;
+                }
+
+
+                Device.DeviceSerial = BitConverter.ToString(id).Replace('-', ' ');
+                RaisePropertyChanged(nameof(Device.DeviceSerial));
+            }
+            if (offset == 3 + idLength) //3 bytes header are valid
+            {
+                nameLength = (byte)_serialPort.ReadByte();
+                int count = nameLength;
+                name = new byte[count];
+                while (count > 0)
+                {
+                    var readCount = _serialPort.Read(name, 0, count);
+                    offset += readCount;
+                    count -= readCount;
+                }
+                // DeviceName = Encoding.ASCII.GetString(name, 0, name.Length);
+                // RaisePropertyChanged(nameof(DeviceName));
+
+
+            }
+            if (offset == 3 + idLength + nameLength) //3 bytes header are valid
+            {
+                fwLength = (byte)_serialPort.ReadByte();
+                int count = fwLength;
+                fw = new byte[count];
+                while (count > 0)
+                {
+                    var readCount = _serialPort.Read(fw, 0, count);
+                    offset += readCount;
+                    count -= readCount;
+                }
+                Device.FirmwareVersion = Encoding.ASCII.GetString(fw, 0, fw.Length);
+                RaisePropertyChanged(nameof(Device.FirmwareVersion));
+            }
+            _serialPort.Close();
+            _serialPort.Dispose();
+            //if (isValid)
+            //    newDevices.Add(newDevice);
+            //reboot serialStream
+            // IsTransferActive = true;
+            //RaisePropertyChanged(nameof(IsTransferActive));
+        }
+        #endregion
+
+
+    }
+}

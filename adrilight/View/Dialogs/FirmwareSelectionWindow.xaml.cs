@@ -20,7 +20,7 @@ namespace adrilight.View
         }
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            ViewModel.FrimwareUpgradeIsInProgress = false;
+            //ViewModel.FrimwareUpgradeIsInProgress = false;
             this.Close();
 
         }

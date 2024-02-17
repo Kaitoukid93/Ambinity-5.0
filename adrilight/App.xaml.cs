@@ -100,6 +100,7 @@ namespace adrilight
             dialogService.RegisterDialog<RenameDialog, RenameDialogViewModel>();
             dialogService.RegisterDialog<AddNewDialog, AddNewDialogViewModel>();
             dialogService.RegisterDialog<NumberInputDialog, NumberInputDialogViewModel>();
+            dialogService.RegisterDialog<ProgressDialog, ProgressDialogViewModel>();
             //close splash screen and open dashboard
             this.Resources["Locator"] = new ViewModelLocator(kernel);
             _telemetryClient = kernel.Get<TelemetryClient>();

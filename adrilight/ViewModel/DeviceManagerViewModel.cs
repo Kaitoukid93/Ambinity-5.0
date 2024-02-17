@@ -34,7 +34,7 @@ namespace adrilight.ViewModel
         private string DevicesCollectionFolderPath => Path.Combine(JsonPath, "Devices");
         public DeviceManagerViewModel(CollectionItemStore store, DialogService service)
         {
-            //load profile and playlist
+          
             _collectionItemStore = store;
             _collectionItemStore.SelectedItemChanged += OnSelectedItemChanged;
             _collectionItemStore.SelectedItemsChanged += OnSelectedItemsChanged;
@@ -89,13 +89,13 @@ namespace adrilight.ViewModel
             {
                 return;
             }
-            CurrentDevice = item as DeviceSettings;
+            CurrentDevice = new DeviceAdvanceSettingsViewModel(_dialogService,item as DeviceSettings);
             var nonClientVm = NonClientAreaContent.DataContext as NonClientAreaContentViewModel;
             if (mode == DataViewMode.Loading)
             {
                 //aquire device advance info
 
-                await RefreshDeviceHardwareInfo();
+                await CurrentDevice.RefreshDeviceHardwareInfo();
                 IsApplyingDeviceHardwareSettings = false;
                 //show button
                 nonClientVm.ShowBackButton = true;
@@ -107,7 +107,7 @@ namespace adrilight.ViewModel
                     _collectionItemStore.BackToCollectionView(item);
                 }
                 );
-                AvailableDevices.GotoCurrentItemDetailViewCommand.Execute(CurrentDevice);
+                AvailableDevices.GotoCurrentItemDetailViewCommand.Execute(CurrentDevice.Device);
             }
             else if(mode == DataViewMode.Detail)
             {
@@ -124,7 +124,7 @@ namespace adrilight.ViewModel
 
         #region Properties
         public NonClientArea NonClientAreaContent { get; set; }
-        public DeviceSettings CurrentDevice { get; set; }
+        public DeviceAdvanceSettingsViewModel CurrentDevice { get; set; }
         private bool isApplyingDeviceHardwareSettings;
         public bool IsApplyingDeviceHardwareSettings {
             get
@@ -235,42 +235,7 @@ namespace adrilight.ViewModel
         public DataCollection DashboardPinnedItems { get; set; }
         public DataCollection AvailableDevices { get; set; }
         private DialogService _dialogService;
-        private LightingProfile _currentPlayingProfile;
-        private LightingProfilePlaylist _currentRunningPlaylist;
-        public LightingProfile CurrentPlayingProfile {
-            get
-            {
-                return _currentPlayingProfile;
-            }
-            set
-            {
-                _currentPlayingProfile = value;
-                RaisePropertyChanged();
-            }
-        }
-        public LightingProfilePlaylist CurrentRunningPlaylist {
-            get
-            {
-                return _currentRunningPlaylist;
-            }
-            set
-            {
-                _currentRunningPlaylist = value;
-                RaisePropertyChanged();
-            }
-        }
-        private int _currentProfileTime;
-        public int CurrentProfileTime {
-            get
-            {
-                return _currentProfileTime;
-            }
-            set
-            {
-                _currentProfileTime = value;
-                RaisePropertyChanged();
-            }
-        }
+     
         #endregion
 
 
@@ -311,38 +276,16 @@ namespace adrilight.ViewModel
         {
             //RefreshDashboardItems();
             AvailableDevices = new DataCollection("All Devices", _dialogService, "profile", _collectionItemStore);
-            foreach (var device in LoadDeviceIfExists())
+            var devices = LoadDeviceIfExists();
+            if (devices == null)
+                return;
+            foreach (var device in devices)
             {
                 AvailableDevices.AddItems(device);
             }
 
         }
-        private async Task<bool> RefreshDeviceHardwareInfo()
-        {
-            //get device settings info
-            if (!CurrentDevice.IsTransferActive)
-            {
-                return false;
-            }
-            IsApplyingDeviceHardwareSettings = true;
-            var rslt = await Task.Run(() => CurrentDevice.GetHardwareSettings());
 
-            return true;
-
-
-
-            //if (AssemblyHelper.CreateInternalInstance($"View.{"DeviceFirmwareSettingsWindow"}") is System.Windows.Window window)
-            //{
-            //    //reset progress and log display
-            //    FwUploadPercentVissible = false;
-            //    percentCount = 0;
-            //    FwUploadPercent = 0;
-            //    FwUploadOutputLog = String.Empty;
-            //    window.Owner = System.Windows.Application.Current.MainWindow;
-            //    window.ShowDialog();
-            //}
-
-        }
         #endregion
 
 

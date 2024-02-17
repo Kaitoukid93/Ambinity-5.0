@@ -230,6 +230,7 @@
     <Compile Include="Services\LightingEngine\RunStateEnum.cs" />
     <Compile Include="Services\Ticker\PlaylistDecoder.cs" />
     <Compile Include="ViewModel\ColorEditingObject.cs" />
+    <Compile Include="ViewModel\DeviceAdvanceSettingsViewModel.cs" />
     <Compile Include="ViewModel\DeviceManagerViewModel.cs" />
     <Compile Include="ViewModel\ISelectablePage.cs" />
     <Compile Include="ViewModel\LightingProfileManagerViewModel.cs" />

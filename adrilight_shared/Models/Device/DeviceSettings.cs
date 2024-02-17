@@ -10,6 +10,7 @@ using adrilight_shared.Models.Device.Output;
 using adrilight_shared.Models.Device.SlaveDevice;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.Drawable;
+using adrilight_shared.Settings;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
 using Serilog;
@@ -22,6 +23,7 @@ using System.IO.Ports;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -54,9 +56,7 @@ namespace adrilight_shared.Models.Device
         private bool _isLoadingProfile = false;
         private DeviceStateEnum _deviceState = DeviceStateEnum.Normal;
         private string _requiredFwVersion;
-        private static byte[] requestCommand = { (byte)'d', (byte)'i', (byte)'r' };
-        private static byte[] sendCommand = { (byte)'h', (byte)'s', (byte)'d' };
-        private static byte[] expectedValidHeader = { 15, 12, 93 };
+
         private bool _isSizeNeedUserDefine = false;
         private DeviceType _deviceType;
         private int _currentActiveControllerIndex;
@@ -135,236 +135,6 @@ namespace adrilight_shared.Models.Device
         public bool NoSignalLEDEnable { get; set; }
         [JsonIgnore]
         public int NoSignalFanSpeed { get; set; }
-        private byte[] GetSettingOutputStream()
-        {
-            var outputStream = new byte[16];
-            Buffer.BlockCopy(sendCommand, 0, outputStream, 0, sendCommand.Length);
-            int counter = sendCommand.Length;
-            outputStream[counter++] = NoSignalLEDEnable == true ? (byte)15 : (byte)12;
-            outputStream[counter++] = IsIndicatorLEDOn == true ? (byte)15 : (byte)12;
-            outputStream[counter++] = 0;
-            outputStream[counter++] = 0;
-            outputStream[counter++] = 0;
-            outputStream[counter++] = 0;
-            outputStream[counter++] = (byte)NoSignalFanSpeed;
-            return outputStream;
-        }
-        private byte[] GetEEPRomDataOutputStream()
-        {
-            var outputStream = new byte[16];
-            Buffer.BlockCopy(sendCommand, 0, outputStream, 0, sendCommand.Length);
-            return outputStream;
-        }
-        private bool IsFirmwareValid()
-        {
-            if (DeviceHardwareControlEnable || DeviceFanSpeedControlEnable)
-            {
-                string fwversion = FirmwareVersion;
-                if (fwversion == "unknown" || fwversion == string.Empty || fwversion == null)
-                    fwversion = "1.0.0";
-                var deviceFWVersion = new Version(fwversion);
-                var requiredVersion = new Version();
-                if (DeviceType.Type == DeviceTypeEnum.AmbinoBasic)
-                {
-                    requiredVersion = new Version("1.0.8");
-                }
-                else if (DeviceType.Type == DeviceTypeEnum.AmbinoEDGE)
-                {
-                    requiredVersion = new Version("1.0.5");
-                }
-                else if (DeviceType.Type == DeviceTypeEnum.AmbinoFanHub)
-                {
-                    requiredVersion = new Version("1.0.8");
-                }
-                if (deviceFWVersion >= requiredVersion)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            else
-            { return false; }
-        }
-        public async Task<bool> GetHardwareSettings()
-        {
-
-            ///////////////////// Hardware settings data table, will be wirte to device EEPRom /////////
-            /// [h,s,d,Led on/off,Signal LED On/off,Connection Type,Max Brightness,Show Welcome LED,Serial Timeout,0,0,0,0,0,0,0] ///////
-            await Task.Run(() => RefreshFirmwareVersion());
-            if(!IsFirmwareValid())
-            {
-                return false;
-            }
-            IsTransferActive = false; // stop current serial stream attached to this device
-            var _serialPort = new SerialPort(OutputPort, 1000000);
-            _serialPort.DtrEnable = true;
-            _serialPort.ReadTimeout = 5000;
-            _serialPort.WriteTimeout = 1000;
-            try
-            {
-                _serialPort.Open();
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return await Task.FromResult(false);
-            }
-
-            var outputStream = GetEEPRomDataOutputStream();
-            _serialPort.Write(outputStream, 0, outputStream.Length);
-            int retryCount = 0;
-            int offset = 0;
-            IDeviceSettings newDevice = new DeviceSettings();
-            while (offset < 3)
-            {
-
-
-                try
-                {
-                    byte header = (byte)_serialPort.ReadByte();
-                    if (header == expectedValidHeader[offset])
-                    {
-                        offset++;
-                    }
-                }
-                catch (TimeoutException)// retry until received valid header
-                {
-                    _serialPort.Write(outputStream, 0, outputStream.Length);
-                    retryCount++;
-                    if (retryCount == 3)
-                    {
-                        Log.Warning("timeout waiting for respond on serialport " + _serialPort.PortName);
-                        _serialPort.Close();
-                        _serialPort.Dispose();
-                        return await Task.FromResult(false);
-                    }
-                    Debug.WriteLine("no respond, retrying...");
-                }
-
-
-            }
-            if (offset == 3) //3 bytes header are valid continue to read next 13 byte of data
-            {
-
-                /// [15,12,93,Led on/off,Signal LED On/off,Connection Type,Max Brightness,Show Welcome LED,Serial Timeout,No Signal Fan Speed,0,0,0,0,0,0] ///////
-                try
-                {
-                    //led on off
-                    var noDataLEDEnable = _serialPort.ReadByte();
-                    NoSignalLEDEnable = noDataLEDEnable == 15 ? true : false;
-                    Log.Information("Device EEPRom Data: " + noDataLEDEnable);
-                    //signal led on off
-                    var signalLEDEnable = _serialPort.ReadByte();
-                    IsIndicatorLEDOn = signalLEDEnable == 15 ? true : false;
-                    Log.Information("Device EEPRom Data: " + signalLEDEnable);
-                    var connectionType = _serialPort.ReadByte();
-                    var maxBrightness = _serialPort.ReadByte();
-                    var showWelcomeLED = _serialPort.ReadByte();
-                    var serialTimeout = _serialPort.ReadByte();
-                    var noSignalFanSpeed = _serialPort.ReadByte();
-                    NoSignalFanSpeed = noSignalFanSpeed < 20 ? 20 : noSignalFanSpeed;
-                    Log.Information("Device EEPRom Data: " + noSignalFanSpeed);
-
-                }
-                catch (TimeoutException ex)
-                {
-                    //discard buffer
-                    _serialPort.DiscardInBuffer();
-                    _serialPort.Close();
-                    _serialPort.Dispose();
-                    return await Task.FromResult(true);
-                }
-
-
-            }
-            //discard buffer
-            _serialPort.DiscardInBuffer();
-            _serialPort.Close();
-            _serialPort.Dispose();
-            return await Task.FromResult(true);
-        }
-        public async Task<bool> SendHardwareSettings()
-        {
-
-            ///////////////////// Hardware settings data table, will be wirte to device EEPRom /////////
-            /// [h,s,d,Led on/off,Signal LED On/off,Connection Type,Max Brightness,Show Welcome LED,Serial Timeout,0,0,0,0,0,0,0] ///////
-
-            IsTransferActive = false; // stop current serial stream attached to this device
-            var _serialPort = new SerialPort(OutputPort, 1000000);
-            _serialPort.DtrEnable = true;
-            _serialPort.ReadTimeout = 5000;
-            _serialPort.WriteTimeout = 1000;
-            try
-            {
-                _serialPort.Open();
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return await Task.FromResult(false);
-            }
-
-            var outputStream = GetSettingOutputStream();
-            _serialPort.Write(outputStream, 0, outputStream.Length);
-            int retryCount = 0;
-            int offset = 0;
-            IDeviceSettings newDevice = new DeviceSettings();
-            while (offset < 3)
-            {
-
-
-                try
-                {
-                    byte header = (byte)_serialPort.ReadByte();
-                    if (header == expectedValidHeader[offset])
-                    {
-                        offset++;
-                    }
-                }
-                catch (TimeoutException)// retry until received valid header
-                {
-                    _serialPort.Write(outputStream, 0, outputStream.Length);
-                    retryCount++;
-                    if (retryCount == 3)
-                    {
-                        Console.WriteLine("timeout waiting for respond on serialport " + _serialPort.PortName);
-                        _serialPort.Close();
-                        _serialPort.Dispose();
-                        return await Task.FromResult(false);
-                    }
-                    Debug.WriteLine("no respond, retrying...");
-                }
-
-
-            }
-            if (offset == 3) //3 bytes header are valid continue to read next 13 byte of data
-            {
-
-                /// [15,12,93,Led on/off,Signal LED On/off,Connection Type,Max Brightness,Show Welcome LED,Serial Timeout,0,0,0,0,0,0,0] ///////
-                //led on off
-                var noDataLEDEnable = _serialPort.ReadByte();
-                Log.Information("Device EEPRom Data: " + noDataLEDEnable);
-                //signal led on off
-                var signalLEDEnable = _serialPort.ReadByte();
-                Log.Information("Device EEPRom Data: " + signalLEDEnable);
-                //discard buffer
-                _serialPort.DiscardInBuffer();
-            }
-
-
-            _serialPort.Close();
-            _serialPort.Dispose();
-            return await Task.FromResult(true);
-            //if (isValid)
-            //    newDevices.Add(newDevice);
-            //reboot serialStream
-            //IsTransferActive = true;
-            //RaisePropertyChanged(nameof(IsTransferActive));
-        }
-
-
-
         private ISlaveDevice[] GetSlaveDevices(ControllerTypeEnum type)
         {
             var slaveDevices = new List<ISlaveDevice>();
@@ -740,6 +510,7 @@ namespace adrilight_shared.Models.Device
             }
         }
         #endregion
+     
         public void UpdateUID()
         {
             foreach (var zone in AvailableControlZones)
@@ -748,124 +519,7 @@ namespace adrilight_shared.Models.Device
             }
             DeviceUID = Guid.NewGuid().ToString();
         }
-        public void RefreshFirmwareVersion()
-        {
-
-            byte[] id = new byte[256];
-            byte[] name = new byte[256];
-            byte[] fw = new byte[256];
-
-            bool isValid = false;
-
-
-            IsTransferActive = false; // stop current serial stream attached to this device
-
-            var _serialPort = new SerialPort(OutputPort, 1000000);
-            _serialPort.DtrEnable = true;
-            _serialPort.ReadTimeout = 5000;
-            _serialPort.WriteTimeout = 1000;
-            try
-            {
-                _serialPort.Open();
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return;
-            }
-            catch (Exception ex)
-            {
-                return;
-            }
-            //write request info command
-            _serialPort.Write(requestCommand, 0, 3);
-            int retryCount = 0;
-            int offset = 0;
-            int idLength = 0; // Expected response length of valid deviceID 
-            int nameLength = 0; // Expected response length of valid deviceName 
-            int fwLength = 0;
-            IDeviceSettings newDevice = new DeviceSettings();
-            while (offset < 3)
-            {
-
-
-                try
-                {
-                    byte header = (byte)_serialPort.ReadByte();
-                    if (header == expectedValidHeader[offset])
-                    {
-                        offset++;
-                    }
-                }
-                catch (TimeoutException)// retry until received valid header
-                {
-                    _serialPort.Write(requestCommand, 0, 3);
-                    retryCount++;
-                    if (retryCount == 3)
-                    {
-                        Console.WriteLine("timeout waiting for respond on serialport " + _serialPort.PortName);
-                        HandyControl.Controls.MessageBox.Show("Thiết bị ở " + _serialPort.PortName + "Không có thông tin về Firmware, vui lòng liên hệ Ambino trước khi cập nhật firmware thủ công", "Device is not responding", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        isValid = false;
-                        break;
-                    }
-                    Debug.WriteLine("no respond, retrying...");
-                }
-
-
-            }
-            if (offset == 3) //3 bytes header are valid
-            {
-                idLength = (byte)_serialPort.ReadByte();
-                int count = idLength;
-                id = new byte[count];
-                while (count > 0)
-                {
-                    var readCount = _serialPort.Read(id, 0, count);
-                    offset += readCount;
-                    count -= readCount;
-                }
-
-
-                DeviceSerial = BitConverter.ToString(id).Replace('-', ' ');
-                RaisePropertyChanged(nameof(DeviceSerial));
-            }
-            if (offset == 3 + idLength) //3 bytes header are valid
-            {
-                nameLength = (byte)_serialPort.ReadByte();
-                int count = nameLength;
-                name = new byte[count];
-                while (count > 0)
-                {
-                    var readCount = _serialPort.Read(name, 0, count);
-                    offset += readCount;
-                    count -= readCount;
-                }
-                // DeviceName = Encoding.ASCII.GetString(name, 0, name.Length);
-                // RaisePropertyChanged(nameof(DeviceName));
-
-
-            }
-            if (offset == 3 + idLength + nameLength) //3 bytes header are valid
-            {
-                fwLength = (byte)_serialPort.ReadByte();
-                int count = fwLength;
-                fw = new byte[count];
-                while (count > 0)
-                {
-                    var readCount = _serialPort.Read(fw, 0, count);
-                    offset += readCount;
-                    count -= readCount;
-                }
-                FirmwareVersion = Encoding.ASCII.GetString(fw, 0, fw.Length);
-                RaisePropertyChanged(nameof(FirmwareVersion));
-            }
-            _serialPort.Close();
-            _serialPort.Dispose();
-            //if (isValid)
-            //    newDevices.Add(newDevice);
-            //reboot serialStream
-            // IsTransferActive = true;
-            //RaisePropertyChanged(nameof(IsTransferActive));
-        }
+       
 
     }
 }

@@ -11,7 +11,8 @@
              xmlns:local="clr-namespace:adrilight.View"
              mc:Ignorable="d"
              xmlns:device="clr-namespace:adrilight_shared.Models.Device;assembly=adrilight_shared"
-             d:DataContext="{d:DesignInstance device:DeviceSettings, IsDesignTimeCreatable=True}">
+             xmlns:vm="clr-namespace:adrilight.ViewModel"
+             d:DataContext="{d:DesignInstance vm:DeviceAdvanceSettingsViewModel, IsDesignTimeCreatable=True}">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -26,484 +27,626 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <hc:ScrollViewer IsInertiaEnabled="True">
-
-
-        <Grid Margin="10,0,10,10">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="auto" />
-            </Grid.RowDefinitions>
-
-            <Grid Margin="10,0,10,10">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="auto" />
-                    <RowDefinition Height="auto" />
-                    <RowDefinition Height="auto" />
-                    <RowDefinition Height="auto" />
-                </Grid.RowDefinitions>
-                <TextBlock  VerticalAlignment="Top"
-                            Margin="20,0,20,20"
-                            Text="Device information"
-                            Style="{StaticResource TextBlockLarge}">
-
-                </TextBlock>
-                <Grid Grid.Row="1">
-                    <StackPanel>
-                        <Image Width="200" Margin="50,20,50,30"
-                               RenderOptions.BitmapScalingMode="HighQuality"
-                               Source="{Binding DeviceThumbnail}">
-                        </Image>
-                        <TextBlock Margin="0,0,0,0"
-                                   Style="{DynamicResource TextBlockLargeBold}"
-                                   Text="{Binding DeviceName}"></TextBlock>
-                        <Grid HorizontalAlignment="Center">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock HorizontalAlignment="Center"
-                                       Margin="0,0,0,5"
-                                       Style="{DynamicResource TextBlockDefault}"
-                                       Text="Device type:"></TextBlock>
-                            <TextBlock Foreground="{DynamicResource PrimaryBrush}"
-                                       HorizontalAlignment="Left"
-                                       Grid.Column="1"
-                                       Margin="5,0,0,5"
-                                       Style="{DynamicResource TextBlockDefault}"
-                                       Text="{Binding DeviceType.Type}"></TextBlock>
-                        </Grid>
-                        <Grid HorizontalAlignment="Center">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock HorizontalAlignment="Center"
-                                       Margin="0,0,0,5"
-                                       Style="{DynamicResource TextBlockDefault}"
-                                       Text="Firmware version:"></TextBlock>
-                            <TextBlock Foreground="{DynamicResource PrimaryBrush}"
-                                       HorizontalAlignment="Left"
-                                       Grid.Column="1"
-                                       Margin="5,0,0,5"
-                                       Style="{DynamicResource TextBlockDefault}"
-                                       Text="{Binding FirmwareVersion}"></TextBlock>
-                        </Grid>
-                        <Grid HorizontalAlignment="Center">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock HorizontalAlignment="Center"
-                                       Margin="0,0,0,5"
-                                       Style="{DynamicResource TextBlockDefault}"
-                                       Text="Serial:"></TextBlock>
-                            <TextBlock Grid.Column="1"
-                                       Text="{Binding DeviceSerial}"
-                                       Style="{StaticResource TextBlockDefaultPrimary}"
-                                       Margin="5,0,0,5"
-                                       HorizontalAlignment="Left" />
-                        </Grid>
-
-                        <Grid HorizontalAlignment="Center">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock HorizontalAlignment="Center"
-                                       Margin="0,0,0,5"
-                                       Style="{DynamicResource TextBlockDefault}"
-                                       Text="Hardware version:"></TextBlock>
-                            <TextBlock Foreground="{DynamicResource PrimaryBrush}"
-                                       HorizontalAlignment="Left"
-                                       Grid.Column="1"
-                                       Margin="5,0,0,5"
-                                       Style="{DynamicResource TextBlockDefault}"
-                                       Text="{Binding HardwareVersion}"></TextBlock>
-                        </Grid>
-                        <Grid HorizontalAlignment="Center">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock HorizontalAlignment="Center"
-                                       Margin="0,0,0,5"
-                                       Style="{DynamicResource TextBlockDefault}"
-                                       Text="Max outputs:"></TextBlock>
-                            <TextBlock Foreground="{DynamicResource PrimaryBrush}"
-                                       HorizontalAlignment="Left"
-                                       Grid.Column="1"
-                                       Margin="5,0,0,5"
-                                       Style="{DynamicResource TextBlockDefault}"
-                                       Text="{Binding AvailableLightingOutputs.Length}"></TextBlock>
-                        </Grid>
-                        <Grid HorizontalAlignment="Center">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock HorizontalAlignment="Center"
-                                       Margin="0,0,0,5"
-                                       Style="{DynamicResource TextBlockDefault}"
-                                       Text="Address:"></TextBlock>
-                            <TextBlock Foreground="{DynamicResource PrimaryBrush}"
-                                       HorizontalAlignment="Left"
-                                       Grid.Column="1"
-                                       Margin="5,0,0,5"
-                                       Style="{DynamicResource TextBlockDefault}"
-                                       Text="{Binding OutputPort}"></TextBlock>
-                        </Grid>
-                    </StackPanel>
-
-                </Grid>
-                <Grid Grid.Row="2">
-                    <StackPanel>
-                        <Button IsEnabled="{Binding UpdateButtonEnable,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
-                                Command="{Binding UpdateCurrentSelectedDeviceFirmwareCommand}"
-                                Margin="10"
-                                Grid.Column="1"
-                                Content="Check for update" />
-                        <hc:LoadingLine Foreground="{DynamicResource PrimaryBrush}"
-                                        Margin="5"
-                                        Height="10"
-                                        Visibility="{Binding IsCheckingForUpdate,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged, Converter={StaticResource boolToVisibilityConvert}}" />
-                        <TextBlock TextAlignment="Center"
-                                   TextWrapping="Wrap"
-                                   Style="{DynamicResource TextBlockDefaultDanger}"
-                                   Text="{Binding UpdateErrorMessage}"
-                                   Visibility="{Binding UpdateButtonEnable,Converter={StaticResource boolToVisibilityConvert}}" />
-                    </StackPanel>
-
-                </Grid>
-
-
-
-            </Grid>
-            <StackPanel Grid.Row="1">
-                <Grid Name="enable">
+        <TabControl BorderThickness="0"
+                    Margin="0"
+                    SelectedIndex="0"
+                    Style="{DynamicResource TabControlInLine}">
+            <TabItem Header="Settings">
+                <Grid Margin="10,0,10,10">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="auto" />
-                        <RowDefinition Height="*" />
-
                     </Grid.RowDefinitions>
 
-                    <ProgressBar Visibility="{Binding FwUploadPercentVissible,Converter={StaticResource boolToVisibilityConvert}}"
-                                 Value="{Binding FwUploadPercent,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
-                                 Margin="5"
-                                 Grid.Row="1"
-                                 Height="10"
-                                 x:Name="Prog"
-                                 Orientation="Horizontal" />
-                    <TextBox Visibility="{Binding FwUploadPercentVissible,Converter={StaticResource boolToVisibilityConvert}}"
-                             Text="{Binding FwUploadOutputLog,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
-                             IsReadOnly="True"
-                             MaxHeight="250"
-                             TextWrapping="WrapWithOverflow"
-                             Grid.Row="2"
-                             Margin="1"
-                             x:Name="Output"></TextBox>
-                </Grid>
 
-                <Grid>
-                    <hc:LoadingLine Height="20"
-                                    Visibility="{Binding IsDownloadingFirmware,Mode=TwoWay,Converter={StaticResource boolToVisibilityConvert}}" />
-                </Grid>
-                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
-                             Margin="5,10,5,10">
-
-                </hc:Divider>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <Path   Fill="{StaticResource WarningBrush}"
-                            Width="20"
-                            Height="20"
-                            Margin="10,10"
-                            Data="{StaticResource colorchanged}"
-                            Stretch="Uniform" />
-                    <TextBlock Margin="10"
-                               TextWrapping="Wrap"
-                               HorizontalAlignment="Left"
-                               Style="{StaticResource TextBlockDefaultWarning}"
-                               Grid.Column="1"
-                               Text="Để thoát khỏi chế độ DFU, hãy rút USB của thiết bị ra và cắm lại" />
-                </Grid>
-
-                <Grid Visibility="{Binding DeviceHardwareControlEnable,Converter={StaticResource boolToVisibilityConvert}}">
-                    <StackPanel>
-                        <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
-                                     Margin="5,10,5,10">
-
-                        </hc:Divider>
-                        <Grid Name="ledBehavior">
+                    <StackPanel Grid.Row="1">
+                        <Grid Margin="0,50,0,0"
+                              Visibility="{Binding HardwareSettingsEnable}">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="auto" />
-                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
-                            <GroupBox   VerticalAlignment="Center"
-                                        hc:TitleElement.TitleWidth="300"
-                                        Margin="5"
-                                        Style="{StaticResource GroupBoxOriginal}"
-                                        HorizontalAlignment="Stretch"
-                                        hc:TitleElement.TitlePlacement="Left">
-                                <GroupBox.HeaderTemplate>
-                                    <DataTemplate>
-                                        <TextBlock FontWeight="SemiBold"
-                                                   Text="GIỮ TRẠNG THÁI LED KHI NGẮT KẾT NỐI" />
-                                    </DataTemplate>
-                                </GroupBox.HeaderTemplate>
+                            <Grid>
+                                <TextBlock Margin="10,0"
+                                           HorizontalAlignment="Left"
+                                           VerticalAlignment="Top"
+                                           Style="{DynamicResource TextBlockSubTitleBold}"
+                                           Text="CÀI ĐẶT PHẦN CỨNG" />
+                            </Grid>
+                            <Grid Grid.Row="1">
 
-                                <ToggleButton HorizontalAlignment="Right"
-                                              IsChecked="{Binding NoSignalLEDEnable}"
-                                              Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
+                                <StackPanel Margin="20,10,10,10">
+                                    <Grid Visibility="{Binding Device.DeviceHardwareControlEnable,Converter={StaticResource boolToVisibilityConvert}}">
+                                        <StackPanel>
+                                            <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                                                         Margin="5,10,5,10">
 
-                                </ToggleButton>
+                                            </hc:Divider>
+                                            <Grid Name="ledBehavior">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="auto" />
+                                                    <RowDefinition Height="auto" />
+                                                </Grid.RowDefinitions>
+                                                <GroupBox   VerticalAlignment="Center"
+                                                            hc:TitleElement.TitleWidth="300"
+                                                            Margin="5"
+                                                            Style="{StaticResource GroupBoxOriginal}"
+                                                            HorizontalAlignment="Stretch"
+                                                            hc:TitleElement.TitlePlacement="Left">
+                                                    <GroupBox.HeaderTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock FontWeight="SemiBold"
+                                                                       Text="GIỮ TRẠNG THÁI LED KHI NGẮT KẾT NỐI" />
+                                                        </DataTemplate>
+                                                    </GroupBox.HeaderTemplate>
+
+                                                    <ToggleButton HorizontalAlignment="Right"
+                                                                  IsChecked="{Binding Device.NoSignalLEDEnable}"
+                                                                  Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
+
+                                                    </ToggleButton>
 
 
-                            </GroupBox>
-                            <TextBlock Margin="5,0,0,0"
-                                       HorizontalAlignment="Left"
-                                       Style="{StaticResource TextBlockDefaultSecLight}"
-                                       Grid.Row="1"
-                                       TextWrapping="Wrap"
-                                       Text="Led sẽ tắt sau 3s kể từ khi thiết bị mất tín hiệu điều khiển. Tắt tùy chọn này nếu khi tắt máy mà LED vẫn sáng" />
+                                                </GroupBox>
+                                                <TextBlock Margin="5,0,0,0"
+                                                           HorizontalAlignment="Left"
+                                                           Style="{StaticResource TextBlockDefaultSecLight}"
+                                                           Grid.Row="1"
+                                                           TextWrapping="Wrap"
+                                                           Text="Led sẽ tắt sau 3s kể từ khi thiết bị mất tín hiệu điều khiển. Tắt tùy chọn này nếu khi tắt máy mà LED vẫn sáng" />
+                                            </Grid>
+                                            <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                                                         Margin="5,10,5,10">
+
+                                            </hc:Divider>
+                                            <Grid Name="signalLED">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="auto" />
+                                                    <RowDefinition Height="auto" />
+                                                </Grid.RowDefinitions>
+                                                <GroupBox   VerticalAlignment="Center"
+                                                            hc:TitleElement.TitleWidth="200"
+                                                            Margin="5"
+                                                            Style="{StaticResource GroupBoxOriginal}"
+                                                            HorizontalAlignment="Stretch"
+                                                            hc:TitleElement.TitlePlacement="Left">
+                                                    <GroupBox.HeaderTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock FontWeight="SemiBold"
+                                                                       Text="BẬT HOẶC TẮT LED CHỈ THỊ" />
+                                                        </DataTemplate>
+                                                    </GroupBox.HeaderTemplate>
+
+                                                    <ToggleButton HorizontalAlignment="Right"
+                                                                  IsChecked="{Binding Device.IsIndicatorLEDOn}"
+                                                                  Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
+
+                                                    </ToggleButton>
+
+
+                                                </GroupBox>
+                                                <TextBlock Margin="5,0,0,0"
+                                                           HorizontalAlignment="Left"
+                                                           Style="{StaticResource TextBlockDefaultSecLight}"
+                                                           Grid.Row="1"
+                                                           TextWrapping="Wrap"
+                                                           Text="Bật hoặc tắt led chỉ thị ( chỉ áp dụng với Ambino Basic và Ambino EDGE)" />
+                                            </Grid>
+
+                                            <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                                                         Margin="5,10,5,10">
+
+                                            </hc:Divider>
+                                            <Grid>
+                                                <StackPanel  HorizontalAlignment="Right"
+                                                             Margin="5"
+                                                             Orientation="Vertical">
+                                                    <Button Command="{Binding ApplyDeviceHardwareSettingsCommand}"
+                                                            Style="{DynamicResource _mediumProfileDefaultButton}"
+                                                            Content="Apply">
+                                                    </Button>
+                                                    <ProgressBar Visibility="{Binding IsApplyingDeviceHardwareSettings,Converter={StaticResource boolToVisibilityConvert}}"
+                                                                 hc:BorderElement.CornerRadius="0"
+                                                                 IsIndeterminate="True"
+                                                                 Margin="0,5,0,0"
+                                                                 Height="4" />
+                                                </StackPanel>
+
+                                            </Grid>
+                                        </StackPanel>
+                                    </Grid>
+                                    <Grid Visibility="{Binding Device.DeviceFanSpeedControlEnable,Converter={StaticResource boolToVisibilityConvert}}">
+                                        <StackPanel>
+                                            <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                                                         Margin="5,10,5,10">
+
+                                            </hc:Divider>
+                                            <Grid Name="fanbehavior">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="auto" />
+                                                    <RowDefinition Height="auto" />
+                                                </Grid.RowDefinitions>
+                                                <GroupBox   VerticalAlignment="Center"
+                                                            hc:TitleElement.TitleWidth="150"
+                                                            Margin="5"
+                                                            Style="{StaticResource GroupBoxOriginal}"
+                                                            HorizontalAlignment="Stretch"
+                                                            hc:TitleElement.TitlePlacement="Left">
+                                                    <GroupBox.HeaderTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock FontWeight="SemiBold"
+                                                                       Text="TỐC ĐỘ FAN OFFLINE" />
+                                                        </DataTemplate>
+                                                    </GroupBox.HeaderTemplate>
+                                                    <hc:PreviewSlider HorizontalAlignment="Right"
+                                                                      Width="200"
+                                                                      Minimum="20"
+                                                                      Maximum="255"
+                                                                      Value="{Binding Device.NoSignalFanSpeed}">
+                                                        <hc:PreviewSlider.PreviewContent>
+                                                            <Label Style="{StaticResource LabelPrimary}"
+                                                                   Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}"
+                                                                   ContentStringFormat="#0" />
+                                                        </hc:PreviewSlider.PreviewContent>
+                                                    </hc:PreviewSlider>
+
+
+                                                </GroupBox>
+                                                <TextBlock Margin="5,0,0,0"
+                                                           HorizontalAlignment="Left"
+                                                           Style="{StaticResource TextBlockDefaultSecLight}"
+                                                           Grid.Row="1"
+                                                           TextWrapping="Wrap"
+                                                           Text="HUB Fan sẽ điều khiển fan chạy với tốc độ này khi không kết nối với app" />
+                                            </Grid>
+                                            <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                                                         Margin="5,10,5,10">
+
+                                            </hc:Divider>
+
+                                            <Grid>
+                                                <StackPanel  HorizontalAlignment="Right"
+                                                             Margin="5"
+                                                             Orientation="Vertical">
+                                                    <Button Command="{Binding ApplyDeviceHardwareSettingsCommand}"
+                                                            Style="{DynamicResource _mediumProfileDefaultButton}"
+                                                            Content="Apply">
+                                                    </Button>
+                                                    <ProgressBar Visibility="{Binding IsApplyingDeviceHardwareSettings,Converter={StaticResource boolToVisibilityConvert}}"
+                                                                 hc:BorderElement.CornerRadius="0"
+                                                                 IsIndeterminate="True"
+                                                                 Margin="0,5,0,0"
+                                                                 Height="4" />
+                                                </StackPanel>
+
+                                            </Grid>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </Grid>
                         </Grid>
-                        <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
-                                     Margin="5,10,5,10">
+                        <Grid Margin="0,50,0,0">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <Grid>
+                                    <TextBlock Margin="10,0"
+                                               HorizontalAlignment="Left"
+                                               VerticalAlignment="Top"
+                                               Style="{DynamicResource TextBlockSubTitleBold}"
+                                               Text="CÀI ĐẶT PHẦN MỀM" />
+                                </Grid>
+                                <Grid Grid.Row="1">
 
-                        </hc:Divider>
-                        <Grid Name="signalLED">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="auto" />
-                                <RowDefinition Height="auto" />
-                            </Grid.RowDefinitions>
-                            <GroupBox   VerticalAlignment="Center"
-                                        hc:TitleElement.TitleWidth="200"
-                                        Margin="5"
-                                        Style="{StaticResource GroupBoxOriginal}"
-                                        HorizontalAlignment="Stretch"
-                                        hc:TitleElement.TitlePlacement="Left">
-                                <GroupBox.HeaderTemplate>
-                                    <DataTemplate>
-                                        <TextBlock FontWeight="SemiBold"
-                                                   Text="BẬT HOẶC TẮT LED CHỈ THỊ" />
-                                    </DataTemplate>
-                                </GroupBox.HeaderTemplate>
+                                    <StackPanel Margin="20,10,10,10">
+                                        <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}"
+                                                    Margin="5,10,5,10">
 
-                                <ToggleButton HorizontalAlignment="Right"
-                                              IsChecked="{Binding IsIndicatorLEDOn}"
-                                              Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
+                                        </hc:Divider>
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="auto" />
+                                                <RowDefinition Height="auto" />
+                                            </Grid.RowDefinitions>
+                                            <GroupBox   VerticalAlignment="Center"
+                                                        hc:TitleElement.TitleWidth="150"
+                                                        Margin="5"
+                                                        Style="{StaticResource GroupBoxOriginal}"
+                                                        HorizontalAlignment="Stretch"
+                                                        hc:TitleElement.TitlePlacement="Left">
+                                                <GroupBox.HeaderTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock FontWeight="SemiBold"
+                                                                   Text="AUTO CONNECT" />
+                                                    </DataTemplate>
+                                                </GroupBox.HeaderTemplate>
 
-                                </ToggleButton>
+                                                <ToggleButton HorizontalAlignment="Right"
+                                                              IsChecked="{Binding GeneralSettings.HotkeyEnable}"
+                                                              Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
+
+                                                </ToggleButton>
 
 
-                            </GroupBox>
-                            <TextBlock Margin="5,0,0,0"
-                                       HorizontalAlignment="Left"
-                                       Style="{StaticResource TextBlockDefaultSecLight}"
-                                       Grid.Row="1"
-                                       TextWrapping="Wrap"
-                                       Text="Bật hoặc tắt led chỉ thị ( chỉ áp dụng với Ambino Basic và Ambino EDGE)" />
+                                            </GroupBox>
+                                            <TextBlock Margin="5,0,0,0"
+                                                       HorizontalAlignment="Left"
+                                                       Style="{StaticResource TextBlockDefaultSecLight}"
+                                                       Grid.Row="1"
+                                                       Text="Tắt tùy chọn này nếu bạn gặp vấn đề với bộ gõ và HotKey" />
+                                        </Grid>
+                                        <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}"
+                                                    Margin="5,10,5,10">
+
+                                        </hc:Divider>
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="auto" />
+                                                <RowDefinition Height="auto" />
+                                            </Grid.RowDefinitions>
+                                            <GroupBox   VerticalAlignment="Center"
+                                                        hc:TitleElement.TitleWidth="150"
+                                                        Margin="5"
+                                                        Style="{StaticResource GroupBoxOriginal}"
+                                                        HorizontalAlignment="Stretch"
+                                                        hc:TitleElement.TitlePlacement="Left">
+                                                <GroupBox.HeaderTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock FontWeight="SemiBold"
+                                                                   Text="AUTO CONNECT" />
+                                                    </DataTemplate>
+                                                </GroupBox.HeaderTemplate>
+
+                                                <ToggleButton HorizontalAlignment="Right"
+                                                              IsChecked="{Binding GeneralSettings.HotkeyEnable}"
+                                                              Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
+
+                                                </ToggleButton>
+
+
+                                            </GroupBox>
+                                            <TextBlock Margin="5,0,0,0"
+                                                       HorizontalAlignment="Left"
+                                                       Style="{StaticResource TextBlockDefaultSecLight}"
+                                                       Grid.Row="1"
+                                                       Text="Tắt tùy chọn này nếu bạn gặp vấn đề với bộ gõ và HotKey" />
+                                        </Grid>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
                         </Grid>
+                    </StackPanel>
 
-                        <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
-                                     Margin="5,10,5,10">
 
-                        </hc:Divider>
+
+                </Grid>
+            </TabItem>
+            <TabItem Header="Firmware">
+
+
+
+                <!--<Grid>
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="auto" />
+        <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+    <Path   Fill="{StaticResource WarningBrush}"
+            Width="20"
+            Height="20"
+            Margin="10,10"
+            Data="{StaticResource colorchanged}"
+            Stretch="Uniform" />
+    <TextBlock Margin="10"
+               TextWrapping="Wrap"
+               HorizontalAlignment="Left"
+               Style="{StaticResource TextBlockDefaultWarning}"
+               Grid.Column="1"
+               Text="Để thoát khỏi chế độ DFU, hãy rút USB của thiết bị ra và cắm lại" />
+</Grid>-->
+
+                <Grid Grid.Row="1">
+
+                    <StackPanel Margin="20,50,10,10">
                         <Grid>
-                            <StackPanel  HorizontalAlignment="Right"
-                                         Margin="5"
-                                         Orientation="Vertical">
-                                <Button Command="{Binding ApplyDeviceHardwareSettingsCommand}"
-                                        Style="{DynamicResource _mediumProfileDefaultButton}"
-                                        Content="Apply">
-                                </Button>
-                                <ProgressBar Visibility="{Binding IsApplyingDeviceHardwareSettings,Converter={StaticResource boolToVisibilityConvert}}"
-                                             hc:BorderElement.CornerRadius="0"
-                                             IsIndeterminate="True"
-                                             Margin="0,5,0,0"
-                                             Height="4" />
-                            </StackPanel>
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto" />
+                                        <RowDefinition Height="auto" />
+                                    </Grid.RowDefinitions>
+                                    <GroupBox   VerticalAlignment="Center"
+                                                hc:TitleElement.TitleWidth="300"
+                                                Margin="5"
+                                                Style="{StaticResource GroupBoxOriginal}"
+                                                HorizontalAlignment="Stretch"
+                                                hc:TitleElement.TitlePlacement="Top">
+                                        <GroupBox.HeaderTemplate>
+                                            <DataTemplate>
+                                                <TextBlock FontWeight="SemiBold"
+                                                           Text="PHIÊN BẢN FIRMWARE HIỆN TẠI" />
+                                            </DataTemplate>
+                                        </GroupBox.HeaderTemplate>
+                                        <Grid>
 
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Border Margin="10,5,5,5"
+                                                        HorizontalAlignment="Left"
+                                                        CornerRadius="4"
+                                                        Background="{DynamicResource MainContentBackgroundBrush}">
+                                                    <Grid HorizontalAlignment="Left"
+                                                          Margin="5">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="auto" />
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="auto" />
+                                                            <ColumnDefinition Width="auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Path HorizontalAlignment="Left"
+                                                              Stretch="Uniform"
+                                                              Margin="5"
+                                                              Data="{DynamicResource binary}"
+                                                              Width="20"
+                                                              Height="20"
+                                                              Fill="{DynamicResource PrimaryTextBrush}" />
+                                                        <TextBlock HorizontalAlignment="Left"
+                                                                   Margin="5,0,5,0"
+                                                                   Grid.Column="1"
+                                                                   Text="{Binding Device.HardwareVersion}"
+                                                                   Style="{DynamicResource TextBlockDefaultSecLight}" />
+                                                        <TextBlock HorizontalAlignment="Left"
+                                                                   Margin="5,0,5,0"
+                                                                   Grid.Column="2"
+                                                                   Text="{Binding Device.FirmwareVersion}"
+                                                                   Style="{DynamicResource TextBlockDefaultSecLight}" />
+                                                    </Grid>
+                                                </Border>
+                                                <Grid>
+                                                    <TextBlock Style="{DynamicResource TextBlockDefaultPrimary}"
+                                                               Text="{Binding NewFirmwareVersionContent}" />
+                                                </Grid>
+                                            </StackPanel>
+                                            <Grid Grid.Column="1">
+                                                <Button Command="{Binding UpdateCurrentSelectedDeviceFirmwareCommand}"
+                                                        Style="{DynamicResource ButtonPrimary}"
+                                                        Content="{Binding UpdateButtonContent}" />
+                                            </Grid>
+                                        </Grid>
+
+                                    </GroupBox>
+                                    <TextBlock Margin="15,0,0,0"
+                                               HorizontalAlignment="Left"
+                                               Style="{StaticResource TextBlockDefaultSecLight}"
+                                               Grid.Row="1"
+                                               TextWrapping="Wrap"
+                                               Text="{Binding UpdateInstructionContent}" />
+                                </Grid>
+                                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                                             Margin="5,10,5,10">
+
+                                </hc:Divider>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto" />
+                                        <RowDefinition Height="auto" />
+                                    </Grid.RowDefinitions>
+                                    <GroupBox   VerticalAlignment="Center"
+                                                hc:TitleElement.TitleWidth="200"
+                                                Margin="5"
+                                                Style="{StaticResource GroupBoxOriginal}"
+                                                HorizontalAlignment="Stretch"
+                                                hc:TitleElement.TitlePlacement="Top">
+                                        <GroupBox.HeaderTemplate>
+                                            <DataTemplate>
+                                                <TextBlock FontWeight="SemiBold"
+                                                           Text="SỬA LỖI FIRMWARE" />
+                                            </DataTemplate>
+                                        </GroupBox.HeaderTemplate>
+
+                                        <Grid>
+
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Orientation="Horizontal">
+
+
+                                                <Border Margin="10,5,5,5"
+                                                        HorizontalAlignment="Left"
+                                                        CornerRadius="4"
+                                                        Background="{DynamicResource MainContentBackgroundBrush}">
+                                                    <Grid HorizontalAlignment="Left"
+                                                          Margin="5">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="auto" />
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="auto" />
+                                                            <ColumnDefinition Width="auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Path HorizontalAlignment="Left"
+                                                              Stretch="Uniform"
+                                                              Margin="5"
+                                                              Data="{DynamicResource fromfile}"
+                                                              Width="20"
+                                                              Height="20"
+                                                              Fill="{DynamicResource PrimaryTextBrush}" />
+                                                        <TextBlock HorizontalAlignment="Left"
+                                                                   Margin="5,0,5,0"
+                                                                   Grid.Column="1"
+                                                                   Text="{Binding CurrentSelectedFirmware}"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   MaxWidth="200"
+                                                                   Style="{DynamicResource TextBlockDefaultSecLight}" />
+                                                    </Grid>
+                                                </Border>
+                                                <Button CommandParameter="select"
+                                                        Command="{Binding SelecFirmwareForCurrentDeviceCommand}"
+                                                        Margin="10,0,0,0"
+                                                        Content="Chọn Custom Firmware" />
+                                            </StackPanel>
+                                            <Grid Grid.Column="1">
+                                                <Button Style="{DynamicResource ButtonPrimary}"
+                                                        Content="Nạp firmware" />
+                                            </Grid>
+                                        </Grid>
+
+
+                                    </GroupBox>
+                                    <TextBlock Margin="15,0,0,0"
+                                               HorizontalAlignment="Left"
+                                               Style="{StaticResource TextBlockDefaultSecLight}"
+                                               Grid.Row="1"
+                                               TextWrapping="Wrap"
+                                               Text="Sửa lỗi firmware sẽ cho phép bạn load phiên bản firmware khác với phần cứng của thiết bị" />
+                                </Grid>
+
+                                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                                             Margin="5,10,5,10">
+
+                                </hc:Divider>
+
+                            </StackPanel>
                         </Grid>
                     </StackPanel>
                 </Grid>
-                <Grid Visibility="{Binding DeviceFanSpeedControlEnable,Converter={StaticResource boolToVisibilityConvert}}">
-                    <StackPanel>
-                        <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
-                                     Margin="5,10,5,10">
 
-                        </hc:Divider>
-                        <Grid Name="fanbehavior">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="auto" />
-                                <RowDefinition Height="auto" />
-                            </Grid.RowDefinitions>
-                            <GroupBox   VerticalAlignment="Center"
-                                        hc:TitleElement.TitleWidth="150"
-                                        Margin="5"
-                                        Style="{StaticResource GroupBoxOriginal}"
-                                        HorizontalAlignment="Stretch"
-                                        hc:TitleElement.TitlePlacement="Left">
-                                <GroupBox.HeaderTemplate>
-                                    <DataTemplate>
-                                        <TextBlock FontWeight="SemiBold"
-                                                   Text="TỐC ĐỘ FAN OFFLINE" />
-                                    </DataTemplate>
-                                </GroupBox.HeaderTemplate>
-                                <hc:PreviewSlider HorizontalAlignment="Right"
-                                                  Width="200"
-                                                  Minimum="20"
-                                                  Maximum="255"
-                                                  Value="{Binding NoSignalFanSpeed}">
-                                    <hc:PreviewSlider.PreviewContent>
-                                        <Label Style="{StaticResource LabelPrimary}"
-                                               Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}"
-                                               ContentStringFormat="#0" />
-                                    </hc:PreviewSlider.PreviewContent>
-                                </hc:PreviewSlider>
+            </TabItem>
+            <TabItem Header="About">
+                <Grid Margin="10,10,10,10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock  VerticalAlignment="Top"
+                                Margin="20,0,20,20"
+                                Text="Device information"
+                                Style="{StaticResource TextBlockLarge}">
 
-
-                            </GroupBox>
-                            <TextBlock Margin="5,0,0,0"
-                                       HorizontalAlignment="Left"
-                                       Style="{StaticResource TextBlockDefaultSecLight}"
-                                       Grid.Row="1"
-                                       TextWrapping="Wrap"
-                                       Text="HUB Fan sẽ điều khiển fan chạy với tốc độ này khi không kết nối với app" />
-                        </Grid>
-                        <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
-                                     Margin="5,10,5,10">
-
-                        </hc:Divider>
-
-                        <Grid>
-                            <StackPanel  HorizontalAlignment="Right"
-                                         Margin="5"
-                                         Orientation="Vertical">
-                                <Button Command="{Binding ApplyDeviceHardwareSettingsCommand}"
-                                        Style="{DynamicResource _mediumProfileDefaultButton}"
-                                        Content="Apply">
-                                </Button>
-                                <ProgressBar Visibility="{Binding IsApplyingDeviceHardwareSettings,Converter={StaticResource boolToVisibilityConvert}}"
-                                             hc:BorderElement.CornerRadius="0"
-                                             IsIndeterminate="True"
-                                             Margin="0,5,0,0"
-                                             Height="4" />
-                            </StackPanel>
-
-                        </Grid>
-                    </StackPanel>
-                </Grid>
-
-                <!--<Grid >
-             <Grid.ColumnDefinitions>
-                 <ColumnDefinition Width="*"/>
-                 <ColumnDefinition Width="auto"/>
-                 <ColumnDefinition Width="auto"/>
-             </Grid.ColumnDefinitions>
-             <Button Click="Button_Click" Command="{Binding CreateNewPaletteCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
-             <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
-         </Grid>-->
-                <Grid Margin="0,70,0,0">
-                    <Grid>
+                    </TextBlock>
+                    <Grid Grid.Row="1">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="auto" />
                             <RowDefinition Height="*" />
+                            <RowDefinition Height="auto" />
                         </Grid.RowDefinitions>
-                        <Grid>
-                            <TextBlock Margin="10,0"
-                                       HorizontalAlignment="Left"
-                                       VerticalAlignment="Top"
-                                       Style="{DynamicResource TextBlockSubTitleBold}"
-                                       Text="{Binding DeviceName}" />
-                        </Grid>
-                        <Grid Grid.Row="1">
+                        <StackPanel>
+                            <Image Width="300"
+                                   Margin="50,20,50,30"
+                                   RenderOptions.BitmapScalingMode="HighQuality"
+                                   Source="{Binding Device.DeviceThumbnail}">
+                            </Image>
+                            <TextBlock Margin="0,20,0,20"
+                                       Style="{DynamicResource TextBlockLargeBold}"
+                                       Text="{Binding Device.DeviceName}"></TextBlock>
+                            <Grid HorizontalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock HorizontalAlignment="Center"
+                                           Margin="0,0,0,5"
+                                           Style="{DynamicResource TextBlockDefault}"
+                                           Text="Device type:"></TextBlock>
+                                <TextBlock Foreground="{DynamicResource PrimaryBrush}"
+                                           HorizontalAlignment="Left"
+                                           Grid.Column="1"
+                                           Margin="5,0,0,5"
+                                           Style="{DynamicResource TextBlockDefault}"
+                                           Text="{Binding Device.DeviceType.Type}"></TextBlock>
+                            </Grid>
+                            <Grid HorizontalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock HorizontalAlignment="Center"
+                                           Margin="0,0,0,5"
+                                           Style="{DynamicResource TextBlockDefault}"
+                                           Text="Firmware version:"></TextBlock>
+                                <TextBlock Foreground="{DynamicResource PrimaryBrush}"
+                                           HorizontalAlignment="Left"
+                                           Grid.Column="1"
+                                           Margin="5,0,0,5"
+                                           Style="{DynamicResource TextBlockDefault}"
+                                           Text="{Binding Device.FirmwareVersion}"></TextBlock>
+                            </Grid>
+                            <Grid HorizontalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock HorizontalAlignment="Center"
+                                           Margin="0,0,0,5"
+                                           Style="{DynamicResource TextBlockDefault}"
+                                           Text="Serial:"></TextBlock>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding Device.DeviceSerial}"
+                                           Style="{StaticResource TextBlockDefaultPrimary}"
+                                           Margin="5,0,0,5"
+                                           HorizontalAlignment="Left" />
+                            </Grid>
 
-                            <StackPanel Margin="10">
-                                <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}"
-                                            Margin="5,10,5,10">
+                            <Grid HorizontalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock HorizontalAlignment="Center"
+                                           Margin="0,0,0,5"
+                                           Style="{DynamicResource TextBlockDefault}"
+                                           Text="Hardware version:"></TextBlock>
+                                <TextBlock Foreground="{DynamicResource PrimaryBrush}"
+                                           HorizontalAlignment="Left"
+                                           Grid.Column="1"
+                                           Margin="5,0,0,5"
+                                           Style="{DynamicResource TextBlockDefault}"
+                                           Text="{Binding Device.HardwareVersion}"></TextBlock>
+                            </Grid>
+                            <Grid HorizontalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock HorizontalAlignment="Center"
+                                           Margin="0,0,0,5"
+                                           Style="{DynamicResource TextBlockDefault}"
+                                           Text="Max outputs:"></TextBlock>
+                                <TextBlock Foreground="{DynamicResource PrimaryBrush}"
+                                           HorizontalAlignment="Left"
+                                           Grid.Column="1"
+                                           Margin="5,0,0,5"
+                                           Style="{DynamicResource TextBlockDefault}"
+                                           Text="{Binding Device.AvailableLightingOutputs.Length}"></TextBlock>
+                            </Grid>
+                            <Grid HorizontalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock HorizontalAlignment="Center"
+                                           Margin="0,0,0,5"
+                                           Style="{DynamicResource TextBlockDefault}"
+                                           Text="Address:"></TextBlock>
+                                <TextBlock Foreground="{DynamicResource PrimaryBrush}"
+                                           HorizontalAlignment="Left"
+                                           Grid.Column="1"
+                                           Margin="5,0,0,5"
+                                           Style="{DynamicResource TextBlockDefault}"
+                                           Text="{Binding Device.OutputPort}"></TextBlock>
+                            </Grid>
+                        </StackPanel>
 
-                                </hc:Divider>
-                                <Grid Name="autoconnect">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="auto" />
-                                        <RowDefinition Height="auto" />
-                                    </Grid.RowDefinitions>
-                                    <GroupBox   VerticalAlignment="Center"
-                                                hc:TitleElement.TitleWidth="150"
-                                                Margin="5"
-                                                Style="{StaticResource GroupBoxOriginal}"
-                                                HorizontalAlignment="Stretch"
-                                                hc:TitleElement.TitlePlacement="Left">
-                                        <GroupBox.HeaderTemplate>
-                                            <DataTemplate>
-                                                <TextBlock FontWeight="SemiBold"
-                                                           Text="AUTO CONNECT" />
-                                            </DataTemplate>
-                                        </GroupBox.HeaderTemplate>
-
-                                        <ToggleButton HorizontalAlignment="Right"
-                                                      IsChecked="{Binding GeneralSettings.HotkeyEnable}"
-                                                      Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
-
-                                        </ToggleButton>
-
-
-                                    </GroupBox>
-                                    <TextBlock Margin="5,0,0,0"
-                                               HorizontalAlignment="Left"
-                                               Style="{StaticResource TextBlockDefaultSecLight}"
-                                               Grid.Row="1"
-                                               Text="Tắt tùy chọn này nếu bạn gặp vấn đề với bộ gõ và HotKey" />
-                                </Grid>
-                                <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}"
-                                            Margin="5,10,5,10">
-
-                                </hc:Divider>
-                                <Grid Name="example">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="auto" />
-                                        <RowDefinition Height="auto" />
-                                    </Grid.RowDefinitions>
-                                    <GroupBox   VerticalAlignment="Center"
-                                                hc:TitleElement.TitleWidth="150"
-                                                Margin="5"
-                                                Style="{StaticResource GroupBoxOriginal}"
-                                                HorizontalAlignment="Stretch"
-                                                hc:TitleElement.TitlePlacement="Left">
-                                        <GroupBox.HeaderTemplate>
-                                            <DataTemplate>
-                                                <TextBlock FontWeight="SemiBold"
-                                                           Text="AUTO CONNECT" />
-                                            </DataTemplate>
-                                        </GroupBox.HeaderTemplate>
-
-                                        <ToggleButton HorizontalAlignment="Right"
-                                                      IsChecked="{Binding GeneralSettings.HotkeyEnable}"
-                                                      Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
-
-                                        </ToggleButton>
-
-
-                                    </GroupBox>
-                                    <TextBlock Margin="5,0,0,0"
-                                               HorizontalAlignment="Left"
-                                               Style="{StaticResource TextBlockDefaultSecLight}"
-                                               Grid.Row="1"
-                                               Text="Tắt tùy chọn này nếu bạn gặp vấn đề với bộ gõ và HotKey" />
-                                </Grid>
-                            </StackPanel>
-                        </Grid>
                     </Grid>
                 </Grid>
-            </StackPanel>
+            </TabItem>
+        </TabControl>
 
 
-
-        </Grid>
     </hc:ScrollViewer>
-   
+
 </UserControl>

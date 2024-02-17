@@ -1,0 +1,64 @@
+﻿<UserControl x:Class="adrilight_shared.View.Dialogs.ProgressDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:adrilight_shared.View.Dialogs"
+             xmlns:converters="clr-namespace:adrilight_shared.Converter"
+             xmlns:vm="clr-namespace:adrilight_shared.ViewModel"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             d:DataContext="{d:DesignInstance Type=vm:ProgressDialogViewModel}"
+             mc:Ignorable="d"
+             Background="{DynamicResource RegionBrush}"
+             d:DesignHeight="800"
+             d:DesignWidth="450">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <TextBlock Margin="5,5,5,20"
+                       Style="{DynamicResource TextBlockLarge}"
+                       Text="{Binding Header}" />
+            <Border Width="120"
+                    Height="120"
+                    CornerRadius="7"
+                    Effect="{DynamicResource EffectShadow1}"
+                    Background="{DynamicResource MainContentBackgroundBrush}">
+                <Path HorizontalAlignment="Center"
+                      Stretch="Uniform"
+                      Width="100"
+                      Height="100"
+                      Margin="10"
+                      Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
+                      Fill="{DynamicResource PrimaryTextBrush}" />
+            </Border>
+            <ProgressBar Visibility="{Binding ProgressBarVisibility}"
+                         Style="{DynamicResource ProgressBarFlat}"
+                         Value="{Binding Value,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                         Margin="20"
+                         Grid.Row="1"
+                         Height="10"
+                         x:Name="Prog"
+                         Orientation="Horizontal" />
+            <TextBlock Margin="10" Text="{Binding SuccessMessage}"
+                       Style="{DynamicResource TextBlockDefaultPrimary}"
+                       Visibility="{Binding SuccessMesageVisibility}" />
+        </StackPanel>
+        <Grid Grid.Row="2">
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <Button Visibility="{Binding SuccessMesageVisibility}" Click="Button_Cancel_Click" Style="{DynamicResource _lowProfileDefaultButton}" Margin="10,10,10,20" Content="{Binding PrimaryActionButtonContent}">
+                    
+                </Button>
+                <Button Visibility="{Binding SuccessMesageVisibility}" Click="Button_OK_Click" Style="{DynamicResource ButtonPrimary}" Foreground="{DynamicResource RegionBrush}"
+                    Width="72"
+                        Margin="10,10,20,20"
+                        Grid.Column="1"
+                        Content="{Binding SecondaryActionButtonContent}">
+                </Button>
+            </StackPanel>
+           
+        </Grid>
+    </Grid>
+</UserControl>

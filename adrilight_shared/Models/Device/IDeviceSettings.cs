@@ -44,14 +44,11 @@ namespace adrilight_shared.Models.Device
         bool IsSizeNeedUserDefine { get; set; }
         bool IsIndicatorLEDOn { get; set; }
         bool NoSignalLEDEnable { get; set; }
-        bool DeviceHardwareControlEnable { get; } 
-        bool DeviceFanSpeedControlEnable { get; }
         int NoSignalFanSpeed { get; set; }
         int DashboardWidth { get; set; }
         int DashboardHeight { get; set; }
         ObservableCollection<ControlZoneGroup> ControlZoneGroups { get; set; }
         string RequiredFwVersion { get; set; }
-        void RefreshFirmwareVersion();
         DeviceStateEnum DeviceState { get; set; }
         Rect CurrentLivewItemsBound { get; }
         ISlaveDevice[] AvailableLightingDevices { get; }
@@ -72,7 +69,5 @@ namespace adrilight_shared.Models.Device
         void SetStaticColor(ColorCard colors);
         void SetModeByEnumValue(LightingModeEnum value);
         void ActivateControlMode(LightingMode lightingMode);
-        Task<bool> SendHardwareSettings();
-        Task<bool> GetHardwareSettings();
     }
 }

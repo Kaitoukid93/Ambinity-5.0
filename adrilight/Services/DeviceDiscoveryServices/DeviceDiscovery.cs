@@ -95,7 +95,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
                     var existedSerialDevices = MainViewViewModel.AvailableDevices.Where(d => d.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.Wired).ToList();
                     var existedOpenRGBDevices = MainViewViewModel.AvailableDevices.Where(d => d.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.OpenRGB).ToList();
                     SerialDeviceDetector = new SerialDeviceDetection(existedSerialDevices);
-                    var shouldBeRunning = !MainViewViewModel.FrimwareUpgradeIsInProgress && !DeviceManager.IsApplyingDeviceHardwareSettings;
+                    var shouldBeRunning = !MainViewViewModel.DeviceManagerIsOpen;
                     if (Settings.DeviceDiscoveryMode == 0 && shouldBeRunning)
                     {
                         // openRGB device scan keep running until all existed device get connected

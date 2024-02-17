@@ -223,20 +223,7 @@ namespace adrilight.ViewModel
             }
         }
 
-        private DeviceFirmware _currentSelectedFirmware;
-
-        public DeviceFirmware CurrentSelectedFirmware {
-            get
-            {
-                return _currentSelectedFirmware;
-            }
-
-            set
-            {
-                _currentSelectedFirmware = value;
-                RaisePropertyChanged();
-            }
-        }
+      
         private string _selectedActionType;
         private IDeviceSettings _currentDevice;
 
@@ -332,23 +319,14 @@ namespace adrilight.ViewModel
         public ICommand UpdateAppCommand { get; set; }
         public ICommand OpenLEDSteupSelectionWindowsCommand { get; set; }
         public ICommand OpenAvailableUpdateListWindowCommand { get; set; }
-        public ICommand ResetAppCommand { get; set; }
         public ICommand SaveCurrentSelectedRegionCommand { get; set; }
         public ICommand ApplySpotImportDataCommand { get; set; }
         public ICommand ApplyOutputImportDataCommand { get; set; }
         public ICommand OpenSpotMapWindowCommand { get; set; }
-        public ICommand OpenAboutWindowCommand { get; set; }
         public ICommand OpenSurfaceEditorWindowCommand { get; set; }
         public ICommand OpenAppSettingsWindowCommand { get; set; }
         public ICommand OpenDebugWindowCommand { get; set; }
         public ICommand OpenLogFolderCommand { get; set; }
-        public ICommand SelecFirmwareForCurrentDeviceCommand { get; set; }
-        public ICommand ApplyDeviceHardwareSettingsCommand { get; set; }
-        public ICommand SetCurrentLEDSetupSentryColorCommand { get; set; }
-        public ICommand SetAllOutputSelectedGradientColorCommand { get; set; }
-        public ICommand UpdateCurrentSelectedDeviceFirmwareCommand { get; set; }
-        public ICommand SetAllOutputSelectedSolidColorCommand { get; set; }
-        public ICommand LaunchDeleteSelectedDeviceWindowCommand { get; set; }
         public ICommand DeleteSelectedDeviceCommand { get; set; }
         public ICommand SaveAllAutomationCommand { get; set; }
         public ICommand SaveCurrentSelectedAutomationShortkeyCommand { get; set; }
@@ -521,19 +499,7 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-        private ObservableCollection<DeviceFirmware> _availableFirmwareForCurrentDevice;
-
-        public ObservableCollection<DeviceFirmware> AvailableFirmwareForCurrentDevice {
-            get { return _availableFirmwareForCurrentDevice; }
-
-            set
-            {
-                if (_availableFirmwareForCurrentDevice == value) return;
-                _availableFirmwareForCurrentDevice = value;
-
-                RaisePropertyChanged();
-            }
-        }
+       
         private ObservableCollection<AutomationSettings> _shutdownAutomations;
 
         public ObservableCollection<AutomationSettings> ShutdownAutomations {
@@ -1533,6 +1499,10 @@ namespace adrilight.ViewModel
                             AvailableDevices.Insert(0, device);
                         });
                     }
+                    lock (DeviceManagerViewModel.AvailableDevices)
+                    {
+                        DeviceManagerViewModel.AvailableDevices.AddItems(device as DeviceSettings);
+                    }
                     await Task.Delay(TimeSpan.FromSeconds(2));
                 }
                 SearchingForDevices = false;
@@ -2078,31 +2048,6 @@ namespace adrilight.ViewModel
             LoadData();
 
             #region Command setup
-
-            SelecFirmwareForCurrentDeviceCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                //set device hardware version with one selected in the list
-                CurrentDevice.HardwareVersion = CurrentSelectedFirmware.TargetHardware;
-                // lauch firmware upgrade
-                UpgradeIfAvailable(CurrentDevice);
-            });
-            ApplyDeviceHardwareSettingsCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                ApplyDeviceHardwareSettings(CurrentDevice);
-            });
-            UpdateCurrentSelectedDeviceFirmwareCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                UpgradeIfAvailable(CurrentDevice);
-            });
             OpenSurfaceEditorWindowCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -5672,29 +5617,7 @@ namespace adrilight.ViewModel
             KeyboardHookManagerSingleton.Instance.UnregisterAll();
         }
 
-        private int _fwUploadPercent;
-
-        public int FwUploadPercent {
-            get { return _fwUploadPercent; }
-
-            set
-            {
-                _fwUploadPercent = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private bool _fwUploadPercentVissible = false;
-
-        public bool FwUploadPercentVissible {
-            get { return _fwUploadPercentVissible; }
-
-            set
-            {
-                _fwUploadPercentVissible = value;
-                RaisePropertyChanged();
-            }
-        }
+       
 
         private ObservableCollection<ITimeLineDataItem> _availableMotions;
 
@@ -5708,148 +5631,7 @@ namespace adrilight.ViewModel
             }
         }
 
-        private bool _reloadDeviceLoadingVissible = false;
-
-        public bool ReloadDeviceLoadingVissible {
-            get { return _reloadDeviceLoadingVissible; }
-
-            set
-            {
-                _reloadDeviceLoadingVissible = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private string _fwUploadOutputLog;
-
-        public string FwUploadOutputLog {
-            get { return _fwUploadOutputLog; }
-
-            set
-            {
-                _fwUploadOutputLog = value;
-                RaisePropertyChanged();
-            }
-        }
-        private bool _isDownloadingFirmware;
-        public bool IsDownloadingFirmware {
-            get
-            {
-                return _isDownloadingFirmware;
-            }
-            set
-            {
-                _isDownloadingFirmware = value;
-                RaisePropertyChanged();
-            }
-        }
       
-        private async Task ApplyDeviceHardwareSettings(IDeviceSettings device)
-        {
-           // IsApplyingDeviceHardwareSettings = true;
-            var result = await Task.Run(() => device.SendHardwareSettings());
-           // IsApplyingDeviceHardwareSettings = false;
-        }
-
-        public bool FrimwareUpgradeIsInProgress { get; set; }
-        private async Task UpgradeIfAvailable(IDeviceSettings device)
-        {
-            FrimwareUpgradeIsInProgress = true;
-            if (device.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV2)
-            {
-                MessageBoxResult result = HandyControl.Controls.MessageBox.Show("HUBV2 cần sử dụng FlyMCU để nạp firmware, nhấn [OK] để vào chế độ DFU", "External Software Required", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (result == MessageBoxResult.Yes)
-                {
-                    device.DeviceState = DeviceStateEnum.DFU;
-
-                    Thread.Sleep(5000);
-                    device.DeviceState = DeviceStateEnum.Normal;
-                    HandyControl.Controls.MessageBox.Show("Đã gửi thông tin đến Device, mở FlyMCU để tiếp tục nạp firmware sau đó bật lại kết nối", "DFU", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-            }
-            else
-            {
-                if (device.HardwareVersion == "unknown") // old firmware or not supported
-                {
-                    // show message box : unknown hardware version, please update firmware manually by chosing one of these firmware file in the list below
-                    MessageBoxResult result = HandyControl.Controls.MessageBox.Show("Thiết bị đang ở firmware cũ hoặc phần cứng không hỗ trợ! bạn có muốn chọn firmware để cập nhật không?", "Unknown hardware version", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                    if (result == MessageBoxResult.Yes)
-                    {
-                        //grab available firmware for current device type
-                        var json = File.ReadAllText(JsonFWToolsFWListFileNameAndPath);
-                        var availableFirmware = JsonConvert.DeserializeObject<List<DeviceFirmware>>(json);
-                        AvailableFirmwareForCurrentDevice = new ObservableCollection<DeviceFirmware>();
-                        foreach (var firmware in availableFirmware)
-                        {
-                            if (firmware.TargetDeviceType == device.DeviceType.Type)
-                                AvailableFirmwareForCurrentDevice.Add(firmware);
-                        }
-
-                        // show list selected firmware
-                        OpenFirmwareSelectionWindow();
-                    }
-                }
-                else
-                {
-                    // regconize this device, find the compatible firmware
-                    var json = File.ReadAllText(JsonFWToolsFWListFileNameAndPath);
-                    var requiredFwVersion = JsonConvert.DeserializeObject<List<DeviceFirmware>>(json);
-
-                    var currentDeviceFirmwareInfo = requiredFwVersion.Where(p => p.TargetHardware == device.HardwareVersion).FirstOrDefault();
-                    if (currentDeviceFirmwareInfo == null)
-                    {
-                        //not supported hardware
-
-                        var result = HandyControl.Controls.MessageBox.Show("Phần cứng không còn được hỗ trợ hoặc không nhận ra: " + device.HardwareVersion + " Bạn có muốn chọn phần cứng được hỗ trợ?", "Firmware uploading", MessageBoxButton.YesNo, MessageBoxImage.Error);
-                        if (result == MessageBoxResult.Yes)
-                        {
-                            var fwjson = File.ReadAllText(JsonFWToolsFWListFileNameAndPath);
-                            var availableFirmware = JsonConvert.DeserializeObject<List<DeviceFirmware>>(fwjson);
-                            AvailableFirmwareForCurrentDevice = new ObservableCollection<DeviceFirmware>();
-                            foreach (var firmware in availableFirmware)
-                            {
-                                if (firmware.TargetDeviceType == device.DeviceType.Type)
-                                    AvailableFirmwareForCurrentDevice.Add(firmware);
-                            }
-
-                            // show list selected firmware
-                            OpenFirmwareSelectionWindow();
-                        }
-                    }
-                    else
-                    {
-                        var fwOutputLocation = Path.Combine(JsonFWToolsFileNameAndPath, currentDeviceFirmwareInfo.Name);
-                        try
-                        {
-                            ResourceHlprs.CopyResource(currentDeviceFirmwareInfo.ResourceName, fwOutputLocation);
-                        }
-                        catch (ArgumentException)
-                        {
-                            //show messagebox no firmware found for this device
-                            return;
-                        }
-                        if (device.FirmwareVersion != currentDeviceFirmwareInfo.Version)
-                        {
-                            //coppy hex file to FWTools folder
-                            IsDownloadingFirmware = true;
-                            await Task.Run(() => UpgradeSelectedDeviceFirmware(device, fwOutputLocation));
-                            IsDownloadingFirmware = false;
-                        }
-                        else
-                        {
-                            var result = HandyControl.Controls.MessageBox.Show("Không có phiên bản mới cho thiết bị này, Bạn có muốn nạp lại phiên bản mới nhất không?", "Firmware uploading", MessageBoxButton.YesNo, MessageBoxImage.Information);
-                            if (result == MessageBoxResult.Yes)
-                            {
-                                IsDownloadingFirmware = true;
-                                await Task.Run(() => UpgradeSelectedDeviceFirmware(device, fwOutputLocation));
-                                IsDownloadingFirmware = false;
-                            }
-                            FrimwareUpgradeIsInProgress = false;
-                        }
-                    }
-                }
-            }
-        }
         private void PromptDriverInstaller()
         {
             //coppy resource
@@ -5860,100 +5642,6 @@ namespace adrilight.ViewModel
 
             GeneralSettings.DriverRequested = false;
             // return;
-        }
-        private async Task UpgradeSelectedDeviceFirmware(IDeviceSettings device, string fwPath)
-        {
-            if (GeneralSettings.DriverRequested)
-            {
-                await Task.Run(() => PromptDriverInstaller());
-                return;
-            }
-            //put device in dfu state
-            device.DeviceState = DeviceStateEnum.DFU;
-            // wait for device to enter dfu
-            Thread.Sleep(1000);
-            FwUploadPercentVissible = true;
-            var startInfo = new System.Diagnostics.ProcessStartInfo {
-                WorkingDirectory = JsonFWToolsFileNameAndPath,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = true,
-                UseShellExecute = false,
-                FileName = "cmd.exe",
-                Arguments = "/C vnproch55x " + fwPath
-            };
-            var proc = new Process() {
-                StartInfo = startInfo,
-                EnableRaisingEvents = true
-            };
-
-            // see below for output handler
-            proc.ErrorDataReceived += proc_DataReceived;
-            proc.OutputDataReceived += proc_DataReceived;
-
-            proc.Start();
-
-            proc.BeginErrorReadLine();
-            proc.BeginOutputReadLine();
-            proc.Exited += proc_FinishUploading;
-        }
-        private void proc_FinishUploading(object sender, System.EventArgs e)
-        {
-            //FwUploadPercent = 0;
-            ////clear loading bar
-            //FwUploadOutputLog = String.Empty;
-            ////clear text box
-            //percentCount = 0;
-            ReloadDeviceLoadingVissible = true;
-
-            Thread.Sleep(5000);
-            CurrentDevice.DeviceState = DeviceStateEnum.Normal;
-
-            if (FwUploadOutputLog.Split('\n').Last() == "Found no CH55x USB")
-            {
-                //there is a chance of missing driver so first we install CH375 driver first
-                //execute CH375 driver
-
-                //try to restart uploading by resetting the state
-
-                HandyControl.Controls.MessageBox.Show("Update firmware không thành công, Không tìm thấy thiết bị ở trạng thái DFU", "Firmware uploading", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            else
-            {
-                // check for current device actual firmware version
-                CurrentDevice.RefreshFirmwareVersion();
-                // reset loading bar
-                percentCount = 0;
-                FwUploadPercent = 0;
-                FwUploadPercentVissible = false;
-                FwUploadOutputLog = string.Empty;
-
-                HandyControl.Controls.MessageBox.Show("Update firmware thành công - Phiên bản : " + CurrentDevice.FirmwareVersion, "Firmware uploading", MessageBoxButton.OK, MessageBoxImage.Information);
-                ReloadDeviceLoadingVissible = false;
-                FrimwareUpgradeIsInProgress = false;
-            }
-        }
-
-        private int percentCount = 0;
-
-        private void proc_DataReceived(object sender, DataReceivedEventArgs e)
-        {
-            if (e.Data != null)
-            {
-                if (e.Data.Contains("[2K"))//clear current line
-                {
-                    percentCount++;
-                    FwUploadPercent = percentCount * 100 / 308;
-
-                    //Dispatcher.BeginInvoke(new Action(() => Prog.Value = percent));
-                    //Dispatcher.BeginInvoke(new Action(() => Output.Text += (Environment.NewLine + percentCount)));
-                    //Dispatcher.BeginInvoke(new Action(() => Output.Text += (e.Data)));
-                }
-                else
-                {
-                    FwUploadOutputLog += Environment.NewLine + e.Data;
-                }
-            }
         }
 
         private void UnZone()
@@ -6203,23 +5891,8 @@ namespace adrilight.ViewModel
         //    RaisePropertyChanged(nameof(CurrentOutput.OutputLEDSetup));
         //}
 
-        private void OpenFirmwareSelectionWindow()
-        {
-            if (AssemblyHelper.CreateInternalInstance($"View.{"FirmwareSelectionWindow"}") is System.Windows.Window window)
-            {
-                window.Owner = System.Windows.Application.Current.MainWindow;
-                window.ShowDialog();
-            }
-        }
+       
 
-        private void OpenSpotDataSelectionWindow()
-        {
-            if (AssemblyHelper.CreateInternalInstance($"View.{"SpotDataSelection"}") is System.Windows.Window window)
-            {
-                window.Owner = System.Windows.Application.Current.MainWindow;
-                window.ShowDialog();
-            }
-        }
 
         private void OpenDeviceConnectionSettingsWindow()
         {
@@ -6230,15 +5903,6 @@ namespace adrilight.ViewModel
             }
         }
        
-
-        private void OpenNameEditWindow(System.Windows.Window owner)
-        {
-            if (AssemblyHelper.CreateInternalInstance($"View.{"RenameItemWindow"}") is System.Windows.Window window)
-            {
-                window.Owner = owner;
-                window.ShowDialog();
-            }
-        }
 
         private void OpenAdvanceSettingWindow()
         {
@@ -7429,14 +7093,32 @@ namespace adrilight.ViewModel
             window.Owner = System.Windows.Application.Current.MainWindow;
             window.ShowDialog();
         }
+        private bool _deviceManagerIsOpen;
+        public bool DeviceManagerIsOpen {
+            get
+            {
+                return _deviceManagerIsOpen;
+            }
+            set
+            {
+                _deviceManagerIsOpen = value;
+                RaisePropertyChanged();
+            }
+        }
         private DeviceManagerWindow _deviceManagerWindow { get; set; }
         private void OpenDeviceManagerWindow()
         {
+            DeviceManagerIsOpen = true;
             _deviceManagerWindow = new DeviceManagerWindow();
+           // DeviceManagerViewModel?.LoadData();
             _deviceManagerWindow.DataContext = DeviceManagerViewModel;
             _deviceManagerWindow.Owner = Application.Current.MainWindow;
+            _deviceManagerWindow.Closed += _deviceManagerWindow_Closed;
             _deviceManagerWindow.Show();
         }
+
+        private void _deviceManagerWindow_Closed(object sender, EventArgs e) => DeviceManagerIsOpen = false;
+
         private LightingProfileManagerWindow _lightingProfileManagerWindow { get; set; }
         private void OpenLightingProfileManagerWindow()
         {

@@ -296,9 +296,13 @@
     <Compile Include="ViewModel\DeleteDialogViewModel.cs" />
     <Compile Include="ViewModel\NonClientAreaContentViewModel.cs" />
     <Compile Include="ViewModel\NumberInputDialogViewModel.cs" />
+    <Compile Include="ViewModel\ProgressDialogViewModel.cs" />
     <Compile Include="ViewModel\RenameDialogViewModel.cs" />
     <Compile Include="View\Dialogs\AddNewDialog.xaml.cs">
       <DependentUpon>AddNewDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Dialogs\ProgressDialog.xaml.cs">
+      <DependentUpon>ProgressDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\Dialogs\NumberInputDialog.xaml.cs">
       <DependentUpon>NumberInputDialog.xaml</DependentUpon>
@@ -508,6 +512,10 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="View\Dialogs\AddNewDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Dialogs\ProgressDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
