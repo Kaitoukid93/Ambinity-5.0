@@ -33,13 +33,7 @@
                     Style="{DynamicResource TabControlInLine}">
             <TabItem Header="Settings">
                 <Grid Margin="10,0,10,10">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                    </Grid.RowDefinitions>
-
-
-                    <StackPanel Grid.Row="1">
+                    <StackPanel>
                         <Grid Margin="0,50,0,0"
                               Visibility="{Binding HardwareSettingsEnable}">
                             <Grid.RowDefinitions>
@@ -264,7 +258,7 @@
                                                 </GroupBox.HeaderTemplate>
 
                                                 <ToggleButton HorizontalAlignment="Right"
-                                                              IsChecked="{Binding GeneralSettings.HotkeyEnable}"
+                                                              IsChecked="{Binding Device.AutoConnect}"
                                                               Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
 
                                                 </ToggleButton>
@@ -275,44 +269,9 @@
                                                        HorizontalAlignment="Left"
                                                        Style="{StaticResource TextBlockDefaultSecLight}"
                                                        Grid.Row="1"
-                                                       Text="Tắt tùy chọn này nếu bạn gặp vấn đề với bộ gõ và HotKey" />
+                                                       Text="Tự động kết nối với thiết bị khi được cắm vào" />
                                         </Grid>
-                                        <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}"
-                                                    Margin="5,10,5,10">
-
-                                        </hc:Divider>
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="auto" />
-                                                <RowDefinition Height="auto" />
-                                            </Grid.RowDefinitions>
-                                            <GroupBox   VerticalAlignment="Center"
-                                                        hc:TitleElement.TitleWidth="150"
-                                                        Margin="5"
-                                                        Style="{StaticResource GroupBoxOriginal}"
-                                                        HorizontalAlignment="Stretch"
-                                                        hc:TitleElement.TitlePlacement="Left">
-                                                <GroupBox.HeaderTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock FontWeight="SemiBold"
-                                                                   Text="AUTO CONNECT" />
-                                                    </DataTemplate>
-                                                </GroupBox.HeaderTemplate>
-
-                                                <ToggleButton HorizontalAlignment="Right"
-                                                              IsChecked="{Binding GeneralSettings.HotkeyEnable}"
-                                                              Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
-
-                                                </ToggleButton>
-
-
-                                            </GroupBox>
-                                            <TextBlock Margin="5,0,0,0"
-                                                       HorizontalAlignment="Left"
-                                                       Style="{StaticResource TextBlockDefaultSecLight}"
-                                                       Grid.Row="1"
-                                                       Text="Tắt tùy chọn này nếu bạn gặp vấn đề với bộ gõ và HotKey" />
-                                        </Grid>
+                                        
                                     </StackPanel>
                                 </Grid>
                             </Grid>
@@ -491,8 +450,13 @@
                                                         Content="Chọn Custom Firmware" />
                                             </StackPanel>
                                             <Grid Grid.Column="1">
-                                                <Button Style="{DynamicResource ButtonPrimary}"
-                                                        Content="Nạp firmware" />
+                                                <ToggleButton 
+                                                              Command="{Binding UpdateCustomFirmwareCommand}"
+                                                              Style="{StaticResource ToggleButtonLoadingPrimary}"
+                                                              IsChecked="{Binding IsDownloadingFirmware,Mode=TwoWay}"
+                                                              Content="Nạp firmware"
+                                                              Margin="5" />
+
                                             </Grid>
                                         </Grid>
 

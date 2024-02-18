@@ -5,6 +5,7 @@ using adrilight_shared.Enums;
 using adrilight_shared.Helpers;
 using adrilight_shared.Models;
 using adrilight_shared.Models.ControlMode;
+using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.Device;
 using adrilight_shared.Models.Device.Controller;
 using adrilight_shared.Models.Device.Output;
@@ -12,6 +13,7 @@ using adrilight_shared.Models.Device.SlaveDevice;
 using adrilight_shared.Models.Lighting;
 using adrilight_shared.Models.Stores;
 using adrilight_shared.Services;
+using adrilight_shared.Settings;
 using adrilight_shared.View.NonClientAreaContent;
 using adrilight_shared.ViewModel;
 using GalaSoft.MvvmLight;
@@ -19,8 +21,10 @@ using Newtonsoft.Json;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -42,6 +46,7 @@ namespace adrilight.ViewModel
             _collectionItemStore.ItemPinStatusChanged += OnCollectionPinStatusChanged;
             _collectionItemStore.ItemsRemoved += OnItemsRemove;
             _dialogService = service;
+            _deviceHlprs = new DeviceHelpers();
             LoadNonClientAreaData();
             LoadData();
             CommandSetup();
@@ -52,6 +57,11 @@ namespace adrilight.ViewModel
         #region Events
         private void OnItemsRemove(List<IGenericCollectionItem> list)
         {
+            foreach (var item in list)
+            {
+                _deviceHlprs.RemoveDeviceLocalData(item as DeviceSettings);
+            }
+            
             //foreach (var item in list)
             //{
             //    DashboardPinnedItems.RemoveItems(item, false);
@@ -89,12 +99,12 @@ namespace adrilight.ViewModel
             {
                 return;
             }
+            if(CurrentDevice == null)
             CurrentDevice = new DeviceAdvanceSettingsViewModel(_dialogService,item as DeviceSettings);
             var nonClientVm = NonClientAreaContent.DataContext as NonClientAreaContentViewModel;
             if (mode == DataViewMode.Loading)
             {
                 //aquire device advance info
-
                 await CurrentDevice.RefreshDeviceHardwareInfo();
                 IsApplyingDeviceHardwareSettings = false;
                 //show button
@@ -116,6 +126,7 @@ namespace adrilight.ViewModel
             else
             {
                 nonClientVm.ShowBackButton = false;
+                CurrentDevice = null;
             }
 
         }
@@ -124,6 +135,7 @@ namespace adrilight.ViewModel
 
         #region Properties
         public NonClientArea NonClientAreaContent { get; set; }
+        private DeviceHelpers _deviceHlprs;
         public DeviceAdvanceSettingsViewModel CurrentDevice { get; set; }
         private bool isApplyingDeviceHardwareSettings;
         public bool IsApplyingDeviceHardwareSettings {
@@ -242,6 +254,14 @@ namespace adrilight.ViewModel
         #region Methods
         private void CommandSetup()
         {
+            OpenDevicesFolderCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                if(Directory.Exists(DevicesCollectionFolderPath))
+                Process.Start("explorer.exe", DevicesCollectionFolderPath);
+            });
             WindowClosing = new RelayCommand<string>((p) =>
             {
                 return p != null;
@@ -276,6 +296,8 @@ namespace adrilight.ViewModel
         {
             //RefreshDashboardItems();
             AvailableDevices = new DataCollection("All Devices", _dialogService, "profile", _collectionItemStore);
+            AvailableDevices.PropertyChanged += AvailableDevicesPropertyChanged;
+            AvailableDevices.WarningMessage = "Các thiết bị sẽ bị ngắt kết nối tạm thời cho đến khi cửa sổ này đóng lại!";
             var devices = LoadDeviceIfExists();
             if (devices == null)
                 return;
@@ -285,13 +307,30 @@ namespace adrilight.ViewModel
             }
 
         }
-
+        private void AvailableDevicesPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                //which property that require this engine to refresh
+                case nameof(AvailableDevices.ShowManagerToolBar):
+                    if (AvailableDevices.ShowManagerToolBar)
+                    {
+                        AvailableDevices.WarningMessage = "Các thiết bị sẽ chỉ bị xoá khi không còn cắm vào máy tính";
+                    }
+                    else
+                    {
+                        AvailableDevices.WarningMessage = "Các thiết bị sẽ bị ngắt kết nối tạm thời cho đến khi cửa sổ này đóng lại!";
+                    }
+                        break;
+            }
+        }
         #endregion
 
 
         #region Commands
         public ICommand WindowClosing { get; private set; }
         public ICommand WindowOpen { get; private set; }
+        public ICommand OpenDevicesFolderCommand { get; set; }
         #endregion
 
 

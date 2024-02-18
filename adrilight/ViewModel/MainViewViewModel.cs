@@ -1501,7 +1501,11 @@ namespace adrilight.ViewModel
                     }
                     lock (DeviceManagerViewModel.AvailableDevices)
                     {
-                        DeviceManagerViewModel.AvailableDevices.AddItems(device as DeviceSettings);
+                        System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                        {
+                            DeviceManagerViewModel.AvailableDevices.AddItems(device as DeviceSettings);
+                        });
+                        
                     }
                     await Task.Delay(TimeSpan.FromSeconds(2));
                 }
@@ -1537,6 +1541,7 @@ namespace adrilight.ViewModel
                     //Thread.Sleep(500);
                     if (!oldDevice.IsTransferActive)
                     {
+                        if(oldDevice.AutoConnect)
                         oldDevice.IsTransferActive = true;
                         if (oldDevice.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
                         {
@@ -8407,7 +8412,7 @@ namespace adrilight.ViewModel
             };
             var AHR2g = new DeviceFirmware() {
                 Name = "AHR2g.hex",
-                Version = "1.0.1",
+                Version = "1.0.2",
                 TargetHardware = "AHR2g",
                 TargetDeviceType = DeviceTypeEnum.AmbinoHUBV3,
                 Geometry = "binary",

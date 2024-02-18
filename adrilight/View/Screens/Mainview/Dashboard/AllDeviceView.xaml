@@ -521,7 +521,7 @@
                                     <Setter Property="Visibility"
                                             Value="Collapsed" />
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding AvailableDevices.Count}"
+                                        <DataTrigger Binding="{Binding DeviceManagerViewModel.AvailableDevices.Items.Count}"
                                                      Value="0">
                                             <Setter Property="Visibility"
                                                     Value="Visible" />
@@ -624,7 +624,7 @@
                                            hc:ScrollViewerAttach.IsDisabled="True"
                                            Name="itm"
                                            SelectionMode="Multiple"
-                                           ItemsSource="{Binding AvailableDevices,UpdateSourceTrigger=PropertyChanged}"
+                                           ItemsSource="{Binding DeviceManagerViewModel.AvailableDevices.Items,UpdateSourceTrigger=PropertyChanged}"
                                            IsTabStop="False"
                                            ItemTemplate="{DynamicResource _deviceCardListViewTemplate}"
                                            BorderThickness="0"

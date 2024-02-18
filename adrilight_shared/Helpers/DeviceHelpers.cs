@@ -3,6 +3,7 @@ using adrilight_shared.Models.Device;
 using adrilight_shared.Models.Device.Output;
 using adrilight_shared.Models.Device.SlaveDevice;
 using Newtonsoft.Json;
+using Serilog;
 using System;
 using System.IO;
 using System.Threading;
@@ -86,7 +87,21 @@ namespace adrilight_shared.Helpers
             }
             //change thumb path
         }
-
+        public void RemoveDeviceLocalData(IDeviceSettings device)
+        {
+            var directory = Path.Combine(DevicesCollectionFolderPath, device.DeviceName + "-" + device.DeviceUID);
+            if (!Directory.Exists(directory))
+                return;
+            try
+            {
+                Directory.Delete(directory, true);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.ToString());
+            }
+            
+        }
         public void WriteSingleOutputInfoJson(IOutputSettings output, IDeviceSettings parrent)
         {
             var parrentDirectory = Path.Combine(DevicesCollectionFolderPath, parrent.DeviceName + "-" + parrent.DeviceUID);

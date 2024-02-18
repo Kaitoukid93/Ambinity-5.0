@@ -1,6 +1,7 @@
 ﻿using adrilight.Services.OpenRGBService;
 using adrilight.ViewModel;
 using adrilight_shared.Models;
+using adrilight_shared.Models.Device;
 using adrilight_shared.Models.Stores;
 using Serilog;
 using System;
@@ -90,10 +91,10 @@ namespace adrilight.Manager
                 return Task.FromResult(false);
             lock (MainViewViewModel.AvailableDevices)
             {
-                foreach (var device in MainViewViewModel.AvailableDevices)
+                foreach (var device in MainViewViewModel.DeviceManagerViewModel.AvailableDevices.Items)
                 {
                     lock (device)
-                        MainViewViewModel.DeviceHlprs.WriteSingleDeviceInfoJson(device);
+                        MainViewViewModel.DeviceHlprs.WriteSingleDeviceInfoJson(device as DeviceSettings);
                 }
             }
             MainViewViewModel.LightingProfileManagerViewModel.SaveData();

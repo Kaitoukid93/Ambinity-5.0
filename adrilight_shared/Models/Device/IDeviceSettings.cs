@@ -44,6 +44,7 @@ namespace adrilight_shared.Models.Device
         bool IsSizeNeedUserDefine { get; set; }
         bool IsIndicatorLEDOn { get; set; }
         bool NoSignalLEDEnable { get; set; }
+        bool AutoConnect { get; set; }
         int NoSignalFanSpeed { get; set; }
         int DashboardWidth { get; set; }
         int DashboardHeight { get; set; }

@@ -144,7 +144,7 @@
                                                             Padding="0"
                                                             Margin="5">
                                                     </Button>-->
-                                                    <ToggleButton Background="Transparent"
+                                                    <!--<ToggleButton Background="Transparent"
                                                                   IsChecked="{Binding IsPinned}"
                                                                   hc:IconElement.Width="15"
                                                                   hc:IconElement.Height="15"
@@ -175,7 +175,7 @@
                                                                 </Style.Triggers>
                                                             </Style>
                                                         </ToggleButton.Style>
-                                                    </ToggleButton>
+                                                    </ToggleButton>-->
                                                     <!--<Button Width="25"
                                                             HorizontalAlignment="Right"
                                                             VerticalAlignment="Bottom"
@@ -208,12 +208,39 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
-            <RowDefinition Height="*" />
             <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+        <Grid>
+            <Border CornerRadius="4"
+                    Background="{DynamicResource warningBackgroundBrush}"
+                    Margin="15,10,15,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid>
+                        <Path Margin="10"
+                              HorizontalAlignment="Center"
+                              Stretch="Uniform"
+                              Width="15"
+                              Height="15"
+                              Data="{DynamicResource warning_Fill}"
+                              Fill="{DynamicResource WarningBrush}" />
+                    </Grid>
+                    <TextBlock Margin="5,10"
+                               Grid.Column="1"
+                               Text="{Binding WarningMessage}" />
+                </Grid>
+
+            </Border>
+
+        </Grid>
         <Border  Margin="15,10"
                  Visibility="{Binding ShowManagerToolBar,Converter={StaticResource Boolean2VisibilityReConverter}}"
                  Height="50"
+                 Grid.Row="1"
                  CornerRadius="7"
                  Background="Transparent">
             <Grid>
@@ -225,12 +252,13 @@
                             Style="{DynamicResource _mediumProfileDefaultButton}"
                             hc:IconElement.Geometry="{DynamicResource shuffle}"
                             Margin="0"
+                            Command="{Binding Path=DataContext.OpenDevicesFolderCommand, RelativeSource={RelativeSource AncestorType={x:Type local:DeviceManagerWindow}}}"
                             hc:IconElement.Height="15"
                             Content="Open Devices folder" />
                 </StackPanel>
             </Grid>
         </Border>
-        <hc:TransitioningContentControl Visibility="{Binding ShowManagerToolBar,Converter={StaticResource Boolean2VisibilityConverter}}"
+        <hc:TransitioningContentControl Grid.Row="1" Visibility="{Binding ShowManagerToolBar,Converter={StaticResource Boolean2VisibilityConverter}}"
                                         TransitionMode="Top2BottomWithFade">
             <Border  Margin="15,10"
                      Height="50"
@@ -261,7 +289,7 @@
                 </Grid>
             </Border>
         </hc:TransitioningContentControl>
-        <hc:ScrollViewer Grid.Row="1"
+        <hc:ScrollViewer Grid.Row="2"
                          Margin="5,5,5,105"
                          IsInertiaEnabled="True">
             <ItemsControl Margin="5,10,0,10"

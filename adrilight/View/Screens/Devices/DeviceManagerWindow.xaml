@@ -90,7 +90,12 @@
     <Grid>
         <Grid>
             <Grid>
-                <ContentControl Content="{Binding .,UpdateSourceTrigger=PropertyChanged}"
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+              
+                <ContentControl Grid.Row="1" Content="{Binding .,UpdateSourceTrigger=PropertyChanged}"
                                 Style="{StaticResource _devicemanagerView}">
                 </ContentControl>
             </Grid>

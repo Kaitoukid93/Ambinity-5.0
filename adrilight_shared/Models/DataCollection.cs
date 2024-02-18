@@ -50,6 +50,20 @@ namespace adrilight_shared.Models
         public IDialogService DialogService { get; set; }
         public string Geometry { get; set; } = "binary";
         private bool _showManagerToolBar;
+        private string _warningMessage;
+        public string WarningMessage
+        {
+            get
+            {
+                return _warningMessage;
+            }
+            set
+            {
+                _warningMessage = value;
+                RaisePropertyChanged();
+            }
+        }
+
         private List<IGenericCollectionItem> SelectedItems => Items.Where(i => i.IsChecked == true).ToList();
         private readonly CollectionItemStore _collectionItemStore;
         public bool ShowManagerToolBar
@@ -229,6 +243,7 @@ namespace adrilight_shared.Models
                     if (result == "True")
                     {
                         RemoveItems(true);
+                        RefreshToolBarState();
                         _collectionItemStore.BackToCollectionView(null);
                     }
 

@@ -129,6 +129,14 @@ namespace adrilight.ViewModel
                 }
 
             });
+            UpdateCustomFirmwareCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, async (p) =>
+            {
+                await UpdateCustomFirmware();
+
+            });
             WindowClosing = new RelayCommand<string>((p) =>
             {
                 return p != null;
@@ -158,14 +166,14 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-        public async Task<bool> RefreshDeviceHardwareInfo()
+        public async Task RefreshDeviceHardwareInfo()
         {
             //get device settings info
-            if (!Device.IsTransferActive)
-            {
-                return false;
-            }
-            IsApplyingDeviceHardwareSettings = true;
+            //if (!Device.IsTransferActive)
+            //{
+            //    return;
+            //}
+            ////IsApplyingDeviceHardwareSettings = true;
             var rslt = await Task.Run(() => GetHardwareSettings());
             if (!rslt)
             {
@@ -175,9 +183,6 @@ namespace adrilight.ViewModel
             {
                 HardwareSettingsEnable = Visibility.Visible;
             }
-            return true;
-
-
 
             //if (AssemblyHelper.CreateInternalInstance($"View.{"DeviceFirmwareSettingsWindow"}") is System.Windows.Window window)
             //{
@@ -200,6 +205,7 @@ namespace adrilight.ViewModel
         public ICommand SelecFirmwareForCurrentDeviceCommand { get; set; }
         public ICommand UpdateCurrentSelectedDeviceFirmwareCommand { get; set; }
         public ICommand ApplyDeviceHardwareSettingsCommand { get; set; }
+        public ICommand UpdateCustomFirmwareCommand { get; set; }
         #endregion
 
 
@@ -506,9 +512,11 @@ namespace adrilight.ViewModel
             //    return;
             //}
             //put device in dfu state
+            vm.CurrentProgressHeader = "Rebooting device";
             device.DeviceState = DeviceStateEnum.DFU;
             // wait for device to enter dfu
             Thread.Sleep(1000);
+            vm.CurrentProgressHeader = "Waiting for device";
             vm.ProgressBarVisibility = Visibility.Visible;
             var startInfo = new System.Diagnostics.ProcessStartInfo {
                 WorkingDirectory = JsonFWToolsFileNameAndPath,
@@ -563,7 +571,8 @@ namespace adrilight.ViewModel
                 percentCount = 0;
                 vm.Value = 0;
                 vm.ProgressBarVisibility = Visibility.Collapsed;
-                vm.SuccessMessage = "Update thành công!Phiên bản" + " " + Device.FirmwareVersion;
+                vm.Header = "Done";
+                vm.SuccessMessage = "Update thành công! Phiên bản" + " " + Device.FirmwareVersion;
                 vm.SuccessMesageVisibility = Visibility.Visible;
                 vm.SecondaryActionButtonContent = "Close";
                 vm.PrimaryActionButtonContent = "Show Log";
@@ -587,7 +596,10 @@ namespace adrilight.ViewModel
                     percentCount++;
                     FwUploadPercent = percentCount * 100 / 308;
                     vm.Value = FwUploadPercent;
-
+                    if (FwUploadPercent <= 80)
+                        vm.CurrentProgressHeader = "Flashing";
+                    else
+                        vm.CurrentProgressHeader = "Almost Done";
                     //Dispatcher.BeginInvoke(new Action(() => Prog.Value = percent));
                     //Dispatcher.BeginInvoke(new Action(() => Output.Text += (Environment.NewLine + percentCount)));
                     //Dispatcher.BeginInvoke(new Action(() => Output.Text += (e.Data)));
@@ -595,6 +607,8 @@ namespace adrilight.ViewModel
                 else
                 {
                     FwUploadOutputLog += Environment.NewLine + e.Data;
+                    vm.CurrentProgressLog = e.Data;
+                    Log.Information(e.Data);
                 }
             }
         }
@@ -701,6 +715,29 @@ namespace adrilight.ViewModel
 
             IsDownloadingFirmware = false;
         }
+        private async Task UpdateCustomFirmware()
+        {
+            //download newest firmware
+            if (CurrentSelectedFirmware == null)
+                return;
+            if (!File.Exists(CurrentSelectedFirmware))
+                return;
+            var vm = new ProgressDialogViewModel("Flashing Firmware", "123", "usbIcon");
+            IsDownloadingFirmware = true;
+            vm.ProgressBarVisibility = Visibility.Visible;
+            await Task.Run(() => UpgradeSelectedDeviceFirmware(Device, CurrentSelectedFirmware, vm));
+            _dialogService.ShowDialog<ProgressDialogViewModel>(result =>
+            {
+                //if (result == "True")
+                //{
+                //    var newCollection = CreateDataCollectionFromSelectedItem(vm.Content, p);
+                //    _collectionItemStore.CreateCollection(newCollection);
+                //}
+
+            }, vm);
+
+            IsDownloadingFirmware = false;
+        }
         private async Task EnterDFU()
         {
             Device.DeviceState = DeviceStateEnum.DFU;
@@ -795,7 +832,7 @@ namespace adrilight.ViewModel
             byte[] id = new byte[256];
             byte[] name = new byte[256];
             byte[] fw = new byte[256];
-
+            byte[] hw = new byte[256];
             bool isValid = false;
 
 
@@ -824,6 +861,7 @@ namespace adrilight.ViewModel
             int idLength = 0; // Expected response length of valid deviceID 
             int nameLength = 0; // Expected response length of valid deviceName 
             int fwLength = 0;
+            int hwLength = 0;
             IDeviceSettings newDevice = new DeviceSettings();
             while (offset < 3)
             {
@@ -898,6 +936,28 @@ namespace adrilight.ViewModel
                 }
                 Device.FirmwareVersion = Encoding.ASCII.GetString(fw, 0, fw.Length);
                 RaisePropertyChanged(nameof(Device.FirmwareVersion));
+            }
+            if (offset == 3 + idLength + nameLength + fwLength) //3 bytes header are valid
+            {
+                try
+                {
+                    hwLength = (byte)_serialPort.ReadByte();
+                    int count = hwLength;
+                    hw = new byte[count];
+                    while (count > 0)
+                    {
+                        var readCount = _serialPort.Read(hw, 0, count);
+                        offset += readCount;
+                        count -= readCount;
+                    }
+                    Device.HardwareVersion = Encoding.ASCII.GetString(hw, 0, hw.Length);
+                }
+                catch (TimeoutException)
+                {
+                    Log.Information(newDevice.DeviceName, "Unknown Firmware Version");
+                    newDevice.HardwareVersion = "unknown";
+                }
+
             }
             _serialPort.Close();
             _serialPort.Dispose();
