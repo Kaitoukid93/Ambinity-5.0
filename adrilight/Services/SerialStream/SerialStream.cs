@@ -2,6 +2,7 @@
 using adrilight.Util;
 using adrilight_shared.Enums;
 using adrilight_shared.Models.Device;
+using adrilight_shared.Models.Device.Output;
 using adrilight_shared.Models.Device.SlaveDevice;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.Device.Zone.Spot;
@@ -67,19 +68,19 @@ namespace adrilight
         private void LightingDevicesChanged()
         {
             #region Get All Needed Params from current device
-            _lightingDevices = new ARGBLEDSlaveDevice[DeviceSettings.AvailableLightingDevices.Length];
-            for (int i = 0; i < DeviceSettings.AvailableLightingDevices.Length; i++)
-            {
-                _lightingDevices[i] = DeviceSettings.AvailableLightingDevices[i] as ARGBLEDSlaveDevice;
-            }
-            if (DeviceSettings.AvailablePWMDevices != null)
-            {
-                _pwmDevices = new PWMMotorSlaveDevice[DeviceSettings.AvailablePWMDevices.Length];
-                for (int i = 0; i < DeviceSettings.AvailablePWMDevices.Length; i++)
-                {
-                    _pwmDevices[i] = DeviceSettings.AvailablePWMDevices[i] as PWMMotorSlaveDevice;
-                }
-            }
+            //_lightingOutputs = new OutputSettings[DeviceSettings.AvailableLightingOutputs.Length];
+            //for (int i = 0; i < DeviceSettings.AvailableLightingDevices.Length; i++)
+            //{
+            //    _lightingDevices[i] = DeviceSettings.AvailableLightingDevices[i] as ARGBLEDSlaveDevice;
+            //}
+            //if (DeviceSettings.AvailablePWMDevices != null)
+            //{
+            //    _pwmDevices = new PWMMotorSlaveDevice[DeviceSettings.AvailablePWMDevices.Length];
+            //    for (int i = 0; i < DeviceSettings.AvailablePWMDevices.Length; i++)
+            //    {
+            //        _pwmDevices[i] = DeviceSettings.AvailablePWMDevices[i] as PWMMotorSlaveDevice;
+            //    }
+            //}
 
             #endregion
         }
@@ -120,8 +121,8 @@ namespace adrilight
         private int frameCounter;
         private int blackFrameCounter;
         private ISerialPortWrapper serialPort = null;
-        private ARGBLEDSlaveDevice[] _lightingDevices { get; set; }
-        private PWMMotorSlaveDevice[] _pwmDevices { get; set; }
+        //private OutputSettings[] _lightingOutputs { get; set; }
+        //private PWMMotorSlaveDevice[] _pwmDevices { get; set; }
 
         public bool IsValid() => SerialPort.GetPortNames().Contains(DeviceSettings.OutputPort) || DeviceSettings.OutputPort == "Không có";
         private void RefreshTransferState()
@@ -259,12 +260,12 @@ namespace adrilight
         private (byte[] Buffer, int OutputLength) GetOutputStreamWithPWM(int id)
         {
             byte[] outputStream;
-            var currentLightingDevice = _lightingDevices[id]; // need to implement device number mismatch
+            var currentLightingDevice = DeviceSettings.AvailableLightingOutputs[id].SlaveDevice as ARGBLEDSlaveDevice; // need to implement device number mismatch
             var currentPWMDevice = new PWMMotorSlaveDevice();
             FanMotor fan = null;
-            if (id < _pwmDevices.Length)
+            if (id < DeviceSettings.AvailablePWMOutputs.Length)
             {
-                currentPWMDevice = _pwmDevices[id];
+                currentPWMDevice = DeviceSettings.AvailablePWMOutputs[id].SlaveDevice as PWMMotorSlaveDevice;
                 fan = currentPWMDevice.ControlableZones[0] as FanMotor;
             }
 
@@ -358,7 +359,7 @@ namespace adrilight
         private (byte[] Buffer, int OutputLength) GetOutputStream(int id)
         {
             byte[] outputStream;
-            var currentLightingDevice = _lightingDevices[id];
+            var currentLightingDevice = DeviceSettings.AvailableLightingOutputs[id].SlaveDevice as ARGBLEDSlaveDevice; // need to implement device number mismatch
             int counter = _messagePreamble.Length;
             const int colorsPerLed = 3;
             const int hilocheckLenght = 3;
@@ -522,7 +523,7 @@ namespace adrilight
                 try
                 {
                     int baudRate = 1000000;
-                    if (DeviceSettings.DeviceType.Type == DeviceTypeEnum.AmbinoFanHub)
+                    if (DeviceSettings.DeviceType.Type == DeviceTypeEnum.AmbinoFanHub || DeviceSettings.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
                         baudRate = 2000000;
                     string openedComPort = null;
 
@@ -538,8 +539,10 @@ namespace adrilight
 
                         }
                         //send frame data
-                        for (int i = 0; i < _lightingDevices.Length; i++)
+                        for (int i = 0; i < DeviceSettings.AvailableLightingOutputs.Length; i++)
                         {
+                            if (!DeviceSettings.AvailableLightingOutputs[i].IsEnabled)
+                                continue;
                             var (outputBuffer, streamLength) = _hasPWMCOntroller ? GetOutputStreamWithPWM(i) : GetOutputStream(i);
                             serialPort.Write(outputBuffer, 0, streamLength);
                             ArrayPool<byte>.Shared.Return(outputBuffer);
@@ -552,7 +555,7 @@ namespace adrilight
                                 fastLedTime = ((192) / 3.0 * 0.030d);
                             else
                                 fastLedTime = ((streamLength - _messagePreamble.Length - 6) / 3.0 * 0.030d);
-                            var serialTransferTime = outputBuffer.Length * 10 * 1000 / baudRate;
+                            var serialTransferTime = streamLength * 10.0 * 1000.0 / baudRate;
                             var minTimespan = (int)(fastLedTime + serialTransferTime) + 1;
                             Thread.Sleep(minTimespan);
                         }
