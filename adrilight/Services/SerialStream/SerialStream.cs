@@ -14,6 +14,7 @@ using System.Buffers;
 using System.IO.Ports;
 using System.Linq;
 using System.Threading;
+using System.Windows.Documents.DocumentStructures;
 
 namespace adrilight
 {
@@ -62,6 +63,9 @@ namespace adrilight
                     break;
                 case nameof(DeviceSettings.DeviceState):
                     DeviceStateChanged();
+                    break;
+                case nameof(DeviceSettings.Baudrate):
+                    DeviceSettings.IsTransferActive = false;
                     break;
             }
         }
@@ -294,9 +298,7 @@ namespace adrilight
             outputStream[counter++] = fan != null ? (byte)(fan.CurrentPWMValue * 255 / 100) : (byte)200;
             outputStream[counter++] = 0;
 
-            double currentFramePowerRequired = 0;
-            const int miliampsPerLED = 20;
-
+            double brightnessCap = DeviceSettings.MaxBrightnessCap / 100d;
             var allBlack = true;
             int aliveSpotCounter = 0;
             var rgbOrder = currentLightingDevice.RGBLEDOrder;
@@ -314,16 +316,7 @@ namespace adrilight
                     }
                     else
                     {
-                        foreach (DeviceSpot spot in ledZone.Spots)
-                        {
-                            if (spot.IsEnabled)
-                            {
-                                currentFramePowerRequired += (spot.Red + spot.Green + spot.Blue) * miliampsPerLED / 255;
-                            }
-                        }
-                        var powerLimitFactor = 1.0;
-                        if (GeneralSettings.IsPowerLimitEnabled)
-                            powerLimitFactor = PowerLimitationFactor(currentFramePowerRequired, 500);
+                        
                         foreach (DeviceSpot spot in ledZone.Spots)
                         {
                             if (spot.IsEnabled)
@@ -333,9 +326,9 @@ namespace adrilight
                                  out byte FinalR, out byte FinalG, out byte FinalB);
                                 var reOrderedColor = ReOrderSpotColor(rgbOrder, FinalR, FinalG, FinalB);
                                 //get data
-                                outputStream[counter + spot.Index * 3 + 0] = (byte)(reOrderedColor[0] * powerLimitFactor * _dimFactor); // blue
-                                outputStream[counter + spot.Index * 3 + 1] = (byte)(reOrderedColor[1] * powerLimitFactor * _dimFactor); // green
-                                outputStream[counter + spot.Index * 3 + 2] = (byte)(reOrderedColor[2] * powerLimitFactor * _dimFactor); // red
+                                outputStream[counter + spot.Index * 3 + 0] = (byte)(reOrderedColor[0] * brightnessCap * _dimFactor); // blue
+                                outputStream[counter + spot.Index * 3 + 1] = (byte)(reOrderedColor[1] * brightnessCap * _dimFactor); // green
+                                outputStream[counter + spot.Index * 3 + 2] = (byte)(reOrderedColor[2] * brightnessCap * _dimFactor); // red
                                 aliveSpotCounter++;
                             }
                             allBlack = allBlack && spot.Red == 0 && spot.Green == 0 && spot.Blue == 0;
@@ -382,13 +375,10 @@ namespace adrilight
             outputStream[counter++] = 0;
             outputStream[counter++] = 0;
 
-
+            double brightnessCap = DeviceSettings.MaxBrightnessCap / 100d;
             var allBlack = true;
             int aliveSpotCounter = 0;
             var rgbOrder = currentLightingDevice.RGBLEDOrder;
-
-            double currentFramePowerRequired = 0;
-            const int miliampsPerLED = 20;
             DimLED();
             foreach (var zone in currentLightingDevice.ControlableZones)
             {
@@ -403,16 +393,7 @@ namespace adrilight
                     }
                     else
                     {
-                        foreach (DeviceSpot spot in ledZone.Spots)
-                        {
-                            if (spot.IsEnabled)
-                            {
-                                currentFramePowerRequired += (spot.Red + spot.Green + spot.Blue) * miliampsPerLED / 765;
-                            }
-                        }
-                        var powerLimitFactor = 1.0;
-                        if (GeneralSettings.IsPowerLimitEnabled)
-                            powerLimitFactor = PowerLimitationFactor(currentFramePowerRequired, 500);
+                     
                         foreach (DeviceSpot spot in ledZone.Spots)
                         {
                             if (spot.IsEnabled)
@@ -422,9 +403,9 @@ namespace adrilight
                                  out byte FinalR, out byte FinalG, out byte FinalB);
                                 var reOrderedColor = ReOrderSpotColor(rgbOrder, FinalR, FinalG, FinalB);
                                 //get data
-                                outputStream[counter + spot.Index * 3 + 0] = (byte)(reOrderedColor[0] * powerLimitFactor * _dimFactor); // blue
-                                outputStream[counter + spot.Index * 3 + 1] = (byte)(reOrderedColor[1] * powerLimitFactor * _dimFactor); // green
-                                outputStream[counter + spot.Index * 3 + 2] = (byte)(reOrderedColor[2] * powerLimitFactor * _dimFactor); // red
+                                outputStream[counter + spot.Index * 3 + 0] = (byte)(reOrderedColor[0] * brightnessCap * _dimFactor); // blue
+                                outputStream[counter + spot.Index * 3 + 1] = (byte)(reOrderedColor[1] * brightnessCap * _dimFactor); // green
+                                outputStream[counter + spot.Index * 3 + 2] = (byte)(reOrderedColor[2] * brightnessCap * _dimFactor); // red
                                 aliveSpotCounter++;
                             }
                             allBlack = allBlack && spot.Red == 0 && spot.Green == 0 && spot.Blue == 0;
@@ -522,7 +503,7 @@ namespace adrilight
             {
                 try
                 {
-                    int baudRate = 1000000;
+                    int baudRate = DeviceSettings.Baudrate;
                     if (DeviceSettings.DeviceType.Type == DeviceTypeEnum.AmbinoFanHub || DeviceSettings.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
                         baudRate = 2000000;
                     string openedComPort = null;
@@ -556,7 +537,19 @@ namespace adrilight
                             else
                                 fastLedTime = ((streamLength - _messagePreamble.Length - 6) / 3.0 * 0.030d);
                             var serialTransferTime = streamLength * 10.0 * 1000.0 / baudRate;
-                            var minTimespan = (int)(fastLedTime + serialTransferTime) + 1;
+                            var minTimespan = (byte)(fastLedTime + serialTransferTime + 1);
+
+                            //for debugging purpose, device respond number of leds
+                            //try
+                            //{
+                            //    var hi = (byte)serialPort.ReadByte();
+                            //    var lo = (byte)serialPort.ReadByte();
+                            //    var numBytes = 3L * (256L * (long)hi + (long)lo);
+                            //}
+                            //catch(Exception ex)
+                            //{
+
+                            //}
                             Thread.Sleep(minTimespan);
                         }
 

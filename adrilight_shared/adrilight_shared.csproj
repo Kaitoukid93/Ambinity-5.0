@@ -146,6 +146,8 @@
     <Compile Include="Converter\ThicknessToDoubleConverter.cs" />
     <Compile Include="Converter\ToUpperValueConverter.cs" />
     <Compile Include="Models\DataViewMode.cs" />
+    <Compile Include="Models\Device\DeviceHUB.cs" />
+    <Compile Include="Models\Device\ISubDeviceSettings.cs" />
     <Compile Include="Models\Stores\CollectionItemStore.cs" />
     <Compile Include="Services\DialogService.cs" />
     <Compile Include="Enums\OnlineItemAvatarTypeEnum.cs" />

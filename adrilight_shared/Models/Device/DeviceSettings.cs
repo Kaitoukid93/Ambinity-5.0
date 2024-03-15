@@ -29,7 +29,7 @@ using System.Windows;
 
 namespace adrilight_shared.Models.Device
 {
-    public class DeviceSettings : ViewModelBase, IDeviceSettings, IDashboardItem, IGenericCollectionItem
+    public class DeviceSettings : ViewModelBase, IDeviceSettings, IDashboardItem, IGenericCollectionItem, ISubDeviceSettings
     {
         private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
         private string DevicesCollectionFolderPath => Path.Combine(JsonPath, "Devices");
@@ -61,7 +61,11 @@ namespace adrilight_shared.Models.Device
         private DeviceType _deviceType;
         private int _currentActiveControllerIndex;
         private IDeviceController _currentActiveController;
+
+
+        private int _maxBrightnessCap = 80;
         public int DashboardWidth { get => _dashboardWidth; set { Set(() => DashboardWidth, ref _dashboardWidth, value); } }
+        public int MaxBrightnessCap { get => _maxBrightnessCap; set { Set(() => MaxBrightnessCap, ref _maxBrightnessCap, value); } }
         public int DashboardHeight { get => _dashboardHeight; set { Set(() => DashboardHeight, ref _dashboardHeight, value); } }
 
         //dashboard display param
@@ -127,7 +131,7 @@ namespace adrilight_shared.Models.Device
         public ISlaveDevice[] AvailablePWMDevices => GetSlaveDevices(ControllerTypeEnum.PWMController);
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); DeviceEnableChanged(); } }
         [JsonIgnore]
-        public bool DeviceHardwareControlEnable => (DeviceType.Type == DeviceTypeEnum.AmbinoBasic || DeviceType.Type == DeviceTypeEnum.AmbinoEDGE);
+        public bool DeviceHardwareControlEnable => (DeviceType.Type == DeviceTypeEnum.AmbinoBasic || DeviceType.Type == DeviceTypeEnum.AmbinoEDGE|| DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3);
         [JsonIgnore]
         public bool DeviceFanSpeedControlEnable => (DeviceType.Type == DeviceTypeEnum.AmbinoFanHub);
         [JsonIgnore]
@@ -138,6 +142,8 @@ namespace adrilight_shared.Models.Device
         public int NoSignalFanSpeed { get; set; }
         private ISlaveDevice[] GetSlaveDevices(ControllerTypeEnum type)
         {
+            if (AvailableControllers == null)
+                return null;
             var slaveDevices = new List<ISlaveDevice>();
             try
             {
@@ -158,6 +164,7 @@ namespace adrilight_shared.Models.Device
         }
         private IOutputSettings[] GetOutput(ControllerTypeEnum type)
         {
+            if(AvailableControllers == null)  return null;
             var outputs = new List<IOutputSettings>();
             foreach (var controller in AvailableControllers.Where(x => x.Type == type))
             {
@@ -182,6 +189,7 @@ namespace adrilight_shared.Models.Device
         }
         private ObservableCollection<IControlZone> GetControlZones()
         {
+            if (AvailableControllers == null) return null;
             ObservableCollection<IControlZone> zones = new ObservableCollection<IControlZone>();
             foreach (var controller in AvailableControllers)
             {
@@ -207,6 +215,14 @@ namespace adrilight_shared.Models.Device
         }
         public int CurrentActiveControlerIndex { get => _currentActiveControllerIndex; set { if (value >= 0) Set(() => CurrentActiveControlerIndex, ref _currentActiveControllerIndex, value); OnActiveControllerChanged(); } }
 
+        private int _subDeviceAddress;
+        private string _subDeviceName;
+        private int _subDeviceMaxOutputs;
+        private string _parrentID;
+        public int SubDeviceAddress { get => _subDeviceAddress; set { Set(() => SubDeviceAddress, ref _subDeviceAddress, value); } }
+        public string SubDeviceName { get => _subDeviceName; set { Set(() => SubDeviceName, ref _subDeviceName, value); } }
+        public int SubDeviceMaxOutputs { get => _subDeviceMaxOutputs; set { Set(() => SubDeviceMaxOutputs, ref _subDeviceMaxOutputs, value); } }
+        public string ParrentID { get => _parrentID; set { Set(() => ParrentID, ref _parrentID, value); } }
 
         private void OnActiveControllerChanged()
         {

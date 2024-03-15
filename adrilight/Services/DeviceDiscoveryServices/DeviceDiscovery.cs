@@ -15,6 +15,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.UI.Xaml.Controls;
 
 namespace adrilight.Services.DeviceDiscoveryServices
 {
@@ -54,7 +55,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
         }
         private void DeviceCollectionChanged()
         {
-            SerialDeviceDetector = new SerialDeviceDetection(MainViewViewModel.AvailableDevices.Where(p => p.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.Wired).ToList());
+            SerialDeviceDetector = new SerialDeviceDetection(MainViewViewModel.AvailableDevices.Where(p => p.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.Wired).ToList(), MainViewViewModel.AvailableDeviceHUBs?.ToList());
         }
         private Thread _workerThread;
         private CancellationTokenSource _cancellationTokenSource;
@@ -81,7 +82,6 @@ namespace adrilight.Services.DeviceDiscoveryServices
         public MainViewViewModel MainViewViewModel { get; set; }
         private AmbinityClient AmbinityClient { get; }
         private DeviceManagerViewModel DeviceManager { get; }
-        private bool _isAllDeviceConnected => !MainViewViewModel.AvailableDevices.Any(d => d.IsTransferActive == false);
         private async void StartDiscovery(CancellationToken token)
         {
 
@@ -93,14 +93,15 @@ namespace adrilight.Services.DeviceDiscoveryServices
                     // if device is existed and device is connected ( device.IstransferActive ) , remove from the list
                     // if device is existed and device is connected, leave it available to reconnect
                     var existedSerialDevices = MainViewViewModel.AvailableDevices.Where(d => d.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.Wired).ToList();
+                    var existedDeviceHUBs = MainViewViewModel.AvailableDeviceHUBs?.ToList();
                     var existedOpenRGBDevices = MainViewViewModel.AvailableDevices.Where(d => d.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.OpenRGB).ToList();
-                    SerialDeviceDetector = new SerialDeviceDetection(existedSerialDevices);
+                    SerialDeviceDetector = new SerialDeviceDetection(existedSerialDevices, existedDeviceHUBs);
                     var shouldBeRunning = !MainViewViewModel.DeviceManagerIsOpen;
                     if (Settings.DeviceDiscoveryMode == 0 && shouldBeRunning)
                     {
                         // openRGB device scan keep running until all existed device get connected
                         // if openrgb devices is not transfer active, check if this device is in the list of openRGB software and reconnect
-                        var openRGBDevices = (new List<IDeviceSettings>(), new List<string>());
+                        var openRGBDevices = (new List<IDeviceSettings>(), new List<IDeviceSettings>());
                         if (Settings.IsOpenRGBEnabled && !_openRGBIsInit && Settings.UsingOpenRGB)
                         {
                             MainViewViewModel.IsRescanningDevices = true;
@@ -108,8 +109,9 @@ namespace adrilight.Services.DeviceDiscoveryServices
                             MainViewViewModel.IsRescanningDevices = false;
                         }
                         var serialDevices = await ScanSerialDevice();
+                        var serialHUBs = await ScanSerialHUB();
                         var newDevices = new List<IDeviceSettings>();
-                        var oldDevicesReconnected = new List<string>();
+                        var oldDevicesReconnected = new List<IDeviceSettings>();
                         openRGBDevices.Item1.ForEach(d => newDevices.Add(d));
                         serialDevices.Item1.ForEach(d => newDevices.Add(d));
                         openRGBDevices.Item2.ForEach(d => oldDevicesReconnected.Add(d));
@@ -133,14 +135,14 @@ namespace adrilight.Services.DeviceDiscoveryServices
             }
         }
 
-        private async Task<(List<IDeviceSettings>, List<string>)> ScanOpenRGBDevices(List<IDeviceSettings> existedDevice)
+        private async Task<(List<IDeviceSettings>, List<IDeviceSettings>)> ScanOpenRGBDevices(List<IDeviceSettings> existedDevice)
         {
             //stop every existed device openrgb stream
             existedDevice.ForEach(d => d.IsTransferActive = false);
             //wait for all process to finish
             Thread.Sleep(500);
             var newDevicesDetected = new List<IDeviceSettings>();
-            var oldDeviceReconnected = new List<string>();
+            var oldDeviceReconnected = new List<IDeviceSettings>();
             if (!AmbinityClient.IsInitialized && !AmbinityClient.IsInitializing)
             {
                 await AmbinityClient.RefreshTransferState();
@@ -154,9 +156,10 @@ namespace adrilight.Services.DeviceDiscoveryServices
                     {
                         var deviceName = openRGBDevice.Name.ToValidFileName();
                         var deviceUID = Guid.NewGuid().ToString();
-                        if (existedDevice.Any(d => d.OutputPort == deviceName + openRGBDevice.Location && d.IsTransferActive == false))
+                        var matchDev = existedDevice.Where(d => d.OutputPort == deviceName + openRGBDevice.Location && d.IsTransferActive == false).FirstOrDefault();
+                        if (matchDev != null)
                         {
-                            oldDeviceReconnected.Add(deviceName + openRGBDevice.Location);
+                            oldDeviceReconnected.Add(matchDev);
                             continue;
                         }
                         var convertedDevice = new SlaveDeviceHelpers().DefaultCreateOpenRGBDevice(openRGBDevice.Type, deviceName, openRGBDevice.Location, openRGBDevice.Serial, deviceUID);
@@ -211,10 +214,11 @@ namespace adrilight.Services.DeviceDiscoveryServices
             _workerThread = null;
         }
         SerialDeviceDetection SerialDeviceDetector { get; set; }
-        private async Task<(List<IDeviceSettings>, List<string>)> ScanSerialDevice()
+
+        private async Task<(List<DeviceHUB>,List<DeviceHUB>)> ScanSerialHUB()
         {
-            var newDevicesDetected = new List<IDeviceSettings>();
-            var oldDeviceReconnected = new List<string>();
+            var newHUBsDetected = new List<DeviceHUB>();
+            var oldHUBsReconnected = new List<DeviceHUB>();
             var tokenSource = new CancellationTokenSource();
             var token = tokenSource.Token;
             _isSerialScanCompelete = false;
@@ -223,7 +227,62 @@ namespace adrilight.Services.DeviceDiscoveryServices
                 // Organize critical sections around logical serial port operations somehow.
                 lock (_syncRoot)
                 {
-                    return SerialDeviceDetector.DetectedDevices;
+                    var devices = SerialDeviceDetector.DetectedHUBDevice();
+                    return Task.FromResult(devices);
+                }
+            });
+            if (jobTask != await Task.WhenAny(jobTask, Task.Delay(Timeout.Infinite, token)))
+            {
+                // Timeout;
+                _isSerialScanCompelete = true;
+
+            }
+            var hubs = await jobTask;
+            if (hubs.Item1.Count == 0 && hubs.Item2.Count == 0)
+            {
+                // HandyControl.Controls.MessageBox.Show("Unable to detect any supported device, try adding manually", "No Compatible Device Found", MessageBoxButton.OK, MessageBoxImage.Warning);
+                _isSerialScanCompelete = true;
+
+            }
+            else
+            {
+                foreach (var hub in hubs.Item1)
+                {
+                    Log.Information("SerialDeviceDetection Found New HUB");
+                    Log.Information("Name: " + hub.Name);
+                    Log.Information("ID: " + hub.HUBSerial);
+                    Log.Information("---------------");
+                    // MainViewViewModel.SetSearchingScreenProgressText("Found new device: " + device.DeviceName + ". Address: " + device.OutputPort);
+                    Log.Information("Device: " + hub.Name + " is a new device");
+                    newHUBsDetected.Add(hub);
+                }
+                foreach (var hub in hubs.Item2)
+                {
+                    // MainViewViewModel.SetSearchingScreenProgressText("Device reconnected: " + device.DeviceName + ". Address: " + device.OutputPort);
+                    Log.Information(hub.Name + " is connected");
+                    oldHUBsReconnected.Add(hub);
+                }
+
+                tokenSource.Cancel();
+                _isSerialScanCompelete = true;
+
+            }
+            return await Task.FromResult((newHUBsDetected, oldHUBsReconnected));
+        }
+        private async Task<(List<IDeviceSettings>, List<IDeviceSettings>)> ScanSerialDevice()
+        {
+            var newDevicesDetected = new List<IDeviceSettings>();
+            var oldDeviceReconnected = new List<IDeviceSettings>();
+            var tokenSource = new CancellationTokenSource();
+            var token = tokenSource.Token;
+            _isSerialScanCompelete = false;
+            var jobTask = Task.Run(() =>
+            {
+                // Organize critical sections around logical serial port operations somehow.
+                lock (_syncRoot)
+                {
+                    var devices = SerialDeviceDetector.DetectedDevices();
+                    return Task.FromResult(devices);
                 }
             });
             if (jobTask != await Task.WhenAny(jobTask, Task.Delay(Timeout.Infinite, token)))

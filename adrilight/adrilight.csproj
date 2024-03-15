@@ -130,7 +130,7 @@
     <PackageReference Include="HandyControls">
       <Version>3.4.5</Version>
     </PackageReference>
-    <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.2" />
+    <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.3" />
     <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
     <PackageReference Include="LoadingIndicators.WPF">
       <Version>0.0.1</Version>

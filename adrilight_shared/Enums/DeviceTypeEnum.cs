@@ -95,7 +95,10 @@
         /// <summary>
         ///     Unknown device type.
         /// </summary>
-        Unknown
+        Unknown,
+
+
+        AmbinoHyperPort
 
     }
 }

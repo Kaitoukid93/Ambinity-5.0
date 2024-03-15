@@ -13,6 +13,7 @@ namespace adrilight_content_creator.View
         public DeviceUtil()
         {
             InitializeComponent();
+            this.DataContext = new DeviceUtilViewModel();
         }
         public class DeviceUtilSelectableViewPart : ISelectableViewPart
         {
@@ -30,15 +31,7 @@ namespace adrilight_content_creator.View
 
             public object Content { get => lazyContent.Value; }
         }
-        private void ListBox1_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            userAddDeviceList.SelectedIndex = -1;
-        }
 
-        private void ListBox2_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-           // existedDeviceList.SelectedIndex = -1;
-        }
     }
 }
 

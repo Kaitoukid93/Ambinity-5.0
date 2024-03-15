@@ -39,7 +39,7 @@ namespace adrilight.Ninject
             Bind<DeviceDiscovery>().ToSelf().InSingletonScope();
             Bind<DBmanager>().ToSelf().InSingletonScope();
             Bind<IDialogService>().To<DialogService>().InSingletonScope();
-            Bind<CollectionItemStore>().ToSelf().InSingletonScope();
+            Bind<CollectionItemStore>().ToSelf();
 
             //binding view
             Bind<ISelectableViewPart>().To<DeviceControlViewSelectableViewPart>();

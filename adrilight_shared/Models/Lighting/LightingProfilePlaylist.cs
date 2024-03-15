@@ -79,6 +79,8 @@ namespace adrilight_shared.Models.Lighting
             LightingProfiles = new DataCollection();
             if (availableProfiles == null)
                 return;
+            if (LightingProfilesUID == null)
+                return;
             foreach (var profileUID in LightingProfilesUID)
             {
                 var match = availableProfiles.Where(p => (p as LightingProfile).ProfileUID == profileUID).FirstOrDefault();

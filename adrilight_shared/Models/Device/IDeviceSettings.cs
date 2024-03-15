@@ -48,6 +48,7 @@ namespace adrilight_shared.Models.Device
         int NoSignalFanSpeed { get; set; }
         int DashboardWidth { get; set; }
         int DashboardHeight { get; set; }
+        int MaxBrightnessCap { get; set; }
         ObservableCollection<ControlZoneGroup> ControlZoneGroups { get; set; }
         string RequiredFwVersion { get; set; }
         DeviceStateEnum DeviceState { get; set; }

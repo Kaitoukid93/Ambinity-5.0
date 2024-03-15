@@ -20,7 +20,7 @@ namespace adrilight_shared.Helpers
 
         private LEDSetupHelpers LEDSetupHlprs { get; set; } = new LEDSetupHelpers();
         private ControlModeHelpers CtrlHlprs { get; set; } = new ControlModeHelpers();
-        public IDeviceSettings DefaultCreateOpenRGBDevice(OpenRGB.NET.Enums.DeviceType type, string deviceName, string outputPort, string serial, string uid)
+        public DeviceSettings DefaultCreateOpenRGBDevice(OpenRGB.NET.Enums.DeviceType type, string deviceName, string outputPort, string serial, string uid)
         {
             var newDevice = new DeviceSettings();
             newDevice.DeviceType = GetTypeFromOpenRGB(type);
@@ -93,7 +93,7 @@ namespace adrilight_shared.Helpers
             returnType.ConnectionTypeEnum = DeviceConnectionTypeEnum.OpenRGB;
             return returnType;
         }
-        public IDeviceSettings DefaultCreatedAmbinoDevice(
+        public DeviceSettings DefaultCreatedAmbinoDevice(
             DeviceType type,
             string deviceName,
             string outputPort,
@@ -135,7 +135,7 @@ namespace adrilight_shared.Helpers
             return newDevice;
 
         }
-        public IDeviceSettings DefaultCreatedGenericDevice(
+        public DeviceSettings DefaultCreatedGenericDevice(
             DeviceType type,
             string deviceName,
             string outputPort,

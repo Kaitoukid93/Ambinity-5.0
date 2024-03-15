@@ -22,13 +22,16 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Drawing.Drawing2D;
 using System.IO;
+using System.IO.Compression;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Xml.Linq;
 
@@ -41,6 +44,7 @@ namespace adrilight.ViewModel
         private string DevicesCollectionFolderPath => Path.Combine(JsonPath, "Devices");
         private string JsonFWToolsFileNameAndPath => Path.Combine(JsonPath, "FWTools");
         private string JsonFWToolsFWListFileNameAndPath => Path.Combine(JsonFWToolsFileNameAndPath, "adrilight-fwlist.json");
+        private string BackupFolder => Path.Combine(JsonPath, "Backup");
         public DeviceAdvanceSettingsViewModel(DialogService service, IDeviceSettings device)
         {
             Device = device ?? throw new ArgumentNullException(nameof(device));
@@ -62,7 +66,7 @@ namespace adrilight.ViewModel
         private DialogService _dialogService;
         private ResourceHelpers ResourceHlprs;
         private LocalFileHelpers LocalFileHlprs;
-        private static byte[] requestCommand = { (byte)'d', (byte)'i', (byte)'r' };
+        private static byte[] requestCommand = { (byte)'d', (byte)'i', (byte)'r', (byte)'\n' };
         private static byte[] sendCommand = { (byte)'h', (byte)'s', (byte)'d' };
         private static byte[] expectedValidHeader = { 15, 12, 93 };
         private bool isApplyingDeviceHardwareSettings;
@@ -79,12 +83,29 @@ namespace adrilight.ViewModel
         }
 
         #endregion
-
+       
 
         #region Methods
         private void CommandSetup()
         {
+            ShowDeviceBackupFolderCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            },  (p) =>
+            {
+                var backupPath = Path.Combine(BackupFolder, "Device");
+                if(Directory.Exists(backupPath))
+                Process.Start("explorer.exe", backupPath);
 
+            });
+            BackupDeviceCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, async (p) =>
+            {
+                await BackupDevice();
+
+            });
             SelecFirmwareForCurrentDeviceCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -96,7 +117,6 @@ namespace adrilight.ViewModel
                     CurrentSelectedFirmware = file;
                 }
 
-                // lauch firmware upgrade
             });
             ApplyDeviceHardwareSettingsCommand = new RelayCommand<string>((p) =>
             {
@@ -201,7 +221,9 @@ namespace adrilight.ViewModel
 
         #region Commands
         public ICommand WindowClosing { get; private set; }
+        public ICommand BackupDeviceCommand { get; set; }
         public ICommand WindowOpen { get; private set; }
+        public ICommand ShowDeviceBackupFolderCommand { get; set; }
         public ICommand SelecFirmwareForCurrentDeviceCommand { get; set; }
         public ICommand UpdateCurrentSelectedDeviceFirmwareCommand { get; set; }
         public ICommand ApplyDeviceHardwareSettingsCommand { get; set; }
@@ -222,6 +244,13 @@ namespace adrilight.ViewModel
             outputStream[counter++] = 0;
             outputStream[counter++] = 0;
             outputStream[counter++] = (byte)Device.NoSignalFanSpeed;
+            // 6 bytes CustomID
+            outputStream[counter++] = 11;
+            outputStream[counter++] = 22;
+            outputStream[counter++] = 33;
+            outputStream[counter++] = 44;
+            outputStream[counter++] = 55;
+            outputStream[counter++] = 66;
             return outputStream;
         }
         private byte[] GetEEPRomDataOutputStream()
@@ -232,7 +261,10 @@ namespace adrilight.ViewModel
         }
         private bool IsFirmwareValid()
         {
-            if (Device.DeviceType.Type == DeviceTypeEnum.AmbinoBasic || Device.DeviceType.Type == DeviceTypeEnum.AmbinoEDGE || Device.DeviceType.Type == DeviceTypeEnum.AmbinoFanHub)
+            if (Device.DeviceType.Type == DeviceTypeEnum.AmbinoBasic ||
+                Device.DeviceType.Type == DeviceTypeEnum.AmbinoEDGE ||
+                Device.DeviceType.Type == DeviceTypeEnum.AmbinoFanHub ||
+                Device.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
             {
                 string fwversion = Device.FirmwareVersion;
                 if (fwversion == "unknown" || fwversion == string.Empty || fwversion == null)
@@ -265,7 +297,7 @@ namespace adrilight.ViewModel
         }
         public async Task<bool> GetHardwareSettings()
         {
-
+            Thread.Sleep(500);
             ///////////////////// Hardware settings data table, will be wirte to device EEPRom /////////
             /// [h,s,d,Led on/off,Signal LED On/off,Connection Type,Max Brightness,Show Welcome LED,Serial Timeout,0,0,0,0,0,0,0] ///////
             await Task.Run(() => RefreshFirmwareVersion());
@@ -274,6 +306,8 @@ namespace adrilight.ViewModel
                 return false;
             }
             Device.IsTransferActive = false; // stop current serial stream attached to this device
+            if (!SerialPort.GetPortNames().Contains(Device.OutputPort))
+                return false;
             var _serialPort = new SerialPort(Device.OutputPort, 1000000);
             _serialPort.DtrEnable = true;
             _serialPort.ReadTimeout = 5000;
@@ -289,6 +323,7 @@ namespace adrilight.ViewModel
 
             var outputStream = GetEEPRomDataOutputStream();
             _serialPort.Write(outputStream, 0, outputStream.Length);
+            _serialPort.WriteLine("\r\n");
             int retryCount = 0;
             int offset = 0;
             IDeviceSettings newDevice = new DeviceSettings();
@@ -334,14 +369,24 @@ namespace adrilight.ViewModel
                     var signalLEDEnable = _serialPort.ReadByte();
                     Device.IsIndicatorLEDOn = signalLEDEnable == 15 ? true : false;
                     Log.Information("Device EEPRom Data: " + signalLEDEnable);
-                    var connectionType = _serialPort.ReadByte();
-                    var maxBrightness = _serialPort.ReadByte();
-                    var showWelcomeLED = _serialPort.ReadByte();
-                    var serialTimeout = _serialPort.ReadByte();
-                    var noSignalFanSpeed = _serialPort.ReadByte();
-                    Device.NoSignalFanSpeed = noSignalFanSpeed < 20 ? 20 : noSignalFanSpeed;
-                    Log.Information("Device EEPRom Data: " + noSignalFanSpeed);
+                    if (_serialPort.BytesToRead > 0)
+                    {
+                        var connectionType = _serialPort.ReadByte();
+                        var maxBrightness = _serialPort.ReadByte();
+                        var showWelcomeLED = _serialPort.ReadByte();
+                        var serialTimeout = _serialPort.ReadByte();
+                        var noSignalFanSpeed = _serialPort.ReadByte();
+                        Device.NoSignalFanSpeed = noSignalFanSpeed < 20 ? 20 : noSignalFanSpeed;
+                        Log.Information("Device EEPRom Data: " + noSignalFanSpeed);
+                        string[] id = new string[6];
 
+                        for (int i = 0; i < 6; i++)
+                        {
+                            id[i] = _serialPort.ReadByte().ToString();
+                        }
+                        Log.Information("Device Custom ID: " + id[0].ToString() + id[1].ToString() + id[2].ToString() + id[3].ToString() + id[4].ToString() + id[5].ToString());
+
+                    }
                 }
                 catch (TimeoutException ex)
                 {
@@ -362,7 +407,7 @@ namespace adrilight.ViewModel
         }
         public async Task<bool> SendHardwareSettings()
         {
-
+            Thread.Sleep(500);
             ///////////////////// Hardware settings data table, will be wirte to device EEPRom /////////
             /// [h,s,d,Led on/off,Signal LED On/off,Connection Type,Max Brightness,Show Welcome LED,Serial Timeout,0,0,0,0,0,0,0] ///////
 
@@ -382,6 +427,7 @@ namespace adrilight.ViewModel
 
             var outputStream = GetSettingOutputStream();
             _serialPort.Write(outputStream, 0, outputStream.Length);
+            _serialPort.WriteLine("\r\n");
             int retryCount = 0;
             int offset = 0;
             IDeviceSettings newDevice = new DeviceSettings();
@@ -423,6 +469,24 @@ namespace adrilight.ViewModel
                 //signal led on off
                 var signalLEDEnable = _serialPort.ReadByte();
                 Log.Information("Device EEPRom Data: " + signalLEDEnable);
+                if (_serialPort.BytesToRead > 0)
+                {
+                    var connectionType = _serialPort.ReadByte();
+                    var maxBrightness = _serialPort.ReadByte();
+                    var showWelcomeLED = _serialPort.ReadByte();
+                    var serialTimeout = _serialPort.ReadByte();
+                    var noSignalFanSpeed = _serialPort.ReadByte();
+                    Device.NoSignalFanSpeed = noSignalFanSpeed < 20 ? 20 : noSignalFanSpeed;
+                    Log.Information("Device EEPRom Data: " + noSignalFanSpeed);
+                    string[] id = new string[6];
+
+                    for (int i = 0; i < 6; i++)
+                    {
+                        id[i] = _serialPort.ReadByte().ToString();
+                    }
+                    Log.Information("Device Custom ID: " + id[0].ToString() + id[1].ToString() + id[2].ToString() + id[3].ToString() + id[4].ToString() + id[5].ToString());
+
+                }
                 //discard buffer
                 _serialPort.DiscardInBuffer();
             }
@@ -503,7 +567,80 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        private async Task BackupDevice()
+        {
+            var vm = new ProgressDialogViewModel("Backing up device", "123", "usbIcon");
+            Task.Run(() => SaveDeviceToFile(vm));
+            _dialogService.ShowDialog<ProgressDialogViewModel>(result =>
+            {
 
+            }, vm);
+
+        }
+        private async Task SaveDeviceToFile(ProgressDialogViewModel vm)
+        {
+            if (Device == null)
+                return;
+            vm.ProgressBarVisibility = Visibility.Visible;
+            vm.CurrentProgressHeader = "Serializing";
+            vm.CurrentProgressLog = "Creating output directory...";
+            vm.Value = 10;
+            await Task.Delay(500);
+            //launch save dialog
+            Device.IsLoadingProfile = true;
+            var path = Path.Combine(BackupFolder, "Device");
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
+            var backupPath = Path.Combine(path, Device.DeviceName + Device.DeviceUID + DateTime.Now.ToString("yyyyMMddHHmmss"));
+            //deserialize to config
+            Directory.CreateDirectory(backupPath);
+            var configjson = JsonConvert.SerializeObject(Device);
+            vm.CurrentProgressLog = "Serializing device...";
+            await Task.Delay(500);
+            vm.Value = 20;
+            File.WriteAllText(Path.Combine(backupPath, "config.json"), configjson);
+
+
+            //copy thumbnail
+            vm.CurrentProgressLog = "Saving images...";
+            vm.Value = 40;
+            await Task.Delay(500);
+            if (File.Exists(Device.DeviceThumbnail))
+                File.Copy(Device.DeviceThumbnail, Path.Combine(backupPath, "thumbnail.png"));
+            //copy required slave device folder (config + thumbnail)
+            var requiredSlaveDevice = new List<string>();
+            vm.CurrentProgressLog = "Serializing dependencies...";
+            vm.CurrentProgressHeader = "Almost done";
+            vm.Value = 60;
+            await Task.Delay(500);
+
+            foreach (ARGBLEDSlaveDevice device in Device.AvailableLightingDevices)
+            {
+                if (requiredSlaveDevice.Any(p => p == device.Name))
+                    continue;
+                requiredSlaveDevice.Add(device.Name);
+                var requiredSlaveDevicejson = JsonConvert.SerializeObject(device);
+                Directory.CreateDirectory(Path.Combine(backupPath, "dependencies", "SlaveDevices", device.Name));
+                File.WriteAllText(Path.Combine(backupPath, "dependencies", "SlaveDevices", device.Name, "config.json"), requiredSlaveDevicejson);
+                File.Copy(device.Thumbnail, Path.Combine(backupPath, "dependencies", "SlaveDevices", device.Name, Path.GetFileName(device.Thumbnail)));
+                File.Copy(device.ThumbnailWithColor, Path.Combine(backupPath, "dependencies", "SlaveDevices", device.Name, Path.GetFileName(device.ThumbnailWithColor)));
+            }
+            vm.Value = 80;
+            vm.CurrentProgressLog = "zipping...";
+            var zipPath = Path.Combine(path, Path.GetFileName(backupPath) + ".zip") ;
+            ZipFile.CreateFromDirectory(backupPath, zipPath);
+            Directory.Delete(backupPath, true);
+            await Task.Delay(500);
+            vm.Value = 100;
+            vm.Header = "Done";
+            vm.SecondaryActionButtonContent = "Close";
+            vm.PrimaryActionButtonContent = "Show Log";
+            await Task.Delay(500);
+            vm.ProgressBarVisibility = Visibility.Hidden;
+            vm.SuccessMesageVisibility = Visibility.Visible;
+            vm.SuccessMessage = "Device backup files saved to " + path;
+            //export
+        }
         private async Task UpgradeSelectedDeviceFirmware(IDeviceSettings device, string fwPath, ProgressDialogViewModel vm)
         {
             //if (GeneralSettings.DriverRequested)
@@ -705,11 +842,6 @@ namespace adrilight.ViewModel
             await Task.Run(() => UpgradeSelectedDeviceFirmware(Device, fwOutputLocation, vm));
             _dialogService.ShowDialog<ProgressDialogViewModel>(result =>
             {
-                //if (result == "True")
-                //{
-                //    var newCollection = CreateDataCollectionFromSelectedItem(vm.Content, p);
-                //    _collectionItemStore.CreateCollection(newCollection);
-                //}
 
             }, vm);
 
@@ -855,7 +987,7 @@ namespace adrilight.ViewModel
                 return;
             }
             //write request info command
-            _serialPort.Write(requestCommand, 0, 3);
+            _serialPort.Write(requestCommand, 0, 4);
             int retryCount = 0;
             int offset = 0;
             int idLength = 0; // Expected response length of valid deviceID 
@@ -877,7 +1009,7 @@ namespace adrilight.ViewModel
                 }
                 catch (TimeoutException)// retry until received valid header
                 {
-                    _serialPort.Write(requestCommand, 0, 3);
+                    _serialPort.Write(requestCommand, 0, 4);
                     retryCount++;
                     if (retryCount == 3)
                     {

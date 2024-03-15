@@ -399,7 +399,11 @@ namespace adrilight.ViewModel
             get { return _availableDevices; }
             set => Set(ref _availableDevices, value);
         }
-
+        private ObservableCollection<DeviceHUB> _availableDeviceHUBs;
+        public ObservableCollection<DeviceHUB> AvailableDeviceHUBs {
+            get { return _availableDeviceHUBs; }
+            set => Set(ref _availableDeviceHUBs, value);
+        }
         private ObservableCollection<object> _automationParamList;
 
         public ObservableCollection<object> AutomationParamList {
@@ -1525,33 +1529,29 @@ namespace adrilight.ViewModel
             }
         }
 
-        public void OldDeviceReconnected(List<string> oldDevices)
+        public void OldDeviceReconnected(List<IDeviceSettings> oldDevices)
         {
             if (IsLoadingProfile)
                 return;
 
             if (oldDevices != null && oldDevices.Count > 0)
             {
-                foreach (var port in oldDevices)
+                foreach (var dev in oldDevices)
                 {
                     //set first device found active again since it's recconected
-
-                    var oldDevice = AvailableDevices.Where(p => p.OutputPort == port).FirstOrDefault();
-                    // oldDevice.IsTransferActive = false;
-                    //Thread.Sleep(500);
-                    if (!oldDevice.IsTransferActive)
+                    if (!dev.IsTransferActive)
                     {
-                        if(oldDevice.AutoConnect)
-                        oldDevice.IsTransferActive = true;
-                        if (oldDevice.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
+                        if(dev.AutoConnect)
+                            dev.IsTransferActive = true;
+                        if (dev.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
                         {
                             GeneralSettings.IsOpenRGBEnabled = true;
                         }
                         //Thread.Sleep(500);
-                        SetSearchingScreenProgressText("Connected: " + oldDevice.OutputPort);
+                        SetSearchingScreenProgressText("Connected: " + dev.OutputPort);
 
-                        lock (oldDevice)
-                            DeviceHlprs.WriteSingleDeviceInfoJson(oldDevice);
+                        lock (dev)
+                            DeviceHlprs.WriteSingleDeviceInfoJson(dev);
                     }
 
                 }
@@ -2201,7 +2201,9 @@ namespace adrilight.ViewModel
                 {
                     if (removeFileCount == totalFileCount - 1)
                         return;
-                    ItemStore.RemoveItems(new List<IGenericCollectionItem>() { item });
+                    //ItemStore.RemoveItems(new List<IGenericCollectionItem>() { item });
+                    if (File.Exists(item.LocalPath))
+                        File.Delete(item.LocalPath);
                     if (File.Exists(item.InfoPath))
                         File.Delete(item.InfoPath);
                     listParam.DeletedSelectedItem(item);
@@ -5119,7 +5121,8 @@ namespace adrilight.ViewModel
             if (deviceFile != null)
             {
 
-                var device = ImportDevice(deviceFile);
+                var device = 
+                    ImportDevice(deviceFile);
                 if (device != null)
                 {
                     lock (AvailableDevices)
@@ -8412,7 +8415,7 @@ namespace adrilight.ViewModel
             };
             var AHR2g = new DeviceFirmware() {
                 Name = "AHR2g.hex",
-                Version = "1.0.2",
+                Version = "1.0.3",
                 TargetHardware = "AHR2g",
                 TargetDeviceType = DeviceTypeEnum.AmbinoHUBV3,
                 Geometry = "binary",

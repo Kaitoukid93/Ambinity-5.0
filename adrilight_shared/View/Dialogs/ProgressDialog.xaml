@@ -74,6 +74,7 @@
                        Style="{DynamicResource TextBlockDefaultSecLight}"
                        Text="{Binding CurrentProgressLog}" />
             <TextBlock Margin="10" Text="{Binding SuccessMessage}"
+                       TextWrapping="Wrap"
                        Style="{DynamicResource TextBlockDefaultPrimary}"
                        Visibility="{Binding SuccessMesageVisibility}" />
         </StackPanel>
