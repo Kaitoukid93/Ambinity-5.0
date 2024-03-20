@@ -10,7 +10,7 @@ using Color = System.Windows.Media.Color;
 
 namespace adrilight_shared.Models.DataVisualizer
 {
-    public class ZoneVisualizer : System.Windows.Controls.Control
+    public class ZoneVisualizer : System.Windows.Controls.Control 
     {
         private const double UPDATE_FRAME_RATE = 25.0;
         private readonly DispatcherTimer _timer;

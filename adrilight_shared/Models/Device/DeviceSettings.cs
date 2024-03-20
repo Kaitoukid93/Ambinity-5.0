@@ -51,6 +51,7 @@ namespace adrilight_shared.Models.Device
         private int _dashboardWidth;
         private int _dashboardHeight;
         private int _baudrate = 1000000;
+        private bool _customBaudrateEnable = false;
         private string _deviceUID;
         private bool _isSelected = false;
         private bool _isLoadingProfile = false;
@@ -67,7 +68,7 @@ namespace adrilight_shared.Models.Device
         public int DashboardWidth { get => _dashboardWidth; set { Set(() => DashboardWidth, ref _dashboardWidth, value); } }
         public int MaxBrightnessCap { get => _maxBrightnessCap; set { Set(() => MaxBrightnessCap, ref _maxBrightnessCap, value); } }
         public int DashboardHeight { get => _dashboardHeight; set { Set(() => DashboardHeight, ref _dashboardHeight, value); } }
-
+        public bool CustomBaudrateEnable { get => _customBaudrateEnable; set { Set(() => CustomBaudrateEnable, ref _customBaudrateEnable, value); } }
         //dashboard display param
         private bool _isPinned = false;
         private bool _isChecked = false;

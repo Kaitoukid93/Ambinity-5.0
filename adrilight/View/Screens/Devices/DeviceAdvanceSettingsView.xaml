@@ -388,7 +388,7 @@
                                                     Margin="5,10,5,10">
 
                                         </hc:Divider>
-                                        <Grid>
+                                        <Grid IsEnabled="False">
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="auto" />
                                                 <RowDefinition Height="auto" />

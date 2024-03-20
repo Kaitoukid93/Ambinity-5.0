@@ -38,14 +38,51 @@ namespace adrilight_shared.Models.Device
         public string InfoPath { get; set; }
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); } }
         public ObservableCollection<IDeviceSettings> Devices { get; set; }
-        public List<string> GetPorts()
+        public class ComPortObject
         {
-            var ports = new List<string>();
+            public ComPortObject(string name)
+            {
+                Name = name;
+            }
+            public string Name { get; set; }
+            public string Port { get; set; }
+            public bool IsConnected { get; set; }
+            public bool IsChecked { get; set; }
+
+        }
+        public List<ComPortObject> GetPorts()
+        {
+            var ports = new List<ComPortObject>();
             foreach(var device in Devices)
             {
-                ports.Add(device.OutputPort.ToString());
+                var port = new ComPortObject(device.OutputPort);
+                port.Port = device.OutputPort;
+                port.IsConnected = device.IsTransferActive;
+                ports.Add(port);
             }
             return ports;
+        }
+        public void Connect()
+        {
+            if(Devices == null)
+            {
+                return;
+            }
+            foreach (var dev in Devices)
+            {
+                dev.IsTransferActive = true;
+            }
+        }
+        public void Disconnect()
+        {
+            if (Devices == null)
+            {
+                return;
+            }
+            foreach (var dev in Devices)
+            {
+                dev.IsTransferActive = false;
+            }
         }
         public string HUBSerial { get => _hubSerial; set { Set(() => HUBSerial, ref _hubSerial, value); } }
     }

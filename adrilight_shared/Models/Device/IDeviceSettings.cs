@@ -39,6 +39,7 @@ namespace adrilight_shared.Models.Device
         string DeviceThumbnail { get; }
         string DeviceOutputMap { get; }
         int Baudrate { get; set; }
+        bool CustomBaudrateEnable { get; set; }
         string DeviceUID { get; set; }
         bool IsSelected { get; set; }
         bool IsSizeNeedUserDefine { get; set; }

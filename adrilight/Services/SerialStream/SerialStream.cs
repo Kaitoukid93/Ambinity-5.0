@@ -65,6 +65,7 @@ namespace adrilight
                     DeviceStateChanged();
                     break;
                 case nameof(DeviceSettings.Baudrate):
+                case nameof(DeviceSettings.CustomBaudrateEnable):
                     DeviceSettings.IsTransferActive = false;
                     break;
             }
@@ -316,7 +317,7 @@ namespace adrilight
                     }
                     else
                     {
-                        
+
                         foreach (DeviceSpot spot in ledZone.Spots)
                         {
                             if (spot.IsEnabled)
@@ -393,7 +394,7 @@ namespace adrilight
                     }
                     else
                     {
-                     
+
                         foreach (DeviceSpot spot in ledZone.Spots)
                         {
                             if (spot.IsEnabled)
@@ -503,9 +504,18 @@ namespace adrilight
             {
                 try
                 {
-                    int baudRate = DeviceSettings.Baudrate;
-                    if (DeviceSettings.DeviceType.Type == DeviceTypeEnum.AmbinoFanHub || DeviceSettings.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
-                        baudRate = 2000000;
+                    int baudRate = 1000000;
+                    if (DeviceSettings.CustomBaudrateEnable)
+                    {
+                        baudRate = DeviceSettings.Baudrate;
+                    }
+                    else
+                    {
+                        if (DeviceSettings.DeviceType.Type == DeviceTypeEnum.AmbinoFanHub || DeviceSettings.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
+                            baudRate = 2000000;
+                    }
+
+
                     string openedComPort = null;
 
                     while (!cancellationToken.IsCancellationRequested)

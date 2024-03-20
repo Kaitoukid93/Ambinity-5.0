@@ -138,15 +138,33 @@
                                       Width="20" 
                                       Height="20" 
                                       Fill="{StaticResource PrimaryTextBrush}"/>-->
+                    <StackPanel HorizontalAlignment="Right"
+                                Orientation="Horizontal">
+                        <ToggleButton ToolTip="Enable Custom Baudrate" Margin="10,5" IsChecked="{Binding CurrentDevice.CustomBaudrateEnable}"
+                                      Style="{StaticResource ToggleButtonSwitchSmallerElipse}" />
+                        <Grid  HorizontalAlignment="Right"
+                               Margin="0,0,10,0">
+                            <ItemsControl ItemsSource="{Binding AvailableBaudrates}"
+                                          Height="0"
+                                          Margin="15,0" />
+                            <ComboBox IsEnabled="{Binding CurrentDevice.CustomBaudrateEnable}" ItemContainerStyle="{StaticResource _ComboboxItemStyle}"
+                                      HorizontalAlignment="Stretch"
+                                      SelectedItem="{Binding CurrentDevice.Baudrate}"
+                                      ItemsSource="{Binding AvailableBaudrates}"
+                                      Style="{StaticResource ComboBoxBaseStyle}" />
+                        </Grid>
+                    </StackPanel>
             
-                    <Grid  HorizontalAlignment="Right" Margin="0,0,10,0">
-                        <ItemsControl ItemsSource="{Binding AvailableBaudrates}" Height="0" Margin="15,0"/>
-                        <ComboBox ItemContainerStyle="{StaticResource _ComboboxItemStyle}"  HorizontalAlignment="Stretch"   SelectedItem="{Binding CurrentDevice.Baudrate}" ItemsSource="{Binding AvailableBaudrates}"  Style="{StaticResource ComboBoxBaseStyle}"/>
-                    </Grid>
+                   
 
 
                 </GroupBox>
-                <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Tốc độ truyền dữ liệu"/>
+                <TextBlock Margin="5,0,0,0"
+                           HorizontalAlignment="Left"
+                           Style="{StaticResource TextBlockDefaultSecLight}"
+                           Grid.Row="1"
+                           TextWrapping="Wrap"
+                           Text="Tốc độ truyền dữ liệu, có thể hạ baudrate để device hoạt động ổn định hơn"/>
             </Grid>
 
 

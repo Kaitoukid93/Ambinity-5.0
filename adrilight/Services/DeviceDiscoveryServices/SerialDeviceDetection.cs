@@ -83,6 +83,10 @@ namespace adrilight.Util
             return comports;
 
         }
+        /// <summary>
+        /// this return any availabe port that is nto in use by the app
+        /// </summary>
+        /// <returns></returns>
         public static (List<string>, List<string>) GetValidDevice()
         {
             List<string> CH55X = GetComPortByID("1209", "c550");
@@ -113,14 +117,14 @@ namespace adrilight.Util
             {
                 foreach (var port in sd)
                 {
-                    if (ExistedSerialDevice.Any(d => d.OutputPort == port && d.IsTransferActive == true))
+                    if (ExistedDeviceHUB.Any(d => d.GetPorts().Any(p => p.Port == port && p.IsConnected == true)))
                         continue;
                     subDevices.Add(port);
                 }
             }
             else
             {
-               // Log.Warning("No Compatible SubDevice Detected");
+                // Log.Warning("No Compatible SubDevice Detected");
             }
             return (devices, subDevices);
         }
@@ -172,7 +176,7 @@ namespace adrilight.Util
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "AcessDenied" + _serialPort.PortName);
+                Log.Error(ex, "AcessDenied " + _serialPort.PortName);
                 return (255, 255, string.Empty);
             }
             _serialPort.Write(outputStream, 0, outputStream.Length);
@@ -251,13 +255,10 @@ namespace adrilight.Util
             return (newDevicePortID, newDeviceMaxPorts, serial);
 
         }
-        private static DeviceSettings GetDeviceInformation(string comPort)
+        private string GetDeviceFactoryID(string comPort)
         {
-            var newDevice = new DeviceSettings();
+
             string id = "000000";
-            string name = "unknown";
-            string fw = "unknown";
-            string hw = "unknown";
             bool isValid = true;
             var _serialPort = new SerialPort(comPort, 1000000);
             _serialPort.DtrEnable = true;
@@ -269,7 +270,113 @@ namespace adrilight.Util
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "AcessDenied" + _serialPort.PortName);
+                Log.Error(ex, "AcessDenied " + _serialPort.PortName);
+                return null;
+            }
+        //write request info command
+        retry:
+            try
+            {
+                _serialPort.Write(requestCommand, 0, 3);
+                _serialPort.WriteLine("\r\n");
+            }
+
+            catch (System.IO.IOException ex)// retry until received valid header
+            {
+                Log.Warning("This Device seems to have Ambino PID/VID but not an USB device " + _serialPort.PortName);
+                return null;
+            }
+            int retryCount = 0;
+            int offset = 0;
+            int idLength = 0; // Expected response length of valid deviceID 
+            int nameLength = 0; // Expected response length of valid deviceName 
+            int fwLength = 0;
+            int hwLength = 0;
+
+            while (offset < 3)
+            {
+                try
+                {
+                    byte header = (byte)_serialPort.ReadByte();
+                    if (header == expectedValidHeader[offset])
+                    {
+                        offset++;
+                    }
+                    else if (header == unexpectedValidHeader[offset])
+                    {
+                        offset++;
+                        if (offset == 3)
+                        {
+                            Log.Information("Old Ambino Device at" + _serialPort.PortName + ". Restarting Firmware Request");
+                            goto retry;
+                        }
+                    }
+                }
+                catch (TimeoutException ex)// retry until received valid header
+                {
+                    _serialPort.Write(requestCommand, 0, 3);
+                    _serialPort.WriteLine("\r\n");
+                    retryCount++;
+                    if (retryCount == 3)
+                    {
+                        Log.Warning("timeout waiting for respond on serialport " + _serialPort.PortName);
+                        if (!isNoRespondingMessageShowed)
+                        {
+                            isNoRespondingMessageShowed = true;
+                            HandyControl.Controls.MessageBox.Show("Device at " + _serialPort.PortName + " is not responding, try adding it manually", "Device is not responding", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        }
+
+                        return null;
+                    }
+                }
+                catch (System.IO.IOException ex)// retry until received valid header
+                {
+                    return null;
+                }
+
+            }
+            if (offset == 3) //3 bytes header are valid
+            {
+                idLength = (byte)_serialPort.ReadByte();
+                int count = idLength;
+                var d = new byte[count];
+                while (count > 0)
+                {
+                    var readCount = _serialPort.Read(d, 0, count);
+                    offset += readCount;
+                    count -= readCount;
+                }
+                id = BitConverter.ToString(d);
+            }
+
+            _serialPort.Close();
+            _serialPort.Dispose();
+            return id;
+        }
+        /// <summary>
+        /// this return a new constructed device with the information read frm comPort
+        /// </summary>
+        /// <param name="comPort"></param>
+        /// <returns></returns>
+        private static DeviceSettings GetDeviceInformation(string comPort)
+        {
+            var newDevice = new DeviceSettings();
+            string id = "000000";
+            string name = "unknown";
+            string fw = "unknown";
+            string hw = "unknown";
+            bool isValid = true;
+            var _serialPort = new SerialPort(comPort, 1000000);
+            _serialPort.ReadTimeout = 5000;
+            _serialPort.WriteTimeout = 1000;
+            _serialPort.DtrEnable = true;
+            try
+            {
+                _serialPort.Open();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "AcessDenied " + _serialPort.PortName);
                 return null;
             }
 
@@ -325,7 +432,8 @@ namespace adrilight.Util
                             isNoRespondingMessageShowed = true;
                             HandyControl.Controls.MessageBox.Show("Device at " + _serialPort.PortName + " is not responding, try adding it manually", "Device is not responding", MessageBoxButton.OK, MessageBoxImage.Warning);
                         }
-
+                        _serialPort.Close();
+                        _serialPort.Dispose();
                         return null;
                     }
                 }
@@ -409,9 +517,6 @@ namespace adrilight.Util
             var ledSetupHlprs = new LEDSetupHelpers();
             var newDevice = new DeviceSettings();
             newDevice.DeviceName = name;
-            newDevice.DeviceSerial = deviceSerial;
-            newDevice.FirmwareVersion = fwVersion;
-            newDevice.HardwareVersion = hwVersion;
             switch (newDevice.DeviceName)
             {
                 case "Ambino Basic":// General Ambino Basic USB Device
@@ -491,10 +596,17 @@ namespace adrilight.Util
                     newDevice.DashboardHeight = 270;
                     break;
             }
+
+            newDevice.DeviceSerial = deviceSerial;
+            newDevice.FirmwareVersion = fwVersion;
+            newDevice.HardwareVersion = hwVersion;
             newDevice.UpdateChildSize();
             return newDevice;
         }
-
+        /// <summary>
+        /// this return list of new devices and old devices
+        /// </summary>
+        /// <returns></returns>
         public (List<IDeviceSettings>, List<IDeviceSettings>) DetectedDevices()
         {
             List<IDeviceSettings> newDevices = new List<IDeviceSettings>();
@@ -502,28 +614,40 @@ namespace adrilight.Util
             var validDevices = GetValidDevice().Item1;
             foreach (var comPort in validDevices)
             {
-                //if device is existed in the database
-                var matchDev = ExistedSerialDevice.Where(d => d.OutputPort == comPort).FirstOrDefault();
-                if (matchDev != null)
-                {
-                    var rslt = CheckDeviceConnection(comPort);
-                    if (rslt)
-                    {
-                        existedDevices.Add(matchDev);
-                    }
-                    continue;
-                }
 
-
-                //else we probably found a new device
-                //start requesting device information
                 var dev = GetDeviceInformation(comPort);
                 if (dev != null)
                 {
-                    newDevices.Add(dev);
+                    //check if device exist
+                    var serial = dev.DeviceSerial;
+                    var altSerial = dev.DeviceSerial.Replace("-", " ");
+                    var type = dev.DeviceType.Type;
+                    var matchDev = ExistedSerialDevice.Where(d => d.DeviceSerial == serial || d.DeviceSerial == altSerial).FirstOrDefault();
+                    if (matchDev != null)
+                    {
+                        if (matchDev.OutputPort != comPort)
+                        {
+                            Log.Warning("Device COMPort changed from " + matchDev.OutputPort + " to " + comPort);
+                            matchDev.OutputPort = comPort;
+
+                        }
+                        if (matchDev.DeviceType.Type != type)
+                        {
+                            Log.Warning("Device Type changed from " + matchDev.DeviceType.Name + " to " + dev.DeviceType.Name);
+                            matchDev.DeviceSerial = null;
+                            newDevices.Add(dev);
+                        }
+                        else
+                            existedDevices.Add(matchDev);
+                    }
+                    else
+                    {
+                        newDevices.Add(dev);
+                    }
                 }
                 else
                 {
+                    Log.Error("Can not get device information: " + comPort);
                     continue;
                 }
 
@@ -548,21 +672,37 @@ namespace adrilight.Util
                 // for example, if the hub load in database have 4 ports, we continue to search until we got all 4 outputs valid
                 // if we get more or less device in the hub, we just add or remove accordingly??
                 //let's try
-                var matchHub = ExistedDeviceHUB.Where(h => h.GetPorts().Contains(comPort)).FirstOrDefault();
+                var (outputID, maxPort, serial) = GetSubDeviceInformation(comPort);
+                var matchHub = ExistedDeviceHUB.Where(h => h.HUBSerial == serial).FirstOrDefault();
                 if (matchHub != null)
                 {
-                    var rslt = CheckDeviceConnection(comPort);
-                    if (rslt)
+                    if(matchHub.Devices!=null)
                     {
-                        ExistedDeviceHUB.Add(matchHub);
-                        //this eventually add n hubs to the list, fk
-
+                        int connectedSubDeviceCount =0;
+                        foreach (var device in matchHub.Devices)
+                        {
+                            var rslt = CheckDeviceConnection(device.OutputPort);
+                            if (rslt)
+                            {
+                                connectedSubDeviceCount++;
+                            }
+                            else
+                            {
+                                Log.Warning("SubDevice " + device.OutputPort + " not found or in use");
+                            }
+                        }
+                        if(connectedSubDeviceCount>0)
+                        {
+                            matchHub.Connect();
+                        }
+                      
                     }
+                   
                     continue;
                 }
                 //else we probably found a new device
                 //start requesting device information
-                var (outputID, maxPort, serial) = GetSubDeviceInformation(comPort);
+
                 var valid = outputID != 255 && maxPort != 255;
                 if (valid)
                 {
@@ -597,7 +737,6 @@ namespace adrilight.Util
                 }
                 newHUB.Add(newHub);
             }
-
 
             return (newHUB, existedHUB);
         }

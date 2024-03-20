@@ -67,6 +67,7 @@ using System.Windows.Media.Imaging;
 using System.Xml;
 using TimeLineTool;
 using Un4seen.BassWasapi;
+using Windows.UI.Xaml.Hosting;
 using Application = System.Windows.Application;
 using Bitmap = System.Drawing.Bitmap;
 using Border = adrilight_shared.Models.Drawable.Border;
@@ -1447,6 +1448,43 @@ namespace adrilight.ViewModel
         {
             EventHandler handler = RequestingDeviceRescanEvent;
             if (null != handler) handler(this, EventArgs.Empty);
+        }
+        public async Task FoundNewHUB(List<DeviceHUB> newHUBs)
+        {
+            if (IsLoadingProfile)
+                return;
+            if (newHUBs != null && newHUBs.Count > 0)
+            {
+                IsDeviceDiscoveryInit = false;
+                foreach (var hub in newHUBs)
+                {
+                    SetSearchingScreenHeaderText("New device found: " + hub.Name, true);
+                    //download device info
+
+                    //await Task.Delay(TimeSpan.FromSeconds(2));
+                    //lock (device)
+                    //{
+                    //    WriteDeviceInfo(device);
+                    //}
+
+                    hub.Connect();
+
+                    await Task.Delay(TimeSpan.FromSeconds(2));
+                }
+                SearchingForDevices = false;
+                IsDeviceDiscoveryInit = true;
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            }
+            else
+            {
+                if (_noDeviceDetectedCounter < 3)
+                    _noDeviceDetectedCounter++;
+                if (_noDeviceDetectedCounter >= 3)
+                {
+                    SearchingForDevices = false;
+                    IsDeviceDiscoveryInit = true;
+                }
+            }
         }
         public async Task FoundNewDevice(List<IDeviceSettings> newDevices)
         {
@@ -6548,9 +6586,32 @@ namespace adrilight.ViewModel
 
 
         }
+        //private ObservableCollection<DeviceSpot> _idEditSpots;
+        //public ObservableCollection<DeviceSpot> IdEditSpots {
+        //    get
+        //    {
+        //        return _idEditSpots;
+        //    }
+        //    set
+        //    {
+        //        _idEditSpots = value;
+        //        RaisePropertyChanged();
+        //    }
+        //}
 
         private void GetThingsReadyForIDEdit()
         {
+            // add spots to live view to handle drag drop
+            // how to extract spots from live view items?
+            //var spots = new ObservableCollection<DeviceSpot>();
+            //foreach(var item in LiveViewItems.Where(i=> i is LEDSetup))
+            //{
+            //    var ledSetup = item as LEDSetup;
+            //    foreach(var spot in ledSetup.Spots)
+            //    {
+            //        spots.Add(spot as DeviceSpot);
+            //    }
+            //}
             switch (IdEditMode)
             {
                 case IDMode.VID:
@@ -8367,7 +8428,7 @@ namespace adrilight.ViewModel
             };
             var ABR2e = new DeviceFirmware() {
                 Name = "ABR2e.hex",
-                Version = "1.0.9",
+                Version = "1.1.0",
                 TargetHardware = "ABR2e",
                 TargetDeviceType = DeviceTypeEnum.AmbinoBasic,
                 Geometry = "binary",
@@ -8383,7 +8444,7 @@ namespace adrilight.ViewModel
             };
             var AER2e = new DeviceFirmware() {
                 Name = "AER2e.hex",
-                Version = "1.0.6",
+                Version = "1.0.7",
                 TargetHardware = "AER2e",
                 TargetDeviceType = DeviceTypeEnum.AmbinoEDGE,
                 Geometry = "binary",
@@ -8407,7 +8468,7 @@ namespace adrilight.ViewModel
             };
             var AFR3g = new DeviceFirmware() {
                 Name = "AFR3g.hex",
-                Version = "1.0.8",
+                Version = "1.0.9",
                 TargetHardware = "AFR3g",
                 TargetDeviceType = DeviceTypeEnum.AmbinoFanHub,
                 Geometry = "binary",

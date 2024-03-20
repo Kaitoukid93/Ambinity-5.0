@@ -257,6 +257,7 @@ namespace adrilight.ViewModel
         {
             var outputStream = new byte[16];
             Buffer.BlockCopy(sendCommand, 0, outputStream, 0, sendCommand.Length);
+            outputStream[3] = 255;
             return outputStream;
         }
         private bool IsFirmwareValid()
@@ -839,7 +840,7 @@ namespace adrilight.ViewModel
             }
             var vm = new ProgressDialogViewModel("Flashing Firmware", "123", "usbIcon");
             IsDownloadingFirmware = true;
-            await Task.Run(() => UpgradeSelectedDeviceFirmware(Device, fwOutputLocation, vm));
+            Task.Run(() => UpgradeSelectedDeviceFirmware(Device, fwOutputLocation, vm));
             _dialogService.ShowDialog<ProgressDialogViewModel>(result =>
             {
 

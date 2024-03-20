@@ -82,7 +82,7 @@
                     ToolTip="Cài đặt chung"
                     Style="{DynamicResource ButtonDashed}"
                     hc:IconElement.Geometry="{DynamicResource generalSettings}"/>
-            <Grid  hc:RelativePanel.AlignRightWithPanel="True" Margin="0,0,10,0">
+            <!--<Grid  hc:RelativePanel.AlignRightWithPanel="True" Margin="0,0,10,0">
                 <Popup PlacementTarget="{Binding ElementName=profileBadge}" Effect="{StaticResource EffectShadow1}" AllowsTransparency="True" Grid.ColumnSpan="2"  HorizontalOffset="15" x:Name="profile_selection" VerticalOffset="5" StaysOpen="False">
                     <hc:TransitioningContentControl Effect="{StaticResource EffectShadow3}" TransitionMode="Top2Bottom">
                         <Border  Margin="15,0,15,15" Background="{DynamicResource MainContentBackgroundBrush}" CornerRadius="4" BorderThickness="1">
@@ -174,10 +174,10 @@
                     <Grid Margin="0">
                         <Grid>
                             <StackPanel>
-                                <!--<TextBlock Text="ACTIVE PROFILE" Style="{DynamicResource TextBlockDefaultSecLight}"  Margin="5,2"/>
+                                --><!--<TextBlock Text="ACTIVE PROFILE" Style="{DynamicResource TextBlockDefaultSecLight}"  Margin="5,2"/>
                                     <hc:Divider  LineStroke="{StaticResource RegionBrush}" Margin="-10,2">
 
-                                    </hc:Divider>-->
+                                    </hc:Divider>--><!--
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="auto"/>
@@ -204,7 +204,7 @@
 
                 </Border>
 
-            </Grid>
+            </Grid>-->
         </StackPanel>
     </Grid>
 </Grid>

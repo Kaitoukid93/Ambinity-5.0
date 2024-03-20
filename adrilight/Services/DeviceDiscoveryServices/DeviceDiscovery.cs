@@ -109,19 +109,26 @@ namespace adrilight.Services.DeviceDiscoveryServices
                             MainViewViewModel.IsRescanningDevices = false;
                         }
                         var serialDevices = await ScanSerialDevice();
-                        var serialHUBs = await ScanSerialHUB();
+                        //var serialHUBs = await ScanSerialHUB();
                         var newDevices = new List<IDeviceSettings>();
                         var oldDevicesReconnected = new List<IDeviceSettings>();
                         openRGBDevices.Item1.ForEach(d => newDevices.Add(d));
                         serialDevices.Item1.ForEach(d => newDevices.Add(d));
                         openRGBDevices.Item2.ForEach(d => oldDevicesReconnected.Add(d));
                         serialDevices.Item2.ForEach(d => oldDevicesReconnected.Add(d));
+                        //if(serialHUBs.Item1.Count>0)
+                        //{
+                        //    MainViewViewModel.ShowSearchingScreen();
+                        //}
+                        //await Task.Run(() => MainViewViewModel.FounNewHUB(serialHUBs.Item1));
                         if (newDevices.Count > 0)
                         {
                             MainViewViewModel.ShowSearchingScreen();
                         }
                         await Task.Run(() => MainViewViewModel.FoundNewDevice(newDevices));
+                        
                         MainViewViewModel.OldDeviceReconnected(oldDevicesReconnected);
+                        
                     }
 
                 }
@@ -215,7 +222,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
         }
         SerialDeviceDetection SerialDeviceDetector { get; set; }
 
-        private async Task<(List<DeviceHUB>,List<DeviceHUB>)> ScanSerialHUB()
+        private async Task<(List<DeviceHUB>, List<DeviceHUB>)> ScanSerialHUB()
         {
             var newHUBsDetected = new List<DeviceHUB>();
             var oldHUBsReconnected = new List<DeviceHUB>();
@@ -314,7 +321,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
                 foreach (var device in devices.Item2)
                 {
                     // MainViewViewModel.SetSearchingScreenProgressText("Device reconnected: " + device.DeviceName + ". Address: " + device.OutputPort);
-                    Log.Information(device + " is connected");
+                    Log.Information(device.DeviceName + "-" + device.OutputPort + " is connected");
                     oldDeviceReconnected.Add(device);
                 }
 
