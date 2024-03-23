@@ -400,11 +400,7 @@ namespace adrilight.ViewModel
             get { return _availableDevices; }
             set => Set(ref _availableDevices, value);
         }
-        private ObservableCollection<DeviceHUB> _availableDeviceHUBs;
-        public ObservableCollection<DeviceHUB> AvailableDeviceHUBs {
-            get { return _availableDeviceHUBs; }
-            set => Set(ref _availableDeviceHUBs, value);
-        }
+     
         private ObservableCollection<object> _automationParamList;
 
         public ObservableCollection<object> AutomationParamList {
@@ -1449,7 +1445,7 @@ namespace adrilight.ViewModel
             EventHandler handler = RequestingDeviceRescanEvent;
             if (null != handler) handler(this, EventArgs.Empty);
         }
-        public async Task FoundNewHUB(List<DeviceHUB> newHUBs)
+        public async Task FoundNewHUB(List<DeviceSettings> newHUBs)
         {
             if (IsLoadingProfile)
                 return;
@@ -1466,11 +1462,35 @@ namespace adrilight.ViewModel
                     //{
                     //    WriteDeviceInfo(device);
                     //}
+                    SetSearchingScreenProgressText("Writing device information...");
 
-                    hub.Connect();
+                    //await Task.Delay(TimeSpan.FromSeconds(2));
+                    lock (hub)
+                    {
+                        WriteDeviceInfo(hub);
+                    }
+
+
+                    lock (AvailableDeviceLock)
+                    {
+                        System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                        {
+                            AvailableDevices.Insert(0, hub);
+                        });
+                    }
+                    lock (DeviceManagerViewModel.AvailableDevices)
+                    {
+                        System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                        {
+                            DeviceManagerViewModel.AvailableDevices.AddItems(hub as DeviceSettings);
+                        });
+
+                    }
+                    hub.IsTransferActive = true;
 
                     await Task.Delay(TimeSpan.FromSeconds(2));
                 }
+
                 SearchingForDevices = false;
                 IsDeviceDiscoveryInit = true;
                 await Task.Delay(TimeSpan.FromSeconds(1));

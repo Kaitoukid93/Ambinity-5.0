@@ -55,7 +55,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
         }
         private void DeviceCollectionChanged()
         {
-            SerialDeviceDetector = new SerialDeviceDetection(MainViewViewModel.AvailableDevices.Where(p => p.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.Wired).ToList(), MainViewViewModel.AvailableDeviceHUBs?.ToList());
+            SerialDeviceDetector = new SerialDeviceDetection(MainViewViewModel.AvailableDevices.Where(p => p.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.Wired).ToList());
         }
         private Thread _workerThread;
         private CancellationTokenSource _cancellationTokenSource;
@@ -93,9 +93,8 @@ namespace adrilight.Services.DeviceDiscoveryServices
                     // if device is existed and device is connected ( device.IstransferActive ) , remove from the list
                     // if device is existed and device is connected, leave it available to reconnect
                     var existedSerialDevices = MainViewViewModel.AvailableDevices.Where(d => d.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.Wired).ToList();
-                    var existedDeviceHUBs = MainViewViewModel.AvailableDeviceHUBs?.ToList();
                     var existedOpenRGBDevices = MainViewViewModel.AvailableDevices.Where(d => d.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.OpenRGB).ToList();
-                    SerialDeviceDetector = new SerialDeviceDetection(existedSerialDevices, existedDeviceHUBs);
+                    SerialDeviceDetector = new SerialDeviceDetection(existedSerialDevices);
                     var shouldBeRunning = !MainViewViewModel.DeviceManagerIsOpen;
                     if (Settings.DeviceDiscoveryMode == 0 && shouldBeRunning)
                     {
@@ -109,18 +108,18 @@ namespace adrilight.Services.DeviceDiscoveryServices
                             MainViewViewModel.IsRescanningDevices = false;
                         }
                         var serialDevices = await ScanSerialDevice();
-                        //var serialHUBs = await ScanSerialHUB();
+                        var serialHUBs = await ScanSerialHUB();
                         var newDevices = new List<IDeviceSettings>();
                         var oldDevicesReconnected = new List<IDeviceSettings>();
                         openRGBDevices.Item1.ForEach(d => newDevices.Add(d));
                         serialDevices.Item1.ForEach(d => newDevices.Add(d));
                         openRGBDevices.Item2.ForEach(d => oldDevicesReconnected.Add(d));
                         serialDevices.Item2.ForEach(d => oldDevicesReconnected.Add(d));
-                        //if(serialHUBs.Item1.Count>0)
-                        //{
-                        //    MainViewViewModel.ShowSearchingScreen();
-                        //}
-                        //await Task.Run(() => MainViewViewModel.FounNewHUB(serialHUBs.Item1));
+                        if (serialHUBs.Item1.Count > 0)
+                        {
+                            MainViewViewModel.ShowSearchingScreen();
+                        }
+                        await Task.Run(() => MainViewViewModel.FoundNewHUB(serialHUBs.Item1));
                         if (newDevices.Count > 0)
                         {
                             MainViewViewModel.ShowSearchingScreen();
@@ -222,10 +221,10 @@ namespace adrilight.Services.DeviceDiscoveryServices
         }
         SerialDeviceDetection SerialDeviceDetector { get; set; }
 
-        private async Task<(List<DeviceHUB>, List<DeviceHUB>)> ScanSerialHUB()
+        private async Task<(List<DeviceSettings>, List<DeviceSettings>)> ScanSerialHUB()
         {
-            var newHUBsDetected = new List<DeviceHUB>();
-            var oldHUBsReconnected = new List<DeviceHUB>();
+            var newHUBsDetected = new List<DeviceSettings>();
+            var oldHUBsReconnected = new List<DeviceSettings>();
             var tokenSource = new CancellationTokenSource();
             var token = tokenSource.Token;
             _isSerialScanCompelete = false;
@@ -257,7 +256,10 @@ namespace adrilight.Services.DeviceDiscoveryServices
                 {
                     Log.Information("SerialDeviceDetection Found New HUB");
                     Log.Information("Name: " + hub.Name);
-                    Log.Information("ID: " + hub.HUBSerial);
+                    foreach(var subDevice in hub.SubDevices)
+                    {
+                        Log.Information(subDevice.Name + " ID: " + subDevice.Serial);
+                    }
                     Log.Information("---------------");
                     // MainViewViewModel.SetSearchingScreenProgressText("Found new device: " + device.DeviceName + ". Address: " + device.OutputPort);
                     Log.Information("Device: " + hub.Name + " is a new device");

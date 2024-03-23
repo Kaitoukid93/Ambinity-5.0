@@ -63,6 +63,7 @@ namespace adrilight_content_creator.ViewModel
                 Color.FromRgb(255, 0, 0),
                 Color.FromRgb(0, 0, 255),
                 Color.FromRgb(0, 0, 0),
+                Color.FromRgb(255, 255, 255),
                 Color.FromRgb(255, 255, 0),
                 Color.FromRgb(0, 255, 255),
                 Color.FromRgb(255, 0, 255),

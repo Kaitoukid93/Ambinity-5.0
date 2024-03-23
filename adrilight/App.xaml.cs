@@ -136,7 +136,7 @@ namespace adrilight
             var kernel = new StandardKernel(new DeviceSettingsInjectModule());
             GeneralSettings = kernel.Get<IGeneralSettings>();
             //Load setting từ file Json//
-            var deviceManager = kernel.Get<DeviceManagerViewModel>();   
+            var deviceManager = kernel.Get<DeviceManagerViewModel>();
             var captureEngines = kernel.GetAll<ICaptureEngine>();
             var rainbowTicker = kernel.Get<RainbowTicker>();
             var playlistDecoder = kernel.Get<PlaylistDecoder>();
@@ -188,7 +188,7 @@ namespace adrilight
                         break;
                 }
             };
-            if (deviceManager.AvailableDevices!=null)
+            if (deviceManager.AvailableDevices != null)
             {
                 foreach (var device in deviceManager.AvailableDevices.Items)
                 {
@@ -337,6 +337,11 @@ namespace adrilight
             switch (connectionType)
             {
                 case DeviceConnectionTypeEnum.Wired:
+                    if (device.SubDevices != null && device.SubDevices.Count > 0)
+                    {
+                        kernel.Bind<ISerialStream>().To<HUBSerialStream>().InSingletonScope().Named(device.DeviceUID.ToString()).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(device.DeviceUID.ToString()));
+                    }
+                    else
                     kernel.Bind<ISerialStream>().To<SerialStream>().InSingletonScope().Named(device.DeviceUID.ToString()).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(device.DeviceUID.ToString()));
                     break;
 

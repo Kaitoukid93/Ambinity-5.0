@@ -29,7 +29,7 @@ using System.Windows;
 
 namespace adrilight_shared.Models.Device
 {
-    public class DeviceSettings : ViewModelBase, IDeviceSettings, IDashboardItem, IGenericCollectionItem, ISubDeviceSettings
+    public class DeviceSettings : ViewModelBase, IDeviceSettings, IDashboardItem, IGenericCollectionItem
     {
         private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
         private string DevicesCollectionFolderPath => Path.Combine(JsonPath, "Devices");
@@ -82,7 +82,7 @@ namespace adrilight_shared.Models.Device
         public string InfoPath { get; set; }
         private bool _autoConnect = true;
         public bool AutoConnect  { get => _autoConnect; set { Set(() => AutoConnect, ref _autoConnect, value); } }
-
+        public ObservableCollection<SubDevice> SubDevices { get; set; }
 
         [JsonIgnore]
         public string DeviceThumbnail => File.Exists(Path.Combine(ResourceCollectionFolderPath, DeviceName + "_thumb.png")) ? Path.Combine(ResourceCollectionFolderPath, DeviceName + "_thumb.png") : Path.Combine(ResourceCollectionFolderPath, DeviceType.Name + "_thumb.png");
@@ -215,15 +215,6 @@ namespace adrilight_shared.Models.Device
             return groups;
         }
         public int CurrentActiveControlerIndex { get => _currentActiveControllerIndex; set { if (value >= 0) Set(() => CurrentActiveControlerIndex, ref _currentActiveControllerIndex, value); OnActiveControllerChanged(); } }
-
-        private int _subDeviceAddress;
-        private string _subDeviceName;
-        private int _subDeviceMaxOutputs;
-        private string _parrentID;
-        public int SubDeviceAddress { get => _subDeviceAddress; set { Set(() => SubDeviceAddress, ref _subDeviceAddress, value); } }
-        public string SubDeviceName { get => _subDeviceName; set { Set(() => SubDeviceName, ref _subDeviceName, value); } }
-        public int SubDeviceMaxOutputs { get => _subDeviceMaxOutputs; set { Set(() => SubDeviceMaxOutputs, ref _subDeviceMaxOutputs, value); } }
-        public string ParrentID { get => _parrentID; set { Set(() => ParrentID, ref _parrentID, value); } }
 
         private void OnActiveControllerChanged()
         {

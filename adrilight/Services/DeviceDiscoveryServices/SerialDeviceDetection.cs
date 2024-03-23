@@ -36,16 +36,16 @@ namespace adrilight.Util
         private static CancellationToken cancellationtoken;
         private static bool isNoRespondingMessageShowed = false;
         private static List<IDeviceSettings> ExistedSerialDevice { get; set; }
-        private static List<DeviceHUB> ExistedDeviceHUB { get; set; }
+        //private static List<DeviceHUB> ExistedDeviceHUB { get; set; }
 
-        public SerialDeviceDetection(List<IDeviceSettings> existedSerialDevice, List<DeviceHUB> existedDeviceHUB)
+        public SerialDeviceDetection(List<IDeviceSettings> existedSerialDevice)
         {
             ExistedSerialDevice = existedSerialDevice;
-            ExistedDeviceHUB = new List<DeviceHUB>();
-            if (existedDeviceHUB != null)
-            {
-                ExistedDeviceHUB = existedDeviceHUB;
-            }
+            //ExistedDeviceHUB = new List<DeviceHUB>();
+            //if (existedDeviceHUB != null)
+            //{
+            //    ExistedDeviceHUB = existedDeviceHUB;
+            //}
 
         }
 
@@ -117,7 +117,7 @@ namespace adrilight.Util
             {
                 foreach (var port in sd)
                 {
-                    if (ExistedDeviceHUB.Any(d => d.GetPorts().Any(p => p.Port == port && p.IsConnected == true)))
+                    if (ExistedSerialDevice.Any(d => d.SubDevices != null && d.SubDevices.Any(p => p.ComPort == port) && d.IsTransferActive == true))
                         continue;
                     subDevices.Add(port);
                 }
@@ -157,6 +157,7 @@ namespace adrilight.Util
         {
             var outputStream = new byte[16];
             Buffer.BlockCopy(settingCommand, 0, outputStream, 0, settingCommand.Length);
+            outputStream[3] = 255;
             return outputStream;
         }
         private static (int, int, string) GetSubDeviceInformation(string comPort)
@@ -656,11 +657,11 @@ namespace adrilight.Util
             return (newDevices, existedDevices);
 
         }
-        public (List<DeviceHUB>, List<DeviceHUB>) DetectedHUBDevice()
+        public (List<DeviceSettings>, List<DeviceSettings>) DetectedHUBDevice()
         {
-            List<DeviceHUB> newHUB = new List<DeviceHUB>();
-            List<DeviceHUB> existedHUB = new List<DeviceHUB>();
-            List<DeviceSettings> newSubDevice = new List<DeviceSettings>();
+            List<DeviceSettings> newHUB = new List<DeviceSettings>();
+            List<DeviceSettings> existedHUB = new List<DeviceSettings>();
+            List<SubDevice> newSubDevice = new List<SubDevice>();
             var validSubDevices = GetValidDevice().Item2;
             foreach (var comPort in validSubDevices)
             {
@@ -672,32 +673,33 @@ namespace adrilight.Util
                 // for example, if the hub load in database have 4 ports, we continue to search until we got all 4 outputs valid
                 // if we get more or less device in the hub, we just add or remove accordingly??
                 //let's try
-                var (outputID, maxPort, serial) = GetSubDeviceInformation(comPort);
-                var matchHub = ExistedDeviceHUB.Where(h => h.HUBSerial == serial).FirstOrDefault();
+                var (outputID, maxPort, hubSerial) = GetSubDeviceInformation(comPort);
+
+                var matchHub = ExistedSerialDevice.Where(h => h.DeviceSerial == hubSerial).FirstOrDefault();
                 if (matchHub != null)
                 {
-                    if(matchHub.Devices!=null)
+                    if (matchHub.SubDevices != null)
                     {
-                        int connectedSubDeviceCount =0;
-                        foreach (var device in matchHub.Devices)
+                        int connectedSubDeviceCount = 0;
+                        foreach (var subDevice in matchHub.SubDevices)
                         {
-                            var rslt = CheckDeviceConnection(device.OutputPort);
+                            var rslt = CheckDeviceConnection(subDevice.ComPort);
                             if (rslt)
                             {
                                 connectedSubDeviceCount++;
                             }
                             else
                             {
-                                Log.Warning("SubDevice " + device.OutputPort + " not found or in use");
+                                Log.Warning("SubDevice " + subDevice.ComPort + " not found or in use");
                             }
                         }
-                        if(connectedSubDeviceCount>0)
+                        if (connectedSubDeviceCount > 0)
                         {
-                            matchHub.Connect();
+                            matchHub.IsTransferActive = true;
                         }
-                      
+
                     }
-                   
+
                     continue;
                 }
                 //else we probably found a new device
@@ -706,13 +708,14 @@ namespace adrilight.Util
                 var valid = outputID != 255 && maxPort != 255;
                 if (valid)
                 {
-                    var dev = GetDeviceInformation(comPort);
+                    var dev = new SubDevice();
                     if (dev != null)
                     {
                         //construct new subdevice
-                        dev.SubDeviceMaxOutputs = maxPort;
-                        dev.SubDeviceAddress = outputID;
-                        dev.DeviceSerial = serial;
+                        dev.MaxLEDOutput = maxPort;
+                        dev.PortIndex = outputID;
+                        dev.HUBSerial = hubSerial;
+                        dev.ComPort = comPort;
                         newSubDevice.Add(dev);
                     }
                     else
@@ -727,13 +730,15 @@ namespace adrilight.Util
 
             }
 
-            var hubs = newSubDevice.GroupBy(d => d.DeviceSerial);
+            var hubs = newSubDevice.GroupBy(d => d.Serial);
             foreach (var hub in hubs)
             {
-                var newHub = new DeviceHUB("newhub");
+                var newHub = DeviceConstruct("Ambino HubV3", "", "", "", "");
+                newHub.SubDevices = new System.Collections.ObjectModel.ObservableCollection<SubDevice>();
+
                 foreach (var dev in hub)
                 {
-                    newHub.Devices.Add(dev);
+                    newHub.SubDevices.Add(dev);
                 }
                 newHUB.Add(newHub);
             }
