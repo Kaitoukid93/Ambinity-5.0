@@ -1,5 +1,7 @@
 ﻿using adrilight_shared.Models.AppUser;
+using adrilight_shared.Models.Language;
 using System.ComponentModel;
+using System.Globalization;
 using Color = System.Windows.Media.Color;
 
 namespace adrilight_shared.Settings
@@ -44,5 +46,7 @@ namespace adrilight_shared.Settings
         bool ScreenCapturingEnabled { get; set; }
         bool AudioCapturingEnabled { get; set; }
         bool UsingOpenRGB { get; set; }
+        LangModel AppCulture { get; set; }
+        int AppLanguageIndex { get; set; }
     }
 }

@@ -120,7 +120,9 @@
 
                 </hc:Divider>
             </Grid>
-
+            <Grid>
+                
+            </Grid>
             <Grid Name="outputVoltage">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"/>

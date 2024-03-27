@@ -25,6 +25,7 @@ using adrilight_shared.Models.Device.Zone.Spot;
 using adrilight_shared.Models.Drawable;
 using adrilight_shared.Models.FrameData;
 using adrilight_shared.Models.KeyboardHook;
+using adrilight_shared.Models.Language;
 using adrilight_shared.Models.Lighting;
 using adrilight_shared.Models.Preview;
 using adrilight_shared.Models.Store;
@@ -49,14 +50,17 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.IO.Ports;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web.Compilation;
 using System.Web.UI.WebControls;
 using System.Windows;
 using System.Windows.Forms;
@@ -154,7 +158,20 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged(nameof(AvailableBaudrates));
             }
         }
+        private ObservableCollection<LangModel> _availableAppCulture;
 
+        public ObservableCollection<LangModel> AvailableAppCulture {
+            get
+            {
+                return _availableAppCulture;
+            }
+
+            set
+            {
+                _availableAppCulture = value;
+                RaisePropertyChanged();
+            }
+        }
         private ObservableCollection<SystemTrayContextMenu> _availableContextMenus;
 
         public ObservableCollection<SystemTrayContextMenu> AvailableContextMenus {
@@ -958,7 +975,9 @@ namespace adrilight.ViewModel
                             Unregister();
                         }
                         break;
-
+                    case nameof(generalSettings.AppLanguageIndex):
+                        generalSettings.AppCulture = AvailableAppCulture[generalSettings.AppLanguageIndex];
+                        break;
                     default:
                         break;
                 }
@@ -5080,8 +5099,8 @@ namespace adrilight.ViewModel
             {
                 //init app acent color selection
                 AccentColorSelection = new ListSelectionParameter(ModeParameterEnum.Color) {
-                    Name = "Màu chủ đề",
-                    Description = "Chọn màu chủ đạo cho ứng dụng. Sau khi chọn màu, bạn nên khởi động lại ứng dụng",
+                    Name = adrilight.Properties.Resources.MainViewViewModel_GeneralSettings_ThemeColor_Header,
+                    Description = adrilight.Properties.Resources.MainViewViewModel_GeneralSettings_ThemeColor_info,
                     DataSourceLocaFolderNames = new List<string>() { "Colors" }
                 };
                 AccentColorSelection.LoadAvailableValues();
@@ -8672,8 +8691,17 @@ namespace adrilight.ViewModel
             #endregion
             LoadAvailableBaudRate();
             LoadAvailableProfiles();
+            LoadAvailableAppCulture();
             //LoadAvailableLightingProfiles();
             LoadAvailableAutomations();
+        }
+        private void LoadAvailableAppCulture()
+        {
+            var en = new LangModel(new CultureInfo("en-US"), "English", "");
+            var vi = new LangModel(new CultureInfo("vi-VN"), "Tiếng Việt", "");
+            AvailableAppCulture = new ObservableCollection<LangModel>();
+            AvailableAppCulture.Add(en);
+            AvailableAppCulture.Add(vi);
         }
         private void LoadAvailableAppUser()
         {

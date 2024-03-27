@@ -1,6 +1,8 @@
 ﻿using adrilight_shared.Models.AppUser;
+using adrilight_shared.Models.Language;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
+using System.Globalization;
 using Color = System.Windows.Media.Color;
 
 namespace adrilight_shared.Settings
@@ -44,10 +46,14 @@ namespace adrilight_shared.Settings
         private bool _audioCapturingEnabled = true;
         private string _openRGBVersion = "0.90";
         private bool _usingOpenRGB = true;
+        private int _appLanguageIndex = 0;
+        private LangModel _appCulture = new LangModel(new CultureInfo("en-US", false), "English", "");
         public GeneralSettings()
         {
 
         }
+        public LangModel AppCulture { get => _appCulture; set { Set(() => AppCulture, ref _appCulture, value); } }
+        public int AppLanguageIndex { get => _appLanguageIndex; set { Set(() => AppLanguageIndex, ref _appLanguageIndex, value); } }
         public bool IsHWMonitorEnabled { get => _isHardwareMonitorEnabled; set { Set(() => IsHWMonitorEnabled, ref _isHardwareMonitorEnabled, value); } }
         public bool ShowOpenRGB { get => _showOpenRGB; set { Set(() => ShowOpenRGB, ref _showOpenRGB, value); } }
         public int StartupDelaySecond { get => _startupDelaySecond; set { Set(() => StartupDelaySecond, ref _startupDelaySecond, value); } }

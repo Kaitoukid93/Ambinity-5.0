@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -46,7 +46,7 @@
     
     mimetype: application/x-microsoft.net.object.binary.base64
     value   : The object must be serialized with 
-            : System.Serialization.Formatters.Binary.BinaryFormatter
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
     
     mimetype: application/x-microsoft.net.object.soap.base64
@@ -60,6 +60,7 @@
             : and then encoded with base64 encoding.
     -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
@@ -68,9 +69,10 @@
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" />
+              <xsd:attribute name="name" use="required" type="xsd:string" />
               <xsd:attribute name="type" type="xsd:string" />
               <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="assembly">
@@ -85,9 +87,10 @@
                 <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
                 <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
@@ -109,186 +112,186 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AllDeviceView_DEVICES" xml:space="preserve">
-    <value>DEVICES</value>
+    <value>DANH SÁCH THIẾT BỊ</value>
   </data>
   <data name="App_Already_Launch" xml:space="preserve">
-    <value>Adrilight has been previously launched; please check the 'Task Manager' or 'System Tray' in Windows</value>
+    <value>Adrilight đã được khởi chạy trước đó, vui lòng kiểm tra "Trình quản lý tác vụ" hoặc "Khay hệ thống" của Windows</value>
   </data>
   <data name="App_Already_Launch_Header" xml:space="preserve">
-    <value>Adrilight has been previously launched; please check the 'Task Manager' or 'System Tray' in Windows</value>
+    <value>Phần mềm đã được khởi động</value>
   </data>
   <data name="AllDeviceView_Manage_Button" xml:space="preserve">
-    <value>Manage</value>
+    <value>Quản lý</value>
   </data>
   <data name="AllDeviceView_Device_Guide" xml:space="preserve">
-    <value>Click on each device to customize the effects.</value>
+    <value>Nhấn vào từng thiết bị để tuỳ chỉnh hiệu ứng.</value>
   </data>
   <data name="AllDeviceView_LIGHTINGPROFILES" xml:space="preserve">
-    <value>LIGHTING PROFILES</value>
+    <value>HIỆU ỨNG ĐỒNG BỘ</value>
   </data>
   <data name="AllDeviceView_LightingProfiles_Guide" xml:space="preserve">
-    <value>When activated, all devices will synchronize with each other except for the ones that are turned off</value>
+    <value>Khi được kích hoạt, tất cả các thiết bị sẽ đồng bộ với nhau trừ những thiết bị đã tắt</value>
   </data>
   <data name="AllDeviceView_AUTOMATIONS" xml:space="preserve">
-    <value>AUTOMATIONS</value>
+    <value>TỰ ĐỘNG HOÁ</value>
   </data>
   <data name="AllDeviceView_Automation_Guide" xml:space="preserve">
-    <value>You can create automated sequences for devices or assign them to hotkeys for control without having to turn on the software.</value>
+    <value>Bạn có thể tạo các chuỗi tự hành động cho thiết bị hoặc gán cho chúng phím tắt để điều khiển mà không cần bật phần mềm.</value>
   </data>
   <data name="NonClientAreaContent_SurfaceEditor_ToolTip" xml:space="preserve">
-    <value>Surface Editor</value>
+    <value>Bố trí thiết bị và vị trí điểm LED</value>
   </data>
   <data name="NonClientAreaContent_Automation_Tooltip" xml:space="preserve">
-    <value>Automation</value>
-  </data>
-  <data name="NonClientAreaContent_AdrilightStore_ToolTip" xml:space="preserve">
-    <value>Adrilight Store</value>
+    <value>Tự động hoá</value>
   </data>
   <data name="NonClientAreaContent_GeneralSettings_ToolTip" xml:space="preserve">
-    <value>General Settings</value>
+    <value>Cài đặt chung</value>
+  </data>
+  <data name="NonClientAreaContent_AdrilightStore_ToolTip" xml:space="preserve">
+    <value>Cửa hàng Adrilight</value>
   </data>
   <data name="NonClientAreaContent_Debug_ToolTip" xml:space="preserve">
-    <value>Actions Log</value>
+    <value>Nhật ký hành động</value>
   </data>
   <data name="AllDeviceView_DeviceManager_Tooltip" xml:space="preserve">
-    <value>Manage devices</value>
+    <value>Quản lý các thiết bị</value>
   </data>
   <data name="AllDeviceView_LightingProfile_Tooltip" xml:space="preserve">
-    <value>Manage lighting profiles</value>
+    <value>Quản lý Profile và Playlist</value>
   </data>
   <data name="AllDeviceView_Automation_Tooltip" xml:space="preserve">
-    <value>Manage automations</value>
+    <value>Quản lý và chỉnh sửa các phím tắt</value>
   </data>
   <data name="AllDeviceView_VisitTheAdrilightStore_Button" xml:space="preserve">
-    <value>Visit the Adrilight Store</value>
+    <value>Truy cập Cửa hàng Adrilight</value>
   </data>
   <data name="AllDeviceView_VisitStoreTail" xml:space="preserve">
-    <value>to download additional lighting profiles</value>
+    <value>để tải thêm nhiều hiệu ứng đồng bộ khác</value>
   </data>
   <data name="AppSettingsWindow_GeneralSettings" xml:space="preserve">
-    <value>General Settings</value>
+    <value>Cài đặt chung</value>
   </data>
   <data name="AppSettingsWindow_STARTWITHWINDOWS" xml:space="preserve">
-    <value>START WITH WINDOWS</value>
+    <value>KHỞI ĐỘNG CÙNG HỆ THỐNG</value>
   </data>
   <data name="AppSettingsWindow_Delay" xml:space="preserve">
-    <value>Delay (sec)</value>
+    <value>Chờ (giây)</value>
   </data>
   <data name="AppSettingsWindow_AutoStart_Info" xml:space="preserve">
-    <value>Automatically start with windows.</value>
+    <value>Phần mềm sẽ tự khởi động cùng hệ thống.</value>
   </data>
   <data name="AppSettingsWindow_StartMinimized_header" xml:space="preserve">
-    <value>START MINIMIZED</value>
+    <value>THU NHỎ KHI MỞ</value>
   </data>
   <data name="AppSettingsWindow_StartMinimized_info" xml:space="preserve">
-    <value>After startup, automatically minimize the app to the system tray.</value>
+    <value>Tự động thu nhỏ cửa sổ vào khay hệ thống sau khi phần mềm khởi động.</value>
   </data>
   <data name="AppSettingsWindow_EnableHotKey_Header" xml:space="preserve">
-    <value>ENABLE HOTKEY</value>
+    <value>KÍCH HOẠT PHÍM TẮT</value>
   </data>
   <data name="AppSettingsWindow_EnableHotKey_info" xml:space="preserve">
-    <value>Disable this option if you encounter app crashing while typing or playing games.</value>
+    <value>Tắt tuỳ chọn này nếu bạn gặp lỗi văng phần mềm khi đang gõ văn bản hoặc chơi game.</value>
+  </data>
+  <data name="AppSettingsWindow_EnableHardwareMonitor_Header" xml:space="preserve">
+    <value>GIÁM SÁT PHẦN CỨNG</value>
+  </data>
+  <data name="AppSettingsWindow_EnableHardwareMonitor_info" xml:space="preserve">
+    <value>Cho phép phần mềm đọc thông tin phần cứng máy tính.</value>
+  </data>
+  <data name="AppSettingsWindow_EnableScreenCapture_Header" xml:space="preserve">
+    <value>GHI MÀN HÌNH</value>
+  </data>
+  <data name="AppSettingsWindow_ScreenCaptureEnable_Info" xml:space="preserve">
+    <value>Bật ghi lại nội dung màn hình (cài đặt này ảnh hưởng tới chế độ sáng theo màn hình).</value>
+  </data>
+  <data name="AppSettingsWindow_ScreenCapturingAPI_Header" xml:space="preserve">
+    <value>PHƯƠNG THỨC GHI</value>
+  </data>
+  <data name="AppSettingsWindow_ScreenCapturingAPI_info" xml:space="preserve">
+    <value>Thay đổi phương thức ghi màn hình nếu chế độ sáng theo màn hình không hoạt động (cần khởi động lại phần mềm).</value>
+  </data>
+  <data name="AppSettingsWindow_MultipleScreenSupport_Header" xml:space="preserve">
+    <value>GHI NHIỀU MÀN HÌNH</value>
+  </data>
+  <data name="AppSettingsWindow_MultipleScreenSupport_info" xml:space="preserve">
+    <value>Cho phép ghi nội dung từ nhiều hơn một màn hình (tắt tuỳ chọn này nếu bạn gặp lỗi khi dùng nhiều màn hình).</value>
+  </data>
+  <data name="AppSettingsWindow_AudioCapture_Header" xml:space="preserve">
+    <value>GHI ÂM THANH</value>
+  </data>
+  <data name="AppSettingsWindow_AudioCaptureEnable_info" xml:space="preserve">
+    <value>Bật ghi lại âm thanh hệ thống (cài đặt này ảnh hưởng tới chế độ nháy theo nhạc).</value>
+  </data>
+  <data name="AppSettingsWindow_AutoUpdate" xml:space="preserve">
+    <value>TỰ ĐỘNG CẬP NHẬT</value>
+  </data>
+  <data name="AppSettingsWindow_AutoUpdate_info" xml:space="preserve">
+    <value>Tự động kiểm tra bản cập nhật mỗi ngày hoặc mỗi khi mở phần mềm</value>
+  </data>
+  <data name="AppSettingsWindow_AddNewDevice_Header" xml:space="preserve">
+    <value>THÊM THIẾT BỊ MỚI</value>
+  </data>
+  <data name="AppSettingsWindow_AddnewDevices_info" xml:space="preserve">
+    <value>Chuyển sang "Thủ công" nếu bạn muốn tự thêm thiết bị.</value>
+  </data>
+  <data name="AppSettingsWindow_ManualAddDevice" xml:space="preserve">
+    <value>THÊM THỦ CÔNG</value>
+  </data>
+  <data name="AppSettingsWindow_ManualAddDeviceFromFile" xml:space="preserve">
+    <value>THÊM TỪ TỆP NÉN</value>
+  </data>
+  <data name="AppSettingsWindow_UsingOpenRGB_info" xml:space="preserve">
+    <value>Cho phép ứng dụng bổ sung OpenRGB hoạt động để kết nối với các thiết bị của nhiều hãng khác nhau.</value>
   </data>
   <data name="AppSettingsWindow_UsingOpenRGB_Header" xml:space="preserve">
     <value>OPENRGB</value>
   </data>
-  <data name="AppSettingsWindow_UsingOpenRGB_info" xml:space="preserve">
-    <value>Allow the OpenRGB supplement application to connect with devices from various manufacturers.</value>
-  </data>
-  <data name="AppSettingsWindow_EnableHardwareMonitor_Header" xml:space="preserve">
-    <value>ENABLE HARDWARE MONITOR</value>
-  </data>
-  <data name="AppSettingsWindow_EnableHardwareMonitor_info" xml:space="preserve">
-    <value>Authorize this app to read hardware information.</value>
-  </data>
-  <data name="AppSettingsWindow_EnableScreenCapture_Header" xml:space="preserve">
-    <value>SCREEN CAPTURE</value>
-  </data>
-  <data name="AppSettingsWindow_ScreenCaptureEnable_Info" xml:space="preserve">
-    <value>Enable screen capture (this setting affects the ambient backlight mode).</value>
-  </data>
-  <data name="AppSettingsWindow_ScreenCapturingAPI_Header" xml:space="preserve">
-    <value>CAPTURING API</value>
-  </data>
-  <data name="AppSettingsWindow_ScreenCapturingAPI_info" xml:space="preserve">
-    <value>Change the capturing method if the ambient backlight mode is not functioning (requires restarting the app).</value>
-  </data>
-  <data name="AppSettingsWindow_MultipleScreenSupport_Header" xml:space="preserve">
-    <value>MULTIPLE SCREENS SUPPORT</value>
-  </data>
-  <data name="AppSettingsWindow_MultipleScreenSupport_info" xml:space="preserve">
-    <value>Enable screen capture on multiple screens (disable this option if you encounter errors while using multiple monitors).</value>
-  </data>
-  <data name="AppSettingsWindow_AudioCapture_Header" xml:space="preserve">
-    <value>AUDIO CAPTURE</value>
-  </data>
-  <data name="AppSettingsWindow_AudioCaptureEnable_info" xml:space="preserve">
-    <value>Enable audio capture (this setting affects the music reactive mode).</value>
-  </data>
-  <data name="AppSettingsWindow_AutoUpdate" xml:space="preserve">
-    <value>AUTO-UPDATE</value>
-  </data>
-  <data name="AppSettingsWindow_AutoUpdate_info" xml:space="preserve">
-    <value>Automatically check for updates every day or on startup.</value>
-  </data>
-  <data name="AppSettingsWindow_AddNewDevice_Header" xml:space="preserve">
-    <value>ADD NEW DEVICES</value>
-  </data>
-  <data name="AppSettingsWindow_AddnewDevices_info" xml:space="preserve">
-    <value>Switch this option to"Manual" if you prefer to add new devices on your own.</value>
-  </data>
-  <data name="AppSettingsWindow_ManualAddDevice" xml:space="preserve">
-    <value>ADD MANUALLY</value>
-  </data>
-  <data name="AppSettingsWindow_ManualAddDeviceFromFile" xml:space="preserve">
-    <value>IMPORT FROM FILE</value>
-  </data>
   <data name="AppSettingsWindow_ShowOpenRGB_Header" xml:space="preserve">
-    <value>SHOW OPENRGB ICON</value>
+    <value>HIỂN THỊ OPENRGB</value>
   </data>
   <data name="AppSettingsWindow_ShowOpenRGB_info" xml:space="preserve">
-    <value>The OpenRGB icon will appear in the system tray (requires restarting the app).</value>
+    <value>Biểu tượng OpenRGB sẽ hiển thị ở khay hệ thống (cần khởi động lại phần mềm).</value>
   </data>
   <data name="AppSettingsWindow_PowerLimit_Header" xml:space="preserve">
-    <value>POWER LIMIT</value>
+    <value>GIỚI HẠN DÒNG ĐIỆN</value>
   </data>
   <data name="AppSettingsWindow_PowerLimit_info" xml:space="preserve">
-    <value>Limit the power consumption according to Ambino device current standard.</value>
-  </data>
-  <data name="AppSettingsWindow_Language_Header" xml:space="preserve">
-    <value>LANGUAGE</value>
-  </data>
-  <data name="AppSettingsWindow_Language_info" xml:space="preserve">
-    <value>Select System Language(requires restarting the app).</value>
+    <value>Giới hạn dòng điện tiêu thụ theo chuẩn thiết bị Ambino.</value>
   </data>
   <data name="MainViewViewModel_GeneralSettings_ThemeColor_Header" xml:space="preserve">
-    <value>THEME COLOR</value>
+    <value>MÀU CHỦ ĐỀ</value>
   </data>
   <data name="MainViewViewModel_GeneralSettings_ThemeColor_info" xml:space="preserve">
-    <value>Change theme color for the application (app restart recommended).</value>
+    <value>Chọn màu chủ đạo cho ứng dụng (nên khởi động lại phần mềm).</value>
   </data>
-  <data name="AppSettingsWindow_AddDeviceMethodAuto" xml:space="preserve">
-    <value>Auto-scan</value>
+  <data name="AppSettingsWindow_Language_Header" xml:space="preserve">
+    <value>NGÔN NGỮ</value>
+  </data>
+  <data name="AppSettingsWindow_Language_info" xml:space="preserve">
+    <value>Thay đổi ngôn ngữ hiển thị (cần khởi động lại phần mềm).</value>
   </data>
   <data name="AppSettingsWindow_AddDeviceMethodManual" xml:space="preserve">
-    <value>Manual</value>
+    <value>Thủ công</value>
+  </data>
+  <data name="AppSettingsWindow_AddDeviceMethodAuto" xml:space="preserve">
+    <value>Tự dò tìm</value>
   </data>
   <data name="Add_Button_Content" xml:space="preserve">
-    <value>Add</value>
+    <value>Thêm</value>
   </data>
   <data name="Import_Button_Content" xml:space="preserve">
-    <value>Import</value>
+    <value>Nhập</value>
   </data>
   <data name="GeneralSettings_AutoStartDelayTime_header" xml:space="preserve">
-    <value>DELAY</value>
+    <value>TRỄ</value>
   </data>
   <data name="GeneralSettings_AutoStartDelayTime_info" xml:space="preserve">
-    <value>Auto start delay time(sec)</value>
+    <value>Thời gian trễ sau khi máy tính khởi động (tính bằng giây)</value>
   </data>
 </root>

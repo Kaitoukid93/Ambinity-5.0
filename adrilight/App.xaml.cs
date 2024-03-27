@@ -15,6 +15,7 @@ using adrilight_shared.Helpers;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.Device;
 using adrilight_shared.Models.Device.Zone;
+using adrilight_shared.Models.Language;
 using adrilight_shared.Services;
 using adrilight_shared.Settings;
 using adrilight_shared.View.Dialogs;
@@ -29,10 +30,12 @@ using Ninject.Extensions.Conventions;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -57,17 +60,27 @@ namespace adrilight
         protected override async void OnStartup(StartupEventArgs startupEvent)
         {
             //check if this app is already open in the background
+            var settingsManager = new UserSettingsManager();
+            var generalSettings = settingsManager.LoadIfExists() ?? settingsManager.MigrateOrDefault();
+            Thread.CurrentThread.CurrentCulture = generalSettings.AppCulture.Culture;
+            Thread.CurrentThread.CurrentUICulture = generalSettings.AppCulture.Culture;
+            CultureInfo.DefaultThreadCurrentCulture = generalSettings.AppCulture.Culture;
+            CultureInfo.DefaultThreadCurrentUICulture = generalSettings.AppCulture.Culture;
+            ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
+            var accentColor = generalSettings.AccentColor;
+            ThemeManager.Current.AccentColor = new SolidColorBrush(accentColor);
             _adrilightMutex = new Mutex(true, "adrilight2");
             if (!_adrilightMutex.WaitOne(TimeSpan.Zero, true))
             {
                 //another instance is already running!
-                HandyControl.Controls.MessageBox.Show("Adrilight đã được khởi chạy trước đó rồi, vui lòng kiểm tra Task Manager hoặc System Tray Icon"
-                    , "App đã được khởi chạy!");
+                HandyControl.Controls.MessageBox.Show(adrilight.Properties.Resources.App_Already_Launch
+                    , adrilight.Properties.Resources.App_Already_Launch_Header);
                 Shutdown();
                 return;
             }
             /////////
             BassNet.Registration("saorihara93@gmail.com", "2X2831021152222");
+            ////////
 
             _knownTypeBinders = new KnownTypesBinder();
             JsonConvert.DefaultSettings = () => new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Objects, SerializationBinder = _knownTypeBinders };
@@ -81,13 +94,8 @@ namespace adrilight
             //show splash screen here to display wtfever you are loading
 
             //set style and color of the default theme
-            ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
-            var settingsManager = new UserSettingsManager();
-            var generalSettings = settingsManager.LoadIfExists() ?? settingsManager.MigrateOrDefault();
-            var accentColor = generalSettings.AccentColor;
-            ThemeManager.Current.AccentColor = new SolidColorBrush(accentColor);
-            //_splashScreen.WindowState = WindowState.Normal;
 
+            //_splashScreen.WindowState = WindowState.Normal;
             // inject all, this task may takes long time
             _splashScreen = new SplashScreen();
             this.MainWindow = _splashScreen;
@@ -342,7 +350,7 @@ namespace adrilight
                         kernel.Bind<ISerialStream>().To<HUBSerialStream>().InSingletonScope().Named(device.DeviceUID.ToString()).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(device.DeviceUID.ToString()));
                     }
                     else
-                    kernel.Bind<ISerialStream>().To<SerialStream>().InSingletonScope().Named(device.DeviceUID.ToString()).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(device.DeviceUID.ToString()));
+                        kernel.Bind<ISerialStream>().To<SerialStream>().InSingletonScope().Named(device.DeviceUID.ToString()).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(device.DeviceUID.ToString()));
                     break;
 
                 case DeviceConnectionTypeEnum.Wireless:

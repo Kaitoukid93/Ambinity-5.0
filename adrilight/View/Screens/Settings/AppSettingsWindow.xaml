@@ -12,6 +12,7 @@
            mc:Ignorable="d"
            xmlns:local="clr-namespace:adrilight.View"
            xmlns:System="clr-namespace:System;assembly=mscorlib"
+           xmlns:properties="clr-namespace:adrilight.Properties"
            xmlns:ut="clr-namespace:adrilight.Util"
            Background="{DynamicResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
@@ -595,7 +596,7 @@
                 </Grid.RowDefinitions>
                 <TextBlock VerticalAlignment="Top"
                            Margin="20,0,20,20"
-                           Text="Cài Đặt Ứng Dụng"
+                           Text="{x:Static properties:Resources.AppSettingsWindow_GeneralSettings}"
                            Style="{StaticResource TextBlockLarge}">
 
                 </TextBlock>
@@ -607,7 +608,7 @@
                             <RowDefinition Height="auto" />
                         </Grid.RowDefinitions>
                         <GroupBox   VerticalAlignment="Center"
-                                    hc:TitleElement.TitleWidth="150"
+                                    hc:TitleElement.TitleWidth="200"
                                     Header="SPEED"
                                     Margin="5"
                                     Style="{StaticResource GroupBoxOriginal}"
@@ -616,19 +617,13 @@
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold"
-                                               Text="START WITH WINDOWS" />
+                                               Text="{x:Static properties:Resources.AppSettingsWindow_STARTWITHWINDOWS}" />
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
                             <Grid HorizontalAlignment="Right">
                                 <StackPanel Orientation="Horizontal">
-                                    <hc:NumericUpDown Style="{DynamicResource NumericUpDownPlus}"
-                                                      hc:InfoElement.TitleWidth="50"
-                                                      hc:InfoElement.Title="Delay"
-                                                      hc:InfoElement.TitlePlacement="Left"
-                                                      Margin="10,5"
-                                                      Value="{Binding GeneralSettings.StartupDelaySecond}" />
-
-                                    <ToggleButton HorizontalAlignment="Right"
+                                    <ToggleButton x:Name="autoStartToggleButton"
+                                                  HorizontalAlignment="Right"
                                                   IsChecked="{Binding GeneralSettings.Autostart}"
                                                   Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
 
@@ -644,7 +639,75 @@
                                    HorizontalAlignment="Left"
                                    Style="{StaticResource TextBlockDefaultSecLight}"
                                    Grid.Row="1"
-                                   Text="Tự khởi động cùng Windows" />
+                                   Text="{x:Static properties:Resources.AppSettingsWindow_AutoStart_Info}" />
+                    </Grid>
+
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                                 Margin="50,10,5,10">
+                        <hc:Divider.Style>
+                            <Style TargetType="hc:Divider">
+                                <Setter Property="Visibility"
+                                        Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=autoStartToggleButton,Path=IsChecked}"
+                                                 Value="True">
+                                        <Setter Property="Visibility"
+                                                Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </hc:Divider.Style>
+                    </hc:Divider>
+                    <Grid Margin="50,0,0,0">
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility"
+                                        Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=autoStartToggleButton,Path=IsChecked}"
+                                                 Value="True">
+                                        <Setter Property="Visibility"
+                                                Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <StackPanel>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                </Grid.RowDefinitions>
+                                <GroupBox   VerticalAlignment="Center"
+                                            hc:TitleElement.TitleWidth="200"
+                                            Margin="5"
+                                            Style="{StaticResource GroupBoxOriginal}"
+                                            HorizontalAlignment="Stretch"
+                                            hc:TitleElement.TitlePlacement="Left">
+                                    <GroupBox.HeaderTemplate>
+                                        <DataTemplate>
+                                            <TextBlock FontWeight="SemiBold"
+                                                       Text="{x:Static properties:Resources.GeneralSettings_AutoStartDelayTime_header}" />
+                                        </DataTemplate>
+                                    </GroupBox.HeaderTemplate>
+
+                                    <hc:NumericUpDown HorizontalAlignment="Right"
+                                                      Style="{DynamicResource NumericUpDownPlus}"
+                                                      hc:InfoElement.TitleWidth="70"
+                                                      Margin="10,5"
+                                                      Value="{Binding GeneralSettings.StartupDelaySecond}" />
+
+
+                                </GroupBox>
+                                <TextBlock Margin="5,0,0,0"
+                                           HorizontalAlignment="Left"
+                                           Style="{StaticResource TextBlockDefaultSecLight}"
+                                           Grid.Row="1"
+                                           Text="{x:Static properties:Resources.GeneralSettings_AutoStartDelayTime_info}" />
+                            </Grid>
+                        </StackPanel>
+
+
                     </Grid>
                     <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
                                  Margin="5,10,5,10">
@@ -665,7 +728,7 @@
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold"
-                                               Text="START MINIMIZED" />
+                                               Text="{x:Static properties:Resources.AppSettingsWindow_StartMinimized_header}" />
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
@@ -681,7 +744,7 @@
                                    HorizontalAlignment="Left"
                                    Style="{StaticResource TextBlockDefaultSecLight}"
                                    Grid.Row="1"
-                                   Text="Ứng dụng sẽ ẩn ở System Tray nếu tùy chọn này được bật" />
+                                   Text="{x:Static properties:Resources.AppSettingsWindow_StartMinimized_info}" />
                     </Grid>
                     <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
                                  Margin="5,10,5,10">
@@ -702,7 +765,7 @@
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold"
-                                               Text="ENABLE HOTKEY" />
+                                               Text="{x:Static properties:Resources.AppSettingsWindow_EnableHotKey_Header}" />
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
@@ -718,55 +781,13 @@
                                    HorizontalAlignment="Left"
                                    Style="{StaticResource TextBlockDefaultSecLight}"
                                    Grid.Row="1"
-                                   Text="Tắt tùy chọn này nếu bạn gặp vấn đề với bộ gõ và HotKey" />
+                                   Text="{x:Static properties:Resources.AppSettingsWindow_EnableHotKey_info}" />
                     </Grid>
-                    <hc:Divider Visibility="Collapsed"
-                                LineStroke="{StaticResource SecondaryRegionBrush}"
-                                Margin="5,10,5,10">
-
-                    </hc:Divider>
-                    <Grid Visibility="Collapsed"
-                          Name="OpenRGBEnable">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="auto" />
-                            <RowDefinition Height="auto" />
-                        </Grid.RowDefinitions>
-                        <GroupBox   VerticalAlignment="Center"
-                                    hc:TitleElement.TitleWidth="150"
-                                    Header="SPEED"
-                                    Margin="5"
-                                    Style="{StaticResource GroupBoxOriginal}"
-                                    HorizontalAlignment="Stretch"
-                                    hc:TitleElement.TitlePlacement="Left">
-                            <GroupBox.HeaderTemplate>
-                                <DataTemplate>
-                                    <TextBlock FontWeight="SemiBold"
-                                               Text="USING OPEN RGB" />
-                                </DataTemplate>
-                            </GroupBox.HeaderTemplate>
-
-                            <ToggleButton HorizontalAlignment="Right"
-                                          IsChecked="{Binding GeneralSettings.IsOpenRGBEnabled}"
-                                          Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
-
-                            </ToggleButton>
-
-
-                        </GroupBox>
-                        <TextBlock Margin="5,0,0,0"
-                                   HorizontalAlignment="Left"
-                                   Style="{StaticResource TextBlockDefaultSecLight}"
-                                   Grid.Row="1"
-                                   Text="Tắt tùy chọn này nếu bạn không muốn đồng bộ các thiết bị OpenRGB" />
-                    </Grid>
-
-
                     <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
                                  Margin="5,10,5,10">
 
                     </hc:Divider>
-                    <Grid 
-                          Name="HWMonitorEnable">
+                    <Grid Name="HWMonitorEnable">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto" />
                             <RowDefinition Height="auto" />
@@ -781,7 +802,7 @@
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold"
-                                               Text="ENABLE HARDWAR MONITOR" />
+                                               Text="{x:Static properties:Resources.AppSettingsWindow_EnableHardwareMonitor_Header}" />
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
@@ -797,7 +818,7 @@
                                    HorizontalAlignment="Left"
                                    Style="{StaticResource TextBlockDefaultSecLight}"
                                    Grid.Row="1"
-                                   Text="Tắt tùy chọn này nếu bạn không muốn app đọc thông tin phần cứng máy tính" />
+                                   Text="{x:Static properties:Resources.AppSettingsWindow_EnableHardwareMonitor_info}" />
                     </Grid>
 
 
@@ -820,7 +841,7 @@
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold"
-                                               Text="SCREEN CAPTURE ENABLE" />
+                                               Text="{x:Static properties:Resources.AppSettingsWindow_EnableScreenCapture_Header}" />
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
@@ -838,7 +859,7 @@
                                    HorizontalAlignment="Left"
                                    Style="{StaticResource TextBlockDefaultSecLight}"
                                    Grid.Row="1"
-                                   Text="Cho phép capture screen" />
+                                   Text="{x:Static properties:Resources.AppSettingsWindow_ScreenCaptureEnable_Info}" />
                     </Grid>
                     <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
                                  Margin="50,10,5,10">
@@ -886,7 +907,7 @@
                                     <GroupBox.HeaderTemplate>
                                         <DataTemplate>
                                             <TextBlock FontWeight="SemiBold"
-                                                       Text="CAPTURING API" />
+                                                       Text="{x:Static properties:Resources.AppSettingsWindow_ScreenCapturingAPI_Header}" />
                                         </DataTemplate>
                                     </GroupBox.HeaderTemplate>
 
@@ -919,7 +940,7 @@
                                            Grid.Row="1"
                                            MaxWidth="400"
                                            TextWrapping="Wrap"
-                                           Text="Thay đổi phương pháp capture màn hình nếu chế độ sáng theo màn hình không hoạt động, sau đó khởi động lại App" />
+                                           Text="{x:Static properties:Resources.AppSettingsWindow_ScreenCapturingAPI_info}" />
                             </Grid>
                             <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
                                          Margin="5,10,5,10">
@@ -940,7 +961,7 @@
                                     <GroupBox.HeaderTemplate>
                                         <DataTemplate>
                                             <TextBlock FontWeight="SemiBold"
-                                                       Text="MULTIPLE SCREEN SUPPORT" />
+                                                       Text="{x:Static properties:Resources.AppSettingsWindow_MultipleScreenSupport_Header}" />
                                         </DataTemplate>
                                     </GroupBox.HeaderTemplate>
 
@@ -957,7 +978,8 @@
                                            HorizontalAlignment="Left"
                                            Style="{StaticResource TextBlockDefaultSecLight}"
                                            Grid.Row="1"
-                                           Text="Cho phép capture nhiều hơn một màn hình, tắt đi nếu gặp lỗi khi dùng nhiều màn hình" />
+                                           MaxWidth="400"
+                                           Text="{x:Static properties:Resources.AppSettingsWindow_MultipleScreenSupport_info}" />
                             </Grid>
                         </StackPanel>
 
@@ -982,7 +1004,7 @@
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold"
-                                               Text="AUDIO CAPTURE" />
+                                               Text="{x:Static properties:Resources.AppSettingsWindow_AudioCapture_Header}" />
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
@@ -999,7 +1021,7 @@
                                    HorizontalAlignment="Left"
                                    Style="{StaticResource TextBlockDefaultSecLight}"
                                    Grid.Row="1"
-                                   Text="Cho phép capture Audio output" />
+                                   Text="{x:Static properties:Resources.AppSettingsWindow_AudioCaptureEnable_info}" />
                     </Grid>
                     <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
                                  Margin="5,10,5,10">
@@ -1020,7 +1042,7 @@
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold"
-                                               Text="UPDATE" />
+                                               Text="{x:Static properties:Resources.AppSettingsWindow_AutoUpdate}" />
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
@@ -1036,7 +1058,7 @@
                                    HorizontalAlignment="Left"
                                    Style="{StaticResource TextBlockDefaultSecLight}"
                                    Grid.Row="1"
-                                   Text="Tự động tìm bản cập nhật mỗi ngày hoặc mỗi lần mở app" />
+                                   Text="{x:Static properties:Resources.AppSettingsWindow_AutoUpdate_info}" />
                     </Grid>
 
                     <!--<hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
@@ -1080,7 +1102,7 @@
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold"
-                                               Text="THÊM THIẾT BỊ MỚI" />
+                                               Text="{x:Static properties:Resources.AppSettingsWindow_AddNewDevice_Header}" />
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
@@ -1095,10 +1117,10 @@
                                           SelectedIndex="{Binding GeneralSettings.DeviceDiscoveryMode}"
                                           Style="{StaticResource ComboBoxBaseStyle}">
                                     <ComboBoxItem>
-                                        Tự động
+                                        <TextBlock Text="{x:Static properties:Resources.AppSettingsWindow_AddDeviceMethodAuto}" />
                                     </ComboBoxItem>
                                     <ComboBoxItem>
-                                        Thủ công
+                                        <TextBlock Text="{x:Static properties:Resources.AppSettingsWindow_AddDeviceMethodManual}" />
                                     </ComboBoxItem>
                                 </ComboBox>
                             </Grid>
@@ -1109,7 +1131,7 @@
                                    HorizontalAlignment="Left"
                                    Style="{StaticResource TextBlockDefaultSecLight}"
                                    Grid.Row="1"
-                                   Text="Chọn &quot;Thủ công&quot; nếu bạn muốn thêm thiết bị bằng tay" />
+                                   Text="{x:Static properties:Resources.AppSettingsWindow_AddnewDevices_info}" />
 
                     </Grid>
                     <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
@@ -1157,7 +1179,7 @@
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold"
-                                               Text="THÊM THỦ CÔNG" />
+                                               Text="{x:Static properties:Resources.AppSettingsWindow_ManualAddDevice}" />
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
@@ -1177,7 +1199,7 @@
                                     <Button Command="{Binding ManuallyAddSelectedDeviceToDashboard}"
                                             CommandParameter="{Binding ElementName=selectedDevice,Path=SelectedItem}"
                                             Style="{DynamicResource _mediumProfileDefaultButton}"
-                                            Content="Add" />
+                                            Content="{x:Static properties:Resources.Add_Button_Content}" />
                                 </StackPanel>
 
                             </Grid>
@@ -1231,7 +1253,7 @@
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold"
-                                               Text="IMPORT FROM FILE" />
+                                               Text="{x:Static properties:Resources.AppSettingsWindow_ManualAddDeviceFromFile}" />
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
@@ -1240,7 +1262,7 @@
 
                                     <Button Command="{Binding ImportDeviceFromFileCommand}"
                                             Style="{DynamicResource _mediumProfileDefaultButton}"
-                                            Content="Import" />
+                                            Content="{x:Static properties:Resources.Import_Button_Content}" />
                                 </StackPanel>
 
                             </Grid>
@@ -1268,7 +1290,7 @@
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold"
-                                               Text="OPENRGB PLUGIN" />
+                                               Text="{x:Static properties:Resources.AppSettingsWindow_UsingOpenRGB_Header}" />
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
@@ -1285,7 +1307,7 @@
                                    HorizontalAlignment="Left"
                                    Style="{StaticResource TextBlockDefaultSecLight}"
                                    Grid.Row="1"
-                                   Text="Cho phép sử dụng OpenRGB Plugin (yêu cầu HUBV3 kết nối)" />
+                                   Text="{x:Static properties:Resources.AppSettingsWindow_UsingOpenRGB_info}" />
                     </Grid>
                     <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
                                  Margin="50,10,5,10">
@@ -1332,7 +1354,7 @@
                                     <GroupBox.HeaderTemplate>
                                         <DataTemplate>
                                             <TextBlock FontWeight="SemiBold"
-                                                       Text="HIỂN THỊ OPENRGB" />
+                                                       Text="{x:Static properties:Resources.AppSettingsWindow_ShowOpenRGB_Header}" />
                                         </DataTemplate>
                                     </GroupBox.HeaderTemplate>
 
@@ -1348,7 +1370,7 @@
                                            HorizontalAlignment="Left"
                                            Style="{StaticResource TextBlockDefaultSecLight}"
                                            Grid.Row="1"
-                                           Text="Hiển thị OpenRGB Process ở System Tray (yêu cầu khởi động lại ứn dụng)" />
+                                           Text="{x:Static properties:Resources.AppSettingsWindow_ShowOpenRGB_info}" />
                             </Grid>
                         </StackPanel>
 
@@ -1372,7 +1394,7 @@
                             <GroupBox.HeaderTemplate>
                                 <DataTemplate>
                                     <TextBlock FontWeight="SemiBold"
-                                               Text="GIỚI HẠN DÒNG ĐIỆN" />
+                                               Text="{x:Static properties:Resources.AppSettingsWindow_PowerLimit_Header}" />
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
 
@@ -1388,7 +1410,7 @@
                                    HorizontalAlignment="Left"
                                    Style="{StaticResource TextBlockDefaultSecLight}"
                                    Grid.Row="1"
-                                   Text="Giới hạn dòng điện thiêu thụ theo chuẩn thiết bị của Ambino" />
+                                   Text="{x:Static properties:Resources.AppSettingsWindow_PowerLimit_info}" />
                     </Grid>
 
                     <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
@@ -1401,6 +1423,44 @@
                                         Content="{Binding AccentColorSelection}">
 
                         </ContentControl>
+                    </Grid>
+                    <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                                 Margin="5,10,5,10">
+
+                    </hc:Divider>
+                    <Grid Name="langSelection">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                        </Grid.RowDefinitions>
+                        <GroupBox   VerticalAlignment="Center"
+                                    hc:TitleElement.TitleWidth="200"
+                                    Margin="5"
+                                    Style="{StaticResource GroupBoxOriginal}"
+                                    HorizontalAlignment="Stretch"
+                                    hc:TitleElement.TitlePlacement="Left">
+                            <GroupBox.HeaderTemplate>
+                                <DataTemplate>
+                                    <TextBlock FontWeight="SemiBold"
+                                               Text="{x:Static properties:Resources.AppSettingsWindow_Language_Header}" />
+                                </DataTemplate>
+                            </GroupBox.HeaderTemplate>
+
+                            <ComboBox SelectedIndex="{Binding GeneralSettings.AppLanguageIndex}"
+                                      DisplayMemberPath="Name"
+                                      Width="100"
+                                      HorizontalAlignment="Right"
+                                      ItemsSource="{Binding AvailableAppCulture}">
+
+                            </ComboBox>
+
+
+                        </GroupBox>
+                        <TextBlock Margin="5,0,0,0"
+                                   HorizontalAlignment="Left"
+                                   Style="{StaticResource TextBlockDefaultSecLight}"
+                                   Grid.Row="1"
+                                   Text="{x:Static properties:Resources.AppSettingsWindow_Language_info}" />
                     </Grid>
                     <!--<hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
 

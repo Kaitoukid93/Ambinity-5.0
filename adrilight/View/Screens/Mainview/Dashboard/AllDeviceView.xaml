@@ -12,6 +12,7 @@
              Background="{StaticResource RegionBrush}"
              xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
              mc:Ignorable="d"
+             xmlns:properties="clr-namespace:adrilight.Properties"
              xmlns:viewmodel="clr-namespace:adrilight.ViewModel"
              d:DataContext="{d:DesignInstance Type=viewmodel:MainViewViewModel}"
              TextElement.FontWeight="Regular"
@@ -568,25 +569,25 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Grid Margin="0">
                                         <TextBlock Margin="15,10,10,5"
-                                                   Text="DEVICES"
+                                                   Text="{x:Static properties:Resources.AllDeviceView_DEVICES}"
                                                    VerticalAlignment="Top"
                                                    FontWeight="SemiBold"
                                                    Style="{DynamicResource TextBlockSubTitle}"
                                                    HorizontalAlignment="Left" />
                                     </Grid>
-                                    <Button ToolTip="Quản lý các thiết bị"
+                                    <Button ToolTip="{x:Static properties:Resources.AllDeviceView_DeviceManager_Tooltip}"
                                             Command="{Binding OpenDeviceManagerWindowCommand}"
                                             hc:IconElement.Geometry="{DynamicResource slaveDevice}"
                                             Margin="5,5,5,5"
                                             BorderBrush="Transparent"
-                                            Content="Manage">
+                                            Content="{x:Static properties:Resources.AllDeviceView_Manage_Button}">
                                     </Button>
 
                                 </StackPanel>
                                 <Grid Margin="0" Grid.Row="1">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Margin="15,0,0,20"
-                                                   Text="Click vào từng thiết bị để cài đặt riêng biệt"
+                                                   Text="{x:Static properties:Resources.AllDeviceView_Device_Guide}"
                                                    VerticalAlignment="Top"
                                                    Style="{DynamicResource TextBlockDefaultSecLight}"
                                                    HorizontalAlignment="Left" />
@@ -665,17 +666,17 @@
                         <Grid Margin="0,0,0,0">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Margin="15,0,10,0"
-                                           Text="LIGHTING PROFILE"
+                                           Text="{x:Static properties:Resources.AllDeviceView_LIGHTINGPROFILES}"
                                            VerticalAlignment="Center"
                                            FontWeight="SemiBold"
                                            Style="{DynamicResource TextBlockSubTitle}"
                                            HorizontalAlignment="Left" />
-                                <Button ToolTip="Quản lý Profile và Playlist"
+                                <Button ToolTip="{x:Static properties:Resources.AllDeviceView_LightingProfile_Tooltip}"
                                         Command="{Binding OpenLightingProfileManagerWindowCommand}"
                                         hc:IconElement.Geometry="{DynamicResource profileManager}"
                                         Margin="5"
                                         BorderBrush="Transparent"
-                                        Content="Manage">
+                                        Content="{x:Static properties:Resources.AllDeviceView_Manage_Button}">
                                 </Button>
                             </StackPanel>
 
@@ -686,7 +687,7 @@
                                     <StackPanel Orientation="Horizontal"
                                                 Margin="15,0,10,20">
                                         <TextBlock Margin="0,0"
-                                                   Text="Khi được kích hoạt, tất cả các thiết bị sẽ đồng bộ với nhau trừ những thiết bị đã bị tắt"
+                                                   Text="{x:Static properties:Resources.AllDeviceView_LightingProfiles_Guide}"
                                                    VerticalAlignment="Top"
                                                    Style="{DynamicResource TextBlockDefaultSecLight}"
                                                    HorizontalAlignment="Left" />
@@ -702,10 +703,10 @@
                                                        HorizontalAlignment="Center"
                                                        TextWrapping="Wrap"
                                                        Style="{DynamicResource TextBlockDefaultPrimary}"
-                                                       Text="Truy cập Adrilight Store" />
+                                                       Text="{x:Static properties:Resources.AllDeviceView_VisitTheAdrilightStore_Button}" />
                                         </Button>
                                         <TextBlock Margin="0,0"
-                                                   Text="để tải thêm nhiều Profile"
+                                                   Text="{x:Static properties:Resources.AllDeviceView_VisitStoreTail}"
                                                    VerticalAlignment="Top"
                                                    Style="{DynamicResource TextBlockDefaultSecLight}"
                                                    HorizontalAlignment="Left" />
@@ -729,17 +730,17 @@
                             <Grid Margin="0">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Margin="15,10,10,0"
-                                               Text="AUTOMATIONS"
+                                               Text="{x:Static properties:Resources.AllDeviceView_AUTOMATIONS}"
                                                VerticalAlignment="Top"
                                                FontWeight="SemiBold"
                                                Style="{DynamicResource TextBlockSubTitle}"
                                                HorizontalAlignment="Left" />
-                                    <Button ToolTip="Quản lý Profile và Playlist"
+                                    <Button ToolTip="{x:Static properties:Resources.AllDeviceView_Automation_Tooltip}"
                                             Command="{Binding OpenAutomationManagerWindowCommand}"
                                             hc:IconElement.Geometry="{DynamicResource auto}"
                                             Margin="5"
                                             BorderBrush="Transparent"
-                                            Content="Manage">
+                                            Content="{x:Static properties:Resources.AllDeviceView_Manage_Button}">
                                     </Button>
                                 </StackPanel>
                               
@@ -751,7 +752,7 @@
 
 
                                     <TextBlock Margin="0,0"
-                                               Text="Khi được kích hoạt, các hành động đã được thêm trong automation sẽ lần lượt được thực hiện."
+                                               Text="{x:Static properties:Resources.AllDeviceView_Automation_Guide}"
                                                VerticalAlignment="Top"
                                                Style="{DynamicResource TextBlockDefaultSecLight}"
                                                HorizontalAlignment="Left" />

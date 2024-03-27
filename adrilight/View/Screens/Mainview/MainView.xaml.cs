@@ -2,6 +2,7 @@
 using adrilight.ViewModel;
 using adrilight_shared.Models.Automation;
 using System;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
@@ -20,6 +21,7 @@ namespace adrilight.View
         private MonitorState monitorState;
         public MainView()
         {
+            
             InitializeComponent();
             // ViewModel = new MainViewViewModel();
             // this.DataContext = ViewModel;
@@ -247,7 +249,9 @@ namespace adrilight.View
         protected override void OnContentRendered(EventArgs e)
         {
             base.OnContentRendered(e);
-            NonClientAreaContent = new NonClientAreaContent();
+            ViewModel = DataContext as MainViewViewModel;
+            NonClientAreaContent = new NonClientAreaContent(ViewModel.GeneralSettings.AppCulture.Culture);
+            
         }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {

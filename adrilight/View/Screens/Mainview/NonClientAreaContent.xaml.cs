@@ -1,7 +1,10 @@
-﻿using System;
+﻿using adrilight_shared.Settings;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,8 +23,9 @@ namespace adrilight.View
     /// </summary>
     public partial class NonClientAreaContent : Grid
     {
-        public NonClientAreaContent()
+        public NonClientAreaContent(CultureInfo currentCulture)
         {
+            Thread.CurrentThread.CurrentUICulture = currentCulture;
             InitializeComponent();
         }
       

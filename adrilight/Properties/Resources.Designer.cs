@@ -8,10 +8,10 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace adrilight.Properties
-{
-
-
+namespace adrilight.Properties {
+    using System;
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -19,53 +19,575 @@ namespace adrilight.Properties
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources
-    {
-
+    public class Resources {
+        
         private static global::System.Resources.ResourceManager resourceMan;
-
+        
         private static global::System.Globalization.CultureInfo resourceCulture;
-
+        
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal Resources()
-        {
+        internal Resources() {
         }
-
+        
         /// <summary>
-        ///   Returns the 
-        ///   d ResourceManager instance used by this class.
+        ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager
-        {
-            get
-            {
-                if ((resourceMan == null))
-                {
+        public static global::System.Resources.ResourceManager ResourceManager {
+            get {
+                if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("adrilight.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
             }
         }
-
+        
         /// <summary>
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture
-        {
-            get
-            {
+        public static global::System.Globalization.CultureInfo Culture {
+            get {
                 return resourceCulture;
             }
-            set
-            {
+            set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add.
+        /// </summary>
+        public static string Add_Button_Content {
+            get {
+                return ResourceManager.GetString("Add_Button_Content", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You can create automated sequences for devices or assign them to hotkeys for control without having to turn on the software..
+        /// </summary>
+        public static string AllDeviceView_Automation_Guide {
+            get {
+                return ResourceManager.GetString("AllDeviceView_Automation_Guide", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Manage automations.
+        /// </summary>
+        public static string AllDeviceView_Automation_Tooltip {
+            get {
+                return ResourceManager.GetString("AllDeviceView_Automation_Tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to AUTOMATIONS.
+        /// </summary>
+        public static string AllDeviceView_AUTOMATIONS {
+            get {
+                return ResourceManager.GetString("AllDeviceView_AUTOMATIONS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Click on each device to customize the effects..
+        /// </summary>
+        public static string AllDeviceView_Device_Guide {
+            get {
+                return ResourceManager.GetString("AllDeviceView_Device_Guide", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Manage devices.
+        /// </summary>
+        public static string AllDeviceView_DeviceManager_Tooltip {
+            get {
+                return ResourceManager.GetString("AllDeviceView_DeviceManager_Tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DEVICES.
+        /// </summary>
+        public static string AllDeviceView_DEVICES {
+            get {
+                return ResourceManager.GetString("AllDeviceView_DEVICES", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Manage lighting profiles.
+        /// </summary>
+        public static string AllDeviceView_LightingProfile_Tooltip {
+            get {
+                return ResourceManager.GetString("AllDeviceView_LightingProfile_Tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LIGHTING PROFILES.
+        /// </summary>
+        public static string AllDeviceView_LIGHTINGPROFILES {
+            get {
+                return ResourceManager.GetString("AllDeviceView_LIGHTINGPROFILES", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to When activated, all devices will synchronize with each other except for the ones that are turned off.
+        /// </summary>
+        public static string AllDeviceView_LightingProfiles_Guide {
+            get {
+                return ResourceManager.GetString("AllDeviceView_LightingProfiles_Guide", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Manage.
+        /// </summary>
+        public static string AllDeviceView_Manage_Button {
+            get {
+                return ResourceManager.GetString("AllDeviceView_Manage_Button", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to to download additional lighting profiles.
+        /// </summary>
+        public static string AllDeviceView_VisitStoreTail {
+            get {
+                return ResourceManager.GetString("AllDeviceView_VisitStoreTail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Visit the Adrilight Store.
+        /// </summary>
+        public static string AllDeviceView_VisitTheAdrilightStore_Button {
+            get {
+                return ResourceManager.GetString("AllDeviceView_VisitTheAdrilightStore_Button", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Adrilight has been previously launched; please check the &apos;Task Manager&apos; or &apos;System Tray&apos; in Windows.
+        /// </summary>
+        public static string App_Already_Launch {
+            get {
+                return ResourceManager.GetString("App_Already_Launch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Adrilight has been previously launched; please check the &apos;Task Manager&apos; or &apos;System Tray&apos; in Windows.
+        /// </summary>
+        public static string App_Already_Launch_Header {
+            get {
+                return ResourceManager.GetString("App_Already_Launch_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Auto-scan.
+        /// </summary>
+        public static string AppSettingsWindow_AddDeviceMethodAuto {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_AddDeviceMethodAuto", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Manual.
+        /// </summary>
+        public static string AppSettingsWindow_AddDeviceMethodManual {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_AddDeviceMethodManual", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ADD NEW DEVICES.
+        /// </summary>
+        public static string AppSettingsWindow_AddNewDevice_Header {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_AddNewDevice_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Switch this option to&quot;Manual&quot; if you prefer to add new devices on your own..
+        /// </summary>
+        public static string AppSettingsWindow_AddnewDevices_info {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_AddnewDevices_info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to AUDIO CAPTURE.
+        /// </summary>
+        public static string AppSettingsWindow_AudioCapture_Header {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_AudioCapture_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enable audio capture (this setting affects the music reactive mode)..
+        /// </summary>
+        public static string AppSettingsWindow_AudioCaptureEnable_info {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_AudioCaptureEnable_info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Automatically start with windows..
+        /// </summary>
+        public static string AppSettingsWindow_AutoStart_Info {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_AutoStart_Info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to AUTO-UPDATE.
+        /// </summary>
+        public static string AppSettingsWindow_AutoUpdate {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_AutoUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Automatically check for updates every day or on startup..
+        /// </summary>
+        public static string AppSettingsWindow_AutoUpdate_info {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_AutoUpdate_info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delay (sec).
+        /// </summary>
+        public static string AppSettingsWindow_Delay {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_Delay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ENABLE HARDWARE MONITOR.
+        /// </summary>
+        public static string AppSettingsWindow_EnableHardwareMonitor_Header {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_EnableHardwareMonitor_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Authorize this app to read hardware information..
+        /// </summary>
+        public static string AppSettingsWindow_EnableHardwareMonitor_info {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_EnableHardwareMonitor_info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ENABLE HOTKEY.
+        /// </summary>
+        public static string AppSettingsWindow_EnableHotKey_Header {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_EnableHotKey_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Disable this option if you encounter app crashing while typing or playing games..
+        /// </summary>
+        public static string AppSettingsWindow_EnableHotKey_info {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_EnableHotKey_info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SCREEN CAPTURE.
+        /// </summary>
+        public static string AppSettingsWindow_EnableScreenCapture_Header {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_EnableScreenCapture_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to General Settings.
+        /// </summary>
+        public static string AppSettingsWindow_GeneralSettings {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_GeneralSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LANGUAGE.
+        /// </summary>
+        public static string AppSettingsWindow_Language_Header {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_Language_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select System Language(requires restarting the app)..
+        /// </summary>
+        public static string AppSettingsWindow_Language_info {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_Language_info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ADD MANUALLY.
+        /// </summary>
+        public static string AppSettingsWindow_ManualAddDevice {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_ManualAddDevice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to IMPORT FROM FILE.
+        /// </summary>
+        public static string AppSettingsWindow_ManualAddDeviceFromFile {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_ManualAddDeviceFromFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MULTIPLE SCREENS SUPPORT.
+        /// </summary>
+        public static string AppSettingsWindow_MultipleScreenSupport_Header {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_MultipleScreenSupport_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enable screen capture on multiple screens (disable this option if you encounter errors while using multiple monitors)..
+        /// </summary>
+        public static string AppSettingsWindow_MultipleScreenSupport_info {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_MultipleScreenSupport_info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to POWER LIMIT.
+        /// </summary>
+        public static string AppSettingsWindow_PowerLimit_Header {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_PowerLimit_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Limit the power consumption according to Ambino device current standard..
+        /// </summary>
+        public static string AppSettingsWindow_PowerLimit_info {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_PowerLimit_info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enable screen capture (this setting affects the ambient backlight mode)..
+        /// </summary>
+        public static string AppSettingsWindow_ScreenCaptureEnable_Info {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_ScreenCaptureEnable_Info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CAPTURING API.
+        /// </summary>
+        public static string AppSettingsWindow_ScreenCapturingAPI_Header {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_ScreenCapturingAPI_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change the capturing method if the ambient backlight mode is not functioning (requires restarting the app)..
+        /// </summary>
+        public static string AppSettingsWindow_ScreenCapturingAPI_info {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_ScreenCapturingAPI_info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SHOW OPENRGB ICON.
+        /// </summary>
+        public static string AppSettingsWindow_ShowOpenRGB_Header {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_ShowOpenRGB_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The OpenRGB icon will appear in the system tray (requires restarting the app)..
+        /// </summary>
+        public static string AppSettingsWindow_ShowOpenRGB_info {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_ShowOpenRGB_info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to START MINIMIZED.
+        /// </summary>
+        public static string AppSettingsWindow_StartMinimized_header {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_StartMinimized_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to After startup, automatically minimize the app to the system tray..
+        /// </summary>
+        public static string AppSettingsWindow_StartMinimized_info {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_StartMinimized_info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to START WITH WINDOWS.
+        /// </summary>
+        public static string AppSettingsWindow_STARTWITHWINDOWS {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_STARTWITHWINDOWS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OPENRGB.
+        /// </summary>
+        public static string AppSettingsWindow_UsingOpenRGB_Header {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_UsingOpenRGB_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Allow the OpenRGB supplement application to connect with devices from various manufacturers..
+        /// </summary>
+        public static string AppSettingsWindow_UsingOpenRGB_info {
+            get {
+                return ResourceManager.GetString("AppSettingsWindow_UsingOpenRGB_info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DELAY.
+        /// </summary>
+        public static string GeneralSettings_AutoStartDelayTime_header {
+            get {
+                return ResourceManager.GetString("GeneralSettings_AutoStartDelayTime_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Auto start delay time(sec).
+        /// </summary>
+        public static string GeneralSettings_AutoStartDelayTime_info {
+            get {
+                return ResourceManager.GetString("GeneralSettings_AutoStartDelayTime_info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Import.
+        /// </summary>
+        public static string Import_Button_Content {
+            get {
+                return ResourceManager.GetString("Import_Button_Content", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to THEME COLOR.
+        /// </summary>
+        public static string MainViewViewModel_GeneralSettings_ThemeColor_Header {
+            get {
+                return ResourceManager.GetString("MainViewViewModel_GeneralSettings_ThemeColor_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Change theme color for the application (app restart recommended)..
+        /// </summary>
+        public static string MainViewViewModel_GeneralSettings_ThemeColor_info {
+            get {
+                return ResourceManager.GetString("MainViewViewModel_GeneralSettings_ThemeColor_info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Adrilight Store.
+        /// </summary>
+        public static string NonClientAreaContent_AdrilightStore_ToolTip {
+            get {
+                return ResourceManager.GetString("NonClientAreaContent_AdrilightStore_ToolTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Automation.
+        /// </summary>
+        public static string NonClientAreaContent_Automation_Tooltip {
+            get {
+                return ResourceManager.GetString("NonClientAreaContent_Automation_Tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Actions Log.
+        /// </summary>
+        public static string NonClientAreaContent_Debug_ToolTip {
+            get {
+                return ResourceManager.GetString("NonClientAreaContent_Debug_ToolTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to General Settings.
+        /// </summary>
+        public static string NonClientAreaContent_GeneralSettings_ToolTip {
+            get {
+                return ResourceManager.GetString("NonClientAreaContent_GeneralSettings_ToolTip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Surface Editor.
+        /// </summary>
+        public static string NonClientAreaContent_SurfaceEditor_ToolTip {
+            get {
+                return ResourceManager.GetString("NonClientAreaContent_SurfaceEditor_ToolTip", resourceCulture);
             }
         }
     }

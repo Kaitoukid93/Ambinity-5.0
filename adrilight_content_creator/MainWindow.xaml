@@ -49,8 +49,6 @@
                                                 <Condition Property="Selector.IsSelectionActive" Value="False"/>
                                                 <Condition Property="IsSelected" Value="True"/>
                                             </MultiTrigger.Conditions>
-
-
                                             <!--<Setter Property="Effect" TargetName="_Border" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>-->
 
                                             <Setter Property="Background" TargetName="_Border" Value="{DynamicResource SecondaryRegionBrush}"/>

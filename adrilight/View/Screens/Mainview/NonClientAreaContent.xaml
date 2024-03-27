@@ -2,7 +2,9 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       Height="42"
-      DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
+      xmlns:properties="clr-namespace:adrilight.Properties"
+      DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
+      xmlns:lex="http://wpflocalizeextension.codeplex.com"
       xmlns:hc="https://handyorg.github.io/handycontrol">
     <Grid.Resources>
         <ResourceDictionary>
@@ -27,61 +29,87 @@
     </Grid>
     <Grid Grid.Column="1">
         <StackPanel Orientation="Horizontal">
-            <Button HorizontalAlignment="Stretch" 
-                    HorizontalContentAlignment="Left"  
-                    Padding="0" 
-                    Command="{Binding OpenSurfaceEditorWindowCommand }" 
-                    hc:IconElement.Geometry="{DynamicResource position}" 
-                    CommandParameter="about" 
-                    BorderBrush="Transparent" 
-                    ToolTip="Setup vị trí (Surface Editor)"  
-                    hc:IconElement.Width="18" 
-                    hc:IconElement.Height="18"   
-                    Margin="10,5" 
-                    Style="{DynamicResource ButtonDashed}"/>
-            <Button HorizontalAlignment="Stretch" 
-                    HorizontalContentAlignment="Left" 
-                    Padding="0" 
-                    Command="{Binding OpenAutomationManagerWindowCommand }" 
-                    hc:IconElement.Geometry="{StaticResource auto}" 
-                    CommandParameter="automation" 
-                    BorderBrush="Transparent" 
-                    ToolTip="Phím tắt (Automation)"  
-                    hc:IconElement.Width="18" 
-                    hc:IconElement.Height="18" 
-                    Margin="10,5"  
-                    Style="{DynamicResource ButtonDashed}"/>
-            <Button Padding="0" 
-                    Command="{Binding OpenAmbinoStoreWindowCommand }" 
-                    hc:IconElement.Geometry="{DynamicResource onlineStore}" 
-                    CommandParameter="Home" BorderBrush="Transparent"  
-                    Margin="10,5" 
-                    hc:IconElement.Width="18" 
-                    hc:IconElement.Height="18" 
-                    ToolTip="Thư viện (Adrilight store)"  
-                    Style="{DynamicResource ButtonDashed}"/>
-            <Button Grid.Column="1" 
-                    Padding="0" 
+            <Button HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Left"
+                    Padding="0"
+                    Command="{Binding OpenSurfaceEditorWindowCommand }"
+                    hc:IconElement.Geometry="{DynamicResource position}"
+                    CommandParameter="about"
+                    BorderBrush="Transparent"
+                    hc:IconElement.Width="18"
+                    hc:IconElement.Height="18"
+                    Margin="10,5"
+                    Style="{DynamicResource ButtonDashed}">
+                <Button.ToolTip>
+                    <TextBlock Text="{x:Static properties:Resources.NonClientAreaContent_SurfaceEditor_ToolTip}">
+                        
+                    </TextBlock>
+                </Button.ToolTip>
+            </Button>
+            <Button HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Left"
+                    Padding="0"
+                    Command="{Binding OpenAutomationManagerWindowCommand }"
+                    hc:IconElement.Geometry="{StaticResource auto}"
+                    CommandParameter="automation"
+                    BorderBrush="Transparent"
+                    hc:IconElement.Width="18"
+                    hc:IconElement.Height="18"
+                    Margin="10,5"
+                    ToolTip="{x:Static properties:Resources.NonClientAreaContent_Automation_Tooltip}"
+                    Style="{DynamicResource ButtonDashed}">
+                
+            </Button>
+            <Button Padding="0"
+                    Command="{Binding OpenAmbinoStoreWindowCommand }"
+                    hc:IconElement.Geometry="{DynamicResource onlineStore}"
+                    CommandParameter="Home"
+                    BorderBrush="Transparent"
+                    Margin="10,5"
+                    hc:IconElement.Width="18"
+                    hc:IconElement.Height="18"
+                    Style="{DynamicResource ButtonDashed}">
+                <Button.ToolTip>
+                    <ToolTip>
+                        <TextBlock Text="{x:Static properties:Resources.NonClientAreaContent_AdrilightStore_ToolTip}">
+
+                        </TextBlock>
+                    </ToolTip>
+                    
+                </Button.ToolTip>
+            </Button>
+            <Button Grid.Column="1"
+                    Padding="0"
                     Command="{Binding OpenDebugWindowCommand}"
-                    Name="ButtonDebug" 
-                    hc:IconElement.Width="20" 
-                    hc:IconElement.Height="20" 
-                    Margin="10,5,10,5" 
+                    Name="ButtonDebug"
+                    hc:IconElement.Width="20"
+                    hc:IconElement.Height="20"
+                    Margin="10,5,10,5"
                     BorderThickness="0"
-                    ToolTip="Cài đặt chung"
                     Style="{DynamicResource ButtonDashed}"
-                    hc:IconElement.Geometry="{DynamicResource debug}"/>
-            <Button Grid.Column="1" 
-                    Padding="0" 
+                    hc:IconElement.Geometry="{DynamicResource debug}">
+                <Button.ToolTip>
+                    <TextBlock Text="{x:Static properties:Resources.NonClientAreaContent_Debug_ToolTip}">
+
+                    </TextBlock>
+                </Button.ToolTip>
+            </Button>
+            <Button Grid.Column="1"
+                    Padding="0"
                     Command="{Binding OpenAppSettingsWindowCommand}"
-                    Name="ButtonConfig" 
-                    hc:IconElement.Width="18" 
-                    hc:IconElement.Height="18" 
-                    Margin="10,5,20,5" 
+                    Name="ButtonConfig"
+                    hc:IconElement.Width="18"
+                    hc:IconElement.Height="18"
+                    Margin="10,5,20,5"
                     BorderThickness="0"
-                    ToolTip="Cài đặt chung"
                     Style="{DynamicResource ButtonDashed}"
-                    hc:IconElement.Geometry="{DynamicResource generalSettings}"/>
+                    hc:IconElement.Geometry="{DynamicResource generalSettings}">
+                <Button.ToolTip>
+                    <TextBlock Text="{x:Static properties:Resources.NonClientAreaContent_GeneralSettings_ToolTip}">
+
+                    </TextBlock>
+                </Button.ToolTip>
+            </Button>
             <!--<Grid  hc:RelativePanel.AlignRightWithPanel="True" Margin="0,0,10,0">
                 <Popup PlacementTarget="{Binding ElementName=profileBadge}" Effect="{StaticResource EffectShadow1}" AllowsTransparency="True" Grid.ColumnSpan="2"  HorizontalOffset="15" x:Name="profile_selection" VerticalOffset="5" StaysOpen="False">
                     <hc:TransitioningContentControl Effect="{StaticResource EffectShadow3}" TransitionMode="Top2Bottom">
