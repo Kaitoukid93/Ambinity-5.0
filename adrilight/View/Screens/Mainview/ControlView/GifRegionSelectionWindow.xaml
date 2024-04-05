@@ -5,6 +5,7 @@
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
+           xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
            xmlns:local="clr-namespace:adrilight.View"
            mc:Ignorable="d"
            Background="{DynamicResource RegionBrush}"
@@ -195,7 +196,7 @@
                     <GroupBox hc:TitleElement.TitleWidth="150" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Top">
                         <GroupBox.HeaderTemplate>
                             <DataTemplate>
-                                <TextBlock FontWeight="SemiBold" Text="CHỌN MỘT ẢNH ĐỘNG"/>
+                                <TextBlock FontWeight="SemiBold" Text="{x:Static properties:Resources.GifRegionSelectionWindow_GifSelection_header}"/>
                             </DataTemplate>
                         </GroupBox.HeaderTemplate>
                         <Grid>
@@ -240,9 +241,9 @@
                     <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}" Margin="10,10,10,10">
                     </hc:Divider>
                     <StackPanel Orientation="Vertical">
-                        <TextBlock TextWrapping="Wrap" MaxWidth="240" Text="Các bạn có thể tải thêm ảnh động về bằng cách truy cập vào Adrilight Store, sau đó chọn mục [Gif]"/>
+                        <TextBlock TextWrapping="Wrap" MaxWidth="240" Text="{x:Static properties:Resources.GifRegionSelectionWindow_GifSelection_info}"/>
                         <Button Command="{Binding OpenAmbinoStoreWindowCommand}" Padding="0" Background="Transparent" BorderThickness="0">
-                            <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="Truy cập Adrilight Store"/>
+                            <TextBlock Margin="5,2" HorizontalAlignment="Center" TextWrapping="Wrap" Style="{DynamicResource TextBlockDefaultPrimary}" Text="{x:Static properties:Resources.GifRegionSelectionWindow_GoToStore}"/>
                         </Button>
                     </StackPanel>
 
@@ -252,7 +253,7 @@
                 <GroupBox hc:TitleElement.TitleWidth="150" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Top">
                     <GroupBox.HeaderTemplate>
                         <DataTemplate>
-                            <TextBlock FontWeight="SemiBold" Text="CHỌN VÙNG CAPTURE"/>
+                            <TextBlock FontWeight="SemiBold" Text="{x:Static properties:Resources.GifSelectionWindow_CaptureArea_header}"/>
                         </DataTemplate>
                     </GroupBox.HeaderTemplate>
                     <Border HorizontalAlignment="Center" MaxWidth="1000" MaxHeight="640" Margin="5" BorderThickness="2">
@@ -285,8 +286,8 @@
             </Grid.ColumnDefinitions>
             <StackPanel HorizontalAlignment="Right" Grid.Column="2" Orientation="Horizontal">
 
-                <Button Click="Button_Click_Cancel"  Margin="15" Content="Cancel"  Style="{DynamicResource ButtonPrimary}" Background="Transparent" />
-                <Button Command="{Binding SaveCurrentSelectedRegionCommand}" CommandParameter="gif" Margin="15" Content="Done"  Style="{DynamicResource ButtonPrimary}"/>
+                <Button Click="Button_Click_Cancel"  Margin="15" Content="{x:Static properties:Resources.Button_Cancel_Content}"  Style="{DynamicResource ButtonPrimary}" Background="Transparent" />
+                <Button Command="{Binding SaveCurrentSelectedRegionCommand}" CommandParameter="gif" Margin="15" Content="{x:Static properties:Resources.Button_Done_content}"  Style="{DynamicResource ButtonPrimary}"/>
             </StackPanel>
         </Grid>
     </Grid>

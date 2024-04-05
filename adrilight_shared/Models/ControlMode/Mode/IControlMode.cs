@@ -14,11 +14,11 @@ namespace adrilight_shared.Models.ControlMode.Mode
         /// <summary>
         /// Name of this mode
         /// </summary>
-        string Name { get; set; }
+        string Name { get; }
         /// <summary>
         /// Description to tell what is this mode all about
         /// </summary>
-        string Description { get; set; }
+        string Description { get; }
         /// <summary>
         /// Name of the creator, this tend to be personal
         /// </summary>
@@ -36,9 +36,6 @@ namespace adrilight_shared.Models.ControlMode.Mode
         /// </summary>
         List<IModeParameter> Parameters { get; set; }
         string Geometry { get; set; }
-
-
-
 
     }
 }

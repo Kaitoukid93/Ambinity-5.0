@@ -12,6 +12,7 @@
              xmlns:lighting="clr-namespace:adrilight_shared.Models.Lighting;assembly=adrilight_shared"
              mc:Ignorable="d"
              xmlns:model="clr-namespace:adrilight_shared.Models;assembly=adrilight_shared"
+             xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
              d:DataContext="{d:DesignInstance model:DataCollection, IsDesignTimeCreatable=True}">
 
     <UserControl.Resources>
@@ -288,7 +289,7 @@
                                     hc:IconElement.Geometry="{DynamicResource shuffle}"
                                     Margin="0"
                                     hc:IconElement.Height="15"
-                                    Content="Shuffle and play" />
+                                    Content="{x:Static properties:Resources.ProfileCollectionView_ShuffleAndPlay_Button_Content}" />
                         </StackPanel>
                     </Grid>
                 </Border>

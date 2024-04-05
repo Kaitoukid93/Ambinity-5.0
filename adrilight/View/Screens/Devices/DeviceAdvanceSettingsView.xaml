@@ -6,6 +6,7 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
+             xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
              xmlns:store="clr-namespace:adrilight_shared.Models.Store;assembly=adrilight_shared"
              xmlns:enums="clr-namespace:adrilight_shared.Enums;assembly=adrilight_shared"
              xmlns:local="clr-namespace:adrilight.View"
@@ -31,7 +32,7 @@
                     Margin="0"
                     SelectedIndex="0"
                     Style="{DynamicResource TabControlInLine}">
-            <TabItem Header="Settings">
+            <TabItem Header="{x:Static properties:Resources.DeviceAdvanceSettingsView_Settings_TabItem_header}">
                 <Grid Margin="10,0,10,10">
                     <StackPanel>
                         <Grid Margin="0,50,0,0"
@@ -46,7 +47,7 @@
                                            VerticalAlignment="Top"
                                            FontWeight="SemiBold"
                                            Style="{DynamicResource TextBlockDefaultSecLight}"
-                                           Text="CÀI ĐẶT PHẦN CỨNG" />
+                                           Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_HardwareSettings_header}" />
                             </Grid>
                             <Grid Grid.Row="1">
 
@@ -68,7 +69,7 @@
                                                     <GroupBox.HeaderTemplate>
                                                         <DataTemplate>
                                                             <TextBlock FontWeight="SemiBold"
-                                                                       Text="GIỮ TRẠNG THÁI LED KHI NGẮT KẾT NỐI" />
+                                                                       Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_HardwareSettings_OfflineLEDState_header}" />
                                                         </DataTemplate>
                                                     </GroupBox.HeaderTemplate>
 
@@ -85,7 +86,7 @@
                                                            Style="{StaticResource TextBlockDefaultSecLight}"
                                                            Grid.Row="1"
                                                            TextWrapping="Wrap"
-                                                           Text="Led sẽ tắt sau 3s kể từ khi thiết bị mất tín hiệu điều khiển. Tắt tùy chọn này nếu khi tắt máy mà LED vẫn sáng" />
+                                                           Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_HardwareSettings_OfflineLEDState_info}" />
                                             </Grid>
                                             <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
                                                          Margin="5,10,5,10">
@@ -105,7 +106,7 @@
                                                     <GroupBox.HeaderTemplate>
                                                         <DataTemplate>
                                                             <TextBlock FontWeight="SemiBold"
-                                                                       Text="BẬT HOẶC TẮT LED CHỈ THỊ" />
+                                                                       Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_IndicatorLED_header}" />
                                                         </DataTemplate>
                                                     </GroupBox.HeaderTemplate>
 
@@ -122,7 +123,7 @@
                                                            Style="{StaticResource TextBlockDefaultSecLight}"
                                                            Grid.Row="1"
                                                            TextWrapping="Wrap"
-                                                           Text="Bật hoặc tắt led chỉ thị ( chỉ áp dụng với Ambino Basic và Ambino EDGE)" />
+                                                           Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_HardwareSettings_IndicatorLED_info}" />
                                             </Grid>
 
                                             <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
@@ -167,7 +168,7 @@
                                                     <GroupBox.HeaderTemplate>
                                                         <DataTemplate>
                                                             <TextBlock FontWeight="SemiBold"
-                                                                       Text="TỐC ĐỘ FAN OFFLINE" />
+                                                                       Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_HardwareSettings_OfflineFanSpeed_Header}" />
                                                         </DataTemplate>
                                                     </GroupBox.HeaderTemplate>
                                                     <hc:PreviewSlider HorizontalAlignment="Right"
@@ -189,7 +190,7 @@
                                                            Style="{StaticResource TextBlockDefaultSecLight}"
                                                            Grid.Row="1"
                                                            TextWrapping="Wrap"
-                                                           Text="HUB Fan sẽ điều khiển fan chạy với tốc độ này khi không kết nối với app" />
+                                                           Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_HardwareSettings_OfflineFanSpeed_info}" />
                                             </Grid>
                                             <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
                                                          Margin="5,10,5,10">
@@ -233,7 +234,7 @@
                                                VerticalAlignment="Top"
                                                FontWeight="SemiBold"
                                                Style="{DynamicResource TextBlockDefaultSecLight}"
-                                               Text="CÀI ĐẶT PHẦN MỀM" />
+                                               Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_SoftwareSettings_header}" />
                                 </Grid>
                                 <Grid Grid.Row="1">
 
@@ -253,7 +254,7 @@
                                                 <GroupBox.HeaderTemplate>
                                                     <DataTemplate>
                                                         <TextBlock FontWeight="SemiBold"
-                                                                   Text="AUTO CONNECT" />
+                                                                   Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_SoftwareSettings_AutoConnect_header}" />
                                                     </DataTemplate>
                                                 </GroupBox.HeaderTemplate>
 
@@ -269,7 +270,7 @@
                                                        HorizontalAlignment="Left"
                                                        Style="{StaticResource TextBlockDefaultSecLight}"
                                                        Grid.Row="1"
-                                                       Text="Tự động kết nối với thiết bị khi được cắm vào" />
+                                                       Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_SoftwareSettings_AutoConnect_info}" />
                                         </Grid>
                                         <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}"
                                                     Margin="5,10,5,10">
@@ -289,7 +290,7 @@
                                                 <GroupBox.HeaderTemplate>
                                                     <DataTemplate>
                                                         <TextBlock FontWeight="SemiBold"
-                                                                   Text="MAX BRIGHTNESS" />
+                                                                   Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_SoftwareSettins_MaxBrightness_header}" />
                                                     </DataTemplate>
                                                 </GroupBox.HeaderTemplate>
 
@@ -311,7 +312,7 @@
                                                        HorizontalAlignment="Left"
                                                        Style="{StaticResource TextBlockDefaultSecLight}"
                                                        Grid.Row="1"
-                                                       Text="Độ sáng tối đa" />
+                                                       Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_SoftwareSettings_MaxBrightness_info}" />
                                         </Grid>
                                         <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
                                                      Margin="5,10,5,10">
@@ -335,7 +336,7 @@
                                                VerticalAlignment="Top"
                                                FontWeight="SemiBold"
                                                Style="{DynamicResource TextBlockDefaultSecLight}"
-                                               Text="SAO LƯU VÀ KHÔI PHỤC" />
+                                               Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_backupandRestore_header}" />
                                 </Grid>
                                 <Grid Grid.Row="1">
 
@@ -358,13 +359,13 @@
                                                 <GroupBox.HeaderTemplate>
                                                     <DataTemplate>
                                                         <TextBlock FontWeight="SemiBold"
-                                                                   Text="BACKUP" />
+                                                                   Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_BACKUP_header}" />
                                                     </DataTemplate>
                                                 </GroupBox.HeaderTemplate>
                                                 <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                                                     <Button HorizontalAlignment="Right"
                                                             Margin="0,0,15,0"
-                                                            ToolTip="Show all backup files"
+                                                            ToolTip="{x:Static properties:Resources.DeviceAdvanceSettingsView_ShowAllBackupFiles_tooptip}"
                                                             hc:IconElement.Geometry="{DynamicResource fromfile}"
                                                             Command="{Binding ShowDeviceBackupFolderCommand}"
                                                             Background="{DynamicResource SecondaryRegionBrush}"
@@ -373,7 +374,7 @@
                                                     <Button HorizontalAlignment="Right"
                                                             Command="{Binding BackupDeviceCommand}"
                                                             Style="{DynamicResource _mediumProfileDefaultButton}"
-                                                            Content="Backup">
+                                                            Content="{x:Static properties:Resources.DeviceAdvanceSettingsView_Backup_buttoncontent}">
                                                     </Button>
                                                 </StackPanel>
                                               
@@ -382,7 +383,7 @@
                                                        HorizontalAlignment="Left"
                                                        Style="{StaticResource TextBlockDefaultSecLight}"
                                                        Grid.Row="1"
-                                                       Text="Sao lưu cài đặt thiết bị" />
+                                                       Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_Backup_info}" />
                                         </Grid>
                                         <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}"
                                                     Margin="5,10,5,10">
@@ -402,13 +403,13 @@
                                                 <GroupBox.HeaderTemplate>
                                                     <DataTemplate>
                                                         <TextBlock FontWeight="SemiBold"
-                                                                   Text="RESTORE" />
+                                                                   Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_Restore_header}" />
                                                     </DataTemplate>
                                                 </GroupBox.HeaderTemplate>
                                                 <Button HorizontalAlignment="Right"
                                                         Command="{Binding ApplyDeviceHardwareSettingsCommand}"
                                                         Style="{DynamicResource _mediumProfileDefaultButton}"
-                                                        Content="Restore">
+                                                        Content="{x:Static properties:Resources.DeviceAdvanceSettingsView_Restore_buttoncontent}">
                                                 </Button>
 
 
@@ -418,7 +419,7 @@
                                                        HorizontalAlignment="Left"
                                                        Style="{StaticResource TextBlockDefaultSecLight}"
                                                        Grid.Row="1"
-                                                       Text="Khôi phục cài đặt thiết bị" />
+                                                       Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_Restore_info}" />
                                         </Grid>
                                     </StackPanel>
                                 </Grid>
@@ -430,7 +431,7 @@
 
                 </Grid>
             </TabItem>
-            <TabItem Header="Firmware">
+            <TabItem Header="{x:Static properties:Resources.DeviceAdvanceSettingsView_TabItem_Firmware_header}">
 
 
 
@@ -472,7 +473,7 @@
                                         <GroupBox.HeaderTemplate>
                                             <DataTemplate>
                                                 <TextBlock FontWeight="SemiBold"
-                                                           Text="PHIÊN BẢN FIRMWARE HIỆN TẠI" />
+                                                           Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_FirmwareInfo_Header}" />
                                             </DataTemplate>
                                         </GroupBox.HeaderTemplate>
                                         <Grid>
@@ -551,7 +552,7 @@
                                         <GroupBox.HeaderTemplate>
                                             <DataTemplate>
                                                 <TextBlock FontWeight="SemiBold"
-                                                           Text="SỬA LỖI FIRMWARE" />
+                                                           Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_FirmwareRepair_header}" />
                                             </DataTemplate>
                                         </GroupBox.HeaderTemplate>
 
@@ -595,13 +596,13 @@
                                                 <Button CommandParameter="select"
                                                         Command="{Binding SelecFirmwareForCurrentDeviceCommand}"
                                                         Margin="10,0,0,0"
-                                                        Content="Chọn Custom Firmware" />
+                                                        Content="{x:Static properties:Resources.DeviceAdvanceSettingsView_CustomFirmwareSelection_buttonconent}" />
                                             </StackPanel>
                                             <Grid Grid.Column="1">
                                                 <ToggleButton Command="{Binding UpdateCustomFirmwareCommand}"
                                                               Style="{StaticResource ToggleButtonLoadingPrimary}"
                                                               IsChecked="{Binding IsDownloadingFirmware,Mode=TwoWay}"
-                                                              Content="Nạp firmware"
+                                                              Content="{x:Static properties:Resources.DeviceAdvanceSettingsView_DownloadFirmware_buttoncontent}"
                                                               Margin="5" />
 
                                             </Grid>
@@ -614,7 +615,7 @@
                                                Style="{StaticResource TextBlockDefaultSecLight}"
                                                Grid.Row="1"
                                                TextWrapping="Wrap"
-                                               Text="Sửa lỗi firmware sẽ cho phép bạn load phiên bản firmware khác với phần cứng của thiết bị" />
+                                               Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_FirmwareRepair_content}" />
                                 </Grid>
 
                                 <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
@@ -628,7 +629,7 @@
                 </Grid>
 
             </TabItem>
-            <TabItem Header="About">
+            <TabItem Header="{x:Static properties:Resources.DeviceAdvanceSettingsView_TabItem_About_header}">
                 <Grid Margin="10,10,10,10">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto" />
@@ -636,7 +637,7 @@
                     </Grid.RowDefinitions>
                     <TextBlock  VerticalAlignment="Top"
                                 Margin="20,0,20,20"
-                                Text="Device information"
+                                Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_DeviceInformation_header}"
                                 Style="{StaticResource TextBlockLarge}">
 
                     </TextBlock>
@@ -662,7 +663,7 @@
                                 <TextBlock HorizontalAlignment="Center"
                                            Margin="0,0,0,5"
                                            Style="{DynamicResource TextBlockDefault}"
-                                           Text="Device type:"></TextBlock>
+                                           Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_DeviceType}"></TextBlock>
                                 <TextBlock Foreground="{DynamicResource PrimaryBrush}"
                                            HorizontalAlignment="Left"
                                            Grid.Column="1"
@@ -678,7 +679,7 @@
                                 <TextBlock HorizontalAlignment="Center"
                                            Margin="0,0,0,5"
                                            Style="{DynamicResource TextBlockDefault}"
-                                           Text="Firmware version:"></TextBlock>
+                                           Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_FirmwareVersion}"></TextBlock>
                                 <TextBlock Foreground="{DynamicResource PrimaryBrush}"
                                            HorizontalAlignment="Left"
                                            Grid.Column="1"
@@ -694,7 +695,7 @@
                                 <TextBlock HorizontalAlignment="Center"
                                            Margin="0,0,0,5"
                                            Style="{DynamicResource TextBlockDefault}"
-                                           Text="Serial:"></TextBlock>
+                                           Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_Serial}"></TextBlock>
                                 <TextBlock Grid.Column="1"
                                            Text="{Binding Device.DeviceSerial}"
                                            Style="{StaticResource TextBlockDefaultPrimary}"
@@ -710,7 +711,7 @@
                                 <TextBlock HorizontalAlignment="Center"
                                            Margin="0,0,0,5"
                                            Style="{DynamicResource TextBlockDefault}"
-                                           Text="Hardware version:"></TextBlock>
+                                           Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_HardwareVersion}"></TextBlock>
                                 <TextBlock Foreground="{DynamicResource PrimaryBrush}"
                                            HorizontalAlignment="Left"
                                            Grid.Column="1"
@@ -726,7 +727,7 @@
                                 <TextBlock HorizontalAlignment="Center"
                                            Margin="0,0,0,5"
                                            Style="{DynamicResource TextBlockDefault}"
-                                           Text="Max outputs:"></TextBlock>
+                                           Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_MaxOutputs}"></TextBlock>
                                 <TextBlock Foreground="{DynamicResource PrimaryBrush}"
                                            HorizontalAlignment="Left"
                                            Grid.Column="1"
@@ -742,7 +743,7 @@
                                 <TextBlock HorizontalAlignment="Center"
                                            Margin="0,0,0,5"
                                            Style="{DynamicResource TextBlockDefault}"
-                                           Text="Address:"></TextBlock>
+                                           Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_Address}"></TextBlock>
                                 <TextBlock Foreground="{DynamicResource PrimaryBrush}"
                                            HorizontalAlignment="Left"
                                            Grid.Column="1"

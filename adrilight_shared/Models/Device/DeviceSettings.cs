@@ -81,8 +81,7 @@ namespace adrilight_shared.Models.Device
         public string LocalPath { get; set; }
         public string InfoPath { get; set; }
         private bool _autoConnect = true;
-        public bool AutoConnect  { get => _autoConnect; set { Set(() => AutoConnect, ref _autoConnect, value); } }
-        public ObservableCollection<SubDevice> SubDevices { get; set; }
+        public bool AutoConnect { get => _autoConnect; set { Set(() => AutoConnect, ref _autoConnect, value); } }
 
         [JsonIgnore]
         public string DeviceThumbnail => File.Exists(Path.Combine(ResourceCollectionFolderPath, DeviceName + "_thumb.png")) ? Path.Combine(ResourceCollectionFolderPath, DeviceName + "_thumb.png") : Path.Combine(ResourceCollectionFolderPath, DeviceType.Name + "_thumb.png");
@@ -132,7 +131,7 @@ namespace adrilight_shared.Models.Device
         public ISlaveDevice[] AvailablePWMDevices => GetSlaveDevices(ControllerTypeEnum.PWMController);
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); DeviceEnableChanged(); } }
         [JsonIgnore]
-        public bool DeviceHardwareControlEnable => (DeviceType.Type == DeviceTypeEnum.AmbinoBasic || DeviceType.Type == DeviceTypeEnum.AmbinoEDGE|| DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3);
+        public bool DeviceHardwareControlEnable => (DeviceType.Type == DeviceTypeEnum.AmbinoBasic || DeviceType.Type == DeviceTypeEnum.AmbinoEDGE || DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3);
         [JsonIgnore]
         public bool DeviceFanSpeedControlEnable => (DeviceType.Type == DeviceTypeEnum.AmbinoFanHub);
         [JsonIgnore]
@@ -165,7 +164,7 @@ namespace adrilight_shared.Models.Device
         }
         private IOutputSettings[] GetOutput(ControllerTypeEnum type)
         {
-            if(AvailableControllers == null)  return null;
+            if (AvailableControllers == null) return null;
             var outputs = new List<IOutputSettings>();
             foreach (var controller in AvailableControllers.Where(x => x.Type == type))
             {
@@ -385,10 +384,14 @@ namespace adrilight_shared.Models.Device
         }
         public void ToggleOnOffLED()
         {
-            if (IsEnabled)
-                IsEnabled = false;
-            else
-                IsEnabled = true;
+            if (DeviceState == DeviceStateEnum.Off)
+            {
+                DeviceState = DeviceStateEnum.Normal;
+            }
+            else if (DeviceState == DeviceStateEnum.Normal)
+            {
+                DeviceState = DeviceStateEnum.Off;
+            }
         }
         public void SetStaticColor(ColorCard colors)
         {
@@ -519,7 +522,7 @@ namespace adrilight_shared.Models.Device
             }
         }
         #endregion
-     
+
         public void UpdateUID()
         {
             foreach (var zone in AvailableControlZones)
@@ -528,7 +531,7 @@ namespace adrilight_shared.Models.Device
             }
             DeviceUID = Guid.NewGuid().ToString();
         }
-       
+
 
     }
 }

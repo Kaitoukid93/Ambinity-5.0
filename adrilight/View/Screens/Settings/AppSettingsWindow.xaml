@@ -12,7 +12,7 @@
            mc:Ignorable="d"
            xmlns:local="clr-namespace:adrilight.View"
            xmlns:System="clr-namespace:System;assembly=mscorlib"
-           xmlns:properties="clr-namespace:adrilight.Properties"
+           xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
            xmlns:ut="clr-namespace:adrilight.Util"
            Background="{DynamicResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
@@ -1448,6 +1448,7 @@
 
                             <ComboBox SelectedIndex="{Binding GeneralSettings.AppLanguageIndex}"
                                       DisplayMemberPath="Name"
+                                      ItemContainerStyle="{DynamicResource _ComboboxItemStyle}"
                                       Width="100"
                                       HorizontalAlignment="Right"
                                       ItemsSource="{Binding AvailableAppCulture}">
@@ -1564,7 +1565,7 @@
                                            Text="Ambinity 5.0.8"></TextBlock>
                                 <TextBlock Margin="0,0,0,5"
                                            Style="{DynamicResource TextBlockDefault}"
-                                           Text="Release date : 19/3/2024_a"></TextBlock>
+                                           Text="Release date : 4/4/2024_a"></TextBlock>
                                 <StackPanel HorizontalAlignment="Center"
                                             Margin="0,0,0,0"
                                             Orientation="Horizontal">

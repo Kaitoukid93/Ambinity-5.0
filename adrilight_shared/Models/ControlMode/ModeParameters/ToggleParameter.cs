@@ -34,6 +34,11 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
         public ModeParameterEnum ParamType { get => _paramType; set { Set(() => ParamType, ref _paramType, value); } }
         public ObservableCollection<SubParameter> SubParams { get => _subParams; set { Set(() => SubParams, ref _subParams, value); } }
         public bool ShowMore { get => _showMore; set { Set(() => ShowMore, ref _showMore, value); } }
+        public void Localize(string name, string description)
+        {
+            Name = name;
+            Description = description;
+        }
     }
 }
 

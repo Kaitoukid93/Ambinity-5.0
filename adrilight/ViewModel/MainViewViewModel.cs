@@ -241,7 +241,7 @@ namespace adrilight.ViewModel
             }
         }
 
-      
+
         private string _selectedActionType;
         private IDeviceSettings _currentDevice;
 
@@ -417,7 +417,7 @@ namespace adrilight.ViewModel
             get { return _availableDevices; }
             set => Set(ref _availableDevices, value);
         }
-     
+
         private ObservableCollection<object> _automationParamList;
 
         public ObservableCollection<object> AutomationParamList {
@@ -517,7 +517,7 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-       
+
         private ObservableCollection<AutomationSettings> _shutdownAutomations;
 
         public ObservableCollection<AutomationSettings> ShutdownAutomations {
@@ -770,7 +770,7 @@ namespace adrilight.ViewModel
             ItemStore = collectionItemStore ?? throw new ArgumentNullException(nameof(collectionItemStore));
             SelectableViewParts = selectableViewParts.OrderBy(p => p.Order)
                 .ToList();
-            SelectedViewPart = SelectableViewParts.Where(v=>v.ViewPartName == "All Device View").First();
+            SelectedViewPart = SelectableViewParts.Where(v => v.ViewPartName == "All Device View").First();
             ReadData();
             #endregion load Params
 
@@ -1586,7 +1586,7 @@ namespace adrilight.ViewModel
                         {
                             DeviceManagerViewModel.AvailableDevices.AddItems(device as DeviceSettings);
                         });
-                        
+
                     }
                     await Task.Delay(TimeSpan.FromSeconds(2));
                 }
@@ -1618,7 +1618,7 @@ namespace adrilight.ViewModel
                     //set first device found active again since it's recconected
                     if (!dev.IsTransferActive)
                     {
-                        if(dev.AutoConnect)
+                        if (dev.AutoConnect)
                             dev.IsTransferActive = true;
                         if (dev.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
                         {
@@ -3511,7 +3511,7 @@ namespace adrilight.ViewModel
             }, (p) =>
             {
                 OpenDeviceConnectionSettingsWindow();
-            });    
+            });
             OpenAdvanceSettingWindowCommand = new RelayCommand<string>((p) =>
             {
                 return p != null;
@@ -3638,19 +3638,78 @@ namespace adrilight.ViewModel
                 CurrentSelectedAutomation = selectedautomation;
                 AvailableActionsforCurrentDevice = new ObservableCollection<ActionType>();
                 //init action
-                AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Kích hoạt", Description = "Kích hoạt một Profile có sẵn", Geometry = "apply", Type = "Activate", LinkText = "Cho thiết bị", IsValueDisplayed = false, IsTargetDeviceDisplayed = true });
-                AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Tăng", Description = "Tăng giá trị của một thuộc tính", Geometry = "apply", Type = "Increase", LinkText = "Của thiết bị", IsValueDisplayed = false, IsTargetDeviceDisplayed = true });
-                AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Giảm", Description = "Giảm giá trị của một thuộc tính", Geometry = "apply", Type = "Decrease", LinkText = "Của thiết bị", IsValueDisplayed = false, IsTargetDeviceDisplayed = true });
-                AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Bật", Description = "Bật một tính năng", Geometry = "apply", Type = "On", LinkText = "Của thiết bị", IsValueDisplayed = false, IsTargetDeviceDisplayed = true });
-                AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Tắt", Description = "Tắt một tính năng", Geometry = "apply", Type = "Off", LinkText = "Của thiết bị", IsValueDisplayed = false, IsTargetDeviceDisplayed = true });
-                AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Bật-Tắt", Description = "Chuyển đổi trạng thái Bật Tắt", Geometry = "apply", Type = "On/Off", LinkText = "Của thiết bị", IsValueDisplayed = false, IsTargetDeviceDisplayed = true });
-                AvailableActionsforCurrentDevice.Add(new ActionType { Name = "Chuyển", Description = "Chuyển đổi đồng thời kích hoạt một tính năng", Geometry = "apply", Type = "Change", LinkText = "Của thiết bị", ToResultText = "thành", IsValueDisplayed = true, IsTargetDeviceDisplayed = true });
+                AvailableActionsforCurrentDevice.Add(new ActionType {
+                    Name = adrilight_shared.Properties.Resources.ActionType_Activate_name,
+                    Description = "Kích hoạt một Profile có sẵn",
+                    Geometry = "apply",
+                    Type = "Activate",
+                    LinkText = adrilight_shared.Properties.Resources.ActionType_Activate_linktext,
+                    IsValueDisplayed = false,
+                    IsTargetDeviceDisplayed = true
+                });
+                AvailableActionsforCurrentDevice.Add(new ActionType {
+                    Name = adrilight_shared.Properties.Resources.ActionType_Increase_name,
+                    Description = "Tăng giá trị của một thuộc tính",
+                    Geometry = "apply",
+                    Type = "Increase",
+                    LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
+                    IsValueDisplayed = false,
+                    IsTargetDeviceDisplayed = true
+                });
+                AvailableActionsforCurrentDevice.Add(new ActionType {
+                    Name = adrilight_shared.Properties.Resources.ActionType_Decrease_name,
+                    Description = "Giảm giá trị của một thuộc tính",
+                    Geometry = "apply",
+                    Type = "Decrease",
+                    LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
+                    IsValueDisplayed = false,
+                    IsTargetDeviceDisplayed = true
+                });
+                AvailableActionsforCurrentDevice.Add(new ActionType {
+                    Name = adrilight_shared.Properties.Resources.ActionType_TurnOn_name,
+                    Description = "Bật một tính năng",
+                    Geometry = "apply",
+                    Type = "On",
+                    LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
+                    IsValueDisplayed = false,
+                    IsTargetDeviceDisplayed = true
+                });
+                AvailableActionsforCurrentDevice.Add(new ActionType { Name = adrilight_shared.Properties.Resources.ActionType_TurnOff_name,
+                    Description = "Tắt một tính năng",
+                    Geometry = "apply",
+                    Type = "Off",
+                    LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
+                    IsValueDisplayed = false,
+                    IsTargetDeviceDisplayed = true });
+                AvailableActionsforCurrentDevice.Add(new ActionType { Name = adrilight_shared.Properties.Resources.ActionType_Turnonthenoff_name,
+                    Description = "Chuyển đổi trạng thái Bật Tắt",
+                    Geometry = "apply",
+                    Type = "On/Off",
+                    LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
+                    IsValueDisplayed = false,
+                    IsTargetDeviceDisplayed = true });
+                AvailableActionsforCurrentDevice.Add(new ActionType { Name = adrilight_shared.Properties.Resources.ActionType_Switchto_name,
+                    Description = "Chuyển đổi đồng thời kích hoạt một tính năng",
+                    Geometry = "apply", Type = "Change",
+                    LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
+                    ToResultText = "thành",
+                    IsValueDisplayed = true,
+                    IsTargetDeviceDisplayed = true });
                 //init trigger condition
                 AvailableExecuteCondition = new ObservableCollection<ITriggerCondition>();
-                var hotkeyCondition = new HotkeyTriggerCondition("Hotkey", "Sử dụng tổ hợp phím tắt để kích hoạt chuỗi hành động này", null, null);
-                var systemShutdownCondition = new SystemEventTriggerCondition("Khi tắt máy hoặc thoát App ", "Kích hoạt chuỗi hành động khi máy tính Shutdown", SystemEventEnum.Shutdown);
-                var systemMonitorSleepCondition = new SystemEventTriggerCondition("Khi màn hình tắt ", "Kích hoạt chuỗi hành động khi màn hình tắt bởi Windows", SystemEventEnum.MonitorSleep);
-                var systemMonitorWakeupCondition = new SystemEventTriggerCondition("Khi màn hình bật ", "Kích hoạt chuỗi hành động khi màn hình được bật trở lại", SystemEventEnum.MonitorWakeup);
+                var hotkeyCondition = new HotkeyTriggerCondition(adrilight_shared.Properties.Resources.TriggerCondition_Hotkey_name,
+                    adrilight_shared.Properties.Resources.TriggerCondition_Hotkey_info,
+                    null,
+                    null);
+                var systemShutdownCondition = new SystemEventTriggerCondition(adrilight_shared.Properties.Resources.TriggerCondition_TurnOff_name,
+                    adrilight_shared.Properties.Resources.TriggerCondition_TurnOff_info,
+                    SystemEventEnum.Shutdown);
+                var systemMonitorSleepCondition = new SystemEventTriggerCondition(adrilight_shared.Properties.Resources.TriggerCondition_ScreenOff_name,
+                    adrilight_shared.Properties.Resources.TriggerCondition_ScreenOff_info,
+                    SystemEventEnum.MonitorSleep);
+                var systemMonitorWakeupCondition = new SystemEventTriggerCondition(adrilight_shared.Properties.Resources.TriggerCondition_ScreenOn_name,
+                    adrilight_shared.Properties.Resources.TriggerCondition_ScreenOn_info,
+                    SystemEventEnum.MonitorWakeup);
                 //var systemSleepCondition = new SystemEventTriggerCondition("Khi sleep", "Kích hoạt chuỗi hành động khi máy tính Sleep", SystemEventEnum.Sleep);
                 //var appExitCondition = new SystemEventTriggerCondition("Khi thoát App", "Kích hoạt chuỗi hành động khi thoát App", SystemEventEnum.AppExit);
                 //var timeStampCondition = new SystemEventTriggerCondition("Mốc thời gian", "Thực hiện chuỗi hành động khi đồng hồ điểm giờ nhất định", SystemEventEnum.TimeStamp);
@@ -3766,35 +3825,35 @@ namespace adrilight.ViewModel
             switch (paramType)
             {
                 case "brightness":
-                    returnParam.Name = "Độ sáng";
+                    returnParam.Name = adrilight_shared.Properties.Resources.GetAutoMationParam_Brightness;
                     returnParam.Geometry = "brightness";
                     returnParam.Type = "brightness";
                     returnParam.Value = value;
                     break;
 
                 case "state":
-                    returnParam.Name = "Tất cả LED";
+                    returnParam.Name = adrilight_shared.Properties.Resources.GetAutoMationParam_AllLEDs;
                     returnParam.Geometry = "brightness";
                     returnParam.Type = "state";
                     returnParam.Value = value;
                     break;
 
                 case "color":
-                    returnParam.Name = "Màu";
+                    returnParam.Name = adrilight_shared.Properties.Resources.GetAutoMationParam_Color;
                     returnParam.Geometry = "brightness";
                     returnParam.Type = "color";
                     returnParam.Value = Color.FromRgb(255, 255, 0);
                     break;
 
                 case "mode":
-                    returnParam.Name = "Chế độ";
+                    returnParam.Name = adrilight_shared.Properties.Resources.GetAutoMationParam_Mode;
                     returnParam.Geometry = "brightness";
                     returnParam.Type = "mode";
                     returnParam.Value = value;
                     break;
 
                 case "speed":
-                    returnParam.Name = "Tốc độ fan";
+                    returnParam.Name = adrilight_shared.Properties.Resources.GetAutoMationParam_FanSpeed;
                     returnParam.Geometry = "brightness";
                     returnParam.Type = "speed";
                     returnParam.Value = value;
@@ -3886,7 +3945,7 @@ namespace adrilight.ViewModel
         {
             CurrentSelectedAction.ActionType = actionType;
             //reset the param too
-            CurrentSelectedAction.ActionParameter = new ActionParameter { Name = "Thuộc tính", Type = "unknown", Value = "none" };
+            CurrentSelectedAction.ActionParameter = new ActionParameter { Name = adrilight_shared.Properties.Resources.ActionParameter_Properties_name, Type = "unknown", Value = "none" };
             RaisePropertyChanged(nameof(CurrentSelectedAction.ActionType));
         }
 
@@ -3897,36 +3956,36 @@ namespace adrilight.ViewModel
             switch (type)
             {
                 case "Activate":
-                    linkTxt = "Cho thiết bị";
+                    linkTxt = adrilight_shared.Properties.Resources.ActionType_Activate_linktext;
                     resultTxt = "";
                     break;
 
                 case "Increase":
-                    linkTxt = "Của thiết bị";
+                    linkTxt = adrilight_shared.Properties.Resources.ActionType_Increase_linktext;
                     resultTxt = "";//could add more param
                     break;
 
                 case "Decrease":
-                    linkTxt = "Của thiết bị";
+                    linkTxt = adrilight_shared.Properties.Resources.ActionType_Increase_linktext;
                     resultTxt = "";
                     break;
 
                 case "On":
-                    linkTxt = "Của thiết bị";
+                    linkTxt = adrilight_shared.Properties.Resources.ActionType_Increase_linktext;
                     resultTxt = "";
                     break;
 
                 case "Off":
-                    linkTxt = "Của thiết bị";
+                    linkTxt = adrilight_shared.Properties.Resources.ActionType_Increase_linktext;
                     resultTxt = "";
                     break;
                 case "On/Off":
-                    linkTxt = "Của thiết bị";
+                    linkTxt = adrilight_shared.Properties.Resources.ActionType_Increase_linktext;
                     resultTxt = "";
                     break;
                 case "Change":
-                    linkTxt = "Của thiết bị";
-                    resultTxt = "thành";
+                    linkTxt = adrilight_shared.Properties.Resources.ActionType_Increase_linktext;
+                    resultTxt = adrilight_shared.Properties.Resources.ActionType_Change_resulttext;
                     break;
             }
         }
@@ -3935,7 +3994,7 @@ namespace adrilight.ViewModel
         {
             ActionSettings newBlankAction = new ActionSettings {
                 ActionType = actionType,
-                ActionParameter = new ActionParameter { Name = "Thuộc tính", Type = "unknown", Value = "none" },
+                ActionParameter = new ActionParameter { Name = adrilight_shared.Properties.Resources.ActionParameter_Properties_name, Type = "unknown", Value = "none" },
             };
             string lnkText = string.Empty;
             string resultText = string.Empty;
@@ -3962,7 +4021,7 @@ namespace adrilight.ViewModel
             CurrentSelectedAction.TargetDeviceName = targetDevice.DeviceName;
             //after this step, the parameter has to be reset because the profile UID will return invalid profile for new device
             if (CurrentSelectedAction.ActionType.Type == "Activate")
-                CurrentSelectedAction.ActionParameter = new ActionParameter { Name = "Thuộc tính", Type = "unknown", Value = "none" };
+                CurrentSelectedAction.ActionParameter = new ActionParameter { Name = adrilight_shared.Properties.Resources.ActionParameter_Properties_name, Type = "unknown", Value = "none" };
             RaisePropertyChanged(nameof(CurrentSelectedAction.ActionType));
         }
 
@@ -5099,8 +5158,8 @@ namespace adrilight.ViewModel
             {
                 //init app acent color selection
                 AccentColorSelection = new ListSelectionParameter(ModeParameterEnum.Color) {
-                    Name = adrilight.Properties.Resources.MainViewViewModel_GeneralSettings_ThemeColor_Header,
-                    Description = adrilight.Properties.Resources.MainViewViewModel_GeneralSettings_ThemeColor_info,
+                    Name = adrilight_shared.Properties.Resources.MainViewViewModel_GeneralSettings_ThemeColor_Header,
+                    Description = adrilight_shared.Properties.Resources.MainViewViewModel_GeneralSettings_ThemeColor_info,
                     DataSourceLocaFolderNames = new List<string>() { "Colors" }
                 };
                 AccentColorSelection.LoadAvailableValues();
@@ -5198,7 +5257,7 @@ namespace adrilight.ViewModel
             if (deviceFile != null)
             {
 
-                var device = 
+                var device =
                     ImportDevice(deviceFile);
                 if (device != null)
                 {
@@ -5299,7 +5358,7 @@ namespace adrilight.ViewModel
                 compatibleDevices.AddRange(AvailableDevices.ToList());
                 AvailableDevices.Clear();//reset the collection so kernel can be unbind
                 compatibleDevices.ForEach(d => AvailableDevices.Add(d));
-                SelectedViewPart  = SelectableViewParts.Where(v => v.ViewPartName == "All Device View").First();
+                SelectedViewPart = SelectableViewParts.Where(v => v.ViewPartName == "All Device View").First();
                 if (counter == 0)
                 {
                     HandyControl.Controls.MessageBox.Show("Profile không thích hợp với bất kỳ thiết bị nào hiện có", "No Device Compatible", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -5702,7 +5761,7 @@ namespace adrilight.ViewModel
             KeyboardHookManagerSingleton.Instance.UnregisterAll();
         }
 
-       
+
 
         private ObservableCollection<ITimeLineDataItem> _availableMotions;
 
@@ -5716,7 +5775,7 @@ namespace adrilight.ViewModel
             }
         }
 
-      
+
         private void PromptDriverInstaller()
         {
             //coppy resource
@@ -5976,7 +6035,7 @@ namespace adrilight.ViewModel
         //    RaisePropertyChanged(nameof(CurrentOutput.OutputLEDSetup));
         //}
 
-       
+
 
 
         private void OpenDeviceConnectionSettingsWindow()
@@ -5987,7 +6046,7 @@ namespace adrilight.ViewModel
                 window.ShowDialog();
             }
         }
-       
+
 
         private void OpenAdvanceSettingWindow()
         {
@@ -6602,7 +6661,7 @@ namespace adrilight.ViewModel
                 LiveViewItems.Insert(0, lightingDevice);
             }
             //reset toolbard width
-            ToolBarWidth = 450;
+            ToolBarWidth = 500;
             if (IsInIDEditStage)
             {
                 GetThingsReadyForIDEdit();
@@ -6662,7 +6721,7 @@ namespace adrilight.ViewModel
                 case IDMode.FID:
                     var _audioDeviceSelectionControl = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p is AudioDeviceSelectionButtonParameter).FirstOrDefault() as AudioDeviceSelectionButtonParameter;
                     CurrentVisualizer = AudioVisualizers[_audioDeviceSelectionControl.CapturingSourceIndex];
-                    ToolBarWidth = 450;
+                    ToolBarWidth = 500;
                     break;
             }
         }
@@ -7218,7 +7277,7 @@ namespace adrilight.ViewModel
         {
             DeviceManagerIsOpen = true;
             _deviceManagerWindow = new DeviceManagerWindow();
-           // DeviceManagerViewModel?.LoadData();
+            // DeviceManagerViewModel?.LoadData();
             _deviceManagerWindow.DataContext = DeviceManagerViewModel;
             _deviceManagerWindow.Owner = Application.Current.MainWindow;
             _deviceManagerWindow.Closed += _deviceManagerWindow_Closed;
@@ -8964,7 +9023,7 @@ namespace adrilight.ViewModel
             set { _isAppActivated = value; RaisePropertyChanged(); }
         }
 
-        private int _toolBarWidth = 450;
+        private int _toolBarWidth = 500;
 
         public int ToolBarWidth {
             get { return _toolBarWidth; }
@@ -9397,7 +9456,7 @@ namespace adrilight.ViewModel
 
         public void GotoChild(IDeviceSettings selectedDevice)
         {
-            SelectedViewPart = SelectableViewParts.Where(v=>v.ViewPartName == "Device Control View").First();
+            SelectedViewPart = SelectableViewParts.Where(v => v.ViewPartName == "Device Control View").First();
             Log.Information("Navigating to Device Control");
             CurrentDevice = selectedDevice;
             GetItemsForLiveView();

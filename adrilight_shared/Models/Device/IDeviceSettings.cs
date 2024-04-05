@@ -31,7 +31,6 @@ namespace adrilight_shared.Models.Device
         bool IsTransferActive { get; set; }
         bool IsLoadingProfile { get; set; }
         List<IDeviceController> AvailableControllers { get; set; }
-        ObservableCollection<SubDevice> SubDevices { get; set; }
         IDeviceController CurrentActiveController { get; }
         int CurrentActiveControlerIndex { get; set; }
         ObservableCollection<IControlZone> CurrentLiveViewZones { get; }

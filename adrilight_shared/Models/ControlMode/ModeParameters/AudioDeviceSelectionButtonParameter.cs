@@ -19,6 +19,11 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
         }
         public int CapturingSourceIndex { get => _capturingSourceIndex; set { Set(() => CapturingSourceIndex, ref _capturingSourceIndex, value > 0 ? value : 0); } }
         public string CapturingSourceName { get => _capturingSourceName; set { Set(() => CapturingSourceName, ref _capturingSourceName, value); RaisePropertyChanged(nameof(PreviewContent)); } }
+        public void Localize(string name, string description)
+        {
+            Name = name;
+            Description = description;
+        }
     }
 }
 

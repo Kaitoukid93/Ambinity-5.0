@@ -9,6 +9,7 @@
              xmlns:local="clr-namespace:adrilight.View"
              xmlns:enums="clr-namespace:adrilight_shared.Enums;assembly=adrilight_shared"
              xmlns:viewmodel="clr-namespace:adrilight.ViewModel"
+             xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
              xmlns:System="clr-namespace:System;assembly=mscorlib"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:gif="https://github.com/XamlAnimatedGif/XamlAnimatedGif"
@@ -628,13 +629,13 @@
                                                             <Grid Margin="10,10">
                                                                 <StackPanel>
                                                                     <TextBlock HorizontalAlignment="Left"
-                                                                               Text="CAPTURING INFOMATION"
+                                                                               Text="{x:Static properties:Resources.OutputControlView_CAPTURINGINFOMATION}"
                                                                                Margin="0,10,0,5"
                                                                                FontWeight="SemiBold"
                                                                                Style="{DynamicResource TextBlockDefault}" />
                                                                     <StackPanel Orientation="Horizontal">
                                                                         <TextBlock HorizontalAlignment="Left"
-                                                                                   Text="Scaled size : "
+                                                                                   Text="{x:Static properties:Resources.OutputControlView_ScaledSize}"
                                                                                    Style="{DynamicResource TextBlockDefaultSecLight}" />
                                                                         <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}">
                                                                             <TextBlock.Text>
@@ -647,7 +648,7 @@
                                                                     </StackPanel>
                                                                     <StackPanel Orientation="Vertical">
                                                                         <TextBlock HorizontalAlignment="Left"
-                                                                                   Text="Capturing region : "
+                                                                                   Text="{x:Static properties:Resources.OutputControlView_CapturingRegion}"
                                                                                    Style="{DynamicResource TextBlockDefaultSecLight}" />
                                                                         <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}">
                                                                             <TextBlock.Text>
@@ -997,16 +998,16 @@
                                                                         CommandParameter="{Binding .}"
                                                                         Foreground="{DynamicResource DangerBrush}"
                                                                         Style="{DynamicResource _defaultIconButton}"
-                                                                        Content="Delete items" />
+                                                                        Content="{x:Static properties:Resources.OutputControlView_DeleteItems}" />
                                                                 <Button Margin="15,15,15,5"
                                                                         CommandParameter="{Binding .}"
                                                                         Command="{Binding DataContext.RefreshCurrentCollectionCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}"
                                                                         Style="{DynamicResource _mediumProfileDefaultButton}"
-                                                                        Content="Refresh" />
+                                                                        Content="{x:Static properties:Resources.Button_Refresh_Content}" />
                                                                 <Button Margin="0,15,15,5"
                                                                         CommandParameter="{Binding OnlineCatergory}"
                                                                         Command="{Binding DataContext.OpenAmbinoStoreWindowCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}"
-                                                                        Content="Tải thêm">
+                                                                        Content="{x:Static properties:Resources.OutputControlView_DownloadMore_content}">
                                                                     <Button.Style>
                                                                         <Style TargetType="Button"
                                                                                BasedOn="{StaticResource _mediumProfileDefaultButton}">
@@ -1599,7 +1600,7 @@
                                                 <DataTemplate>
                                                     <StackPanel>
                                                         <TextBlock FontWeight="SemiBold"
-                                                                   Text="HIỆU ỨNG ĐANG CHẠY" />
+                                                                   Text="{x:Static properties:Resources.OutputControlView_CurrentlyRunningEffect_header}" />
                                                         <TextBlock MaxWidth="150"
                                                                    Margin="0,5,0,0"
                                                                    HorizontalAlignment="Left"

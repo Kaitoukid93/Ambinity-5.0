@@ -6,11 +6,13 @@
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
+           
            mc:Ignorable="d"
            Background="{DynamicResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            SizeToContent="Height"
+           xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
            x:Name="window"
            Width="800"
            WindowStartupLocation="CenterOwner">
@@ -129,11 +131,11 @@
         </Grid.RowDefinitions>
         <Grid Margin="0,0,0,10">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="11*" />
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
             <TextBlock HorizontalAlignment="Center"
-                       Text="Automation Manager"
+                       Text="{x:Static properties:Resources.AutomationManagerWindow_AutomationManager_header}"
                        Style="{StaticResource TextBlockLarge}">
             </TextBlock>
             <Button hc:IconElement.Height="12"
@@ -145,7 +147,7 @@
                     Margin="5"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
-                    Content="Add"
+                    Content="{x:Static properties:Resources.Add_Button_Content}"
                     Style="{StaticResource ButtonDashedPrimary}" />
         </Grid>
 
@@ -240,7 +242,7 @@
                                                 </ToggleButton.Style>
                                             </ToggleButton>
                                             <TextBlock Visibility="{Binding IsLocked,Converter={StaticResource Boolean2VisibilityConverter}}"
-                                                       Text="Locked"
+                                                       Text="{x:Static properties:Resources.AutomationManagerWindow_Locked_Text}"
                                                        Style="{DynamicResource TextBlockDefaultWarning}" />
                                             <ToggleButton 
                                                           IsChecked="{Binding IsLocked}"
@@ -260,14 +262,14 @@
                                                         <Setter Property="Foreground"
                                                                 Value="White" />
                                                         <Setter Property="ToolTip"
-                                                                Value="Lock" />
+                                                                Value="{x:Static properties:Resources.AutomationManagerWindow_Lock_toolTip}" />
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding IsLocked}"
                                                                          Value="True">
                                                                 <Setter Property="Foreground"
                                                                         Value="{DynamicResource WarningBrush}" />
                                                                 <Setter Property="ToolTip"
-                                                                        Value="Unlock" />
+                                                                        Value="{x:Static properties:Resources.AutomationManagerWindow_Unlock_tooltip}" />
                                                             </DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
@@ -276,7 +278,7 @@
                                             <Button Width="25"
                                                     Height="25"
                                                     Background="Transparent"
-                                                    ToolTip="Activate"
+                                                    ToolTip="{x:Static properties:Resources.Activate_tooltip}"
                                                     Command="{Binding Path=DataContext.ExecuteAutomationFromManagerCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                     CommandParameter="{Binding .}"
                                                     hc:IconElement.Width="15"
@@ -290,7 +292,7 @@
                                             <Button Width="25"
                                                     Height="25"
                                                     Background="Transparent"
-                                                    ToolTip="Delete"
+                                                    ToolTip="{x:Static properties:Resources.Delete_Tooltip}"
                                                     Command="{Binding Path=DataContext.DeleteSelectedAutomationCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                     CommandParameter="{Binding .}"
                                                     hc:IconElement.Width="15"
@@ -315,7 +317,7 @@
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Margin="10,0,0,0"
                                                        Style="{DynamicResource TextBlockDefaultSecLight}"
-                                                       Text="Hành động: " />
+                                                       Text="{x:Static properties:Resources.AutomationManagerWindow_Action}" />
                                             <TextBlock Margin="0,0,0,0"
                                                        Text="{Binding Actions.Count}"
                                                        Style="{DynamicResource TextBlockDefaultSecLight}" />

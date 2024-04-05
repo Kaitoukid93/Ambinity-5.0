@@ -59,6 +59,8 @@ namespace adrilight.ViewModel
         {
             foreach (var item in list)
             {
+                var deviceToRemove = item as DeviceSettings;
+                deviceToRemove.IsTransferActive = false;
                 _deviceHlprs.RemoveDeviceLocalData(item as DeviceSettings);
             }
             
@@ -297,7 +299,7 @@ namespace adrilight.ViewModel
             //RefreshDashboardItems();
             AvailableDevices = new DataCollection("All Devices", _dialogService, "profile", _collectionItemStore);
             AvailableDevices.PropertyChanged += AvailableDevicesPropertyChanged;
-            AvailableDevices.WarningMessage = "Các thiết bị sẽ bị ngắt kết nối tạm thời cho đến khi cửa sổ này đóng lại!";
+            AvailableDevices.WarningMessage = adrilight_shared.Properties.Resources.DeviceManager_DisConnect_Warning_Message;
             var devices = LoadDeviceIfExists();
             if (devices == null)
                 return;
@@ -315,11 +317,11 @@ namespace adrilight.ViewModel
                 case nameof(AvailableDevices.ShowManagerToolBar):
                     if (AvailableDevices.ShowManagerToolBar)
                     {
-                        AvailableDevices.WarningMessage = "Các thiết bị sẽ chỉ bị xoá khi không còn cắm vào máy tính";
+                        AvailableDevices.WarningMessage = adrilight_shared.Properties.Resources.DeviceManager_Delete_Warning_Message;
                     }
                     else
                     {
-                        AvailableDevices.WarningMessage = "Các thiết bị sẽ bị ngắt kết nối tạm thời cho đến khi cửa sổ này đóng lại!";
+                        AvailableDevices.WarningMessage = adrilight_shared.Properties.Resources.DeviceManager_DisConnect_Warning_Message; ;
                     }
                         break;
             }

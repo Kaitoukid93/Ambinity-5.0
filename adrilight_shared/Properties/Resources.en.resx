@@ -120,4 +120,79 @@
   <data name="AllDeviceView_DEVICES" xml:space="preserve">
     <value>DEVICES</value>
   </data>
+  <data name="AllDeviceView_Device_Guide" xml:space="preserve">
+    <value>Click on each device to customize the effects.</value>
+  </data>
+  <data name="AllDeviceView_LightingProfiles_Guide" xml:space="preserve">
+    <value>When activated, all devices will synchronize with each other except for the ones that are turned off</value>
+  </data>
+  <data name="AllDeviceView_Automation_Guide" xml:space="preserve">
+    <value>You can create automated sequences for devices or assign them to hotkeys for control without having to turn on the software.</value>
+  </data>
+  <data name="NonClientAreaContent_Automation_Tooltip" xml:space="preserve">
+    <value>Automation</value>
+  </data>
+  <data name="NonClientAreaContent_GeneralSettings_ToolTip" xml:space="preserve">
+    <value>General Settings</value>
+  </data>
+  <data name="AllDeviceView_DeviceManager_Tooltip" xml:space="preserve">
+    <value>Manage devices</value>
+  </data>
+  <data name="AllDeviceView_Automation_Tooltip" xml:space="preserve">
+    <value>Manage automations</value>
+  </data>
+  <data name="AllDeviceView_VisitStoreTail" xml:space="preserve">
+    <value>to download additional lighting profiles</value>
+  </data>
+  <data name="AppSettingsWindow_STARTWITHWINDOWS" xml:space="preserve">
+    <value>START WITH WINDOWS</value>
+  </data>
+  <data name="AppSettingsWindow_AutoStart_Info" xml:space="preserve">
+    <value>Automatically start with windows.</value>
+  </data>
+  <data name="AppSettingsWindow_StartMinimized_info" xml:space="preserve">
+    <value>After startup, automatically minimize the app to the system tray.</value>
+  </data>
+  <data name="AppSettingsWindow_EnableHotKey_Header" xml:space="preserve">
+    <value>ENABLE HOTKEY</value>
+  </data>
+  <data name="AppSettingsWindow_StartMinimized_header" xml:space="preserve">
+    <value>START MINIMIZED</value>
+  </data>
+  <data name="AppSettingsWindow_Delay" xml:space="preserve">
+    <value>Delay (sec)</value>
+  </data>
+  <data name="AppSettingsWindow_GeneralSettings" xml:space="preserve">
+    <value>General Settings</value>
+  </data>
+  <data name="AllDeviceView_VisitTheAdrilightStore_Button" xml:space="preserve">
+    <value>Visit the Adrilight Store</value>
+  </data>
+  <data name="AllDeviceView_LightingProfile_Tooltip" xml:space="preserve">
+    <value>Manage lighting profiles</value>
+  </data>
+  <data name="NonClientAreaContent_Debug_ToolTip" xml:space="preserve">
+    <value>Actions Log</value>
+  </data>
+  <data name="NonClientAreaContent_AdrilightStore_ToolTip" xml:space="preserve">
+    <value>Adrilight Store</value>
+  </data>
+  <data name="NonClientAreaContent_SurfaceEditor_ToolTip" xml:space="preserve">
+    <value>Surface Editor</value>
+  </data>
+  <data name="AllDeviceView_AUTOMATIONS" xml:space="preserve">
+    <value>AUTOMATIONS</value>
+  </data>
+  <data name="AllDeviceView_LIGHTINGPROFILES" xml:space="preserve">
+    <value>LIGHTING PROFILES</value>
+  </data>
+  <data name="AllDeviceView_Manage_Button" xml:space="preserve">
+    <value>Manage</value>
+  </data>
+  <data name="App_Already_Launch_Header" xml:space="preserve">
+    <value>Adrilight has been previously launched; please check the 'Task Manager' or 'System Tray' in Windows</value>
+  </data>
+  <data name="App_Already_Launch" xml:space="preserve">
+    <value>Adrilight has been previously launched; please check the 'Task Manager' or 'System Tray' in Windows</value>
+  </data>
 </root>

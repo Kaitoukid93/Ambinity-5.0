@@ -256,14 +256,26 @@ namespace adrilight.Services.LightingEngine
             //get dependency properties from current lighting mode(based on screencapturing)
 
             _enableControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.IsEnabled).FirstOrDefault() as ToggleParameter;
+            _enableControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_Enable_header, adrilight_shared.Properties.Resources.LightingEngine_Enable_description);
             _enableControl.PropertyChanged += (_, __) => EnableChanged(_enableControl.Value == 1 ? true : false);
+            /// brightness.///
             _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
+            _brightnessControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_BrightnessControl_header, adrilight_shared.Properties.Resources.LightingEngine_BrightnessControl_info);
             _brightnessControl.PropertyChanged += (_, __) => OnBrightnessPropertyChanged(_brightnessControl.Value);
+
+            /// smooth ///
             _smoothingControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Smoothing).FirstOrDefault() as SliderParameter;
+            _smoothingControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_SmoothControl_header, adrilight_shared.Properties.Resources.LightingEngine_SmoothControl_info);
             _smoothingControl.PropertyChanged += (_, __) => OnSmoothingPropertyChanged(_smoothingControl.Value);
+
+            /// linear lighting///
             _useLinearLightingControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.LinearLighting).FirstOrDefault() as ToggleParameter;
+            _useLinearLightingControl.Localize(adrilight_shared.Properties.Resources.DesktopDuplicatorReader_LinearLightingControl_header, adrilight_shared.Properties.Resources.DesktopDuplicatorReader_Init_Xx);
             _useLinearLightingControl.PropertyChanged += (_, __) => OnUseLinearLightingPropertyChanged(_useLinearLightingControl.Value == 1 ? true : false);
+
+            /// region data control///
             _regionControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.CapturingRegion).FirstOrDefault() as CapturingRegionSelectionButtonParameter;
+            _regionControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_RegionControl_header, adrilight_shared.Properties.Resources.LightingEngine_RegionControl_info);
             _regionControl.PropertyChanged += (_, __) =>
             {
                 switch (__.PropertyName)
@@ -277,6 +289,8 @@ namespace adrilight.Services.LightingEngine
                         break;
                 }
             };
+
+            ///activate these value///
             EnableChanged(_enableControl.Value == 1 ? true : false);
             OnBrightnessPropertyChanged(_brightnessControl.Value);
             OnUseLinearLightingPropertyChanged(_useLinearLightingControl.Value == 1 ? true : false);

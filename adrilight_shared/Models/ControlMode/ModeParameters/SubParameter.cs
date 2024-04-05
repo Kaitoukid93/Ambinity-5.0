@@ -36,5 +36,10 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
         public int MinValue { get => _minValue; set { Set(() => MinValue, ref _minValue, value); } }
         public int MaxValue { get => _maxValue; set { Set(() => MaxValue, ref _maxValue, value); } }
         public List<string> AvailableValue { get => _availableValue; set { Set(() => AvailableValue, ref _availableValue, value); } }
+        public void Localize(string name, string description)
+        {
+            Name = name;
+            Description = description;
+        }
     }
 }

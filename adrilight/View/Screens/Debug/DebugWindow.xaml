@@ -9,7 +9,8 @@
            Background="{DynamicResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
-           MaxHeight="800" 
+           MaxHeight="800"
+           xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
            Width="1000" 
            WindowStartupLocation="CenterOwner">
 
@@ -38,17 +39,17 @@
                     <GroupBox Margin="10,10,10,0" VerticalAlignment="Stretch" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                         <GroupBox.HeaderTemplate>
                             <DataTemplate>
-                                <TextBlock  FontWeight="SemiBold" Text="MỞ FILE LOG"/>
+                                <TextBlock  FontWeight="SemiBold" Text="{x:Static properties:Resources.DebugWindow_OpenActionLog_header}"/>
                             </DataTemplate>
                         </GroupBox.HeaderTemplate>
                         <Button Style="{DynamicResource _lowProfileDefaultButton}" Command="{Binding OpenLogFolderCommand}"
                                                 CommandParameter="open"
                                                 HorizontalAlignment="Right"
-                                                Content="Open">
+                                                Content="{x:Static properties:Resources.Button_Open_Content}">
                         </Button>
                     </GroupBox>
                 </Grid>
-                <TextBlock Margin="10,5" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Gửi file log gần nhất trong folder Logs cho Ambino nếu bạn gặp lỗi không giải quyết được"/>
+                <TextBlock Margin="10,5" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="{x:Static properties:Resources.DebugWindow_Log_info}"/>
                 <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}" Margin="10">
 
                 </hc:Divider>

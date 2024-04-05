@@ -7,6 +7,7 @@
              xmlns:converters="clr-namespace:adrilight_shared.Converter"
              xmlns:vm="clr-namespace:adrilight_shared.ViewModel"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:properties ="clr-namespace:adrilight_shared.Properties"
              d:DataContext="{d:DesignInstance Type=vm:RenameDialogViewModel}"
              mc:Ignorable="d"
              Background="{DynamicResource RegionBrush}"
@@ -35,21 +36,21 @@
                       Fill="{DynamicResource PrimaryTextBrush}" />
             </Border>
             <hc:TextBox Margin="20"
-                        hc:InfoElement.Title="Rename"
+                        hc:InfoElement.Title="{x:Static properties:Resources.RenameDialog_Rename_titleelement}"
                         hc:InfoElement.ShowClearButton="True"
                         Text="{Binding Content}"
                         Height="55" />
         </StackPanel>
         <Grid Grid.Row="2">
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                <Button Click="Button_Cancel_Click" Style="{DynamicResource _lowProfileDefaultButton}" Margin="10,10,10,20" Content="Cancel">
+                <Button Click="Button_Cancel_Click" Style="{DynamicResource _lowProfileDefaultButton}" Margin="10,10,10,20" Content="{x:Static properties:Resources.Button_Cancel_Content}">
                     
                 </Button>
                 <Button Click="Button_OK_Click" Style="{DynamicResource ButtonPrimary}" Foreground="{DynamicResource RegionBrush}"
                     Width="72"
                         Margin="10,10,20,20"
                         Grid.Column="1"
-                        Content="Ok">
+                        Content="{x:Static properties:Resources.Button_OK_Content}">
                 </Button>
             </StackPanel>
            

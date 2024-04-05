@@ -354,6 +354,11 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
                 return serializer.Deserialize<T>(jsonTextReader);
             }
         }
+        public void Localize(string name, string description)
+        {
+            Name = name;
+            Description = description;
+        }
     }
 }
 

@@ -73,8 +73,8 @@ namespace adrilight
             if (!_adrilightMutex.WaitOne(TimeSpan.Zero, true))
             {
                 //another instance is already running!
-                HandyControl.Controls.MessageBox.Show(adrilight.Properties.Resources.App_Already_Launch
-                    , adrilight.Properties.Resources.App_Already_Launch_Header);
+                HandyControl.Controls.MessageBox.Show(adrilight_shared.Properties.Resources.App_Already_Launch
+                    , adrilight_shared.Properties.Resources.App_Already_Launch_Header);
                 Shutdown();
                 return;
             }
@@ -345,11 +345,6 @@ namespace adrilight
             switch (connectionType)
             {
                 case DeviceConnectionTypeEnum.Wired:
-                    if (device.SubDevices != null && device.SubDevices.Count > 0)
-                    {
-                        kernel.Bind<ISerialStream>().To<HUBSerialStream>().InSingletonScope().Named(device.DeviceUID.ToString()).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(device.DeviceUID.ToString()));
-                    }
-                    else
                         kernel.Bind<ISerialStream>().To<SerialStream>().InSingletonScope().Named(device.DeviceUID.ToString()).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(device.DeviceUID.ToString()));
                     break;
 

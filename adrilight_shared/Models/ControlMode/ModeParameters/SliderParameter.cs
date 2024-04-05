@@ -45,6 +45,11 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
         public int MaxValue { get => _maxValue; set { Set(() => MaxValue, ref _maxValue, value); } }
         public bool ShowMore { get => _showMore; set { Set(() => ShowMore, ref _showMore, value); } }
         public string Geometry { get; set; }
+        public void Localize(string name, string description)
+        {
+            Name = name;
+            Description = description;
+        }
     }
 }
 

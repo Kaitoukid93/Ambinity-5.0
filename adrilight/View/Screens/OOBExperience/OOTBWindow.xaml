@@ -13,7 +13,8 @@
            xmlns:zone ="clr-namespace:adrilight_shared.Models.Device.Zone;assembly=adrilight_shared"
            xmlns:device ="clr-namespace:adrilight_shared.Models.Device;assembly=adrilight_shared"
            xmlns:drawable ="clr-namespace:adrilight_shared.Models.Drawable;assembly=adrilight_shared"
-           xmlns:slaveDevices="clr-namespace:adrilight_shared.Models.Device.SlaveDevice;assembly=adrilight_shared"  
+           xmlns:slaveDevices="clr-namespace:adrilight_shared.Models.Device.SlaveDevice;assembly=adrilight_shared"
+           xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
            mc:Ignorable="d"
            x:Name="window"
            xmlns:view ="clr-namespace:adrilight.View"
@@ -167,8 +168,8 @@
                             </Grid>
                             <Grid>
                                 <StackPanel>
-                                    <TextBlock TextWrapping="Wrap" TextAlignment="Center" Margin="20" Text="Cảm ơn bạn đã chọn sản phẩm của Ambino!" Style="{DynamicResource TextBlockTitle}"/>
-                                    <TextBlock HorizontalAlignment="Left" Margin="15,50,0,10" Text="Sau đây là một số cài đặt cơ bản để giúp bạn sử dụng sản phẩm dễ dàng hơn" Style="{DynamicResource TextBlockDefaultWarning}" TextWrapping="Wrap"/>
+                                    <TextBlock TextWrapping="Wrap" TextAlignment="Center" Margin="20" Text="{x:Static properties:Resources.OOTBWindow_Thankyou_info}" Style="{DynamicResource TextBlockTitle}"/>
+                                    <TextBlock HorizontalAlignment="Left" Margin="15,50,0,10" Text="{x:Static properties:Resources.OOTBWindow_OOTBIntroduction}" Style="{DynamicResource TextBlockDefaultWarning}" TextWrapping="Wrap"/>
                                 </StackPanel>
 
                             </Grid>
@@ -539,13 +540,13 @@
                     <Style TargetType="TextBlock" BasedOn="{StaticResource TextBlockLarge}">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding OOTBStage}" Value="0">
-                                <Setter Property="Text" Value="Thank you"/>
+                                <Setter Property="Text" Value="{x:Static properties:Resources.OOTBWindow_ThankYou}"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding OOTBStage}" Value="1">
-                                <Setter Property="Text" Value="Cấu hình LED"/>
+                                <Setter Property="Text" Value="{x:Static properties:Resources.OOTBWindow_LEDOutputConfiguration}"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding OOTBStage}" Value="2">
-                                <Setter Property="Text" Value="Hiệu ứng"/>
+                                <Setter Property="Text" Value="{x:Static properties:Resources.OOTBWindow_SpatialMaping}"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding OOTBStage}" Value="3">
                                 <Setter Property="Text" Value="Hoàn tất"/>
@@ -575,15 +576,15 @@
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding OOTBStage}" Value="0">
                                 <Setter Property="Command" Value="{Binding NextOOTBCommand}"/>
-                                <Setter Property="Content" Value="Next"/>
+                                <Setter Property="Content" Value="{x:Static properties:Resources.Next_Button_Content}"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding OOTBStage}" Value="1">
                                 <Setter Property="Command" Value="{Binding NextOOTBCommand}"/>
-                                <Setter Property="Content" Value="Next"/>
+                                <Setter Property="Content" Value="{x:Static properties:Resources.Next_Button_Content}"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding OOTBStage}" Value="2">
                                 <Setter Property="Command" Value="{Binding FinishOOTBCommand}"/>
-                                <Setter Property="Content" Value="Finish"/>
+                                <Setter Property="Content" Value="{x:Static properties:Resources.Finish_Button_Conent}"/>
                             </DataTrigger>
                             <!--<DataTrigger Binding="{Binding OOTBStage}" Value="3">
                                 <Setter Property="Command" Value="{Binding FinishOOTBCommand}"/>
@@ -606,7 +607,7 @@
                         </Style.Triggers>
                     </Style>
                 </Grid.Style>
-                <CheckBox x:Name="askAgain" Content="Không hỏi lại lần nữa" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="15,5" IsChecked="False"/>
+                <CheckBox x:Name="askAgain" Content="{x:Static properties:Resources.OOTBWindow_Donotaskagain}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="15,5" IsChecked="False"/>
             </Grid>
 
             <Button CommandParameter="back" Background="Transparent" Margin="10" Grid.Column="1">
@@ -615,19 +616,19 @@
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding OOTBStage}" Value="0">
                                 <Setter Property="Command" Value="{Binding SkipOOTBCommand}"/>
-                                <Setter Property="Content" Value="Skip"/>
+                                <Setter Property="Content" Value="{x:Static properties:Resources.SkipButton_Content}"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding OOTBStage}" Value="1">
                                 <Setter Property="Command" Value="{Binding PrevioustOOTBCommand}"/>
-                                <Setter Property="Content" Value="Back"/>
+                                <Setter Property="Content" Value="{x:Static properties:Resources.Back_Button_Content}"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding OOTBStage}" Value="2">
                                 <Setter Property="Command" Value="{Binding PrevioustOOTBCommand}"/>
-                                <Setter Property="Content" Value="Back"/>
+                                <Setter Property="Content" Value="{x:Static properties:Resources.Back_Button_Content}"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding OOTBStage}" Value="3">
                                 <Setter Property="Command" Value="{Binding PrevioustOOTBCommand}"/>
-                                <Setter Property="Content" Value="Back"/>
+                                <Setter Property="Content" Value="{x:Static properties:Resources.Back_Button_Content}"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>

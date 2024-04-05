@@ -35,12 +35,10 @@ namespace adrilight_shared.Models.ControlMode
             {
                 return new LightingMode()
                 {
-                    Name = "Color Palette",
                     Geometry = "colorpalette",
                     BasedOn = LightingModeEnum.Rainbow,
                     Creator = "ambino",
                     Owner = "ambino",
-                    Description = "Sáng theo dải màu với chuyển động tùy chọn",
                     Parameters = { IsEnabled, GenericBrightnessParameter, GenericColorPaletteSelectionParameter, GenericVIDSelectParameter, GenericSpeedParameter(0, 100, 20), IsSystemSync }
 
                 };
@@ -52,12 +50,10 @@ namespace adrilight_shared.Models.ControlMode
             {
                 return new LightingMode()
                 {
-                    Name = "Animation",
                     Geometry = "animation",
                     BasedOn = LightingModeEnum.Animation,
                     Creator = "ambino",
                     Owner = "ambino",
-                    Description = "LED chuyển động với màu tùy chọn",
                     Parameters = { IsEnabled, GenericBrightnessParameter, ChasingPatterns, GenericColorPaletteAndSolidColorSelectionParameter, GenericSpeedParameter(0, 20, 10) }
                 };
             }
@@ -68,12 +64,10 @@ namespace adrilight_shared.Models.ControlMode
             {
                 return new LightingMode()
                 {
-                    Name = "Gifxelation",
                     Geometry = "gifxelation",
                     BasedOn = LightingModeEnum.Gifxelation,
                     Creator = "ambino",
                     Owner = "ambino",
-                    Description = "LED sáng theo ảnh động Gif",
                     Parameters = { IsEnabled, GenericBrightnessParameter, Gifs, GenericSpeedParameter(0, 10, 1), GenericSmoothParameter, GenericLaunchGifRegionSelectionButtonParameter }
                 };
             }
@@ -84,12 +78,10 @@ namespace adrilight_shared.Models.ControlMode
             {
                 return new LightingMode()
                 {
-                    Name = "Screen Capturing",
                     Geometry = "screencapture",
                     BasedOn = LightingModeEnum.ScreenCapturing,
                     Creator = "ambino",
                     Owner = "ambino",
-                    Description = "Sáng theo màn hình với vị trí cài sẵn",
                     Parameters = { IsEnabled, GenericBrightnessParameter, GenericSmoothParameter, UseLinearLighting, GenericLaunchScreenRegionSelectionButtonParameter }
 
                 };
@@ -104,12 +96,11 @@ namespace adrilight_shared.Models.ControlMode
             {
                 return new LightingMode()
                 {
-                    Name = "Music Reactive",
+
                     Geometry = "music",
                     BasedOn = LightingModeEnum.MusicCapturing,
                     Creator = "ambino",
                     Owner = "ambino",
-                    Description = "Màu LED chuyển động theo nhạc",
                     Parameters = { IsEnabled, GenericBrightnessParameter, GenericColorPaletteAndSolidColorSelectionParameter, GenericMIDSelectParameter, GenericLaunchAudioDeviceSelectionButtonParameter }
 
                 };
@@ -121,12 +112,10 @@ namespace adrilight_shared.Models.ControlMode
             {
                 return new LightingMode()
                 {
-                    Name = "Static Color",
                     Geometry = "genericCircle",
                     BasedOn = LightingModeEnum.StaticColor,
                     Creator = "ambino",
                     Owner = "ambino",
-                    Description = "Tất cả LED sáng cùng một màu",
                     Parameters = { IsEnabled, GenericBrightnessParameter, GenericColorSelectionParameter, Breathing }
                 };
             }

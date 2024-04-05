@@ -7,6 +7,7 @@
            xmlns:local ="clr-namespace:adrilight.View"
            xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
            xmlns:automation ="clr-namespace:adrilight_shared.Models.Automation;assembly=adrilight_shared"
+           xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
            mc:Ignorable="d"
            xmlns:enum ="clr-namespace:adrilight_shared.Enums;assembly=adrilight_shared"
            xmlns:parameterValues ="clr-namespace:adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;assembly=adrilight_shared"
@@ -18,7 +19,7 @@
            SizeToContent="Height"
            MinHeight="300"
            MaxHeight="800"
-           Width="500" 
+           Width="550" 
            WindowStartupLocation="CenterOwner" 
            Left="0" Top="0">
 
@@ -162,7 +163,7 @@
                     <GroupBox VerticalAlignment="Center" hc:TitleElement.TitleWidth="150" Margin="10" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Top">
                         <GroupBox.HeaderTemplate>
                             <DataTemplate>
-                                <TextBlock FontWeight="SemiBold" Text="CHUỖI HÀNH ĐỘNG"/>
+                                <TextBlock FontWeight="SemiBold" Text="{x:Static properties:Resources.ActionManagerWindow_ActionSequence_Header}"/>
                             </DataTemplate>
                         </GroupBox.HeaderTemplate>
                         <ListView ItemContainerStyle="{DynamicResource ListViewContainerStyle}" MaxHeight="300" Margin="0,10,0,10" HorizontalAlignment="Center"  SelectedItem="{Binding CurrentSelectedAction}" Background="Transparent" BorderThickness="0" ItemsSource="{Binding CurrentSelectedAutomation.Actions}">
@@ -303,7 +304,7 @@
 
                         <GroupBox.HeaderTemplate>
                             <DataTemplate>
-                                <TextBlock FontWeight="SemiBold" Text="GỢI Ý HÀNH ĐỘNG"/>
+                                <TextBlock FontWeight="SemiBold" Text="{x:Static properties:Resources.ActionManagerWindow_ActionRecommend_header}"/>
                             </DataTemplate>
                         </GroupBox.HeaderTemplate>
 
@@ -373,23 +374,19 @@
                                             <StackPanel>
                                                 <TextBlock Margin="5,5,5,5"
                                                            FontWeight="SemiBold"
-                                                           Text="BIỂU TƯỢNG HIỂN THỊ" />
+                                                           Text="{x:Static properties:Resources.ActionManagerWindow_ActionIcon_header}" />
                                                 <TextBlock Margin="5,5,5,5"
+                                                           MaxWidth="300"
+                                                           TextWrapping="Wrap"
                                                            HorizontalAlignment="Left"
                                                            Style="{StaticResource TextBlockDefaultSecLight}"
                                                            Grid.Row="1"
-                                                           Text="Biểu tượng đại diện cho mục đích của phím tắt này" />
+                                                           Text="{x:Static properties:Resources.ActionManagerWindow_ActionIcon_info}" />
                                             </StackPanel>
                                         </DataTemplate>
                                     </GroupBox.HeaderTemplate>
                                     <Grid Margin="0">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="auto" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <Grid Margin="5"
-                                              HorizontalAlignment="Left">
-                                            <ComboBox Height="32" Width="150"
+                                        <ComboBox Height="32" Margin="10" HorizontalAlignment="Right" Width="150"
                                                       ItemContainerStyle="{DynamicResource _ComboboxItemStyle}"
                                                       SelectedItem="{Binding CurrentSelectedAutomation.Geometry}"
                                                       ItemsSource="{Binding SelectableIcons}">
@@ -415,7 +412,7 @@
                                                     </DataTemplate>
                                                 </ComboBox.ItemTemplate>
                                             </ComboBox>
-                                        </Grid>
+                                     
                                     </Grid>
 
 
@@ -429,8 +426,8 @@
                                     <GroupBox.HeaderTemplate>
                                         <DataTemplate>
                                             <StackPanel>
-                                                <TextBlock Margin="-5,5,5,5" FontWeight="SemiBold" Text="ĐIỀU KIỆN KÍCH HOẠT"/>
-                                                <TextBlock Margin="-5,5,5,5" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Điều kiện để thực hiện cùng lúc các hành động bên trên"/>
+                                                <TextBlock Margin="-5,5,5,5" FontWeight="SemiBold" Text="{x:Static properties:Resources.ActionManagerWindow_ActionCondition_Header}"/>
+                                                <TextBlock Margin="-5,5,5,5" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="{x:Static properties:Resources.ActionManagerWindow_ActionCondition_info}"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </GroupBox.HeaderTemplate>

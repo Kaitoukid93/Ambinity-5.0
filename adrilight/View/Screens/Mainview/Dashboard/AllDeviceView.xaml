@@ -12,7 +12,7 @@
              Background="{StaticResource RegionBrush}"
              xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
              mc:Ignorable="d"
-             xmlns:properties="clr-namespace:adrilight.Properties"
+             xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
              xmlns:viewmodel="clr-namespace:adrilight.ViewModel"
              d:DataContext="{d:DesignInstance Type=viewmodel:MainViewViewModel}"
              TextElement.FontWeight="Regular"

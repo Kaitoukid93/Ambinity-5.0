@@ -108,18 +108,12 @@ namespace adrilight.Services.DeviceDiscoveryServices
                             MainViewViewModel.IsRescanningDevices = false;
                         }
                         var serialDevices = await ScanSerialDevice();
-                        var serialHUBs = await ScanSerialHUB();
                         var newDevices = new List<IDeviceSettings>();
                         var oldDevicesReconnected = new List<IDeviceSettings>();
                         openRGBDevices.Item1.ForEach(d => newDevices.Add(d));
                         serialDevices.Item1.ForEach(d => newDevices.Add(d));
                         openRGBDevices.Item2.ForEach(d => oldDevicesReconnected.Add(d));
                         serialDevices.Item2.ForEach(d => oldDevicesReconnected.Add(d));
-                        if (serialHUBs.Item1.Count > 0)
-                        {
-                            MainViewViewModel.ShowSearchingScreen();
-                        }
-                        await Task.Run(() => MainViewViewModel.FoundNewHUB(serialHUBs.Item1));
                         if (newDevices.Count > 0)
                         {
                             MainViewViewModel.ShowSearchingScreen();
@@ -221,63 +215,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
         }
         SerialDeviceDetection SerialDeviceDetector { get; set; }
 
-        private async Task<(List<DeviceSettings>, List<DeviceSettings>)> ScanSerialHUB()
-        {
-            var newHUBsDetected = new List<DeviceSettings>();
-            var oldHUBsReconnected = new List<DeviceSettings>();
-            var tokenSource = new CancellationTokenSource();
-            var token = tokenSource.Token;
-            _isSerialScanCompelete = false;
-            var jobTask = Task.Run(() =>
-            {
-                // Organize critical sections around logical serial port operations somehow.
-                lock (_syncRoot)
-                {
-                    var devices = SerialDeviceDetector.DetectedHUBDevice();
-                    return Task.FromResult(devices);
-                }
-            });
-            if (jobTask != await Task.WhenAny(jobTask, Task.Delay(Timeout.Infinite, token)))
-            {
-                // Timeout;
-                _isSerialScanCompelete = true;
-
-            }
-            var hubs = await jobTask;
-            if (hubs.Item1.Count == 0 && hubs.Item2.Count == 0)
-            {
-                // HandyControl.Controls.MessageBox.Show("Unable to detect any supported device, try adding manually", "No Compatible Device Found", MessageBoxButton.OK, MessageBoxImage.Warning);
-                _isSerialScanCompelete = true;
-
-            }
-            else
-            {
-                foreach (var hub in hubs.Item1)
-                {
-                    Log.Information("SerialDeviceDetection Found New HUB");
-                    Log.Information("Name: " + hub.Name);
-                    foreach(var subDevice in hub.SubDevices)
-                    {
-                        Log.Information(subDevice.Name + " ID: " + subDevice.Serial);
-                    }
-                    Log.Information("---------------");
-                    // MainViewViewModel.SetSearchingScreenProgressText("Found new device: " + device.DeviceName + ". Address: " + device.OutputPort);
-                    Log.Information("Device: " + hub.Name + " is a new device");
-                    newHUBsDetected.Add(hub);
-                }
-                foreach (var hub in hubs.Item2)
-                {
-                    // MainViewViewModel.SetSearchingScreenProgressText("Device reconnected: " + device.DeviceName + ". Address: " + device.OutputPort);
-                    Log.Information(hub.Name + " is connected");
-                    oldHUBsReconnected.Add(hub);
-                }
-
-                tokenSource.Cancel();
-                _isSerialScanCompelete = true;
-
-            }
-            return await Task.FromResult((newHUBsDetected, oldHUBsReconnected));
-        }
+ 
         private async Task<(List<IDeviceSettings>, List<IDeviceSettings>)> ScanSerialDevice()
         {
             var newDevicesDetected = new List<IDeviceSettings>();

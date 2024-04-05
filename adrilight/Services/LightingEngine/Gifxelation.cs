@@ -309,16 +309,31 @@ namespace adrilight.Services.LightingEngine
         {
             //get dependency properties from current lighting mode(based on screencapturing)
             _enableControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.IsEnabled).FirstOrDefault() as ToggleParameter;
+            _enableControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_Enable_header, adrilight_shared.Properties.Resources.LightingEngine_Enable_description);
             _enableControl.PropertyChanged += (_, __) => EnableChanged(_enableControl.Value == 1 ? true : false);
+
             _speedControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Speed).FirstOrDefault() as SliderParameter;
+            _speedControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_SpeedControl_header, adrilight_shared.Properties.Resources.Rainbow_Init_SpeedControl_info);
             _speedControl.MaxValue = 10;
             _speedControl.PropertyChanged += (_, __) => OnSpeedChanged(_speedControl.Value);
+
             _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
+            _brightnessControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_BrightnessControl_header, adrilight_shared.Properties.Resources.LightingEngine_BrightnessControl_info);
             _brightnessControl.PropertyChanged += (_, __) => OnBrightnessPropertyChanged(_brightnessControl.Value);
+
+
             _gifControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Gifs).FirstOrDefault() as ListSelectionParameter;
+            _gifControl.Localize(adrilight_shared.Properties.Resources.GifControl_header, adrilight_shared.Properties.Resources.GifControl_info);
+            _gifControl.SubParams[0].Localize(adrilight_shared.Properties.Resources.ImportGif_header, "xx");
+            _gifControl.SubParams[1].Localize(adrilight_shared.Properties.Resources.ExportGif_header, "xx");
+
             _smoothingControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Smoothing).FirstOrDefault() as SliderParameter;
+            _smoothingControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_SmoothControl_header, adrilight_shared.Properties.Resources.LightingEngine_SmoothControl_info);
             _smoothingControl.PropertyChanged += (_, __) => OnSmoothingPropertyChanged(_smoothingControl.Value);
+
+
             _regionControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.CapturingRegion).FirstOrDefault() as CapturingRegionSelectionButtonParameter;
+            _regionControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_RegionControl_header, adrilight_shared.Properties.Resources.LightingEngine_RegionControl_info);
             _regionControl.PropertyChanged += (_, __) =>
             {
                 switch (__.PropertyName)

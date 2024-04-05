@@ -156,7 +156,7 @@ namespace adrilight_shared.Models
             return true;
         }, (p) =>
         {
-            var vm = new AddNewDialogViewModel("Add New" + p, Name, Geometry);
+            var vm = new AddNewDialogViewModel(adrilight_shared.Properties.Resources.AddNew, Name, Geometry);
             DialogService.ShowDialog<AddNewDialogViewModel>(result =>
             {
                 if (result == "True")
@@ -203,7 +203,7 @@ namespace adrilight_shared.Models
                 return p != null;
             }, (p) =>
             {
-                var vm = new RenameDialogViewModel("Rename", p.Name, "rename");
+                var vm = new RenameDialogViewModel(adrilight_shared.Properties.Resources.RenameDialog_Rename_titleelement, p.Name, "rename");
                 DialogService.ShowDialog<RenameDialogViewModel>(result =>
                 {
                     if (result == "True")
@@ -216,7 +216,7 @@ namespace adrilight_shared.Models
                 return p != null;
             }, (p) =>
             {
-                var vm = new AddNewDialogViewModel("Add New" + Geometry, Name, Geometry);
+                var vm = new AddNewDialogViewModel(adrilight_shared.Properties.Resources.AddNew, Name, Geometry);
                 DialogService.ShowDialog<AddNewDialogViewModel>(result =>
                 {
                     if (result == "True")
@@ -237,7 +237,7 @@ namespace adrilight_shared.Models
                 return p != null;
             }, (p) =>
             {
-                var vm = new DeleteDialogViewModel("Delete", "Bạn chắc chắn muốn xoá nội dung này?");
+                var vm = new DeleteDialogViewModel(adrilight_shared.Properties.Resources.DeleteDialog_Name, adrilight_shared.Properties.Resources.DeleteDialog_Confirm_Header);
                 DialogService.ShowDialog<DeleteDialogViewModel>(result =>
                 {
                     if (result == "True")

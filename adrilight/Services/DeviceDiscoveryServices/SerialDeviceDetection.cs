@@ -41,12 +41,6 @@ namespace adrilight.Util
         public SerialDeviceDetection(List<IDeviceSettings> existedSerialDevice)
         {
             ExistedSerialDevice = existedSerialDevice;
-            //ExistedDeviceHUB = new List<DeviceHUB>();
-            //if (existedDeviceHUB != null)
-            //{
-            //    ExistedDeviceHUB = existedDeviceHUB;
-            //}
-
         }
 
 
@@ -81,25 +75,26 @@ namespace adrilight.Util
 
             }
             return comports;
-
         }
         /// <summary>
-        /// this return any availabe port that is nto in use by the app
+        /// this return any availabe port that is not in use by the app
         /// </summary>
         /// <returns></returns>
-        public static (List<string>, List<string>) GetValidDevice()
+        public static List<string> GetValidDevice()
         {
             List<string> CH55X = GetComPortByID("1209", "c550");
             List<string> CH340 = GetComPortByID("1A86", "7522");
             var devices = new List<string>();
-            var subDevices = new List<string>();
             List<string> sd = GetComPortByID("1209", "c55c");
             if (CH55X.Count > 0 || CH340.Count > 0)
             {
                 foreach (var port in CH55X)
                 {
+                    if (!SerialPort.GetPortNames().Contains((string)port))
+                        continue;
                     if (ExistedSerialDevice.Any(d => d.OutputPort == port && d.IsTransferActive == true))
                         continue;
+
                     devices.Add(port);
                 }
                 foreach (var port in CH340)
@@ -113,249 +108,10 @@ namespace adrilight.Util
             {
                 Log.Warning("No Compatible Device Detected");
             }
-            if (sd.Count > 0)
-            {
-                foreach (var port in sd)
-                {
-                    if (ExistedSerialDevice.Any(d => d.SubDevices != null && d.SubDevices.Any(p => p.ComPort == port) && d.IsTransferActive == true))
-                        continue;
-                    subDevices.Add(port);
-                }
-            }
-            else
-            {
-                // Log.Warning("No Compatible SubDevice Detected");
-            }
-            return (devices, subDevices);
-        }
-        private static bool CheckDeviceConnection(string comPort)
-        {
-            var sp = new SerialPort(comPort, 1000000, Parity.Odd, 8, StopBits.One);
-            try
-            {
-                sp.Open();
-                Thread.Sleep(500);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                //Log.Error("device is in use found : " + device);
-                return false;
-            }
-            catch (IOException)
-            {
-                Log.Error("Device is disconnected : " + comPort);
-                return false;
-            }
-            finally
-            {
-                sp.Close();
-            }
-
-            return true;
-        }
-        private static byte[] GetEEPRomDataOutputStream()
-        {
-            var outputStream = new byte[16];
-            Buffer.BlockCopy(settingCommand, 0, outputStream, 0, settingCommand.Length);
-            outputStream[3] = 255;
-            return outputStream;
-        }
-        private static (int, int, string) GetSubDeviceInformation(string comPort)
-        {
-            //we need: port number and portID for constructing subdevice
-            var newDevicePortID = 255;
-            var newDeviceMaxPorts = 255;
-            string serial = string.Empty;
-            var outputStream = GetEEPRomDataOutputStream();
-            var _serialPort = new SerialPort(comPort, 1000000);
-            _serialPort.DtrEnable = true;
-            _serialPort.ReadTimeout = 5000;
-            _serialPort.WriteTimeout = 1000;
-            try
-            {
-                _serialPort.Open();
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "AcessDenied " + _serialPort.PortName);
-                return (255, 255, string.Empty);
-            }
-            _serialPort.Write(outputStream, 0, outputStream.Length);
-            _serialPort.WriteLine("\r\n");
-            int retryCount = 0;
-            int offset = 0;
-            IDeviceSettings newDevice = new DeviceSettings();
-            while (offset < 3)
-            {
-
-
-                try
-                {
-                    byte header = (byte)_serialPort.ReadByte();
-                    if (header == expectedValidHeader[offset])
-                    {
-                        offset++;
-                    }
-                }
-                catch (TimeoutException)// retry until received valid header
-                {
-                    _serialPort.Write(outputStream, 0, outputStream.Length);
-                    _serialPort.WriteLine("\r\n");
-                    retryCount++;
-                    if (retryCount == 3)
-                    {
-                        Log.Warning("timeout waiting for respond on serialport " + _serialPort.PortName);
-                        _serialPort.Close();
-                        _serialPort.Dispose();
-                        return (255, 255, string.Empty);
-                    }
-                    Debug.WriteLine("no respond, retrying...");
-                }
-
-
-            }
-            if (offset == 3) //3 bytes header are valid continue to read next 13 byte of data
-            {
-
-                /// [15,12,93,PortID,Number of outputs,ParrentID] ///////
-                try
-                {
-                    newDevicePortID = _serialPort.ReadByte();
-                    newDeviceMaxPorts = _serialPort.ReadByte();
-                    if (_serialPort.BytesToRead > 0)
-                    {
-                        var dt0 = _serialPort.ReadByte();
-                        var dt1 = _serialPort.ReadByte();
-                        var dt2 = _serialPort.ReadByte();
-                        var dt3 = _serialPort.ReadByte();
-                        var dt4 = _serialPort.ReadByte();
-                        byte[] id = new byte[6];
-
-                        for (int i = 0; i < 6; i++)
-                        {
-                            id[i] = (byte)_serialPort.ReadByte();
-                        }
-                        serial = BitConverter.ToString(id).Replace('-', ' ');
-                        Log.Information("Device Custom ID: " + id[0].ToString() + id[1].ToString() + id[2].ToString() + id[3].ToString() + id[4].ToString() + id[5].ToString());
-
-                    }
-                }
-                catch (TimeoutException ex)
-                {
-                    //discard buffer
-                    _serialPort.DiscardInBuffer();
-                    _serialPort.Close();
-                    _serialPort.Dispose();
-                    return (255, 255, string.Empty);
-                }
-            }
-
-            //we got all the information we need for constructing new subdevice
-            _serialPort.Close();
-            _serialPort.Dispose();
-            return (newDevicePortID, newDeviceMaxPorts, serial);
-
-        }
-        private string GetDeviceFactoryID(string comPort)
-        {
-
-            string id = "000000";
-            bool isValid = true;
-            var _serialPort = new SerialPort(comPort, 1000000);
-            _serialPort.DtrEnable = true;
-            _serialPort.ReadTimeout = 5000;
-            _serialPort.WriteTimeout = 1000;
-            try
-            {
-                _serialPort.Open();
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "AcessDenied " + _serialPort.PortName);
-                return null;
-            }
-        //write request info command
-        retry:
-            try
-            {
-                _serialPort.Write(requestCommand, 0, 3);
-                _serialPort.WriteLine("\r\n");
-            }
-
-            catch (System.IO.IOException ex)// retry until received valid header
-            {
-                Log.Warning("This Device seems to have Ambino PID/VID but not an USB device " + _serialPort.PortName);
-                return null;
-            }
-            int retryCount = 0;
-            int offset = 0;
-            int idLength = 0; // Expected response length of valid deviceID 
-            int nameLength = 0; // Expected response length of valid deviceName 
-            int fwLength = 0;
-            int hwLength = 0;
-
-            while (offset < 3)
-            {
-                try
-                {
-                    byte header = (byte)_serialPort.ReadByte();
-                    if (header == expectedValidHeader[offset])
-                    {
-                        offset++;
-                    }
-                    else if (header == unexpectedValidHeader[offset])
-                    {
-                        offset++;
-                        if (offset == 3)
-                        {
-                            Log.Information("Old Ambino Device at" + _serialPort.PortName + ". Restarting Firmware Request");
-                            goto retry;
-                        }
-                    }
-                }
-                catch (TimeoutException ex)// retry until received valid header
-                {
-                    _serialPort.Write(requestCommand, 0, 3);
-                    _serialPort.WriteLine("\r\n");
-                    retryCount++;
-                    if (retryCount == 3)
-                    {
-                        Log.Warning("timeout waiting for respond on serialport " + _serialPort.PortName);
-                        if (!isNoRespondingMessageShowed)
-                        {
-                            isNoRespondingMessageShowed = true;
-                            HandyControl.Controls.MessageBox.Show("Device at " + _serialPort.PortName + " is not responding, try adding it manually", "Device is not responding", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        }
-
-                        return null;
-                    }
-                }
-                catch (System.IO.IOException ex)// retry until received valid header
-                {
-                    return null;
-                }
-
-            }
-            if (offset == 3) //3 bytes header are valid
-            {
-                idLength = (byte)_serialPort.ReadByte();
-                int count = idLength;
-                var d = new byte[count];
-                while (count > 0)
-                {
-                    var readCount = _serialPort.Read(d, 0, count);
-                    offset += readCount;
-                    count -= readCount;
-                }
-                id = BitConverter.ToString(d);
-            }
-
-            _serialPort.Close();
-            _serialPort.Dispose();
-            return id;
+            return devices;
         }
         /// <summary>
-        /// this return a new constructed device with the information read frm comPort
+        /// this return a new constructed device with the information read from comPort
         /// </summary>
         /// <param name="comPort"></param>
         /// <returns></returns>
@@ -377,7 +133,9 @@ namespace adrilight.Util
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "AcessDenied " + _serialPort.PortName);
+               // Log.Error(ex,"AcessDenied " + _serialPort.PortName);
+                Log.Error(_serialPort.PortName+ " is removed");
+                Thread.Sleep(2000);
                 return null;
             }
 
@@ -512,7 +270,15 @@ namespace adrilight.Util
             _serialPort.Dispose();
             return dev;
         }
-
+        /// <summary>
+        /// Construct device from basic information
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="deviceSerial"></param>
+        /// <param name="fwVersion"></param>
+        /// <param name="hwVersion"></param>
+        /// <param name="outputPort"></param>
+        /// <returns></returns>
         private static DeviceSettings DeviceConstruct(string name, string deviceSerial, string fwVersion, string hwVersion, string outputPort)
         {
             var ledSetupHlprs = new LEDSetupHelpers();
@@ -585,17 +351,6 @@ namespace adrilight.Util
                     //newDevice.OutputPort = device;
                     //newDevice.IsSizeNeedUserDefine = true;
                     break;
-                case "Ambino HyperPort":
-                    newDevice = new SlaveDeviceHelpers().DefaultCreatedAmbinoDevice(
-                       new DeviceType(DeviceTypeEnum.AmbinoHyperPort),
-                       newDevice.DeviceName,
-                       outputPort,
-                       false,
-                       true,
-                       1);
-                    newDevice.DashboardWidth = 230;
-                    newDevice.DashboardHeight = 270;
-                    break;
             }
 
             newDevice.DeviceSerial = deviceSerial;
@@ -612,7 +367,7 @@ namespace adrilight.Util
         {
             List<IDeviceSettings> newDevices = new List<IDeviceSettings>();
             List<IDeviceSettings> existedDevices = new List<IDeviceSettings>();
-            var validDevices = GetValidDevice().Item1;
+            var validDevices = GetValidDevice();
             foreach (var comPort in validDevices)
             {
 
@@ -657,96 +412,6 @@ namespace adrilight.Util
             return (newDevices, existedDevices);
 
         }
-        public (List<DeviceSettings>, List<DeviceSettings>) DetectedHUBDevice()
-        {
-            List<DeviceSettings> newHUB = new List<DeviceSettings>();
-            List<DeviceSettings> existedHUB = new List<DeviceSettings>();
-            List<SubDevice> newSubDevice = new List<SubDevice>();
-            var validSubDevices = GetValidDevice().Item2;
-            foreach (var comPort in validSubDevices)
-            {
-                //if device is existed in the database
-                // existedHUB.Add( ); // old hub sub device is connected, so how we know that all the sub device in that hub is connected
-                //what if there is one or more device malfunction? SerialStream will just connect to all of them even the port is not there
-                // can we just let them connect and catch the exception
-                // or we only start the serial stream when all the port is valid?
-                // for example, if the hub load in database have 4 ports, we continue to search until we got all 4 outputs valid
-                // if we get more or less device in the hub, we just add or remove accordingly??
-                //let's try
-                var (outputID, maxPort, hubSerial) = GetSubDeviceInformation(comPort);
-
-                var matchHub = ExistedSerialDevice.Where(h => h.DeviceSerial == hubSerial).FirstOrDefault();
-                if (matchHub != null)
-                {
-                    if (matchHub.SubDevices != null)
-                    {
-                        int connectedSubDeviceCount = 0;
-                        foreach (var subDevice in matchHub.SubDevices)
-                        {
-                            var rslt = CheckDeviceConnection(subDevice.ComPort);
-                            if (rslt)
-                            {
-                                connectedSubDeviceCount++;
-                            }
-                            else
-                            {
-                                Log.Warning("SubDevice " + subDevice.ComPort + " not found or in use");
-                            }
-                        }
-                        if (connectedSubDeviceCount > 0)
-                        {
-                            matchHub.IsTransferActive = true;
-                        }
-
-                    }
-
-                    continue;
-                }
-                //else we probably found a new device
-                //start requesting device information
-
-                var valid = outputID != 255 && maxPort != 255;
-                if (valid)
-                {
-                    var dev = new SubDevice();
-                    if (dev != null)
-                    {
-                        //construct new subdevice
-                        dev.MaxLEDOutput = maxPort;
-                        dev.PortIndex = outputID;
-                        dev.HUBSerial = hubSerial;
-                        dev.ComPort = comPort;
-                        newSubDevice.Add(dev);
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                }
-                else
-                {
-                    continue;
-                }
-
-            }
-
-            var hubs = newSubDevice.GroupBy(d => d.Serial);
-            foreach (var hub in hubs)
-            {
-                var newHub = DeviceConstruct("Ambino HubV3", "", "", "", "");
-                newHub.SubDevices = new System.Collections.ObjectModel.ObservableCollection<SubDevice>();
-
-                foreach (var dev in hub)
-                {
-                    newHub.SubDevices.Add(dev);
-                }
-                newHUB.Add(newHub);
-            }
-
-            return (newHUB, existedHUB);
-        }
-
-
     }
 }
 //+-------------------------------------------------+--------+----+----+-------+

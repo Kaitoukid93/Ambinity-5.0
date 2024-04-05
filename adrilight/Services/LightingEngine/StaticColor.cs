@@ -234,8 +234,11 @@ namespace adrilight
         {
             #region registering params
             _enableControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.IsEnabled).FirstOrDefault() as ToggleParameter;
+            _enableControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_Enable_header, adrilight_shared.Properties.Resources.LightingEngine_Enable_description);
             _enableControl.PropertyChanged += (_, __) => EnableChanged(_enableControl.Value == 1 ? true : false);
             _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Color).FirstOrDefault() as ListSelectionParameter;
+            _colorControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_ColorControl_header, adrilight_shared.Properties.Resources.LightingEngine_ColorControl_info);
+            _colorControl.SubParams[0].Localize(adrilight_shared.Properties.Resources.ColorControl_AddSolidColor_header, "xx");
             _colorControl.PropertyChanged += (_, __) =>
             {
                 switch (__.PropertyName)
@@ -246,7 +249,15 @@ namespace adrilight
                 }
             };
             _breathingControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Breathing).FirstOrDefault() as ToggleParameter;
+            _breathingControl.Localize(adrilight_shared.Properties.Resources.BreathingControl_header, adrilight_shared.Properties.Resources.BreathingControl_info);
+            _breathingControl.SubParams[0].Localize(adrilight_shared.Properties.Resources.BreathingSpeedControl_header, "xx");
+            _breathingControl.SubParams[1].Localize(adrilight_shared.Properties.Resources.BreathingControlSystemSync_header, "xx");
+            _breathingControl.SubParams[2].Localize(adrilight_shared.Properties.Resources.BreathingControlSystemSpeed_header, "xx");
+
             _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
+            _brightnessControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_BrightnessControl_header, adrilight_shared.Properties.Resources.LightingEngine_BrightnessControl_info);
+
+
             _brightnessControl.PropertyChanged += (_, __) => OnBrightnessValueChanged(_brightnessControl.Value);
             _breathingControl.PropertyChanged += (_, __) => OnIsBreathingValueChanged(_breathingControl.Value == 1 ? true : false);
             _breathingControl.SubParams[0].PropertyChanged += (_, __) => OnBreathingSpeedValueChanged(_breathingControl.SubParams[0].Value);

@@ -272,11 +272,15 @@ namespace adrilight
         public void Init()
         {
             #region registering params
+            ///enable control//
             _enableControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.IsEnabled).FirstOrDefault() as ToggleParameter;
+            _enableControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_Enable_header, adrilight_shared.Properties.Resources.LightingEngine_Enable_description);
             _enableControl.PropertyChanged += (_, __) => EnableChanged(_enableControl.Value == 1 ? true : false);
+            ///color control//
             _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Palette).FirstOrDefault() as ListSelectionParameter;
-            _vidDataControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.VID).FirstOrDefault() as ListSelectionParameter;
-            _speedControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Speed).FirstOrDefault() as SliderParameter;
+            _colorControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_ColorControl_header, adrilight_shared.Properties.Resources.LightingEngine_ColorControl_info);
+            _colorControl.SubParams[0].Localize(adrilight_shared.Properties.Resources.LightingEngine_ColorControlSubParam_CreateNewPalette_Content, "xx");
+            _colorControl.SubParams[1].Localize(adrilight_shared.Properties.Resources.LightingEngine_ColorControlSubParam_ExportPalette_Content, "xx");
             _colorControl.PropertyChanged += (_, __) =>
             {
                 switch (__.PropertyName)
@@ -286,6 +290,11 @@ namespace adrilight
                         break;
                 }
             };
+            ///vid data control
+            _vidDataControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.VID).FirstOrDefault() as ListSelectionParameter;
+            _vidDataControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_VIDDataControl_header, adrilight_shared.Properties.Resources.LightingEngine_VIDDataControl_info);
+            _vidDataControl.SubParams[0].Localize(adrilight_shared.Properties.Resources.LightingEngine_ColorControl_SubParam_Intensity_Content,"xx");
+            _vidDataControl.SubParams[1].Localize(adrilight_shared.Properties.Resources.LightingEngine_ColorControl_SubParam_AddNewVID_Content, "xx");
             _vidDataControl.PropertyChanged += (_, __) =>
             {
                 switch (__.PropertyName)
@@ -296,12 +305,23 @@ namespace adrilight
                 }
             };
             _vidDataControl.SubParams[0].PropertyChanged += (_, __) => OnVIDIntensityValueChanged(_vidDataControl.SubParams[0].Value);
-            _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
+            ///speed control///
+            _speedControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Speed).FirstOrDefault() as SliderParameter;
+            _speedControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_SpeedControl_header, adrilight_shared.Properties.Resources.Rainbow_Init_SpeedControl_info);
             _speedControl.PropertyChanged += (_, __) => OnSpeedChanged(_speedControl.Value);
+            ///brightness control///
+            _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
+            _brightnessControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_BrightnessControl_header, adrilight_shared.Properties.Resources.LightingEngine_BrightnessControl_info);
             _brightnessControl.PropertyChanged += (_, __) => OnBrightnessValueChanged(_brightnessControl.Value);
+
+
             _systemSyncControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.IsSystemSync).FirstOrDefault() as ToggleParameter;
+            _systemSyncControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_SystemSyncControl_header, adrilight_shared.Properties.Resources.LightingEngine_SystemSyncControl_info);
             _systemSyncControl.PropertyChanged += (_, __) => OnSystemSyncValueChanged(_systemSyncControl.Value == 1 ? true : false);
+            _systemSyncControl.SubParams[0].Localize(adrilight_shared.Properties.Resources.LightingEngine_SystemSync_Speed_header, "xx");
             _systemSyncControl.SubParams[0].PropertyChanged += (_, __) => OnSystemSyncSpeedValueChanged(_systemSyncControl.SubParams[0].Value);
+
+            ///activate these value///
             _colorControl.LoadAvailableValues();
             _vidDataControl.LoadAvailableValues();
             #endregion

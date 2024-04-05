@@ -8,6 +8,7 @@
              xmlns:local="clr-namespace:adrilight.View"
              xmlns:viewmodel="clr-namespace:adrilight.ViewModel"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewmodel:MainViewViewModel}"
              Background="{StaticResource RegionBrush}">
@@ -679,7 +680,7 @@
                                            HorizontalAlignment="Center"
                                            TextWrapping="Wrap"
                                            Style="{DynamicResource TextBlockDefaultPrimary}"
-                                           Text="Chạy lại Device Setup" />
+                                           Text="{x:Static properties:Resources.DeviceControlView_RunDeviceSetup}" />
                             </Button>
                             <Button Command="{Binding SaveDeviceInformationToDiskCommand}"
                                     Padding="0"
@@ -689,7 +690,7 @@
                                            HorizontalAlignment="Center"
                                            TextWrapping="Wrap"
                                            Style="{DynamicResource TextBlockDefaultPrimary}"
-                                           Text="Lưu thông tin device" />
+                                           Text="{x:Static properties:Resources.DeviceControlView_SaveDeviceInfo}" />
                             </Button>
                         </StackPanel>
                     </Grid>

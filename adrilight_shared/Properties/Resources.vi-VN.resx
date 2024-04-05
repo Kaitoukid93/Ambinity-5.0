@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -46,7 +46,7 @@
     
     mimetype: application/x-microsoft.net.object.binary.base64
     value   : The object must be serialized with 
-            : System.Serialization.Formatters.Binary.BinaryFormatter
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
     
     mimetype: application/x-microsoft.net.object.soap.base64
@@ -60,6 +60,7 @@
             : and then encoded with base64 encoding.
     -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
@@ -68,9 +69,10 @@
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" />
+              <xsd:attribute name="name" use="required" type="xsd:string" />
               <xsd:attribute name="type" type="xsd:string" />
               <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="assembly">
@@ -85,9 +87,10 @@
                 <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
                 <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
@@ -109,893 +112,889 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AllDeviceView_DEVICES" xml:space="preserve">
-    <value>DEVICES</value>
-    <comment>All devices text</comment>
-  </data>
   <data name="AllDeviceView_Device_Guide" xml:space="preserve">
-    <value>Click on each device to customize the effects.</value>
+    <value>Nhấn vào từng thiết bị để tuỳ chỉnh hiệu ứng.</value>
   </data>
   <data name="AllDeviceView_LightingProfiles_Guide" xml:space="preserve">
-    <value>When activated, all devices will synchronize with each other except for the ones that are turned off</value>
+    <value>Khi được kích hoạt, tất cả các thiết bị sẽ đồng bộ với nhau trừ những thiết bị đã tắt</value>
   </data>
   <data name="AllDeviceView_Automation_Guide" xml:space="preserve">
-    <value>You can create automated sequences for devices or assign them to hotkeys for control without having to turn on the software.</value>
+    <value>Bạn có thể tạo các chuỗi tự hành động cho thiết bị hoặc gán cho chúng phím tắt để điều khiển mà không cần bật phần mềm.</value>
   </data>
   <data name="NonClientAreaContent_Automation_Tooltip" xml:space="preserve">
-    <value>Automation</value>
+    <value>Tự động hoá</value>
   </data>
   <data name="NonClientAreaContent_GeneralSettings_ToolTip" xml:space="preserve">
-    <value>General Settings</value>
+    <value>Cài đặt chung</value>
   </data>
   <data name="AllDeviceView_DeviceManager_Tooltip" xml:space="preserve">
-    <value>Manage devices</value>
+    <value>Quản lý các thiết bị</value>
   </data>
   <data name="AllDeviceView_Automation_Tooltip" xml:space="preserve">
-    <value>Manage automations</value>
+    <value>Quản lý và chỉnh sửa các phím tắt</value>
   </data>
   <data name="AllDeviceView_VisitStoreTail" xml:space="preserve">
-    <value>to download additional lighting profiles</value>
+    <value>để tải thêm nhiều hiệu ứng đồng bộ khác</value>
   </data>
   <data name="AppSettingsWindow_STARTWITHWINDOWS" xml:space="preserve">
-    <value>START WITH WINDOWS</value>
+    <value>KHỞI ĐỘNG CÙNG HỆ THỐNG</value>
   </data>
   <data name="AppSettingsWindow_AutoStart_Info" xml:space="preserve">
-    <value>Automatically start with windows.</value>
+    <value>Phần mềm sẽ tự khởi động cùng hệ thống.</value>
   </data>
   <data name="AppSettingsWindow_StartMinimized_info" xml:space="preserve">
-    <value>After startup, automatically minimize the app to the system tray.</value>
+    <value>Tự động thu nhỏ cửa sổ vào khay hệ thống sau khi phần mềm khởi động.</value>
   </data>
   <data name="AppSettingsWindow_EnableHotKey_info" xml:space="preserve">
-    <value>Disable this option if you encounter app crashing while typing or playing games.</value>
+    <value>Tắt tuỳ chọn này nếu bạn gặp lỗi văng phần mềm khi đang gõ văn bản hoặc chơi game.</value>
   </data>
   <data name="AppSettingsWindow_UsingOpenRGB_info" xml:space="preserve">
-    <value>Allow the OpenRGB supplement application to connect with devices from various manufacturers.</value>
+    <value>Cho phép ứng dụng bổ sung OpenRGB hoạt động để kết nối với các thiết bị của nhiều hãng khác nhau.</value>
   </data>
   <data name="AppSettingsWindow_EnableHardwareMonitor_info" xml:space="preserve">
-    <value>Authorize this app to read hardware information.</value>
+    <value>Cho phép phần mềm đọc thông tin phần cứng máy tính.</value>
   </data>
   <data name="AppSettingsWindow_ScreenCaptureEnable_Info" xml:space="preserve">
-    <value>Enable screen capture (this setting affects the ambient backlight mode).</value>
+    <value>Bật ghi lại nội dung màn hình (cài đặt này ảnh hưởng tới chế độ sáng theo màn hình).</value>
   </data>
   <data name="AppSettingsWindow_ScreenCapturingAPI_info" xml:space="preserve">
-    <value>Change the capturing method if the ambient backlight mode is not functioning (requires restarting the app).</value>
+    <value>Thay đổi phương thức ghi màn hình nếu chế độ sáng theo màn hình không hoạt động (cần khởi động lại phần mềm).</value>
   </data>
   <data name="AppSettingsWindow_MultipleScreenSupport_info" xml:space="preserve">
-    <value>Enable screen capture on multiple screens (disable this option if you encounter errors while using multiple monitors).</value>
+    <value>Cho phép ghi nội dung từ nhiều hơn một màn hình (tắt tuỳ chọn này nếu bạn gặp lỗi khi dùng nhiều màn hình).</value>
   </data>
   <data name="AppSettingsWindow_AudioCaptureEnable_info" xml:space="preserve">
-    <value>Enable audio capture (this setting affects the music reactive mode).</value>
+    <value>Bật ghi lại âm thanh hệ thống (cài đặt này ảnh hưởng tới chế độ nháy theo nhạc).</value>
   </data>
   <data name="AppSettingsWindow_AutoUpdate_info" xml:space="preserve">
-    <value>Automatically check for updates every day or on startup.</value>
+    <value>Tự động kiểm tra bản cập nhật mỗi ngày hoặc mỗi khi mở phần mềm.</value>
   </data>
   <data name="AppSettingsWindow_AddnewDevices_info" xml:space="preserve">
-    <value>Switch this option to"Manual" if you prefer to add new devices on your own.</value>
+    <value>Chuyển sang "Thủ công" nếu bạn muốn tự thêm thiết bị.</value>
   </data>
   <data name="AppSettingsWindow_ManualAddDeviceFromFile" xml:space="preserve">
-    <value>IMPORT FROM FILE</value>
+    <value>THÊM TỪ TỆP NÉN</value>
   </data>
   <data name="AppSettingsWindow_ShowOpenRGB_info" xml:space="preserve">
-    <value>The OpenRGB icon will appear in the system tray (requires restarting the app).</value>
+    <value>Biểu tượng OpenRGB sẽ hiển thị ở khay hệ thống (cần khởi động lại phần mềm).</value>
   </data>
   <data name="AppSettingsWindow_PowerLimit_info" xml:space="preserve">
-    <value>Limit the power consumption according to Ambino device current standard.</value>
+    <value>Giới hạn dòng điện tiêu thụ theo chuẩn thiết bị Ambino.</value>
   </data>
   <data name="AppSettingsWindow_Language_info" xml:space="preserve">
-    <value>Select System Language(requires restarting the app).</value>
+    <value>Thay đổi ngôn ngữ hiển thị (cần khởi động lại phần mềm).</value>
   </data>
   <data name="MainViewViewModel_GeneralSettings_ThemeColor_info" xml:space="preserve">
-    <value>Change theme color for the application (app restart recommended).</value>
+    <value>Chọn màu chủ đạo cho ứng dụng (nên khởi động lại phần mềm).</value>
   </data>
   <data name="AppSettingsWindow_AddDeviceMethodManual" xml:space="preserve">
-    <value>Manual</value>
+    <value>Thủ công</value>
   </data>
   <data name="Import_Button_Content" xml:space="preserve">
-    <value>Import</value>
+    <value>Nhập</value>
   </data>
   <data name="GeneralSettings_AutoStartDelayTime_info" xml:space="preserve">
-    <value>Auto start delay time(sec)</value>
+    <value>Thời gian trễ sau khi máy tính khởi động (tính bằng giây)</value>
   </data>
   <data name="Button_Open_Content" xml:space="preserve">
-    <value>Open</value>
+    <value>Mở</value>
   </data>
   <data name="AutomationManagerWindow_AutomationManager_header" xml:space="preserve">
-    <value>Automation Manager</value>
+    <value>Quản lý hành động</value>
   </data>
   <data name="AddNewAutomationWindow_NAME" xml:space="preserve">
-    <value>Enter name for actions</value>
+    <value>Đặt tên cho hành động</value>
   </data>
   <data name="Button_Cancel_Content" xml:space="preserve">
-    <value>Cancel</value>
+    <value>Huỷ</value>
   </data>
   <data name="AutomationManagerWindow_Action" xml:space="preserve">
-    <value>Action:</value>
+    <value>Hành động:</value>
   </data>
   <data name="AutomationManagerWindow_Unlock_tooltip" xml:space="preserve">
-    <value>Unlock</value>
+    <value>Mở khoá</value>
   </data>
   <data name="Activate_tooltip" xml:space="preserve">
-    <value>Activate</value>
+    <value>Kích hoạt</value>
   </data>
   <data name="ActionManagerWindow_ActionRecommend_header" xml:space="preserve">
-    <value>ACTION SUGGESTIONS</value>
+    <value>GỢI Ý HÀNH ĐỘNG</value>
   </data>
   <data name="ActionManagerWindow_ActionIcon_info" xml:space="preserve">
-    <value>Illustrative icon for the purpose of this action.</value>
+    <value>Biểu tượng minh hoạ cho mục đích của hành động này.</value>
   </data>
   <data name="ActionManagerWindow_ActionCondition_info" xml:space="preserve">
-    <value>When this condition is met, the action sequence will be triggered.</value>
+    <value>Khi gặp điều kiện này, chuỗi hành động sẽ được kích hoạt.</value>
   </data>
   <data name="HotKeySelectionWindow_ActivationShortcut_hint" xml:space="preserve">
-    <value>Chose a key combination, for example : Ctrl+Shift+F5</value>
+    <value>Nhấn tổ hợp phím, ví dụ : Ctrl+Shift+F5</value>
   </data>
   <data name="ActionType_Increase_name" xml:space="preserve">
-    <value>Increase</value>
+    <value>Tăng</value>
   </data>
   <data name="ActionType_TurnOn_name" xml:space="preserve">
-    <value>Turn on</value>
+    <value>Bật</value>
   </data>
   <data name="ActionType_Turnonthenoff_name" xml:space="preserve">
-    <value>Toggle on-off</value>
+    <value>Chuyển bật-tắt</value>
   </data>
   <data name="ActionType_Activate_linktext" xml:space="preserve">
-    <value>for device</value>
+    <value>cho thiết bị</value>
   </data>
   <data name="TriggerCondition_Hotkey_name" xml:space="preserve">
-    <value>Hotkey</value>
+    <value>Phím tắt</value>
   </data>
   <data name="TriggerCondition_TurnOff_name" xml:space="preserve">
-    <value>When turn off pc or app</value>
+    <value>Khi tắt máy hoặc thoát phần mềm</value>
   </data>
   <data name="TriggerCondition_ScreenOff_name" xml:space="preserve">
-    <value>When screen slept</value>
+    <value>Khi màn hình tắt</value>
   </data>
   <data name="TriggerCondition_ScreenOn_name" xml:space="preserve">
-    <value>When screen is waken up</value>
+    <value>Khi màn hình bật</value>
   </data>
   <data name="ActionType_Change_resulttext" xml:space="preserve">
-    <value>to</value>
+    <value>thành</value>
   </data>
   <data name="GetAutoMationParam_Brightness" xml:space="preserve">
-    <value>Brightness</value>
+    <value>Độ sáng</value>
   </data>
   <data name="GetAutoMationParam_Color" xml:space="preserve">
-    <value>Color</value>
+    <value>Màu</value>
   </data>
   <data name="GetAutoMationParam_FanSpeed" xml:space="preserve">
-    <value>Fan speed</value>
+    <value>Tốc độ fan</value>
   </data>
   <data name="LightingProfileManagerWindow_Playlists_TabHeader" xml:space="preserve">
-    <value>Playlists</value>
+    <value>Danh sách phát</value>
   </data>
   <data name="PlayListCollectionView_NewPlaylist_Button_Content" xml:space="preserve">
-    <value>Create new playlist</value>
+    <value>Tạo danh sách phát mới</value>
   </data>
   <data name="PlayListCollectionView_Rename_Playlist" xml:space="preserve">
-    <value>Rename</value>
+    <value>Đổi tên</value>
   </data>
   <data name="PlayListCollectionView_DeleteThisPlaylist_ToolTip" xml:space="preserve">
-    <value>Delete this playlist</value>
+    <value>Xoá danh sách này</value>
   </data>
   <data name="PlayListCollectionView_Repeat" xml:space="preserve">
-    <value>Repeat</value>
+    <value>Lặp lại</value>
   </data>
   <data name="PlayListCollectionView_SetTime_ToolTip" xml:space="preserve">
-    <value>Set time period for each profile</value>
+    <value>Cài đặt thời gian chạy cho từng hiệu ứng</value>
   </data>
   <data name="PlayListCollectionView_Play" xml:space="preserve">
-    <value>Play</value>
+    <value>Phát</value>
   </data>
   <data name="PlayListCollectionView_RemoveFromPlaylist_tooltip" xml:space="preserve">
-    <value>Remove from playlist</value>
+    <value>Xoá khỏi danh sách</value>
   </data>
   <data name="DeviceManager_DisConnect_Warning_Message" xml:space="preserve">
-    <value>All devices will temporarily disconnect until this window is closed.</value>
+    <value>Các thiết bị sẽ ngắt kết nối tạm thời cho tới khi cửa sổ này đóng lại.</value>
   </data>
   <data name="DeviceCollectionView_OpenDevicesFolder_Button_Content" xml:space="preserve">
-    <value>Open Devices folder</value>
+    <value>Mở thư mục thiết bị</value>
   </data>
   <data name="DeviceAdvanceSettingsView_TabItem_Firmware_header" xml:space="preserve">
-    <value>Firmware</value>
+    <value>Vi trình</value>
   </data>
   <data name="DeviceAdvanceSettingsView_SoftwareSettings_header" xml:space="preserve">
-    <value>SOFTWARE SETTINGS</value>
+    <value>CÀI ĐẶT PHẦN MỀM</value>
   </data>
   <data name="DeviceAdvanceSettingsView_SoftwareSettings_AutoConnect_info" xml:space="preserve">
-    <value>Automatically connect to devices when they are plugged in.</value>
+    <value>Tự động kết nối với thiết bị khi chúng được cắm vào.</value>
   </data>
   <data name="DeviceAdvanceSettingsView_SoftwareSettings_MaxBrightness_info" xml:space="preserve">
-    <value>Maximum brightness allowed</value>
+    <value>Độ sáng tối đa cho phép</value>
   </data>
   <data name="DeviceAdvanceSettingsView_HardwareSettings_OfflineLEDState_header" xml:space="preserve">
-    <value>KEEP LED STATE WHEN DISCONNECTED</value>
+    <value>GIỮ TRẠNG THÁI LED KHI NGẮT KẾT NỐI</value>
   </data>
   <data name="DeviceAdvanceSettingsView_IndicatorLED_header" xml:space="preserve">
-    <value>STANDBY LED</value>
+    <value>BẬT HOẶC TẮT LED TÍN HIỆU</value>
   </data>
   <data name="DeviceAdvanceSettingsView_HardwareSettings_OfflineFanSpeed_Header" xml:space="preserve">
-    <value>OFFLINE FANS SPEED</value>
+    <value>TỐC ĐỘ QUẠT MẶC ĐỊNH</value>
   </data>
   <data name="DeviceAdvanceSettingsView_backupandRestore_header" xml:space="preserve">
-    <value>BACKUP AND RESTORE</value>
+    <value>SAO LƯU VÀ KHÔI PHỤC</value>
   </data>
   <data name="DeviceAdvanceSettingsView_ShowAllBackupFiles_tooptip" xml:space="preserve">
-    <value>Show all backup files</value>
+    <value>Mở thư mục sao lưu</value>
   </data>
   <data name="DeviceAdvanceSettingsView_Backup_info" xml:space="preserve">
-    <value>Backup this device's current state</value>
+    <value>Sao lưu trạng thái hiện tại của thiết bị</value>
   </data>
   <data name="DeviceAdvanceSettingsView_Restore_buttoncontent" xml:space="preserve">
-    <value>Restore</value>
+    <value>Khôi phục</value>
   </data>
   <data name="DeviceAdvanceSettingsView_FirmwareInfo_Header" xml:space="preserve">
-    <value>CURRENT FIRMWARE</value>
+    <value>PHIÊN BẢN VI TRÌNH HIỆN TẠI</value>
   </data>
   <data name="HUBV_Checkforupdate_content" xml:space="preserve">
-    <value>HUBV2 device needs to use  FlyMCU  to download firmware, adrilight will only send the device to DFU State</value>
+    <value>HUBV2 cần sử dụng Fly MCU để nạp firmware, adrilight chỉ đưa thiết bị về trạng thái DFU</value>
   </data>
   <data name="DeviceAdvanceSettingsView_FirmwareRepair_header" xml:space="preserve">
-    <value>DEVICE BRICK REPAIR</value>
+    <value>CẬP NHẬT THỦ CÔNG</value>
   </data>
   <data name="DeviceAdvanceSettingsView_DownloadFirmware_buttoncontent" xml:space="preserve">
-    <value>Download</value>
+    <value>Nạp</value>
   </data>
   <data name="DeleteDialog_DeleteConfirm_info" xml:space="preserve">
-    <value>Removed item is nonrecoverable</value>
+    <value>Các nội dung đã xoá sẽ không thể khôi phục</value>
   </data>
   <data name="DeleteDialog_Confirm_Header" xml:space="preserve">
-    <value>Are you sure you want to remove this item?</value>
+    <value>Bạn chắc chắn muốn xoá nội dung này?</value>
   </data>
   <data name="RenameDialog_Rename_titleelement" xml:space="preserve">
-    <value>Rename</value>
+    <value>Đổi tên</value>
   </data>
   <data name="AddNew" xml:space="preserve">
-    <value>Add New</value>
+    <value>Thêm mới</value>
   </data>
   <data name="AddNewDialog_Name" xml:space="preserve">
-    <value>Name</value>
+    <value>Tên</value>
   </data>
   <data name="DeleteDialog_Name" xml:space="preserve">
-    <value>Delete</value>
+    <value>Xoá</value>
   </data>
   <data name="Button_OK_Content" xml:space="preserve">
     <value>Ok</value>
   </data>
   <data name="DeviceAdvanceSettingsView_CustomFirmwareSelection_buttonconent" xml:space="preserve">
-    <value>Chose firmware .hex file</value>
+    <value>Chọn .hex file</value>
   </data>
   <data name="DeviceAdvanceSettingsView_FirmwareRepair_content" xml:space="preserve">
-    <value>Brick repair will allow you to load a custom firmware version and download to device, use at your own risk</value>
+    <value>Chọn một file hex để cập nhật. Thiết bị có thể sẽ không hoạt động nếu nạp sai</value>
   </data>
   <data name="EnterDFU_ButtonContent" xml:space="preserve">
-    <value>Enter DFU</value>
+    <value>Về DFU</value>
   </data>
   <data name="CheckForUpdate_content" xml:space="preserve">
-    <value>Check for update</value>
+    <value>Kiểm tra cập nhật</value>
   </data>
   <data name="DeviceAdvanceSettingsView_Restore_info" xml:space="preserve">
-    <value>Restore this device  from previous backup</value>
+    <value>Khôi phục từ các bản sao lưu trước đó</value>
   </data>
   <data name="DeviceAdvanceSettingsView_Restore_header" xml:space="preserve">
-    <value>RESTORE</value>
+    <value>KHÔI PHỤC</value>
   </data>
   <data name="DeviceAdvanceSettingsView_Backup_buttoncontent" xml:space="preserve">
-    <value>Backup</value>
+    <value>Sao lưu</value>
   </data>
   <data name="DeviceAdvanceSettingsView_BACKUP_header" xml:space="preserve">
-    <value>BACKUP</value>
+    <value>SAO LƯU</value>
   </data>
   <data name="DeviceAdvanceSettingsView_HardwareSettings_OfflineFanSpeed_info" xml:space="preserve">
-    <value>The Fan HUB will control the fan to run at this speed when the software is not running in the background.</value>
+    <value>HUB Fan sẽ điều khiển quạt chạy với tốc độ này khi phần mềm không chạy trong nền.</value>
   </data>
   <data name="DeviceAdvanceSettingsView_HardwareSettings_IndicatorLED_info" xml:space="preserve">
-    <value>The standby LED on the USB will stop shining when this feature is disabled.</value>
+    <value>Đèn báo màu xanh ở đầu USB sẽ ngừng sáng nếu tắt tính năng này.</value>
   </data>
   <data name="DeviceAdvanceSettingsView_HardwareSettings_OfflineLEDState_info" xml:space="preserve">
-    <value>Disable this option if this device stay on after shutting down the computer.</value>
+    <value>Tắt tuỳ chọn này nếu khi tắt máy tính mà thiết bị vẫn sáng.</value>
   </data>
   <data name="DeviceAdvanceSettingsView_HardwareSettings_header" xml:space="preserve">
-    <value>HARDWARE SETTINGS</value>
+    <value>CÀI ĐẶT PHẦN CỨNG</value>
   </data>
   <data name="DeviceAdvanceSettingsView_SoftwareSettins_MaxBrightness_header" xml:space="preserve">
-    <value>MAX BRIGHTNESS</value>
+    <value>ĐỘ SÁNG TỐI ĐA</value>
   </data>
   <data name="DeviceAdvanceSettingsView_SoftwareSettings_AutoConnect_header" xml:space="preserve">
-    <value>AUTO CONNECT</value>
+    <value>TỰ ĐỘNG KẾT NỐI</value>
   </data>
   <data name="DeviceAdvanceSettingsView_TabItem_About_header" xml:space="preserve">
-    <value>About</value>
+    <value>Thông tin</value>
   </data>
   <data name="DeviceAdvanceSettingsView_Settings_TabItem_header" xml:space="preserve">
-    <value>Settings</value>
+    <value>Cài đặt thiết bị</value>
   </data>
   <data name="DeviceManager_Delete_Warning_Message" xml:space="preserve">
-    <value>Devices will truly disappear only when it's not connected to the computer</value>
+    <value>Các thiết bị sẽ chỉ bị xoá khi không còn cắm vào máy tính</value>
   </data>
   <data name="PlayListCollectionView_Remove_Button_Content" xml:space="preserve">
-    <value>Remove</value>
+    <value>Xoá</value>
   </data>
   <data name="PlayListCollectionView_Stop" xml:space="preserve">
-    <value>Stop</value>
+    <value>Dừng</value>
   </data>
   <data name="PlayListCollectionView_PlayFromTheStart_tooltip" xml:space="preserve">
-    <value>Play from the start</value>
+    <value>Phát lần lượt</value>
   </data>
   <data name="PlayListCollectionView_SetTime" xml:space="preserve">
-    <value>Set Time</value>
+    <value>Thời gian</value>
   </data>
   <data name="PlayListCollectionView_Shuffle" xml:space="preserve">
-    <value>Shuffle</value>
+    <value>Phát ngẫu nhiên</value>
   </data>
   <data name="PlayListCollectionView_RenameThisPlaylist_ToolTip" xml:space="preserve">
-    <value>Rename this playlist</value>
+    <value>Đổi tên danh sách này</value>
   </data>
   <data name="PlayListCollectionView_Profiles" xml:space="preserve">
-    <value>profiles</value>
+    <value>Hiệu ứng</value>
   </data>
   <data name="ProfileCollectionView_ShuffleAndPlay_Button_Content" xml:space="preserve">
-    <value>Shuffle and play</value>
+    <value>Phát ngẫu nhiên</value>
   </data>
   <data name="LightingProfileManagerWindow_Profiles_TabHeader" xml:space="preserve">
-    <value>Profiles</value>
+    <value>Hiệu ứng</value>
   </data>
   <data name="GetAutoMationParam_Mode" xml:space="preserve">
-    <value>Mode</value>
+    <value>Chế độ</value>
   </data>
   <data name="GetAutoMationParam_AllLEDs" xml:space="preserve">
-    <value>All LEDs</value>
+    <value>Tất cả LED</value>
   </data>
   <data name="ActionParameter_Properties_name" xml:space="preserve">
-    <value>Property</value>
+    <value>Thuộc tính</value>
   </data>
   <data name="TriggerCondition_ScreenOn_info" xml:space="preserve">
-    <value>Activate the action sequence when the screen is awaked.</value>
+    <value>Kích hoạt chuỗi hành động khi màn hình được đánh thức.</value>
   </data>
   <data name="TriggerCondition_ScreenOff_info" xml:space="preserve">
-    <value>Activate the action sequence when the screen enters sleep mode.</value>
+    <value>Kích hoạt chuỗi hành động khi màn hình đi vào chế độ ngủ.</value>
   </data>
   <data name="TriggerCondition_TurnOff_info" xml:space="preserve">
-    <value>Activate the action sequence when the computer is shut down or when the app is exited.</value>
+    <value>Kích hoạt chuỗi hành động khi máy tính tắt hoặc thoát phần mềm.</value>
   </data>
   <data name="TriggerCondition_Hotkey_info" xml:space="preserve">
-    <value>Use a combination of hotkeys to activate this action sequence.</value>
+    <value>Sử dụng tổ hợp phím tắt để kích hoạt chuỗi hành đồng này.</value>
   </data>
   <data name="ActionType_Increase_linktext" xml:space="preserve">
-    <value>of device</value>
+    <value>của thiết bị</value>
   </data>
   <data name="ActionType_Switchto_name" xml:space="preserve">
-    <value>Switch</value>
+    <value>Chuyển</value>
   </data>
   <data name="ActionType_TurnOff_name" xml:space="preserve">
-    <value>Turn off</value>
+    <value>Tắt</value>
   </data>
   <data name="ActionType_Decrease_name" xml:space="preserve">
-    <value>Decrease</value>
+    <value>Giảm</value>
   </data>
   <data name="ActionType_Activate_name" xml:space="preserve">
-    <value>Activate</value>
+    <value>Kích hoạt</value>
   </data>
   <data name="HotKeySelectionWindow_HotKeySelection_header" xml:space="preserve">
-    <value>Activation shortcut</value>
+    <value>Phím tắt kích hoạt</value>
   </data>
   <data name="ActionManagerWindow_ActionCondition_Header" xml:space="preserve">
-    <value>ACTIVATION CONDITION</value>
+    <value>ĐIỀU KIỆN KÍCH HOẠT</value>
   </data>
   <data name="ActionManagerWindow_ActionIcon_header" xml:space="preserve">
-    <value>DISPLAY ICON</value>
+    <value>BIỂU TƯỢNG HIỂN THỊ</value>
   </data>
   <data name="ActionManagerWindow_ActionSequence_Header" xml:space="preserve">
-    <value>ACTIONS FLOW</value>
+    <value>CHUỖI HÀNH ĐỘNG</value>
   </data>
   <data name="Delete_Tooltip" xml:space="preserve">
-    <value>Delete</value>
+    <value>Xoá</value>
   </data>
   <data name="AutomationManagerWindow_Lock_toolTip" xml:space="preserve">
-    <value>Lock</value>
+    <value>Khoá</value>
   </data>
   <data name="AutomationManagerWindow_Locked_Text" xml:space="preserve">
-    <value>Locked</value>
+    <value>Đã khoá</value>
   </data>
   <data name="Button_Done_content" xml:space="preserve">
-    <value>Done</value>
+    <value>Hoàn thành</value>
   </data>
   <data name="AddNewAutomationWindow_AddNewAutomation_header" xml:space="preserve">
-    <value>Add new Automation</value>
+    <value>Thêm hành động mới</value>
   </data>
   <data name="DebugWindow_Log_info" xml:space="preserve">
-    <value>If you are unable to handle errors, please send the latest action log in the "Logs" folder for Ambino to review.</value>
+    <value>Gửi tệp nhật ký hành động gần nhất trong thư mục "Logs" cho Ambino nếu bạn gặp lỗi không giải quyết được.</value>
   </data>
   <data name="DebugWindow_OpenActionLog_header" xml:space="preserve">
-    <value>OPEN ACTION LOGS</value>
+    <value>MỞ TỆP NHẬT KÝ HÀNH ĐỘNG</value>
   </data>
   <data name="GeneralSettings_AutoStartDelayTime_header" xml:space="preserve">
-    <value>DELAY</value>
+    <value>TRỄ</value>
   </data>
   <data name="Add_Button_Content" xml:space="preserve">
-    <value>Add</value>
+    <value>Thêm</value>
   </data>
   <data name="AppSettingsWindow_AddDeviceMethodAuto" xml:space="preserve">
-    <value>Auto-scan</value>
+    <value>Tự dò tìm</value>
   </data>
   <data name="MainViewViewModel_GeneralSettings_ThemeColor_Header" xml:space="preserve">
-    <value>THEME COLOR</value>
+    <value>MÀU CHỦ ĐỀ</value>
   </data>
   <data name="AppSettingsWindow_Language_Header" xml:space="preserve">
-    <value>LANGUAGE</value>
+    <value>NGÔN NGỮ</value>
   </data>
   <data name="AppSettingsWindow_PowerLimit_Header" xml:space="preserve">
-    <value>POWER LIMIT</value>
+    <value>GIỚI HẠN DÒNG ĐIỆN</value>
   </data>
   <data name="AppSettingsWindow_ShowOpenRGB_Header" xml:space="preserve">
-    <value>SHOW OPENRGB ICON</value>
+    <value>HIỂN THỊ OPENRGB</value>
   </data>
   <data name="AppSettingsWindow_ManualAddDevice" xml:space="preserve">
-    <value>ADD MANUALLY</value>
+    <value>THÊM THỦ CÔNG</value>
   </data>
   <data name="AppSettingsWindow_AddNewDevice_Header" xml:space="preserve">
-    <value>ADD NEW DEVICES</value>
+    <value>THÊM THIẾT BỊ MỚI</value>
   </data>
   <data name="AppSettingsWindow_AutoUpdate" xml:space="preserve">
-    <value>AUTO-UPDATE</value>
+    <value>TỰ ĐỘNG CẬP NHẬT</value>
   </data>
   <data name="AppSettingsWindow_AudioCapture_Header" xml:space="preserve">
-    <value>AUDIO CAPTURE</value>
+    <value>GHI ÂM THANH</value>
   </data>
   <data name="AppSettingsWindow_MultipleScreenSupport_Header" xml:space="preserve">
-    <value>MULTIPLE SCREENS SUPPORT</value>
+    <value>GHI NHIỀU MÀN HÌNH</value>
   </data>
   <data name="AppSettingsWindow_ScreenCapturingAPI_Header" xml:space="preserve">
-    <value>CAPTURING API</value>
+    <value>PHƯƠNG THỨC GHI</value>
   </data>
   <data name="AppSettingsWindow_EnableScreenCapture_Header" xml:space="preserve">
-    <value>SCREEN CAPTURE</value>
+    <value>GHI MÀN HÌNH</value>
   </data>
   <data name="AppSettingsWindow_EnableHardwareMonitor_Header" xml:space="preserve">
-    <value>ENABLE HARDWARE MONITOR</value>
+    <value>GIÁM SÁT PHẦN CỨNG</value>
   </data>
   <data name="AppSettingsWindow_UsingOpenRGB_Header" xml:space="preserve">
     <value>OPENRGB</value>
   </data>
   <data name="AppSettingsWindow_EnableHotKey_Header" xml:space="preserve">
-    <value>ENABLE HOTKEY</value>
+    <value>KÍCH HOẠT PHÍM TẮT</value>
   </data>
   <data name="AppSettingsWindow_StartMinimized_header" xml:space="preserve">
-    <value>START MINIMIZED</value>
+    <value>THU NHỎ KHI MỞ</value>
   </data>
   <data name="AppSettingsWindow_Delay" xml:space="preserve">
-    <value>Delay (sec)</value>
+    <value>Chờ (giây)</value>
   </data>
   <data name="AppSettingsWindow_GeneralSettings" xml:space="preserve">
-    <value>General Settings</value>
+    <value>Cài đặt chung</value>
   </data>
   <data name="AllDeviceView_VisitTheAdrilightStore_Button" xml:space="preserve">
-    <value>Visit the Adrilight Store</value>
+    <value>Truy cập Cửa hàng Adrilight</value>
   </data>
   <data name="AllDeviceView_LightingProfile_Tooltip" xml:space="preserve">
-    <value>Manage lighting profiles</value>
+    <value>Quản lý Profile và Playlist</value>
   </data>
   <data name="NonClientAreaContent_Debug_ToolTip" xml:space="preserve">
-    <value>Actions Log</value>
+    <value>Nhật ký hành động</value>
   </data>
   <data name="NonClientAreaContent_AdrilightStore_ToolTip" xml:space="preserve">
-    <value>Adrilight Store</value>
+    <value>Cửa hàng Adrilight</value>
   </data>
   <data name="NonClientAreaContent_SurfaceEditor_ToolTip" xml:space="preserve">
-    <value>Surface Editor</value>
+    <value>Bố trí thiết bị và vị trí điểm LED</value>
   </data>
   <data name="AllDeviceView_AUTOMATIONS" xml:space="preserve">
-    <value>AUTOMATIONS</value>
+    <value>TỰ ĐỘNG HOÁ</value>
   </data>
   <data name="AllDeviceView_LIGHTINGPROFILES" xml:space="preserve">
-    <value>LIGHTING PROFILES</value>
+    <value>HIỆU ỨNG ĐỒNG BỘ</value>
   </data>
   <data name="AllDeviceView_Manage_Button" xml:space="preserve">
-    <value>Manage</value>
+    <value>Quản lý</value>
   </data>
   <data name="App_Already_Launch_Header" xml:space="preserve">
-    <value>Adrilight has been previously launched; please check the 'Task Manager' or 'System Tray' in Windows</value>
+    <value>Phần mềm đã được khởi động</value>
   </data>
   <data name="App_Already_Launch" xml:space="preserve">
-    <value>Adrilight has been previously launched; please check the 'Task Manager' or 'System Tray' in Windows</value>
+    <value>Adrilight đã được khởi chạy trước đó, vui lòng kiểm tra "Trình quản lý tác vụ" hoặc "Khay hệ thống" của Windows</value>
   </data>
   <data name="LightingMode_GetDescription_ScreenCapturing" xml:space="preserve">
-    <value>Sampling color of the content displaying on the screen.</value>
+    <value>Sáng theo nội dung đang hiển thị trên màn hình.</value>
   </data>
   <data name="LightingMode_GetDescription_StaticColor" xml:space="preserve">
-    <value>Solid Color with breathing option.</value>
+    <value>Chỉ sáng theo một màu.</value>
   </data>
   <data name="LightingMode_GetDescription_Rainbow" xml:space="preserve">
-    <value>Predefined color palette chasing.</value>
-  </data>
-  <data name="LightingMode_GetDescription_Animation" xml:space="preserve">
-    <value>Predefined motion with various color options</value>
-  </data>
-  <data name="LightingMode_GetDescription_Gifxelation" xml:space="preserve">
-    <value>Sampling color of a gif image</value>
+    <value>Sáng theo dải màu với các chuyển động tuỳ chọn.</value>
   </data>
   <data name="LightingMode_GetDescription_Sdf" xml:space="preserve">
-    <value>Custom effect</value>
+    <value>Hiệu ứng do người dùng tạo ra</value>
+  </data>
+  <data name="LightingMode_GetDescription_Gifxelation" xml:space="preserve">
+    <value>Sáng theo nội dung ảnh động</value>
   </data>
   <data name="LightingMode_GetDescription_Df" xml:space="preserve">
-    <value>Audio spectrum analyzer</value>
+    <value>Sáng theo tần số âm thanh</value>
+  </data>
+  <data name="LightingMode_GetDescription_Animation" xml:space="preserve">
+    <value>Sáng theo các hoạt ảnh với màu sắc tuỳ chọn</value>
   </data>
   <data name="LightingMode_GetName_ScreenCapturing" xml:space="preserve">
-    <value>Ambient Backlight</value>
+    <value>Sáng theo màn hình</value>
   </data>
   <data name="LightingMode_GetName_MusicCapturing" xml:space="preserve">
-    <value>Music Reactive</value>
+    <value>Sáng theo nhạc</value>
   </data>
   <data name="LightingMode_GetName_StaticColor" xml:space="preserve">
-    <value>Solid Color</value>
+    <value>Màu tĩnh</value>
   </data>
   <data name="LightingMode_GetName_Rainbow" xml:space="preserve">
-    <value>Color Palette</value>
+    <value>Sáng theo dải màu</value>
   </data>
   <data name="LightingMode_GetName_Animation" xml:space="preserve">
-    <value>Animation</value>
+    <value>Sáng theo hoạt ảnh</value>
   </data>
   <data name="LightingMode_GetName_Gifxelation" xml:space="preserve">
-    <value>Gifxelation</value>
+    <value>Sáng theo ảnh động</value>
   </data>
   <data name="LightingMode_GetName_Custom" xml:space="preserve">
-    <value>Custom</value>
+    <value>Tuỳ chỉnh</value>
   </data>
   <data name="OutputControlView_CurrentlyRunningEffect_header" xml:space="preserve">
-    <value>RUNNING EFFECT</value>
+    <value>HIỆU ỨNG ĐANG CHẠY</value>
   </data>
   <data name="LightingEngine_Enable_description" xml:space="preserve">
-    <value>Enable  this effect.</value>
+    <value>Bật hoặc tắt kiểu hiệu ứng này.</value>
   </data>
   <data name="LightingEngine_Enable_header" xml:space="preserve">
-    <value>ENABLE</value>
-  </data>
-  <data name="LightingEngine_RegionControl_header" xml:space="preserve">
-    <value>CAPTURE AREA</value>
-  </data>
-  <data name="OutputControlView_ScaledSize" xml:space="preserve">
-    <value>Scaled size: </value>
-  </data>
-  <data name="OutputControlView_CapturingRegion" xml:space="preserve">
-    <value>Capturing region : </value>
-  </data>
-  <data name="OutputControlView_CAPTURINGINFOMATION" xml:space="preserve">
-    <value>CAPTURING INFOMATION</value>
-  </data>
-  <data name="LightingEngine_SmoothControl_info" xml:space="preserve">
-    <value>Smooth transition between colors and frames</value>
-  </data>
-  <data name="LightingEngine_SmoothControl_header" xml:space="preserve">
-    <value>SMOOTHING</value>
-  </data>
-  <data name="LightingEngine_RegionControl_info" xml:space="preserve">
-    <value>Choose the area on the screen where the device will sample the picture data.</value>
-  </data>
-  <data name="LightingEngine_BrightnessControl_info" xml:space="preserve">
-    <value>Adjust brightness of LEDs.</value>
-  </data>
-  <data name="LightingEngine_BrightnessControl_header" xml:space="preserve">
-    <value>BRIGHTNESS</value>
+    <value>CHO PHÉP</value>
   </data>
   <data name="DesktopDuplicatorReader_LinearLightingControl_header" xml:space="preserve">
-    <value>BRIGHTNESS CORRECTION</value>
+    <value>BỘ LỌC ÁNH SÁNG</value>
   </data>
   <data name="DesktopDuplicatorReader_Init_Xx" xml:space="preserve">
-    <value>Choose between linear and nonlinear fade of the LEDs brightness</value>
+    <value>Lọc cường độ ánh sáng thay đổi phù hợp với độ nhạy của mắt người</value>
   </data>
-  <data name="ScreenRegionSelectionWindow_CHỌNMỘTMÀNHÌNH" xml:space="preserve">
-    <value>CHOOSE A SCREEN TO CAPTURE</value>
+  <data name="LightingEngine_SmoothControl_info" xml:space="preserve">
+    <value>Tăng độ mượt cho hiệu ứng</value>
   </data>
-  <data name="ScreenRegionSelectionWindow_CaptureArea_header" xml:space="preserve">
-    <value>CHOOSE CAPTURE AREA</value>
+  <data name="LightingEngine_SmoothControl_header" xml:space="preserve">
+    <value>LÀM MƯỢT</value>
   </data>
-  <data name="Button_Refresh_Content" xml:space="preserve">
-    <value>Refresh</value>
+  <data name="LightingEngine_RegionControl_info" xml:space="preserve">
+    <value>Điểu chỉnh khu vực mà thiết bị sẽ sáng theo.</value>
   </data>
-  <data name="ScreenRegionSelectionWindow_Screen_Guide" xml:space="preserve">
-    <value>If you have more than one screen but don't see them appearing, please enable the "Multiple screens support" feature in the system settings.</value>
+  <data name="LightingEngine_RegionControl_header" xml:space="preserve">
+    <value>CÀI ĐẶT KHU VỰC LẤY MÀU</value>
   </data>
-  <data name="Button_OpenAppSettings_Content" xml:space="preserve">
-    <value>System settings</value>
+  <data name="LightingEngine_BrightnessControl_info" xml:space="preserve">
+    <value>Điều chỉnh độ sáng của đèn.</value>
   </data>
-  <data name="ScreenRegionSelectionWindow_BlackBarDetection_header" xml:space="preserve">
-    <value>BLACKBAR DETECTION</value>
+  <data name="LightingEngine_BrightnessControl_header" xml:space="preserve">
+    <value>ĐỘ SÁNG</value>
   </data>
-  <data name="ScreenRegionSelectionWindow_BlackBarDetection_info" xml:space="preserve">
-    <value>Automatically crop the capture area to the main content when blackbar are detected.
-Note: only work if "Ambient mode" is turned off when watching Youtube video.</value>
+  <data name="OutputControlView_ScaledSize" xml:space="preserve">
+    <value>Kích thước: </value>
   </data>
-  <data name="ScreenRegionSelectionWindow_Sensitivity_header" xml:space="preserve">
-    <value>SENSITIVITY</value>
+  <data name="OutputControlView_CapturingRegion" xml:space="preserve">
+    <value>Vùng lấy màu: </value>
+  </data>
+  <data name="OutputControlView_CAPTURINGINFOMATION" xml:space="preserve">
+    <value>THÔNG TIN</value>
+  </data>
+  <data name="AllDeviceView_DEVICES" xml:space="preserve">
+    <value>Tất cả thiết bị</value>
   </data>
   <data name="ScreenRegionSelectionWindow_Sensitivity_info" xml:space="preserve">
-    <value>The delay (in seconds) applied to the "Remove black zone" feature after detection.</value>
+    <value>Độ trễ (tính bằng giây) áp dụng tính năng "Nhận diện vạch đen" kể từ khi phát hiện.</value>
   </data>
-  <data name="OutputControlView_DeleteItems" xml:space="preserve">
-    <value>Delete items</value>
+  <data name="ScreenRegionSelectionWindow_Sensitivity_header" xml:space="preserve">
+    <value>ĐỘ NHẠY</value>
   </data>
-  <data name="OutputControlView_DownloadMore_content" xml:space="preserve">
-    <value>Get more</value>
+  <data name="ScreenRegionSelectionWindow_Screen_Guide" xml:space="preserve">
+    <value>Nếu bạn có nhiều hơn 1 màn hình nhưng không thấy chúng xuất hiện, vui lòng cho phép chức năng "Ghi nhiều màn hình" trong cài đặt hệ thống.</value>
   </data>
-  <data name="LightingEngine_SpeedControl_header" xml:space="preserve">
-    <value>SPEED</value>
+  <data name="ScreenRegionSelectionWindow_CHỌNMỘTMÀNHÌNH" xml:space="preserve">
+    <value>CHỌN MÀN HÌNH</value>
   </data>
-  <data name="Rainbow_Init_SpeedControl_info" xml:space="preserve">
-    <value>Speed of motion</value>
+  <data name="Button_Refresh_Content" xml:space="preserve">
+    <value>Làm mới</value>
   </data>
-  <data name="LightingEngine_SystemSyncControl_header" xml:space="preserve">
-    <value>SYSTEM SYNC</value>
+  <data name="Button_OpenAppSettings_Content" xml:space="preserve">
+    <value>Cài đặt hệ thống</value>
   </data>
-  <data name="LightingEngine_SystemSyncControl_info" xml:space="preserve">
-    <value>Synchronize with the speed of other devices.</value>
+  <data name="ScreenRegionSelectionWindow_BlackBarDetection_info" xml:space="preserve">
+    <value>Tự động thu khu vực lấy màu vào nội dung chính khi phát hiện vạch đen.
+Lưu ý: tắt chế độ "Ánh sáng điện ảnh" khi xem trên Youtube.</value>
   </data>
-  <data name="LightingEngine_SystemSync_Speed_header" xml:space="preserve">
-    <value>System speed</value>
+  <data name="ScreenRegionSelectionWindow_CaptureArea_header" xml:space="preserve">
+    <value>CHỌN KHU VỰC LẤY MÀU</value>
   </data>
-  <data name="LightingEngine_ColorControl_header" xml:space="preserve">
-    <value>COLORS</value>
-  </data>
-  <data name="LightingEngine_ColorControl_info" xml:space="preserve">
-    <value>Available colors</value>
-  </data>
-  <data name="LightingEngine_VIDDataControl_header" xml:space="preserve">
-    <value>DIRECTION</value>
+  <data name="ScreenRegionSelectionWindow_BlackBarDetection_header" xml:space="preserve">
+    <value>NHẬN DIỆN VẠCH ĐEN</value>
   </data>
   <data name="LightingEngine_VIDDataControl_info" xml:space="preserve">
-    <value>Select or draw new chasing path.</value>
+    <value>Chọn chiều chạy của hiệu ứng.</value>
   </data>
-  <data name="LightingEngine_ColorControlSubParam_CreateNewPalette_Content" xml:space="preserve">
-    <value>Create new palette</value>
+  <data name="OutputControlView_DownloadMore_content" xml:space="preserve">
+    <value>Tải thêm</value>
+  </data>
+  <data name="LightingEngine_VIDDataControl_header" xml:space="preserve">
+    <value>CHIỀU CHẠY</value>
+  </data>
+  <data name="LightingEngine_SpeedControl_header" xml:space="preserve">
+    <value>TỐC ĐỘ</value>
+  </data>
+  <data name="Rainbow_Init_SpeedControl_info" xml:space="preserve">
+    <value>Tốc độ của hiệu ứng</value>
+  </data>
+  <data name="LightingEngine_SystemSyncControl_info" xml:space="preserve">
+    <value>Đồng bộ với tốc độ của các thiết bị khác.</value>
+  </data>
+  <data name="LightingEngine_SystemSync_Speed_header" xml:space="preserve">
+    <value>Tốc độ hệ thống</value>
+  </data>
+  <data name="LightingEngine_SystemSyncControl_header" xml:space="preserve">
+    <value>ĐỒNG BỘ HỆ THỐNG</value>
+  </data>
+  <data name="OutputControlView_DeleteItems" xml:space="preserve">
+    <value>Xoá mục này</value>
+  </data>
+  <data name="LightingEngine_ColorControl_info" xml:space="preserve">
+    <value>Các màu sắc có sẵn</value>
+  </data>
+  <data name="LightingEngine_ColorControl_header" xml:space="preserve">
+    <value>MÀU SẮC</value>
   </data>
   <data name="LightingEngine_ColorControlSubParam_ExportPalette_Content" xml:space="preserve">
-    <value>Export current palette</value>
+    <value>Xuất dải màu hiện tại</value>
+  </data>
+  <data name="LightingEngine_ColorControlSubParam_CreateNewPalette_Content" xml:space="preserve">
+    <value>Tự tạo dải màu mới</value>
   </data>
   <data name="LightingEngine_ColorControl_SubParam_Intensity_Content" xml:space="preserve">
-    <value>Intensity</value>
+    <value>Cường độ</value>
   </data>
   <data name="LightingEngine_ColorControl_SubParam_AddNewVID_Content" xml:space="preserve">
-    <value>Draw a new running path</value>
-  </data>
-  <data name="DeviceAdvanceSettingsView_DeviceInformation_header" xml:space="preserve">
-    <value>Device information</value>
-  </data>
-  <data name="DeviceAdvanceSettingsView_DeviceType" xml:space="preserve">
-    <value>Device type:</value>
+    <value>Vẽ chiều chạy mới</value>
   </data>
   <data name="DeviceAdvanceSettingsView_FirmwareVersion" xml:space="preserve">
-    <value>Firmware version:</value>
+    <value>Vi trình:</value>
   </data>
-  <data name="DeviceAdvanceSettingsView_Serial" xml:space="preserve">
-    <value>Serial:</value>
-  </data>
-  <data name="DeviceAdvanceSettingsView_HardwareVersion" xml:space="preserve">
-    <value>Hardware version:</value>
+  <data name="DeviceAdvanceSettingsView_DeviceType" xml:space="preserve">
+    <value>Loại thiết bị:</value>
   </data>
   <data name="DeviceAdvanceSettingsView_MaxOutputs" xml:space="preserve">
-    <value>Max outputs:</value>
+    <value>Số lượng cổng LED:</value>
+  </data>
+  <data name="DeviceAdvanceSettingsView_HardwareVersion" xml:space="preserve">
+    <value>Phiên bản phần cứng:</value>
+  </data>
+  <data name="DeviceAdvanceSettingsView_Serial" xml:space="preserve">
+    <value>Số sê-ri:</value>
   </data>
   <data name="DeviceAdvanceSettingsView_Address" xml:space="preserve">
-    <value>Address:</value>
+    <value>Địa chỉ:</value>
   </data>
-  <data name="ColorControl_ColorPaletteUse_header" xml:space="preserve">
-    <value>Running style</value>
-  </data>
-  <data name="LightingEngine_FrequencyControl_header" xml:space="preserve">
-    <value>FREQUENCY</value>
+  <data name="DeviceAdvanceSettingsView_DeviceInformation_header" xml:space="preserve">
+    <value>Thông tin thiết bị</value>
   </data>
   <data name="LightingEngine_FrequencyControl_info" xml:space="preserve">
-    <value>Select frequency for each LED zone.</value>
+    <value>Chọn tần số cho từng vùng LED.</value>
   </data>
-  <data name="ColorControl_ColorPaletteSpped_header" xml:space="preserve">
-    <value>Speed of change</value>
-  </data>
-  <data name="ColorControl_ColorPaletteIntensity_header" xml:space="preserve">
-    <value>Intensity</value>
-  </data>
-  <data name="AudioDeviceSelection_header" xml:space="preserve">
-    <value>SELECT AUDIO DEVICE</value>
+  <data name="LightingEngine_FrequencyControl_header" xml:space="preserve">
+    <value>TẦN SỐ</value>
   </data>
   <data name="AudioDeviceSelection_info" xml:space="preserve">
-    <value>Select audio device to capture.</value>
+    <value>Chọn thiết bị âm thanh.</value>
+  </data>
+  <data name="AudioDeviceSelection_header" xml:space="preserve">
+    <value>CHỌN THIẾT BỊ ÂM THANH</value>
+  </data>
+  <data name="ColorControl_ColorPaletteIntensity_header" xml:space="preserve">
+    <value>Cường độ</value>
+  </data>
+  <data name="ColorControl_ColorPaletteSpped_header" xml:space="preserve">
+    <value>Tốc độ chuyển màu</value>
+  </data>
+  <data name="ColorControl_ColorPaletteUse_header" xml:space="preserve">
+    <value>Kiểu chạy</value>
   </data>
   <data name="MIDDataControl_DrawMID_header" xml:space="preserve">
-    <value>Let me set the frequency myself</value>
+    <value>Để tôi tự thiết lập tần số</value>
   </data>
   <data name="MIDDataControl_DancingStyle" xml:space="preserve">
-    <value>Visualizer</value>
-  </data>
-  <data name="BreathingControl_header" xml:space="preserve">
-    <value>BREATHING</value>
+    <value>Trình diễn</value>
   </data>
   <data name="BreathingControl_info" xml:space="preserve">
-    <value>The light will gradually brighten and dim at a defined speed.</value>
+    <value>Ánh sáng sẽ sáng và tắt dần theo tốc độ định sẵn.</value>
+  </data>
+  <data name="BreathingControl_header" xml:space="preserve">
+    <value>NHỊP THỞ</value>
   </data>
   <data name="ColorControl_AddSolidColor_header" xml:space="preserve">
-    <value>Create a new color</value>
+    <value>Tự tạo màu mới</value>
   </data>
   <data name="BreathingSpeedControl_header" xml:space="preserve">
-    <value>Speed</value>
+    <value>Tốc độ</value>
   </data>
   <data name="BreathingControlSystemSync_header" xml:space="preserve">
-    <value>Speed sync</value>
+    <value>Đồng bộ hệ thống</value>
   </data>
   <data name="BreathingControlSystemSpeed_header" xml:space="preserve">
-    <value>System speed</value>
+    <value>Tốc độ hệ thống</value>
   </data>
   <data name="ChasingPatternControl_header" xml:space="preserve">
-    <value>ANIMATION</value>
+    <value>HOẠT ẢNH</value>
   </data>
   <data name="ChasingPatternControl_info" xml:space="preserve">
-    <value>The motion of colors</value>
+    <value>Kiểu hoạt ảnh của màu sắc trên dây LED</value>
   </data>
   <data name="ChasingPatternControl_Import_header" xml:space="preserve">
-    <value>Import from your computer</value>
+    <value>Nhập hoạt ảnh</value>
   </data>
   <data name="ChasingPatternControl_Export_header" xml:space="preserve">
-    <value>Export selected animation</value>
+    <value>Xuất hoạt ảnh hiện tại</value>
   </data>
   <data name="GifControl_header" xml:space="preserve">
-    <value>GIFS</value>
+    <value>ẢNH ĐỘNG</value>
   </data>
   <data name="GifControl_info" xml:space="preserve">
-    <value>Available Gifs</value>
+    <value>Các ảnh động có sẵn trong máy</value>
   </data>
   <data name="ImportGif_header" xml:space="preserve">
-    <value>Import gif from file</value>
+    <value>Thêm ảnh động từ file</value>
   </data>
   <data name="ExportGif_header" xml:space="preserve">
-    <value>Export current gif to file</value>
+    <value>Xuất ảnh động</value>
   </data>
   <data name="GifRegionSelectionWindow_GifSelection_header" xml:space="preserve">
-    <value>SELECT A GIF</value>
+    <value>CHỌN ẢNH ĐỘNG</value>
   </data>
   <data name="GifRegionSelectionWindow_GifSelection_info" xml:space="preserve">
-    <value>Get more Gif from Adrilight Store</value>
+    <value>Tải thêm ảnh động từ Adrilight Store</value>
   </data>
   <data name="GifRegionSelectionWindow_GoToStore" xml:space="preserve">
-    <value>Open Adrilight Store</value>
+    <value>Truy cập Adrilight Store</value>
   </data>
   <data name="GifSelectionWindow_CaptureArea_header" xml:space="preserve">
-    <value>CHOOSE CAPTURE AREA</value>
+    <value>CHỌN VÙNG LẤY MÀU</value>
   </data>
   <data name="AddNewPaletteWindow_header" xml:space="preserve">
-    <value>Create new palette</value>
+    <value>Tạo dải màu mới</value>
   </data>
   <data name="AddNewPaletteWindow_Name_placeholder" xml:space="preserve">
-    <value>Example: Rainbow</value>
+    <value>Ví dụ : Rainbow</value>
   </data>
   <data name="AddNewPaletteWindow_Owner_placeholder" xml:space="preserve">
-    <value>Example: Zooey</value>
+    <value>Ví dụ : Zooey</value>
   </data>
   <data name="AddNewPaletteWindow_Description_placeholder" xml:space="preserve">
-    <value>Example: Nice Palette</value>
+    <value>Ví dụ : Nice Palette</value>
   </data>
   <data name="ColorPickerWindow_ChoseColors" xml:space="preserve">
-    <value>Chose Colors</value>
+    <value>Chọn màu</value>
   </data>
   <data name="ColorPickerWindow_warning" xml:space="preserve">
-    <value>Click on each cell, then choose a color from the color palette on the right-hand side. Press Ctrl + left mouse button to select multiple cells at once.</value>
+    <value>Nhấn vào từng ô rồi chọn màu ở bảng màu bên tay phải, nhấn Ctrl + chuột trái để chọn nhiều ô cùng lúc.</value>
   </data>
   <data name="ColorPickerWindow_ImportPalette_header" xml:space="preserve">
-    <value>Import palette from file</value>
+    <value>Nhập màu từ tệp</value>
   </data>
   <data name="ColorPickerWindow_ImportPalette_info" xml:space="preserve">
-    <value>Import palette file in .txt or .col format.</value>
+    <value>Nhập tệp màu dạng .Txt hoặc .Col.</value>
   </data>
   <data name="ColorPickerWindow_ColorNum_header" xml:space="preserve">
-    <value>Number of colors</value>
+    <value>Số lượng màu</value>
   </data>
   <data name="ColorPickerWindow_ColorNum_info" xml:space="preserve">
-    <value>The larger the number of colors, the smoother the color gradient.</value>
+    <value>Số lượng màu càng lớn độ chi tiết càng cao.</value>
   </data>
   <data name="ColorPickerWindow_Solid" xml:space="preserve">
-    <value>Solid</value>
+    <value>Màu đơn</value>
   </data>
   <data name="ColorPickerWindow_Solid_info" xml:space="preserve">
-    <value>Turn on this feature to create a solid color.</value>
+    <value>Bật tính năng này lên để tạo một màu đơn.</value>
   </data>
   <data name="DeviceLiveView_BRUSHSIZE" xml:space="preserve">
-    <value>BRUSH SIZE</value>
+    <value>KÍCH THƯỚC BÚT VẼ</value>
   </data>
   <data name="DeviceLiveView_BrushSize_info" xml:space="preserve">
-    <value>Change size of drawing brush</value>
+    <value>Chỉnh kích thước bút vẽ</value>
   </data>
   <data name="DeviceLiveView_BRUSHINTENSITY" xml:space="preserve">
-    <value>BRUSH INTENSITY</value>
+    <value>TỐC ĐỘ THAY ĐỔI MÀU</value>
   </data>
   <data name="DeviceLiveView_BrushIntensity_info" xml:space="preserve">
-    <value>The bigger the value, the faster change of colors.</value>
+    <value>Giá trị càng cao, màu càng thay đổi nhanh.</value>
   </data>
   <data name="DeviceLiveView_Isolate" xml:space="preserve">
-    <value>Isolate</value>
+    <value>Cách ly</value>
   </data>
   <data name="DeviceLiveView_NhómCácĐốiTượngĐượcChọn" xml:space="preserve">
-    <value>Group selected objects</value>
+    <value>Nhóm các đối tượng được chọn</value>
   </data>
   <data name="DeviceLiveView_Group" xml:space="preserve">
-    <value>Group</value>
+    <value>Tạo nhóm</value>
   </data>
   <data name="DeviceLiveView_Ungroup_tooltip" xml:space="preserve">
-    <value>Ungroup selected object</value>
+    <value>Bỏ nhóm được chọn</value>
   </data>
   <data name="DeviceLiveView_Ungroup" xml:space="preserve">
-    <value>Ungroup</value>
+    <value>Bỏ nhóm</value>
   </data>
   <data name="DeviceLiveView_Isolate_tooltip" xml:space="preserve">
-    <value>Isolate selected object</value>
+    <value>Cách ly đối tượng được chọn</value>
   </data>
   <data name="DeviceLiveView_ShowAll_tooltip" xml:space="preserve">
-    <value>Exit isolate mode</value>
+    <value>Thoát chế độ cách ly</value>
   </data>
   <data name="DeviceLiveView_ShowAll_content" xml:space="preserve">
-    <value>Show all</value>
+    <value>Hiện tất cả</value>
   </data>
   <data name="DeviceControlView_RunDeviceSetup" xml:space="preserve">
-    <value>Rerun device configuration</value>
+    <value>Chạy lại cấu hình thiết bị</value>
   </data>
   <data name="DeviceControlView_SaveDeviceInfo" xml:space="preserve">
-    <value>Save device information</value>
+    <value>Lưu thông tin device</value>
   </data>
   <data name="DeviceConnectionSettingsWindow_header" xml:space="preserve">
-    <value>Connection Settings</value>
+    <value>Cài đặt kết nối</value>
   </data>
   <data name="DeviceConnectionSettingsWindow_EnableOrDisableDataTransfer" xml:space="preserve">
-    <value>Enable or Disable data transfer</value>
+    <value>Bật hoặc tắt đường truyền dữ liệu</value>
   </data>
   <data name="DeviceConnectionSettingsWindow_COMPORT" xml:space="preserve">
-    <value>COM PORT</value>
+    <value>CỔNG COM</value>
   </data>
   <data name="DeviceConnectionSettingsWindow_Comport_info" xml:space="preserve">
-    <value>This options is only apply for Ambino official supported device</value>
+    <value>Lựa chọn này chỉ áp dụng cho các thiết bị được hỗ trợ chính thức từ Ambino</value>
   </data>
   <data name="DeviceConnectionSettingsWindow_DATARATE" xml:space="preserve">
-    <value>DATA RATE</value>
+    <value>BĂNG THÔNG</value>
   </data>
   <data name="DeviceConnectionSettingsWindow_DataRqate_info" xml:space="preserve">
-    <value>Try to lower the number if you have connection issue</value>
+    <value>Tốc độ truyền dữ liệu, có thể hạ thấp để thiết bị hoạt động ổn định hơn</value>
   </data>
   <data name="OOTBWindow_ThankYou" xml:space="preserve">
-    <value>Thank you</value>
+    <value>Cảm ơn bạn</value>
   </data>
   <data name="OOTBWindow_Thankyou_info" xml:space="preserve">
-    <value>Thank you for choosing Ambino product!</value>
+    <value>Cảm ơn bạn đã chọn sản phẩm của Ambino!</value>
   </data>
   <data name="OOTBWindow_OOTBIntroduction" xml:space="preserve">
-    <value>Let's start with some of the basic configuration</value>
+    <value>Sau đây là một số cài đặt cơ bản để giúp bạn sử dụng sản phẩm dễ dàng hơn</value>
   </data>
   <data name="OOTBWindow_Donotaskagain" xml:space="preserve">
-    <value>Do not ask me again</value>
+    <value>Đừng hỏi lại</value>
   </data>
   <data name="OOTBWindow_LEDOutputConfiguration" xml:space="preserve">
-    <value>LED Outputs Configuration</value>
+    <value>Cấu hình cổng LED</value>
   </data>
   <data name="OOTBWindow_SpatialMaping" xml:space="preserve">
-    <value>Spatial maping</value>
+    <value>Cấu hình vị trí</value>
   </data>
   <data name="SkipButton_Content" xml:space="preserve">
-    <value>Skip</value>
+    <value>Bỏ qua</value>
   </data>
   <data name="Back_Button_Content" xml:space="preserve">
-    <value>Back</value>
+    <value>Quay lại</value>
   </data>
   <data name="Next_Button_Content" xml:space="preserve">
-    <value>Next</value>
+    <value>Tiếp theo</value>
   </data>
   <data name="Finish_Button_Conent" xml:space="preserve">
-    <value>Finish</value>
+    <value>Hoàn tất</value>
   </data>
   <data name="OOBE_ChosingDevice_HoverText" xml:space="preserve">
-    <value>Select another device</value>
+    <value>Chọn thiết bị khác</value>
   </data>
   <data name="OOBE_EnableToggle_tooltip" xml:space="preserve">
-    <value>Turn off if you don't want to use this port</value>
-  </data>
-  <data name="OOBE_LockButton_tooltip" xml:space="preserve">
-    <value>Lock this output</value>
+    <value>Tắt nút này nếu bạn không cắm gì cả</value>
   </data>
 </root>

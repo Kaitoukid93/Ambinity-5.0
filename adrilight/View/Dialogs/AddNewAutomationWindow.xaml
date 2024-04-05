@@ -5,6 +5,7 @@
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
+           xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
            mc:Ignorable="d"
            Background="{StaticResource MainContentBackgroundBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
@@ -24,10 +25,10 @@
 
     <Grid Margin="5">
         <StackPanel>
-            <TextBlock Text="Add new Automation" Style="{StaticResource TextBlockLarge}">
+            <TextBlock Text="{x:Static properties:Resources.AddNewAutomationWindow_AddNewAutomation_header}" Style="{StaticResource TextBlockLarge}">
                 
             </TextBlock>
-            <TextBox Text="{Binding NewAutomationName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" MaxLength="100" Margin="10" hc:InfoElement.Placeholder="Ví dụ : Tăng độ sáng" hc:InfoElement.Title="NAME" Style="{StaticResource TextBoxExtend}" hc:InfoElement.Necessary="True" />
+            <TextBox Text="{Binding NewAutomationName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" MaxLength="100" Margin="10" hc:InfoElement.Placeholder="Ví dụ : Tăng độ sáng" hc:InfoElement.Title="{x:Static properties:Resources.AddNewAutomationWindow_NAME}" Style="{StaticResource TextBoxExtend}" hc:InfoElement.Necessary="True" />
 
             <Grid >
                 <Grid.ColumnDefinitions>
@@ -35,8 +36,8 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Click="Button_Click" Command="{Binding CreateNewAutomationCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="Done"/>
-                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="Cancel"/>
+                <Button Click="Button_Click" Command="{Binding CreateNewAutomationCommand}" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="2" Content="{x:Static properties:Resources.Button_Done_content}"/>
+                <Button Click="Button_Click" Background="Transparent" Margin="10" Style="{StaticResource ButtonPrimary}" Grid.Column="1" Content="{x:Static properties:Resources.Button_Cancel_Content}"/>
             </Grid>
             
         </StackPanel>

@@ -10,6 +10,7 @@
              xmlns:enums="clr-namespace:adrilight_shared.Enums;assembly=adrilight_shared"
              xmlns:local="clr-namespace:adrilight.View"
              xmlns:model="clr-namespace:adrilight_shared.Models;assembly=adrilight_shared"
+             xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
              xmlns:lighting="clr-namespace:adrilight_shared.Models.Lighting;assembly=adrilight_shared"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance model:DataCollection, IsDesignTimeCreatable=True}"
@@ -235,7 +236,7 @@
                                                     hc:IconElement.Geometry="{DynamicResource addTo}"
                                                     Margin="0"
                                                     hc:IconElement.Height="20"
-                                                    Content="New playlist" />
+                                                    Content="{x:Static properties:Resources.PlayListCollectionView_NewPlaylist_Button_Content}" />
                                         </StackPanel>
                                     </Grid>
                                 </Border>
@@ -342,7 +343,7 @@
                                                                    Text="{Binding LightingProfiles.Items.Count}"
                                                                    Style="{DynamicResource TextBlockDefaultSecLight}" />
                                                         <TextBlock Margin="5,0,0,10"
-                                                                   Text="profiles"
+                                                                   Text="{x:Static properties:Resources.PlayListCollectionView_Profiles}"
                                                                    FontSize="15"
                                                                    Style="{DynamicResource TextBlockDefaultSecLight}" />
                                                     </StackPanel>
@@ -354,12 +355,12 @@
                                                                 Margin="0,5,10,5"
                                                                 CommandParameter="{Binding .}"
                                                                 hc:IconElement.Height="15"
-                                                                ToolTip="Play from the start">
+                                                                ToolTip="{x:Static properties:Resources.PlayListCollectionView_PlayFromTheStart_tooltip}">
                                                             <Button.Style>
                                                                 <Style TargetType="Button"
                                                                        BasedOn="{StaticResource ButtonPrimary}">
                                                                     <Setter Property="Content"
-                                                                            Value="Play" />
+                                                                            Value="{x:Static properties:Resources.PlayListCollectionView_Play}" />
                                                                     <Setter Property="hc:IconElement.Geometry"
                                                                             Value="{DynamicResource playComposition}" />
                                                                     <Setter Property="Command"
@@ -368,7 +369,7 @@
                                                                         <DataTrigger Binding="{Binding IsPlaying}"
                                                                                      Value="True">
                                                                             <Setter Property="Content"
-                                                                                    Value="Stop" />
+                                                                                    Value="{x:Static properties:Resources.PlayListCollectionView_Stop}" />
                                                                             <Setter Property="hc:IconElement.Geometry"
                                                                                     Value="{DynamicResource stopComposition}" />
                                                                             <Setter Property="Command"
@@ -385,20 +386,20 @@
                                                                 CommandParameter="{Binding .}"
                                                                 Margin="10,5"
                                                                 Height="32"
-                                                                ToolTip="Rename this playlist"
+                                                                ToolTip="{x:Static properties:Resources.PlayListCollectionView_RenameThisPlaylist_ToolTip}"
                                                                 hc:IconElement.Height="15"
-                                                                Content="Rename" />
+                                                                Content="{x:Static properties:Resources.PlayListCollectionView_Rename_Playlist}" />
                                                         <Button BorderThickness="0"
                                                                 Background="{DynamicResource SecondaryRegionBrush}"
                                                                 hc:IconElement.Geometry="{DynamicResource delete}"
                                                                 Margin="10,5"
                                                                 Height="32"
-                                                                ToolTip="Delete this playlist"
+                                                                ToolTip="{x:Static properties:Resources.PlayListCollectionView_DeleteThisPlaylist_ToolTip}"
                                                                 IsEnabled="{Binding IsDeleteable}"
                                                                 Command="{Binding Path=DataContext.OpenDeleteDialogCommand, RelativeSource={RelativeSource AncestorType={x:Type local:PlayListCollectionView}}}"
                                                                 CommandParameter="delete"
                                                                 hc:IconElement.Height="15"
-                                                                Content="Remove" />
+                                                                Content="{x:Static properties:Resources.PlayListCollectionView_Remove_Button_Content}" />
                                                     </StackPanel>
                                                     <StackPanel Orientation="Horizontal">
                                                         <ToggleButton Margin="0,15,10,5"
@@ -406,7 +407,7 @@
                                                                       Height="17"
                                                                       Width="17"
                                                                       Padding="0"
-                                                                      ToolTip="Shuffle"
+                                                                      ToolTip="{x:Static properties:Resources.PlayListCollectionView_Shuffle}"
                                                                       Background="Transparent"
                                                                       BorderThickness="0"
                                                                       Style="{DynamicResource ToggleButtonIcon}"
@@ -417,17 +418,17 @@
                                                                       Height="17"
                                                                       Width="17"
                                                                       Padding="0"
-                                                                      ToolTip="Repeat"
+                                                                      ToolTip="{x:Static properties:Resources.PlayListCollectionView_Repeat}"
                                                                       Background="Transparent"
                                                                       BorderThickness="0"
                                                                       Style="{DynamicResource ToggleButtonIcon}"
                                                                       hc:IconSwitchElement.Geometry="{DynamicResource repeat_off }"
                                                                       hc:IconSwitchElement.GeometrySelected="{DynamicResource repeat_all}" />
-                                                        <Button Content="Set time"
+                                                        <Button Content="{x:Static properties:Resources.PlayListCollectionView_SetTime}"
                                                                 Background="{DynamicResource SecondaryRegionBrush}"
                                                                 Height="25"
                                                                 Margin="10,15,10,5"
-                                                                ToolTip="Set Time"
+                                                                ToolTip="{x:Static properties:Resources.PlayListCollectionView_SetTime_ToolTip}"
                                                                 Padding="5,0"
                                                                 Command="{Binding Path=DataContext.ChangePlaylistProfileDurationCommand, RelativeSource={RelativeSource AncestorType={x:Type local:LightingProfileManagerWindow}}}"
                                                                 CommandParameter="{Binding .}"
@@ -623,7 +624,7 @@
                                                             HorizontalAlignment="Right"
                                                             hc:IconElement.Width="15"
                                                             BorderThickness="0"
-                                                            ToolTip="Remove from playlist"
+                                                            ToolTip="{x:Static properties:Resources.PlayListCollectionView_RemoveFromPlaylist_tooltip}"
                                                             hc:IconElement.Geometry="{DynamicResource DeleteFillCircleGeometry}" />
                                                 </StackPanel>
                                             </Grid>

@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:adrilight_shared.View.Dialogs"
              xmlns:viewmodel="clr-namespace:adrilight_shared.ViewModel"
              xmlns:converters="clr-namespace:adrilight_shared.Converter"
+             xmlns:properties="clr-namespace:adrilight_shared.Properties"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              d:DataContext="{d:DesignInstance Type=viewmodel:AddNewDialogViewModel}"
              mc:Ignorable="d" 
@@ -33,7 +34,7 @@
                       Fill="{DynamicResource PrimaryTextBrush}" />
             </Border>
             <hc:TextBox Margin="20"
-                        hc:InfoElement.Title="Name"
+                        hc:InfoElement.Title="{x:Static properties:Resources.AddNewDialog_Name}"
                         hc:InfoElement.ShowClearButton="True"
                         Text="{Binding Content}"
                         Height="55" />
@@ -44,7 +45,7 @@
                 <Button Click="Button_Cancel_Click"
                         Style="{DynamicResource _lowProfileDefaultButton}"
                         Margin="10,10,10,20"
-                        Content="Cancel">
+                        Content="{x:Static properties:Resources.Button_Cancel_Content}">
 
                 </Button>
                 <Button Click="Button_OK_Click"
@@ -53,7 +54,7 @@
                         Width="72"
                         Margin="10,10,20,20"
                         Grid.Column="1"
-                        Content="Ok">
+                        Content="{x:Static properties:Resources.Button_OK_Content}">
                 </Button>
             </StackPanel>
 

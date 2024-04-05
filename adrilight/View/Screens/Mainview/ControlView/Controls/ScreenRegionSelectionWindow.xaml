@@ -6,6 +6,7 @@
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
            xmlns:local="clr-namespace:adrilight.View"
+           xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
            mc:Ignorable="d"
            Background="{DynamicResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
@@ -265,7 +266,7 @@
                         <GroupBox.HeaderTemplate>
                             <DataTemplate>
                                 <TextBlock FontWeight="SemiBold"
-                                           Text="CHỌN MỘT MÀN HÌNH" />
+                                           Text="{x:Static properties:Resources.ScreenRegionSelectionWindow_CHỌNMỘTMÀNHÌNH}" />
                             </DataTemplate>
                         </GroupBox.HeaderTemplate>
                         <Grid>
@@ -323,7 +324,7 @@
                         <Button Margin="0,0,15,0"
                                 HorizontalAlignment="Right"
                                 Command="{Binding RefreshMonitorCollectionCommand}"
-                                Content="Refresh" />
+                                Content="{x:Static properties:Resources.Button_Refresh_Content}" />
 
                     </Grid>
                     <hc:Divider  LineStroke="{DynamicResource SecondaryRegionBrush}"
@@ -332,7 +333,7 @@
                     <StackPanel Orientation="Vertical">
                         <TextBlock TextWrapping="Wrap"
                                    MaxWidth="240"
-                                   Text="Nếu bạn không thấy màn hình của mình hiển thị ở đây, hoặc không hiển thị nội dung, hãy chắc chắn rằng bạn đã cho phép capture [nhiều màn hình] trong [cài đặt]" />
+                                   Text="{x:Static properties:Resources.ScreenRegionSelectionWindow_Screen_Guide}" />
                         <Button Command="{Binding OpenAppSettingsWindowCommand}"
                                 Padding="0"
                                 Background="Transparent"
@@ -341,7 +342,7 @@
                                        HorizontalAlignment="Center"
                                        TextWrapping="Wrap"
                                        Style="{DynamicResource TextBlockDefaultPrimary}"
-                                       Text="Mở cài đặt App" />
+                                       Text="{x:Static properties:Resources.Button_OpenAppSettings_Content}" />
                         </Button>
                     </StackPanel>
 
@@ -360,7 +361,7 @@
                         <GroupBox.HeaderTemplate>
                             <DataTemplate>
                                 <TextBlock FontWeight="SemiBold"
-                                           Text="CHỌN VÙNG CAPTURE" />
+                                           Text="{x:Static properties:Resources.ScreenRegionSelectionWindow_CaptureArea_header}" />
                             </DataTemplate>
                         </GroupBox.HeaderTemplate>
                         <Border HorizontalAlignment="Left"
@@ -406,7 +407,7 @@
                                 <GroupBox.HeaderTemplate>
                                     <DataTemplate>
                                         <TextBlock  FontWeight="SemiBold"
-                                                    Text="BLACK BAR DETECTION" />
+                                                    Text="{x:Static properties:Resources.ScreenRegionSelectionWindow_BlackBarDetection_header}" />
                                     </DataTemplate>
                                 </GroupBox.HeaderTemplate>
                                 <ToggleButton HorizontalAlignment="Right"
@@ -421,7 +422,7 @@
                                    HorizontalAlignment="Left"
                                    Style="{StaticResource TextBlockDefaultSecLight}"
                                    Grid.Row="1"
-                                   Text="Nhận dạng vạch đen khi xem video (áp dụng cho cả 21:9 và 4:3)" />
+                                   Text="{x:Static properties:Resources.ScreenRegionSelectionWindow_BlackBarDetection_info}" />
                         <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}"
                                      Margin="50,10,5,10">
                             <hc:Divider.Style>
@@ -466,7 +467,7 @@
                                         <GroupBox.HeaderTemplate>
                                             <DataTemplate>
                                                 <TextBlock FontWeight="SemiBold"
-                                                           Text="ĐỘ NHẠY" />
+                                                           Text="{x:Static properties:Resources.ScreenRegionSelectionWindow_Sensitivity_header}" />
                                             </DataTemplate>
                                         </GroupBox.HeaderTemplate>
 
@@ -488,7 +489,7 @@
                                                HorizontalAlignment="Left"
                                                Style="{StaticResource TextBlockDefaultSecLight}"
                                                Grid.Row="1"
-                                               Text="Thời gian tính bằng giây kể từ lúc phát hiện Black bar cho đến khi áp dụng lên LED" />
+                                               Text="{x:Static properties:Resources.ScreenRegionSelectionWindow_Sensitivity_info}" />
                                 </Grid>
                             </StackPanel>
 
@@ -510,13 +511,13 @@
 
                 <Button Click="Button_Click_Cancel"
                         Margin="15"
-                        Content="Cancel"
+                        Content="{x:Static properties:Resources.Button_Cancel_Content}"
                         Style="{DynamicResource ButtonPrimary}"
                         Background="Transparent" />
                 <Button Command="{Binding SaveCurrentSelectedRegionCommand}"
                         CommandParameter="screen"
                         Margin="15"
-                        Content="Done"
+                        Content="{x:Static properties:Resources.Button_Done_content}"
                         Style="{DynamicResource ButtonPrimary}" />
             </StackPanel>
         </Grid>

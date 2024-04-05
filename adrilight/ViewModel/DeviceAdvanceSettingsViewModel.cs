@@ -50,8 +50,8 @@ namespace adrilight.ViewModel
             Device = device ?? throw new ArgumentNullException(nameof(device));
             if (device.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV2)
             {
-                UpdateButtonContent = "Enter DFU";
-                UpdateInstructionContent = "HUBV2 cần sử dụng FlyMCU để nạp firmware";
+                UpdateButtonContent = adrilight_shared.Properties.Resources.EnterDFU_ButtonContent;
+                UpdateInstructionContent = adrilight_shared.Properties.Resources.HUBV_Checkforupdate_content;
             }
 
             _dialogService = service ?? throw new ArgumentNullException(nameof(service));
@@ -237,7 +237,7 @@ namespace adrilight.ViewModel
             var outputStream = new byte[16];
             Buffer.BlockCopy(sendCommand, 0, outputStream, 0, sendCommand.Length);
             int counter = sendCommand.Length;
-            outputStream[counter++] = Device.NoSignalLEDEnable == true ? (byte)15 : (byte)12;
+            outputStream[counter++] = Device.NoSignalLEDEnable == true ? (byte)12 : (byte)15;
             outputStream[counter++] = Device.IsIndicatorLEDOn == true ? (byte)15 : (byte)12;
             outputStream[counter++] = 0;
             outputStream[counter++] = 0;
@@ -786,7 +786,7 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-        private string _updateInstructionContent = "Kiểm tra bản cập nhật nếu có";
+        private string _updateInstructionContent = adrilight_shared.Properties.Resources.CheckForUpdate_content;
         public string UpdateInstructionContent {
             get
             {

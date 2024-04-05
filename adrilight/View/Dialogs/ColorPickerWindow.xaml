@@ -7,12 +7,13 @@
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
            xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
+           xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
            xmlns:view ="clr-namespace:adrilight.View"
            mc:Ignorable="d"
            Background="{DynamicResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
-           Title="Chose Colors"
+           Title="{x:Static properties:Resources.ColorPickerWindow_ChoseColors}"
            MinWidth="1600"
            SizeToContent="WidthAndHeight"
            ResizeMode="CanResize"
@@ -201,14 +202,14 @@
                                             <GroupBox Margin="10,0,0,0" VerticalAlignment="Stretch" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                                                 <GroupBox.HeaderTemplate>
                                                     <DataTemplate>
-                                                        <TextBlock  FontWeight="SemiBold" Text="Solid"/>
+                                                        <TextBlock  FontWeight="SemiBold" Text="{x:Static properties:Resources.ColorPickerWindow_Solid}"/>
                                                     </DataTemplate>
                                                 </GroupBox.HeaderTemplate>
                                                 <ToggleButton HorizontalAlignment="Right" IsChecked="{Binding IsSolidMode,Mode=TwoWay}" Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
                                                 </ToggleButton>
                                             </GroupBox>
                                         </Grid>
-                                        <TextBlock Margin="10,5" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Chuyển giữa màu đơn và màu kép"/>
+                                        <TextBlock Margin="10,5" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="{x:Static properties:Resources.ColorPickerWindow_Solid_info}"/>
                                     </StackPanel>
                                 </Grid>
                                 <Grid>
@@ -227,7 +228,7 @@
 
                                         </hc:Divider>
 
-                                        <TextBlock Margin="10,5" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultWarning}" Grid.Row="1" Text="Click vào từng ô màu rồi chọn màu ở bảng màu phía bên tay phải, nhấn Ctrl + Click để chọn nhiều ô màu và chỉnh màu cùng lúc"/>
+                                        <TextBlock Margin="10,5" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{DynamicResource TextBlockDefaultWarning}" Grid.Row="1" Text="{x:Static properties:Resources.ColorPickerWindow_warning}"/>
                                         <StackPanel>
                                             <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10,0,10">
 
@@ -236,17 +237,17 @@
                                                 <GroupBox Margin="10,0,0,0" VerticalAlignment="Stretch" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                                                     <GroupBox.HeaderTemplate>
                                                         <DataTemplate>
-                                                            <TextBlock  FontWeight="SemiBold" Text="Nhập file màu"/>
+                                                            <TextBlock  FontWeight="SemiBold" Text="{x:Static properties:Resources.ColorPickerWindow_ImportPalette_header}"/>
                                                         </DataTemplate>
                                                     </GroupBox.HeaderTemplate>
                                                     <Button Style="{DynamicResource _lowProfileDefaultButton}" Command="{Binding SubParamActionCommand}"
                                                 CommandParameter="Import Palette"
                                                 HorizontalAlignment="Right"
-                                                Content="Import">
+                                                Content="{x:Static properties:Resources.Import_Button_Content}">
                                                     </Button>
                                                 </GroupBox>
                                             </Grid>
-                                            <TextBlock Margin="10,5" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Nhập file màu dạng .txt hoặc .col"/>
+                                            <TextBlock Margin="10,5" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="{x:Static properties:Resources.ColorPickerWindow_ImportPalette_info}"/>
                                             <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}" Margin="0,10,0,10">
 
                                             </hc:Divider>
@@ -254,7 +255,7 @@
                                                 <GroupBox Margin="10,0,0,0" VerticalAlignment="Stretch" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                                                     <GroupBox.HeaderTemplate>
                                                         <DataTemplate>
-                                                            <TextBlock  FontWeight="SemiBold" Text="Số lượng màu"/>
+                                                            <TextBlock  FontWeight="SemiBold" Text="{x:Static properties:Resources.ColorPickerWindow_ColorNum_header}"/>
                                                         </DataTemplate>
                                                     </GroupBox.HeaderTemplate>
                                                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
@@ -265,7 +266,7 @@
                                                    
                                                 </GroupBox>
                                             </Grid>
-                                            <TextBlock Margin="10,5" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Nhập số lượng màu bạn muốn điều chỉnh"/>
+                                            <TextBlock Margin="10,5" TextWrapping="Wrap"  HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="{x:Static properties:Resources.ColorPickerWindow_ColorNum_info}"/>
                                         </StackPanel>
                                     </StackPanel>
                                 </Grid>

@@ -10,6 +10,7 @@
            xmlns:vm="clr-namespace:adrilight.ViewModel"
            xmlns:local="clr-namespace:adrilight.View"
            xmlns:behavior="clr-namespace:adrilight_shared.Behavior;assembly=adrilight_shared"
+           xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
            xmlns:model="clr-namespace:adrilight_shared.Models;assembly=adrilight_shared"
            xmlns:command="clr-namespace:adrilight.Helpers"
            Background="{DynamicResource RegionBrush}"
@@ -205,10 +206,10 @@
                     Margin="0"
                     SelectedIndex="0"
                     Style="{DynamicResource TabControlInLine}">
-            <TabItem Header="Profiles">
+            <TabItem Header="{x:Static properties:Resources.LightingProfileManagerWindow_Profiles_TabHeader}">
                 <local:ProfileCollectionView DataContext="{Binding AvailableLightingProfiles}" />
             </TabItem>
-            <TabItem Header="Playlists">
+            <TabItem Header="{x:Static properties:Resources.LightingProfileManagerWindow_Playlists_TabHeader}">
                 <local:PlayListCollectionView DataContext="{Binding AvailableLightingProfilePlaylists}" />
             </TabItem>
         </TabControl>

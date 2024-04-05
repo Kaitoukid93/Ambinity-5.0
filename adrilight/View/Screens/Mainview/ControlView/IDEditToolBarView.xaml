@@ -8,6 +8,7 @@
              xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
              xmlns:local="clr-namespace:adrilight.View"
              xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
+             xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
              mc:Ignorable="d"
              d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
              DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}">

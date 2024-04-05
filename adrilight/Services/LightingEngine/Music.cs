@@ -350,8 +350,15 @@ namespace adrilight.Services.LightingEngine
         {
             #region registering params
             _enableControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.IsEnabled).FirstOrDefault() as ToggleParameter;
+            _enableControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_Enable_header, adrilight_shared.Properties.Resources.LightingEngine_Enable_description);
             _enableControl.PropertyChanged += (_, __) => EnableChanged(_enableControl.Value == 1 ? true : false);
+
+
             _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.MixedColor).FirstOrDefault() as ListSelectionParameter;
+            _colorControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_ColorControl_header, adrilight_shared.Properties.Resources.LightingEngine_ColorControl_info);
+            _colorControl.SubParams[0].Localize(adrilight_shared.Properties.Resources.ColorControl_ColorPaletteUse_header, "xx");
+            _colorControl.SubParams[1].Localize(adrilight_shared.Properties.Resources.ColorControl_ColorPaletteSpped_header, "xx");
+            _colorControl.SubParams[2].Localize(adrilight_shared.Properties.Resources.ColorControl_ColorPaletteIntensity_header, "xx");
             _colorControl.PropertyChanged += (_, __) =>
             {
                 switch (__.PropertyName)
@@ -361,7 +368,12 @@ namespace adrilight.Services.LightingEngine
                         break;
                 }
             };
+
+
             _midDataControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.MID).FirstOrDefault() as ListSelectionParameter;
+            _midDataControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_FrequencyControl_header, adrilight_shared.Properties.Resources.LightingEngine_FrequencyControl_info);
+            _midDataControl.SubParams[0].Localize(adrilight_shared.Properties.Resources.MIDDataControl_DrawMID_header, "xx");
+            _midDataControl.SubParams[1].Localize(adrilight_shared.Properties.Resources.MIDDataControl_DancingStyle, "xx");
             _midDataControl.PropertyChanged += (_, __) =>
             {
                 switch (__.PropertyName)
@@ -371,16 +383,26 @@ namespace adrilight.Services.LightingEngine
                         break;
                 }
             };
+
             _colorControl.SubParams[0].PropertyChanged += (_, __) => OnColorUsePropertyChanged(_colorControl.SubParams[0].Value);
             _colorControl.SubParams[2].PropertyChanged += (_, __) => OnPaletteIntensityPropertyChanged(_colorControl.SubParams[2].Value);
             _colorControl.SubParams[1].PropertyChanged += (_, __) => OnPaletteSpeedPropertyChanged(_colorControl.SubParams[1].Value);
+
+
             _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
+            _brightnessControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_BrightnessControl_header, adrilight_shared.Properties.Resources.LightingEngine_BrightnessControl_info);
             _brightnessControl.PropertyChanged += (_, __) => OnBrightnessValueChanged(_brightnessControl.Value);
+
+
             _midDataControl.SubParams[1].PropertyChanged += (_, __) => OnDancingModePropertyChanged(_midDataControl.SubParams[1].Value);
             _midDataControl.SubParams[2].PropertyChanged += (_, __) => OnVUModePropertyChanged(_midDataControl.SubParams[2].Value);
+
+
             _colorControl.LoadAvailableValues();
             _midDataControl.LoadAvailableValues();
+
             _audioDeviceSelectionControl = _currentLightingMode.Parameters.Where(p => p is AudioDeviceSelectionButtonParameter).FirstOrDefault() as AudioDeviceSelectionButtonParameter;
+            _audioDeviceSelectionControl.Localize(adrilight_shared.Properties.Resources.AudioDeviceSelection_header, adrilight_shared.Properties.Resources.AudioDeviceSelection_info);
             _audioDeviceSelectionControl.PropertyChanged += (_, __) =>
             {
                 switch (__.PropertyName)

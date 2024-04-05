@@ -181,6 +181,10 @@ namespace adrilight
 
         public void Start()
         {
+            if(IsRunning)
+            {
+                Stop();
+            }
             Log.Information("Start called for SerialStream");
             _workerThread = new Thread(DoWork) {
                 Name = "Serial sending",
@@ -573,7 +577,12 @@ namespace adrilight
                 catch (Exception ex)
                 {
                     Log.Error(ex, "Device is removed or malfunction: " + serialPort.SerialPort.PortName);
-
+                    // wait device to recover
+                    for(int i=0;i<5;i++)
+                    {
+                        Log.Warning("Waiting for device to recover!!!");
+                        Thread.Sleep(1000);
+                    }
                     if (serialPort != null && serialPort.IsOpen)
                     {
                         try
@@ -584,6 +593,11 @@ namespace adrilight
                         {
                             ///
                             Thread.Sleep(1000);
+                            for (int i = 0; i < 5; i++)
+                            {
+                                Log.Warning("Waiting for device to recover!!!");
+                                Thread.Sleep(1000);
+                            }
                         }
 
                     }

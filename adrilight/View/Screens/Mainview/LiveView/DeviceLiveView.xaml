@@ -12,6 +12,7 @@
              xmlns:zone="clr-namespace:adrilight_shared.Models.Device.Zone;assembly=adrilight_shared"
              xmlns:dataVisualizer="clr-namespace:adrilight_shared.Models.DataVisualizer;assembly=adrilight_shared"
              xmlns:drawable="clr-namespace:adrilight_shared.Models.Drawable;assembly=adrilight_shared"
+             xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
              xmlns:view="clr-namespace:adrilight.View"
              xmlns:viewmodel="clr-namespace:adrilight.ViewModel"
              xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
@@ -681,10 +682,10 @@
 
                                         <Button Style="{DynamicResource _lowProfileDefaultButton}"
                                                 Margin="5"
-                                                ToolTip="Hiển thị độc lập đối tượng được chọn"
+                                                ToolTip="{x:Static properties:Resources.DeviceLiveView_Isolate_tooltip}"
                                                 Command="{Binding IsolateSelectedItemsCommand}"
                                                 CommandParameter="isolate"
-                                                Content="Isolate" />
+                                                Content="{x:Static properties:Resources.DeviceLiveView_Isolate}" />
                                     </hc:TransitioningContentControl>
                                 </Grid>
                                 <Grid>
@@ -710,10 +711,10 @@
 
                                         <Button Style="{DynamicResource _lowProfileDefaultButton}"
                                                 Margin="5"
-                                                ToolTip="Nhóm các đối tượng được chọn"
+                                                ToolTip="{x:Static properties:Resources.DeviceLiveView_NhómCácĐốiTượngĐượcChọn}"
                                                 Command="{Binding GroupSelectedZoneForMaskedControlCommand}"
                                                 CommandParameter="group"
-                                                Content="Group">
+                                                Content="{x:Static properties:Resources.DeviceLiveView_Group}">
                                         </Button>
                                     </hc:TransitioningContentControl>
                                 </Grid>
@@ -739,10 +740,10 @@
                                     <hc:TransitioningContentControl>
                                         <Button Style="{DynamicResource _lowProfileDefaultButton}"
                                                 Margin="5"
-                                                ToolTip="Bỏ nhóm các đối tượng được chọn"
+                                                ToolTip="{x:Static properties:Resources.DeviceLiveView_Ungroup_tooltip}"
                                                 Command="{Binding UnGroupZoneCommand}"
                                                 CommandParameter="group"
-                                                Content="Ungroup">
+                                                Content="{x:Static properties:Resources.DeviceLiveView_Ungroup}">
                                         </Button>
                                     </hc:TransitioningContentControl>
                                 </Grid>
@@ -756,9 +757,9 @@
                                      VerticalAlignment="Top"
                                      Background="{DynamicResource MainContentBackgroundBrush}"
                                      CornerRadius="4">
-                                <Button Content="Show all"
+                                <Button Content="{x:Static properties:Resources.DeviceLiveView_ShowAll_content}"
                                         Style="{DynamicResource _lowProfileDefaultButton}"
-                                        ToolTip="Quay trở lại"
+                                        ToolTip="{x:Static properties:Resources.DeviceLiveView_ShowAll_tooltip}"
                                         Command="{Binding ExitIsolateModeCommand}"
                                         Margin="5"
                                         VerticalAlignment="Top"
@@ -829,7 +830,7 @@
 
                                                             <TextBlock HorizontalAlignment="Left"
                                                                        FontWeight="SemiBold"
-                                                                       Text="BRUSH SIZE" />
+                                                                       Text="{x:Static properties:Resources.DeviceLiveView_BRUSHSIZE}" />
                                                             <Button ToolTip="Tìm hiểu thêm"
                                                                     Grid.Column="1"
                                                                     HorizontalAlignment="Left"
@@ -843,7 +844,7 @@
                                                                    HorizontalAlignment="Left"
                                                                    Style="{StaticResource TextBlockDefaultSecLight}"
                                                                    Grid.Row="1"
-                                                                   Text="Chỉnh kích thước bút vẽ" />
+                                                                   Text="{x:Static properties:Resources.DeviceLiveView_BrushSize_info}" />
                                                     </StackPanel>
                                                 </DataTemplate>
                                             </GroupBox.HeaderTemplate>
@@ -880,7 +881,7 @@
 
                                                             <TextBlock HorizontalAlignment="Left"
                                                                        FontWeight="SemiBold"
-                                                                       Text="BRUSH INTENSITY" />
+                                                                       Text="{x:Static properties:Resources.DeviceLiveView_BRUSHINTENSITY}" />
                                                             <Button ToolTip="Tìm hiểu thêm"
                                                                     Grid.Column="1"
                                                                     HorizontalAlignment="Left"
@@ -895,7 +896,7 @@
                                                                    HorizontalAlignment="Left"
                                                                    Style="{StaticResource TextBlockDefaultSecLight}"
                                                                    Grid.Row="1"
-                                                                   Text="Giá trị càng cao, màu trong palette càng dày đặc" />
+                                                                   Text="{x:Static properties:Resources.DeviceLiveView_BrushIntensity_info}" />
                                                     </StackPanel>
                                                 </DataTemplate>
                                             </GroupBox.HeaderTemplate>

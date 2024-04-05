@@ -469,10 +469,20 @@ namespace adrilight.Services.LightingEngine
         {
             #region registering params
             _enableControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.IsEnabled).FirstOrDefault() as ToggleParameter;
+            _enableControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_Enable_header, adrilight_shared.Properties.Resources.LightingEngine_Enable_description);
             _enableControl.PropertyChanged += (_, __) => EnableChanged(_enableControl.Value == 1 ? true : false);
+
+
             _speedControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Speed).FirstOrDefault() as SliderParameter;
+            _speedControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_SpeedControl_header, adrilight_shared.Properties.Resources.Rainbow_Init_SpeedControl_info);
             _speedControl.MaxValue = 20;
+
+
             _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.MixedColor).FirstOrDefault() as ListSelectionParameter;
+            _colorControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_ColorControl_header, adrilight_shared.Properties.Resources.LightingEngine_ColorControl_info);
+            _colorControl.SubParams[0].Localize(adrilight_shared.Properties.Resources.ColorControl_ColorPaletteUse_header, "xx");
+            _colorControl.SubParams[1].Localize(adrilight_shared.Properties.Resources.ColorControl_ColorPaletteSpped_header, "xx");
+            _colorControl.SubParams[2].Localize(adrilight_shared.Properties.Resources.ColorControl_ColorPaletteIntensity_header, "xx");
 
             _smoothControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Smoothing).FirstOrDefault() as SliderParameter;
             if (_smoothControl == null)
@@ -481,6 +491,7 @@ namespace adrilight.Services.LightingEngine
                 _smoothControl = controlModeHelper.GenericSmoothParameter as SliderParameter;
                 _currentLightingMode.Parameters.Add(_smoothControl);
             }
+            _smoothControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_SmoothControl_header, adrilight_shared.Properties.Resources.LightingEngine_SmoothControl_info);
             _smoothControl.MaxValue = 7;
             _smoothControl.MinValue = 0;
             _colorControl.PropertyChanged += (_, __) =>
@@ -493,6 +504,9 @@ namespace adrilight.Services.LightingEngine
                 }
             };
             _chasingPatternControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.ChasingPattern).FirstOrDefault() as ListSelectionParameter;
+            _chasingPatternControl.Localize(adrilight_shared.Properties.Resources.ChasingPatternControl_header, adrilight_shared.Properties.Resources.ChasingPatternControl_info);
+            _chasingPatternControl.SubParams[0].Localize(adrilight_shared.Properties.Resources.ChasingPatternControl_Import_header, "xx");
+            _chasingPatternControl.SubParams[1].Localize(adrilight_shared.Properties.Resources.ChasingPatternControl_Export_header, "xx");
             _chasingPatternControl.PropertyChanged += (_, __) =>
             {
                 switch (__.PropertyName)
@@ -509,6 +523,9 @@ namespace adrilight.Services.LightingEngine
                 _vidDataControl = controlModeHelper.GenericVIDSelectParameter as ListSelectionParameter;
                 _currentLightingMode.Parameters.Add(_vidDataControl);
             }
+            _vidDataControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_VIDDataControl_header, adrilight_shared.Properties.Resources.LightingEngine_VIDDataControl_info);
+            _vidDataControl.SubParams[0].Localize(adrilight_shared.Properties.Resources.LightingEngine_ColorControl_SubParam_Intensity_Content, "xx");
+            _vidDataControl.SubParams[1].Localize(adrilight_shared.Properties.Resources.LightingEngine_ColorControl_SubParam_AddNewVID_Content, "xx");
             _vidDataControl.PropertyChanged += (_, __) =>
             {
                 switch (__.PropertyName)
@@ -522,7 +539,10 @@ namespace adrilight.Services.LightingEngine
             _colorControl.SubParams[0].PropertyChanged += (_, __) => OnColorUsePropertyChanged(_colorControl.SubParams[0].Value);
             _colorControl.SubParams[2].PropertyChanged += (_, __) => OnPaletteIntensityPropertyChanged(_colorControl.SubParams[2].Value);
             _colorControl.SubParams[1].PropertyChanged += (_, __) => OnPaletteSpeedPropertyChanged(_colorControl.SubParams[1].Value);
+
+
             _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
+            _brightnessControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_BrightnessControl_header, adrilight_shared.Properties.Resources.LightingEngine_BrightnessControl_info);
             _speedControl.PropertyChanged += (_, __) => OnSpeedChanged(_speedControl.Value);
             _smoothControl.PropertyChanged += (_, __) => OnSmoothChanged(_smoothControl.Value);
             _brightnessControl.PropertyChanged += (_, __) => OnBrightnessValueChanged(_brightnessControl.Value);

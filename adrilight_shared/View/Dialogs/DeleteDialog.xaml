@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:adrilight_shared.View.Dialogs"
              xmlns:viewmodel="clr-namespace:adrilight_shared.ViewModel"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:properties="clr-namespace:adrilight_shared.Properties"
              d:DataContext="{d:DesignInstance Type=viewmodel:DeleteDialogViewModel}"
              mc:Ignorable="d" 
              Background="{DynamicResource RegionBrush}"
@@ -32,7 +33,7 @@
                        Text="{Binding Content}" />
             <TextBlock Margin="0" Style="{DynamicResource TextBlockDefaultSecLight}"
                        HorizontalAlignment="Center"
-                       Text="Các nội dung đã xoá sẽ không thể khôi phục" />
+                       Text="{x:Static properties:Resources.DeleteDialog_DeleteConfirm_info}" />
         </StackPanel>
         <Grid Grid.Row="2">
             <StackPanel HorizontalAlignment="Right"
@@ -40,7 +41,7 @@
                 <Button Click="Button_Cancel_Click"
                         Style="{DynamicResource _lowProfileDefaultButton}"
                         Margin="10,10,10,20"
-                        Content="Cancel">
+                        Content="{x:Static properties:Resources.Button_Cancel_Content}">
 
                 </Button>
                 <Button Click="Button_OK_Click"
@@ -49,7 +50,7 @@
                         Width="72"
                         Margin="10,10,20,20"
                         Grid.Column="1"
-                        Content="Ok">
+                        Content="{x:Static properties:Resources.Button_OK_Content}">
                 </Button>
             </StackPanel>
 

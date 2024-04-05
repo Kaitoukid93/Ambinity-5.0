@@ -5,6 +5,7 @@
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
+           xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
            mc:Ignorable="d"
            Background="{DynamicResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
@@ -35,7 +36,7 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <TextBlock VerticalAlignment="Top" Margin="20,0,20,20" Text="Connection Settings" Style="{StaticResource TextBlockLarge}">
+        <TextBlock VerticalAlignment="Top" Margin="20,0,20,20" Text="{x:Static properties:Resources.DeviceConnectionSettingsWindow_header}" Style="{StaticResource TextBlockLarge}">
 
         </TextBlock>
         <StackPanel Grid.Row="1">
@@ -57,7 +58,7 @@
                 <GroupBox   VerticalAlignment="Center" Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                     <GroupBox.HeaderTemplate>
                         <DataTemplate>
-                            <TextBlock FontWeight="SemiBold" Text="ENABLE"/>
+                            <TextBlock FontWeight="SemiBold" Text="{x:Static properties:Resources.LightingEngine_Enable_header}"/>
                         </DataTemplate>
                     </GroupBox.HeaderTemplate>
 
@@ -71,7 +72,7 @@
 
 
                 </GroupBox>
-                <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Enable or Disable data transfer"/>
+                <TextBlock Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="{x:Static properties:Resources.DeviceConnectionSettingsWindow_EnableOrDisableDataTransfer}"/>
             </Grid>
 
             <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
@@ -85,7 +86,7 @@
                 <GroupBox   VerticalAlignment="Center"  Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                     <GroupBox.HeaderTemplate>
                         <DataTemplate>
-                            <TextBlock FontWeight="SemiBold" Text="COM PORT"/>
+                            <TextBlock FontWeight="SemiBold" Text="{x:Static properties:Resources.DeviceConnectionSettingsWindow_COMPORT}"/>
                         </DataTemplate>
                     </GroupBox.HeaderTemplate>
 
@@ -102,28 +103,33 @@
 
 
                 </GroupBox>
-                <TextBlock Visibility="{Binding CurrentDevice.IsTransferActive, Converter={StaticResource Boolean2VisibilityReConverter}}" Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="Lựa chọn này chỉ áp dụng cho Ambino Device"/>
+                <TextBlock Visibility="{Binding CurrentDevice.IsTransferActive, Converter={StaticResource Boolean2VisibilityReConverter}}" Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultSecLight}" Grid.Row="1" Text="{x:Static properties:Resources.DeviceConnectionSettingsWindow_Comport_info}"/>
                 <TextBlock Visibility="{Binding CurrentDevice.IsTransferActive, Converter={StaticResource boolToVisibilityConvert}}" Margin="5,0,0,0" HorizontalAlignment="Left" Style="{StaticResource TextBlockDefaultWarning}" Grid.Row="1" Text="Disable Device trước khi thực hiện đổi COM Port"/>
             </Grid>
             <Grid>
                 <Grid.Style>
                     <Style TargetType="Grid">
-                        <Setter Property="Visibility" Value="Visible"></Setter>
+                        <Setter Property="Visibility"
+                                Value="Visible"></Setter>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding GeneralSettings.DeviceDiscoveryMode}" Value="1">
-                                <Setter Property="Visibility" Value="Collapsed"/>
+                            <DataTrigger Binding="{Binding GeneralSettings.DeviceDiscoveryMode}"
+                                         Value="1">
+                                <Setter Property="Visibility"
+                                        Value="Collapsed" />
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Grid.Style>
-                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}" Margin="5,10,5,10">
+                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                             Margin="5,10,5,10">
 
                 </hc:Divider>
             </Grid>
+            <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                         Margin="5,10,5,10">
+
+            </hc:Divider>
             <Grid>
-                
-            </Grid>
-            <Grid Name="outputVoltage">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"/>
                     <RowDefinition Height="auto"/>
@@ -131,7 +137,7 @@
                 <GroupBox   VerticalAlignment="Center"   Margin="5" Style="{StaticResource GroupBoxOriginal}" HorizontalAlignment="Stretch" hc:TitleElement.TitlePlacement="Left">
                     <GroupBox.HeaderTemplate>
                         <DataTemplate>
-                            <TextBlock FontWeight="SemiBold" Text="DATA RATE"/>
+                            <TextBlock FontWeight="SemiBold" Text="{x:Static properties:Resources.DeviceConnectionSettingsWindow_DATARATE}"/>
                         </DataTemplate>
                     </GroupBox.HeaderTemplate>
 
@@ -166,7 +172,7 @@
                            Style="{StaticResource TextBlockDefaultSecLight}"
                            Grid.Row="1"
                            TextWrapping="Wrap"
-                           Text="Tốc độ truyền dữ liệu, có thể hạ baudrate để device hoạt động ổn định hơn"/>
+                           Text="{x:Static properties:Resources.DeviceConnectionSettingsWindow_DataRqate_info}"/>
             </Grid>
 
 
