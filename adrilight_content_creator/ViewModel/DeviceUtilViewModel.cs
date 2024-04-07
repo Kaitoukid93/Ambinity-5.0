@@ -413,10 +413,12 @@ namespace adrilight_content_creator.ViewModel
             AvailableComPorts = new ObservableCollection<ComPortObject>();
             List<string> CH55X = GetComPortByID("1209", "c550");
             List<string> CH340 = GetComPortByID("1A86", "7522");
+            List<string> pi = GetComPortByID("2E8A", "F00A");
+            List<string> ada = GetComPortByID("239A", "CAFE");
             var devices = new List<string>();
             var subDevices = new List<string>();
             List<string> sd = GetComPortByID("1209", "c55c");
-            if (CH55X.Count > 0 || CH340.Count > 0 || sd.Count > 0)
+            if (CH55X.Count > 0 || CH340.Count > 0 || sd.Count > 0 || pi.Count>0)
             {
                 foreach (var port in CH55X)
                 {
@@ -433,6 +435,18 @@ namespace adrilight_content_creator.ViewModel
                 foreach (var port in sd)
                 {
                     var p = new ComPortObject(port + " - HyperPort");
+                    p.Port = port;
+                    AvailableComPorts.Add(p);
+                }
+                foreach (var port in pi)
+                {
+                    var p = new ComPortObject(port + " - Pi");
+                    p.Port = port;
+                    AvailableComPorts.Add(p);
+                }
+                foreach (var port in ada)
+                {
+                    var p = new ComPortObject(port + " - ada");
                     p.Port = port;
                     AvailableComPorts.Add(p);
                 }
@@ -610,6 +624,10 @@ namespace adrilight_content_creator.ViewModel
             device.HardwareVersion = Encoding.ASCII.GetString(hw, 0, hw.Length);
             device.FirmwareVersion = Encoding.ASCII.GetString(fw, 0, fw.Length);
             device.DeviceSerial = BitConverter.ToString(id).Replace('-', ' ');
+            if(device.DeviceName!= "Ambino HubV3")
+            {
+
+            }
             switch (device.DeviceName)
             {
                 case "Ambino Basic":

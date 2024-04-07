@@ -72,5 +72,6 @@ namespace adrilight_shared.Models.Device
         void SetStaticColor(ColorCard colors);
         void SetModeByEnumValue(LightingModeEnum value);
         void ActivateControlMode(LightingMode lightingMode);
+        void AttachLightingEngine();
     }
 }

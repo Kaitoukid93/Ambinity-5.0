@@ -1,7 +1,7 @@
 ﻿using adrilight_shared.Enums;
 using System.Threading;
 
-namespace adrilight.Services.LightingEngine
+namespace adrilight_shared.Device.LightingEngine
 {
     public interface ILightingEngine
     {

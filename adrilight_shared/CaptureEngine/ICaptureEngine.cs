@@ -1,7 +1,7 @@
 ﻿using adrilight_shared.Models.FrameData;
 using System.ComponentModel;
 
-namespace adrilight.Services.CaptureEngine
+namespace adrilight_shared.CaptureEngine
 {
     public interface ICaptureEngine : INotifyPropertyChanged
     {

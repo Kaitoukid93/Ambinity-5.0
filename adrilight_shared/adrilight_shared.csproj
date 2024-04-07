@@ -135,6 +135,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Behavior\ProgressBarSmoother.cs" />
+    <Compile Include="CaptureEngine\AudioCapture\AudioCaptureBasic.cs" />
+    <Compile Include="CaptureEngine\AudioCapture\AudioFrame.cs" />
+    <Compile Include="CaptureEngine\ICaptureEngine.cs" />
+    <Compile Include="CaptureEngine\ScreenCapture\BasicCapture.cs" />
+    <Compile Include="CaptureEngine\ScreenCapture\CaptureHelper.cs" />
+    <Compile Include="CaptureEngine\ScreenCapture\CompositionHelper.cs" />
+    <Compile Include="CaptureEngine\ScreenCapture\DesktopDuplicationException.cs" />
+    <Compile Include="CaptureEngine\ScreenCapture\DesktopDuplicator.cs" />
+    <Compile Include="CaptureEngine\ScreenCapture\DesktopFrame.cs" />
+    <Compile Include="CaptureEngine\ScreenCapture\DesktopFrameDXGI.cs" />
+    <Compile Include="CaptureEngine\ScreenCapture\Direct3D11Helper.cs" />
+    <Compile Include="CaptureEngine\ScreenCapture\MonitorEnumerationHelper.cs" />
+    <Compile Include="CaptureEngine\ScreenCapture\MovedRegion.cs" />
     <Compile Include="Converter\BoolToBorderThicknessConverter.cs" />
     <Compile Include="Converter\BrushToHexConverter.cs" />
     <Compile Include="Converter\ColorToBrushConverter.cs" />
@@ -146,6 +159,20 @@
     <Compile Include="Converter\ThicknessToDoubleConverter.cs" />
     <Compile Include="Converter\ToUpperValueConverter.cs" />
     <Compile Include="Models\DataViewMode.cs" />
+    <Compile Include="Models\Device\LightingEngine\Animation.cs" />
+    <Compile Include="Models\Device\LightingEngine\DesktopDuplicatorReader.cs" />
+    <Compile Include="Models\Device\LightingEngine\Gifxelation.cs" />
+    <Compile Include="Models\Device\LightingEngine\ILightingEngine.cs" />
+    <Compile Include="Models\Device\LightingEngine\Music.cs" />
+    <Compile Include="Models\Device\LightingEngine\Rainbow.cs" />
+    <Compile Include="Models\Device\LightingEngine\RunStateEnum.cs" />
+    <Compile Include="Models\Device\LightingEngine\StaticColor.cs" />
+    <Compile Include="Models\Device\OpenRGBService\AmbinityClient.cs" />
+    <Compile Include="Models\Device\OpenRGBService\IAmbinityClient.cs" />
+    <Compile Include="Models\Device\OpenRGBService\OpenRGBStream.cs" />
+    <Compile Include="Models\Device\SerialStream\ISerialStream.cs" />
+    <Compile Include="Models\Device\SerialStream\SerialStream.cs" />
+    <Compile Include="Models\Device\SerialStream\WinApi.cs" />
     <Compile Include="Models\Language\LangModel.cs" />
     <Compile Include="Models\Stores\CollectionItemStore.cs" />
     <Compile Include="Services\DialogService.cs" />
@@ -296,6 +323,8 @@
     <Compile Include="Helpers\LEDSetupHelpers.cs" />
     <Compile Include="Settings\GeneralSettings.cs" />
     <Compile Include="Settings\IGeneralSettings.cs" />
+    <Compile Include="Ticker\PlaylistDecoder.cs" />
+    <Compile Include="Ticker\RainbowTicker.cs" />
     <Compile Include="ViewModel\AddNewDialogViewModel.cs" />
     <Compile Include="ViewModel\DeleteDialogViewModel.cs" />
     <Compile Include="ViewModel\NonClientAreaContentViewModel.cs" />

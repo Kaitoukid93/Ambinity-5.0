@@ -1,4 +1,4 @@
-﻿using adrilight.ViewModel;
+﻿
 using adrilight_shared.Helpers;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.Device;
@@ -11,14 +11,13 @@ using System.Collections.ObjectModel;
 using System.Threading;
 using System.Timers;
 
-namespace adrilight.Ticker
+namespace adrilight_shared.Ticker
 {
     public class PlaylistDecoder : ViewModelBase
     {
         public event Action<LightingProfile> CurrentPlayingProfileChanged;
         public PlaylistDecoder(IGeneralSettings generaSettings, IDeviceSettings[] devices)
         {
-            GeneralSettings = generaSettings ?? throw new ArgumentNullException(nameof(generaSettings));
             AvailableDevices = new ObservableCollection<IDeviceSettings>();
             foreach (var device in devices)
             {
@@ -92,8 +91,6 @@ namespace adrilight.Ticker
             _timer?.Start();
             _subTimer?.Start();
         }
-        private IGeneralSettings GeneralSettings { get; set; }
-        private static LightingProfileManagerViewModel ViewModel { get; set; }
         private static System.Timers.Timer _timer;
         private static System.Timers.Timer _subTimer;
         private static TimeSpan _currentTimeSpan;

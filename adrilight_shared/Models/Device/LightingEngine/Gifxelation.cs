@@ -1,12 +1,14 @@
 ﻿using adrilight.Services.CaptureEngine;
-using adrilight.Services.CaptureEngine.ScreenCapture;
+using adrilight.Ticker;
 using adrilight.ViewModel;
 using adrilight_shared.Enums;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.ControlMode.ModeParameters;
+using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.Device.Zone.Spot;
 using adrilight_shared.Models.FrameData;
+using adrilight_shared.Models.TickData;
 using adrilight_shared.Settings;
 using MoreLinq;
 using Polly;
@@ -16,40 +18,38 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
-using Windows.Foundation;
-using Color = System.Windows.Media.Color;
-using Rect = System.Windows.Rect;
 using Rectangle = System.Drawing.Rectangle;
 
-namespace adrilight.Services.LightingEngine
+namespace adrilight_shared.Device.LightingEngine
 {
-    internal class DesktopDuplicatorReader : ILightingEngine
+    internal class Gifxelation : ILightingEngine
     {
-        public DesktopDuplicatorReader(IGeneralSettings generalSettings,
-            ICaptureEngine[] desktopFrame,
+
+        public static Bitmap WorkingBitmap { get; set; }
+        public static Bitmap LoadedStillBitmap { get; set; }
+        public ByteFrame[] LoadedGifImage { get; set; }
+        public Gifxelation(IGeneralSettings generalSettings,
              MainViewViewModel mainViewViewModel,
-             IControlZone zone
+             IControlZone zone,
+             RainbowTicker rainbowTicker
             )
         {
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
-            if (desktopFrame != null && desktopFrame.Count() > 0 && desktopFrame.Any(d => d is DesktopFrame || d is DesktopFrameDXGI))
-            {
-                var frame = desktopFrame.Where(d => d is DesktopFrame || d is DesktopFrameDXGI).First();
-                DesktopFrame = desktopFrame.Where(d => d is DesktopFrame || d is DesktopFrameDXGI).First() ?? throw new ArgumentNullException(nameof(desktopFrame));
-            }
-
             CurrentZone = zone as LEDSetup ?? throw new ArgumentNullException(nameof(zone));
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
+            RainbowTicker = rainbowTicker ?? throw new ArgumentNullException(nameof(rainbowTicker));
             _retryPolicy = Policy.Handle<Exception>().WaitAndRetryForever(ProvideDelayDuration);
+
 
             GeneralSettings.PropertyChanged += PropertyChanged;
             CurrentZone.PropertyChanged += PropertyChanged;
             MainViewViewModel.PropertyChanged += PropertyChanged;
-
         }
 
 
@@ -60,12 +60,12 @@ namespace adrilight.Services.LightingEngine
         /// </summary>
         private IGeneralSettings GeneralSettings { get; }
 
-        private ICaptureEngine DesktopFrame { get; }
+        private ICaptureEngine[] DesktopFrame { get; }
         public bool IsRunning { get; private set; }
         private LEDSetup CurrentZone { get; }
-        private RunStateEnum _runState = RunStateEnum.Stop;
+        private RainbowTicker RainbowTicker { get; }
         private MainViewViewModel MainViewViewModel { get; }
-        public LightingModeEnum Type { get; } = LightingModeEnum.ScreenCapturing;
+        public LightingModeEnum Type { get; } = LightingModeEnum.Gifxelation;
 
 
         /// <summary>
@@ -74,6 +74,22 @@ namespace adrilight.Services.LightingEngine
         /// <param name="sender"></param>
         /// <param name="e"></param>
         #region PropertyChanged events
+        private void EnableChanged(bool value)
+        {
+            _isEnable = value;
+            if (value)
+            {
+                _dimMode = DimMode.Up;
+                _dimFactor = 0.00;
+                _currentLightingMode.Parameters.Except(new List<IModeParameter>() { _enableControl }).ForEach(p => p.IsEnabled = true);
+            }
+            else
+            {
+                _dimMode = DimMode.Down;
+                _dimFactor = 1.00;
+                _currentLightingMode.Parameters.Except(new List<IModeParameter>() { _enableControl }).ForEach(p => p.IsEnabled = false);
+            }
+        }
         private void PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
@@ -92,22 +108,6 @@ namespace adrilight.Services.LightingEngine
 
             }
         }
-        private void EnableChanged(bool value)
-        {
-            _isEnable = value;
-            if (value)
-            {
-                _dimMode = DimMode.Up;
-                _dimFactor = 0.00;
-                _currentLightingMode.Parameters.Except(new List<IModeParameter>() { _enableControl }).ForEach(p => p.IsEnabled = true);
-            }
-            else
-            {
-                _dimMode = DimMode.Down;
-                _dimFactor = 1.00;
-                _currentLightingMode.Parameters.Except(new List<IModeParameter>() { _enableControl }).ForEach(p => p.IsEnabled = false);
-            }
-        }
         private void OnBrightnessPropertyChanged(int value)
         {
             _brightness = value / 100d;
@@ -117,24 +117,12 @@ namespace adrilight.Services.LightingEngine
         {
             _smoothFactor = value;
         }
-        private void OnUseLinearLightingPropertyChanged(bool value)
-        {
-            _useLinearLighting = value;
-
-        }
         private void OnCapturingRegionChanged(CapturingRegion region)
         {
-            if (DesktopFrame.Frames[(int)_currentScreenIndex] == null || DesktopFrame.Frames[(int)_currentScreenIndex].FrameWidth == 0 || DesktopFrame.Frames[(int)_currentScreenIndex].FrameHeight == 0)
-            {
-                Log.Error("DesktopFrame is null");
-                return;
-            }
-
-
-            var left = region.ScaleX * _currentColoredRegion.Width + _currentColoredRegion.Left;
-            var top = region.ScaleY * _currentColoredRegion.Height + _currentColoredRegion.Top;
-            var width = region.ScaleWidth * _currentColoredRegion.Width;
-            var height = region.ScaleHeight * _currentColoredRegion.Height;
+            var left = region.ScaleX * LoadedGifImage[0].FrameWidth;
+            var top = region.ScaleY * LoadedGifImage[0].FrameHeight;
+            var width = region.ScaleWidth * LoadedGifImage[0].FrameWidth;
+            var height = region.ScaleHeight * LoadedGifImage[0].FrameHeight;
             var zoneParrent = new Rect();
             if (CurrentZone.IsInControlGroup)
             {
@@ -154,11 +142,86 @@ namespace adrilight.Services.LightingEngine
             var regionHeight = Math.Max((int)(zoneRegion.ScaleHeight * height), 1);
             _currentCapturingRegion = new Rectangle(regionLeft, regionTop, regionWidth, regionHeight);
         }
-        private void OnCapturingSourceChanged(int sourceIndex)
+        private void OnSelectedGifChanged(IParameterValue value)
         {
-            if (sourceIndex >= DesktopFrame.Frames.Length)
-                _regionControl.CapturingSourceIndex = 0;
-            _currentScreenIndex = _regionControl.CapturingSourceIndex;
+            //set palette
+
+            if (value == null)
+                return;
+            var gif = value as Gif;
+            lock (gif.Lock)
+            {
+                if (gif.Frames == null)
+                {
+                    if (gif.LocalPath == null)
+                        return;
+                    if (!File.Exists(gif.LocalPath))
+                        return;
+                    gif.LoadGifFromDisk(gif.LocalPath);
+
+                }
+            }
+
+            lock (_lock)
+            {
+                LoadedGifImage = gif.Frames;
+                UpdateTick(CurrentZone.IsInControlGroup);
+            }
+        }
+        private void GetTick(bool isInControlGroup)
+        {
+            if (isInControlGroup)
+            {
+                //check if tick exist in rainbowticker
+                lock (RainbowTicker.Lock)
+                {
+                    var frameTick = RainbowTicker.Ticks.Where(t => t.TickUID == CurrentZone.GroupID && t.TickType == TickEnum.FrameTick).FirstOrDefault();
+                    if (frameTick == null)
+                    {
+                        //create new tick
+                        var maxTick = LoadedGifImage != null ? LoadedGifImage.Length : 1024;
+                        frameTick = RainbowTicker.MakeNewTick(maxTick, _speed, CurrentZone.GroupID, TickEnum.FrameTick);
+                        frameTick.TickRate = 20;
+                        frameTick.IsRunning = true;
+                    }
+                    _tick = frameTick;
+                }
+
+            }
+            else
+            {
+                var frameTick = new Tick() {
+                    MaxTick = LoadedGifImage != null ? LoadedGifImage.Length : 1024,
+                    TickSpeed = _speed,
+                    IsRunning = true
+                };
+                frameTick.TickRate = 20;
+                _tick = frameTick;
+            }
+        }
+        private void UpdateTick(bool isInControlGroup)
+        {
+            if (isInControlGroup)
+            {
+                lock (RainbowTicker.Lock)
+                {
+                    _tick.MaxTick = LoadedGifImage != null ? LoadedGifImage.Length : 1024;
+                    _tick.TickSpeed = _speed;
+                    _tick.CurrentTick = 0;
+                }
+            }
+            else
+            {
+                _tick.MaxTick = LoadedGifImage != null ? LoadedGifImage.Length : 1024;
+                _tick.TickSpeed = _speed;
+                _tick.CurrentTick = 0;
+            }
+            // _pattern.Tick = _ticks[0];
+        }
+        private void OnSpeedChanged(int value)
+        {
+            _speed = value;
+            UpdateTick(CurrentZone.IsInControlGroup);
         }
         #endregion
         /// <summary>
@@ -168,70 +231,61 @@ namespace adrilight.Services.LightingEngine
         private CancellationTokenSource _cancellationTokenSource;
         private Thread _workerThread;
         private LightingMode _currentLightingMode;
-        private int? _currentScreenIndex;
-        private bool _useLinearLighting;
-        private bool _isEnable;
         private double _brightness;
+        private bool _isEnable;
         private int _smoothFactor;
         private int _frameRate = 60;
-        private enum VideoRatio { Normal, LeterBox }
-        private VideoRatio _currentVideoRatio;
+        private Tick _tick;
+        private int _speed;
+        private object _lock = new object();
+        private Rectangle _currentCapturingRegion;
+        private RunStateEnum _runState = RunStateEnum.Stop;
         private enum DimMode { Up, Down };
         private DimMode _dimMode;
         private double _dimFactor;
-        private Rectangle _currentCapturingRegion;
-        private Rect _currentColoredRegion;//for blackbar detection
-        private Rect _lastBorder;
-        private byte[] cropPixelData;
-        private int _consistantBorderCnt;
-        private int _inconsistantBorderCnt;
 
         private SliderParameter _brightnessControl;
+        private SliderParameter _speedControl;
         private SliderParameter _smoothingControl;
-        private ToggleParameter _useLinearLightingControl;
-        private ToggleParameter _enableControl;
         private CapturingRegionSelectionButtonParameter _regionControl;
+        private ListSelectionParameter _gifControl;
+        private ToggleParameter _enableControl;
         public void Refresh()
         {
-            if (DesktopFrame == null)
-                return;
             if (CurrentZone.CurrentActiveControlMode == null)
             {
                 return;
             }
+            var isRunning = _cancellationTokenSource != null && _runState != RunStateEnum.Stop;
+
             _currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
+
             var shouldBeRunning =
-                _currentLightingMode.BasedOn == LightingModeEnum.ScreenCapturing &&
+                _currentLightingMode.BasedOn == LightingModeEnum.Gifxelation &&
                 //this zone has to be enable, this could be done by stop setting the spots, but the this thread still alive, so...
                 CurrentZone.IsEnabled == true &&
                 //stop this engine when any surface or editor open because this could cause capturing fail
-                MainViewViewModel.IsRichCanvasWindowOpen == false &&
-                //stop this engine when this zone is outside or atleast there is 1 pixel outside of the screen region
-                CurrentZone.IsInsideScreen == true;
-            ////registering group shoud be done
-            //MainViewViewModel.IsRegisteringGroup == false;
-
+                MainViewViewModel.IsRichCanvasWindowOpen == false;
             // this is stop sign by one or some of the reason above
-            if (_runState == RunStateEnum.Run && !shouldBeRunning)
+            if (isRunning && !shouldBeRunning)
             {
+                //stop it!
                 _dimMode = DimMode.Down;
                 _dimFactor = 1.00;
                 _runState = RunStateEnum.Pause;
-                if (DesktopFrame.ServiceRequired > 0)
-                    DesktopFrame.ServiceRequired--;
-                //Stop();
+                // Stop();
+
             }
             // this is start sign
-            else if (_runState == RunStateEnum.Stop && shouldBeRunning)
+            else if (!isRunning && shouldBeRunning)
             {
                 _runState = RunStateEnum.Run;
-                DesktopFrame.ServiceRequired++;
+                //check if thread alive
                 Start();
             }
-            else if (_runState == RunStateEnum.Pause && shouldBeRunning)
+            else if (isRunning && shouldBeRunning)
             {
                 _runState = RunStateEnum.Run;
-                DesktopFrame.ServiceRequired++;
                 Init();
             }
         }
@@ -251,120 +305,113 @@ namespace adrilight.Services.LightingEngine
             }
             return TimeSpan.FromMilliseconds(1000);
         }
-        public void Init()
+        public async void Init()
         {
             //get dependency properties from current lighting mode(based on screencapturing)
-
             _enableControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.IsEnabled).FirstOrDefault() as ToggleParameter;
             _enableControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_Enable_header, adrilight_shared.Properties.Resources.LightingEngine_Enable_description);
             _enableControl.PropertyChanged += (_, __) => EnableChanged(_enableControl.Value == 1 ? true : false);
-            /// brightness.///
+
+            _speedControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Speed).FirstOrDefault() as SliderParameter;
+            _speedControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_SpeedControl_header, adrilight_shared.Properties.Resources.Rainbow_Init_SpeedControl_info);
+            _speedControl.MaxValue = 10;
+            _speedControl.PropertyChanged += (_, __) => OnSpeedChanged(_speedControl.Value);
+
             _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
             _brightnessControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_BrightnessControl_header, adrilight_shared.Properties.Resources.LightingEngine_BrightnessControl_info);
             _brightnessControl.PropertyChanged += (_, __) => OnBrightnessPropertyChanged(_brightnessControl.Value);
 
-            /// smooth ///
+
+            _gifControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Gifs).FirstOrDefault() as ListSelectionParameter;
+            _gifControl.Localize(adrilight_shared.Properties.Resources.GifControl_header, adrilight_shared.Properties.Resources.GifControl_info);
+            _gifControl.SubParams[0].Localize(adrilight_shared.Properties.Resources.ImportGif_header, "xx");
+            _gifControl.SubParams[1].Localize(adrilight_shared.Properties.Resources.ExportGif_header, "xx");
+
             _smoothingControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Smoothing).FirstOrDefault() as SliderParameter;
             _smoothingControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_SmoothControl_header, adrilight_shared.Properties.Resources.LightingEngine_SmoothControl_info);
             _smoothingControl.PropertyChanged += (_, __) => OnSmoothingPropertyChanged(_smoothingControl.Value);
 
-            /// linear lighting///
-            _useLinearLightingControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.LinearLighting).FirstOrDefault() as ToggleParameter;
-            _useLinearLightingControl.Localize(adrilight_shared.Properties.Resources.DesktopDuplicatorReader_LinearLightingControl_header, adrilight_shared.Properties.Resources.DesktopDuplicatorReader_Init_Xx);
-            _useLinearLightingControl.PropertyChanged += (_, __) => OnUseLinearLightingPropertyChanged(_useLinearLightingControl.Value == 1 ? true : false);
 
-            /// region data control///
             _regionControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.CapturingRegion).FirstOrDefault() as CapturingRegionSelectionButtonParameter;
             _regionControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_RegionControl_header, adrilight_shared.Properties.Resources.LightingEngine_RegionControl_info);
             _regionControl.PropertyChanged += (_, __) =>
             {
                 switch (__.PropertyName)
                 {
-                    case nameof(_regionControl.CapturingSourceIndex):
-                        OnCapturingSourceChanged(_regionControl.CapturingSourceIndex);
+                    case nameof(_regionControl.CapturingRegion):
                         OnCapturingRegionChanged(_regionControl.CapturingRegion);
                         break;
-                    case nameof(_regionControl.CapturingRegion):
+                    case nameof(_regionControl.CapturingSourceIndex):
+                        _gifControl.SelectedValue = _gifControl.AvailableValues[_regionControl.CapturingSourceIndex];
+                        break;
+                }
+            };
+            _gifControl.PropertyChanged += async (_, __) =>
+            {
+                switch (__.PropertyName)
+                {
+                    case nameof(_gifControl.SelectedValue):
+                        await Task.Run(() => OnSelectedGifChanged(_gifControl.SelectedValue));
                         OnCapturingRegionChanged(_regionControl.CapturingRegion);
                         break;
                 }
             };
-
-            ///activate these value///
+            _gifControl.LoadAvailableValues();
+            if (_gifControl.SelectedValue == null)
+            {
+                _gifControl.SelectedValue = _gifControl.AvailableValues.First();
+            }
             EnableChanged(_enableControl.Value == 1 ? true : false);
+            await Task.Run(() => OnSelectedGifChanged(_gifControl.SelectedValue));
             OnBrightnessPropertyChanged(_brightnessControl.Value);
-            OnUseLinearLightingPropertyChanged(_useLinearLightingControl.Value == 1 ? true : false);
             OnSmoothingPropertyChanged(_smoothingControl.Value);
-            OnCapturingSourceChanged(_regionControl.CapturingSourceIndex);
+            OnSpeedChanged(_speedControl.Value);
 
-        }
-        public Color GetPixel(int x, int y, byte[] frame, int width, int height)
-        {
-            var clr = Color.FromRgb(0, 0, 0);
-
-            // Get color components count
-            var cCount = 32 / 8;
-
-            // Get start index of the specified pixel
-            var i = (y * (width + 1) + x) * cCount;
-
-            if (i > frame.Length - cCount)
-                throw new IndexOutOfRangeException();
-
-
-            var b = frame[i];
-            var g = frame[i + 1];
-            var r = frame[i + 2];
-            var a = frame[i + 3]; // a
-            //clr = Color.FromArgb(a, r, g, b);
-            clr = Color.FromArgb(255, r, g, b);
-
-
-            return clr;
         }
         public void Run(CancellationToken token)
         {
-
-            // Log.Information("Desktop Duplicator Reader is Running");
             Bitmap image = null;
             var bitmapData = new BitmapData();
             IsRunning = true;
+            //Log.Information("Gifxelation is running");
+            int _idleCounter = 0;
             try
             {
-                //get current zone size and position respect to screen size scaled 8.0
-                //var screenLeft = Screen.AllScreens[(int)_currentScreenIndex].Bounds.Left;
-                //var screenTop = Screen.AllScreens[(int)_currentScreenIndex].Bounds.Top;
-                //var x = (int)((CurrentZone.Left + CurrentZone.OffsetX - screenLeft) / 8.0);
-                //var y = (int)((CurrentZone.Top + CurrentZone.OffsetY - screenTop) / 8.0);
-                //var zoneWidth = (int)(CurrentZone.Width / 8.0) >= 1 ? (int)(CurrentZone.Width / 8.0) : 1;
-                //var zoneHeight = (int)(CurrentZone.Height / 8.0) >= 1 ? (int)(CurrentZone.Height / 8.0) : 1;
                 var updateIntervalCounter = 0;
-                int _idleCounter = 0;
+
                 while (!token.IsCancellationRequested)
                 {
-                    //this indicator that user is opening this device and we need raise event when color update on each spot
                     if (_runState == RunStateEnum.Run)
                     {
-
                         if (MainViewViewModel.IsRichCanvasWindowOpen)
                         {
                             Thread.Sleep(100);
                             continue;
                         }
+                        //this indicator that user is opening this device and we need raise event when color update on each spot
+                        if (LoadedGifImage == null)
+                            continue;
                         var frameTime = Stopwatch.StartNew();
-                        var newImage = _retryPolicy.Execute(() => GetNextFrame(image));
-                        //TraceFrameDetails(newImage);
+                        var isPreviewRunning = MainViewViewModel.IsRegionSelectionOpen;
+                        var newImage = _retryPolicy.Execute(() => GetNextFrame(image, (int)_tick.CurrentTick, isPreviewRunning));
+                        TraceFrameDetails(newImage);
                         if (newImage == null)
                         {
                             //there was a timeout before there was the next frame, simply retry!
                             continue;
                         }
+                        if (image != null && (newImage.Width != image.Width || newImage.Height != image.Height))
+                        {
+                            OnCapturingRegionChanged(_regionControl.CapturingRegion);
+                        }
+                        else
+                        {
+                            OnCapturingRegionChanged(_regionControl.CapturingRegion);
+                        }
 
                         image = newImage;
                         try
                         {
-                            //calculate current capturing region blackbar
-
                             image.LockBits(_currentCapturingRegion, ImageLockMode.ReadOnly, PixelFormat.Format32bppRgb, bitmapData);
                         }
 
@@ -375,8 +422,7 @@ namespace adrilight.Services.LightingEngine
                             image = null;
                             continue;
                         }
-
-
+                        NextTick();
 
                         lock (CurrentZone.Lock)
                         {
@@ -405,6 +451,7 @@ namespace adrilight.Services.LightingEngine
                                 byte finalR = 0;
                                 byte finalG = 0;
                                 byte finalB = 0;
+
                                 if (_dimMode == DimMode.Down)
                                 {
                                     //keep same last color
@@ -414,32 +461,22 @@ namespace adrilight.Services.LightingEngine
                                 }
                                 else if (_dimMode == DimMode.Up)
                                 {
-                                    if (!_useLinearLighting)
-                                    {
-                                        finalR = FadeNonLinear(r);
-                                        finalG = FadeNonLinear(g);
-                                        finalB = FadeNonLinear(b);
-                                    }
-                                    else
-                                    {
-                                        finalR = (byte)r;
-                                        finalG = (byte)g;
-                                        finalB = (byte)b;
-                                    }
+                                    finalR = (byte)r;
+                                    finalG = (byte)g;
+                                    finalB = (byte)b;
                                 }
-
-                                var spotColor = new OpenRGB.NET.Models.Color(finalR, finalG, finalB);
                                 ApplySmoothing(
-                                    (float)(finalR * _brightness * _dimFactor),
-                                     (float)(finalG * _brightness * _dimFactor),
-                                     (float)(finalB * _brightness * _dimFactor),
-                                    out var RealfinalR,
-                                    out var RealfinalG,
-                                    out var RealfinalB,
-                                 spot.Red,
-                                 spot.Green,
-                                 spot.Blue);
+                                 (float)(finalR * _brightness * _dimFactor),
+                                 (float)(finalG * _brightness * _dimFactor),
+                                 (float)(finalB * _brightness * _dimFactor),
+                                 out var RealfinalR,
+                                 out var RealfinalG,
+                                 out var RealfinalB,
+                              spot.Red,
+                              spot.Green,
+                              spot.Blue);
                                 spot.SetColor(RealfinalR, RealfinalG, RealfinalB, false);
+
                             }
 
                         }
@@ -462,8 +499,8 @@ namespace adrilight.Services.LightingEngine
                             _runState = RunStateEnum.Stop;
                             break;
                         }
-
                     }
+
                 }
             }
             catch (Exception ex)
@@ -474,19 +511,17 @@ namespace adrilight.Services.LightingEngine
             {
                 image?.Dispose();
 
-                //Log.Information("Stopped Desktop Duplication Reader.");
+                // Log.Information("Stopped Gifxelation Engine");
                 IsRunning = false;
                 GC.Collect();
             }
         }
-        private int? _lastObservedHeight;
-        private int? _lastObservedWidth;
         private void DimLED()
         {
             if (_dimMode == DimMode.Down)
             {
-                if (_dimFactor >= 0.1)
-                    _dimFactor -= 0.1;
+                if (_dimFactor >= 0.02)
+                    _dimFactor -= 0.02;
             }
             else if (_dimMode == DimMode.Up)
             {
@@ -495,6 +530,22 @@ namespace adrilight.Services.LightingEngine
                 //_dimMode = DimMode.Down;
             }
         }
+        private void NextTick()
+        {
+            //stop ticking color if zone color source is solid or color use is static
+            if (!CurrentZone.IsInControlGroup)
+            {
+                if (_tick.CurrentTick < _tick.MaxTick - _tick.TickSpeed)
+                    _tick.CurrentTick += _tick.TickSpeed / _tick.TickRate;
+                else
+                {
+                    _tick.CurrentTick = 0;
+                }
+            }
+        }
+        private int? _lastObservedHeight;
+        private int? _lastObservedWidth;
+
         private void TraceFrameDetails(Bitmap image)
         {
             //there are many frames per second and we need to extract useful information and only log those!
@@ -508,7 +559,7 @@ namespace adrilight.Services.LightingEngine
                 if (_lastObservedHeight != null && _lastObservedWidth != null
                     && (_lastObservedHeight != image.Height || _lastObservedWidth != image.Width))
                 {
-                    //Log.Information("The desktop size changed from {0}x{1} to {2}x{3}"
+                    //Log.Information("The gif size changed from {0}x{1} to {2}x{3}"
                     //    , _lastObservedWidth, _lastObservedHeight
                     //    , image.Width, image.Height);
 
@@ -540,226 +591,66 @@ namespace adrilight.Services.LightingEngine
             const float factor = 80f;
             return (byte)(256f * ((float)Math.Pow(factor, color / 256f) - 1f) / (factor - 1));
         }
-        private int _blackborderThreshold = 2;
-        private bool isBlack(Color color)
+        private Bitmap GetNextFrame(Bitmap ReusableBitmap, int frameIndex, bool isPreviewRunning)
         {
-            return color.R < _blackborderThreshold && color.G < _blackborderThreshold && color.B < _blackborderThreshold;
-        }
-        /// <summary>
-        /// Algorithm from Hyperion github
-        /// </summary>
-        private Rect GetCurrentColoredRegion(byte[] frame, int frameWidth, int frameHeight)
-        {
-            if (!GeneralSettings.IsBlackBarDetectionEnabled)
-            {
-                return new Rect(0, 0, frameWidth, frameHeight);
-            }
-            Rect newRegion = new Rect(0, 0, frameWidth, frameHeight);
-            // find X position at height33 and height66 we check from the left side, Ycenter will check from right side
-            // then we try to find a pixel at this X position from top and bottom and right side from top
-            var width33percent = frameWidth / 3;
-            var height33percent = frameHeight / 3;
-            var height66percent = height33percent * 2;
-            var yCenter = frameHeight / 2;
-            var width25percent = frameWidth / 4;
-            var width75percent = frameWidth * 3 / 4;
-
-            var firstNonBlackXPixelIndex = -1;
-            var firstNonBlackYPixelIndex = -1;
-
-            frameWidth--; // remove 1 pixel to get end pixel index
-            frameHeight--;
-
-            // find first X pixel of the image
-            int x;
-            for (x = 0; x < width33percent; ++x)
-            {
-                if (!isBlack(GetPixel(frameWidth - x, yCenter, frame, frameWidth, frameHeight))
-                    || !isBlack(GetPixel(x, height33percent, frame, frameWidth, frameHeight))
-                    || !isBlack(GetPixel(x, height66percent, frame, frameWidth, frameHeight)))
-                {
-                    firstNonBlackXPixelIndex = x;
-                    break;
-                }
-            }
-
-            // find first Y pixel of the image
-            for (var y = 0; y < height33percent; ++y)
-            {
-                // left side top + left side bottom + right side top  +  right side bottom
-                if (!isBlack(GetPixel(width25percent, y, frame, frameWidth, frameHeight))
-                  || !isBlack(GetPixel(width25percent, frameHeight - y, frame, frameWidth, frameHeight))
-                  || !isBlack(GetPixel(width75percent, y, frame, frameWidth, frameHeight))
-                  || !isBlack(GetPixel(width75percent, frameHeight - y, frame, frameWidth, frameHeight)))
-                {
-                    firstNonBlackYPixelIndex = y;
-                    break;
-                }
-            }
-            if (firstNonBlackXPixelIndex < 10) // sensitivity
-                firstNonBlackXPixelIndex = 0;
-            if (firstNonBlackYPixelIndex < 10) // sensitivity
-                firstNonBlackYPixelIndex = 0;
-            if (firstNonBlackYPixelIndex != 0 || firstNonBlackXPixelIndex != 0)
-            {
-                if (firstNonBlackXPixelIndex == -1)
-                    firstNonBlackXPixelIndex = 0;
-                if (firstNonBlackYPixelIndex == -1)
-                    firstNonBlackYPixelIndex = 0;
-                newRegion = new Rect(firstNonBlackXPixelIndex, firstNonBlackYPixelIndex, frameWidth - 2 * firstNonBlackXPixelIndex, frameHeight - 2 * firstNonBlackYPixelIndex);
-
-            }
-            else
-            {
-                frameWidth++;
-                frameHeight++;
-                newRegion = new Rect(0, 0, frameWidth, frameHeight);
-
-            }
-            return newRegion;
-            //set area
-
-        }
-        private Bitmap GetNextFrame(Bitmap ReusableBitmap)
-        {
-
             try
             {
-                ByteFrame CurrentFrame = null;
-                Bitmap DesktopImage;
-                bool borderChanged = false;
-                if (_currentScreenIndex >= DesktopFrame.Frames.Length)
+                // get current working bitmap at frameIndex
+                lock (_lock)
                 {
-                    HandyControl.Controls.MessageBox.Show("màn hình không khả dụng", "Sáng theo màn hình", MessageBoxButton.OK, MessageBoxImage.Error);
-                    _currentScreenIndex = 0;
-                }
-                //var currentDesktop = ;
-                if (DesktopFrame.Frames[(int)_currentScreenIndex] == null)
-                    return null;
-                lock (DesktopFrame.Lock)
-                {
-                    CurrentFrame = DesktopFrame.Frames[(int)_currentScreenIndex];
-
-                    if (CurrentFrame == null || CurrentFrame.FrameWidth == 0 || CurrentFrame.FrameHeight == 0)
+                    if (frameIndex >= LoadedGifImage.Length)
+                        return null;
+                    Bitmap CurrentGifImage;
+                    if (LoadedGifImage == null)
+                    {
+                        return null;
+                    }
+                    var currentFrame = LoadedGifImage[frameIndex];
+                    if (isPreviewRunning)
+                    {
+                        // MainViewViewModel.DesktopsPreviewUpdate(currentFrame);
+                    }
+                    if (currentFrame == null)
                     {
                         return null;
                     }
                     else
                     {
-                        //calculate colored area
-                        if (_currentColoredRegion.Width == 0 || _currentColoredRegion.Height == 0)
+                        if (ReusableBitmap != null && ReusableBitmap.Width == currentFrame.FrameWidth && ReusableBitmap.Height == currentFrame.FrameHeight)
                         {
-                            _currentColoredRegion = new Rect(0, 0, CurrentFrame.FrameWidth, CurrentFrame.FrameHeight);
-                            OnCapturingRegionChanged(_regionControl.CapturingRegion);
-                        }
-                        var newColoredRegion = GetCurrentColoredRegion(CurrentFrame.Frame, CurrentFrame.FrameWidth, CurrentFrame.FrameHeight);
-
-                        //if new colored region is the same as current colored region. Ignore the image processing
-
-                        var currentBorder = new Rect(0, 0, (CurrentFrame.FrameWidth - newColoredRegion.Width) / 2, (CurrentFrame.FrameHeight - newColoredRegion.Height) / 2);
-                        if (!Rect.Equals(currentBorder, _lastBorder))
-                        {
-                            ++_inconsistantBorderCnt;
-                            if (_inconsistantBorderCnt <= 10)
-                            {
-                                borderChanged = false;
-                            }
-                            _lastBorder = currentBorder;
-                            _consistantBorderCnt = 0;
+                            CurrentGifImage = ReusableBitmap;
 
                         }
-                        else
+                        else if (ReusableBitmap != null && (ReusableBitmap.Width != currentFrame.FrameWidth || ReusableBitmap.Height != currentFrame.FrameHeight))
                         {
-                            ++_consistantBorderCnt;
-                            _inconsistantBorderCnt = 0;
-                        }
-                        if (Rect.Equals(_currentColoredRegion, newColoredRegion))
-                        {
-                            // No change required
-                            _inconsistantBorderCnt = 0;
-                            borderChanged = false;
-                        }
-                        //else
-                        //{
-                        //    borderChanged = true;
-                        //}
-                        if (_consistantBorderCnt == GeneralSettings.BlackBarDetectionDelayTime * 60)
-                        {
-                            borderChanged = true;
-                        }
-                        if (borderChanged)
-                        {
-                            _currentColoredRegion = newColoredRegion;
-                            OnCapturingRegionChanged(_regionControl.CapturingRegion);
-                            //borderChanged = false;
-                        }
-                        if (ReusableBitmap != null && ReusableBitmap.Width == CurrentFrame.FrameWidth && ReusableBitmap.Height == CurrentFrame.FrameHeight)
-                        {
-                            DesktopImage = ReusableBitmap;
-
-                        }
-                        else if (ReusableBitmap != null && (ReusableBitmap.Width != CurrentFrame.FrameWidth || ReusableBitmap.Height != CurrentFrame.FrameHeight))
-                        {
-                            DesktopImage = new Bitmap(CurrentFrame.FrameWidth, CurrentFrame.FrameHeight, PixelFormat.Format32bppRgb);
-                            _currentColoredRegion = newColoredRegion;
-                            OnCapturingRegionChanged(_regionControl.CapturingRegion);
+                            CurrentGifImage = new Bitmap(currentFrame.FrameWidth, currentFrame.FrameHeight, PixelFormat.Format32bppRgb);
                         }
                         else //this is when app start
                         {
-                            DesktopImage = new Bitmap(CurrentFrame.FrameWidth, CurrentFrame.FrameHeight, PixelFormat.Format32bppRgb);
+                            CurrentGifImage = new Bitmap(currentFrame.FrameWidth, currentFrame.FrameHeight, PixelFormat.Format32bppRgb);
                         }
-                        var DesktopImageBitmapData = DesktopImage.LockBits(new Rectangle(0, 0, CurrentFrame.FrameWidth, CurrentFrame.FrameHeight), ImageLockMode.WriteOnly, DesktopImage.PixelFormat);
-                        IntPtr pixelAddress = DesktopImageBitmapData.Scan0;
-                        //if (CurrentFrame.FrameWidth == _currentColoredRegion.Width && CurrentFrame.FrameHeight == _currentColoredRegion.Height)
-                        //{
-                        //    cropPixelData = CurrentFrame.Frame;
-                        //}
-                        //else
-                        //{
-                        //    cropPixelData = CropImageArray(CurrentFrame.Frame, CurrentFrame.FrameWidth, 32, _currentColoredRegion);
-                        //}
-                        Marshal.Copy(CurrentFrame.Frame, 0, pixelAddress, CurrentFrame.Frame.Length);
-                        //}
-
-                        //else
-                        //{
-                        //    Marshal.Copy(CurrentFrame.Frame, 0, pixelAddress, CurrentFrame.Frame.Length);
-                        //}
-
-                        DesktopImage.UnlockBits(DesktopImageBitmapData);
-                        return DesktopImage;
+                        var GifImageBitmapData = CurrentGifImage.LockBits(new Rectangle(0, 0, currentFrame.FrameWidth, currentFrame.FrameHeight), ImageLockMode.WriteOnly, CurrentGifImage.PixelFormat);
+                        IntPtr pixelAddress = GifImageBitmapData.Scan0;
+                        Marshal.Copy(currentFrame.Frame, 0, pixelAddress, currentFrame.Frame.Length);
+                        CurrentGifImage.UnlockBits(GifImageBitmapData);
+                        return CurrentGifImage;
                     }
                 }
 
             }
             catch (Exception ex)
             {
+
                 GC.Collect();
                 return null;
             }
         }
-        public static byte[] CropImageArray(byte[] pixels, int sourceWidth, int bitsPerPixel, Rectangle rect)
-        {
-            var blockSize = bitsPerPixel / 8;
-            var outputPixels = new byte[rect.Width * rect.Height * blockSize];
-
-            //Create the array of bytes.
-            for (var line = 0; line <= rect.Height - 1; line++)
-            {
-                var sourceIndex = ((rect.Y + line) * sourceWidth + rect.X) * blockSize;
-                var destinationIndex = line * rect.Width * blockSize;
-
-                Array.Copy(pixels, sourceIndex, outputPixels, destinationIndex, rect.Width * blockSize);
-            }
-
-            return outputPixels;
-        }
         public void Start()
         {
-            //start it
-            // Log.Information("starting the capturing");
+            // Log.Information("Starting the Gifxelation Engine");
             _dimMode = DimMode.Down;
             _dimFactor = 1.00;
+            GetTick(CurrentZone.IsInControlGroup);
             Init();
             _cancellationTokenSource = new CancellationTokenSource();
             _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
@@ -771,7 +662,7 @@ namespace adrilight.Services.LightingEngine
         }
         public void Stop()
         {
-            // Log.Information("Stop called for Desktop Duplicator Reader");
+            // Log.Information("Stop called for Gifxelation Engine");
             //CurrentZone.FillSpotsColor(Color.FromRgb(0, 0, 0));
             if (_workerThread == null) return;
 

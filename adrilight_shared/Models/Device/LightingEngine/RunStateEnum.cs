@@ -1,4 +1,4 @@
-﻿namespace adrilight.Services.LightingEngine
+﻿namespace adrilight_shared.Device.LightingEngine
 {
     public enum RunStateEnum
     {

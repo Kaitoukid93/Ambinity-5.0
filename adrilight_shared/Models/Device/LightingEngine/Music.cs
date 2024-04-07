@@ -17,7 +17,7 @@ using System.Threading;
 using Color = System.Windows.Media.Color;
 using ColorPalette = adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues.ColorPalette;
 
-namespace adrilight.Services.LightingEngine
+namespace adrilight_shared.Device.LightingEngine
 {
     internal class Music : ILightingEngine
     {

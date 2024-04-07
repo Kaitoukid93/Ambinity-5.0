@@ -1,4 +1,4 @@
-﻿using adrilight.ViewModel;
+﻿
 using adrilight_shared.Models.Device;
 using adrilight_shared.Models.TickData;
 using adrilight_shared.Settings;
@@ -12,21 +12,18 @@ using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace adrilight.Ticker
+namespace adrilight_shared.Ticker
 {
     internal class RainbowTicker
     {
 
-        public RainbowTicker(IDeviceSettings[] allDeviceSettings, IGeneralSettings generalSettings, MainViewViewModel mainViewViewModel)
+        public RainbowTicker(IDeviceSettings[] allDeviceSettings, IGeneralSettings generalSettings)
         {
             //DeviceSettings = deviceSettings ?? throw new ArgumentNullException(nameof(deviceSettings));
             AllDeviceSettings = allDeviceSettings ?? throw new ArgumentNullException(nameof(allDeviceSettings));
             GeneralSettings = generalSettings ?? throw new ArgumentException(nameof(generalSettings));
             //DeviceSpotSet = deviceSpotSet ?? throw new ArgumentNullException(nameof(deviceSpotSet));
             //AllDeviceSpotSet = allDeviceSpotSet ?? throw new ArgumentNullException(nameof(allDeviceSpotSet));
-            MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
-
-
             GeneralSettings.PropertyChanged += PropertyChanged;
 
             Ticks = new ObservableCollection<Tick>();
@@ -34,7 +31,6 @@ namespace adrilight.Ticker
 
         }
 
-        private MainViewViewModel MainViewViewModel { get; }
         private IDeviceSettings[] AllDeviceSettings { get; }
 
         private IGeneralSettings GeneralSettings { get; }

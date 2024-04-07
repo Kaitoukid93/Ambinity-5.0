@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Un4seen.Bass;
 using Un4seen.BassWasapi;
 
-namespace adrilight.Util.CaptureEngine
+namespace adrilight_shared.CaptureEngine.AudioCapture
 {
     public class AudioCaptureBasic
     {

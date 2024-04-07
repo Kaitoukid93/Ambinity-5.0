@@ -5,16 +5,16 @@ namespace adrilight_shared.Models.Stores
 {
     public class CollectionItemStore
     {
-        public event Action<IGenericCollectionItem> ItemCreated;
+        public event Action<IGenericCollectionItem> ItemAdded;
         public event Action<DataCollection> CollectionCreated;
         public event Action<IGenericCollectionItem> SelectedItemChanged;
         public event Action<List<IGenericCollectionItem>, string> SelectedItemsChanged;
         public event Action<IGenericCollectionItem, DataViewMode> Navigated;
         public event Action<IGenericCollectionItem> ItemPinStatusChanged;
         public event Action<List<IGenericCollectionItem>> ItemsRemoved;
-        public void CreateItem(IGenericCollectionItem item)
+        public void AddItem(IGenericCollectionItem item)
         {
-            ItemCreated?.Invoke(item);
+            ItemAdded?.Invoke(item);
         }
         public void CreateCollection(DataCollection collection)
         {

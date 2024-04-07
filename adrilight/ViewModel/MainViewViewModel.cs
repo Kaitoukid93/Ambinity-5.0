@@ -411,13 +411,6 @@ namespace adrilight.ViewModel
 
         #endregion property
 
-        private ObservableCollection<IDeviceSettings> _availableDevices;
-
-        public ObservableCollection<IDeviceSettings> AvailableDevices {
-            get { return _availableDevices; }
-            set => Set(ref _availableDevices, value);
-        }
-
         private ObservableCollection<object> _automationParamList;
 
         public ObservableCollection<object> AutomationParamList {
@@ -430,78 +423,6 @@ namespace adrilight.ViewModel
         public string ParamType {
             get { return _paramType; }
             set => Set(ref _paramType, value);
-        }
-
-        private ObservableCollection<WLEDDevice> _availableWLEDDevices;
-
-        public ObservableCollection<WLEDDevice> AvailableWLEDDevices {
-            get { return _availableWLEDDevices; }
-
-            set
-            {
-                if (_availableWLEDDevices == value) return;
-                _availableWLEDDevices = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private ObservableCollection<IDeviceSettings> _availableOpenRGBDevices;
-
-        public ObservableCollection<IDeviceSettings> AvailableOpenRGBDevices {
-            get { return _availableOpenRGBDevices; }
-
-            set
-            {
-                if (_availableOpenRGBDevices == value) return;
-                _availableOpenRGBDevices = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private ObservableCollection<IDeviceSettings> _availableSerialDevices;
-
-        public ObservableCollection<IDeviceSettings> AvailableSerialDevices {
-            get { return _availableSerialDevices; }
-
-            set
-            {
-                if (_availableSerialDevices == value) return;
-                _availableSerialDevices = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private List<IOutputSettings> _availableOutputForSelectedDevice;
-
-        public List<IOutputSettings> AvailableOutputForSelectedDevice {
-            get { return _availableOutputForSelectedDevice; }
-
-            set
-            {
-                if (_availableOutputForSelectedDevice == value) return;
-                _availableOutputForSelectedDevice = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private IOutputSettings _selectedOutputForCurrentDevice;
-
-        public IOutputSettings SelectedOutputForCurrentDevice {
-            get { return _selectedOutputForCurrentDevice; }
-
-            set
-            {
-                if (_selectedOutputForCurrentDevice == value) return;
-                _selectedOutputForCurrentDevice = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private ObservableCollection<WLEDDevice> _selectedWLEDDevice;
-
-        public ObservableCollection<WLEDDevice> SelectedWLEDDevice {
-            get { return _selectedWLEDDevice; }
-            set { _selectedWLEDDevice = value; }
         }
 
         private ObservableCollection<AppProfile> _availableProfiles;
@@ -598,33 +519,6 @@ namespace adrilight.ViewModel
         public ICommand ShowAddNewCommand { get; set; }
         public ICommand RefreshDeviceCommand { get; set; }
 
-        private string JsonDeviceNameAndPath => Path.Combine(JsonPath, "adrilight-deviceInfos.json");
-        public IList<String> _AvailableComPorts;
-
-        public IList<String> AvailableComPorts {
-            get
-            {
-                _AvailableComPorts = SerialPort.GetPortNames().Concat(new[] { "Không có" }).ToList();
-                _AvailableComPorts.Remove("COM1");
-
-                return _AvailableComPorts;
-            }
-        }
-
-        public IList<double> _availableMotionSpeed;
-
-        public IList<double> AvailableMotionSpeed {
-            get
-            {
-                return _availableMotionSpeed;
-            }
-
-            set
-            {
-                _availableMotionSpeed = value;
-                RaisePropertyChanged();
-            }
-        }
 
         public IList<string> _availableMotionDirrection;
 

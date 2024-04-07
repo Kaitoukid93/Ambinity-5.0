@@ -162,40 +162,7 @@ namespace adrilight
             MainViewViewModel = kernel.Get<MainViewViewModel>();
             if (!GeneralSettings.StartMinimized)
                 MainViewViewModel.IsAppActivated = true;
-            MainViewViewModel.AvailableDevices.CollectionChanged += (s, e) =>
-            {
-                switch (e.Action)
-                {
-                    case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
-                        var newDevices = e.NewItems;
-                        // create new IDeviceSettings with new Name
-                        //Get ID:
-                        foreach (IDeviceSettings device in newDevices)
-                        {
-                            var iD = device.DeviceUID.ToString();
-                            kernel.Bind<IDeviceSettings>().ToConstant(device).Named(iD);
-                            //now inject
-                            InjectingDevice(kernel, device);
-                            device.DeviceEnableChanged();
-                            var playlistDecoder = kernel.Get<PlaylistDecoder>();
-                            playlistDecoder.AvailableDevices.Add(device);
-                            //since openRGBStream is single instance, we need to manually add device then refresh
-                        }
-                        break;
-
-                    case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
-                        var removedDevice = e.OldItems;
-                        foreach (IDeviceSettings device in removedDevice) // when an item got removed, simply stop dependencies service from running
-                        {
-                            UnInjectingDevice(kernel, device);
-                        }
-                        break;
-
-                    case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
-                        ResetDevicesBinding(kernel);
-                        break;
-                }
-            };
+            
             if (deviceManager.AvailableDevices != null)
             {
                 foreach (var device in deviceManager.AvailableDevices.Items)
@@ -295,7 +262,7 @@ namespace adrilight
                             foreach (var zone in newZone)
                             {
                                 //new zone added, inject
-                                var ledZone = zone as LEDSetup; ;
+                                var ledZone = zone as LEDSetup;
                                 kernel.Bind<IControlZone>().ToConstant(ledZone).Named((ledZone).ZoneUID);
                                 InjectingZone(kernel, zone as IControlZone, device);
                             }

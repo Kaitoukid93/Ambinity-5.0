@@ -531,7 +531,16 @@ namespace adrilight_shared.Models.Device
             }
             DeviceUID = Guid.NewGuid().ToString();
         }
-
+        #region Lighting Engine Related Method
+        public void AttachLightingEngine()
+        {
+            var availableLightingZones = GetControlZones().Where(z => z is LEDSetup);
+            foreach(var ledZone in availableLightingZones)
+            {
+                var rainbow = new Rainbow()
+            }
+        }
+        #endregion
 
     }
 }

@@ -1,6 +1,4 @@
 ﻿using adrilight.Services.CaptureEngine;
-using adrilight.Util.CaptureEngine;
-using adrilight.ViewModel;
 using adrilight_shared.Models.Audio;
 using adrilight_shared.Models.FrameData;
 using adrilight_shared.Settings;
@@ -14,7 +12,7 @@ using System.Threading.Tasks;
 using Un4seen.Bass;
 using Un4seen.BassWasapi;
 
-namespace adrilight
+namespace adrilight_shared.CaptureEngine.AudioCapture
 {
     internal class AudioFrame : ViewModelBase, IDisposable, ICaptureEngine
     {

@@ -38,13 +38,14 @@ namespace adrilight.ViewModel
         private string DevicesCollectionFolderPath => Path.Combine(JsonPath, "Devices");
         public DeviceManagerViewModel(CollectionItemStore store, DialogService service)
         {
-          
+
             _collectionItemStore = store;
             _collectionItemStore.SelectedItemChanged += OnSelectedItemChanged;
             _collectionItemStore.SelectedItemsChanged += OnSelectedItemsChanged;
             _collectionItemStore.Navigated += OnCollectionViewNavigated;
             _collectionItemStore.ItemPinStatusChanged += OnCollectionPinStatusChanged;
             _collectionItemStore.ItemsRemoved += OnItemsRemove;
+            _collectionItemStore.ItemAdded += OnItemAdded;
             _dialogService = service;
             _deviceHlprs = new DeviceHelpers();
             LoadNonClientAreaData();
@@ -55,6 +56,23 @@ namespace adrilight.ViewModel
 
 
         #region Events
+        private void OnItemAdded(IGenericCollectionItem item)
+        {
+
+            var newDevice = item as DeviceSettings;
+            if (item == null)
+                return;
+            // create new IDeviceSettings with new Name
+            //Get ID:
+            
+                var iD = newDevice.DeviceUID.ToString();
+                //now inject
+                InjectingDevice(kernel, device);
+                device.DeviceEnableChanged();
+                var playlistDecoder = kernel.Get<PlaylistDecoder>();
+                playlistDecoder.AvailableDevices.Add(device);
+                //since openRGBStream is single instance, we need to manually add device then refresh
+        }
         private void OnItemsRemove(List<IGenericCollectionItem> list)
         {
             foreach (var item in list)
@@ -63,13 +81,23 @@ namespace adrilight.ViewModel
                 deviceToRemove.IsTransferActive = false;
                 _deviceHlprs.RemoveDeviceLocalData(item as DeviceSettings);
             }
-            
+
             //foreach (var item in list)
             //{
             //    DashboardPinnedItems.RemoveItems(item, false);
             //}
             //AvailableLightingProfiles.ResetSelectionStage();
             //AvailableLightingProfilePlaylists.ResetSelectionStage();
+
+            var removedDevice = e.OldItems;
+            foreach (IDeviceSettings device in removedDevice) // when an item got removed, simply stop dependencies service from running
+            {
+                UnInjectingDevice(kernel, device);
+            }
+
+
+
+
         }
         private void OnCollectionPinStatusChanged(IGenericCollectionItem item)
         {
@@ -101,8 +129,8 @@ namespace adrilight.ViewModel
             {
                 return;
             }
-            if(CurrentDevice == null)
-            CurrentDevice = new DeviceAdvanceSettingsViewModel(_dialogService,item as DeviceSettings);
+            if (CurrentDevice == null)
+                CurrentDevice = new DeviceAdvanceSettingsViewModel(_dialogService, item as DeviceSettings);
             var nonClientVm = NonClientAreaContent.DataContext as NonClientAreaContentViewModel;
             if (mode == DataViewMode.Loading)
             {
@@ -121,7 +149,7 @@ namespace adrilight.ViewModel
                 );
                 AvailableDevices.GotoCurrentItemDetailViewCommand.Execute(CurrentDevice.Device);
             }
-            else if(mode == DataViewMode.Detail)
+            else if (mode == DataViewMode.Detail)
             {
                 nonClientVm.ShowBackButton = true;
             }
@@ -249,7 +277,7 @@ namespace adrilight.ViewModel
         public DataCollection DashboardPinnedItems { get; set; }
         public DataCollection AvailableDevices { get; set; }
         private DialogService _dialogService;
-     
+
         #endregion
 
 
@@ -261,8 +289,8 @@ namespace adrilight.ViewModel
                 return true;
             }, (p) =>
             {
-                if(Directory.Exists(DevicesCollectionFolderPath))
-                Process.Start("explorer.exe", DevicesCollectionFolderPath);
+                if (Directory.Exists(DevicesCollectionFolderPath))
+                    Process.Start("explorer.exe", DevicesCollectionFolderPath);
             });
             WindowClosing = new RelayCommand<string>((p) =>
             {
@@ -323,7 +351,7 @@ namespace adrilight.ViewModel
                     {
                         AvailableDevices.WarningMessage = adrilight_shared.Properties.Resources.DeviceManager_DisConnect_Warning_Message; ;
                     }
-                        break;
+                    break;
             }
         }
         #endregion

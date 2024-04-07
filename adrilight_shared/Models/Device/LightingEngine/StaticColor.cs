@@ -5,7 +5,6 @@ using adrilight_shared.Enums;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.ControlMode.ModeParameters;
 using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
-using adrilight_shared.Models.Device;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Settings;
 using MoreLinq;
@@ -16,22 +15,20 @@ using System.Linq;
 using System.Threading;
 using Color = System.Windows.Media.Color;
 
-namespace adrilight
+namespace adrilight_shared.Device.LightingEngine
 {
-    internal class Rainbow : ILightingEngine
+    internal class StaticColor : ILightingEngine
     {
 
-        public Rainbow(
+        public StaticColor(
             IGeneralSettings generalSettings,
             MainViewViewModel mainViewViewModel,
             IControlZone zone,
-            IDeviceSettings device,
             RainbowTicker rainbowTicker
             )
         {
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
             CurrentZone = zone as LEDSetup ?? throw new ArgumentNullException(nameof(zone));
-            CurrentDevice = device as DeviceSettings ?? throw new ArgumentNullException(nameof(device));
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             RainbowTicker = rainbowTicker ?? throw new ArgumentNullException(nameof(rainbowTicker));
             GeneralSettings.PropertyChanged += PropertyChanged;
@@ -47,9 +44,14 @@ namespace adrilight
         private LEDSetup CurrentZone { get; }
         private MainViewViewModel MainViewViewModel { get; }
         private RainbowTicker RainbowTicker { get; }
-        private DeviceSettings CurrentDevice { get; }
-        private RunStateEnum _runState = RunStateEnum.Stop;
-        public LightingModeEnum Type { get; } = LightingModeEnum.Rainbow;
+        public LightingModeEnum Type { get; } = LightingModeEnum.StaticColor;
+        /// <summary>
+        /// breathing constant value
+        /// </summary>
+        float gamma = 0.14f; // affects the width of peak (more or less darkness)
+        float beta = 0.5f; // shifts the gaussian to be symmetric
+        float ii = 0f;
+
         /// <summary>
         /// property changed event catching
         /// </summary>
@@ -67,12 +69,12 @@ namespace adrilight
                         Refresh();
                     break;
                 //case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
-                //    // case nameof(MainViewViewModel.IsRegisteringGroup):
-                //    //case nameof(_colorControl):
+                ////case nameof(MainViewViewModel.IsRegisteringGroup):
+                ////case nameof(_colorControl):
                 //    Refresh();
-                //break;
-                case nameof(GeneralSettings.SystemRainbowSpeed):
-                    OnSystemSpeedChanged(GeneralSettings.SystemRainbowSpeed);
+                //  break;
+                case nameof(GeneralSettings.BreathingSpeed):
+                    OnSystemBreathingSpeedChanged(GeneralSettings.BreathingSpeed);
                     break;
             }
         }
@@ -84,24 +86,24 @@ namespace adrilight
         private CancellationTokenSource _cancellationTokenSource;
         private Thread _workerThread;
         private LightingMode _currentLightingMode;
+        private RunStateEnum _runState = RunStateEnum.Stop;
         private ListSelectionParameter _colorControl;
+        private ToggleParameter _breathingControl;
         private SliderParameter _brightnessControl;
-        private SliderParameter _speedControl;
-        private ToggleParameter _systemSyncControl;
-        private ListSelectionParameter _vidDataControl;
         private ToggleParameter _enableControl;
+
         private enum DimMode { Up, Down };
         private DimMode _dimMode;
         private double _dimFactor;
-        private Color[] _colorBank;
+
+        private ColorCard _color;
         private bool _isSystemSync;
-        private double _brightness;
+        private bool _isBreathing;
         private bool _isEnable;
-        private double _speed;
-        private int _vidIntensity;
+        private double _brightness;
+        private int _breathingSpeed;
+        private Color[] _colors;
         private int _frameRate = 60;
-
-
         #region Properties changed event handler 
         private void EnableChanged(bool value)
         {
@@ -119,11 +121,12 @@ namespace adrilight
                 _currentLightingMode.Parameters.Except(new List<IModeParameter>() { _enableControl }).ForEach(p => p.IsEnabled = false);
             }
         }
-        private void OnSystemSpeedChanged(int value)
+        private void OnSystemBreathingSpeedChanged(int value)
         {
-            if (_systemSyncControl != null)
-                _systemSyncControl.SubParams[0].Value = value;
-
+            if (_breathingControl != null)
+            {
+                _breathingControl.SubParams[1].Value = value;
+            }
         }
 
         private void OnSystemSyncValueChanged(bool value)
@@ -131,102 +134,58 @@ namespace adrilight
             _isSystemSync = value;
             if (value)
             {
-                //hide native speed control
-                _speedControl.IsEnabled = false;
-                _systemSyncControl.SubParams[0].IsEnabled = true;
+                _breathingControl.SubParams[0].IsEnabled = false;
+                _breathingControl.SubParams[1].IsEnabled = true;
+                _breathingControl.SubParams[1].Value = GeneralSettings.BreathingSpeed;
 
             }
             else
             {
-                _speedControl.IsEnabled = true;
-                _systemSyncControl.SubParams[0].IsEnabled = false;
+                _breathingControl.SubParams[0].IsEnabled = true;
+                _breathingControl.SubParams[1].IsEnabled = false;
+
             }
         }
-        private void OnSelectedPaletteChanged(IParameterValue value)
-        {
-            //set palette
-            if (value == null)
-                return;
-            var palette = value as ColorPalette;
-            _colorBank = GetColorGradientfromPaletteWithFixedColorPerGap(palette.Colors).ToArray();
-        }
-        private void OnSelectedVIDDataChanged(IParameterValue value)
+        private void OnSelectedColorValueChanged(IParameterValue value)
         {
             if (value == null)
                 return;
-            var vid = value as VIDDataModel;
-            if (vid.ExecutionType == VIDType.PositonGeneratedID)
-            {
-                _vidDataControl.SubParams[0].IsEnabled = true;
-                if (CurrentZone.IsInControlGroup)
-                {
-                    //acquire this group this zone belongs to
-                    var group = CurrentDevice.ControlZoneGroups.Where(g => g.GroupUID == CurrentZone.GroupID).FirstOrDefault();
-                    if (group == null)
-                        return;
-                    if (Monitor.TryEnter(group.IDGeneratingLock))
-                    {
-                        try
-                        {
-                            group.GenerateVID(value, _vidIntensity, 5, CurrentDevice);
-                        }
-                        finally
-                        {
-                            Monitor.Exit(group.IDGeneratingLock);
-                        }
-                    }
-
-                }
-                else
-                    CurrentZone.GenerateVID(0, value, _vidIntensity, 5);
-            }
+            var colorCard = value as ColorCard;
+            int numColors;
+            if (CurrentZone.Spots.Count < 2)
+                numColors = 2;
             else
             {
-                _vidDataControl.SubParams[0].IsEnabled = false;
-                // _vidDataControl.SubParams[1].IsEnabled = true;
-                CurrentZone.ApplyPredefinedVID(value, 0);
+                numColors = CurrentZone.Spots.Count();
             }
-
-
+            _colors = GetColorGradient(colorCard.StartColor, colorCard.StopColor, numColors).ToArray();
         }
-        private void OnVIDIntensityValueChanged(int value)
+        private void OnIsBreathingValueChanged(bool value)
         {
-            _vidIntensity = value;
-            var currentVID = _vidDataControl.SelectedValue as VIDDataModel;
-            if (CurrentZone.IsInControlGroup)
+            _isBreathing = value;
+            if (!value)
             {
-                //acquire this ground this zone belongs to
-                var group = CurrentDevice.ControlZoneGroups.Where(g => g.GroupUID == CurrentZone.GroupID).FirstOrDefault();
-                if (group == null)
-                    return;
-                if (Monitor.TryEnter(group.IDGeneratingLock))
-                {
-                    try
-                    {
-                        group.GenerateVID(_vidDataControl.SelectedValue as VIDDataModel, _vidIntensity, 5, CurrentDevice);
-                    }
-                    finally
-                    {
-                        Monitor.Exit(group.IDGeneratingLock);
-                    }
-                }
-
+                _brightness = _brightnessControl.Value / 100d;
+                _brightnessControl.IsEnabled = true;
             }
             else
-                CurrentZone.GenerateVID(0, _vidDataControl.SelectedValue as VIDDataModel, _vidIntensity, 5);
+            {
+                _brightnessControl.IsEnabled = false;
+            }
         }
         private void OnBrightnessValueChanged(int value)
         {
             _brightness = value / 100d;
         }
-        private void OnSpeedChanged(int value)
+        private void OnBreathingSpeedValueChanged(int value)
         {
-            _speed = value / 5d;
+            _breathingSpeed = 2000 - value;
         }
-        private void OnSystemSyncSpeedValueChanged(int value)
+        private void OnSystemSyncBreathingSpeedValueChange(int value)
         {
-            GeneralSettings.SystemRainbowSpeed = value;
+            GeneralSettings.BreathingSpeed = value;
         }
+
         #endregion
 
         public void Refresh()
@@ -240,11 +199,14 @@ namespace adrilight
             _currentLightingMode = CurrentZone.CurrentActiveControlMode as LightingMode;
 
             var shouldBeRunning =
-                _currentLightingMode.BasedOn == LightingModeEnum.Rainbow &&
+                _currentLightingMode.BasedOn == LightingModeEnum.StaticColor &&
                 //this zone has to be enable, this could be done by stop setting the spots, but the this thread still alive, so...
                 CurrentZone.IsEnabled == true &&
                 //stop this engine when any surface or editor open because this could cause capturing fail
                 MainViewViewModel.IsRichCanvasWindowOpen == false;
+            ////registering group shoud be done
+            //MainViewViewModel.IsRegisteringGroup == false;
+
             // this is stop sign by one or some of the reason above
             if (isRunning && !shouldBeRunning)
             {
@@ -252,13 +214,13 @@ namespace adrilight
                 _dimMode = DimMode.Down;
                 _dimFactor = 1.00;
                 _runState = RunStateEnum.Stop;
-                //Stop();
+                // Stop();
+
             }
             // this is start sign
             else if (!isRunning && shouldBeRunning)
             {
                 _runState = RunStateEnum.Run;
-                //check if thread alive
                 Start();
             }
             else if (isRunning && shouldBeRunning)
@@ -267,92 +229,67 @@ namespace adrilight
                 Init();
             }
 
-
         }
         public void Init()
         {
             #region registering params
-            ///enable control//
             _enableControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.IsEnabled).FirstOrDefault() as ToggleParameter;
             _enableControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_Enable_header, adrilight_shared.Properties.Resources.LightingEngine_Enable_description);
             _enableControl.PropertyChanged += (_, __) => EnableChanged(_enableControl.Value == 1 ? true : false);
-            ///color control//
-            _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Palette).FirstOrDefault() as ListSelectionParameter;
+            _colorControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Color).FirstOrDefault() as ListSelectionParameter;
             _colorControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_ColorControl_header, adrilight_shared.Properties.Resources.LightingEngine_ColorControl_info);
-            _colorControl.SubParams[0].Localize(adrilight_shared.Properties.Resources.LightingEngine_ColorControlSubParam_CreateNewPalette_Content, "xx");
-            _colorControl.SubParams[1].Localize(adrilight_shared.Properties.Resources.LightingEngine_ColorControlSubParam_ExportPalette_Content, "xx");
+            _colorControl.SubParams[0].Localize(adrilight_shared.Properties.Resources.ColorControl_AddSolidColor_header, "xx");
             _colorControl.PropertyChanged += (_, __) =>
             {
                 switch (__.PropertyName)
                 {
                     case nameof(_colorControl.SelectedValue):
-                        OnSelectedPaletteChanged(_colorControl.SelectedValue);
+                        OnSelectedColorValueChanged(_colorControl.SelectedValue);
                         break;
                 }
             };
-            ///vid data control
-            _vidDataControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.VID).FirstOrDefault() as ListSelectionParameter;
-            _vidDataControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_VIDDataControl_header, adrilight_shared.Properties.Resources.LightingEngine_VIDDataControl_info);
-            _vidDataControl.SubParams[0].Localize(adrilight_shared.Properties.Resources.LightingEngine_ColorControl_SubParam_Intensity_Content,"xx");
-            _vidDataControl.SubParams[1].Localize(adrilight_shared.Properties.Resources.LightingEngine_ColorControl_SubParam_AddNewVID_Content, "xx");
-            _vidDataControl.PropertyChanged += (_, __) =>
-            {
-                switch (__.PropertyName)
-                {
-                    case nameof(_vidDataControl.SelectedValue):
-                        OnSelectedVIDDataChanged(_vidDataControl.SelectedValue);
-                        break;
-                }
-            };
-            _vidDataControl.SubParams[0].PropertyChanged += (_, __) => OnVIDIntensityValueChanged(_vidDataControl.SubParams[0].Value);
-            ///speed control///
-            _speedControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.Speed).FirstOrDefault() as SliderParameter;
-            _speedControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_SpeedControl_header, adrilight_shared.Properties.Resources.Rainbow_Init_SpeedControl_info);
-            _speedControl.PropertyChanged += (_, __) => OnSpeedChanged(_speedControl.Value);
-            ///brightness control///
+            _breathingControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Breathing).FirstOrDefault() as ToggleParameter;
+            _breathingControl.Localize(adrilight_shared.Properties.Resources.BreathingControl_header, adrilight_shared.Properties.Resources.BreathingControl_info);
+            _breathingControl.SubParams[0].Localize(adrilight_shared.Properties.Resources.BreathingSpeedControl_header, "xx");
+            _breathingControl.SubParams[1].Localize(adrilight_shared.Properties.Resources.BreathingControlSystemSync_header, "xx");
+            _breathingControl.SubParams[2].Localize(adrilight_shared.Properties.Resources.BreathingControlSystemSpeed_header, "xx");
+
             _brightnessControl = _currentLightingMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter;
             _brightnessControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_BrightnessControl_header, adrilight_shared.Properties.Resources.LightingEngine_BrightnessControl_info);
+
+
             _brightnessControl.PropertyChanged += (_, __) => OnBrightnessValueChanged(_brightnessControl.Value);
-
-
-            _systemSyncControl = _currentLightingMode.Parameters.Where(P => P.ParamType == ModeParameterEnum.IsSystemSync).FirstOrDefault() as ToggleParameter;
-            _systemSyncControl.Localize(adrilight_shared.Properties.Resources.LightingEngine_SystemSyncControl_header, adrilight_shared.Properties.Resources.LightingEngine_SystemSyncControl_info);
-            _systemSyncControl.PropertyChanged += (_, __) => OnSystemSyncValueChanged(_systemSyncControl.Value == 1 ? true : false);
-            _systemSyncControl.SubParams[0].Localize(adrilight_shared.Properties.Resources.LightingEngine_SystemSync_Speed_header, "xx");
-            _systemSyncControl.SubParams[0].PropertyChanged += (_, __) => OnSystemSyncSpeedValueChanged(_systemSyncControl.SubParams[0].Value);
-
-            ///activate these value///
+            _breathingControl.PropertyChanged += (_, __) => OnIsBreathingValueChanged(_breathingControl.Value == 1 ? true : false);
+            _breathingControl.SubParams[0].PropertyChanged += (_, __) => OnBreathingSpeedValueChanged(_breathingControl.SubParams[0].Value);
+            _breathingControl.SubParams[2].PropertyChanged += (_, __) => OnSystemSyncValueChanged(_breathingControl.SubParams[2].Value == 1 ? true : false);
+            _breathingControl.SubParams[1].PropertyChanged += (_, __) => OnSystemSyncBreathingSpeedValueChange(_breathingControl.SubParams[1].Value);
             _colorControl.LoadAvailableValues();
-            _vidDataControl.LoadAvailableValues();
             #endregion
             //safety check
             if (_colorControl.SelectedValue == null)
             {
                 _colorControl.SelectedValue = _colorControl.AvailableValues.First();
             }
-            OnSelectedPaletteChanged(_colorControl.SelectedValue);
-            if (_vidDataControl.SelectedValue == null)
-            {
-                _vidDataControl.SelectedValue = _vidDataControl.AvailableValues.Last();
-            }
             EnableChanged(_enableControl.Value == 1 ? true : false);
-            OnSelectedVIDDataChanged(_vidDataControl.SelectedValue);
-            OnVIDIntensityValueChanged(_vidDataControl.SubParams[0].Value);
+            OnIsBreathingValueChanged(_breathingControl.Value == 1 ? true : false);
+            OnSystemSyncValueChanged(_breathingControl.SubParams[2].Value == 1 ? true : false);
+
+            OnSelectedColorValueChanged(_colorControl.SelectedValue);
+            OnBreathingSpeedValueChanged(_breathingControl.SubParams[0].Value);
+            OnSystemSyncBreathingSpeedValueChange(_breathingControl.SubParams[1].Value);
             OnBrightnessValueChanged(_brightnessControl.Value);
-            OnSpeedChanged(_speedControl.Value);
-            OnSystemSyncSpeedValueChanged(_systemSyncControl.SubParams[0].Value);
-            OnSystemSyncValueChanged(_systemSyncControl.Value == 1 ? true : false);
         }
         public void Run(CancellationToken token)
         {
+            //wait other thread finishing
             Thread.Sleep(500);
-            //Log.Information("Rainbow Engine Is Running");
             IsRunning = true;
+            //Log.Information("Static Color Engine Is Running");
+            int updateIntervalCounter = 0;
+            int _idleCounter = 0;
             try
             {
-                double StartIndex = 0d;
-                var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
-                int _idleCounter = 0;
+
                 while (!token.IsCancellationRequested)
                 {
                     if (_runState == RunStateEnum.Run)
@@ -362,17 +299,29 @@ namespace adrilight
                             Thread.Sleep(100);
                             continue;
                         }
-                        StartIndex -= _speed;
-                        if (StartIndex < 0)
+                        var startIndex = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
+
+                        if (_isBreathing)
                         {
-                            StartIndex = _colorBank.Length - 1;
-                        }
-                        if (_isSystemSync)
-                        {
-                            lock (RainbowTicker.Lock)
+                            if (_isSystemSync)
                             {
-                                StartIndex = RainbowTicker.RainbowStartIndex;
+                                _brightness = RainbowTicker.BreathingBrightnessValue;
+
                             }
+                            else
+                            {
+                                float smoothness_pts = (float)_breathingSpeed;
+                                double pwm_val = 255.0 * (1.0 - Math.Abs((2.0 * (ii++ / smoothness_pts)) - 1.0));
+                                if (ii > smoothness_pts)
+                                    ii = 0f;
+
+                                _brightness = pwm_val / 255d;
+                            }
+
+                        }
+
+                        if (updateIntervalCounter > 0)
+                        {
 
                         }
                         lock (CurrentZone.Lock)
@@ -380,10 +329,11 @@ namespace adrilight
                             DimLED();
                             foreach (var spot in CurrentZone.Spots)
                             {
-                                int position = 0;
-                                position = Convert.ToInt32(Math.Floor(StartIndex + spot.VID));
-                                position %= _colorBank.Length;
-                                var brightness = _brightness * _dimFactor;
+                                var index = spot.Index - startIndex;
+                                if (index >= _colors.Length)
+                                {
+                                    index = 0;
+                                }
                                 byte colorR = 0;
                                 byte colorG = 0;
                                 byte colorB = 0;
@@ -396,30 +346,25 @@ namespace adrilight
                                 }
                                 else if (_dimMode == DimMode.Up)
                                 {
-                                    colorR = _colorBank[position].R;
-                                    colorG = _colorBank[position].G;
-                                    colorB = _colorBank[position].B;
+                                    colorR = _colors[index].R;
+                                    colorG = _colors[index].G;
+                                    colorB = _colors[index].B;
                                 }
-                                if (spot.HasVID)
-                                {
-                                    ApplySmoothing((float)brightness * colorR, (float)brightness * colorG, (float)brightness * colorB, out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
-                                    spot.SetColor(FinalR, FinalG, FinalB, false);
-                                }
-                                else
-                                {
-                                    spot.SetColor(0, 0, 0, false);
-                                }
+                                ApplySmoothing((float)(colorR * _brightness * _dimFactor), (float)(colorG * _brightness * _dimFactor), (float)(colorB * _brightness * _dimFactor), out byte FinalR, out byte FinalG, out byte FinalB, spot.Red, spot.Green, spot.Blue);
+                                spot.SetColor(FinalR, FinalG, FinalB, false);
+
                             }
 
-
-
                         }
+
+                        //threadSleep for static mode is 1s, for breathing is 10ms
                         var sleepTime = 1000 / _frameRate;
                         Thread.Sleep(sleepTime);
+                        updateIntervalCounter++;
                     }
                     else
                     {
-                        Thread.Sleep(TimeSpan.FromMilliseconds(10));
+                        Thread.Sleep(10);
                         _idleCounter++;
                         if (_idleCounter >= 1000)
                         {
@@ -427,6 +372,7 @@ namespace adrilight
                             break;
                         }
                     }
+
                 }
             }
             catch (Exception ex)
@@ -436,13 +382,26 @@ namespace adrilight
             finally
             {
 
-                // Log.Information("Stopped the Rainbow Engine");
+                // Log.Information("Stopped the Static Color Engine");
                 IsRunning = false;
                 GC.Collect();
             }
         }
 
-
+        private void DimLED()
+        {
+            if (_dimMode == DimMode.Down)
+            {
+                if (_dimFactor >= 0.1)
+                    _dimFactor -= 0.1;
+            }
+            else if (_dimMode == DimMode.Up)
+            {
+                if (_dimFactor <= 0.99)
+                    _dimFactor += 0.01;
+                //_dimMode = DimMode.Down;
+            }
+        }
         public static List<Color> GetColorGradient(Color from, Color to, int totalNumberOfColors)
         {
             if (totalNumberOfColors < 2)
@@ -482,74 +441,11 @@ namespace adrilight
             return colorList;
 
         }
-        private void DimLED()
-        {
-            if (_dimMode == DimMode.Down)
-            {
-                if (_dimFactor >= 0.1)
-                    _dimFactor -= 0.1;
-                // if (_dimFactor < 0.1)
-                //  _dimMode = DimMode.Up;
-            }
-            else if (_dimMode == DimMode.Up)
-            {
-                if (_dimFactor <= 0.99)
-                    _dimFactor += 0.01;
-                //_dimMode = DimMode.Down;
-            }
-        }
-        private byte[] ResizeFrame(byte[] pixels, int w1, int w2)
-        {
-            byte[] temp = new byte[w2];
-            int x_ratio = (int)((w1 << 16) / w2) + 1;
-            int y_ratio = 1;
-            int x2, y2;
-            for (int i = 0; i < 1; i++)
-            {
-                for (int j = 0; j < w2; j++)
-                {
-                    x2 = ((j * x_ratio) >> 16);
-                    y2 = ((i * y_ratio) >> 16);
-                    temp[(i * w2) + j] = pixels[(y2 * w1) + x2];
-                }
-            }
-            return temp;
-        }
-        public static IEnumerable<Color> GetColorGradientfromPalette(Color[] colorCollection, int colorNum)
-        {
-            var colors = new List<Color>();
-            int colorPerGap = colorNum / (colorCollection.Count() - 1);
 
-            for (int i = 0; i < colorCollection.Length - 1; i++)
-            {
-                var gradient = GetColorGradient(colorCollection[i], colorCollection[i + 1], colorPerGap);
-                colors = colors.Concat(gradient).ToList();
-            }
-            int remainTick = colorNum - colors.Count();
-            colors = colors.Concat(colors.Take(remainTick).ToList()).ToList();
-            return colors;
-            // new update, create free amount of color????
-        }
-
-        public static IEnumerable<Color> GetColorGradientfromPaletteWithFixedColorPerGap(Color[] colorCollection)
-        {
-            var colors = new List<Color>();
-            var colorPerGap = (int)(1024 / colorCollection.Length);
-
-            for (int i = 0; i < colorCollection.Length - 1; i++)
-            {
-                var gradient = GetColorGradient(colorCollection[i], colorCollection[i + 1], colorPerGap);
-                colors = colors.Concat(gradient).ToList();
-            }
-            var lastGradient = GetColorGradient(colorCollection[colorCollection.Length - 1], colorCollection[0], colorPerGap);
-            colors = colors.Concat(lastGradient).ToList();
-            return colors;
-
-        }
         private void ApplySmoothing(float r, float g, float b, out byte semifinalR, out byte semifinalG, out byte semifinalB,
            byte lastColorR, byte lastColorG, byte lastColorB)
         {
-            int smoothingFactor = 7;
+            int smoothingFactor = 2;
             semifinalR = (byte)((r + smoothingFactor * lastColorR) / (smoothingFactor + 1));
             semifinalG = (byte)((g + smoothingFactor * lastColorG) / (smoothingFactor + 1));
             semifinalB = (byte)((b + smoothingFactor * lastColorB) / (smoothingFactor + 1));
@@ -569,11 +465,10 @@ namespace adrilight
             const float factor = 80f;
             return (byte)(256f * ((float)Math.Pow(factor, color / 256f) - 1f) / (factor - 1));
         }
-
         public void Start()
         {
             //start it
-            //Log.Information("starting the Static Color Engine");
+            // Log.Information("starting the Static Color Engine");
             _dimMode = DimMode.Down;
             _dimFactor = 1.00;
             Init();
@@ -581,17 +476,16 @@ namespace adrilight
             _workerThread = new Thread(() => Run(_cancellationTokenSource.Token)) {
                 IsBackground = true,
                 Priority = ThreadPriority.BelowNormal,
-                Name = "Rainbow"
+                Name = "StaticColor"
             };
             _workerThread.Start();
         }
         public void Stop()
         {
-            //Log.Information("Stop called for Rainbow Engine");
+            // Log.Information("Stop called for Static Color Engine");
             //CurrentZone.FillSpotsColor(Color.FromRgb(0, 0, 0));
             if (_workerThread == null) return;
             _cancellationTokenSource?.Cancel();
-
             _cancellationTokenSource = null;
             _workerThread?.Join();
             _workerThread = null;
