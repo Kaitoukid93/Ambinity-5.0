@@ -345,6 +345,9 @@ namespace adrilight
             switch (connectionType)
             {
                 case DeviceConnectionTypeEnum.Wired:
+                    if(device.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
+                        kernel.Bind<ISerialStream>().To<SerialStreamRP2040>().InSingletonScope().Named(device.DeviceUID.ToString()).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(device.DeviceUID.ToString()));
+                    else
                         kernel.Bind<ISerialStream>().To<SerialStream>().InSingletonScope().Named(device.DeviceUID.ToString()).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(device.DeviceUID.ToString()));
                     break;
 

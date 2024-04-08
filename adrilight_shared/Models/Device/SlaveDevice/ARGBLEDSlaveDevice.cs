@@ -107,7 +107,7 @@ namespace adrilight_shared.Models.Device.SlaveDevice
 
         public double Left { get => _left; set { Set(() => Left, ref _left, value); UpdateChildOffSet(); } }
 
-        public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
+        public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); } }
 
         public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }
 
@@ -443,8 +443,12 @@ namespace adrilight_shared.Models.Device.SlaveDevice
         protected virtual void OnRotationChanged()
         { }
 
-        protected virtual void OnIsSelectedChanged(bool value)
+        public void OnIsSelectedChanged(bool value, bool isInSurfaceEditor)
         {
+            if(!isInSurfaceEditor)
+            {
+                return;
+            }
             if (ControlableZones != null)
             {
                 switch (value)

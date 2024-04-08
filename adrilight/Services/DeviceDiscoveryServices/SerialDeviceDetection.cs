@@ -84,20 +84,24 @@ namespace adrilight.Util
         {
             List<string> CH55X = GetComPortByID("1209", "c550");
             List<string> CH340 = GetComPortByID("1A86", "7522");
+            List<string> ada = GetComPortByID("239A", "CAFE");
             var devices = new List<string>();
             List<string> sd = GetComPortByID("1209", "c55c");
-            if (CH55X.Count > 0 || CH340.Count > 0)
+            if (CH55X.Count > 0 || CH340.Count > 0 || ada.Count > 0)
             {
                 foreach (var port in CH55X)
                 {
-                    if (!SerialPort.GetPortNames().Contains((string)port))
-                        continue;
                     if (ExistedSerialDevice.Any(d => d.OutputPort == port && d.IsTransferActive == true))
                         continue;
-
                     devices.Add(port);
                 }
                 foreach (var port in CH340)
+                {
+                    if (ExistedSerialDevice.Any(d => d.OutputPort == port && d.IsTransferActive == true))
+                        continue;
+                    devices.Add(port);
+                }
+                foreach (var port in ada)
                 {
                     if (ExistedSerialDevice.Any(d => d.OutputPort == port && d.IsTransferActive == true))
                         continue;
@@ -133,8 +137,8 @@ namespace adrilight.Util
             }
             catch (Exception ex)
             {
-               // Log.Error(ex,"AcessDenied " + _serialPort.PortName);
-                Log.Error(_serialPort.PortName+ " is removed");
+                // Log.Error(ex,"AcessDenied " + _serialPort.PortName);
+                Log.Error(_serialPort.PortName + " is removed");
                 Thread.Sleep(2000);
                 return null;
             }

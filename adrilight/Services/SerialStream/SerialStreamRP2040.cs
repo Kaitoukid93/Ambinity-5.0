@@ -21,10 +21,10 @@ namespace adrilight
 
     internal sealed class
 
-        SerialStream : IDisposable, ISerialStream
+        SerialStreamRP2040 : IDisposable, ISerialStream
     {
 
-        public SerialStream(IDeviceSettings deviceSettings, IGeneralSettings generalSettings)
+        public SerialStreamRP2040(IDeviceSettings deviceSettings, IGeneralSettings generalSettings)
         {
             GeneralSettings = generalSettings ?? throw new ArgumentException(nameof(generalSettings));
             DeviceSettings = deviceSettings ?? throw new ArgumentNullException(nameof(deviceSettings));
@@ -181,7 +181,7 @@ namespace adrilight
 
         public void Start()
         {
-            if(IsRunning)
+            if (IsRunning)
             {
                 Stop();
             }
@@ -210,149 +210,33 @@ namespace adrilight
         public bool IsRunning => _workerThread != null && _workerThread.IsAlive;
 
         public void DFU()
-
         {
-            //Open device at 1200 baudrate
-            if (DeviceSettings.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV2)
-            {
-                DeviceSettings.IsTransferActive = false;
-                var serialPort = (ISerialPortWrapper)new WrappedSerialPort(new SerialPort(DeviceSettings.OutputPort, 1000000));
-                try
-                {
-                    serialPort.Open();
-                }
-                catch (Exception)
-                {
-                    // I don't know about this shit but we have to catch an empty exception because somehow SerialPort.Open() was called twice
-                }
-                Thread.Sleep(500);
-                try
-                {
-                    serialPort.Write(new byte[3] { (byte)'f', (byte)'u', (byte)'g' }, 0, 3);
-                }
-                catch (Exception)
-                {
-                    // I don't know about this shit but we have to catch an empty exception because somehow SerialPort.Write() was called twice
-                }
 
+            if (DeviceSettings.OutputPort != null)
+            {
+
+                var _serialPort = new SerialPort(DeviceSettings.OutputPort, 1200);
+                _serialPort.DtrEnable = true;
+                _serialPort.ReadTimeout = 5000;
+                _serialPort.WriteTimeout = 1000;
+                try
+                {
+                    if (!_serialPort.IsOpen)
+                        _serialPort.Open();
+                }
+                catch (Exception)
+                {
+                    //
+                }
 
                 Thread.Sleep(1000);
-                serialPort.Close();
+                if (_serialPort.IsOpen)
+                    _serialPort.Close();
+
             }
-            else
-            {
-                if (DeviceSettings.OutputPort != null)
-                {
 
-                    var _serialPort = new SerialPort(DeviceSettings.OutputPort, 1200);
-                    _serialPort.DtrEnable = true;
-                    _serialPort.ReadTimeout = 5000;
-                    _serialPort.WriteTimeout = 1000;
-                    try
-                    {
-                        if (!_serialPort.IsOpen)
-                            _serialPort.Open();
-                    }
-                    catch (Exception)
-                    {
-                        //
-                    }
-
-                    Thread.Sleep(1000);
-                    if (_serialPort.IsOpen)
-                        _serialPort.Close();
-
-                }
-            }
         }
 
-        private (byte[] Buffer, int OutputLength) GetOutputStreamWithPWM(int id)
-        {
-            byte[] outputStream;
-            var currentLightingDevice = DeviceSettings.AvailableLightingOutputs[id].SlaveDevice as ARGBLEDSlaveDevice; // need to implement device number mismatch
-            var currentPWMDevice = new PWMMotorSlaveDevice();
-            FanMotor fan = null;
-            if (id < DeviceSettings.AvailablePWMOutputs.Length)
-            {
-                currentPWMDevice = DeviceSettings.AvailablePWMOutputs[id].SlaveDevice as PWMMotorSlaveDevice;
-                fan = currentPWMDevice.ControlableZones[0] as FanMotor;
-            }
-
-            int counter = _messagePreamble.Length;
-
-            const int colorsPerLed = 3;
-            const int hilocheckLength = 3;
-            const int extraHeader = 3;
-
-
-            int ledCount = currentLightingDevice.LEDCount;
-            int bufferLength = _messagePreamble.Length + hilocheckLength + extraHeader + (ledCount * colorsPerLed);
-            outputStream = ArrayPool<byte>.Shared.Rent(bufferLength);
-            Buffer.BlockCopy(_messagePreamble, 0, outputStream, 0, _messagePreamble.Length);
-
-
-            byte lo = (byte)((ledCount == 0 ? 1 : ledCount) & 0xff);
-            byte hi = (byte)(((ledCount == 0 ? 1 : ledCount) >> 8) & 0xff);
-            byte chk = (byte)(hi ^ lo ^ 0x55);
-
-
-            outputStream[counter++] = hi;
-            outputStream[counter++] = lo;
-            outputStream[counter++] = chk;
-            outputStream[counter++] = (byte)id;
-            outputStream[counter++] = fan != null ? (byte)(fan.CurrentPWMValue * 255 / 100) : (byte)200;
-            outputStream[counter++] = 0;
-
-            double brightnessCap = DeviceSettings.MaxBrightnessCap / 100d;
-            var allBlack = true;
-            int aliveSpotCounter = 0;
-            var rgbOrder = currentLightingDevice.RGBLEDOrder;
-            DimLED();
-            foreach (var zone in currentLightingDevice.ControlableZones)
-            {
-                var ledZone = zone as LEDSetup;
-                lock (ledZone.Lock)
-                {
-                    if (ledZone.Spots.Count == 0)//this could be PID has removed all items add 1 dummy
-                    {
-                        outputStream[counter++] = 0; // blue
-                        outputStream[counter++] = 0; // green
-                        outputStream[counter++] = 0; // red
-                    }
-                    else
-                    {
-
-                        foreach (DeviceSpot spot in ledZone.Spots)
-                        {
-                            if (spot.IsEnabled)
-                            {
-                                ApplyColorWhitebalance(spot.Red, spot.Green, spot.Blue,
-                                 currentLightingDevice.WhiteBalanceRed, currentLightingDevice.WhiteBalanceGreen, currentLightingDevice.WhiteBalanceBlue,
-                                 out byte FinalR, out byte FinalG, out byte FinalB);
-                                var reOrderedColor = ReOrderSpotColor(rgbOrder, FinalR, FinalG, FinalB);
-                                //get data
-                                outputStream[counter + spot.Index * 3 + 0] = (byte)(reOrderedColor[0] * brightnessCap * _dimFactor); // blue
-                                outputStream[counter + spot.Index * 3 + 1] = (byte)(reOrderedColor[1] * brightnessCap * _dimFactor); // green
-                                outputStream[counter + spot.Index * 3 + 2] = (byte)(reOrderedColor[2] * brightnessCap * _dimFactor); // red
-                                aliveSpotCounter++;
-                            }
-                            allBlack = allBlack && spot.Red == 0 && spot.Green == 0 && spot.Blue == 0;
-
-                        }
-
-                    }
-                }
-            }
-            if (allBlack)
-            {
-                blackFrameCounter++;
-            }
-            for (int i = counter + aliveSpotCounter * 3; i < bufferLength; i++)
-            {
-                outputStream[i] = 0;
-            }
-            return (outputStream, bufferLength);
-        }
 
         private (byte[] Buffer, int OutputLength) GetOutputStream(int id)
         {
@@ -362,7 +246,7 @@ namespace adrilight
             const int colorsPerLed = 3;
             const int hilocheckLenght = 3;
             const int extraHeader = 3;
-            int ledCount = currentLightingDevice.LEDCount;
+            int ledCount = 250;
             int bufferLength = _messagePreamble.Length + hilocheckLenght + extraHeader + (ledCount * colorsPerLed);
 
             outputStream = ArrayPool<byte>.Shared.Rent(bufferLength);
@@ -516,7 +400,7 @@ namespace adrilight
                     else
                     {
                         if (DeviceSettings.DeviceType.Type == DeviceTypeEnum.AmbinoFanHub || DeviceSettings.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
-                            baudRate = 2000000;
+                            baudRate = 1500000;
                     }
 
 
@@ -534,11 +418,12 @@ namespace adrilight
 
                         }
                         //send frame data
+
                         for (int i = 0; i < DeviceSettings.AvailableLightingOutputs.Length; i++)
                         {
                             if (!DeviceSettings.AvailableLightingOutputs[i].IsEnabled)
                                 continue;
-                            var (outputBuffer, streamLength) = _hasPWMCOntroller ? GetOutputStreamWithPWM(i) : GetOutputStream(i);
+                            var (outputBuffer, streamLength) = GetOutputStream(i);
                             serialPort.Write(outputBuffer, 0, streamLength);
                             ArrayPool<byte>.Shared.Return(outputBuffer);
 
@@ -564,8 +449,9 @@ namespace adrilight
                             //{
 
                             //}
-                            Thread.Sleep(1);
+                           // Thread.Sleep(1);
                         }
+
 
                     }
                 }
@@ -578,7 +464,7 @@ namespace adrilight
                 {
                     Log.Error(ex, "Device is removed or malfunction: " + serialPort.SerialPort.PortName);
                     // wait device to recover
-                    for(int i=0;i<5;i++)
+                    for (int i = 0; i < 5; i++)
                     {
                         Log.Warning("Waiting for device to recover!!!");
                         Thread.Sleep(1000);

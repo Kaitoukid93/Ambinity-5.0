@@ -364,7 +364,7 @@ namespace adrilight.ViewModel
                 {
                     //led on off
                     var noDataLEDEnable = _serialPort.ReadByte();
-                    Device.NoSignalLEDEnable = noDataLEDEnable == 15 ? true : false;
+                    Device.NoSignalLEDEnable = noDataLEDEnable == 12 ? true : false;
                     Log.Information("Device EEPRom Data: " + noDataLEDEnable);
                     //signal led on off
                     var signalLEDEnable = _serialPort.ReadByte();

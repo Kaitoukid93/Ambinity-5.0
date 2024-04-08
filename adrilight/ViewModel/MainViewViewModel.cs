@@ -2192,7 +2192,20 @@ namespace adrilight.ViewModel
                     LiveViewItems.Remove(IDEditBrush);
                 foreach (var item in LiveViewItems)
                 {
-                    item.IsSelectable = true;
+                    if(item is IControlZone)
+                    {
+                        var ledZone = item as LEDSetup;
+                        if (ledZone.IsInControlGroup)
+                            ledZone.IsSelectable = false;
+                        else
+                            ledZone.IsSelectable = true;
+                    
+                    }
+                    else
+                    {
+                        item.IsSelectable = true;
+                    }
+                    
                     item.IsSelected = false;
                 }
                 IsInIDEditStage = false;
@@ -2923,6 +2936,12 @@ namespace adrilight.ViewModel
                     foreach (var item in LiveViewItems)
                     {
                         item.IsSelected = false;
+                        if(item is ARGBLEDSlaveDevice)
+                        {
+                            var dev = item as ARGBLEDSlaveDevice;
+                            dev.OnIsSelectedChanged(false, false);
+                        }
+                       
                     }
                     ShowSelectedItemToolbar = false;
                     SelectedSlaveDevice = null;
@@ -2938,6 +2957,11 @@ namespace adrilight.ViewModel
                     foreach (var item in SurfaceEditorItems)
                     {
                         item.IsSelected = false;
+                        if (item is ARGBLEDSlaveDevice)
+                        {
+                            var dev = item as ARGBLEDSlaveDevice;
+                            dev.OnIsSelectedChanged(false, true);
+                        }
                     }
                     SurfaceEditorSelectedDevice = null;
                 }
@@ -3009,6 +3033,11 @@ namespace adrilight.ViewModel
                 if (p.IsSelectable)
                 {
                     p.IsSelected = true;
+                    if (p is ARGBLEDSlaveDevice)
+                    {
+                        var dev = p as ARGBLEDSlaveDevice;
+                        dev.OnIsSelectedChanged(true, true);
+                    }
                     SurfaceEditorSelectedDevice = p as ARGBLEDSlaveDevice;
                     SelectedItemScaleValue = SurfaceEditorSelectedDevice.Scale;
                     SelectedItemRotationValue = SurfaceEditorSelectedDevice.Angle;
@@ -6484,6 +6513,11 @@ namespace adrilight.ViewModel
             if (shouldBeSelected)
             {
                 item.IsSelected = true;
+                if(item is ARGBLEDSlaveDevice)
+                {
+                    var dev = item as ARGBLEDSlaveDevice;
+                    dev.OnIsSelectedChanged(true, false);
+                }
                 ShowSelectedItemToolbar = true;
                 SelectedControlZone = null;
                 SelectedSlaveDevice = null;
