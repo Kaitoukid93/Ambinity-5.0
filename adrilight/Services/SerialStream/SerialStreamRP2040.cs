@@ -246,7 +246,7 @@ namespace adrilight
             const int colorsPerLed = 3;
             const int hilocheckLenght = 3;
             const int extraHeader = 3;
-            int ledCount = 250;
+            int ledCount = currentLightingDevice.LEDCount;
             int bufferLength = _messagePreamble.Length + hilocheckLenght + extraHeader + (ledCount * colorsPerLed);
 
             outputStream = ArrayPool<byte>.Shared.Rent(bufferLength);
@@ -449,7 +449,7 @@ namespace adrilight
                             //{
 
                             //}
-                           // Thread.Sleep(1);
+                            Thread.Sleep(1);
                         }
 
 

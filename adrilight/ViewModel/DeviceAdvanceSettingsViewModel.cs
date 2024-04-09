@@ -5,6 +5,8 @@ using adrilight_shared.Enums;
 using adrilight_shared.Helpers;
 using adrilight_shared.Models;
 using adrilight_shared.Models.ControlMode;
+using adrilight_shared.Models.ControlMode.ModeParameters;
+using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
 using adrilight_shared.Models.Device;
 using adrilight_shared.Models.Device.Controller;
 using adrilight_shared.Models.Device.Output;
@@ -12,6 +14,7 @@ using adrilight_shared.Models.Device.SlaveDevice;
 using adrilight_shared.Models.Lighting;
 using adrilight_shared.Models.Stores;
 using adrilight_shared.Services;
+using adrilight_shared.Settings;
 using adrilight_shared.View.NonClientAreaContent;
 using adrilight_shared.ViewModel;
 using CSCore.CoreAudioAPI;
@@ -33,6 +36,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Xml.Linq;
 
 namespace adrilight.ViewModel
@@ -53,13 +57,23 @@ namespace adrilight.ViewModel
                 UpdateButtonContent = adrilight_shared.Properties.Resources.EnterDFU_ButtonContent;
                 UpdateInstructionContent = adrilight_shared.Properties.Resources.HUBV_Checkforupdate_content;
             }
-
+            Device.PropertyChanged += Device_PropertyChanged;
             _dialogService = service ?? throw new ArgumentNullException(nameof(service));
             ResourceHlprs = new ResourceHelpers();
             LocalFileHlprs = new LocalFileHelpers();
             CommandSetup();
+            HardwareLightingColorSelectionInit();
         }
         #endregion
+        private void Device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(Device.HWL_effectMode):
+                    HardwareLightingColorSelectionInit();
+                    break;
+            }
+        }
 
         #region Properties
         public IDeviceSettings Device { get; set; }
@@ -82,8 +96,19 @@ namespace adrilight.ViewModel
             }
         }
 
+        private ListSelectionParameter _hardwareLightingColorSelection;
+
+        public ListSelectionParameter HardwareLightingColorSelection {
+            get { return _hardwareLightingColorSelection; }
+
+            set
+            {
+                _hardwareLightingColorSelection = value;
+                RaisePropertyChanged();
+            }
+        }
         #endregion
-       
+
 
         #region Methods
         private void CommandSetup()
@@ -91,11 +116,11 @@ namespace adrilight.ViewModel
             ShowDeviceBackupFolderCommand = new RelayCommand<string>((p) =>
             {
                 return true;
-            },  (p) =>
+            }, (p) =>
             {
                 var backupPath = Path.Combine(BackupFolder, "Device");
-                if(Directory.Exists(backupPath))
-                Process.Start("explorer.exe", backupPath);
+                if (Directory.Exists(backupPath))
+                    Process.Start("explorer.exe", backupPath);
 
             });
             BackupDeviceCommand = new RelayCommand<string>((p) =>
@@ -111,7 +136,17 @@ namespace adrilight.ViewModel
                 return true;
             }, (p) =>
             {
-                var file = LocalFileHlprs.OpenImportFileDialog(".hex", "hex Files (.HEX)|*.hex");
+                string openFileDialogDescription = "hex Files (.HEX)|*.hex";
+                switch (Device.DeviceFirmwareExtension)
+                {
+                    case ".hex":
+                        openFileDialogDescription = "hex Files (.HEX)|*.hex";
+                        break;
+                    case ".uf2":
+                        openFileDialogDescription = "uf2 Files (.UF2)|*.uf2";
+                        break;
+                }
+                var file = LocalFileHlprs.OpenImportFileDialog(Device.DeviceFirmwareExtension, openFileDialogDescription);
                 if (file != null)
                 {
                     CurrentSelectedFirmware = file;
@@ -186,14 +221,68 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        private void HardwareLightingColorSelectionInit()
+        {
+            HardwareLightingColorSelection = new ListSelectionParameter(ModeParameterEnum.Color);
+            HardwareLightingColorSelection.Name = "COLORS";
+            HardwareLightingColorSelection.Description = "Select colors";
+            if (Device.HWL_effectMode == 0)
+                HardwareLightingColorSelection.DataSourceLocaFolderNames = new List<string>() { "Colors" };
+            else
+            {
+                HardwareLightingColorSelection.DataSourceLocaFolderNames = new List<string>() { "ColorPalettes" };
+            }
+            HardwareLightingColorSelection.LoadAvailableValues();
+            HardwareLightingColorSelection.SelectedValue = HardwareLightingColorSelection.AvailableValues[0];
+            HardwareLightingColorSelection.PropertyChanged += (_, __) =>
+            {
+                switch (__.PropertyName)
+                {
+                    case nameof(HardwareLightingColorSelection.SelectedValue):
+                        //update offline palette here
+                        if (HardwareLightingColorSelection.SelectedValue is ColorPalette)
+                        {
+                            //resize color palette o 8 colors
+                            var selectedpalette = HardwareLightingColorSelection.SelectedValue as ColorPalette;
+                            if (selectedpalette != null)
+                            {
+                                var usablePalette = ResizePalette(selectedpalette.Colors, selectedpalette.Colors.Length, 8);
+                                Device.HWL_palette = usablePalette;
+                            }
+
+                        }
+                        else if (HardwareLightingColorSelection.SelectedValue is ColorCard)
+                        {
+                            var selectedColor = HardwareLightingColorSelection.SelectedValue as ColorCard;
+                            if (selectedColor != null)
+                            {
+                                var usableColor = selectedColor.StartColor;
+                                Device.HWL_singleColor = usableColor;
+                            }
+                        }
+                        break;
+                }
+            };
+        }
+        private Color[] ResizePalette(Color[] color, int w1, int w2)
+        {
+            Color[] temp = new Color[8];
+            int x_ratio = (int)((w1 << 16) / w2) + 1;
+            int y_ratio = 1;
+            int x2, y2;
+            for (int i = 0; i < 1; i++)
+            {
+                for (int j = 0; j < w2; j++)
+                {
+                    x2 = ((j * x_ratio) >> 16);
+                    y2 = ((i * y_ratio) >> 16);
+                    temp[(i * w2) + j] = color[(y2 * w1) + x2];
+                }
+            }
+            return temp;
+        }
         public async Task RefreshDeviceHardwareInfo()
         {
-            //get device settings info
-            //if (!Device.IsTransferActive)
-            //{
-            //    return;
-            //}
-            ////IsApplyingDeviceHardwareSettings = true;
             var rslt = await Task.Run(() => GetHardwareSettings());
             if (!rslt)
             {
@@ -203,17 +292,6 @@ namespace adrilight.ViewModel
             {
                 HardwareSettingsEnable = Visibility.Visible;
             }
-
-            //if (AssemblyHelper.CreateInternalInstance($"View.{"DeviceFirmwareSettingsWindow"}") is System.Windows.Window window)
-            //{
-            //    //reset progress and log display
-            //    FwUploadPercentVissible = false;
-            //    percentCount = 0;
-            //    FwUploadPercent = 0;
-            //    FwUploadOutputLog = String.Empty;
-            //    window.Owner = System.Windows.Application.Current.MainWindow;
-            //    window.ShowDialog();
-            //}
 
         }
         #endregion
@@ -234,28 +312,31 @@ namespace adrilight.ViewModel
         #region Hardware Related Properties and Method
         private byte[] GetSettingOutputStream()
         {
-            var outputStream = new byte[16];
+            var outputStream = new byte[48];
             Buffer.BlockCopy(sendCommand, 0, outputStream, 0, sendCommand.Length);
             int counter = sendCommand.Length;
-            outputStream[counter++] = Device.NoSignalLEDEnable == true ? (byte)12 : (byte)15;
-            outputStream[counter++] = Device.IsIndicatorLEDOn == true ? (byte)15 : (byte)12;
-            outputStream[counter++] = 0;
-            outputStream[counter++] = 0;
-            outputStream[counter++] = 0;
-            outputStream[counter++] = 0;
+            outputStream[counter++] = (byte)Device.HWL_enable;
+            outputStream[counter++] = (byte)Device.StatusLEDEnable;
+            outputStream[counter++] = (byte)Device.HWL_returnafter;
+            outputStream[counter++] = (byte)Device.HWL_effectMode;
+            outputStream[counter++] = (byte)Device.HWL_effectSpeed;
+            outputStream[counter++] = (byte)Device.HWL_brightness;
+            outputStream[counter++] = (byte)Device.HWL_singleColor.R;
+            outputStream[counter++] = (byte)Device.HWL_singleColor.G;
+            outputStream[counter++] = (byte)Device.HWL_singleColor.B;
+            for (int i = 0; i < 8; i++)
+            {
+                outputStream[counter++] = (byte)Device.HWL_palette[i].R;
+                outputStream[counter++] = (byte)Device.HWL_palette[i].G;
+                outputStream[counter++] = (byte)Device.HWL_palette[i].B;
+            }
+            outputStream[counter++] = (byte)Device.HWL_effectIntensity;
             outputStream[counter++] = (byte)Device.NoSignalFanSpeed;
-            // 6 bytes CustomID
-            outputStream[counter++] = 11;
-            outputStream[counter++] = 22;
-            outputStream[counter++] = 33;
-            outputStream[counter++] = 44;
-            outputStream[counter++] = 55;
-            outputStream[counter++] = 66;
             return outputStream;
         }
         private byte[] GetEEPRomDataOutputStream()
         {
-            var outputStream = new byte[16];
+            var outputStream = new byte[48];
             Buffer.BlockCopy(sendCommand, 0, outputStream, 0, sendCommand.Length);
             outputStream[3] = 255;
             return outputStream;
@@ -299,11 +380,19 @@ namespace adrilight.ViewModel
         public async Task<bool> GetHardwareSettings()
         {
             Thread.Sleep(500);
-            ///////////////////// Hardware settings data table, will be wirte to device EEPRom /////////
-            /// [h,s,d,Led on/off,Signal LED On/off,Connection Type,Max Brightness,Show Welcome LED,Serial Timeout,0,0,0,0,0,0,0] ///////
-            await Task.Run(() => RefreshFirmwareVersion());
+            var result = RefreshFirmwareVersion();
+            if (!result)
+            {
+                return false;
+            }
             if (!IsFirmwareValid())
             {
+                return false;
+            }
+            if (Device.HWL_version < 1)
+            {
+                //request firmware update and hide device settings
+                HandyControl.Controls.MessageBox.Show(adrilight.Properties.Resources.DeviceAdvanceSettingsViewModel_GetHardwareSettings_OldFirmware, adrilight.Properties.Resources.DeviceAdvanceSettingsViewModel_GetHardwareSettings_ProtocolOutdated, MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
             Device.IsTransferActive = false; // stop current serial stream attached to this device
@@ -321,13 +410,17 @@ namespace adrilight.ViewModel
             {
                 return await Task.FromResult(false);
             }
+            catch (System.IO.IOException ex)
+            {
+                return await Task.FromResult(false);
+            }
 
             var outputStream = GetEEPRomDataOutputStream();
             _serialPort.Write(outputStream, 0, outputStream.Length);
             _serialPort.WriteLine("\r\n");
             int retryCount = 0;
             int offset = 0;
-            IDeviceSettings newDevice = new DeviceSettings();
+            //searching for header
             while (offset < 3)
             {
 
@@ -356,38 +449,14 @@ namespace adrilight.ViewModel
 
 
             }
-            if (offset == 3) //3 bytes header are valid continue to read next 13 byte of data
+            //3 bytes header are valid continue to read next 45 byte of data
+            if (offset == 3)
             {
-
-                /// [15,12,93,Led on/off,Signal LED On/off,Connection Type,Max Brightness,Show Welcome LED,Serial Timeout,No Signal Fan Speed,0,0,0,0,0,0] ///////
                 try
                 {
-                    //led on off
-                    var noDataLEDEnable = _serialPort.ReadByte();
-                    Device.NoSignalLEDEnable = noDataLEDEnable == 12 ? true : false;
-                    Log.Information("Device EEPRom Data: " + noDataLEDEnable);
-                    //signal led on off
-                    var signalLEDEnable = _serialPort.ReadByte();
-                    Device.IsIndicatorLEDOn = signalLEDEnable == 15 ? true : false;
-                    Log.Information("Device EEPRom Data: " + signalLEDEnable);
-                    if (_serialPort.BytesToRead > 0)
-                    {
-                        var connectionType = _serialPort.ReadByte();
-                        var maxBrightness = _serialPort.ReadByte();
-                        var showWelcomeLED = _serialPort.ReadByte();
-                        var serialTimeout = _serialPort.ReadByte();
-                        var noSignalFanSpeed = _serialPort.ReadByte();
-                        Device.NoSignalFanSpeed = noSignalFanSpeed < 20 ? 20 : noSignalFanSpeed;
-                        Log.Information("Device EEPRom Data: " + noSignalFanSpeed);
-                        string[] id = new string[6];
-
-                        for (int i = 0; i < 6; i++)
-                        {
-                            id[i] = _serialPort.ReadByte().ToString();
-                        }
-                        Log.Information("Device Custom ID: " + id[0].ToString() + id[1].ToString() + id[2].ToString() + id[3].ToString() + id[4].ToString() + id[5].ToString());
-
-                    }
+                    ReadDeviceEEPROM(_serialPort);
+                    //discard buffer
+                    _serialPort.DiscardInBuffer();
                 }
                 catch (TimeoutException ex)
                 {
@@ -405,6 +474,60 @@ namespace adrilight.ViewModel
             _serialPort.Close();
             _serialPort.Dispose();
             return await Task.FromResult(true);
+        }
+        private void ReadDeviceEEPROM(SerialPort _serialPort)
+        {
+            /// Hardware Lighting Protocol version 1
+            //+----------+---------------------+------------+---------------+
+            //| Position | Name                | Size(byte) | Default Value |
+            //+----------+---------------------+------------+---------------+
+            //| 0        | HWL_enable          | 1          | 1             |
+            //| 1        | StatusLEDEnable     | 1          | 0             |
+            //| 2        | HWL_returnafter     | 1          | 3             |
+            //| 3        | HWL_effectMode      | 1          | 0             |
+            //| 4        | HWL_effectSpeed     | 1          | 20            |
+            //| 5        | HWL_brightness      | 1          | 80            |
+            //| 6 - 8    | HWL_singlecolor     | 3          | 255,0,0       |
+            //| 9-32     | HWL_palette         | 24         |               |
+            //| 33       | HWL_effectIntensity | 1          | 16            |
+            //| 34       | HWF_FanSpeed        |            | 127           |
+            //| 35-44    | HWF_PerFanSpeed     | 10         | 127           |
+            //+----------+---------------------+------------+---------------+
+
+
+            Device.HWL_enable = (byte)_serialPort.ReadByte();
+            Log.Information("HWL_enable: " + Device.HWL_enable);
+            Device.StatusLEDEnable = (byte)_serialPort.ReadByte();
+            Log.Information("StatusLEDEnable: " + Device.StatusLEDEnable);
+            Device.HWL_returnafter = (byte)_serialPort.ReadByte();
+            Log.Information("HWL_returnafter: " + Device.HWL_returnafter);
+            Device.HWL_effectMode = (byte)_serialPort.ReadByte();
+            Log.Information("HWL_effectMode: " + Device.HWL_effectMode);
+            Device.HWL_effectSpeed = (byte)_serialPort.ReadByte();
+            Log.Information("HWL_effectSpeed: " + Device.HWL_effectSpeed);
+            Device.HWL_brightness = (byte)_serialPort.ReadByte();
+            Log.Information("HWL_brightness: " + Device.HWL_brightness);
+            Device.HWL_singleColor = Color.FromRgb((byte)_serialPort.ReadByte(), (byte)_serialPort.ReadByte(), (byte)_serialPort.ReadByte());
+            Log.Information("HWL_singleColor: " + Device.HWL_singleColor);
+            if (Device.HWL_palette == null)
+            {
+                Device.HWL_palette = new Color[8];
+            }
+            for (int i = 0; i < 8; i++)
+            {
+                Device.HWL_palette[i] = Color.FromRgb((byte)_serialPort.ReadByte(), (byte)_serialPort.ReadByte(), (byte)_serialPort.ReadByte());
+                Log.Information("HWL_palette " + i + ": " + Device.HWL_palette[i]);
+            }
+            Device.HWL_effectIntensity = (byte)_serialPort.ReadByte();
+            Log.Information("HWL_effectIntensity: " + Device.HWL_effectIntensity);
+
+            if (_serialPort.BytesToRead > 0)
+            {
+                var noSignalFanSpeed = _serialPort.ReadByte();
+                Device.NoSignalFanSpeed = noSignalFanSpeed < 20 ? 20 : noSignalFanSpeed;
+                Log.Information("Device EEPRom Data: " + noSignalFanSpeed);
+
+            }
         }
         public async Task<bool> SendHardwareSettings()
         {
@@ -462,32 +585,7 @@ namespace adrilight.ViewModel
             }
             if (offset == 3) //3 bytes header are valid continue to read next 13 byte of data
             {
-
-                /// [15,12,93,Led on/off,Signal LED On/off,Connection Type,Max Brightness,Show Welcome LED,Serial Timeout,0,0,0,0,0,0,0] ///////
-                //led on off
-                var noDataLEDEnable = _serialPort.ReadByte();
-                Log.Information("Device EEPRom Data: " + noDataLEDEnable);
-                //signal led on off
-                var signalLEDEnable = _serialPort.ReadByte();
-                Log.Information("Device EEPRom Data: " + signalLEDEnable);
-                if (_serialPort.BytesToRead > 0)
-                {
-                    var connectionType = _serialPort.ReadByte();
-                    var maxBrightness = _serialPort.ReadByte();
-                    var showWelcomeLED = _serialPort.ReadByte();
-                    var serialTimeout = _serialPort.ReadByte();
-                    var noSignalFanSpeed = _serialPort.ReadByte();
-                    Device.NoSignalFanSpeed = noSignalFanSpeed < 20 ? 20 : noSignalFanSpeed;
-                    Log.Information("Device EEPRom Data: " + noSignalFanSpeed);
-                    string[] id = new string[6];
-
-                    for (int i = 0; i < 6; i++)
-                    {
-                        id[i] = _serialPort.ReadByte().ToString();
-                    }
-                    Log.Information("Device Custom ID: " + id[0].ToString() + id[1].ToString() + id[2].ToString() + id[3].ToString() + id[4].ToString() + id[5].ToString());
-
-                }
+                ReadDeviceEEPROM(_serialPort);
                 //discard buffer
                 _serialPort.DiscardInBuffer();
             }
@@ -628,7 +726,7 @@ namespace adrilight.ViewModel
             }
             vm.Value = 80;
             vm.CurrentProgressLog = "zipping...";
-            var zipPath = Path.Combine(path, Path.GetFileName(backupPath) + ".zip") ;
+            var zipPath = Path.Combine(path, Path.GetFileName(backupPath) + ".zip");
             ZipFile.CreateFromDirectory(backupPath, zipPath);
             Directory.Delete(backupPath, true);
             await Task.Delay(500);
@@ -959,18 +1057,13 @@ namespace adrilight.ViewModel
             }
 
         }
-        public void RefreshFirmwareVersion()
+        public bool RefreshFirmwareVersion()
         {
-
             byte[] id = new byte[256];
             byte[] name = new byte[256];
             byte[] fw = new byte[256];
             byte[] hw = new byte[256];
-            bool isValid = false;
-
-
             Device.IsTransferActive = false; // stop current serial stream attached to this device
-
             var _serialPort = new SerialPort(Device.OutputPort, 1000000);
             _serialPort.DtrEnable = true;
             _serialPort.ReadTimeout = 5000;
@@ -981,11 +1074,13 @@ namespace adrilight.ViewModel
             }
             catch (UnauthorizedAccessException)
             {
-                return;
+                return false;
+
             }
             catch (Exception ex)
             {
-                return;
+                HandyControl.Controls.MessageBox.Show(adrilight.Properties.Resources.DeviceAdvanceSettingsViewModel_RefreshFirmwareVersion_Disconnect, adrilight.Properties.Resources.DeviceAdvanceSettingsViewModel_RefreshFirmwareVersion_DeviceDisconnect_header, MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
             }
             //write request info command
             _serialPort.Write(requestCommand, 0, 4);
@@ -995,7 +1090,6 @@ namespace adrilight.ViewModel
             int nameLength = 0; // Expected response length of valid deviceName 
             int fwLength = 0;
             int hwLength = 0;
-            IDeviceSettings newDevice = new DeviceSettings();
             while (offset < 3)
             {
 
@@ -1016,10 +1110,10 @@ namespace adrilight.ViewModel
                     {
                         Console.WriteLine("timeout waiting for respond on serialport " + _serialPort.PortName);
                         HandyControl.Controls.MessageBox.Show("Thiết bị ở " + _serialPort.PortName + "Không có thông tin về Firmware, vui lòng liên hệ Ambino trước khi cập nhật firmware thủ công", "Device is not responding", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        isValid = false;
                         break;
                     }
                     Debug.WriteLine("no respond, retrying...");
+                    return false;
                 }
 
 
@@ -1087,21 +1181,50 @@ namespace adrilight.ViewModel
                 }
                 catch (TimeoutException)
                 {
-                    Log.Information(newDevice.DeviceName, "Unknown Firmware Version");
-                    newDevice.HardwareVersion = "unknown";
+                    Log.Information(Device.DeviceName, "Unknown Firmware Version");
+                    Device.HardwareVersion = "unknown";
+                }
+
+            }
+            if (offset == 3 + idLength + nameLength + fwLength + hwLength) //3 bytes header are valid
+            {
+                Device.HWL_version = 0;
+                try
+                {
+                    Device.HWL_version = _serialPort.ReadByte();
+                }
+                catch (TimeoutException)
+                {
+                    Log.Information(name.ToString(), "Unknown Hardware Lighting Version");
                 }
 
             }
             _serialPort.Close();
             _serialPort.Dispose();
-            //if (isValid)
-            //    newDevices.Add(newDevice);
-            //reboot serialStream
-            // IsTransferActive = true;
-            //RaisePropertyChanged(nameof(IsTransferActive));
+            return true;
         }
         #endregion
-
+        #region Ambino Protocol
+        /// Hardware Lighting Protocol version 0
+        //+----------+---------------------+------------+---------------+
+        //| Position | Name                | Size(byte) | Default Value |
+        //+----------+---------------------+------------+---------------+
+        //| 0        | HWL_enable          | 1          | 1             |
+        //| 1        | StatusLEDEnable     | 1          | 0             |
+        //| 2        | HWL_tbd             | 1          | 255           |
+        //| 3        | HWL_tbd             | 1          | 255           |
+        //| 4        | HWL_tbd             | 1          | 255           |
+        //| 5        | HWL_tbd             | 1          | 255           |
+        //| 6        | HWF_FanSpeed        | 1          | 127           |
+        //| 7        | HWL_tbd             | 1          | 255           |
+        //| 8        | HWL_tbd             | 1          | 255           |
+        //| 9        | HWL_tbd             | 1          | 255           |
+        //| 10       | HWL_tbd             | 1          | 255           |
+        //| 11       | HWL_tbd             | 1          | 255           |
+        //| 12       | HWL_tbd             | 1          | 255           |
+        //+----------+---------------------+------------+---------------+
+        #endregion
 
     }
 }
+

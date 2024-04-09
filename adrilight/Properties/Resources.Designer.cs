@@ -59,5 +59,41 @@ namespace adrilight.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Device Hardware protocol version not supported, please check for firmware update.
+        /// </summary>
+        public static string DeviceAdvanceSettingsViewModel_GetHardwareSettings_OldFirmware {
+            get {
+                return ResourceManager.GetString("DeviceAdvanceSettingsViewModel_GetHardwareSettings_OldFirmware", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Protocol outdated.
+        /// </summary>
+        public static string DeviceAdvanceSettingsViewModel_GetHardwareSettings_ProtocolOutdated {
+            get {
+                return ResourceManager.GetString("DeviceAdvanceSettingsViewModel_GetHardwareSettings_ProtocolOutdated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error.
+        /// </summary>
+        public static string DeviceAdvanceSettingsViewModel_RefreshFirmwareVersion_DeviceDisconnect_header {
+            get {
+                return ResourceManager.GetString("DeviceAdvanceSettingsViewModel_RefreshFirmwareVersion_DeviceDisconnect_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Device disconnected.
+        /// </summary>
+        public static string DeviceAdvanceSettingsViewModel_RefreshFirmwareVersion_Disconnect {
+            get {
+                return ResourceManager.GetString("DeviceAdvanceSettingsViewModel_RefreshFirmwareVersion_Disconnect", resourceCulture);
+            }
+        }
     }
 }

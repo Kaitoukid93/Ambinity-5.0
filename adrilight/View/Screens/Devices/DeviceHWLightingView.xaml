@@ -1,0 +1,275 @@
+﻿<UserControl x:Class="adrilight.View.Screens.Devices.DeviceHWLightingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:adrilight.View.Screens.Devices"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
+             xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
+             mc:Ignorable="d"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             xmlns:vm="clr-namespace:adrilight.ViewModel"
+             d:DataContext="{d:DesignInstance vm:DeviceAdvanceSettingsViewModel, IsDesignTimeCreatable=True}">
+    <Grid Margin="20,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid Margin="0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Margin="5,10"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top"
+                       FontWeight="SemiBold"
+                       Style="{DynamicResource TextBlockDefaultSecLight}"
+                       Text="HARDWARE LIGHTING" />
+            <Border Margin="5"
+                    ToolTip="Harware lighting protocol version"
+                    Padding="7,5"
+                    HorizontalAlignment="Right"
+                    CornerRadius="4"
+                    Background="{DynamicResource primaryBackgroundBrush}">
+
+
+                <StackPanel   Orientation="Horizontal">
+                    <TextBlock Text="Protocol version: "
+                               FontWeight="SemiBold"
+                               Style="{DynamicResource TextBlockDefaultPrimary}" />
+                    <TextBlock Text="{Binding Device.HWL_version}"
+                               FontWeight="SemiBold"
+                               Style="{DynamicResource TextBlockDefaultPrimary}" />
+                </StackPanel>
+            </Border>
+        </Grid>
+        <Grid Grid.Row="1">
+
+
+            <StackPanel>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+                    <GroupBox   VerticalAlignment="Center"
+                                hc:TitleElement.TitleWidth="150"
+                                Margin="5"
+                                Style="{StaticResource GroupBoxOriginal}"
+                                HorizontalAlignment="Stretch"
+                                hc:TitleElement.TitlePlacement="Left">
+                        <GroupBox.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock FontWeight="SemiBold"
+                                           Text="LIGHTING EFFECT" />
+                            </DataTemplate>
+                        </GroupBox.HeaderTemplate>
+
+                        <ComboBox HorizontalAlignment="Right"
+                                  ItemContainerStyle="{DynamicResource _ComboboxItemStyle}"
+                                  SelectedIndex="{Binding Device.HWL_effectMode}">
+                            <ComboBoxItem>
+                                Solid Color
+                            </ComboBoxItem>
+                            <ComboBoxItem>
+                                Color Palette
+                            </ComboBoxItem>
+                        </ComboBox>
+
+
+                    </GroupBox>
+                    <TextBlock Margin="5,0,0,0"
+                               HorizontalAlignment="Left"
+                               Style="{StaticResource TextBlockDefaultSecLight}"
+                               Grid.Row="1"
+                               Text="Available lighting effects stored on this device" />
+                </Grid>
+                <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}"
+                            Margin="5,10,5,10">
+
+                </hc:Divider>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+                    <ContentControl ContentTemplate="{DynamicResource _listSelectionParamTemplate}"
+                                    Content="{Binding HardwareLightingColorSelection}">
+
+                    </ContentControl>
+                </Grid>
+                <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}"
+                            Margin="5,10,5,10">
+
+                </hc:Divider>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+                    <GroupBox   VerticalAlignment="Center"
+                                hc:TitleElement.TitleWidth="200"
+                                Margin="5"
+                                Style="{StaticResource GroupBoxOriginal}"
+                                HorizontalAlignment="Stretch"
+                                hc:TitleElement.TitlePlacement="Left">
+                        <GroupBox.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock FontWeight="SemiBold"
+                                           Text="DELAY TIME" />
+                            </DataTemplate>
+                        </GroupBox.HeaderTemplate>
+
+                        <hc:NumericUpDown Minimum="3"
+                                          Maximum="10"
+                                          Value="{Binding Device.HWL_returnafter}"
+                                          HorizontalAlignment="Right">
+
+                        </hc:NumericUpDown>
+
+
+                    </GroupBox>
+                    <TextBlock Margin="5,0,0,0"
+                               HorizontalAlignment="Left"
+                               Style="{StaticResource TextBlockDefaultSecLight}"
+                               Grid.Row="1"
+                               Text="Return to hardware lighting after selected amount of seconds" />
+                </Grid>
+                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                             Margin="5,10,5,10">
+
+                </hc:Divider>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+                    <GroupBox   VerticalAlignment="Center"
+                                hc:TitleElement.TitleWidth="200"
+                                Margin="5"
+                                Style="{StaticResource GroupBoxOriginal}"
+                                HorizontalAlignment="Stretch"
+                                hc:TitleElement.TitlePlacement="Left">
+                        <GroupBox.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock FontWeight="SemiBold"
+                                           Text="EFFECT SPEED" />
+                            </DataTemplate>
+                        </GroupBox.HeaderTemplate>
+
+                        <hc:PreviewSlider HorizontalAlignment="Right"
+                                          Width="200"
+                                          Minimum="20"
+                                          Maximum="255"
+                                          Value="{Binding Device.HWL_effectSpeed}">
+                            <hc:PreviewSlider.PreviewContent>
+                                <Label Style="{StaticResource LabelPrimary}"
+                                       Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}"
+                                       ContentStringFormat="#0" />
+                            </hc:PreviewSlider.PreviewContent>
+                        </hc:PreviewSlider>
+
+
+                    </GroupBox>
+                    <TextBlock Margin="5,0,0,0"
+                               HorizontalAlignment="Left"
+                               Style="{StaticResource TextBlockDefaultSecLight}"
+                               Grid.Row="1"
+                               Text="Speed of hardware lighting effect" />
+                </Grid>
+                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                             Margin="5,10,5,10">
+
+                </hc:Divider>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+                    <GroupBox   VerticalAlignment="Center"
+                                hc:TitleElement.TitleWidth="200"
+                                Margin="5"
+                                Style="{StaticResource GroupBoxOriginal}"
+                                HorizontalAlignment="Stretch"
+                                hc:TitleElement.TitlePlacement="Left">
+                        <GroupBox.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock FontWeight="SemiBold"
+                                           Text="EFFECT INTENSITY" />
+                            </DataTemplate>
+                        </GroupBox.HeaderTemplate>
+
+                        <hc:PreviewSlider HorizontalAlignment="Right"
+                                          Width="200"
+                                          Minimum="16"
+                                          Maximum="64"
+                                          Value="{Binding Device.HWL_effectIntensity}">
+                            <hc:PreviewSlider.PreviewContent>
+                                <Label Style="{StaticResource LabelPrimary}"
+                                       Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}"
+                                       ContentStringFormat="#0" />
+                            </hc:PreviewSlider.PreviewContent>
+                        </hc:PreviewSlider>
+
+
+                    </GroupBox>
+                    <TextBlock Margin="5,0,0,0"
+                               HorizontalAlignment="Left"
+                               Style="{StaticResource TextBlockDefaultSecLight}"
+                               Grid.Row="1"
+                               Text="Color intensity of hardware lighting effect" />
+                </Grid>
+                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                             Margin="5,10,5,10">
+
+                </hc:Divider>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+                    <GroupBox   VerticalAlignment="Center"
+                                hc:TitleElement.TitleWidth="200"
+                                Margin="5"
+                                Style="{StaticResource GroupBoxOriginal}"
+                                HorizontalAlignment="Stretch"
+                                hc:TitleElement.TitlePlacement="Left">
+                        <GroupBox.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock FontWeight="SemiBold"
+                                           Text="EFFECT BRIGHTNESS" />
+                            </DataTemplate>
+                        </GroupBox.HeaderTemplate>
+
+                        <hc:PreviewSlider HorizontalAlignment="Right"
+                                          Width="200"
+                                          Minimum="20"
+                                          Maximum="255"
+                                          Value="{Binding Device.HWL_brightness}">
+                            <hc:PreviewSlider.PreviewContent>
+                                <Label Style="{StaticResource LabelPrimary}"
+                                       Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}"
+                                       ContentStringFormat="#0" />
+                            </hc:PreviewSlider.PreviewContent>
+                        </hc:PreviewSlider>
+
+
+                    </GroupBox>
+                    <TextBlock Margin="5,0,0,0"
+                               HorizontalAlignment="Left"
+                               Style="{StaticResource TextBlockDefaultSecLight}"
+                               Grid.Row="1"
+                               Text="Brightness of hardware lighting effect" />
+                </Grid>
+                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                             Margin="5,10,5,10">
+
+                </hc:Divider>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

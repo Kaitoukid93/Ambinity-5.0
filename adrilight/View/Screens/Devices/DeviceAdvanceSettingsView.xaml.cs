@@ -1,6 +1,8 @@
 ﻿using adrilight.ViewModel;
 using System;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace adrilight.View
 {
@@ -14,7 +16,21 @@ namespace adrilight.View
             InitializeComponent();
 
         }
+        private void GroupBox_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var grBx = (Border)sender;
+            var dataCntx = grBx.DataContext;
+            var dataSource = (adrilight_shared.Models.ControlMode.ModeParameters.ListSelectionParameter)dataCntx;
+            if (dataSource != null)
+            {
+                if (dataSource.ShowMore)
+                    dataSource.ShowMore = false;
+                else
+                    dataSource.ShowMore = true;
+            }
+        }
     }
+
     public class DeviceAdvanceSettingsViewPage : ISelectablePage
     {
         private readonly Lazy<DeviceAdvanceSettingsView> lazyContent;
@@ -31,4 +47,5 @@ namespace adrilight.View
 
         public object Content { get => lazyContent.Value; }
     }
+
 }

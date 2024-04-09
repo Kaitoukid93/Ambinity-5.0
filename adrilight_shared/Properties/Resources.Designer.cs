@@ -1177,7 +1177,7 @@ namespace adrilight_shared.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Chose firmware .hex file.
+        ///   Looks up a localized string similar to Chose firmware file.
         /// </summary>
         public static string DeviceAdvanceSettingsView_CustomFirmwareSelection_buttonconent {
             get {
@@ -1285,7 +1285,7 @@ namespace adrilight_shared.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to KEEP LED STATE WHEN DISCONNECTED.
+        ///   Looks up a localized string similar to ENABLE HARDWARE LIGHTING.
         /// </summary>
         public static string DeviceAdvanceSettingsView_HardwareSettings_OfflineLEDState_header {
             get {

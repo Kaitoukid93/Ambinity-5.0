@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 
 namespace adrilight_shared.Models.Device
 {
@@ -72,5 +73,18 @@ namespace adrilight_shared.Models.Device
         void SetStaticColor(ColorCard colors);
         void SetModeByEnumValue(LightingModeEnum value);
         void ActivateControlMode(LightingMode lightingMode);
+        string DeviceFirmwareExtension { get; }
+
+        ///hardware lighting///
+        byte HWL_enable { get; set; }
+        byte StatusLEDEnable { get; set; }
+        byte HWL_returnafter { get; set; }
+        byte HWL_effectMode { get; set; }
+        byte HWL_effectSpeed { get; set; }
+        byte HWL_effectIntensity { get; set; }
+        byte HWL_brightness { get; set; }
+        Color HWL_singleColor { get; set; }
+        Color[] HWL_palette { get; set; }
+        int HWL_version { get; set; }
     }
 }

@@ -126,6 +126,7 @@ namespace adrilight.Util
             string name = "unknown";
             string fw = "unknown";
             string hw = "unknown";
+            int hwLightingVersion = 0;
             bool isValid = true;
             var _serialPort = new SerialPort(comPort, 1000000);
             _serialPort.ReadTimeout = 5000;
@@ -268,8 +269,20 @@ namespace adrilight.Util
                 }
 
             }
+            if (offset == 3 + idLength + nameLength + fwLength + hwLength) //3 bytes header are valid
+            {
+                try
+                {
+                     hwLightingVersion = _serialPort.ReadByte();
+                }
+                catch (TimeoutException)
+                {
+                    Log.Information(name.ToString(), "Unknown Hardware Lighting Version");
+                }
+
+            }
             //construct new device
-            var dev = DeviceConstruct(name, id, fw, hw, comPort);
+            var dev = DeviceConstruct(name, id, fw, hw,hwLightingVersion, comPort);
             _serialPort.Close();
             _serialPort.Dispose();
             return dev;
@@ -283,11 +296,12 @@ namespace adrilight.Util
         /// <param name="hwVersion"></param>
         /// <param name="outputPort"></param>
         /// <returns></returns>
-        private static DeviceSettings DeviceConstruct(string name, string deviceSerial, string fwVersion, string hwVersion, string outputPort)
+        private static DeviceSettings DeviceConstruct(string name, string deviceSerial, string fwVersion, string hwVersion,int hwLightingVersion, string outputPort)
         {
             var ledSetupHlprs = new LEDSetupHelpers();
             var newDevice = new DeviceSettings();
             newDevice.DeviceName = name;
+            newDevice.HWL_version = hwLightingVersion;
             switch (newDevice.DeviceName)
             {
                 case "Ambino Basic":// General Ambino Basic USB Device

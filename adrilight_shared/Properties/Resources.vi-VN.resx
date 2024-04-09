@@ -313,7 +313,7 @@
     <value>Độ sáng tối đa cho phép</value>
   </data>
   <data name="DeviceAdvanceSettingsView_HardwareSettings_OfflineLEDState_header" xml:space="preserve">
-    <value>GIỮ TRẠNG THÁI LED KHI NGẮT KẾT NỐI</value>
+    <value>CHO PHÉP CHẠY HIỆU ỨNG KHI NGẮT KẾT NỐI</value>
   </data>
   <data name="DeviceAdvanceSettingsView_IndicatorLED_header" xml:space="preserve">
     <value>BẬT HOẶC TẮT LED TÍN HIỆU</value>
@@ -367,10 +367,10 @@
     <value>Ok</value>
   </data>
   <data name="DeviceAdvanceSettingsView_CustomFirmwareSelection_buttonconent" xml:space="preserve">
-    <value>Chọn .hex file</value>
+    <value>Chọn file</value>
   </data>
   <data name="DeviceAdvanceSettingsView_FirmwareRepair_content" xml:space="preserve">
-    <value>Chọn một file hex để cập nhật. Thiết bị có thể sẽ không hoạt động nếu nạp sai</value>
+    <value>Chọn một tệp để cập nhật. Thiết bị có thể sẽ không hoạt động nếu nạp sai</value>
   </data>
   <data name="EnterDFU_ButtonContent" xml:space="preserve">
     <value>Về DFU</value>

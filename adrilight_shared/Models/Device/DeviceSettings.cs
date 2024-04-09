@@ -26,6 +26,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 
 namespace adrilight_shared.Models.Device
 {
@@ -63,6 +64,16 @@ namespace adrilight_shared.Models.Device
         private int _currentActiveControllerIndex;
         private IDeviceController _currentActiveController;
 
+        private byte _hwl_enable;
+        private byte _statusLEDEnable;
+        private byte _hwl_returnafter;
+        private byte _hwl_effectMode;
+        private byte _hwl_effectSpeed;
+        private byte _hwl_brightness;
+        private Color _hwl_singleColor;
+        private Color[] _hwl_palette;
+        private byte _hwl_effectIntensity;
+        private int _hwl_version;
 
         private int _maxBrightnessCap = 80;
         public int DashboardWidth { get => _dashboardWidth; set { Set(() => DashboardWidth, ref _dashboardWidth, value); } }
@@ -138,8 +149,52 @@ namespace adrilight_shared.Models.Device
         public bool IsIndicatorLEDOn { get; set; }
         [JsonIgnore]
         public bool NoSignalLEDEnable { get; set; }
-        [JsonIgnore]
+        [JsonIgnore] 
         public int NoSignalFanSpeed { get; set; }
+        [JsonIgnore]
+        public string DeviceFirmwareExtension => GetDeviceFirmwareExtensionString();
+        [JsonIgnore]
+        public byte HWL_enable { get => _hwl_enable; set { Set(() => HWL_enable, ref _hwl_enable, value); } }
+        [JsonIgnore]
+        public byte StatusLEDEnable { get => _statusLEDEnable; set { Set(() => StatusLEDEnable, ref _statusLEDEnable, value); } }
+        [JsonIgnore]
+        public byte HWL_returnafter { get => _hwl_returnafter; set { Set(() => HWL_returnafter, ref _hwl_returnafter, value); } }
+        [JsonIgnore]
+        public byte HWL_effectMode { get => _hwl_effectMode; set { Set(() => HWL_effectMode, ref _hwl_effectMode, value); } }
+        [JsonIgnore]
+        public byte HWL_effectSpeed { get => _hwl_effectSpeed; set { Set(() => HWL_effectSpeed, ref _hwl_effectSpeed, value); } }
+        [JsonIgnore]
+        public byte HWL_brightness { get => _hwl_brightness; set { Set(() => HWL_brightness, ref _hwl_brightness, value); } }
+        [JsonIgnore]
+        public Color HWL_singleColor { get => _hwl_singleColor; set { Set(() => HWL_singleColor, ref _hwl_singleColor, value); } }
+        [JsonIgnore]
+        public Color[] HWL_palette { get => _hwl_palette; set { Set(() => HWL_palette, ref _hwl_palette, value); } }
+        [JsonIgnore]
+        public byte HWL_effectIntensity { get => _hwl_effectIntensity; set { Set(() => HWL_effectIntensity, ref _hwl_effectIntensity, value); } }
+        [JsonIgnore]
+        public int HWL_version { get => _hwl_version; set { Set(() => HWL_version, ref _hwl_version, value); } }
+        private string GetDeviceFirmwareExtensionString()
+        {
+            string ex = ".hex";
+            switch (HardwareVersion)
+            {
+                case "ARR1p":
+                case "AHR2g":
+                case "AFR3g":
+                case "AFR2g":
+                case "AFR1g":
+                case "AER2e":
+                case "AER1e":
+                case "ABR2e":
+                case "ABR1p":
+                    ex = ".hex";
+                    break;
+                case "AHR4p":
+                    ex = ".uf2";
+                    break;
+            }
+            return ex;
+        }
         private ISlaveDevice[] GetSlaveDevices(ControllerTypeEnum type)
         {
             if (AvailableControllers == null)
@@ -214,7 +269,6 @@ namespace adrilight_shared.Models.Device
             return groups;
         }
         public int CurrentActiveControlerIndex { get => _currentActiveControllerIndex; set { if (value >= 0) Set(() => CurrentActiveControlerIndex, ref _currentActiveControllerIndex, value); OnActiveControllerChanged(); } }
-
         private void OnActiveControllerChanged()
         {
             if (AvailableControllers != null)

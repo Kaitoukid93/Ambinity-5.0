@@ -310,6 +310,12 @@
     <Compile Include="View\Screens\Automation\AutomationNonClientAreaContent.xaml.cs" />
     <Compile Include="View\Screens\Debug\DebugWindow.xaml.cs" />
     <Compile Include="View\Screens\Devices\DeviceAdvanceSettingsView.xaml.cs" />
+    <Compile Include="View\Screens\Devices\DeviceHWSettingsView.xaml.cs">
+      <DependentUpon>DeviceHWSettingsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Screens\Devices\DeviceHWLightingView.xaml.cs">
+      <DependentUpon>DeviceHWLightingView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Screens\Devices\DeviceLoadingView.xaml.cs" />
     <Compile Include="View\Screens\Devices\DeviceManagerWindow.xaml.cs" />
     <Compile Include="View\Screens\Devices\DeviceCollectionView.xaml.cs" />
@@ -407,6 +413,14 @@
     <Page Include="View\Screens\Devices\DeviceAdvanceSettingsView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Screens\Devices\DeviceHWSettingsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Screens\Devices\DeviceHWLightingView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\Screens\Devices\DeviceLoadingView.xaml">
       <Generator>MSBuild:Compile</Generator>

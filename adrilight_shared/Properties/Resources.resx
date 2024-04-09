@@ -314,7 +314,7 @@
     <value>Maximum brightness allowed</value>
   </data>
   <data name="DeviceAdvanceSettingsView_HardwareSettings_OfflineLEDState_header" xml:space="preserve">
-    <value>KEEP LED STATE WHEN DISCONNECTED</value>
+    <value>ENABLE HARDWARE LIGHTING</value>
   </data>
   <data name="DeviceAdvanceSettingsView_IndicatorLED_header" xml:space="preserve">
     <value>STANDBY LED</value>
@@ -368,7 +368,7 @@
     <value>Ok</value>
   </data>
   <data name="DeviceAdvanceSettingsView_CustomFirmwareSelection_buttonconent" xml:space="preserve">
-    <value>Chose firmware .hex file</value>
+    <value>Chose firmware file</value>
   </data>
   <data name="DeviceAdvanceSettingsView_FirmwareRepair_content" xml:space="preserve">
     <value>Brick repair will allow you to load a custom firmware version and download to device, use at your own risk</value>
