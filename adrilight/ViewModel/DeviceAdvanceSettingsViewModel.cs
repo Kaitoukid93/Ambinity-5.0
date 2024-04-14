@@ -64,15 +64,16 @@ namespace adrilight.ViewModel
             ResourceHlprs = new ResourceHelpers();
             LocalFileHlprs = new LocalFileHelpers();
             CommandSetup();
-            HardwareLightingColorSelectionInit();
+            HardwareLightingControlInit();
         }
         #endregion
+
         private void Device_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
                 case nameof(Device.HWL_effectMode):
-                    HardwareLightingColorSelectionInit();
+                    HardwareLightingControlInit();
                     break;
             }
         }
@@ -85,6 +86,30 @@ namespace adrilight.ViewModel
         private static byte[] requestCommand = { (byte)'d', (byte)'i', (byte)'r', (byte)'\n' };
         private static byte[] sendCommand = { (byte)'h', (byte)'s', (byte)'d' };
         private static byte[] expectedValidHeader = { 15, 12, 93 };
+        private bool _hwl_HasIntensityControl = false;
+        private bool _hwl_HasSpeedControl = false;
+        public bool HWL_HasSpeedControl {
+            get
+            {
+                return _hwl_HasSpeedControl;
+            }
+            set
+            {
+                _hwl_HasSpeedControl = value;
+                RaisePropertyChanged();
+            }
+        }
+        public bool HWL_HasIntensityControl {
+            get
+            {
+                return _hwl_HasIntensityControl;
+            }
+            set
+            {
+                _hwl_HasIntensityControl = value;
+                RaisePropertyChanged();
+            }
+        }
         private bool isApplyingDeviceHardwareSettings;
         public bool IsApplyingDeviceHardwareSettings {
             get
@@ -223,19 +248,14 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-        private void HardwareLightingColorSelectionInit()
+        private void ColorSelectionInit( List<string> source)
         {
             HardwareLightingColorSelection = new ListSelectionParameter(ModeParameterEnum.Color);
+            HardwareLightingColorSelection.DataSourceLocaFolderNames = source;
             HardwareLightingColorSelection.Name = "COLORS";
             HardwareLightingColorSelection.Description = "Select colors";
-            if (Device.HWL_effectMode == 0 || Device.HWL_effectMode ==2)
-                HardwareLightingColorSelection.DataSourceLocaFolderNames = new List<string>() { "Colors" };
-            else
-            {
-                HardwareLightingColorSelection.DataSourceLocaFolderNames = new List<string>() { "ColorPalettes" };
-            }
             HardwareLightingColorSelection.LoadAvailableValues();
-            HardwareLightingColorSelection.SelectedValue = HardwareLightingColorSelection.AvailableValues[0];
+            UpdateColorSelectionSelectedValue();
             HardwareLightingColorSelection.PropertyChanged += (_, __) =>
             {
                 switch (__.PropertyName)
@@ -265,6 +285,27 @@ namespace adrilight.ViewModel
                         break;
                 }
             };
+        }
+        private void HardwareLightingControlInit()
+        {
+            //if has color control
+            List<string> source = new List<string>();
+            if (Device.HWL_effectMode == 0 || Device.HWL_effectMode == 2)
+                 source = new List<string>() { "Colors" };
+            else
+            {
+                source = new List<string>() { "ColorPalettes" };
+            }
+            ColorSelectionInit( source);
+            if (Device.HWL_effectMode == 1 || Device.HWL_effectMode == 2)
+                HWL_HasSpeedControl = true;
+            else
+                HWL_HasSpeedControl = false;
+            if (Device.HWL_effectMode == 1)
+                HWL_HasIntensityControl = true;
+            else
+                HWL_HasIntensityControl = false;
+           
         }
         private Color[] ResizePalette(Color[] color, int w1, int w2)
         {
@@ -520,6 +561,7 @@ namespace adrilight.ViewModel
                 Device.HWL_palette[i] = Color.FromRgb((byte)_serialPort.ReadByte(), (byte)_serialPort.ReadByte(), (byte)_serialPort.ReadByte());
                 Log.Information("HWL_palette " + i + ": " + Device.HWL_palette[i]);
             }
+
             Device.HWL_effectIntensity = (byte)_serialPort.ReadByte();
             Log.Information("HWL_effectIntensity: " + Device.HWL_effectIntensity);
 
@@ -530,6 +572,18 @@ namespace adrilight.ViewModel
                 Log.Information("Device EEPRom Data: " + noSignalFanSpeed);
 
             }
+
+            UpdateColorSelectionSelectedValue();
+
+        }
+        private void UpdateColorSelectionSelectedValue()
+        {
+            if (Device.HWL_effectMode == 0 || Device.HWL_effectMode == 2)
+            {
+                HardwareLightingColorSelection.SelectedValue = new ColorCard() { StartColor = Device.HWL_singleColor, StopColor = Device.HWL_singleColor };
+            }
+            else if (Device.HWL_effectMode == 1)
+                HardwareLightingColorSelection.SelectedValue = new ColorPalette() { Colors = Device.HWL_palette };
         }
         public async Task<bool> SendHardwareSettings()
         {

@@ -518,6 +518,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Models\HWLighting\" />
     <Folder Include="Resources\Images\" />
   </ItemGroup>
   <ItemGroup>

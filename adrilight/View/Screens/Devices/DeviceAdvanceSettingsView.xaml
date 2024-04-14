@@ -214,7 +214,7 @@
                                                     <ContentControl.Resources>
                                                         <DataTemplate DataType="{x:Type parameterValues:ColorPalette}">
                                                             <Grid>
-                                                                <Border Effect="{DynamicResource EffectShadow1}"
+                                                                <Border  Effect="{DynamicResource EffectShadow1}"
                                                                         Width="168"
                                                                         Padding="5"
                                                                         Height="40"
@@ -226,7 +226,7 @@
                                                                         <ItemsControl.ItemsPanel>
                                                                             <ItemsPanelTemplate>
                                                                                 <UniformGrid Rows="1"
-                                                                                             Columns="16">
+                                                                                             Columns="{Binding Path=Colors.Length}">
 
                                                                                 </UniformGrid>
                                                                             </ItemsPanelTemplate>
@@ -434,9 +434,9 @@
                                                                                     <ItemsControl ItemsSource="{Binding Colors}">
                                                                                         <ItemsControl.ItemsPanel>
                                                                                             <ItemsPanelTemplate>
-                                                                                                <StackPanel Orientation="Horizontal">
+                                                                                                <UniformGrid Rows="1" Columns="{Binding Path=Colors.Length}">
 
-                                                                                                </StackPanel>
+                                                                                                </UniformGrid>
                                                                                             </ItemsPanelTemplate>
                                                                                         </ItemsControl.ItemsPanel>
                                                                                         <ItemsControl.ItemTemplate>
