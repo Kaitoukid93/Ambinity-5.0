@@ -8600,7 +8600,7 @@ namespace adrilight.ViewModel
             };
             var AFR3g = new DeviceFirmware() {
                 Name = "AFR3g.hex",
-                Version = "1.0.9",
+                Version = "1.1.0",
                 TargetHardware = "AFR3g",
                 TargetDeviceType = DeviceTypeEnum.AmbinoFanHub,
                 Geometry = "binary",
@@ -8622,6 +8622,14 @@ namespace adrilight.ViewModel
                 Geometry = "binary",
                 ResourceName = "adrilight_shared.DeviceFirmware.ARR1p.hex"
             };
+            var AHR4p = new DeviceFirmware() {
+                Name = "AHR4p.uf2",
+                Version = "1.0.2",
+                TargetHardware = "AHR4p",
+                TargetDeviceType = DeviceTypeEnum.AmbinoHUBV3,
+                Geometry = "binary",
+                ResourceName = "adrilight_shared.DeviceFirmware.AHR4p.uf2"
+            };
             var firmwareList = new List<DeviceFirmware>();
             firmwareList.Add(ABR1p);
             firmwareList.Add(ABR2e);
@@ -8632,6 +8640,7 @@ namespace adrilight.ViewModel
             firmwareList.Add(ARR1p);
             firmwareList.Add(AFR2g);
             firmwareList.Add(AFR3g);
+            firmwareList.Add(AHR4p);
             //+-------------------------------------------------+--------+----+----+-------+
             //| Ambino Basic CH552P without PowerLED Support    | CH552P | 32 | 14 | ABR1p |
             //+-------------------------------------------------+--------+----+----+-------+

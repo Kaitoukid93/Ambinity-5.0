@@ -64,8 +64,8 @@ namespace adrilight_shared.Models.Device
         private int _currentActiveControllerIndex;
         private IDeviceController _currentActiveController;
 
-        private byte _hwl_enable;
-        private byte _statusLEDEnable;
+        private bool _hwl_enable;
+        private bool _statusLEDEnable;
         private byte _hwl_returnafter;
         private byte _hwl_effectMode;
         private byte _hwl_effectSpeed;
@@ -154,9 +154,9 @@ namespace adrilight_shared.Models.Device
         [JsonIgnore]
         public string DeviceFirmwareExtension => GetDeviceFirmwareExtensionString();
         [JsonIgnore]
-        public byte HWL_enable { get => _hwl_enable; set { Set(() => HWL_enable, ref _hwl_enable, value); } }
+        public bool HWL_enable { get => _hwl_enable; set { Set(() => HWL_enable, ref _hwl_enable, value); } }
         [JsonIgnore]
-        public byte StatusLEDEnable { get => _statusLEDEnable; set { Set(() => StatusLEDEnable, ref _statusLEDEnable, value); } }
+        public bool StatusLEDEnable { get => _statusLEDEnable; set { Set(() => StatusLEDEnable, ref _statusLEDEnable, value); } }
         [JsonIgnore]
         public byte HWL_returnafter { get => _hwl_returnafter; set { Set(() => HWL_returnafter, ref _hwl_returnafter, value); } }
         [JsonIgnore]

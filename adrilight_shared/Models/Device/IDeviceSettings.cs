@@ -76,8 +76,8 @@ namespace adrilight_shared.Models.Device
         string DeviceFirmwareExtension { get; }
 
         ///hardware lighting///
-        byte HWL_enable { get; set; }
-        byte StatusLEDEnable { get; set; }
+        bool HWL_enable { get; set; }
+        bool StatusLEDEnable { get; set; }
         byte HWL_returnafter { get; set; }
         byte HWL_effectMode { get; set; }
         byte HWL_effectSpeed { get; set; }

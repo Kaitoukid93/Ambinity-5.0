@@ -103,15 +103,7 @@ namespace adrilight
                 _dimMode = DimMode.Down;
                 _dimFactor = 1.00;
             }
-            else if (DeviceSettings.DeviceState == DeviceStateEnum.DFU)
-            {
-                if (DeviceSettings.IsTransferActive)
-                {
-                    Stop();
-                    Thread.Sleep(1000);
-                }
-                DFU();
-            }
+            
         }
         #endregion
 
@@ -208,35 +200,6 @@ namespace adrilight
         }
 
         public bool IsRunning => _workerThread != null && _workerThread.IsAlive;
-
-        public void DFU()
-        {
-
-            if (DeviceSettings.OutputPort != null)
-            {
-
-                var _serialPort = new SerialPort(DeviceSettings.OutputPort, 1200);
-                _serialPort.DtrEnable = true;
-                _serialPort.ReadTimeout = 5000;
-                _serialPort.WriteTimeout = 1000;
-                try
-                {
-                    if (!_serialPort.IsOpen)
-                        _serialPort.Open();
-                }
-                catch (Exception)
-                {
-                    //
-                }
-
-                Thread.Sleep(1000);
-                if (_serialPort.IsOpen)
-                    _serialPort.Close();
-
-            }
-
-        }
-
 
         private (byte[] Buffer, int OutputLength) GetOutputStream(int id)
         {
@@ -413,6 +376,7 @@ namespace adrilight
                         {
                             serialPort?.Close();
                             serialPort = DeviceSettings.OutputPort != "Không có" ? (ISerialPortWrapper)new WrappedSerialPort(new SerialPort(DeviceSettings.OutputPort, baudRate)) : new FakeSerialPort();
+                            serialPort.SerialPort.DtrEnable=true;
                             serialPort.Open();
                             openedComPort = DeviceSettings.OutputPort;
 

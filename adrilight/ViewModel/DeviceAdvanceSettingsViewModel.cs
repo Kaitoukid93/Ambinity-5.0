@@ -12,6 +12,7 @@ using adrilight_shared.Models.Device.Controller;
 using adrilight_shared.Models.Device.Output;
 using adrilight_shared.Models.Device.SlaveDevice;
 using adrilight_shared.Models.Lighting;
+using adrilight_shared.Models.SerialPortData;
 using adrilight_shared.Models.Stores;
 using adrilight_shared.Services;
 using adrilight_shared.Settings;
@@ -30,6 +31,7 @@ using System.IO;
 using System.IO.Compression;
 using System.IO.Ports;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -168,7 +170,7 @@ namespace adrilight.ViewModel
                 switch (Device.DeviceType.Type)
                 {
                     case DeviceTypeEnum.AmbinoHUBV2:
-                        await EnterDFU();
+                        EnterDFU();
                         break;
                     default:
                         if (UpdateAvailable)
@@ -226,7 +228,7 @@ namespace adrilight.ViewModel
             HardwareLightingColorSelection = new ListSelectionParameter(ModeParameterEnum.Color);
             HardwareLightingColorSelection.Name = "COLORS";
             HardwareLightingColorSelection.Description = "Select colors";
-            if (Device.HWL_effectMode == 0)
+            if (Device.HWL_effectMode == 0 || Device.HWL_effectMode ==2)
                 HardwareLightingColorSelection.DataSourceLocaFolderNames = new List<string>() { "Colors" };
             else
             {
@@ -315,8 +317,8 @@ namespace adrilight.ViewModel
             var outputStream = new byte[48];
             Buffer.BlockCopy(sendCommand, 0, outputStream, 0, sendCommand.Length);
             int counter = sendCommand.Length;
-            outputStream[counter++] = (byte)Device.HWL_enable;
-            outputStream[counter++] = (byte)Device.StatusLEDEnable;
+            outputStream[counter++] = (byte)(Device.HWL_enable == true ? 1 : 0);
+            outputStream[counter++] = (byte)(Device.StatusLEDEnable == true ? 1 : 0);
             outputStream[counter++] = (byte)Device.HWL_returnafter;
             outputStream[counter++] = (byte)Device.HWL_effectMode;
             outputStream[counter++] = (byte)Device.HWL_effectSpeed;
@@ -495,9 +497,9 @@ namespace adrilight.ViewModel
             //+----------+---------------------+------------+---------------+
 
 
-            Device.HWL_enable = (byte)_serialPort.ReadByte();
+            Device.HWL_enable = _serialPort.ReadByte() == 1 ? true : false;
             Log.Information("HWL_enable: " + Device.HWL_enable);
-            Device.StatusLEDEnable = (byte)_serialPort.ReadByte();
+            Device.StatusLEDEnable = _serialPort.ReadByte() == 1 ? true : false;
             Log.Information("StatusLEDEnable: " + Device.StatusLEDEnable);
             Device.HWL_returnafter = (byte)_serialPort.ReadByte();
             Log.Information("HWL_returnafter: " + Device.HWL_returnafter);
@@ -600,18 +602,6 @@ namespace adrilight.ViewModel
             //IsTransferActive = true;
             //RaisePropertyChanged(nameof(IsTransferActive));
         }
-        private ObservableCollection<DeviceFirmware> _availableFirmware;
-        public ObservableCollection<DeviceFirmware> AvailableFirmware {
-            get { return _availableFirmware; }
-
-            set
-            {
-                if (_availableFirmware == value) return;
-                _availableFirmware = value;
-
-                RaisePropertyChanged();
-            }
-        }
         private bool _reloadDeviceLoadingVissible = false;
         public bool ReloadDeviceLoadingVissible {
             get { return _reloadDeviceLoadingVissible; }
@@ -652,17 +642,6 @@ namespace adrilight.ViewModel
             set
             {
                 _fwUploadPercent = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private bool _fwUploadPercentVissible = false;
-        public bool FwUploadPercentVissible {
-            get { return _fwUploadPercentVissible; }
-
-            set
-            {
-                _fwUploadPercentVissible = value;
                 RaisePropertyChanged();
             }
         }
@@ -740,20 +719,38 @@ namespace adrilight.ViewModel
             vm.SuccessMessage = "Device backup files saved to " + path;
             //export
         }
-        private async Task UpgradeSelectedDeviceFirmware(IDeviceSettings device, string fwPath, ProgressDialogViewModel vm)
+
+        private void Copyuf2Fw(string fwPath, ProgressDialogViewModel vm)
         {
-            //if (GeneralSettings.DriverRequested)
-            //{
-            //    await Task.Run(() => PromptDriverInstaller());
-            //    return;
-            //}
-            //put device in dfu state
-            vm.CurrentProgressHeader = "Rebooting device";
-            device.DeviceState = DeviceStateEnum.DFU;
-            // wait for device to enter dfu
-            Thread.Sleep(1000);
-            vm.CurrentProgressHeader = "Waiting for device";
-            vm.ProgressBarVisibility = Visibility.Visible;
+            vm.CurrentProgressHeader = "Flashing uf2...";
+            var drive = DriveInfo.GetDrives().Where(drv => drv.VolumeLabel == "RPI-RP2").FirstOrDefault();
+            if (drive == null)
+            {
+                vm.CurrentProgressHeader = "Can not find device in dfu mode..";
+                HandyControl.Controls.MessageBox.Show("Update firmware không thành công, Không tìm thấy thiết bị ở trạng thái DFU", "Firmware uploading", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            string target = drive.RootDirectory.ToString();
+            try
+            {
+                File.Copy(fwPath, Path.Combine(target, Path.GetFileName(fwPath)));
+            }
+            catch (Exception ex)
+            {
+
+            }
+            //wait for device 
+            vm.CurrentProgressHeader = "Waiting for device to reboot...";
+            Thread.Sleep(2000);
+            // note that since we're in different thread, we cannot interact with UI,
+            // so you have to dispatch your operations to UI thread. That can be done just using 
+            // Control's Invoke method
+            RefreshFirmwareVersion();
+            ShowUpdateSuccessMessage(vm);
+
+        }
+        private void StartCh55xFWTool(string fwPath, ProgressDialogViewModel vm)
+        {
             var startInfo = new System.Diagnostics.ProcessStartInfo {
                 WorkingDirectory = JsonFWToolsFileNameAndPath,
                 RedirectStandardOutput = true,
@@ -777,6 +774,91 @@ namespace adrilight.ViewModel
             proc.BeginErrorReadLine();
             proc.BeginOutputReadLine();
             proc.Exited += (sender, e) => proc_FinishUploading(sender, e, vm); ;
+        }
+
+        private async Task UpgradeSelectedDeviceFirmware(IDeviceSettings device, string fwPath, ProgressDialogViewModel vm)
+        {
+
+            vm.CurrentProgressHeader = "Rebooting device";
+            EnterDFU();
+            // wait for device to enter dfu
+            vm.CurrentProgressHeader = "Waiting for device";
+            vm.ProgressBarVisibility = Visibility.Visible;
+            // start fwtool
+            if (device.DeviceFirmwareExtension == ".hex")
+                StartCh55xFWTool(fwPath, vm);
+            else if (device.DeviceFirmwareExtension == ".uf2")
+            {
+                Copyuf2Fw(fwPath, vm);
+            }
+
+        }
+        private void EnterDFU()
+        {
+            var _serialPort = new SerialPort(Device.OutputPort, 1200);
+            _serialPort.DtrEnable = true;
+            _serialPort.ReadTimeout = 5000;
+            _serialPort.WriteTimeout = 1000;
+            if (Device.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV2)
+            {
+
+                try
+                {
+                    _serialPort.Open();
+                }
+                catch (Exception)
+                {
+                    // I don't know about this shit but we have to catch an empty exception because somehow SerialPort.Open() was called twice
+                }
+                Thread.Sleep(500);
+                try
+                {
+                    _serialPort.Write(new byte[3] { (byte)'f', (byte)'u', (byte)'g' }, 0, 3);
+                }
+                catch (Exception)
+                {
+                    // I don't know about this shit but we have to catch an empty exception because somehow SerialPort.Write() was called twice
+                }
+
+
+                Thread.Sleep(1000);
+                _serialPort.Close();
+            }
+            else
+            {
+
+                try
+                {
+                    if (!_serialPort.IsOpen)
+                        _serialPort.Open();
+                }
+                catch (Exception)
+                {
+                    //
+                }
+
+                Thread.Sleep(1000);
+                if (_serialPort.IsOpen)
+                    _serialPort.Close();
+            }
+
+        }
+        private void ShowUpdateSuccessMessage(ProgressDialogViewModel vm)
+        {
+            percentCount = 0;
+            vm.Value = 0;
+            vm.ProgressBarVisibility = Visibility.Collapsed;
+            vm.Header = "Done";
+            vm.SuccessMessage = "Update thành công! Phiên bản" + " " + Device.FirmwareVersion;
+            vm.SuccessMesageVisibility = Visibility.Visible;
+            vm.SecondaryActionButtonContent = "Close";
+            vm.PrimaryActionButtonContent = "Show Log";
+            UpdateAvailable = false;
+            UpdateButtonContent = "Check for update";
+            NewFirmwareVersionContent = "";
+            FwUploadOutputLog = string.Empty;
+            ReloadDeviceLoadingVissible = false;
+            FrimwareUpgradeIsInProgress = false;
         }
         private void proc_FinishUploading(object sender, System.EventArgs e, ProgressDialogViewModel vm)
         {
@@ -803,21 +885,9 @@ namespace adrilight.ViewModel
             {
                 // check for current device actual firmware version
                 RefreshFirmwareVersion();
-                // reset loading bar
-                percentCount = 0;
-                vm.Value = 0;
-                vm.ProgressBarVisibility = Visibility.Collapsed;
-                vm.Header = "Done";
-                vm.SuccessMessage = "Update thành công! Phiên bản" + " " + Device.FirmwareVersion;
-                vm.SuccessMesageVisibility = Visibility.Visible;
-                vm.SecondaryActionButtonContent = "Close";
-                vm.PrimaryActionButtonContent = "Show Log";
-                UpdateAvailable = false;
-                UpdateButtonContent = "Check for update";
-                NewFirmwareVersionContent = "";
-                FwUploadOutputLog = string.Empty;
-                ReloadDeviceLoadingVissible = false;
-                FrimwareUpgradeIsInProgress = false;
+                // show success
+                ShowUpdateSuccessMessage(vm);
+
             }
         }
 
@@ -854,10 +924,8 @@ namespace adrilight.ViewModel
             var result = await Task.Run(() => SendHardwareSettings());
             IsApplyingDeviceHardwareSettings = false;
         }
-
         public bool FrimwareUpgradeIsInProgress { get; set; }
         private string _currentSelectedFirmware;
-
         public string CurrentSelectedFirmware {
             get
             {
@@ -871,7 +939,6 @@ namespace adrilight.ViewModel
             }
         }
         private string _updateButtonContent = "Check for update";
-
         public string UpdateButtonContent {
             get
             {
@@ -969,13 +1036,6 @@ namespace adrilight.ViewModel
 
             IsDownloadingFirmware = false;
         }
-        private async Task EnterDFU()
-        {
-            Device.DeviceState = DeviceStateEnum.DFU;
-            Thread.Sleep(5000);
-            Device.DeviceState = DeviceStateEnum.Normal;
-            HandyControl.Controls.MessageBox.Show("Đã gửi thông tin đến Device, mở FlyMCU để tiếp tục nạp firmware sau đó bật lại kết nối", "DFU", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
         private async Task CheckForUpdate()
         {
             if (Device == null)
@@ -983,23 +1043,7 @@ namespace adrilight.ViewModel
             FrimwareUpgradeIsInProgress = true;
             if (Device.HardwareVersion == "unknown") // old firmware or not supported
             {
-                // show message box : unknown hardware version, please update firmware manually by chosing one of these firmware file in the list below
                 HandyControl.Controls.MessageBox.Show("Thiết bị đang ở firmware cũ hoặc phần cứng không hỗ trợ! Sử dụng trình sửa lỗi firmware để cập nhật", "Unknown hardware version", MessageBoxButton.OK, MessageBoxImage.Warning);
-                //if (result == MessageBoxResult.Yes)
-                //{
-                //    //grab available firmware for current device type
-                //    var json = File.ReadAllText(JsonFWToolsFWListFileNameAndPath);
-                //    var availableFirmware = JsonConvert.DeserializeObject<List<DeviceFirmware>>(json);
-                //    AvailableFirmware = new ObservableCollection<DeviceFirmware>();
-                //    foreach (var firmware in availableFirmware)
-                //    {
-                //        if (firmware.TargetDeviceType == device.DeviceType.Type)
-                //            AvailableFirmware.Add(firmware);
-                //    }
-
-                //    // show list selected firmware
-                //    //OpenFirmwareSelectionWindow();
-                //}
             }
             else
             {
@@ -1010,23 +1054,7 @@ namespace adrilight.ViewModel
                 var currentDeviceFirmwareInfo = requiredFwVersion.Where(p => p.TargetHardware == Device.HardwareVersion).FirstOrDefault();
                 if (currentDeviceFirmwareInfo == null)
                 {
-                    //not supported hardware
-
                     var result = HandyControl.Controls.MessageBox.Show("Phần cứng không còn được hỗ trợ hoặc không nhận ra: " + Device.HardwareVersion + " Sử dụng trình sửa lỗi firmware để cập nhật", "Firmware uploading", MessageBoxButton.OK, MessageBoxImage.Error);
-                    //if (result == MessageBoxResult.Yes)
-                    //{
-                    //    var fwjson = File.ReadAllText(JsonFWToolsFWListFileNameAndPath);
-                    //    var availableFirmware = JsonConvert.DeserializeObject<List<DeviceFirmware>>(fwjson);
-                    //    AvailableFirmware = new ObservableCollection<DeviceFirmware>();
-                    //    foreach (var firmware in availableFirmware)
-                    //    {
-                    //        if (firmware.TargetDeviceType == device.DeviceType.Type)
-                    //            AvailableFirmware.Add(firmware);
-                    //    }
-
-                    //    // show list selected firmware
-                    //    //OpenFirmwareSelectionWindow();
-                    //}
                 }
                 else
                 {
@@ -1045,13 +1073,6 @@ namespace adrilight.ViewModel
                         UpdateAvailable = false;
                         UpdateButtonContent = "Check for update";
                         NewFirmwareVersionContent = "Thiết bị đang chạy firmware mới nhất!";
-                        //if (result == MessageBoxResult.Yes)
-                        //{
-                        //    IsDownloadingFirmware = true;
-                        //    await Task.Run(() => UpgradeSelectedDeviceFirmware(Device, fwOutputLocation));
-                        //    IsDownloadingFirmware = false;
-                        //}
-                        //FrimwareUpgradeIsInProgress = false;
                     }
                 }
             }
