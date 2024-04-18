@@ -74,6 +74,7 @@ namespace adrilight_shared.Models.Device
         private Color[] _hwl_palette;
         private byte _hwl_effectIntensity;
         private int _hwl_version;
+        private int _hwl_MaxLEDPerOutput;
 
         private int _maxBrightnessCap = 80;
         public int DashboardWidth { get => _dashboardWidth; set { Set(() => DashboardWidth, ref _dashboardWidth, value); } }
@@ -173,6 +174,8 @@ namespace adrilight_shared.Models.Device
         public byte HWL_effectIntensity { get => _hwl_effectIntensity; set { Set(() => HWL_effectIntensity, ref _hwl_effectIntensity, value); } }
         [JsonIgnore]
         public int HWL_version { get => _hwl_version; set { Set(() => HWL_version, ref _hwl_version, value); } }
+        [JsonIgnore]
+        public int HWL_MaxLEDPerOutput { get => _hwl_MaxLEDPerOutput; set { Set(() => HWL_MaxLEDPerOutput, ref _hwl_MaxLEDPerOutput, value); } }
         private string GetDeviceFirmwareExtensionString()
         {
             string ex = ".hex";
@@ -414,6 +417,13 @@ namespace adrilight_shared.Models.Device
             }
 
 
+        }
+        public void RefreshLightingEngine()
+        {
+            foreach(var zone in AvailableControlZones.Where(z=>z is LEDSetup))
+            {
+                RaisePropertyChanged(nameof(zone.CurrentActiveControlMode));
+            }
         }
         public void TurnOffLED()
         {

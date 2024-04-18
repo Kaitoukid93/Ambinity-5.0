@@ -86,5 +86,7 @@ namespace adrilight_shared.Models.Device
         Color HWL_singleColor { get; set; }
         Color[] HWL_palette { get; set; }
         int HWL_version { get; set; }
+        int HWL_MaxLEDPerOutput { get; set; }
+        void RefreshLightingEngine();
     }
 }

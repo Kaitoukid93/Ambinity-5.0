@@ -120,6 +120,7 @@ namespace adrilight.ViewModel
                 }
                 );
                 AvailableDevices.GotoCurrentItemDetailViewCommand.Execute(CurrentDevice.Device);
+                nonClientVm.Header = "Adrilight  |  Device Manager | " + CurrentDevice.Device.DeviceName;
             }
             else if(mode == DataViewMode.Detail)
             {
@@ -128,6 +129,7 @@ namespace adrilight.ViewModel
             else
             {
                 nonClientVm.ShowBackButton = false;
+                nonClientVm.Header = "Adrilight  |  Device Manager";
                 CurrentDevice = null;
             }
 

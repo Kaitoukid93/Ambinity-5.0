@@ -952,6 +952,15 @@ namespace adrilight_shared.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Choose previously backup file.
+        /// </summary>
+        public static string ChooseBackupFile_Button_Content {
+            get {
+                return ResourceManager.GetString("ChooseBackupFile_Button_Content", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Create a new color.
         /// </summary>
         public static string ColorControl_AddSolidColor_header {
@@ -1447,6 +1456,105 @@ namespace adrilight_shared.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No update avaiilable!.
+        /// </summary>
+        public static string DeviceAdvanceSettingsViewModel_CheckForUpdate_NewestFirmware {
+            get {
+                return ResourceManager.GetString("DeviceAdvanceSettingsViewModel_CheckForUpdate_NewestFirmware", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to --&gt; Update available: .
+        /// </summary>
+        public static string DeviceAdvanceSettingsViewModel_CheckForUpdate_UpdateAvailable {
+            get {
+                return ResourceManager.GetString("DeviceAdvanceSettingsViewModel_CheckForUpdate_UpdateAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update now.
+        /// </summary>
+        public static string DeviceAdvanceSettingsViewModel_CheckForUpdate_UpdateNow {
+            get {
+                return ResourceManager.GetString("DeviceAdvanceSettingsViewModel_CheckForUpdate_UpdateNow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Chose .zip file.
+        /// </summary>
+        public static string DeviceAdvanceSettingsViewModel_ChoseBackupFile_header {
+            get {
+                return ResourceManager.GetString("DeviceAdvanceSettingsViewModel_ChoseBackupFile_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select colors.
+        /// </summary>
+        public static string DeviceAdvanceSettingsViewModel_ColorSelectionInit_SelectColors {
+            get {
+                return ResourceManager.GetString("DeviceAdvanceSettingsViewModel_ColorSelectionInit_SelectColors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Device Hardware protocol version not supported, please check for firmware update.
+        /// </summary>
+        public static string DeviceAdvanceSettingsViewModel_GetHardwareSettings_OldFirmware {
+            get {
+                return ResourceManager.GetString("DeviceAdvanceSettingsViewModel_GetHardwareSettings_OldFirmware", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Protocol outdated.
+        /// </summary>
+        public static string DeviceAdvanceSettingsViewModel_GetHardwareSettings_ProtocolOutdated {
+            get {
+                return ResourceManager.GetString("DeviceAdvanceSettingsViewModel_GetHardwareSettings_ProtocolOutdated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error.
+        /// </summary>
+        public static string DeviceAdvanceSettingsViewModel_RefreshFirmwareVersion_DeviceDisconnect_header {
+            get {
+                return ResourceManager.GetString("DeviceAdvanceSettingsViewModel_RefreshFirmwareVersion_DeviceDisconnect_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Device disconnected.
+        /// </summary>
+        public static string DeviceAdvanceSettingsViewModel_RefreshFirmwareVersion_Disconnect {
+            get {
+                return ResourceManager.GetString("DeviceAdvanceSettingsViewModel_RefreshFirmwareVersion_Disconnect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File Import.
+        /// </summary>
+        public static string DeviceAdvanceSettingsViewModel_RestoreDevice_FileImport {
+            get {
+                return ResourceManager.GetString("DeviceAdvanceSettingsViewModel_RestoreDevice_FileImport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Device type not match!!!.
+        /// </summary>
+        public static string DeviceAdvanceSettingsViewModel_RestoreDevice_WrongDeviceType {
+            get {
+                return ResourceManager.GetString("DeviceAdvanceSettingsViewModel_RestoreDevice_WrongDeviceType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Open Devices folder.
         /// </summary>
         public static string DeviceCollectionView_OpenDevicesFolder_Button_Content {
@@ -1672,6 +1780,15 @@ namespace adrilight_shared.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to OTHERS HARDWARE SETTINGS.
+        /// </summary>
+        public static string FANHARDWARESETTINGS {
+            get {
+                return ResourceManager.GetString("FANHARDWARESETTINGS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Finish.
         /// </summary>
         public static string Finish_Button_Conent {
@@ -1798,6 +1915,15 @@ namespace adrilight_shared.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Harware lighting protocol version.
+        /// </summary>
+        public static string HarwareLightingProtocolVersion {
+            get {
+                return ResourceManager.GetString("HarwareLightingProtocolVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Chose a key combination, for example : Ctrl+Shift+F5.
         /// </summary>
         public static string HotKeySelectionWindow_ActivationShortcut_hint {
@@ -1821,6 +1947,123 @@ namespace adrilight_shared.Properties {
         public static string HUBV_Checkforupdate_content {
             get {
                 return ResourceManager.GetString("HUBV_Checkforupdate_content", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MAX LED COUNT.
+        /// </summary>
+        public static string HWL_MaxLEDPerOutput {
+            get {
+                return ResourceManager.GetString("HWL_MaxLEDPerOutput", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Max number of LEDs supported, more LED, more lag.
+        /// </summary>
+        public static string HWL_MaxLEDPerOutput_info {
+            get {
+                return ResourceManager.GetString("HWL_MaxLEDPerOutput_info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to HARDWARE LIGHTING.
+        /// </summary>
+        public static string HWLighting {
+            get {
+                return ResourceManager.GetString("HWLighting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Available lighting effects stored on this device.
+        /// </summary>
+        public static string HWLighting_AvailableEffect {
+            get {
+                return ResourceManager.GetString("HWLighting_AvailableEffect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LIGHTING EFFECT.
+        /// </summary>
+        public static string HWLighting_availableeffect_header {
+            get {
+                return ResourceManager.GetString("HWLighting_availableeffect_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to EFFECT BRIGHTNESS.
+        /// </summary>
+        public static string HWLighting_Brightness_header {
+            get {
+                return ResourceManager.GetString("HWLighting_Brightness_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Brightness of hardware lighting effect.
+        /// </summary>
+        public static string HWLighting_brightness_info {
+            get {
+                return ResourceManager.GetString("HWLighting_brightness_info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Return to hardware lighting after selected amount of seconds.
+        /// </summary>
+        public static string HWLighting_delay {
+            get {
+                return ResourceManager.GetString("HWLighting_delay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DELAY TIME.
+        /// </summary>
+        public static string HWLighting_delay_header {
+            get {
+                return ResourceManager.GetString("HWLighting_delay_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to EFFECT INTENSITY.
+        /// </summary>
+        public static string HWLighting_EFFECTINTENSITY {
+            get {
+                return ResourceManager.GetString("HWLighting_EFFECTINTENSITY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Color intensity of hardware lighting effect.
+        /// </summary>
+        public static string HWLighting_EffectIntensity_info {
+            get {
+                return ResourceManager.GetString("HWLighting_EffectIntensity_info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to EFFECT SPEED.
+        /// </summary>
+        public static string HWLighting_EFFECTSPEED {
+            get {
+                return ResourceManager.GetString("HWLighting_EFFECTSPEED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Speed of hardware lighting effect.
+        /// </summary>
+        public static string HWLighting_EffectSpeed_info {
+            get {
+                return ResourceManager.GetString("HWLighting_EffectSpeed_info", resourceCulture);
             }
         }
         
@@ -2541,6 +2784,15 @@ namespace adrilight_shared.Properties {
         public static string ProfileCollectionView_ShuffleAndPlay_Button_Content {
             get {
                 return ResourceManager.GetString("ProfileCollectionView_ShuffleAndPlay_Button_Content", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Protocol version: .
+        /// </summary>
+        public static string ProtocolVersion {
+            get {
+                return ResourceManager.GetString("ProtocolVersion", resourceCulture);
             }
         }
         

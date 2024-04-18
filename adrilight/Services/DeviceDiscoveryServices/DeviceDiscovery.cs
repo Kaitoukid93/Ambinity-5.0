@@ -55,7 +55,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
         }
         private void DeviceCollectionChanged()
         {
-            SerialDeviceDetector = new SerialDeviceDetection(MainViewViewModel.AvailableDevices.Where(p => p.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.Wired).ToList());
+            SerialDeviceDetector = new SerialDeviceDetection(DeviceManager);
         }
         private Thread _workerThread;
         private CancellationTokenSource _cancellationTokenSource;
@@ -92,9 +92,8 @@ namespace adrilight.Services.DeviceDiscoveryServices
                     //get the list of existed device
                     // if device is existed and device is connected ( device.IstransferActive ) , remove from the list
                     // if device is existed and device is connected, leave it available to reconnect
-                    var existedSerialDevices = MainViewViewModel.AvailableDevices.Where(d => d.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.Wired).ToList();
                     var existedOpenRGBDevices = MainViewViewModel.AvailableDevices.Where(d => d.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.OpenRGB).ToList();
-                    SerialDeviceDetector = new SerialDeviceDetection(existedSerialDevices);
+                    SerialDeviceDetector = new SerialDeviceDetection(DeviceManager);
                     var shouldBeRunning = !MainViewViewModel.DeviceManagerIsOpen;
                     if (Settings.DeviceDiscoveryMode == 0 && shouldBeRunning)
                     {

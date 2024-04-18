@@ -1464,67 +1464,6 @@ namespace adrilight.ViewModel
             EventHandler handler = RequestingDeviceRescanEvent;
             if (null != handler) handler(this, EventArgs.Empty);
         }
-        public async Task FoundNewHUB(List<DeviceSettings> newHUBs)
-        {
-            if (IsLoadingProfile)
-                return;
-            if (newHUBs != null && newHUBs.Count > 0)
-            {
-                IsDeviceDiscoveryInit = false;
-                foreach (var hub in newHUBs)
-                {
-                    SetSearchingScreenHeaderText("New device found: " + hub.Name, true);
-                    //download device info
-
-                    //await Task.Delay(TimeSpan.FromSeconds(2));
-                    //lock (device)
-                    //{
-                    //    WriteDeviceInfo(device);
-                    //}
-                    SetSearchingScreenProgressText("Writing device information...");
-
-                    //await Task.Delay(TimeSpan.FromSeconds(2));
-                    lock (hub)
-                    {
-                        WriteDeviceInfo(hub);
-                    }
-
-
-                    lock (AvailableDeviceLock)
-                    {
-                        System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
-                        {
-                            AvailableDevices.Insert(0, hub);
-                        });
-                    }
-                    lock (DeviceManagerViewModel.AvailableDevices)
-                    {
-                        System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
-                        {
-                            DeviceManagerViewModel.AvailableDevices.AddItems(hub as DeviceSettings);
-                        });
-
-                    }
-                    hub.IsTransferActive = true;
-
-                    await Task.Delay(TimeSpan.FromSeconds(2));
-                }
-
-                SearchingForDevices = false;
-                IsDeviceDiscoveryInit = true;
-                await Task.Delay(TimeSpan.FromSeconds(1));
-            }
-            else
-            {
-                if (_noDeviceDetectedCounter < 3)
-                    _noDeviceDetectedCounter++;
-                if (_noDeviceDetectedCounter >= 3)
-                {
-                    SearchingForDevices = false;
-                    IsDeviceDiscoveryInit = true;
-                }
-            }
-        }
         public async Task FoundNewDevice(List<IDeviceSettings> newDevices)
         {
             if (IsLoadingProfile)
@@ -2192,20 +2131,20 @@ namespace adrilight.ViewModel
                     LiveViewItems.Remove(IDEditBrush);
                 foreach (var item in LiveViewItems)
                 {
-                    if(item is IControlZone)
+                    if (item is IControlZone)
                     {
                         var ledZone = item as LEDSetup;
                         if (ledZone.IsInControlGroup)
                             ledZone.IsSelectable = false;
                         else
                             ledZone.IsSelectable = true;
-                    
+
                     }
                     else
                     {
                         item.IsSelectable = true;
                     }
-                    
+
                     item.IsSelected = false;
                 }
                 IsInIDEditStage = false;
@@ -2936,12 +2875,12 @@ namespace adrilight.ViewModel
                     foreach (var item in LiveViewItems)
                     {
                         item.IsSelected = false;
-                        if(item is ARGBLEDSlaveDevice)
+                        if (item is ARGBLEDSlaveDevice)
                         {
                             var dev = item as ARGBLEDSlaveDevice;
                             dev.OnIsSelectedChanged(false, false);
                         }
-                       
+
                     }
                     ShowSelectedItemToolbar = false;
                     SelectedSlaveDevice = null;
@@ -3703,27 +3642,34 @@ namespace adrilight.ViewModel
                     IsValueDisplayed = false,
                     IsTargetDeviceDisplayed = true
                 });
-                AvailableActionsforCurrentDevice.Add(new ActionType { Name = adrilight_shared.Properties.Resources.ActionType_TurnOff_name,
+                AvailableActionsforCurrentDevice.Add(new ActionType {
+                    Name = adrilight_shared.Properties.Resources.ActionType_TurnOff_name,
                     Description = "Tắt một tính năng",
                     Geometry = "apply",
                     Type = "Off",
                     LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
                     IsValueDisplayed = false,
-                    IsTargetDeviceDisplayed = true });
-                AvailableActionsforCurrentDevice.Add(new ActionType { Name = adrilight_shared.Properties.Resources.ActionType_Turnonthenoff_name,
+                    IsTargetDeviceDisplayed = true
+                });
+                AvailableActionsforCurrentDevice.Add(new ActionType {
+                    Name = adrilight_shared.Properties.Resources.ActionType_Turnonthenoff_name,
                     Description = "Chuyển đổi trạng thái Bật Tắt",
                     Geometry = "apply",
                     Type = "On/Off",
                     LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
                     IsValueDisplayed = false,
-                    IsTargetDeviceDisplayed = true });
-                AvailableActionsforCurrentDevice.Add(new ActionType { Name = adrilight_shared.Properties.Resources.ActionType_Switchto_name,
+                    IsTargetDeviceDisplayed = true
+                });
+                AvailableActionsforCurrentDevice.Add(new ActionType {
+                    Name = adrilight_shared.Properties.Resources.ActionType_Switchto_name,
                     Description = "Chuyển đổi đồng thời kích hoạt một tính năng",
-                    Geometry = "apply", Type = "Change",
+                    Geometry = "apply",
+                    Type = "Change",
                     LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
                     ToResultText = "thành",
                     IsValueDisplayed = true,
-                    IsTargetDeviceDisplayed = true });
+                    IsTargetDeviceDisplayed = true
+                });
                 //init trigger condition
                 AvailableExecuteCondition = new ObservableCollection<ITriggerCondition>();
                 var hotkeyCondition = new HotkeyTriggerCondition(adrilight_shared.Properties.Resources.TriggerCondition_Hotkey_name,
@@ -6513,7 +6459,7 @@ namespace adrilight.ViewModel
             if (shouldBeSelected)
             {
                 item.IsSelected = true;
-                if(item is ARGBLEDSlaveDevice)
+                if (item is ARGBLEDSlaveDevice)
                 {
                     var dev = item as ARGBLEDSlaveDevice;
                     dev.OnIsSelectedChanged(true, false);
@@ -8576,7 +8522,7 @@ namespace adrilight.ViewModel
             };
             var AER2e = new DeviceFirmware() {
                 Name = "AER2e.hex",
-                Version = "1.0.7",
+                Version = "1.0.8",
                 TargetHardware = "AER2e",
                 TargetDeviceType = DeviceTypeEnum.AmbinoEDGE,
                 Geometry = "binary",
@@ -8600,7 +8546,7 @@ namespace adrilight.ViewModel
             };
             var AFR3g = new DeviceFirmware() {
                 Name = "AFR3g.hex",
-                Version = "1.1.0",
+                Version = "1.1.1",
                 TargetHardware = "AFR3g",
                 TargetDeviceType = DeviceTypeEnum.AmbinoFanHub,
                 Geometry = "binary",
@@ -8608,7 +8554,7 @@ namespace adrilight.ViewModel
             };
             var AHR2g = new DeviceFirmware() {
                 Name = "AHR2g.hex",
-                Version = "1.0.3",
+                Version = "1.0.5",
                 TargetHardware = "AHR2g",
                 TargetDeviceType = DeviceTypeEnum.AmbinoHUBV3,
                 Geometry = "binary",

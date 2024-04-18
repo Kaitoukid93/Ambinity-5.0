@@ -27,9 +27,9 @@
                        VerticalAlignment="Top"
                        FontWeight="SemiBold"
                        Style="{DynamicResource TextBlockDefaultSecLight}"
-                       Text="HARDWARE LIGHTING" />
+                       Text="{x:Static properties:Resources.HWLighting}" />
             <Border Margin="5"
-                    ToolTip="Harware lighting protocol version"
+                    ToolTip="{x:Static properties:Resources.HarwareLightingProtocolVersion}"
                     Padding="7,5"
                     HorizontalAlignment="Right"
                     CornerRadius="4"
@@ -37,7 +37,7 @@
 
 
                 <StackPanel   Orientation="Horizontal">
-                    <TextBlock Text="Protocol version: "
+                    <TextBlock Text="{x:Static properties:Resources.ProtocolVersion}"
                                FontWeight="SemiBold"
                                Style="{DynamicResource TextBlockDefaultPrimary}" />
                     <TextBlock Text="{Binding Device.HWL_version}"
@@ -65,7 +65,7 @@
                         <GroupBox.HeaderTemplate>
                             <DataTemplate>
                                 <TextBlock FontWeight="SemiBold"
-                                           Text="DELAY TIME" />
+                                           Text="{x:Static properties:Resources.HWLighting_delay_header}" />
                             </DataTemplate>
                         </GroupBox.HeaderTemplate>
 
@@ -82,7 +82,7 @@
                                HorizontalAlignment="Left"
                                Style="{StaticResource TextBlockDefaultSecLight}"
                                Grid.Row="1"
-                               Text="Return to hardware lighting after selected amount of seconds" />
+                               Text="{x:Static properties:Resources.HWLighting_delay}" />
                 </Grid>
                 <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}"
                             Margin="5,10,5,10">
@@ -103,7 +103,7 @@
                         <GroupBox.HeaderTemplate>
                             <DataTemplate>
                                 <TextBlock FontWeight="SemiBold"
-                                           Text="EFFECT BRIGHTNESS" />
+                                           Text="{x:Static properties:Resources.HWLighting_Brightness_header}" />
                             </DataTemplate>
                         </GroupBox.HeaderTemplate>
 
@@ -125,7 +125,7 @@
                                HorizontalAlignment="Left"
                                Style="{StaticResource TextBlockDefaultSecLight}"
                                Grid.Row="1"
-                               Text="Brightness of hardware lighting effect" />
+                               Text="{x:Static properties:Resources.HWLighting_brightness_info}" />
                 </Grid>
                 <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
                              Margin="5,10,5,10">
@@ -145,7 +145,7 @@
                         <GroupBox.HeaderTemplate>
                             <DataTemplate>
                                 <TextBlock FontWeight="SemiBold"
-                                           Text="LIGHTING EFFECT" />
+                                           Text="{x:Static properties:Resources.HWLighting_availableeffect_header}" />
                             </DataTemplate>
                         </GroupBox.HeaderTemplate>
 
@@ -169,7 +169,7 @@
                                HorizontalAlignment="Left"
                                Style="{StaticResource TextBlockDefaultSecLight}"
                                Grid.Row="1"
-                               Text="Available lighting effects stored on this device" />
+                               Text="{x:Static properties:Resources.HWLighting_AvailableEffect}" />
                 </Grid>
                 <hc:Divider LineStroke="{StaticResource SecondaryRegionBrush}"
                             Margin="5,10,5,10">
@@ -210,7 +210,7 @@
                                 <GroupBox.HeaderTemplate>
                                     <DataTemplate>
                                         <TextBlock FontWeight="SemiBold"
-                                                   Text="EFFECT SPEED" />
+                                                   Text="{x:Static properties:Resources.HWLighting_EFFECTSPEED}" />
                                     </DataTemplate>
                                 </GroupBox.HeaderTemplate>
 
@@ -232,7 +232,7 @@
                                        HorizontalAlignment="Left"
                                        Style="{StaticResource TextBlockDefaultSecLight}"
                                        Grid.Row="1"
-                                       Text="Speed of hardware lighting effect" />
+                                       Text="{x:Static properties:Resources.HWLighting_EffectSpeed_info}" />
                         </Grid>
                         <hc:Divider Visibility="{Binding HWL_HasSpeedControl,Converter={StaticResource Boolean2VisibilityConverter}}"
                                     LineStroke="{StaticResource SecondaryRegionBrush}"
@@ -253,7 +253,7 @@
                                 <GroupBox.HeaderTemplate>
                                     <DataTemplate>
                                         <TextBlock FontWeight="SemiBold"
-                                                   Text="EFFECT INTENSITY" />
+                                                   Text="{x:Static properties:Resources.HWLighting_EFFECTINTENSITY}" />
                                     </DataTemplate>
                                 </GroupBox.HeaderTemplate>
 
@@ -275,7 +275,7 @@
                                        HorizontalAlignment="Left"
                                        Style="{StaticResource TextBlockDefaultSecLight}"
                                        Grid.Row="1"
-                                       Text="Color intensity of hardware lighting effect" />
+                                       Text="{x:Static properties:Resources.HWLighting_EffectIntensity_info}" />
                         </Grid>
 
                         <hc:Divider Visibility="{Binding HWL_HasIntensityControl,Converter={StaticResource Boolean2VisibilityConverter}}"

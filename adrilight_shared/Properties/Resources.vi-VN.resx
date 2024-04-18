@@ -997,4 +997,79 @@ Lưu ý: tắt chế độ "Ánh sáng điện ảnh" khi xem trên Youtube.</va
   <data name="OOBE_EnableToggle_tooltip" xml:space="preserve">
     <value>Tắt nút này nếu bạn không cắm gì cả</value>
   </data>
+  <data name="OOBE_LockButton_tooltip" xml:space="preserve">
+    <value>Khoá ngõ ra này</value>
+  </data>
+  <data name="DeviceAdvanceSettingsViewModel_GetHardwareSettings_OldFirmware" xml:space="preserve">
+    <value>Phiên bản giao thức phần cứng của thiết bị không được hỗ trợ, vui lòng kiểm tra cập nhật vi trình</value>
+  </data>
+  <data name="DeviceAdvanceSettingsViewModel_GetHardwareSettings_ProtocolOutdated" xml:space="preserve">
+    <value>Giao thức cũ</value>
+  </data>
+  <data name="DeviceAdvanceSettingsViewModel_RefreshFirmwareVersion_Disconnect" xml:space="preserve">
+    <value>Thiết bị đã ngắt kết nối</value>
+  </data>
+  <data name="DeviceAdvanceSettingsViewModel_RefreshFirmwareVersion_DeviceDisconnect_header" xml:space="preserve">
+    <value>Lỗi</value>
+  </data>
+  <data name="DeviceAdvanceSettingsViewModel_ColorSelectionInit_SelectColors" xml:space="preserve">
+    <value>Chọn màu sắc</value>
+  </data>
+  <data name="DeviceAdvanceSettingsViewModel_CheckForUpdate_UpdateAvailable" xml:space="preserve">
+    <value>--&gt; Cập nhật khả dụng: </value>
+  </data>
+  <data name="DeviceAdvanceSettingsViewModel_CheckForUpdate_UpdateNow" xml:space="preserve">
+    <value>Cập nhật ngay</value>
+  </data>
+  <data name="DeviceAdvanceSettingsViewModel_CheckForUpdate_NewestFirmware" xml:space="preserve">
+    <value>Thiết bị đang chạy firmware mới nhất!</value>
+  </data>
+  <data name="HWLighting_EFFECTSPEED" xml:space="preserve">
+    <value>TỐC ĐỘ HIỆU ỨNG</value>
+  </data>
+  <data name="HWLighting_EffectSpeed_info" xml:space="preserve">
+    <value>Tốc độ của các hiệu ứng có chuyển động</value>
+  </data>
+  <data name="HWLighting_EFFECTINTENSITY" xml:space="preserve">
+    <value>CƯỜNG ĐỘ MÀU</value>
+  </data>
+  <data name="HWLighting_EffectIntensity_info" xml:space="preserve">
+    <value>Mật độ màu sắc trên dải màu</value>
+  </data>
+  <data name="HWLighting_AvailableEffect" xml:space="preserve">
+    <value>Các hiệu ứng được lưu ở trong bộ nhớ thiết bị</value>
+  </data>
+  <data name="HWLighting_availableeffect_header" xml:space="preserve">
+    <value>HIỆU ỨNG</value>
+  </data>
+  <data name="HWLighting_brightness_info" xml:space="preserve">
+    <value>Độ sáng của hiệu ứng</value>
+  </data>
+  <data name="HWLighting_Brightness_header" xml:space="preserve">
+    <value>ĐỘ SÁNG</value>
+  </data>
+  <data name="HWLighting_delay" xml:space="preserve">
+    <value>Thời gian chờ trước khi hiển thị hiệu ứng kể từ khi mất tín hiệu từ phần mềm</value>
+  </data>
+  <data name="HWLighting_delay_header" xml:space="preserve">
+    <value>THỜI GIAN CHỜ</value>
+  </data>
+  <data name="HarwareLightingProtocolVersion" xml:space="preserve">
+    <value>Phiên bản giao thức</value>
+  </data>
+  <data name="HWLighting" xml:space="preserve">
+    <value>HIỆU ỨNG LƯU SẴN</value>
+  </data>
+  <data name="FANHARDWARESETTINGS" xml:space="preserve">
+    <value>CÀI ĐẶT PHẦN CỨNG KHÁC</value>
+  </data>
+  <data name="ProtocolVersion" xml:space="preserve">
+    <value>Phiên bản: </value>
+  </data>
+  <data name="HWL_MaxLEDPerOutput_info" xml:space="preserve">
+    <value>Số LED tối đa trên một đầu ra mà thiết bị hỗ trợ, càng ít LED thì hiệu ứng càng mượt</value>
+  </data>
+  <data name="HWL_MaxLEDPerOutput" xml:space="preserve">
+    <value>SỐ LƯỢNG LED</value>
+  </data>
 </root>

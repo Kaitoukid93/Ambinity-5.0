@@ -31,6 +31,7 @@ using System.IO;
 using System.IO.Compression;
 using System.IO.Ports;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -51,6 +52,9 @@ namespace adrilight.ViewModel
         private string JsonFWToolsFileNameAndPath => Path.Combine(JsonPath, "FWTools");
         private string JsonFWToolsFWListFileNameAndPath => Path.Combine(JsonFWToolsFileNameAndPath, "adrilight-fwlist.json");
         private string BackupFolder => Path.Combine(JsonPath, "Backup");
+        private string CacheFolderPath => Path.Combine(JsonPath, "Cache");
+        private string SupportedDeviceCollectionFolderPath => Path.Combine(JsonPath, "SupportedDevices");
+        private string ResourceFolderPath => Path.Combine(JsonPath, "Resource");
         public DeviceAdvanceSettingsViewModel(DialogService service, IDeviceSettings device)
         {
             Device = device ?? throw new ArgumentNullException(nameof(device));
@@ -158,6 +162,14 @@ namespace adrilight.ViewModel
                 await BackupDevice();
 
             });
+            RestoreDeviceCommand = new RelayCommand<string>((p) =>
+                {
+                    return true;
+                }, async (p) =>
+                {
+                    await RestoreDeviceFromFile();
+
+                });
             SelecFirmwareForCurrentDeviceCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -177,6 +189,19 @@ namespace adrilight.ViewModel
                 if (file != null)
                 {
                     CurrentSelectedFirmware = file;
+                }
+
+            });
+            SelectBackupFileCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+
+                var file = LocalFileHlprs.OpenImportFileDialog(adrilight_shared.Properties.Resources.DeviceAdvanceSettingsViewModel_ChoseBackupFile_header, "zip Files (.ZIP)|*.zip");
+                if (file != null)
+                {
+                    CurrentSelectedDeviceBackupFile = file;
                 }
 
             });
@@ -248,12 +273,12 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-        private void ColorSelectionInit( List<string> source)
+        private void ColorSelectionInit(List<string> source)
         {
             HardwareLightingColorSelection = new ListSelectionParameter(ModeParameterEnum.Color);
             HardwareLightingColorSelection.DataSourceLocaFolderNames = source;
-            HardwareLightingColorSelection.Name = "COLORS";
-            HardwareLightingColorSelection.Description = "Select colors";
+            HardwareLightingColorSelection.Name = adrilight_shared.Properties.Resources.LightingEngine_ColorControl_header;
+            HardwareLightingColorSelection.Description = adrilight_shared.Properties.Resources.DeviceAdvanceSettingsViewModel_ColorSelectionInit_SelectColors;
             HardwareLightingColorSelection.LoadAvailableValues();
             UpdateColorSelectionSelectedValue();
             HardwareLightingColorSelection.PropertyChanged += (_, __) =>
@@ -291,12 +316,12 @@ namespace adrilight.ViewModel
             //if has color control
             List<string> source = new List<string>();
             if (Device.HWL_effectMode == 0 || Device.HWL_effectMode == 2)
-                 source = new List<string>() { "Colors" };
+                source = new List<string>() { "Colors" };
             else
             {
                 source = new List<string>() { "ColorPalettes" };
             }
-            ColorSelectionInit( source);
+            ColorSelectionInit(source);
             if (Device.HWL_effectMode == 1 || Device.HWL_effectMode == 2)
                 HWL_HasSpeedControl = true;
             else
@@ -305,7 +330,7 @@ namespace adrilight.ViewModel
                 HWL_HasIntensityControl = true;
             else
                 HWL_HasIntensityControl = false;
-           
+
         }
         private Color[] ResizePalette(Color[] color, int w1, int w2)
         {
@@ -343,9 +368,11 @@ namespace adrilight.ViewModel
         #region Commands
         public ICommand WindowClosing { get; private set; }
         public ICommand BackupDeviceCommand { get; set; }
+        public ICommand RestoreDeviceCommand { get; set; }
         public ICommand WindowOpen { get; private set; }
         public ICommand ShowDeviceBackupFolderCommand { get; set; }
         public ICommand SelecFirmwareForCurrentDeviceCommand { get; set; }
+        public ICommand SelectBackupFileCommand { get; set; }
         public ICommand UpdateCurrentSelectedDeviceFirmwareCommand { get; set; }
         public ICommand ApplyDeviceHardwareSettingsCommand { get; set; }
         public ICommand UpdateCustomFirmwareCommand { get; set; }
@@ -375,6 +402,7 @@ namespace adrilight.ViewModel
             }
             outputStream[counter++] = (byte)Device.HWL_effectIntensity;
             outputStream[counter++] = (byte)Device.NoSignalFanSpeed;
+            outputStream[counter++] = (byte)Device.HWL_MaxLEDPerOutput;
             return outputStream;
         }
         private byte[] GetEEPRomDataOutputStream()
@@ -435,7 +463,7 @@ namespace adrilight.ViewModel
             if (Device.HWL_version < 1)
             {
                 //request firmware update and hide device settings
-                HandyControl.Controls.MessageBox.Show(adrilight.Properties.Resources.DeviceAdvanceSettingsViewModel_GetHardwareSettings_OldFirmware, adrilight.Properties.Resources.DeviceAdvanceSettingsViewModel_GetHardwareSettings_ProtocolOutdated, MessageBoxButton.OK, MessageBoxImage.Warning);
+                HandyControl.Controls.MessageBox.Show(adrilight_shared.Properties.Resources.DeviceAdvanceSettingsViewModel_GetHardwareSettings_OldFirmware, adrilight_shared.Properties.Resources.DeviceAdvanceSettingsViewModel_GetHardwareSettings_ProtocolOutdated, MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
             Device.IsTransferActive = false; // stop current serial stream attached to this device
@@ -565,13 +593,11 @@ namespace adrilight.ViewModel
             Device.HWL_effectIntensity = (byte)_serialPort.ReadByte();
             Log.Information("HWL_effectIntensity: " + Device.HWL_effectIntensity);
 
-            if (_serialPort.BytesToRead > 0)
-            {
-                var noSignalFanSpeed = _serialPort.ReadByte();
-                Device.NoSignalFanSpeed = noSignalFanSpeed < 20 ? 20 : noSignalFanSpeed;
-                Log.Information("Device EEPRom Data: " + noSignalFanSpeed);
-
-            }
+            var noSignalFanSpeed = _serialPort.ReadByte();
+            Device.NoSignalFanSpeed = noSignalFanSpeed < 20 ? 20 : noSignalFanSpeed;
+            Log.Information("NoSignalFanSpeed: " + noSignalFanSpeed);
+            Device.HWL_MaxLEDPerOutput = (byte)_serialPort.ReadByte();
+            Log.Information("HWL_MaxLEDPerOutput: " + Device.HWL_MaxLEDPerOutput);
 
             UpdateColorSelectionSelectedValue();
 
@@ -708,6 +734,114 @@ namespace adrilight.ViewModel
 
             }, vm);
 
+        }
+        private async Task RestoreDeviceFromFile()
+        {
+            if (CurrentSelectedDeviceBackupFile == null)
+                return;
+            var vm = new ProgressDialogViewModel("Restoring device", "123", "usbIcon");
+             Task.Run(() => RestoreDevice(vm));
+            _dialogService.ShowDialog<ProgressDialogViewModel>(result =>
+            {
+
+            }, vm);
+        }
+        private async Task RestoreDevice(ProgressDialogViewModel vm)
+        {
+            vm.ProgressBarVisibility = Visibility.Visible;
+            vm.CurrentProgressHeader = "Deserializing";
+            vm.Value = 10;
+            await Task.Delay(500);
+            //launch save dialog
+            Device.IsLoadingProfile = true;
+            var dev = ImportDevice(CurrentSelectedDeviceBackupFile);
+            if(dev.DeviceType.Type!= Device.DeviceType.Type)
+            {
+                HandyControl.Controls.MessageBox.Show(adrilight_shared.Properties.Resources.DeviceAdvanceSettingsViewModel_RestoreDevice_WrongDeviceType, adrilight_shared.Properties.Resources.DeviceAdvanceSettingsViewModel_RestoreDevice_FileImport, MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            dev.DeviceUID = Device.DeviceUID;
+            dev.DeviceName = Device.DeviceName;
+            vm.CurrentProgressHeader = "Rerstoring";
+            vm.Value = 50;
+            foreach (PropertyInfo property in typeof(DeviceSettings).GetProperties().Where(p => p.CanWrite && !Attribute.IsDefined(p, typeof(JsonIgnoreAttribute))))
+            {
+                property.SetValue(Device, property.GetValue(dev, null), null);
+            }
+            vm.Value = 90;
+            vm.CurrentProgressHeader = "Rebooting device";
+            Device.RefreshLightingEngine();
+            vm.Value = 100;
+            vm.Header = "Done";
+            vm.SecondaryActionButtonContent = "Close";
+            vm.PrimaryActionButtonContent = "Show Log";
+            await Task.Delay(500);
+            vm.ProgressBarVisibility = Visibility.Hidden;
+            vm.SuccessMesageVisibility = Visibility.Visible;
+            vm.SuccessMessage = "Device restored successfully!";
+        }
+        private IDeviceSettings ImportDevice(string path)
+        {
+            if (!File.Exists(path))
+                return null;
+            IDeviceSettings device;
+            try
+            {
+                var fileName = Path.GetFileNameWithoutExtension(path);
+                //extract device
+                //Create directory to extract
+                var deviceTempFolderPath = Path.Combine(CacheFolderPath, fileName);
+                Directory.CreateDirectory(deviceTempFolderPath);
+                //then extract
+                ZipFile.ExtractToDirectory(path, deviceTempFolderPath);
+                var deviceJson = File.ReadAllText(Path.Combine(deviceTempFolderPath, "config.json"));
+                device = JsonConvert.DeserializeObject<DeviceSettings>(deviceJson);
+                if (device != null)
+                {
+                    //create device info
+                    //device.UpdateChildSize();
+                    device.UpdateUID();
+                    //copy thumb
+                    if (File.Exists(Path.Combine(deviceTempFolderPath, "thumbnail.png")) && !File.Exists(Path.Combine(ResourceFolderPath, device.DeviceName + "_thumb.png")))
+                    {
+                        File.Copy(Path.Combine(deviceTempFolderPath, "thumbnail.png"), Path.Combine(ResourceFolderPath, device.DeviceName + "_thumb.png"), true);
+                    }
+                    if (File.Exists(Path.Combine(deviceTempFolderPath, "outputmap.png")) && !File.Exists(Path.Combine(ResourceFolderPath, device.DeviceName + "_outputmap.png")))
+                    {
+                        File.Copy(Path.Combine(deviceTempFolderPath, "outputmap.png"), Path.Combine(ResourceFolderPath, device.DeviceName + "_outputmap.png"), true);
+                    }
+                    //copy required SlaveDevice
+                    var dependenciesFiles = Path.Combine(deviceTempFolderPath, "dependencies");
+                    if (Directory.Exists(dependenciesFiles))
+                    {
+                        foreach (var sub in Directory.GetDirectories(dependenciesFiles))
+                        {
+                            LocalFileHelpers.CopyDirectory(sub, SupportedDeviceCollectionFolderPath, true);
+                        }
+                    }
+                    //remove cache
+                    ClearCacheFolder();
+                    return device;
+                }
+            }
+            catch (Exception ex)
+            {
+                HandyControl.Controls.MessageBox.Show("Corrupted or incompatible data File!!!", "File Import", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
+            }
+            return null;
+        }
+        private void ClearCacheFolder()
+        {
+            System.IO.DirectoryInfo cache = new DirectoryInfo(CacheFolderPath);
+            foreach (FileInfo file in cache.EnumerateFiles())
+            {
+                file.Delete();
+            }
+            foreach (DirectoryInfo dir in cache.EnumerateDirectories())
+            {
+                dir.Delete(true);
+            }
         }
         private async Task SaveDeviceToFile(ProgressDialogViewModel vm)
         {
@@ -992,6 +1126,19 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        private string _currentSelectedDeviceBackupFile;
+        public string CurrentSelectedDeviceBackupFile {
+            get
+            {
+                return _currentSelectedDeviceBackupFile;
+            }
+
+            set
+            {
+                _currentSelectedDeviceBackupFile = value;
+                RaisePropertyChanged();
+            }
+        }
         private string _updateButtonContent = "Check for update";
         public string UpdateButtonContent {
             get
@@ -1117,16 +1264,16 @@ namespace adrilight.ViewModel
                     if (newVersion > currentVersion)
                     {
                         //coppy hex file to FWTools folder
-                        NewFirmwareVersionContent = "--> Update available: " + newVersion;
+                        NewFirmwareVersionContent = adrilight_shared.Properties.Resources.DeviceAdvanceSettingsViewModel_CheckForUpdate_UpdateAvailable + newVersion;
                         UpdateAvailable = true;
-                        UpdateButtonContent = "Update now";
+                        UpdateButtonContent = adrilight_shared.Properties.Resources.DeviceAdvanceSettingsViewModel_CheckForUpdate_UpdateNow;
                         FirmwareToUpdate = currentDeviceFirmwareInfo;
                     }
                     else
                     {
                         UpdateAvailable = false;
-                        UpdateButtonContent = "Check for update";
-                        NewFirmwareVersionContent = "Thiết bị đang chạy firmware mới nhất!";
+                        UpdateButtonContent = adrilight_shared.Properties.Resources.CheckForUpdate_content;
+                        NewFirmwareVersionContent = adrilight_shared.Properties.Resources.DeviceAdvanceSettingsViewModel_CheckForUpdate_NewestFirmware;
                     }
                 }
             }
@@ -1154,7 +1301,7 @@ namespace adrilight.ViewModel
             }
             catch (Exception ex)
             {
-                HandyControl.Controls.MessageBox.Show(adrilight.Properties.Resources.DeviceAdvanceSettingsViewModel_RefreshFirmwareVersion_Disconnect, adrilight.Properties.Resources.DeviceAdvanceSettingsViewModel_RefreshFirmwareVersion_DeviceDisconnect_header, MessageBoxButton.OK, MessageBoxImage.Warning);
+                HandyControl.Controls.MessageBox.Show(adrilight_shared.Properties.Resources.DeviceAdvanceSettingsViewModel_RefreshFirmwareVersion_Disconnect, adrilight_shared.Properties.Resources.DeviceAdvanceSettingsViewModel_RefreshFirmwareVersion_DeviceDisconnect_header, MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
             //write request info command

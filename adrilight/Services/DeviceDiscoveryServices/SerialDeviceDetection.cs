@@ -1,4 +1,5 @@
-﻿using adrilight_shared.Enums;
+﻿using adrilight.ViewModel;
+using adrilight_shared.Enums;
 using adrilight_shared.Helpers;
 using adrilight_shared.Models.Device;
 using Microsoft.Win32;
@@ -35,16 +36,28 @@ namespace adrilight.Util
         private static byte[] unexpectedValidHeader = { (byte)'A', (byte)'b', (byte)'n' };
         private static CancellationToken cancellationtoken;
         private static bool isNoRespondingMessageShowed = false;
-        private static List<IDeviceSettings> ExistedSerialDevice { get; set; }
+        private static DeviceManagerViewModel DeviceManager { get; set; }
         //private static List<DeviceHUB> ExistedDeviceHUB { get; set; }
 
-        public SerialDeviceDetection(List<IDeviceSettings> existedSerialDevice)
+        public SerialDeviceDetection(DeviceManagerViewModel DeviceManagerViewModel)
         {
-            ExistedSerialDevice = existedSerialDevice;
+            DeviceManager = DeviceManagerViewModel;
         }
-
-
-
+        private static List<IDeviceSettings> GetExistedSerialDevice()
+        {
+            if (DeviceManager == null)
+                return null;
+            List<IDeviceSettings> existedSerialDevice = new List<IDeviceSettings>();
+            foreach (var device in DeviceManager.AvailableDevices.Items)
+            {
+                var dev = device as DeviceSettings;
+                if (dev.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.Wired)
+                {
+                    existedSerialDevice.Add(dev);
+                }
+            }
+            return existedSerialDevice;
+        }
         static List<string> GetComPortByID(String VID, String PID)
         {
             String pattern = String.Format("^VID_{0}.PID_{1}", VID, PID);
@@ -82,28 +95,30 @@ namespace adrilight.Util
         /// <returns></returns>
         public static List<string> GetValidDevice()
         {
+            
             List<string> CH55X = GetComPortByID("1209", "c550");
             List<string> CH340 = GetComPortByID("1A86", "7522");
             List<string> ada = GetComPortByID("239A", "CAFE");
             var devices = new List<string>();
             List<string> sd = GetComPortByID("1209", "c55c");
+            var existedSerialDevice = GetExistedSerialDevice();
             if (CH55X.Count > 0 || CH340.Count > 0 || ada.Count > 0)
             {
                 foreach (var port in CH55X)
                 {
-                    if (ExistedSerialDevice.Any(d => d.OutputPort == port && d.IsTransferActive == true))
+                    if (existedSerialDevice.Any(d => d.OutputPort == port && d.IsTransferActive == true))
                         continue;
                     devices.Add(port);
                 }
                 foreach (var port in CH340)
                 {
-                    if (ExistedSerialDevice.Any(d => d.OutputPort == port && d.IsTransferActive == true))
+                    if (existedSerialDevice.Any(d => d.OutputPort == port && d.IsTransferActive == true))
                         continue;
                     devices.Add(port);
                 }
                 foreach (var port in ada)
                 {
-                    if (ExistedSerialDevice.Any(d => d.OutputPort == port && d.IsTransferActive == true))
+                    if (existedSerialDevice.Any(d => d.OutputPort == port && d.IsTransferActive == true))
                         continue;
                     devices.Add(port);
                 }
@@ -386,6 +401,7 @@ namespace adrilight.Util
             List<IDeviceSettings> newDevices = new List<IDeviceSettings>();
             List<IDeviceSettings> existedDevices = new List<IDeviceSettings>();
             var validDevices = GetValidDevice();
+            var existedSerialDevice = GetExistedSerialDevice();
             foreach (var comPort in validDevices)
             {
 
@@ -396,7 +412,7 @@ namespace adrilight.Util
                     var serial = dev.DeviceSerial;
                     var altSerial = dev.DeviceSerial.Replace("-", " ");
                     var type = dev.DeviceType.Type;
-                    var matchDev = ExistedSerialDevice.Where(d => d.DeviceSerial == serial || d.DeviceSerial == altSerial).FirstOrDefault();
+                    var matchDev = existedSerialDevice.Where(d => d.DeviceSerial == serial || d.DeviceSerial == altSerial).FirstOrDefault();
                     if (matchDev != null)
                     {
                         if (matchDev.OutputPort != comPort)

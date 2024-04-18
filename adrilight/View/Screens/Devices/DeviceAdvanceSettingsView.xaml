@@ -592,7 +592,7 @@
                                                     </GroupBox.HeaderTemplate>
 
                                                     <ToggleButton HorizontalAlignment="Right"
-                                                                  IsChecked="{Binding Device.IsIndicatorLEDOn}"
+                                                                  IsChecked="{Binding Device.StatusLEDEnable}"
                                                                   Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
 
                                                     </ToggleButton>
@@ -610,8 +610,42 @@
                                                          Margin="5,10,5,10">
 
                                             </hc:Divider>
-                                            
 
+                                            <Grid Name="maxled">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="auto" />
+                                                    <RowDefinition Height="auto" />
+                                                </Grid.RowDefinitions>
+                                                <GroupBox   VerticalAlignment="Center"
+                                                            hc:TitleElement.TitleWidth="200"
+                                                            Margin="5"
+                                                            Style="{StaticResource GroupBoxOriginal}"
+                                                            HorizontalAlignment="Stretch"
+                                                            hc:TitleElement.TitlePlacement="Left">
+                                                    <GroupBox.HeaderTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock FontWeight="SemiBold"
+                                                                       Text="{x:Static properties:Resources.HWL_MaxLEDPerOutput}" />
+                                                        </DataTemplate>
+                                                    </GroupBox.HeaderTemplate>
+
+                                                    <hc:NumericUpDown HorizontalAlignment="Right" Value="{Binding Device.HWL_MaxLEDPerOutput}"
+                                                                      Minimum="5"
+                                                                      Maximum="80" />
+
+
+                                                </GroupBox>
+                                                <TextBlock Margin="5,0,0,0"
+                                                           HorizontalAlignment="Left"
+                                                           Style="{StaticResource TextBlockDefaultSecLight}"
+                                                           Grid.Row="1"
+                                                           TextWrapping="Wrap"
+                                                           Text="{x:Static properties:Resources.HWL_MaxLEDPerOutput_info}" />
+                                            </Grid>
+                                            <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
+                                                         Margin="5,10,5,10">
+
+                                            </hc:Divider>
                                             <Grid Name="ledBehavior">
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="auto" />
@@ -855,7 +889,7 @@
                                                     Margin="5,10,5,10">
 
                                         </hc:Divider>
-                                        <Grid IsEnabled="False">
+                                        <Grid>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="auto" />
                                                 <RowDefinition Height="auto" />
@@ -865,19 +899,64 @@
                                                         Margin="5"
                                                         Style="{StaticResource GroupBoxOriginal}"
                                                         HorizontalAlignment="Stretch"
-                                                        hc:TitleElement.TitlePlacement="Left">
+                                                        hc:TitleElement.TitlePlacement="Top">
                                                 <GroupBox.HeaderTemplate>
                                                     <DataTemplate>
                                                         <TextBlock FontWeight="SemiBold"
                                                                    Text="{x:Static properties:Resources.DeviceAdvanceSettingsView_Restore_header}" />
                                                     </DataTemplate>
                                                 </GroupBox.HeaderTemplate>
-                                                <Button HorizontalAlignment="Right"
-                                                        Command="{Binding ApplyDeviceHardwareSettingsCommand}"
-                                                        Style="{DynamicResource _mediumProfileDefaultButton}"
-                                                        Content="{x:Static properties:Resources.DeviceAdvanceSettingsView_Restore_buttoncontent}">
-                                                </Button>
+                                                <Grid>
 
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Orientation="Horizontal">
+
+
+                                                        <Border Margin="10,5,5,5"
+                                                                HorizontalAlignment="Left"
+                                                                CornerRadius="4"
+                                                                Background="{DynamicResource MainContentBackgroundBrush}">
+                                                            <Grid HorizontalAlignment="Left"
+                                                                  Margin="5">
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="auto" />
+                                                                    <ColumnDefinition Width="*" />
+                                                                    <ColumnDefinition Width="auto" />
+                                                                    <ColumnDefinition Width="auto" />
+                                                                </Grid.ColumnDefinitions>
+                                                                <Path HorizontalAlignment="Left"
+                                                                      Stretch="Uniform"
+                                                                      Margin="5"
+                                                                      Data="{DynamicResource fromfile}"
+                                                                      Width="20"
+                                                                      Height="20"
+                                                                      Fill="{DynamicResource PrimaryTextBrush}" />
+                                                                <TextBlock HorizontalAlignment="Left"
+                                                                           Margin="5,0,5,0"
+                                                                           Grid.Column="1"
+                                                                           Text="{Binding CurrentSelectedDeviceBackupFile}"
+                                                                           TextTrimming="CharacterEllipsis"
+                                                                           MaxWidth="200"
+                                                                           Style="{DynamicResource TextBlockDefaultSecLight}" />
+                                                            </Grid>
+                                                        </Border>
+                                                        <Button CommandParameter="select"
+                                                                Command="{Binding SelectBackupFileCommand}"
+                                                                Margin="10,0,0,0"
+                                                                Content="{x:Static properties:Resources.ChooseBackupFile_Button_Content}" />
+                                                    </StackPanel>
+                                                    <Grid Grid.Column="1">
+                                                        <Button HorizontalAlignment="Right"
+                                                                Command="{Binding RestoreDeviceCommand}"
+                                                                Style="{DynamicResource _mediumProfileDefaultButton}"
+                                                                Content="{x:Static properties:Resources.DeviceAdvanceSettingsView_Restore_buttoncontent}">
+                                                        </Button>
+
+                                                    </Grid>
+                                                </Grid>
 
 
                                             </GroupBox>

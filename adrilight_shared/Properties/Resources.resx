@@ -998,4 +998,88 @@ Note: only work if "Ambient mode" is turned off when watching Youtube video.</va
   <data name="OOBE_LockButton_tooltip" xml:space="preserve">
     <value>Lock this output</value>
   </data>
+  <data name="DeviceAdvanceSettingsViewModel_GetHardwareSettings_OldFirmware" xml:space="preserve">
+    <value>Device Hardware protocol version not supported, please check for firmware update</value>
+  </data>
+  <data name="DeviceAdvanceSettingsViewModel_GetHardwareSettings_ProtocolOutdated" xml:space="preserve">
+    <value>Protocol outdated</value>
+  </data>
+  <data name="DeviceAdvanceSettingsViewModel_RefreshFirmwareVersion_Disconnect" xml:space="preserve">
+    <value>Device disconnected</value>
+  </data>
+  <data name="DeviceAdvanceSettingsViewModel_RefreshFirmwareVersion_DeviceDisconnect_header" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="DeviceAdvanceSettingsViewModel_ColorSelectionInit_SelectColors" xml:space="preserve">
+    <value>Select colors</value>
+  </data>
+  <data name="DeviceAdvanceSettingsViewModel_CheckForUpdate_UpdateAvailable" xml:space="preserve">
+    <value>--&gt; Update available: </value>
+  </data>
+  <data name="DeviceAdvanceSettingsViewModel_CheckForUpdate_UpdateNow" xml:space="preserve">
+    <value>Update now</value>
+  </data>
+  <data name="DeviceAdvanceSettingsViewModel_CheckForUpdate_NewestFirmware" xml:space="preserve">
+    <value>No update avaiilable!</value>
+  </data>
+  <data name="HWLighting_EFFECTSPEED" xml:space="preserve">
+    <value>EFFECT SPEED</value>
+  </data>
+  <data name="HWLighting_EffectSpeed_info" xml:space="preserve">
+    <value>Speed of hardware lighting effect</value>
+  </data>
+  <data name="HWLighting_EFFECTINTENSITY" xml:space="preserve">
+    <value>EFFECT INTENSITY</value>
+  </data>
+  <data name="HWLighting_EffectIntensity_info" xml:space="preserve">
+    <value>Color intensity of hardware lighting effect</value>
+  </data>
+  <data name="HWLighting_AvailableEffect" xml:space="preserve">
+    <value>Available lighting effects stored on this device</value>
+  </data>
+  <data name="HWLighting_availableeffect_header" xml:space="preserve">
+    <value>LIGHTING EFFECT</value>
+  </data>
+  <data name="HWLighting_brightness_info" xml:space="preserve">
+    <value>Brightness of hardware lighting effect</value>
+  </data>
+  <data name="HWLighting_Brightness_header" xml:space="preserve">
+    <value>EFFECT BRIGHTNESS</value>
+  </data>
+  <data name="HWLighting_delay" xml:space="preserve">
+    <value>Return to hardware lighting after selected amount of seconds</value>
+  </data>
+  <data name="HWLighting_delay_header" xml:space="preserve">
+    <value>DELAY TIME</value>
+  </data>
+  <data name="HarwareLightingProtocolVersion" xml:space="preserve">
+    <value>Harware lighting protocol version</value>
+  </data>
+  <data name="HWLighting" xml:space="preserve">
+    <value>HARDWARE LIGHTING</value>
+  </data>
+  <data name="FANHARDWARESETTINGS" xml:space="preserve">
+    <value>OTHERS HARDWARE SETTINGS</value>
+  </data>
+  <data name="ProtocolVersion" xml:space="preserve">
+    <value>Protocol version: </value>
+  </data>
+  <data name="HWL_MaxLEDPerOutput_info" xml:space="preserve">
+    <value>Max number of LEDs supported, more LED, more lag</value>
+  </data>
+  <data name="HWL_MaxLEDPerOutput" xml:space="preserve">
+    <value>MAX LED COUNT</value>
+  </data>
+  <data name="ChooseBackupFile_Button_Content" xml:space="preserve">
+    <value>Choose previously backup file</value>
+  </data>
+  <data name="DeviceAdvanceSettingsViewModel_ChoseBackupFile_header" xml:space="preserve">
+    <value>Chose .zip file</value>
+  </data>
+  <data name="DeviceAdvanceSettingsViewModel_RestoreDevice_WrongDeviceType" xml:space="preserve">
+    <value>Device type not match!!!</value>
+  </data>
+  <data name="DeviceAdvanceSettingsViewModel_RestoreDevice_FileImport" xml:space="preserve">
+    <value>File Import</value>
+  </data>
 </root>

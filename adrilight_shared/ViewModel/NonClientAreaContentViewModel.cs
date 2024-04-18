@@ -11,7 +11,19 @@ namespace adrilight_shared.ViewModel
             Header = header;
         }
         public string Geometry { get; set; }
-        public string Header { get; set; }
+        private string _header;
+        public string Header
+        {
+            get
+            {
+                return _header;
+            }
+            set
+            {
+                _header = value;
+                RaisePropertyChanged();
+            }
+        }
         private bool _showBackButton;
         private ICommand _backButtonCommand;
         public ICommand BackButtonCommand

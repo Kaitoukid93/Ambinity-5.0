@@ -27,7 +27,7 @@
                        VerticalAlignment="Top"
                        FontWeight="SemiBold"
                        Style="{DynamicResource TextBlockDefaultSecLight}"
-                       Text="FAN HARDWARE SETTINGS" />
+                       Text="{x:Static properties:Resources.FANHARDWARESETTINGS}" />
 
         </Grid>
         <Grid Grid.Row="1">

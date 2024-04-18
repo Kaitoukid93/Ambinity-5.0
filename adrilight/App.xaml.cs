@@ -187,6 +187,7 @@ namespace adrilight
                         var removedDevice = e.OldItems;
                         foreach (IDeviceSettings device in removedDevice) // when an item got removed, simply stop dependencies service from running
                         {
+                            device.IsTransferActive = false;
                             UnInjectingDevice(kernel, device);
                         }
                         break;
