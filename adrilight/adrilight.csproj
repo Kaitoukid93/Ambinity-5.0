@@ -236,6 +236,9 @@
     <Compile Include="ViewModel\ColorEditingObject.cs" />
     <Compile Include="ViewModel\DebugViewModel.cs" />
     <Compile Include="ViewModel\DeviceAdvanceSettingsViewModel.cs" />
+    <Compile Include="ViewModel\VerticalMenuControlViewModel.cs" />
+    <Compile Include="ViewModel\DeviceIDEditViewModel.cs" />
+    <Compile Include="ViewModel\DeviceControlViewModel.cs" />
     <Compile Include="ViewModel\DeviceManagerViewModel.cs" />
     <Compile Include="ViewModel\ISelectablePage.cs" />
     <Compile Include="ViewModel\LightingProfileManagerViewModel.cs" />
@@ -262,7 +265,6 @@
     <Compile Include="View\Dialogs\ShareLightingProfileWindow.xaml.cs" />
     <Compile Include="View\Helpers\CheckComBoBoxHelper.cs" />
     <Compile Include="View\Helpers\EventToCommand.cs" />
-    <Compile Include="Helpers\perSizeBindingHelper.cs" />
     <Compile Include="Context\IContext.cs" />
     <Compile Include="Context\WpfContext.cs" />
     <Compile Include="Services\NetworkStream\DeviceHttpConnection.cs" />
@@ -323,9 +325,14 @@
     <Compile Include="View\Screens\LightingProfile\LightingProfileDashboardView.xaml.cs" />
     <Compile Include="View\Screens\LightingProfile\ProfileCollectionView.xaml.cs" />
     <Compile Include="View\Screens\LightingProfile\PlayListCollectionView.xaml.cs" />
+    <Compile Include="View\Screens\Mainview\ControlView\Controls\VerticalMenuControl.xaml.cs" />
     <Compile Include="View\Screens\Mainview\ControlView\GifRegionSelectionWindow.xaml.cs" />
     <Compile Include="View\Screens\Mainview\ControlView\Controls\ScreenRegionSelectionWindow.xaml.cs" />
     <Compile Include="View\Dialogs\AudioDeviceSelectionWindow.xaml.cs" />
+    <Compile Include="View\Screens\Mainview\LiveView\DeviceIDEditView.xaml.cs" />
+    <Compile Include="View\Screens\OOBExperience\SelectLanguageWindow.xaml.cs">
+      <DependentUpon>SelectLanguageWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Screens\Store\StoreHomePageView.xaml.cs" />
     <Compile Include="View\Screens\SurfaceEditor\PIDQuickEditNonClientAreaContent.xaml.cs" />
     <Compile Include="View\Screens\Debug\DebugNonClientAreaContent.xaml.cs" />
@@ -378,6 +385,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="View\Template\ButtonParamTemplate.xaml.cs">
+      <DependentUpon>ButtonParamTemplate.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Template\SliderParamTemplate.xaml.cs">
+      <DependentUpon>SliderParamTemplate.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Template\ToggleParamTemplate.xaml.cs">
+      <DependentUpon>ToggleParamTemplate.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Template\ListSelectionParamTemplate.xaml.cs">
+      <DependentUpon>ListSelectionParamTemplate.xaml</DependentUpon>
+    </Compile>
     <Page Include="Properties\DesignTimeResources.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -450,6 +469,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="View\Screens\Mainview\ControlView\Controls\VerticalMenuControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="View\Screens\Mainview\ControlView\GifRegionSelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -461,6 +484,14 @@
     <Page Include="View\Dialogs\AudioDeviceSelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Screens\Mainview\LiveView\DeviceIDEditView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Screens\OOBExperience\SelectLanguageWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\Screens\Store\StoreHomePageView.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -650,6 +681,22 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="View\Template\ButtonParamTemplate.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Template\SliderParamTemplate.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Template\ToggleParamTemplate.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Template\ListSelectionParamTemplate.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Ninject\DeviceSettingsInjectModule.cs" />
@@ -666,13 +713,20 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <EmbeddedResource Include="Properties\Resources.en.resx" />
+    <EmbeddedResource Include="Properties\Resources.en.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.vi-VN.resx" />
-    <EmbeddedResource Include="Properties\Resources.vi.resx" />
+    <EmbeddedResource Include="Properties\Resources.vi-VN.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.vi.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <None Include="adrilightApp.nuspec" />
     <None Include="app.manifest" />
     <None Include="ApplicationInsights.config" />

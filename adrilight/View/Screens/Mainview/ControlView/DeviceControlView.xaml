@@ -4,13 +4,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
-             xmlns:hlprs="clr-namespace:adrilight.Helpers"
              xmlns:local="clr-namespace:adrilight.View"
              xmlns:viewmodel="clr-namespace:adrilight.ViewModel"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:dvcvs="clr-namespace:adrilight_shared.View.Canvas;assembly=adrilight_shared"
              xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
              mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance Type=viewmodel:MainViewViewModel}"
+             d:DataContext="{d:DesignInstance Type=viewmodel:DeviceControlViewModel}"
              Background="{StaticResource RegionBrush}">
 
     <UserControl.Resources>
@@ -222,372 +222,6 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-
-            <Style x:Key="_ListBoxOutputsCollectionStyle"
-                   TargetType="ListBoxItem">
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="ListBoxItem">
-                            <Border CornerRadius="4"
-                                    Name="_Border"
-                                    Padding="0"
-                                    Margin="0"
-                                    Background="Transparent"
-                                    BorderBrush="Transparent"
-                                    BorderThickness="0"
-                                    SnapsToDevicePixels="true">
-                                <ContentPresenter />
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <MultiTrigger>
-                                    <MultiTrigger.Conditions>
-                                        <Condition Property="Selector.IsSelectionActive"
-                                                   Value="True" />
-                                        <Condition Property="IsSelected"
-                                                   Value="True" />
-                                    </MultiTrigger.Conditions>
-
-                                    <Setter Property="Background"
-                                            TargetName="_Border"
-                                            Value="{DynamicResource DarkOpacityBrush}" />
-
-                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}" />-->
-                                </MultiTrigger>
-                                <MultiTrigger>
-                                    <MultiTrigger.Conditions>
-                                        <Condition Property="Selector.IsSelectionActive"
-                                                   Value="False" />
-                                        <Condition Property="IsSelected"
-                                                   Value="True" />
-                                    </MultiTrigger.Conditions>
-
-                                    <!--<Setter Property="Effect" TargetName="_Border" Value="{StaticResource Item.SelectedActive.Border.Shadow}" />-->
-
-                                    <Setter Property="Background"
-                                            TargetName="_Border"
-                                            Value="{DynamicResource DarkOpacityBrush}" />
-                                </MultiTrigger>
-                                <MultiTrigger>
-                                    <MultiTrigger.Conditions>
-                                        <Condition Property="IsMouseOver"
-                                                   Value="True" />
-                                        <Condition Property="IsSelected"
-                                                   Value="False" />
-                                    </MultiTrigger.Conditions>
-
-                                    <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}" />-->
-
-                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}" />-->
-                                    <Setter Property="Background"
-                                            TargetName="_Border"
-                                            Value="{DynamicResource RegionBrush}" />
-                                    <Setter Property="Effect"
-                                            TargetName="_Border"
-                                            Value="{StaticResource Item.MouseOver.Border.Shadow}" />
-                                </MultiTrigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-                <!--<Setter Property="ToolTip" Value="{Binding DocName}" />-->
-                <Setter Property="Tag"
-                        Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
-                <Setter Property="ContextMenu">
-                    <Setter.Value>
-                        <ContextMenu>
-
-                            <MenuItem Command="{Binding PlacementTarget.Tag.LaunchPositionEditWindowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                      CommandParameter="position"
-                                      Header="Layout">
-                                <MenuItem.Icon>
-                                    <Path   Data="{StaticResource WindowRestoreGeometry}"
-                                            Fill="{StaticResource PrimaryTextBrush}"
-                                            Stretch="Uniform" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem Command="{Binding PlacementTarget.Tag.ImportPIDCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                      Header="Import LED Setup">
-                                <MenuItem.Icon>
-                                    <Path   Data="{StaticResource import}"
-                                            Fill="{StaticResource PrimaryTextBrush}"
-                                            Stretch="Uniform" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem  Command="{Binding PlacementTarget.Tag.ExportPIDCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                       Header="Export LED Setup">
-                                <MenuItem.Icon>
-                                    <Path   Data="{StaticResource export}"
-                                            Fill="{StaticResource PrimaryTextBrush}"
-                                            Stretch="Uniform" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem Command="{Binding PlacementTarget.Tag.ShowNameEditWindow, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                      CommandParameter="rename"
-                                      Header="Rename">
-                                <MenuItem.Icon>
-                                    <Path   Data="{StaticResource editname}"
-                                            Fill="{StaticResource PrimaryTextBrush}"
-                                            Stretch="Uniform" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-
-                            <MenuItem CommandParameter="advance"
-                                      Command="{Binding PlacementTarget.Tag.OpenAdvanceSettingWindowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                      Header="Advance Settings">
-                                <MenuItem.Icon>
-                                    <Path   Data="{StaticResource advancesettings}"
-                                            Fill="{StaticResource PrimaryTextBrush}"
-                                            Stretch="Uniform" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                        </ContextMenu>
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="ContextMenuService.Placement"
-                        Value="Right">
-                </Setter>
-                <Setter Property="ContextMenuService.VerticalOffset"
-                        Value="0">
-                </Setter>
-                <Setter Property="ContextMenuService.HorizontalOffset"
-                        Value="5">
-                </Setter>
-                <Setter Property="Foreground"
-                        Value="{StaticResource PrimaryTextBrush}" />
-                <Style.Triggers>
-                    <Trigger Property="IsSelected"
-                             Value="True">
-                        <Setter Property="Foreground"
-                                Value="{StaticResource PrimaryBrush}" />
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
-
-            <Style x:Key="_listBoxControlPropertyStyle"
-                   TargetType="ListBoxItem">
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="ListBoxItem">
-                            <Border Width="50"
-                                    Height="50"
-                                    Name="_Border"
-                                    Padding="0"
-                                    Margin="0"
-                                    Background="Transparent"
-                                    BorderBrush="Transparent"
-                                    BorderThickness="0"
-                                    SnapsToDevicePixels="true">
-                                <ContentPresenter x:Name="_content" />
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <MultiTrigger>
-                                    <MultiTrigger.Conditions>
-                                        <Condition Property="Selector.IsSelectionActive"
-                                                   Value="True" />
-                                        <Condition Property="IsSelected"
-                                                   Value="True" />
-                                    </MultiTrigger.Conditions>
-                                    <Setter Property="Background"
-                                            TargetName="_Border"
-                                            Value="{DynamicResource PrimaryBrush}" />
-
-                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}" />-->
-                                </MultiTrigger>
-                                <MultiTrigger>
-                                    <MultiTrigger.Conditions>
-                                        <Condition Property="Selector.IsSelectionActive"
-                                                   Value="False" />
-                                        <Condition Property="IsSelected"
-                                                   Value="True" />
-                                    </MultiTrigger.Conditions>
-
-                                    <!--<Setter Property="Effect" TargetName="_Border" Value="{StaticResource Item.SelectedActive.Border.Shadow}" />-->
-
-                                    <Setter Property="Background"
-                                            TargetName="_Border"
-                                            Value="{DynamicResource PrimaryBrush}" />
-                                </MultiTrigger>
-                                <MultiTrigger>
-                                    <MultiTrigger.Conditions>
-                                        <Condition Property="IsMouseOver"
-                                                   Value="True" />
-                                        <Condition Property="IsSelected"
-                                                   Value="False" />
-                                    </MultiTrigger.Conditions>
-
-                                    <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}" />-->
-
-                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}" />-->
-                                    <Setter Property="Background"
-                                            TargetName="_Border"
-                                            Value="{DynamicResource SecondaryRegionBrush}" />
-                                    <!--<Setter Property="Effect" TargetName="_Border" Value="{StaticResource Item.MouseOver.Border.Shadow}" />-->
-                                </MultiTrigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-                <!--<Setter Property="ToolTip" Value="{Binding DocName}" />-->
-
-                <Setter Property="Foreground"
-                        Value="{StaticResource PrimaryTextBrush}" />
-                <Style.Triggers>
-                    <Trigger Property="IsSelected"
-                             Value="True">
-                        <Setter Property="Foreground"
-                                Value="White" />
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
-            <Style x:Key="_listBoxOutputCollection"
-                   TargetType="ListBoxItem">
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="ListBoxItem">
-                            <Border Width="100"
-                                    Height="50"
-                                    CornerRadius="0"
-                                    Name="_Border"
-                                    Padding="0"
-                                    Margin="0"
-                                    Background="Transparent"
-                                    BorderBrush="Transparent"
-                                    BorderThickness="0"
-                                    SnapsToDevicePixels="true">
-                                <ContentPresenter x:Name="_content" />
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <MultiTrigger>
-                                    <MultiTrigger.Conditions>
-                                        <Condition Property="Selector.IsSelectionActive"
-                                                   Value="True" />
-                                        <Condition Property="IsSelected"
-                                                   Value="True" />
-                                    </MultiTrigger.Conditions>
-                                    <Setter Property="Background"
-                                            TargetName="_Border"
-                                            Value="{DynamicResource PrimaryBrush}" />
-
-                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}" />-->
-                                </MultiTrigger>
-                                <MultiTrigger>
-                                    <MultiTrigger.Conditions>
-                                        <Condition Property="Selector.IsSelectionActive"
-                                                   Value="False" />
-                                        <Condition Property="IsSelected"
-                                                   Value="True" />
-                                    </MultiTrigger.Conditions>
-
-                                    <!--<Setter Property="Effect" TargetName="_Border" Value="{StaticResource Item.SelectedActive.Border.Shadow}" />-->
-
-                                    <Setter Property="Background"
-                                            TargetName="_Border"
-                                            Value="{DynamicResource PrimaryBrush}" />
-                                </MultiTrigger>
-                                <MultiTrigger>
-                                    <MultiTrigger.Conditions>
-                                        <Condition Property="IsMouseOver"
-                                                   Value="True" />
-                                        <Condition Property="IsSelected"
-                                                   Value="False" />
-                                    </MultiTrigger.Conditions>
-
-                                    <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}" />-->
-
-                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}" />-->
-                                    <Setter Property="Background"
-                                            TargetName="_Border"
-                                            Value="{DynamicResource SecondaryRegionBrush}" />
-                                    <!--<Setter Property="Effect" TargetName="_Border" Value="{StaticResource Item.MouseOver.Border.Shadow}" />-->
-                                </MultiTrigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-                <!--<Setter Property="ToolTip" Value="{Binding DocName}" />-->
-
-                <Setter Property="Foreground"
-                        Value="{StaticResource PrimaryTextBrush}" />
-                <Style.Triggers>
-                    <Trigger Property="IsSelected"
-                             Value="True">
-                        <Setter Property="Foreground"
-                                Value="White" />
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
-            <Style x:Key="_listBoxProfileSelectionStyle"
-                   TargetType="ListBoxItem">
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="ListBoxItem">
-                            <Border CornerRadius="4"
-                                    Name="_Border"
-                                    Padding="0"
-                                    Margin="5"
-                                    Background="Transparent"
-                                    BorderBrush="{StaticResource DarkMaskBrush}"
-                                    BorderThickness="0"
-                                    SnapsToDevicePixels="true">
-                                <ContentPresenter />
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <MultiTrigger>
-                                    <MultiTrigger.Conditions>
-                                        <Condition Property="Selector.IsSelectionActive"
-                                                   Value="True" />
-                                        <Condition Property="IsSelected"
-                                                   Value="True" />
-                                    </MultiTrigger.Conditions>
-
-                                    <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}" />-->
-                                    <Setter Property="Background"
-                                            TargetName="_Border"
-                                            Value="{StaticResource PrimaryBrush}" />
-                                </MultiTrigger>
-
-                                <MultiTrigger>
-                                    <MultiTrigger.Conditions>
-                                        <Condition Property="Selector.IsSelectionActive"
-                                                   Value="False" />
-                                        <Condition Property="IsSelected"
-                                                   Value="True" />
-                                    </MultiTrigger.Conditions>
-
-                                    <Setter Property="Background"
-                                            TargetName="_Border"
-                                            Value="{StaticResource PrimaryBrush}" />
-                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}" />-->
-                                </MultiTrigger>
-                                <MultiTrigger>
-                                    <MultiTrigger.Conditions>
-                                        <Condition Property="IsMouseOver"
-                                                   Value="True" />
-                                        <Condition Property="IsSelected"
-                                                   Value="False" />
-                                    </MultiTrigger.Conditions>
-
-                                    <Setter Property="Background"
-                                            TargetName="_Border"
-                                            Value="{StaticResource DarkMaskBrush}" />
-
-                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}" />-->
-                                </MultiTrigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-
-                <Setter Property="Foreground"
-                        Value="{StaticResource PrimaryTextBrush}" />
-                <Style.Triggers>
-                    <Trigger Property="IsSelected"
-                             Value="True">
-                        <Setter Property="Foreground"
-                                Value="{StaticResource PrimaryBrush}" />
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -655,13 +289,13 @@
                            MaxWidth="300"
                            MaxHeight="70"
                            Stretch="Uniform"
-                           Source="{Binding CurrentDevice.DeviceThumbnail}" />
+                           Source="{Binding Device.DeviceThumbnail}" />
                 </Border>
                 <StackPanel Margin="20,5"
                             Grid.Column="1">
 
                     <TextBlock HorizontalAlignment="Left"
-                               Text="{Binding CurrentDevice.DeviceName}"
+                               Text="{Binding Device.DeviceName}"
                                FlowDirection="RightToLeft"
                                FontWeight="SemiBold"
                                Style="{StaticResource TextBlockTitle}" />
@@ -670,7 +304,7 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Margin="0,2,5,2"
                                        HorizontalAlignment="Left"
-                                       Text="{Binding CurrentDevice.HardwareVersion}"
+                                       Text="{Binding Device.HardwareVersion}"
                                        Style="{DynamicResource TextBlockDefaultSecLight}" />
                             <Button Command="{Binding OpenOOTBCommand}"
                                     Padding="0"
@@ -696,115 +330,6 @@
                     </Grid>
                 </StackPanel>
             </Grid>
-
-            <!--<Grid Margin="0,0,50,0"
-                  Grid.Column="4">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-             
-                    <Button ToolTip="Open hardware settings" Command="{Binding OpenDeviceFirmwareSettingsWindowCommand}"
-                        CommandParameter="connection"
-                        hc:BorderElement.CornerRadius="7"
-                        Margin="0,5,5,5"
-                        Height="65"
-                        VerticalAlignment="Stretch"
-                        HorizontalAlignment="Right"
-                        Padding="0"
-                        BorderBrush="Transparent">
-                    <Button.Style>
-                        <Style TargetType="Button"
-                               BasedOn="{StaticResource ButtonDefault}">
-                            <Setter Property="IsEnabled"
-                                    Value="True" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentDevice.DeviceType.ConnectionTypeEnum}"
-                                             Value="OpenRGB">
-                                    <Setter Property="IsEnabled"
-                                            Value="False" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding CurrentDevice.DeviceType.ConnectionTypeEnum}"
-                                             Value="wireless">
-                                    <Setter Property="IsEnabled"
-                                            Value="False" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                    <Grid>
-                        <Grid Margin="0" VerticalAlignment="Top">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="auto" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-                            <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="auto" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Path Width="30"
-                                          Height="30"
-                                          Margin="10,10,5,10"
-                                          Data="{StaticResource hardware}"
-                                          Stretch="Uniform">
-                                        <Path.Style>
-                                            <Style TargetType="Path">
-                                                <Setter Property="Fill"
-                                                        Value="{DynamicResource PrimaryBrush}" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding CurrentDevice.IsTransferActive}"
-                                                                 Value="False">
-                                                        <Setter Property="Fill"
-                                                                Value="{StaticResource SecondaryTextBrush}" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Path.Style>
-                                    </Path>
-
-                                    <Grid HorizontalAlignment="Left"
-                                          Grid.Column="1">
-                                        <StackPanel HorizontalAlignment="Left">
-                                            <TextBlock HorizontalAlignment="Left"
-                                                       Text="{Binding CurrentDevice.DeviceType.Type}"
-                                                       Style="{StaticResource TextBlockSubTitle}"
-                                                       FontWeight="SemiBold"
-                                                       Margin="5,2,10,2" />
-
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="auto" />
-                                                    <ColumnDefinition Width="auto" />
-                                                    <ColumnDefinition Width="*" />
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock Text="{Binding CurrentDevice.FirmwareVersion}"
-                                                           Style="{StaticResource TextBlockDefaultPrimary}"
-                                                           Margin="5,2"
-                                                           HorizontalAlignment="Left" />
-                                                <TextBlock Grid.Column="2"
-                                                           Text="{Binding CurrentDevice.HardwareVersion}"
-                                                           Style="{StaticResource TextBlockDefaultPrimary}"
-                                                           Margin="5,2"
-                                                           HorizontalAlignment="Left" />
-                                            </Grid>
-                                        </StackPanel>
-                                    </Grid>
-                                </Grid>
-                                <Grid Grid.Row="1">
-                                <ProgressBar Visibility="{Binding IsApplyingDeviceHardwareSettings,Converter={StaticResource boolToVisibilityConvert}}"
-                                             hc:BorderElement.CornerRadius="0"
-                                                 IsIndeterminate="True"
-                                                 Margin="0,5,0,0"
-                                                 Height="4" />
-                                </Grid>
-                        </Grid>
-
-                    </Grid>
-                </Button>
-                    
-             
-            </Grid>-->
             <Grid Margin="0,0,5,0"
                   Grid.Column="5">
                 <Grid.ColumnDefinitions>
@@ -826,12 +351,12 @@
                             <Setter Property="IsEnabled"
                                     Value="True" />
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentDevice.DeviceType.ConnectionTypeEnum}"
+                                <DataTrigger Binding="{Binding Device.DeviceType.ConnectionTypeEnum}"
                                              Value="OpenRGB">
                                     <Setter Property="IsEnabled"
                                             Value="False" />
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding CurrentDevice.DeviceType.ConnectionTypeEnum}"
+                                <DataTrigger Binding="{Binding Device.DeviceType.ConnectionTypeEnum}"
                                              Value="wireless">
                                     <Setter Property="IsEnabled"
                                             Value="True" />
@@ -847,14 +372,14 @@
                         <Path Width="30"
                               Height="30"
                               Margin="5,10"
-                              Data="{Binding CurrentDevice.DeviceType.ConnectionGeometry, Converter={converters:StaticResourceConverter}}"
+                              Data="{Binding Device.DeviceType.ConnectionGeometry, Converter={converters:StaticResourceConverter}}"
                               Stretch="Uniform">
                             <Path.Style>
                                 <Style TargetType="Path">
                                     <Setter Property="Fill"
                                             Value="{DynamicResource PrimaryBrush}" />
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding CurrentDevice.IsTransferActive}"
+                                        <DataTrigger Binding="{Binding Device.IsTransferActive}"
                                                      Value="False">
                                             <Setter Property="Fill"
                                                     Value="{DynamicResource SecondaryTextBrush}" />
@@ -869,7 +394,7 @@
                             <StackPanel HorizontalAlignment="Left">
 
                                 <TextBlock MaxWidth="200"
-                                           Text="{Binding CurrentDevice.OutputPort}"
+                                           Text="{Binding Device.OutputPort}"
                                            FlowDirection="RightToLeft"
                                            FontWeight="SemiBold"
                                            TextTrimming="CharacterEllipsis"
@@ -877,7 +402,7 @@
 
                                 <TextBlock Text="Connected"
                                            Style="{StaticResource TextBlockDefaultPrimary}"
-                                           Visibility="{Binding CurrentDevice.IsTransferActive,Converter={StaticResource boolToVisibilityConvert}}"
+                                           Visibility="{Binding Device.IsTransferActive,Converter={StaticResource boolToVisibilityConvert}}"
                                            Margin="5,5"
                                            HorizontalAlignment="Left" />
                                 <TextBlock Text="Disconnected"
@@ -889,7 +414,7 @@
                                             <Setter Property="Visibility"
                                                     Value="Collapsed" />
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding CurrentDevice.IsTransferActive}"
+                                                <DataTrigger Binding="{Binding Device.IsTransferActive}"
                                                              Value="False">
                                                     <Setter Property="Visibility"
                                                             Value="Visible" />
@@ -928,190 +453,33 @@
                         <ColumnDefinition Width="auto" />
                     </Grid.ColumnDefinitions>
                     <Grid Grid.Column="0">
-                        <Border Effect="{DynamicResource EffectShadow1}"
-                                CornerRadius="4"
-                                VerticalAlignment="Top"
-                                Height="auto"
-                                Margin="10,6,0,10"
-                                Background="Transparent">
-                            <Grid>
-                                <Grid.Style>
-                                    <Style TargetType="Grid">
-                                        <Setter Property="Visibility"
-                                                Value="Visible" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsInIDEditStage ,Mode=TwoWay}"
-                                                         Value="True">
-                                                <Setter Property="Visibility"
-                                                        Value="Collapsed" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Grid.Style>
-
-                                <ListBox ItemsSource="{Binding CurrentDevice.AvailableControllers,Mode=TwoWay}"
-                                         SelectedIndex="{Binding CurrentDevice.CurrentActiveControlerIndex}"
-                                         VerticalAlignment="Top"
-                                         ItemContainerStyle="{DynamicResource _listBoxControlModeStyle}"
-                                         Background="Transparent"
-                                         BorderThickness="0"
-                                         Margin="0,0,0,2"
-                                         Style="{DynamicResource WrapPanelVerticalListBox}">
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="*" />
-                                                    <RowDefinition Height="auto" />
-                                                </Grid.RowDefinitions>
-                                                <Grid>
-                                                    <Path x:Name="icon"
-                                                          Fill="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}, Path=Foreground}"
-                                                          Stretch="Uniform"
-                                                          HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center"
-                                                          Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
-                                                          Width="22"
-                                                          ToolTip="{Binding Description}"
-                                                          Height="22">
-                                                    </Path>
-                                                </Grid>
-                                                <Grid Grid.Row="1">
-                                                    <TextBlock x:Name="text"
-                                                               FontStretch="Condensed"
-                                                               FontSize="10"
-                                                               Margin="5"
-                                                               Style="{DynamicResource TextBlockDefault}"
-                                                               Text="{Binding Name,Mode=TwoWay}" />
-                                                </Grid>
-                                            </Grid>
-                                            <DataTemplate.Triggers>
-                                                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBoxItem}}}"
-                                                             Value="True">
-                                                    <Setter TargetName="text"
-                                                            Property="Visibility"
-                                                            Value="Collapsed" />
-                                                    <Setter TargetName="icon"
-                                                            Property="Margin"
-                                                            Value="10" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBoxItem}}}"
-                                                             Value="False">
-                                                    <Setter TargetName="text"
-                                                            Property="Visibility"
-                                                            Value="Visible" />
-                                                    <Setter TargetName="icon"
-                                                            Property="Margin"
-                                                            Value="10,10,10,0" />
-                                                </DataTrigger>
-                                            </DataTemplate.Triggers>
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-                                </ListBox>
-                            </Grid>
-                        </Border>
+                        <local:VerticalMenuControl DataContext="{Binding VerticalMenu}">
+                            
+                        </local:VerticalMenuControl>
                     </Grid>
                     <!--ControlView-->
                     <Grid Grid.Column="1">
                         <!--ControlView-->
                         <Border CornerRadius="4">
-                            <Border.Style>
-                                <Style TargetType="{x:Type Border}">
-                                    <Setter Property="Width"
-                                            Value="{Binding ToolBarWidth,Mode= TwoWay}" />
-                                    <Setter Property="VerticalAlignment"
-                                            Value="Stretch" />
-                                    <Setter Property="Margin"
-                                            Value="0,10,10,10" />
-                                    <Setter Property="Background"
-                                            Value="Transparent" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsInIDEditStage}"
-                                                     Value="true">
-                                            <Setter Property="VerticalAlignment"
-                                                    Value="Top" />
-                                            <Setter Property="Background"
-                                                    Value="{DynamicResource MainContentBackgroundBrush}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Border.Style>
                             <Grid>
                                 <hc:TransitioningContentControl Grid.Column="1"
                                                                 TransitionMode="Right2LeftWithFade">
-                                    <ContentControl Content="{Binding .,UpdateSourceTrigger=PropertyChanged}"
-                                                    Style="{StaticResource _propertiesView}">
-                                    </ContentControl>
+                                    <local:OutputControlView Width="500" Margin="0,4,0,0"
+                                                             DataContext="{Binding EffectControl}">
+                                    </local:OutputControlView>
                                 </hc:TransitioningContentControl>
                             </Grid>
                         </Border>
                     </Grid>
                     <!--Zones Preview-->
-                    <Grid  Grid.Column="2"
-                           hlprs:perSizeBindingHelper.Active="True"
-                           hlprs:perSizeBindingHelper.BoundActualHeight="{Binding CurrentLiveViewHeight, Mode=TwoWay}"
-                           hlprs:perSizeBindingHelper.BoundActualWidth="{Binding CurrentLiveViewWidth, Mode=TwoWay}">
+                    <Grid  Grid.Column="2">
                         <Border Margin="0,10,10,10"
                                 CornerRadius="4"
                                 Background="Transparent">
-                            <local:DeviceLiveView>
-                            </local:DeviceLiveView>
+                            <dvcvs:DeviceCanvas DataContext="{Binding CanvasViewModel}">
+                            </dvcvs:DeviceCanvas>
                         </Border>
                     </Grid>
-                    <!--Zones layer view-->
-                    <!--<Grid Grid.Column="3">
-                        <Border Margin="10,10,15,10" Height="200" VerticalAlignment="Top" Background="{DynamicResource MainContentBackgroundBrush}" Width="200" CornerRadius="4">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                <Grid Grid.Row="0">
-                                    <TextBlock Margin="10" FontWeight="SemiBold" Text="DEVICES AND GROUPS"/>
-                                </Grid>
-                                <Grid Grid.Row="1">
-                                    <ListBox BorderThickness="0" Margin="5" ItemsSource="{Binding LiveViewItems}">
-                                        <ListBox.ItemContainerStyle>
-                                            <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource ListBoxItemBaseStyle}">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding DataType.Name}" Value="ARGBLEDSlaveDevice">
-                                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding IsSelectable}" Value="False">
-                                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </ListBox.ItemContainerStyle>
-                                        <ListBox.Resources>
-                                            <DataTemplate DataType="{x:Type app:LEDSetup}">
-                                                <Grid>
-                                                    <i:Interaction.Triggers>
-                                                        <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
-                                                            <i:InvokeCommandAction CommandParameter="{Binding .}" Command="{Binding DataContext.SelectLiveViewItemCommand,RelativeSource={RelativeSource AncestorType={x:Type local:DeviceControlView}}}"/>
-                                                        </i:EventTrigger>
-                                                    </i:Interaction.Triggers>
-                                                    <TextBlock Text="{Binding DataType.Name}"/>
-                                                </Grid>
-                                            </DataTemplate>
-                                            <DataTemplate DataType="{x:Type settings:Border}">
-                                                <Grid>
-                                                    <i:Interaction.Triggers>
-                                                        <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
-                                                            <i:InvokeCommandAction CommandParameter="{Binding .}" Command="{Binding DataContext.SelectLiveViewItemCommand,RelativeSource={RelativeSource AncestorType={x:Type local:DeviceControlView}}}"/>
-                                                        </i:EventTrigger>
-                                                    </i:Interaction.Triggers>
-                                                    <TextBlock Text="{Binding Name}"/>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ListBox.Resources>
-
-                                    </ListBox>
-                                </Grid>
-                            </Grid>
-                            
-                        </Border>
-                    </Grid>-->
                 </Grid>
             </GroupBox>
         </Grid>

@@ -216,7 +216,13 @@ namespace adrilight_shared.Models.Device.Zone
             return true;
 
         }
-
+        public void ColapseAllController()
+        {
+            foreach(var param in CurrentActiveControlMode.Parameters)
+            {
+                param.ShowMore = false;
+            }
+        }
 
         protected virtual void OnLeftChanged(double delta) { }
 

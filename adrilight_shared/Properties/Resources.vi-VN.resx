@@ -1072,4 +1072,25 @@ Lưu ý: tắt chế độ "Ánh sáng điện ảnh" khi xem trên Youtube.</va
   <data name="HWL_MaxLEDPerOutput" xml:space="preserve">
     <value>SỐ LƯỢNG LED</value>
   </data>
+  <data name="ChooseBackupFile_Button_Content" xml:space="preserve">
+    <value>Chọn tệp đã sao lưu</value>
+  </data>
+  <data name="DeviceAdvanceSettingsViewModel_ChoseBackupFile_header" xml:space="preserve">
+    <value>Chọn tệp .zip</value>
+  </data>
+  <data name="DeviceAdvanceSettingsViewModel_RestoreDevice_WrongDeviceType" xml:space="preserve">
+    <value>Loại thiết bị không khớp!!!</value>
+  </data>
+  <data name="DeviceAdvanceSettingsViewModel_RestoreDevice_FileImport" xml:space="preserve">
+    <value>Nhập dữ liệu</value>
+  </data>
+  <data name="App_OnStartup_AdrilightIsLoading" xml:space="preserve">
+    <value>Đang khởi tạo</value>
+  </data>
+  <data name="App_OnStartup_LOADINGKERNEL" xml:space="preserve">
+    <value>ĐANG TẢI...</value>
+  </data>
+  <data name="App_SetupDependencyInjection_PROCESSESCREATED" xml:space="preserve">
+    <value>ĐÃ KHỞI TẠO TIẾN TRÌNH</value>
+  </data>
 </root>

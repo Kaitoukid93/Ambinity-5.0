@@ -322,8 +322,8 @@ namespace adrilight
             _systemSyncControl.SubParams[0].PropertyChanged += (_, __) => OnSystemSyncSpeedValueChanged(_systemSyncControl.SubParams[0].Value);
 
             ///activate these value///
-            _colorControl.LoadAvailableValues();
-            _vidDataControl.LoadAvailableValues();
+           // _colorControl.LoadAvailableValues();
+           // _vidDataControl.LoadAvailableValues();
             #endregion
             //safety check
             if (_colorControl.SelectedValue == null)

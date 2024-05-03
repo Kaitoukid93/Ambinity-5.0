@@ -1,0 +1,105 @@
+﻿<hc:Window x:Class="adrilight.View.Screens.OOBExperience.SelectLanguageWindow"
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+           xmlns:local="clr-namespace:adrilight.View.Screens.OOBExperience"
+           mc:Ignorable="d"
+           WindowStartupLocation="CenterScreen"
+           xmlns:hc="https://handyorg.github.io/handycontrol"
+           Background="{DynamicResource RegionBrush}"
+           ResizeMode="NoResize"
+           Height="400"
+           Width="350">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <TextBlock Margin="5,20,5,20"
+                       Style="{DynamicResource TextBlockLarge}"
+                       Text="Choose Your Language " />
+
+            <Path HorizontalAlignment="Center"
+                  Stretch="Uniform"
+                  Width="100"
+                  Height="100"
+                  Margin="10"
+                  Data="{DynamicResource language}"
+                  Fill="{DynamicResource PrimaryTextBrush}" />
+            <ItemsControl  Margin="20"
+                           BorderThickness="0"
+                           Background="Transparent">
+
+
+                <Button HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        Height="50"
+                        Click="English_Click"
+                        Background="Transparent"
+                        Style="{DynamicResource _lowProfileDefaultButton}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Grid Grid.Column="0">
+                            <TextBlock Text="English"
+                                       HorizontalAlignment="Left"
+                                       Style="{DynamicResource TextBlockSubTitle}"
+                                       FontWeight="SemiBold" />
+                        </Grid>
+                        <Grid Grid.Column="1">
+                            <Path HorizontalAlignment="Right"
+                                  Stretch="Uniform"
+                                  Width="15"
+                                  Height="15"
+                                  Margin="10"
+                                  Data="{DynamicResource showMoreRight}"
+                                  Fill="{DynamicResource SecondaryRegionBrush}" />
+                        </Grid>
+
+                    </Grid>
+                </Button>
+
+
+                <Button HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        Height="50"
+                        Background="Transparent"
+                        Click="Vietnamese_Click"
+                        Style="{DynamicResource _lowProfileDefaultButton}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Grid Grid.Column="0">
+                            <TextBlock Text="Tiếng Việt"
+                                       HorizontalAlignment="Left"
+                                       Style="{DynamicResource TextBlockSubTitle}"
+                                       FontWeight="SemiBold" />
+                        </Grid>
+                        <Grid Grid.Column="1">
+                            <Path HorizontalAlignment="Right"
+                                  Stretch="Uniform"
+                                  Width="15"
+                                  Height="15"
+                                  Margin="10"
+                                  Data="{DynamicResource showMoreRight}"
+                                  Fill="{DynamicResource SecondaryRegionBrush}" />
+                        </Grid>
+
+                    </Grid>
+                </Button>
+
+            </ItemsControl>
+
+        </StackPanel>
+
+
+    </Grid>
+</hc:Window>

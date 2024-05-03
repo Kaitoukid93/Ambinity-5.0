@@ -4,7 +4,7 @@ using System;
 
 namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
 {
-    public class ColorPalette : ViewModelBase, IParameterValue
+    public class ColorPalette : ViewModelBase, IParameterValue , IGenericCollectionItem
     {
         public ColorPalette(string name, string owner, string type, string description, System.Windows.Media.Color[] colors)
         {

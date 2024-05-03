@@ -48,6 +48,7 @@ namespace adrilight_shared.Settings
         private bool _usingOpenRGB = true;
         private int _appLanguageIndex = 0;
         private LangModel _appCulture = new LangModel(new CultureInfo("en-US", false), "English", "");
+        private bool _askForSelectingLang = true;
         public GeneralSettings()
         {
 
@@ -92,7 +93,7 @@ namespace adrilight_shared.Settings
         public bool AudioCapturingEnabled { get => _audioCapturingEnabled; set { Set(() => AudioCapturingEnabled, ref _audioCapturingEnabled, value); } }
         public bool UsingOpenRGB { get => _usingOpenRGB; set { Set(() => UsingOpenRGB, ref _usingOpenRGB, value); } }
         public string OpenRGBVersion { get => _openRGBVersion; set { Set(() => OpenRGBVersion, ref _openRGBVersion, value); } }
-
+        public bool AskForSelectingLang { get => _askForSelectingLang; set { Set(() => AskForSelectingLang, ref _askForSelectingLang, value); } }
         public int BlackBarDetectionDelayTime { get => _blackBarDetectionDelayTime; set { Set(() => BlackBarDetectionDelayTime, ref _blackBarDetectionDelayTime, value); } }
     }
 }

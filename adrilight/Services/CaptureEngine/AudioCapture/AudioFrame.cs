@@ -157,7 +157,7 @@ namespace adrilight
                 {
                     if (_state == RunningState.Capturing)
                     {
-                        var isPreviewWindowOpen = MainViewModel.IsInIDEditStage && MainViewModel.IdEditMode == MainViewViewModel.IDMode.FID || MainViewModel.IsAudioSelectionOpen;
+                        var isPreviewWindowOpen = MainViewModel.IsInIDEditStage || MainViewModel.IsAudioSelectionOpen;
                         //var result = GetCurrentFFTFrame(32, Frames[index].Frame);
                         lock (Lock)
                         {

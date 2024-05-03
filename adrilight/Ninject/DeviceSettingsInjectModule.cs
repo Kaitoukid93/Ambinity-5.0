@@ -11,6 +11,7 @@ using adrilight.ViewModel;
 using adrilight_shared.Models.Stores;
 using adrilight_shared.Services;
 using adrilight_shared.Settings;
+using adrilight_shared.ViewModel;
 using Microsoft.Win32;
 using Ninject.Modules;
 using Serilog;
@@ -30,6 +31,12 @@ namespace adrilight.Ninject
             Bind<IGeneralSettings>().ToConstant(generalSettings);
             Bind<MainViewViewModel>().ToSelf().InSingletonScope();
             Bind<LightingProfileManagerViewModel>().ToSelf().InSingletonScope();
+            //device control 
+            Bind<DeviceCanvasViewModel>().ToSelf().InSingletonScope();
+            Bind<DeviceControlViewModel>().ToSelf().InSingletonScope();
+            Bind<EffectControlViewModel>().ToSelf().InSingletonScope();
+            Bind<VerticalMenuControlViewModel>().ToSelf().InSingletonScope();
+            ////
             Bind<DeviceManagerViewModel>().ToSelf().InSingletonScope();
             Bind<MainView>().ToSelf().InSingletonScope();
             Bind<IAmbinityClient>().To<AmbinityClient>().InSingletonScope();

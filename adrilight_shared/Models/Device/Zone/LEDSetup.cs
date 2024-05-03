@@ -168,7 +168,13 @@ namespace adrilight_shared.Models.Device.Zone
         public string Type { get; set; }
         private DrawableHelpers DrawableHlprs = new DrawableHelpers();
         #region Lighting Related Method
-
+        public void ColapseAllController()
+        {
+            foreach (var param in CurrentActiveControlMode.Parameters)
+            {
+                param.ShowMore = false;
+            }
+        }
         public List<ColorCard> GetStaticColorDataSource()
         {
             var colors = new List<ColorCard>();

@@ -599,10 +599,10 @@
     <value>Manage</value>
   </data>
   <data name="App_Already_Launch_Header" xml:space="preserve">
-    <value>Adrilight has been previously launched; please check the 'Task Manager' or 'System Tray' in Windows</value>
+    <value>Already running</value>
   </data>
   <data name="App_Already_Launch" xml:space="preserve">
-    <value>Adrilight has been previously launched; please check the 'Task Manager' or 'System Tray' in Windows</value>
+    <value>Adrilight has been previously launched, please check the 'Task Manager' or 'System Tray' in Windows</value>
   </data>
   <data name="LightingMode_GetDescription_ScreenCapturing" xml:space="preserve">
     <value>Sampling color of the content displaying on the screen.</value>
@@ -1081,5 +1081,14 @@ Note: only work if "Ambient mode" is turned off when watching Youtube video.</va
   </data>
   <data name="DeviceAdvanceSettingsViewModel_RestoreDevice_FileImport" xml:space="preserve">
     <value>File Import</value>
+  </data>
+  <data name="App_OnStartup_AdrilightIsLoading" xml:space="preserve">
+    <value>Adrilight is loading</value>
+  </data>
+  <data name="App_OnStartup_LOADINGKERNEL" xml:space="preserve">
+    <value>LOADING KERNEL...</value>
+  </data>
+  <data name="App_SetupDependencyInjection_PROCESSESCREATED" xml:space="preserve">
+    <value>PROCESSES CREATED</value>
   </data>
 </root>

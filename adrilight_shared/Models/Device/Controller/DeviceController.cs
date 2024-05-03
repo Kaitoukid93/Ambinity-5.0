@@ -1,10 +1,11 @@
 ﻿using adrilight_shared.Enums;
+using adrilight_shared.Model.VerticalMenu;
 using adrilight_shared.Models.Device.Output;
 using System.Collections.Generic;
 
 namespace adrilight_shared.Models.Device.Controller
 {
-    public class DeviceController : IDeviceController
+    public class DeviceController : IDeviceController, IVerticalMenuItem
     {
         public DeviceController()
         {

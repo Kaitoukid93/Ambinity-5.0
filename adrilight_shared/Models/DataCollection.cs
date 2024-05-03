@@ -131,6 +131,7 @@ namespace adrilight_shared.Models
                 ShowLoadingView(p);
             }
         );
+         
 
             UnpinItem = new RelayCommand<IGenericCollectionItem>((p) =>
                {

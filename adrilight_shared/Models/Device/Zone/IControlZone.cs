@@ -29,5 +29,7 @@ namespace adrilight_shared.Models.Device.Zone
         string GroupID { get; set; }
 
         void UpdateSizeByChild(bool withPoint);
+        void ColapseAllController();
+
     }
 }

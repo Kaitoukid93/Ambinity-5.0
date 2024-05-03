@@ -1,25 +1,30 @@
 ﻿using adrilight_shared.Models.ControlMode.ModeParameters;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 
-namespace adrilight.View
+namespace adrilight.View.Template
 {
     /// <summary>
-    /// Interaction logic for PaletteEditWindow.xaml
+    /// Interaction logic for ListSelectionParamTemplate.xaml
     /// </summary>
-    public partial class OutputControlView
+    public partial class ButtonParamTemplate : UserControl
     {
-        public OutputControlView()
+        public ButtonParamTemplate()
         {
             InitializeComponent();
         }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            //this.Close();
-        }
-
         private void GroupBox_MouseDown(object sender, MouseButtonEventArgs e)
         {
             var grBx = (Border)sender;
@@ -32,25 +37,6 @@ namespace adrilight.View
                 else
                     dataSource.ShowMore = true;
             }
-        }
-
-
-        private void ButtonMode_OnClick(object sender, RoutedEventArgs e)
-        {
-            PopupMode.IsOpen = true;
-        }
-
-
-        private void NewModeSelected(object sender, SelectionChangedEventArgs e)
-        {
-            PopupMode.IsOpen = false;
-        }
-
-     
-
-        private void ButtonExport_Click(object sender, RoutedEventArgs e)
-        {
-            PopupExport.IsOpen = true;
         }
     }
 }

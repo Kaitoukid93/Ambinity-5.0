@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace adrilight.Helpers
+namespace adrilight_shared.Helpers
 {
     public static class perSizeBindingHelper
     {

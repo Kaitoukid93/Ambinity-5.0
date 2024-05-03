@@ -41,6 +41,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Xml.Linq;
+using Application = System.Windows.Application;
 
 namespace adrilight.ViewModel
 {
@@ -67,6 +68,7 @@ namespace adrilight.ViewModel
             _dialogService = service ?? throw new ArgumentNullException(nameof(service));
             ResourceHlprs = new ResourceHelpers();
             LocalFileHlprs = new LocalFileHelpers();
+            DeviceHlprs = new DeviceHelpers();
             CommandSetup();
             HardwareLightingControlInit();
         }
@@ -87,6 +89,7 @@ namespace adrilight.ViewModel
         private DialogService _dialogService;
         private ResourceHelpers ResourceHlprs;
         private LocalFileHelpers LocalFileHlprs;
+        private DeviceHelpers DeviceHlprs { get; set; }
         private static byte[] requestCommand = { (byte)'d', (byte)'i', (byte)'r', (byte)'\n' };
         private static byte[] sendCommand = { (byte)'h', (byte)'s', (byte)'d' };
         private static byte[] expectedValidHeader = { 15, 12, 93 };
@@ -770,6 +773,7 @@ namespace adrilight.ViewModel
             }
             vm.Value = 90;
             vm.CurrentProgressHeader = "Rebooting device";
+            DeviceHlprs.WriteSingleDeviceInfoJson(Device);
             Device.RefreshLightingEngine();
             vm.Value = 100;
             vm.Header = "Done";
@@ -779,6 +783,8 @@ namespace adrilight.ViewModel
             vm.ProgressBarVisibility = Visibility.Hidden;
             vm.SuccessMesageVisibility = Visibility.Visible;
             vm.SuccessMessage = "Device restored successfully!";
+            System.Windows.Forms.Application.Restart();
+            Process.GetCurrentProcess().Kill();
         }
         private IDeviceSettings ImportDevice(string path)
         {

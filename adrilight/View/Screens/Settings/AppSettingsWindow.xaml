@@ -1451,7 +1451,8 @@
                                       ItemContainerStyle="{DynamicResource _ComboboxItemStyle}"
                                       Width="100"
                                       HorizontalAlignment="Right"
-                                      ItemsSource="{Binding AvailableAppCulture}">
+                                      ItemsSource="{Binding AvailableAppCulture
+                                }">
 
                             </ComboBox>
 
@@ -1565,7 +1566,7 @@
                                            Text="Ambinity 5.0.8"></TextBlock>
                                 <TextBlock Margin="0,0,0,5"
                                            Style="{DynamicResource TextBlockDefault}"
-                                           Text="Release date : 4/4/2024_a"></TextBlock>
+                                           Text="Release date : 21/4/2024_a"></TextBlock>
                                 <StackPanel HorizontalAlignment="Center"
                                             Margin="0,0,0,0"
                                             Orientation="Horizontal">

@@ -48,5 +48,6 @@ namespace adrilight_shared.Settings
         bool UsingOpenRGB { get; set; }
         LangModel AppCulture { get; set; }
         int AppLanguageIndex { get; set; }
+        bool AskForSelectingLang { get; set; }
     }
 }

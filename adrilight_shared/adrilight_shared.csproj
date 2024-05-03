@@ -100,6 +100,9 @@
     <Reference Include="OpenRGB.NET, Version=1.7.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenRGB.NET.1.7.0\lib\netstandard2.0\OpenRGB.NET.dll</HintPath>
     </Reference>
+    <Reference Include="RichCanvas, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RichCanvas.2.4.2\lib\net472\RichCanvas.dll</HintPath>
+    </Reference>
     <Reference Include="Serilog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
       <HintPath>..\packages\Serilog.3.0.1\lib\net471\Serilog.dll</HintPath>
     </Reference>
@@ -145,9 +148,13 @@
     <Compile Include="Converter\StaticResourceConverter.cs" />
     <Compile Include="Converter\ThicknessToDoubleConverter.cs" />
     <Compile Include="Converter\ToUpperValueConverter.cs" />
+    <Compile Include="Helpers\EventToCommand.cs" />
+    <Compile Include="Helpers\perSizeBindingHelper.cs" />
     <Compile Include="Models\DataViewMode.cs" />
     <Compile Include="Models\Language\LangModel.cs" />
+    <Compile Include="Models\Stores\DeviceControlEvent.cs" />
     <Compile Include="Models\Stores\CollectionItemStore.cs" />
+    <Compile Include="Models\VerticalMenu\IVerticalMenuItem.cs" />
     <Compile Include="Services\DialogService.cs" />
     <Compile Include="Enums\OnlineItemAvatarTypeEnum.cs" />
     <Compile Include="Enums\ChasingPatternTypeEnum.cs" />
@@ -298,10 +305,18 @@
     <Compile Include="Settings\IGeneralSettings.cs" />
     <Compile Include="ViewModel\AddNewDialogViewModel.cs" />
     <Compile Include="ViewModel\DeleteDialogViewModel.cs" />
+    <Compile Include="ViewModel\EffectControlViewModel.cs" />
     <Compile Include="ViewModel\NonClientAreaContentViewModel.cs" />
     <Compile Include="ViewModel\NumberInputDialogViewModel.cs" />
     <Compile Include="ViewModel\ProgressDialogViewModel.cs" />
     <Compile Include="ViewModel\RenameDialogViewModel.cs" />
+    <Compile Include="ViewModel\DeviceCanvasViewModel.cs" />
+    <Compile Include="View\Canvas\Adorners\AttachedAdorner.cs" />
+    <Compile Include="View\Canvas\Adorners\HoverAdorner.cs" />
+    <Compile Include="View\Canvas\Adorners\LineHoverAdorner.cs" />
+    <Compile Include="View\Canvas\Adorners\ResizeAdorner.cs" />
+    <Compile Include="View\Canvas\Adorners\ResizeLineAdorner.cs" />
+    <Compile Include="View\Canvas\CanvasSelectionRectangle.cs" />
     <Compile Include="View\Dialogs\AddNewDialog.xaml.cs">
       <DependentUpon>AddNewDialog.xaml</DependentUpon>
     </Compile>
@@ -323,7 +338,9 @@
     <Compile Include="View\NonClientAreaContent\NonClientArea.xaml.cs">
       <DependentUpon>NonClientArea.xaml</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Properties\Resources.en.resx" />
+    <Compile Include="View\Canvas\DeviceCanvas.xaml.cs">
+      <DependentUpon>DeviceCanvas.xaml</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -364,7 +381,6 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <EmbeddedResource Include="Properties\Resources.vi-VN.resx" />
-    <EmbeddedResource Include="Properties\Resources.vi.resx" />
     <EmbeddedResource Include="Resources\Automations\DefaultAutomations.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -549,6 +565,10 @@
     <Page Include="View\NonClientAreaContent\NonClientArea.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Canvas\DeviceCanvas.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -9,6 +9,7 @@ using adrilight.Services.SerialStream;
 using adrilight.Ticker;
 using adrilight.Util;
 using adrilight.View;
+using adrilight.View.Screens.OOBExperience;
 using adrilight.ViewModel;
 using adrilight_shared.Enums;
 using adrilight_shared.Helpers;
@@ -39,6 +40,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Media;
 using Un4seen.Bass;
 using SplashScreen = adrilight.View.SplashScreen;
@@ -59,22 +61,43 @@ namespace adrilight
         private KnownTypesBinder _knownTypeBinders { get; set; }
         protected override async void OnStartup(StartupEventArgs startupEvent)
         {
-            //check if this app is already open in the background
+            //load setting if exist
             var settingsManager = new UserSettingsManager();
             var generalSettings = settingsManager.LoadIfExists() ?? settingsManager.MigrateOrDefault();
-            Thread.CurrentThread.CurrentCulture = generalSettings.AppCulture.Culture;
-            Thread.CurrentThread.CurrentUICulture = generalSettings.AppCulture.Culture;
-            CultureInfo.DefaultThreadCurrentCulture = generalSettings.AppCulture.Culture;
-            CultureInfo.DefaultThreadCurrentUICulture = generalSettings.AppCulture.Culture;
+            //setting the color
             ThemeManager.Current.ApplicationTheme = ApplicationTheme.Dark;
             var accentColor = generalSettings.AccentColor;
             ThemeManager.Current.AccentColor = new SolidColorBrush(accentColor);
+            //ask for language
+            if (generalSettings.AskForSelectingLang)
+            {
+                var lang = await SelectLanguage();
+                generalSettings.AskForSelectingLang = false;
+                if (lang != null)
+                {
+                    Thread.CurrentThread.CurrentCulture = lang.Culture;
+                    Thread.CurrentThread.CurrentUICulture = lang.Culture;
+                    CultureInfo.DefaultThreadCurrentCulture = lang.Culture;
+                    CultureInfo.DefaultThreadCurrentUICulture = lang.Culture;
+                    generalSettings.AppCulture = lang;
+                }
+
+            }
+            else
+            {
+                Thread.CurrentThread.CurrentCulture = generalSettings.AppCulture.Culture;
+                Thread.CurrentThread.CurrentUICulture = generalSettings.AppCulture.Culture;
+                CultureInfo.DefaultThreadCurrentCulture = generalSettings.AppCulture.Culture;
+                CultureInfo.DefaultThreadCurrentUICulture = generalSettings.AppCulture.Culture;
+            }
+
+            //check if this app is already open in the background
             _adrilightMutex = new Mutex(true, "adrilight2");
             if (!_adrilightMutex.WaitOne(TimeSpan.Zero, true))
             {
                 //another instance is already running!
                 HandyControl.Controls.MessageBox.Show(adrilight_shared.Properties.Resources.App_Already_Launch
-                    , adrilight_shared.Properties.Resources.App_Already_Launch_Header);
+                    , adrilight_shared.Properties.Resources.App_Already_Launch_Header,MessageBoxButton.OK,MessageBoxImage.Warning);
                 Shutdown();
                 return;
             }
@@ -100,8 +123,8 @@ namespace adrilight
             _splashScreen = new SplashScreen();
             this.MainWindow = _splashScreen;
             _splashScreen.Show();
-            _splashScreen.Header.Text = "Adrilight is loading";
-            _splashScreen.status.Text = "LOADING KERNEL...";
+            _splashScreen.Header.Text = adrilight_shared.Properties.Resources.App_OnStartup_AdrilightIsLoading;
+            _splashScreen.status.Text = adrilight_shared.Properties.Resources.App_OnStartup_LOADINGKERNEL;
             kernel = await Task.Run(() => SetupDependencyInjection(false));
             var dialogService = kernel.Get<IDialogService>();
             dialogService.RegisterDialog<DeleteDialog, DeleteDialogViewModel>();
@@ -128,7 +151,19 @@ namespace adrilight
 
             Log.CloseAndFlush();
         }
-
+        private async Task<LangModel> SelectLanguage()
+        {
+            var langSelectDialog = new SelectLanguageWindow();
+            var result = langSelectDialog.ShowDialog();
+            if(result == true)
+            {
+                return await Task.FromResult(langSelectDialog.SelectedLanguage);
+            }
+            else
+            {
+                return null;
+            }
+        }
         protected void CloseMutexHandler(object sender, EventArgs startupEvent)
         {
             _mutex?.Close();
@@ -140,9 +175,10 @@ namespace adrilight
 
         internal static IKernel SetupDependencyInjection(bool isInDesignMode)
         {
-
             var kernel = new StandardKernel(new DeviceSettingsInjectModule());
             GeneralSettings = kernel.Get<IGeneralSettings>();
+            Thread.CurrentThread.CurrentUICulture = GeneralSettings.AppCulture.Culture;
+            
             //Load setting từ file Json//
             var deviceManager = kernel.Get<DeviceManagerViewModel>();
             var captureEngines = kernel.GetAll<ICaptureEngine>();
@@ -152,12 +188,14 @@ namespace adrilight
 
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
+                Thread.CurrentThread.CurrentUICulture = GeneralSettings.AppCulture.Culture;
                 _splashScreen.status.Text = "DONE LOADING KERNEL";
             });
 
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
-                _splashScreen.status.Text = "PROCESSES CREATED";
+                Thread.CurrentThread.CurrentUICulture = GeneralSettings.AppCulture.Culture;
+                _splashScreen.status.Text = adrilight_shared.Properties.Resources.App_SetupDependencyInjection_PROCESSESCREATED;
             });
             MainViewViewModel = kernel.Get<MainViewViewModel>();
             if (!GeneralSettings.StartMinimized)

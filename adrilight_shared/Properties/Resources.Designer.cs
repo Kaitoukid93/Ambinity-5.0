@@ -412,7 +412,7 @@ namespace adrilight_shared.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Adrilight has been previously launched; please check the &apos;Task Manager&apos; or &apos;System Tray&apos; in Windows.
+        ///   Looks up a localized string similar to Adrilight has been previously launched, please check the &apos;Task Manager&apos; or &apos;System Tray&apos; in Windows.
         /// </summary>
         public static string App_Already_Launch {
             get {
@@ -421,11 +421,38 @@ namespace adrilight_shared.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Adrilight has been previously launched; please check the &apos;Task Manager&apos; or &apos;System Tray&apos; in Windows.
+        ///   Looks up a localized string similar to Already running.
         /// </summary>
         public static string App_Already_Launch_Header {
             get {
                 return ResourceManager.GetString("App_Already_Launch_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Adrilight is loading.
+        /// </summary>
+        public static string App_OnStartup_AdrilightIsLoading {
+            get {
+                return ResourceManager.GetString("App_OnStartup_AdrilightIsLoading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LOADING KERNEL....
+        /// </summary>
+        public static string App_OnStartup_LOADINGKERNEL {
+            get {
+                return ResourceManager.GetString("App_OnStartup_LOADINGKERNEL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to PROCESSES CREATED.
+        /// </summary>
+        public static string App_SetupDependencyInjection_PROCESSESCREATED {
+            get {
+                return ResourceManager.GetString("App_SetupDependencyInjection_PROCESSESCREATED", resourceCulture);
             }
         }
         
