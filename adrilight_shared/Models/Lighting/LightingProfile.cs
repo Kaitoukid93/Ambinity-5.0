@@ -1,6 +1,7 @@
 ﻿using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.DashboardItem;
 using adrilight_shared.Models.Device;
+using adrilight_shared.Models.ItemsCollection;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
 using System;

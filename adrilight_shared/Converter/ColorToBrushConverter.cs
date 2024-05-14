@@ -12,7 +12,7 @@ namespace adrilight_shared.Converter
             if (value is Color)
             {
                 var color = (Color)value;
-                return new SolidColorBrush(Color.FromArgb(255, color.R, color.G, color.B));
+                return new SolidColorBrush(Color.FromArgb(color.A, color.R, color.G, color.B));
             }
             return Binding.DoNothing;
         }

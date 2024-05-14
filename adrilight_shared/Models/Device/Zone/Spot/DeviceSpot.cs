@@ -193,6 +193,12 @@ namespace adrilight_shared.Models.Device.Zone.Spot
         private string _name;
         private bool _isResizeable;
         private bool _isDeleteable;
+        private bool _isMouseOver;
+        private bool _isVisible = true;
+        [JsonIgnore]
+        public bool IsVisible { get => _isVisible; set { Set(() => IsVisible, ref _isVisible, value); } }
+        [JsonIgnore]
+        public bool IsMouseOver { get => _isMouseOver; set { Set(() => IsMouseOver, ref _isMouseOver, value); } }
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public double CenterX => Width / 2 + Left;
         public double CenterY => Height / 2 + Top;

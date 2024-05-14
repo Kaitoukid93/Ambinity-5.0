@@ -1,9 +1,12 @@
 ﻿using adrilight_shared.Models.DashboardItem;
+using adrilight_shared.Models.ItemsCollection;
 using adrilight_shared.Services;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Documents;
 using System.Windows.Input;
 
 namespace adrilight_shared.Models.Lighting
@@ -21,6 +24,7 @@ namespace adrilight_shared.Models.Lighting
             _dialogService = new DialogService();
             Name = name;
             LightingProfilesUID = new ObservableCollection<string>();
+            LightingProfiles = new ObservableCollection<LightingProfile>();
 
         }
         #endregion
@@ -60,7 +64,7 @@ namespace adrilight_shared.Models.Lighting
         }
 
         [JsonIgnore]
-        public DataCollection LightingProfiles { get; set; }
+        public ObservableCollection<LightingProfile> LightingProfiles { get; set; }
         [JsonIgnore]
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); } }
         [JsonIgnore]
@@ -69,14 +73,14 @@ namespace adrilight_shared.Models.Lighting
         [JsonIgnore]
         public bool IsChecked { get => _isChecked; set { Set(() => IsChecked, ref _isChecked, value); } }
         [JsonIgnore]
-        public LightingProfile CurrentPlayingLightingProfile => LightingProfiles.Items[CurrentPlayingProfileIndex > LightingProfiles.Items.Count ? 0 : CurrentPlayingProfileIndex] as LightingProfile;
+        public LightingProfile CurrentPlayingLightingProfile => LightingProfiles[CurrentPlayingProfileIndex > LightingProfiles.Count ? 0 : CurrentPlayingProfileIndex] as LightingProfile;
         [JsonIgnore]
         public string InfoPath { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
         #endregion
         #region Methods
-        public void LoadLightingProfiles(ObservableCollection<IGenericCollectionItem> availableProfiles)
+        public void LoadLightingProfiles(List<LightingProfile> availableProfiles)
         {
-            LightingProfiles = new DataCollection();
+            LightingProfiles = new ObservableCollection<LightingProfile>();
             if (availableProfiles == null)
                 return;
             if (LightingProfilesUID == null)
@@ -86,17 +90,17 @@ namespace adrilight_shared.Models.Lighting
                 var match = availableProfiles.Where(p => (p as LightingProfile).ProfileUID == profileUID).FirstOrDefault();
                 if (match != null)
                 {
-                    LightingProfiles.AddItems(match);
+                    LightingProfiles.Add(match);
                 }
 
             }
         }
         public void GetProfilesUID()
         {
-            if (LightingProfiles == null || LightingProfiles.Items == null)
+            if (LightingProfiles == null)
                 return;
             LightingProfilesUID = new ObservableCollection<string>();
-            foreach (LightingProfile item in LightingProfiles.Items)
+            foreach (LightingProfile item in LightingProfiles)
             {
                 LightingProfilesUID.Add(item.ProfileUID);
             }
@@ -104,18 +108,18 @@ namespace adrilight_shared.Models.Lighting
         private ObservableCollection<string> GetCollectionName()
         {
             var names = new ObservableCollection<string>();
-            if (LightingProfiles == null || LightingProfiles.Items == null)
+            if (LightingProfiles == null || LightingProfiles == null)
                 return names;
-            if (LightingProfiles.Items.Count >= 4)
+            if (LightingProfiles.Count >= 4)
             {
-                foreach (var item in LightingProfiles.Items.Take(4))
+                foreach (var item in LightingProfiles.Take(4))
                 {
                     names.Add(item.Name);
                 }
             }
             else
             {
-                foreach (var item in LightingProfiles.Items)
+                foreach (var item in LightingProfiles)
                 {
                     names.Add(item.Name);
                 }
@@ -124,9 +128,9 @@ namespace adrilight_shared.Models.Lighting
         }
         public void SetProfileDuration(int value)
         {
-            if (LightingProfiles == null || LightingProfiles.Items == null)
+            if (LightingProfiles == null || LightingProfiles == null)
                 return;
-            foreach (var profile in LightingProfiles.Items)
+            foreach (var profile in LightingProfiles)
                 (profile as LightingProfile).Duration = System.TimeSpan.FromSeconds(value);
         }
 
@@ -135,7 +139,7 @@ namespace adrilight_shared.Models.Lighting
             //IsPlaying = false;
             if (LightingProfiles == null)
                 return;
-            foreach (var item in LightingProfiles.Items)
+            foreach (var item in LightingProfiles)
             {
                 (item as LightingProfile).IsPlaying = false;
             }

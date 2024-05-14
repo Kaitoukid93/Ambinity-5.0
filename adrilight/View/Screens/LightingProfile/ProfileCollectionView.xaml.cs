@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using adrilight.ViewModel;
+using System;
+using System.Windows;
 
 namespace adrilight.View
 {
@@ -21,7 +23,22 @@ namespace adrilight.View
         {
             PopUpAddTo.IsOpen = false;
         }
+        public class ProfileCollectionViewPage : ISelectablePage
+        {
+            private readonly Lazy<ProfileCollectionView> lazyContent;
 
+            public ProfileCollectionViewPage(Lazy<ProfileCollectionView> lazyContent)
+            {
+                this.lazyContent = lazyContent ?? throw new ArgumentNullException(nameof(lazyContent));
+            }
+
+            public int Order => 10;
+
+            public string PageName => "Profiles Collection View";
+            public string Geometry => "";
+
+            public object Content { get => lazyContent.Value; }
+        }
 
     }
 }

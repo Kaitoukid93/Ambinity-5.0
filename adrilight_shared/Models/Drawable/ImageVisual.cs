@@ -34,6 +34,12 @@ namespace adrilight_shared.Models.Drawable
         private bool _isDeleteable;
         private double _offsetX;
         private double _offsetY;
+        private bool _isMouseOver;
+        private bool _isVisible = true;
+        [JsonIgnore]
+        public bool IsVisible { get => _isVisible; set { Set(() => IsVisible, ref _isVisible, value); } }
+        [JsonIgnore]
+        public bool IsMouseOver { get => _isMouseOver; set { Set(() => IsMouseOver, ref _isMouseOver, value); } }
         public double OffsetX { get => _offsetX; set { Set(() => OffsetX, ref _offsetX, value); } }
         public double OffsetY { get => _offsetY; set { Set(() => OffsetY, ref _offsetY, value); } }
 
@@ -47,7 +53,7 @@ namespace adrilight_shared.Models.Drawable
         [JsonIgnore]
         public Type DataType => typeof(ImageVisual);
         public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
-
+        [JsonIgnore]
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
         [JsonIgnore]
         public Rect GetRect => new Rect(Left + OffsetX, Top + OffsetY, Width, Height);

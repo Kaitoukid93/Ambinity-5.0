@@ -1,0 +1,88 @@
+﻿<UserControl x:Class="adrilight.View.DisplayModeSelectionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
+             DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
+             xmlns:lex="http://wpflocalizeextension.codeplex.com"
+             xmlns:hc="https://handyorg.github.io/handycontrol">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <ListBox Style="{DynamicResource ListBoxBaseTransparentStyle}"
+                 BorderThickness="0"
+                 Margin="0,0,0,2"
+                 ItemContainerStyle="{DynamicResource _listBoxGeneralModeSelectionStyle}">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBoxItem>
+                <Border Width="150"
+                        Height="200">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Border Height="100"
+                                Width="130"
+                                Margin="10"
+                                CornerRadius="4"
+                                BorderThickness="2"
+                                BorderBrush="{DynamicResource BorderBrush}"
+                                Background="Transparent">
+                            <Path Stretch="Uniform"
+                                  Margin="10"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  Data="{DynamicResource DashboardView}"
+                                  Fill="{StaticResource PrimaryTextBrush}" />
+                        </Border>
+                        <TextBlock Style="{DynamicResource TextBlockSubTitle}"
+                                   FontWeight="SemiBold"
+                                   Grid.Row="1"
+                                   VerticalAlignment="Top"
+                                   Text="Dashboard" />
+                    </Grid>
+                </Border>
+            </ListBoxItem>
+            <ListBoxItem>
+                <Border Width="150"
+                        Height="200">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Border Height="100"
+                                Width="130"
+                                Margin="10"
+                                CornerRadius="4"
+                                BorderThickness="2"
+                                BorderBrush="{DynamicResource BorderBrush}"
+                                Background="Transparent">
+                            <Path Stretch="Uniform"
+                                  Margin="10"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  Data="{DynamicResource mapView}"
+                                  Fill="{StaticResource PrimaryTextBrush}" />
+                        </Border>
+                        <TextBlock Style="{DynamicResource TextBlockSubTitle}"
+                                   FontWeight="SemiBold"
+                                   Grid.Row="1"
+                                   VerticalAlignment="Top"
+                                   Text="Map" />
+                    </Grid>
+                </Border>
+            </ListBoxItem>
+        </ListBox>
+    </Grid>
+</UserControl>

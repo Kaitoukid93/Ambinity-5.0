@@ -7,7 +7,7 @@
              xmlns:local="clr-namespace:adrilight.View"
              xmlns:viewmodel="clr-namespace:adrilight.ViewModel"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:dvcvs="clr-namespace:adrilight_shared.View.Canvas;assembly=adrilight_shared"
+             xmlns:dvcvs="clr-namespace:adrilight.View.DeviceCanvas"
              xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewmodel:DeviceControlViewModel}"
@@ -36,33 +36,6 @@
                               RenderingBias="Quality"
                               ShadowDepth="1"
                               Color="{Binding Color, Source={StaticResource DarkMaskBrush}}" />
-            <DataTemplate x:Key="_toolBarView">
-                <local:IDEditToolBarView />
-            </DataTemplate>
-            <DataTemplate x:Key="_outputControlView">
-                <local:OutputControlView />
-            </DataTemplate>
-            <DataTemplate x:Key="_nullValueView">
-                <local:SlaveDeviceNullValueView />
-            </DataTemplate>
-            <Style x:Key="_propertiesView"
-                   TargetType="{x:Type ContentControl}">
-                <Setter Property="ContentTemplate"
-                        Value="{StaticResource _outputControlView}" />
-                <Style.Triggers>
-                    <DataTrigger Binding="{Binding SelectedSlaveDevice,Mode=TwoWay}"
-                                 Value="{x:Null}">
-                        <Setter Property="ContentTemplate"
-                                Value="{StaticResource _nullValueView}" />
-                    </DataTrigger>
-                    <DataTrigger Binding="{Binding IsInIDEditStage}"
-                                 Value="true">
-                        <Setter Property="ContentTemplate"
-                                Value="{StaticResource _toolBarView}" />
-                    </DataTrigger>
-                </Style.Triggers>
-            </Style>
-
             <Style x:Key="_listBoxControlModeStyle"
                    TargetType="ListBoxItem">
                 <Setter Property="Template">
@@ -464,9 +437,9 @@
                             <Grid>
                                 <hc:TransitioningContentControl Grid.Column="1"
                                                                 TransitionMode="Right2LeftWithFade">
-                                    <local:OutputControlView Width="500" Margin="0,4,0,0"
+                                    <local:EffectControlView Width="500" Margin="0,4,0,0"
                                                              DataContext="{Binding EffectControl}">
-                                    </local:OutputControlView>
+                                    </local:EffectControlView>
                                 </hc:TransitioningContentControl>
                             </Grid>
                         </Border>
@@ -476,8 +449,8 @@
                         <Border Margin="0,10,10,10"
                                 CornerRadius="4"
                                 Background="Transparent">
-                            <dvcvs:DeviceCanvas DataContext="{Binding CanvasViewModel}">
-                            </dvcvs:DeviceCanvas>
+                            <dvcvs:DeviceCanvasView DataContext="{Binding CanvasViewModel}">
+                            </dvcvs:DeviceCanvasView>
                         </Border>
                     </Grid>
                 </Grid>

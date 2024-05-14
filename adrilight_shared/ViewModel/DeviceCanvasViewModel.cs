@@ -13,7 +13,7 @@ using adrilight_shared.Helpers;
 using Serilog;
 using adrilight_shared.Models.Stores;
 using adrilight_shared.Models.RelayCommand;
-using adrilight_shared.View.Canvas;
+using System.Windows.Media;
 
 namespace adrilight_shared.ViewModel
 {
@@ -24,15 +24,11 @@ namespace adrilight_shared.ViewModel
     public class DeviceCanvasViewModel : ViewModelBase, IDisposable
     {
         #region Construct
-        public DeviceCanvasViewModel()
+        public DeviceCanvasViewModel(DeviceCanvas canvas, DeviceControlEvent controlEvent)
         {
-            Items = new ObservableCollection<IDrawable>();
-            _drawableHelpers = new DrawableHelpers();
+            _deviceControlEvent = controlEvent;
+            Canvas = canvas;
             Init();
-        }
-        ~DeviceCanvasViewModel()
-        {
-
         }
         #endregion
 
@@ -54,119 +50,15 @@ namespace adrilight_shared.ViewModel
         private double _canvasScale = 1.0;
         private Point _canvasOffset = new Point(0, 0);
         private Thickness _canvasItemBorder = new Thickness(2.0);
-        private DeviceControlEvent _deviceControlEvent;
         private bool _enableMultipleItemSelection;
         private CanvasSelectionRectangle _selectionRectangle;
         private double _canvasWidth;
         private double _canvasHeight;
 
-        /// <summary>
-        /// helpers
-        /// </summary>
-        private DrawableHelpers _drawableHelpers;
-
-
+        public DeviceCanvas Canvas { get; set; }
         //public//
-        public DeviceControlEvent DeviceControlEvent
-        {
-            get { return _deviceControlEvent; }
-            set { _deviceControlEvent = value; }
-        }
-        public bool EnableMultipleItemSelection
-        {
-            get { return _enableMultipleItemSelection; }
-
-            set
-            {
-                _enableMultipleItemSelection = value;
-                RaisePropertyChanged();
-            }
-        }
-        public double CanvasScale
-        {
-            get { return _canvasScale;
-            }
-
-            set
-            {
-                _canvasScale = value;
-                CalculateItemsBorderThickness(value);
-                RaisePropertyChanged();
-            }
-        }
-        public Point CanvasOffset
-        {
-            get { return _canvasOffset;
-            }
-
-            set
-            {
-                _canvasOffset = value;
-                RaisePropertyChanged();
-            }
-        }
-        public double CanvasWidth
-        {
-            get { return _canvasWidth; }
-            set { _canvasWidth = value; RaisePropertyChanged(); if (value > 0) UpdateView(); }
-        }
-        public double CanvasHeight
-        {
-            get { return _canvasHeight; }
-            set { _canvasHeight = value; RaisePropertyChanged(); if (value > 0) UpdateView(); }
-        }
-        public Thickness CanvasItemBorder
-        {
-            get { return _canvasItemBorder; }
-
-            set
-            {
-                _canvasItemBorder = value;
-                RaisePropertyChanged();
-            }
-        }
-        public ObservableCollection<IDrawable> Items
-        {
-            get { return _items; }
-
-            set
-            {
-                _items = value;
-                RaisePropertyChanged();
-            }
-        }
-        public IDrawable SelectedItem
-        {
-            get { return _selectedItem; }
-
-            set
-            {
-                _selectedItem = value;
-                RaisePropertyChanged();
-            }
-        }
-        public Point MousePosition
-        {
-            get { return _mousePosition; }
-
-            set
-            {
-                _mousePosition = value; RaisePropertyChanged();
-            }
-        }
-        public CanvasSelectionRectangle SelectionRectangle
-        {
-            get { return _selectionRectangle; }
-
-            set
-            {
-                _selectionRectangle = value; RaisePropertyChanged();
-            }
-        }
-
-
+        public DeviceControlEvent _deviceControlEvent;
         #endregion
-
 
         #region Methods
 
@@ -175,35 +67,25 @@ namespace adrilight_shared.ViewModel
         /// </summary>
         private void CommandSetup()
         {
-            ExitIsolateModeButtonCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                // Get all available devices and add to canvas
-
-            });
             SelectItemCommand = new RelayCommand<IDrawable>((p) =>
             {
                 return true;
             }, (p) =>
             {
-                SelectedItemChanged(p);
+                if (Canvas.ChangeSelectedItem(p))
+                    _deviceControlEvent.ChangeSelectedItem(p);
+                if (Keyboard.IsKeyDown(Key.LeftShift))
+                {
+                    p.IsSelected = false;
+                }
+
             });
             RichCanvasMouseButtonUpCommand = new RelayCommand<string>((p) =>
             {
                 return true;
             }, (p) =>
             {
-                if (Items.Where(p => p.IsSelected).Count() > 0)
-                    //ShowSelectedItemToolbar = true;
-                    //CanUnGroup = false;
-                    // CanGroup = true;
-
-                    if (Items.Any(p => p.IsSelected && p is Border))
-                    {
-                        // CanUnGroup = true;
-                    }
+                Canvas.ToolInit();
 
             });
             RichCanvasMouseButtonDownCommand = new RelayCommand<string>((p) =>
@@ -211,119 +93,61 @@ namespace adrilight_shared.ViewModel
                 return true;
             }, (p) =>
             {
+                if (!Keyboard.IsKeyDown(Key.LeftCtrl) && !Keyboard.IsKeyDown(Key.LeftShift)) // user is draging or holding ctrl
+                {
+
+                    if (Canvas.UnselectAllCanvasItem())
+                        _deviceControlEvent.UnSelectAllItem();
+                }
+
+            });
+            LayerViewMouseButtonDownCommand = new RelayCommand<IDrawable>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
                 if (!Keyboard.IsKeyDown(Key.LeftCtrl)) // user is draging or holding ctrl
                 {
-                    foreach (var item in Items)
-                    {
-                        item.IsSelected = false;
-                        if (item is ARGBLEDSlaveDevice)
-                        {
-                            var dev = item as ARGBLEDSlaveDevice;
-                            dev.OnIsSelectedChanged(true, false);
-                        }
-                    }
+
+                    if (Canvas.UnselectAllCanvasItem())
+                        _deviceControlEvent.UnSelectAllItem();
                 }
+                if (Canvas.ChangeSelectedItem(p))
+                    _deviceControlEvent.ChangeSelectedItem(p);
+                Canvas.ToolInit();
+
             });
-            UnGroupSelectedItemsCommand = new RelayCommand<string>((p) =>
+            CanvasItemToolCommand = new RelayCommand<string>((p) =>
             {
                 return true;
-            }, (p) =>
+            }, async (p) =>
             {
-                UngroupSelectedItems();
-            });
-            GroupSelectedItemsCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, (p) =>
-            {
-                GroupSelectedItems();
+                switch (p)
+                {
+                    case "ungroup":
+                        Canvas.UngroupSelectedItems(true);
+                        break;
+                    case "group":
+                        await Canvas.GroupSelectedItems();
+                        break;
+                    case "isolate":
+                        Canvas.IsolateSelectedItems();
+                        break;
+                    case "showall":
+                        Canvas.UpdateView();
+                        break;
+                    case "highlight":
+                        Canvas.HighlightSelectedItems();
+                        break;
+                }
+                Canvas.UpdateLayers();
+                Canvas.ToolInit();
             });
         }
 
         private void Init()
         {
             CommandSetup();
-        }
-        private void CalculateItemsBorderThickness(double scaleValue) // this keeps items border remain the same 2px anytime
-        {
-            if (SelectionRectangle == null) return;
-            SelectionRectangle.StrokeThickness = 2 / scaleValue;
-            CanvasItemBorder = new Thickness(SelectionRectangle.StrokeThickness);
-        }
-        public void UpdateView()
-        {
-            var liveViewItemsBound = _drawableHelpers.GetRealBound(Items.Where(i => i is not PathGuide).ToArray());
-            var widthScale = (CanvasWidth - 50) / liveViewItemsBound.Width;
-            var scaleHeight = (CanvasHeight - 50) / liveViewItemsBound.Height;
-            CanvasScale = Math.Min(widthScale, scaleHeight);
-            var currentWidth = liveViewItemsBound.Width * CanvasScale;
-            var currentHeight = liveViewItemsBound.Height * CanvasScale;
-            //set current device offset
-            CanvasOffset = new Point(0 - liveViewItemsBound.Left * CanvasScale + (CanvasWidth - currentWidth) / 2,
-                0 - liveViewItemsBound.Top * CanvasScale + (CanvasHeight - currentHeight) / 2);
-            Log.Information("Live View Updated");
-        }
-        public void IsolateSelectedItems()
-        {
-            var selectedItems = Items.Where(i => i.IsSelected).ToList();
-            if (selectedItems.Count == 0)
-            {
-                HandyControl.Controls.MessageBox.Show("Bạn phải chọn một vùng LED hoặc Group trước", "No item selected", MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
-            Items.Clear();
-            foreach (var item in selectedItems)
-            {
-                if (item is LEDSetup)
-                {
-                    Items.Add(item);
-                }
-                //else if (item is Border)
-                //{
-                //    var group = CurrentDevice.ControlZoneGroups.Where(g => g.Border.Name == item.Name).FirstOrDefault();
-                //    foreach (var zone in group.ControlZones)
-                //    {
-                //        if (zone is LEDSetup)
-                //            LiveViewItems.Add(zone as LEDSetup);
-                //        else if (zone is FanMotor)
-                //            LiveViewItems.Add(zone as FanMotor);
-                //    }
-                //    LiveViewItems.Add(item);
-                //}
-                else if (item is FanMotor)
-                {
-                    Items.Add(item);
-                }
-            }
-            //SelectLiveViewItemCommand.Execute(selectedItems.First());
-        }
-        private void SelectedItemChanged(IDrawable item)
-        {
-            if (item.IsSelectable)
-            {
-                _deviceControlEvent.ChangeSelectedItem(item);
-            }
-        }
-        private void UngroupSelectedItems()
-        {
-            //turn on Isregistering group
-            //remove border from canvas
-            var borderToRemove = Items.Where(p => p.IsSelected && p is Border).ToList();
-            if (borderToRemove == null)
-                return;
-            borderToRemove.ForEach(b => Items.Remove(b));
-            //free items in group
-            _deviceControlEvent.UngroupSelectedItem(borderToRemove);
-        }
-        private void GroupSelectedItems()
-        {
-            //get selected free items
-            var selectedItems = Items.Where(z => z.IsSelected && z is not ARGBLEDSlaveDevice).ToList();
-            if (selectedItems != null && selectedItems.Count > 1)
-            {
-                //notify LiveViewViewModel to make new group
-                _deviceControlEvent.GroupSelectedItem(selectedItems);
-            }
         }
         public void Dispose()
         {
@@ -333,13 +157,11 @@ namespace adrilight_shared.ViewModel
 
 
         #region Commands
-        public ICommand ExitIsolateModeButtonCommand { get; set; }
-        public ICommand IsolateSelectedItemCommand { get; set; }
-        public ICommand GroupSelectedItemsCommand { get; set; }
-        public ICommand UnGroupSelectedItemsCommand { get; set; }
         public ICommand SelectItemCommand { get; set; }
         public ICommand RichCanvasMouseButtonUpCommand { get; set; }
         public ICommand RichCanvasMouseButtonDownCommand { get; set; }
+        public ICommand CanvasItemToolCommand { get; set; }
+        public ICommand LayerViewMouseButtonDownCommand { get; set; }
         #endregion
     }
 }

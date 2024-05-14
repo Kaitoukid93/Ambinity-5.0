@@ -1,4 +1,5 @@
-﻿using adrilight.View.Adorners;
+﻿
+using adrilight.View.DeviceCanvas.Adorners;
 using System.Windows;
 
 namespace adrilight.View

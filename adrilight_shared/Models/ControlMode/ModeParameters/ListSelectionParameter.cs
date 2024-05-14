@@ -62,20 +62,11 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
         /// </summary>
         public int MinValue { get => _minValue; set { Set(() => MinValue, ref _minValue, value); } }
         public int MaxValue { get => _maxValue; set { Set(() => MaxValue, ref _maxValue, value); } }
+        [JsonIgnore]
         public bool ShowDeleteButton { get => _showDeleteButton; set { Set(() => ShowDeleteButton, ref _showDeleteButton, value); } }
         public bool ShowMore { get => _showMore; set { Set(() => ShowMore, ref _showMore, value); } }
         [JsonIgnore]
         public string OnlineCatergory { get; set; }
-        public void RefreshCollection()
-        {
-            RaisePropertyChanged(nameof(AvailableValues));
-        }
-        public void DisposeCollection()
-        {
-            Application.Current.Dispatcher.BeginInvoke(() =>
-            { AvailableValues.Clear(); });
-
-        }
         private DeserializeMethodEnum _deserializeMethod;
         public void DeletedSelectedItem(IParameterValue item)
         {

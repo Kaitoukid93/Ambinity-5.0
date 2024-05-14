@@ -7,7 +7,7 @@
              xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
              xmlns:helpers="clr-namespace:adrilight.Helpers"
              xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
-             xmlns:adorners="clr-namespace:adrilight.View.Adorners"
+             xmlns:adorners="clr-namespace:adrilight.View.DeviceCanvas.Adorners"
              xmlns:slaveDevices="clr-namespace:adrilight_shared.Models.Device.SlaveDevice;assembly=adrilight_shared"
              xmlns:zone="clr-namespace:adrilight_shared.Models.Device.Zone;assembly=adrilight_shared"
              xmlns:spot="clr-namespace:adrilight_shared.Models.Device.Zone.Spot;assembly=adrilight_shared"
@@ -638,139 +638,7 @@
                 </Grid>
             </Border>
         </Grid>-->
-        <Grid>
-            <hc:TransitioningContentControl>
-                <StackPanel HorizontalAlignment="Right"
-                            VerticalAlignment="Top"
-                            Orientation="Horizontal">
-                    <Grid>
-                        <Grid.Style>
-                            <Style TargetType="Grid">
-                                <Setter Property="Visibility"
-                                        Value="Collapsed" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding ShowSelectedItemToolbar,Mode=TwoWay}"
-                                                 Value="True">
-                                        <Setter Property="Visibility"
-                                                Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Grid.Style>
-
-                        <Border Effect="{DynamicResource EffectShadow2}"
-                                VerticalAlignment="Top"
-                                CornerRadius="7"
-                                Margin="10,0"
-                                HorizontalAlignment="Right"
-                                Background="{DynamicResource MainContentBackgroundBrush}">
-                            <StackPanel Orientation="Horizontal">
-                                <Grid>
-                                    <Grid.Style>
-                                        <Style TargetType="Grid">
-                                            <Setter Property="Visibility"
-                                                    Value="Visible" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsInIsolateMode,Mode=TwoWay}"
-                                                             Value="True">
-                                                    <Setter Property="Visibility"
-                                                            Value="Collapsed" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Grid.Style>
-                                    <hc:TransitioningContentControl>
-
-                                        <Button Style="{DynamicResource _lowProfileDefaultButton}"
-                                                Margin="5"
-                                                ToolTip="{x:Static properties:Resources.DeviceLiveView_Isolate_tooltip}"
-                                                Command="{Binding IsolateSelectedItemsCommand}"
-                                                CommandParameter="isolate"
-                                                Content="{x:Static properties:Resources.DeviceLiveView_Isolate}" />
-                                    </hc:TransitioningContentControl>
-                                </Grid>
-                                <Grid>
-                                    <Grid.Style>
-                                        <Style TargetType="Grid">
-                                            <Setter Property="Visibility"
-                                                    Value="Collapsed" />
-                                            <Style.Triggers>
-                                                <MultiDataTrigger>
-                                                    <MultiDataTrigger.Conditions>
-                                                        <Condition Binding="{Binding CanGroup,Mode=TwoWay}"
-                                                                   Value="True" />
-                                                        <Condition Binding="{Binding IsInIDEditStage,Mode=TwoWay}"
-                                                                   Value="False" />
-                                                    </MultiDataTrigger.Conditions>
-                                                    <Setter Property="Visibility"
-                                                            Value="Visible" />
-                                                </MultiDataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Grid.Style>
-                                    <hc:TransitioningContentControl>
-
-                                        <Button Style="{DynamicResource _lowProfileDefaultButton}"
-                                                Margin="5"
-                                                ToolTip="{x:Static properties:Resources.DeviceLiveView_NhómCácĐốiTượngĐượcChọn}"
-                                                Command="{Binding GroupSelectedZoneForMaskedControlCommand}"
-                                                CommandParameter="group"
-                                                Content="{x:Static properties:Resources.DeviceLiveView_Group}">
-                                        </Button>
-                                    </hc:TransitioningContentControl>
-                                </Grid>
-                                <Grid>
-                                    <Grid.Style>
-                                        <Style TargetType="Grid">
-                                            <Setter Property="Visibility"
-                                                    Value="Collapsed" />
-                                            <Style.Triggers>
-                                                <MultiDataTrigger>
-                                                    <MultiDataTrigger.Conditions>
-                                                        <Condition Binding="{Binding CanUnGroup,Mode=TwoWay}"
-                                                                   Value="True" />
-                                                        <Condition Binding="{Binding IsInIDEditStage,Mode=TwoWay}"
-                                                                   Value="False" />
-                                                    </MultiDataTrigger.Conditions>
-                                                    <Setter Property="Visibility"
-                                                            Value="Visible" />
-                                                </MultiDataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Grid.Style>
-                                    <hc:TransitioningContentControl>
-                                        <Button Style="{DynamicResource _lowProfileDefaultButton}"
-                                                Margin="5"
-                                                ToolTip="{x:Static properties:Resources.DeviceLiveView_Ungroup_tooltip}"
-                                                Command="{Binding UnGroupZoneCommand}"
-                                                CommandParameter="group"
-                                                Content="{x:Static properties:Resources.DeviceLiveView_Ungroup}">
-                                        </Button>
-                                    </hc:TransitioningContentControl>
-                                </Grid>
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-                    <Grid  Visibility="{Binding IsInIsolateMode,Mode=TwoWay,Converter={StaticResource Boolean2VisibilityConverter}}">
-                        <hc:TransitioningContentControl>
-                            <Border  Margin="10,0,10,0"
-                                     HorizontalAlignment="Left"
-                                     VerticalAlignment="Top"
-                                     Background="{DynamicResource MainContentBackgroundBrush}"
-                                     CornerRadius="4">
-                                <Button Content="{x:Static properties:Resources.DeviceLiveView_ShowAll_content}"
-                                        Style="{DynamicResource _lowProfileDefaultButton}"
-                                        ToolTip="{x:Static properties:Resources.DeviceLiveView_ShowAll_tooltip}"
-                                        Command="{Binding ExitIsolateModeCommand}"
-                                        Margin="5"
-                                        VerticalAlignment="Top"
-                                        HorizontalAlignment="Left" />
-                            </Border>
-                        </hc:TransitioningContentControl>
-                    </Grid>
-                </StackPanel>
-            </hc:TransitioningContentControl>
-        </Grid>
+        
         <StackPanel Orientation="Horizontal">
             <Grid>
                 <Grid.Style>

@@ -233,19 +233,24 @@
     <Compile Include="Services\LightingEngine\RunStateEnum.cs" />
     <Compile Include="Services\SerialStream\SerialStreamRP2040.cs" />
     <Compile Include="Services\Ticker\PlaylistDecoder.cs" />
+    <Compile Include="ViewModel\Automation\AutomationEditingViewModel.cs" />
+    <Compile Include="ViewModel\Automation\AutomationManagerViewModel.cs" />
     <Compile Include="ViewModel\ColorEditingObject.cs" />
-    <Compile Include="ViewModel\DebugViewModel.cs" />
-    <Compile Include="ViewModel\DeviceAdvanceSettingsViewModel.cs" />
+    <Compile Include="ViewModel\Dashboard\DashboardViewModel.cs" />
+    <Compile Include="ViewModel\Debug\DebugViewModel.cs" />
+    <Compile Include="ViewModel\DeviceManager\DeviceAdvanceSettingsViewModel.cs" />
+    <Compile Include="ViewModel\DeviceControl\EffectControlViewModel.cs" />
+    <Compile Include="ViewModel\DeviceManager\DeviceCollectionViewModel.cs" />
+    <Compile Include="ViewModel\LightingProfile\LightingProfileCollectionViewModel.cs" />
+    <Compile Include="ViewModel\LightingProfile\LightingProfilePlayerViewModel.cs" />
+    <Compile Include="ViewModel\LightingProfile\LightingProfilePlaylistEditorViewModel.cs" />
+    <Compile Include="ViewModel\Lighting\LightingViewModel.cs" />
     <Compile Include="ViewModel\VerticalMenuControlViewModel.cs" />
     <Compile Include="ViewModel\DeviceIDEditViewModel.cs" />
-    <Compile Include="ViewModel\DeviceControlViewModel.cs" />
-    <Compile Include="ViewModel\DeviceManagerViewModel.cs" />
+    <Compile Include="ViewModel\DeviceControl\DeviceControlViewModel.cs" />
+    <Compile Include="ViewModel\DeviceManager\DeviceManagerViewModel.cs" />
     <Compile Include="ViewModel\ISelectablePage.cs" />
-    <Compile Include="ViewModel\LightingProfileManagerViewModel.cs" />
-    <Compile Include="View\Adorners\HoverAdorner.cs" />
-    <Compile Include="View\Adorners\LineHoverAdorner.cs" />
-    <Compile Include="View\Adorners\ResizeAdorner.cs" />
-    <Compile Include="View\Adorners\ResizeLineAdorner.cs" />
+    <Compile Include="ViewModel\LightingProfile\LightingProfileManagerViewModel.cs" />
     <Compile Include="App.xaml.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\BasicCapture.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\CaptureHelper.cs" />
@@ -258,7 +263,20 @@
     <Compile Include="Services\CaptureEngine\ScreenCapture\Direct3D11Helper.cs" />
     <Compile Include="Services\CaptureEngine\ICaptureEngine.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\MonitorEnumerationHelper.cs" />
-    <Compile Include="View\Adorners\AttachedAdorner.cs" />
+    <Compile Include="View\DeviceCanvas\Adorners\AttachedAdorner.cs" />
+    <Compile Include="View\DeviceCanvas\Adorners\HoverAdorner.cs" />
+    <Compile Include="View\DeviceCanvas\Adorners\AdornerView.xaml.cs">
+      <DependentUpon>AdornerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\DeviceCanvas\Adorners\LineHoverAdorner.cs" />
+    <Compile Include="View\DeviceCanvas\Adorners\ResizeAdorner.cs" />
+    <Compile Include="View\DeviceCanvas\Adorners\ResizeLineAdorner.cs" />
+    <Compile Include="View\DeviceCanvas\LayerView.xaml.cs">
+      <DependentUpon>LayerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\DeviceCanvas\DeviceCanvasView.xaml.cs">
+      <DependentUpon>DeviceCanvasView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Dialogs\AddNewVIDWindow.xaml.cs" />
     <Compile Include="View\Dialogs\AddNewLightingProfileWindow.xaml.cs" />
     <Compile Include="View\Dialogs\PossibleMatchedDeviceSelectionWindow.xaml.cs" />
@@ -301,8 +319,6 @@
     <Compile Include="Services\CaptureEngine\ScreenCapture\DesktopDuplicationException.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\DesktopFrame.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\MovedRegion.cs" />
-    <Compile Include="ViewModel\BaseViewModel.cs" />
-    <Compile Include="ViewModel\ISelectableViewParts.cs" />
     <Compile Include="ViewModel\KeyboardHookManagerSingleton.cs" />
     <Compile Include="ViewModel\MainViewViewModel.cs" />
     <Compile Include="ViewModel\SystemTrayContextMenu.cs" />
@@ -323,6 +339,7 @@
     <Compile Include="View\Screens\Devices\DeviceCollectionView.xaml.cs" />
     <Compile Include="View\Screens\LightingProfile\LightingProfileManagerWindow.xaml.cs" />
     <Compile Include="View\Screens\LightingProfile\LightingProfileDashboardView.xaml.cs" />
+    <Compile Include="View\Screens\LightingProfile\PlaylistEditorView.cs" />
     <Compile Include="View\Screens\LightingProfile\ProfileCollectionView.xaml.cs" />
     <Compile Include="View\Screens\LightingProfile\PlayListCollectionView.xaml.cs" />
     <Compile Include="View\Screens\Mainview\ControlView\Controls\VerticalMenuControl.xaml.cs" />
@@ -330,6 +347,7 @@
     <Compile Include="View\Screens\Mainview\ControlView\Controls\ScreenRegionSelectionWindow.xaml.cs" />
     <Compile Include="View\Dialogs\AudioDeviceSelectionWindow.xaml.cs" />
     <Compile Include="View\Screens\Mainview\LiveView\DeviceIDEditView.xaml.cs" />
+    <Compile Include="View\Screens\Mainview\DisplayModeSelectionView.xaml.cs" />
     <Compile Include="View\Screens\OOBExperience\SelectLanguageWindow.xaml.cs">
       <DependentUpon>SelectLanguageWindow.xaml</DependentUpon>
     </Compile>
@@ -345,7 +363,7 @@
     <Compile Include="View\Screens\Mainview\ControlView\SlaveDeviceNullValueView.xaml.cs" />
     <Compile Include="View\Screens\Mainview\ControlView\SlaveDeviceInfoView.xaml.cs" />
     <Compile Include="View\Screens\OOBExperience\SlaveDeviceCollectionView.xaml.cs" />
-    <Compile Include="View\Screens\Mainview\ControlView\OutputControlView.xaml.cs" />
+    <Compile Include="View\Screens\Mainview\ControlView\EffectControlView.xaml.cs" />
     <Compile Include="View\Screens\Mainview\ControlView\DeviceControlView.xaml.cs" />
     <Compile Include="View\Screens\Store\OnlineItemExporterView.xaml.cs" />
     <Compile Include="View\Screens\Store\OnlineItemsCollectionView.xaml.cs" />
@@ -398,6 +416,18 @@
       <DependentUpon>ListSelectionParamTemplate.xaml</DependentUpon>
     </Compile>
     <Page Include="Properties\DesignTimeResources.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\DeviceCanvas\Adorners\AdornerView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\DeviceCanvas\LayerView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\DeviceCanvas\DeviceCanvasView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -461,6 +491,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="View\Screens\LightingProfile\PlaylistEditorView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="View\Screens\LightingProfile\ProfileCollectionView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -486,6 +520,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\Screens\Mainview\LiveView\DeviceIDEditView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Screens\Mainview\DisplayModeSelectionView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -541,7 +579,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Screens\Mainview\ControlView\OutputControlView.xaml">
+    <Page Include="View\Screens\Mainview\ControlView\EffectControlView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

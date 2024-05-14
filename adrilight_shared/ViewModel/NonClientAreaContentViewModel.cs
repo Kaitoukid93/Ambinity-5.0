@@ -1,4 +1,7 @@
-﻿using GalaSoft.MvvmLight;
+﻿using adrilight_shared.View.NonClientAreaContent;
+using GalaSoft.MvvmLight;
+using System.Net.Mime;
+using System.Windows;
 using System.Windows.Input;
 
 namespace adrilight_shared.ViewModel
@@ -9,6 +12,14 @@ namespace adrilight_shared.ViewModel
         {
             Geometry = geometry;
             Header = header;
+        }
+        public NonClientAreaContentViewModel(string content, string geometry, bool showBackButton, ICommand buttonCommand)
+        {
+            Header = content;
+            Geometry = geometry;
+            ShowBackButton = showBackButton;
+            if (ShowBackButton)
+                BackButtonCommand = buttonCommand;
         }
         public string Geometry { get; set; }
         private string _header;

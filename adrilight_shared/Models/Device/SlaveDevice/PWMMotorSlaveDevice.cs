@@ -70,6 +70,12 @@ namespace adrilight_shared.Models.Device.SlaveDevice
         private double _actualWidth;
         private double _actualHeight;
         private string _version = "1.0.0";
+        private bool _isMouseOver;
+        private bool _isVisible = true;
+        [JsonIgnore]
+        public bool IsVisible { get => _isVisible; set { Set(() => IsVisible, ref _isVisible, value); } }
+        [JsonIgnore]
+        public bool IsMouseOver { get => _isMouseOver; set { Set(() => IsMouseOver, ref _isMouseOver, value); } }
         public string Version { get => _version; set { Set(() => Version, ref _version, value); } }
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
@@ -89,7 +95,7 @@ namespace adrilight_shared.Models.Device.SlaveDevice
         public double Top { get => _top; set { Set(() => Top, ref _top, value); OnPositionUpdate(); } }
 
         public double Left { get => _left; set { Set(() => Left, ref _left, value); OnPositionUpdate(); } }
-
+        [JsonIgnore]
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
 
         public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); OnPositionUpdate(); } }

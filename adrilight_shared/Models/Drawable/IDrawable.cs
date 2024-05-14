@@ -20,10 +20,12 @@ namespace adrilight_shared.Models.Drawable
         Rect GetRect { get; }
 
         bool IsSelected { get; set; }
+        bool IsMouseOver { get; set; }
         bool IsResizeable { get; set; }
         bool IsDeleteable { get; set; }
         bool IsSelectable { get; set; }
         bool IsDraggable { get; set; }
+        bool IsVisible { get; set; }
         VisualProperties VisualProperties { get; set; }
 
         bool SetScale(double scaleX, double scaleY, bool keepOrigin);

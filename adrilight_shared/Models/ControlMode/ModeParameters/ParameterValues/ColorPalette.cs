@@ -1,4 +1,5 @@
-﻿using GalaSoft.MvvmLight;
+﻿using adrilight_shared.Models.ItemsCollection;
+using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
 using System;
 
@@ -55,6 +56,25 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
         {
             Colors[index] = color;
             RaisePropertyChanged(nameof(Colors));
+        }
+        public void Resize(int numColor)
+        {
+            int w1 = Colors.Length;
+            int w2 = numColor;
+            System.Windows.Media.Color[] temp = new System.Windows.Media.Color[8];
+            int x_ratio = (int)((w1 << 16) / w2) + 1;
+            int y_ratio = 1;
+            int x2, y2;
+            for (int i = 0; i < 1; i++)
+            {
+                for (int j = 0; j < w2; j++)
+                {
+                    x2 = ((j * x_ratio) >> 16);
+                    y2 = ((i * y_ratio) >> 16);
+                    temp[(i * w2) + j] = Colors[(y2 * w1) + x2];
+                }
+            }
+            Colors = temp;
         }
     }
 }

@@ -10,6 +10,7 @@ using adrilight_shared.Models.Device.Output;
 using adrilight_shared.Models.Device.SlaveDevice;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.Drawable;
+using adrilight_shared.Models.ItemsCollection;
 using adrilight_shared.Settings;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
@@ -35,7 +36,6 @@ namespace adrilight_shared.Models.Device
         private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
         private string DevicesCollectionFolderPath => Path.Combine(JsonPath, "Devices");
         private string ResourceCollectionFolderPath => Path.Combine(JsonPath, "Resource");
-        private string deviceDirectory => Path.Combine(DevicesCollectionFolderPath, DeviceName + "-" + DeviceUID);
         private string _deviceName;
         private string _deviceSerial;
         private string _manufacturer;
@@ -90,7 +90,7 @@ namespace adrilight_shared.Models.Device
         public bool IsEditing { get; set; }
         [JsonIgnore]
         public bool IsChecked { get => _isChecked; set { Set(() => IsChecked, ref _isChecked, value); } }
-        public string LocalPath { get; set; }
+        public string LocalPath => Path.Combine(DevicesCollectionFolderPath, DeviceName + "-" + DeviceUID);
         public string InfoPath { get; set; }
         private bool _autoConnect = true;
         public bool AutoConnect { get => _autoConnect; set { Set(() => AutoConnect, ref _autoConnect, value); } }
@@ -150,7 +150,7 @@ namespace adrilight_shared.Models.Device
         public bool IsIndicatorLEDOn { get; set; }
         [JsonIgnore]
         public bool NoSignalLEDEnable { get; set; }
-        [JsonIgnore] 
+        [JsonIgnore]
         public int NoSignalFanSpeed { get; set; }
         [JsonIgnore]
         public string DeviceFirmwareExtension => GetDeviceFirmwareExtensionString();
@@ -420,7 +420,7 @@ namespace adrilight_shared.Models.Device
         }
         public void RefreshLightingEngine()
         {
-            foreach(var zone in AvailableControlZones.Where(z=>z is LEDSetup))
+            foreach (var zone in AvailableControlZones.Where(z => z is LEDSetup))
             {
                 RaisePropertyChanged(nameof(zone.CurrentActiveControlMode));
             }

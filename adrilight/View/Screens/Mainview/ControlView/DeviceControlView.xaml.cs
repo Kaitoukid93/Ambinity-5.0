@@ -1,4 +1,5 @@
 ﻿using adrilight.ViewModel;
+using adrilight_shared.Models.Stores;
 using System;
 using System.Collections.Generic;
 using System.Linq;

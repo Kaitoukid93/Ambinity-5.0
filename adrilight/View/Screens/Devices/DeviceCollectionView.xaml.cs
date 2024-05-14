@@ -26,7 +26,7 @@ namespace adrilight.View
 
         public int Order => 0;
 
-        public string PageName => "Devices";
+        public string PageName => "Devices Collection";
         public string Geometry => "";
 
         public object Content { get => lazyContent.Value; }

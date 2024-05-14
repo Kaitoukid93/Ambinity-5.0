@@ -20,6 +20,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using static adrilight.ViewModel.MainViewViewModel;
+using adrilight_shared.Models.RelayCommand;
 
 namespace adrilight.ViewModel
 {

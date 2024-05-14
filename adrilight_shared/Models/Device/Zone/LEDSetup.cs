@@ -128,6 +128,12 @@ namespace adrilight_shared.Models.Device.Zone
         private bool _isDeleteable;
         private bool _isResizeable;
         private string _zoneWarningText = string.Empty;
+        private bool _isMouseOver;
+        private bool _isVisible = true;
+        [JsonIgnore]
+        public bool IsVisible { get => _isVisible; set { Set(() => IsVisible, ref _isVisible, value); } }
+        [JsonIgnore]
+        public bool IsMouseOver { get => _isMouseOver; set { Set(() => IsMouseOver, ref _isMouseOver, value); } }
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
         public double CenterX => Width / 2 + Left;

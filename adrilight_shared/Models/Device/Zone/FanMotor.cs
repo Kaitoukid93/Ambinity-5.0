@@ -89,6 +89,12 @@ namespace adrilight_shared.Models.Device.Zone
         private double _scaleLeft;
         private double _scaleWidth = 1;
         private double _scaleHeight = 1;
+        private bool _isMouseOver;
+        private bool _isVisible = true;
+        [JsonIgnore]
+        public bool IsVisible { get => _isVisible; set { Set(() => IsVisible, ref _isVisible, value); } }
+        [JsonIgnore]
+        public bool IsMouseOver { get => _isMouseOver; set { Set(() => IsMouseOver, ref _isMouseOver, value); } }
         [JsonIgnore]
         public Rect GetRect => new Rect(Left, Top, Width, Height);
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
@@ -106,7 +112,7 @@ namespace adrilight_shared.Models.Device.Zone
         public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
 
         public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
-
+        [JsonIgnore]
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
 
         public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }

@@ -91,6 +91,12 @@ namespace adrilight_shared.Models.Device.SlaveDevice
         private int _whiteBalanceRed = 100;
         private int _whiteBalanceGreen = 100;
         private int _whiteBalanceBlue = 100;
+        private bool _isMouseOver;
+        private bool _isVisible = true;
+        [JsonIgnore]
+        public bool IsVisible { get => _isVisible; set { Set(() => IsVisible, ref _isVisible, value); } }
+        [JsonIgnore]
+        public bool IsMouseOver { get => _isMouseOver; set { Set(() => IsMouseOver, ref _isMouseOver, value); } }
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
 
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
@@ -106,7 +112,7 @@ namespace adrilight_shared.Models.Device.SlaveDevice
         public double Top { get => _top; set { Set(() => Top, ref _top, value); UpdateChildOffSet(); } }
 
         public double Left { get => _left; set { Set(() => Left, ref _left, value); UpdateChildOffSet(); } }
-
+        [JsonIgnore]
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); } }
 
         public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }

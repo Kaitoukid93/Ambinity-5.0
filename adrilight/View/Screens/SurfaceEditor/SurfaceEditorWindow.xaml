@@ -9,7 +9,7 @@
            xmlns:richCanvas="clr-namespace:RichCanvas;assembly=RichCanvas"
            mc:Ignorable="d"
            xmlns:helpers="clr-namespace:adrilight.Helpers"
-           xmlns:adorners ="clr-namespace:adrilight.View.Adorners"
+           xmlns:adorners="clr-namespace:adrilight.View.DeviceCanvas.Adorners"
            xmlns:dataVisualizer ="clr-namespace:adrilight_shared.Models.DataVisualizer;assembly=adrilight_shared"
            xmlns:slaveDevice ="clr-namespace:adrilight_shared.Models.Device.SlaveDevice;assembly=adrilight_shared"
            xmlns:spot ="clr-namespace:adrilight_shared.Models.Device.Zone.Spot;assembly=adrilight_shared"

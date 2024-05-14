@@ -35,6 +35,12 @@ namespace adrilight_shared.Models.Device.Output
         private ISlaveDevice _slaveDevice;
         private IControlZone[] _controlableZone;
         private string _geometry = "generaldevice";
+        private bool _isMouseOver;
+        private bool _isVisible = true;
+        [JsonIgnore]
+        public bool IsVisible { get => _isVisible; set { Set(() => IsVisible, ref _isVisible, value); } }
+        [JsonIgnore]
+        public bool IsMouseOver { get => _isMouseOver; set { Set(() => IsMouseOver, ref _isMouseOver, value); } }
         [JsonIgnore]
         public bool IsLoadingProfile { get; set; }
         public OutputSettings()
@@ -104,7 +110,7 @@ namespace adrilight_shared.Models.Device.Output
         public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
 
         public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
-
+        [JsonIgnore]
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
 
         public double Width { get => _width; set { Set(() => Width, ref _width, value); OnWidthUpdated(); } }

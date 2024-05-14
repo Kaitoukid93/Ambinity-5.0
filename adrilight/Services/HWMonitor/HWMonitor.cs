@@ -437,14 +437,13 @@ namespace adrilight.Util
             computer = new LibreHardwareMonitor.Hardware.Computer {
                 IsCpuEnabled = true,
                 IsGpuEnabled = true,
-                IsMemoryEnabled = true,
+                IsMemoryEnabled = false,
                 IsMotherboardEnabled = true,
                 IsControllerEnabled = true,
-                IsNetworkEnabled = true,
-                IsStorageEnabled = true
+                IsNetworkEnabled = false,
+                IsStorageEnabled = false
 
             };
-
             computer.Open();
             computer.Accept(updateVisitor);
             displayHWInfo = new Computer();

@@ -28,6 +28,10 @@ namespace adrilight.View
             Thread.CurrentThread.CurrentUICulture = currentCulture;
             InitializeComponent();
         }
-      
+
+        private void viewModeButton_Click(object sender, RoutedEventArgs e)
+        {
+            viewMode_Selection.IsOpen = true;
+        }
     }
 }

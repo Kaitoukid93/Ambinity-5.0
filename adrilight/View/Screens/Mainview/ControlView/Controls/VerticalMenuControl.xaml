@@ -7,7 +7,6 @@
              xmlns:local="clr-namespace:adrilight.View"
              xmlns:viewmodel="clr-namespace:adrilight.ViewModel"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:dvcvs ="clr-namespace:adrilight_shared.View.Canvas;assembly=adrilight_shared"
              xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewmodel:VerticalMenuControlViewModel}"

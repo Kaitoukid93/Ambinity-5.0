@@ -112,6 +112,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Reactive, Version=4.1.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Reactive.4.1.0-preview.84\lib\net46\System.Reactive.dll</HintPath>
     </Reference>
@@ -150,8 +151,20 @@
     <Compile Include="Converter\ToUpperValueConverter.cs" />
     <Compile Include="Helpers\EventToCommand.cs" />
     <Compile Include="Helpers\perSizeBindingHelper.cs" />
-    <Compile Include="Models\DataViewMode.cs" />
+    <Compile Include="Models\Device\DeviceDBManager.cs" />
+    <Compile Include="Models\ItemsCollection\ItemsCollection.cs" />
+    <Compile Include="Models\Device\DeviceFirmwareUpdater.cs" />
+    <Compile Include="Models\Device\DeviceHardwareSettings.cs" />
+    <Compile Include="Models\Device\DevicesManager.cs" />
+    <Compile Include="Models\Drawable\CanvasSelectionRectangle.cs" />
+    <Compile Include="Models\Drawable\DeviceCanvas.cs" />
+    <Compile Include="Models\Drawable\ICanvasItem.cs" />
+    <Compile Include="Models\ItemsCollection\CollectionItemTool.cs" />
+    <Compile Include="Models\ItemsCollection\ItemsCollectionSource.cs" />
     <Compile Include="Models\Language\LangModel.cs" />
+    <Compile Include="Models\Lighting\ProfilesManager.cs" />
+    <Compile Include="Models\Stores\ISelectableViewParts.cs" />
+    <Compile Include="Models\Stores\NavigationEvent.cs" />
     <Compile Include="Models\Stores\DeviceControlEvent.cs" />
     <Compile Include="Models\Stores\CollectionItemStore.cs" />
     <Compile Include="Models\VerticalMenu\IVerticalMenuItem.cs" />
@@ -232,7 +245,6 @@
     <Compile Include="Models\ControlMode\Mode\LightingMode.cs" />
     <Compile Include="Models\ControlMode\Mode\PWMMode.cs" />
     <Compile Include="Models\ControlMode\ResourceLoaderConfig.cs" />
-    <Compile Include="Models\DataCollection.cs" />
     <Compile Include="Models\DataVisualizer\LEDVisualizer.cs" />
     <Compile Include="Models\DataVisualizer\ZoneVisualizer.cs" />
     <Compile Include="Models\Device\Controller\DeviceController.cs" />
@@ -265,7 +277,7 @@
     <Compile Include="Models\FrameData\Frame.cs" />
     <Compile Include="Models\FrameData\Motion.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\ParameterValues\Gif.cs" />
-    <Compile Include="Models\IGenericCollectionItem.cs" />
+    <Compile Include="Models\ItemsCollection\IGenericCollectionItem.cs" />
     <Compile Include="Models\KeyboardHook\IModifiersType.cs" />
     <Compile Include="Models\KeyboardHook\KeyModel.cs" />
     <Compile Include="Models\KeyboardHook\ModifiersType.cs" />
@@ -305,18 +317,11 @@
     <Compile Include="Settings\IGeneralSettings.cs" />
     <Compile Include="ViewModel\AddNewDialogViewModel.cs" />
     <Compile Include="ViewModel\DeleteDialogViewModel.cs" />
-    <Compile Include="ViewModel\EffectControlViewModel.cs" />
+    <Compile Include="ViewModel\DeviceCanvasViewModel.cs" />
     <Compile Include="ViewModel\NonClientAreaContentViewModel.cs" />
     <Compile Include="ViewModel\NumberInputDialogViewModel.cs" />
     <Compile Include="ViewModel\ProgressDialogViewModel.cs" />
     <Compile Include="ViewModel\RenameDialogViewModel.cs" />
-    <Compile Include="ViewModel\DeviceCanvasViewModel.cs" />
-    <Compile Include="View\Canvas\Adorners\AttachedAdorner.cs" />
-    <Compile Include="View\Canvas\Adorners\HoverAdorner.cs" />
-    <Compile Include="View\Canvas\Adorners\LineHoverAdorner.cs" />
-    <Compile Include="View\Canvas\Adorners\ResizeAdorner.cs" />
-    <Compile Include="View\Canvas\Adorners\ResizeLineAdorner.cs" />
-    <Compile Include="View\Canvas\CanvasSelectionRectangle.cs" />
     <Compile Include="View\Dialogs\AddNewDialog.xaml.cs">
       <DependentUpon>AddNewDialog.xaml</DependentUpon>
     </Compile>
@@ -337,9 +342,6 @@
     </Compile>
     <Compile Include="View\NonClientAreaContent\NonClientArea.xaml.cs">
       <DependentUpon>NonClientArea.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\Canvas\DeviceCanvas.xaml.cs">
-      <DependentUpon>DeviceCanvas.xaml</DependentUpon>
     </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
@@ -565,10 +567,6 @@
     <Page Include="View\NonClientAreaContent\NonClientArea.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\Canvas\DeviceCanvas.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -28,11 +28,13 @@ using adrilight_shared.Models.KeyboardHook;
 using adrilight_shared.Models.Language;
 using adrilight_shared.Models.Lighting;
 using adrilight_shared.Models.Preview;
+using adrilight_shared.Models.RelayCommand;
 using adrilight_shared.Models.Store;
 using adrilight_shared.Models.Stores;
 using adrilight_shared.Services;
 using adrilight_shared.Settings;
 using FTPServer;
+using GalaSoft.MvvmLight;
 using HandyControl.Controls;
 using HandyControl.Data;
 using HandyControl.Themes;
@@ -88,7 +90,7 @@ using SplashScreen = adrilight.View.SplashScreen;
 using Task = System.Threading.Tasks.Task;
 namespace adrilight.ViewModel
 {
-    public class MainViewViewModel : BaseViewModel
+    public class MainViewViewModel : ViewModelBase
     {
         private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
 
@@ -721,14 +723,8 @@ namespace adrilight.ViewModel
         public IGeneralSettings GeneralSettings { get; }
         public LightingProfileManagerViewModel LightingProfileManagerViewModel { get; set; }
         public DeviceManagerViewModel DeviceManagerViewModel { get; set; }
-        public DeviceControlViewModel ControlViewModel { get; set; }
-        public PlaylistDecoder LightingPlayer { get; set; }
-        public bool ShowPlayerWarning {
-            get
-            {
-                return LightingPlayer.IsRunning && CurrentDevice.CurrentActiveController.Type == ControllerTypeEnum.LightingController;
-            }
-        }
+        public DeviceControlViewModel DeviceControlViewModel { get; set; }
+        
         public ISerialStream[] SerialStreams { get; }
 
         public object this[string propertyName] {
@@ -754,7 +750,6 @@ namespace adrilight.ViewModel
             IList<ISelectableViewPart> selectableViewParts,
             LightingProfileManagerViewModel lightingProfileManagerViewModel,
             DeviceManagerViewModel deviceManagerViewModel,
-            PlaylistDecoder playlistDecoder,
             DeviceControlViewModel deviceControlViewModel
             )
         {
@@ -762,9 +757,7 @@ namespace adrilight.ViewModel
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
             LightingProfileManagerViewModel = lightingProfileManagerViewModel ?? throw new ArgumentNullException(nameof(lightingProfileManagerViewModel));
             DeviceManagerViewModel = deviceManagerViewModel ?? throw new ArgumentNullException(nameof(deviceManagerViewModel));
-            ControlViewModel = deviceControlViewModel ?? throw new ArgumentNullException(nameof(deviceControlViewModel));
-            LightingPlayer = playlistDecoder ?? throw new ArgumentNullException(nameof(playlistDecoder));
-            LightingPlayer.PropertyChanged += LightingPlayerPropertyChanged;
+            DeviceControlViewModel = deviceControlViewModel ?? throw new ArgumentNullException(nameof(deviceControlViewModel));
             SelectableViewParts = selectableViewParts.OrderBy(p => p.Order)
                 .ToList();
             SelectedViewPart = SelectableViewParts.Where(v => v.ViewPartName == "All Device View").First();
@@ -820,16 +813,6 @@ namespace adrilight.ViewModel
             CreateFWToolsFolderAndFiles();
 
             #endregion Create Resource and Collections Folder
-        }
-
-        private void LightingPlayerPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case nameof(LightingPlayer.IsRunning):
-                    RaisePropertyChanged(nameof(ShowPlayerWarning));
-                    break;
-            }
         }
 
         public void SetGifxelationPreviewImage(ByteFrame frame)
@@ -2972,13 +2955,6 @@ namespace adrilight.ViewModel
 
             });
 
-            GroupSelectedZoneForMaskedControlCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, async (p) =>
-            {
-                await MakeNewGroup();
-            });
             SelectSlaveDeviceForCurrentOutputCommand = new RelayCommand<ARGBLEDSlaveDevice>((p) =>
             {
                 return true;
@@ -5575,7 +5551,7 @@ namespace adrilight.ViewModel
                         if (destinationProfile != null)
                         {
                             targetDevice.TurnOnLED();
-                            LightingPlayer.Play(destinationProfile, targetDevice);
+                           // LightingPlayer.Play(destinationProfile, targetDevice);
                             // ActivateCurrentLightingProfileForSpecificDevice(destinationProfile, targetDevice);
                         }
 
@@ -6178,37 +6154,7 @@ namespace adrilight.ViewModel
         }
 
 
-        private async Task MakeNewGroup()
-        {
-            if (CurrentDevice.ControlZoneGroups == null)
-            {
-                CurrentDevice.ControlZoneGroups = new ObservableCollection<ControlZoneGroup>();
-            }
-            var selectedItems = LiveViewItems.Where(z => z.IsSelected && z is not ARGBLEDSlaveDevice).ToList();
-            //ungroup existed group
-            var existedGroup = selectedItems.Where(i => i is Border).ToList();
-            existedGroup.ForEach(i => selectedItems.Remove(i));
-            var ungroupedItems = UngroupZone(existedGroup);
-            if (ungroupedItems != null)
-            {
-                ungroupedItems.ForEach(i => selectedItems.Add(i));
-            }
-            if (selectedItems != null && selectedItems.Count > 1)
-            {
-                var newGroupName = "Group" + " " + (CurrentDevice.ControlZoneGroups.Count + 1).ToString();
-                var newGroup = new ControlZoneGroup(newGroupName);
-                await newGroup.AddZonesToGroup(selectedItems);
-                LiveViewItems.Add(newGroup.Border);
-                LiveViewSelectedItem = newGroup;
-                SelectedControlZone = newGroup.MaskedControlZone;
-                SelectedControlZone.CurrentActiveControlMode = newGroup.MaskedControlZone.AvailableControlMode.First();
-                //set display slave device
-                SelectedSlaveDevice = newGroup.MaskedSlaveDevice;
-                CanUnGroup = true;
-                CanGroup = false;
-                CurrentDevice.ControlZoneGroups.Add(newGroup);
-            }
-        }
+       
 
         private IControlZone _selectedControlZone;
 
@@ -8711,11 +8657,10 @@ namespace adrilight.ViewModel
         public void GotoChild(IDeviceSettings selectedDevice)
         {
             Log.Information("Navigating to Device Control");
-            ControlViewModel.Device = selectedDevice;
-            ControlViewModel.LoadVerticalMenuItem();
-            ControlViewModel.Init();
+            DeviceControlViewModel.Device = selectedDevice;
+            DeviceControlViewModel.LoadVerticalMenuItem();
             SelectedViewPart = SelectableViewParts.Where(v => v.ViewPartName == "Device Control View").First();
-            (SelectedViewPart.Content as DeviceControlView).DataContext = ControlViewModel;
+            (SelectedViewPart.Content as DeviceControlView).DataContext = DeviceControlViewModel;
 
             //GetItemsForLiveView();
             //UpdateLiveView();
@@ -8735,6 +8680,7 @@ namespace adrilight.ViewModel
 
         public void BackToDashboard()
         {
+            DeviceControlViewModel.Reset();
             SelectedViewPart = SelectableViewParts.Where(v => v.ViewPartName == "All Device View").First();
             Log.Information("Navigating to Dashboard");
         }

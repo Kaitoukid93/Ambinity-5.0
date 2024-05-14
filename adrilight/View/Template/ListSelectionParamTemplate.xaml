@@ -98,86 +98,6 @@
                             </Trigger>
                         </Style.Triggers>
                     </Style>
-                    <Style x:Key="_listBoxGeneralModeSelectionStyle"
-                           TargetType="ListBoxItem">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="ListBoxItem">
-                                    <Border CornerRadius="4"
-                                            Name="_Border"
-                                            Padding="0"
-                                            Margin="5,5,5,0"
-                                            Effect="{DynamicResource EffectShadow1}"
-                                            Background="Transparent"
-                                            BorderBrush="{StaticResource DarkMaskBrush}"
-                                            BorderThickness="0"
-                                            SnapsToDevicePixels="true">
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="MouseLeftButtonDown">
-                                                <i:InvokeCommandAction Command="{Binding DataContext.ChangeSelectedControlModeCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}"
-                                                                       CommandParameter="{Binding .}" />
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                        <ContentPresenter />
-                                    </Border>
-
-                                    <ControlTemplate.Triggers>
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="Selector.IsSelectionActive"
-                                                           Value="True" />
-                                                <Condition Property="IsSelected"
-                                                           Value="True" />
-                                            </MultiTrigger.Conditions>
-
-                                            <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}" />-->
-                                            <Setter Property="Background"
-                                                    TargetName="_Border"
-                                                    Value="{DynamicResource ButtonHoverBrush }" />
-                                        </MultiTrigger>
-
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="Selector.IsSelectionActive"
-                                                           Value="False" />
-                                                <Condition Property="IsSelected"
-                                                           Value="True" />
-                                            </MultiTrigger.Conditions>
-
-                                            <Setter Property="Background"
-                                                    TargetName="_Border"
-                                                    Value="{DynamicResource ButtonHoverBrush }" />
-                                            <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}" />-->
-                                        </MultiTrigger>
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="IsMouseOver"
-                                                           Value="True" />
-                                                <Condition Property="IsSelected"
-                                                           Value="False" />
-                                            </MultiTrigger.Conditions>
-
-                                            <Setter Property="Background"
-                                                    TargetName="_Border"
-                                                    Value="{DynamicResource ButtonHoverBrush}" />
-
-                                            <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}" />-->
-                                        </MultiTrigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-
-                        <Setter Property="Foreground"
-                                Value="{StaticResource PrimaryTextBrush}" />
-                        <Style.Triggers>
-                            <Trigger Property="IsSelected"
-                                     Value="True">
-                                <Setter Property="Foreground"
-                                        Value="{StaticResource PrimaryBrush}" />
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
                     <Style x:Key="_listBoxColorSelectionStyle"
                            TargetType="ListBoxItem">
                         <Setter Property="Template">
@@ -341,7 +261,6 @@
                                                 </DataTemplate>
                                             </GroupBox.HeaderTemplate>
                                             <Button Style="{DynamicResource _lowProfileDefaultButton}"
-                                                    Command="{Binding DataContext.SubParamActionCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}"
                                                     CommandParameter="{Binding CommandParameter}"
                                                     HorizontalAlignment="Right"
                                                     Content="{Binding CommandParameter}">
@@ -790,7 +709,7 @@
                                             <StackPanel Orientation="Horizontal"
                                                         HorizontalAlignment="Right">
                                                 <Button ToolTip="Delete selected items"
-                                                        Command="{Binding DataContext.DeleteSelectedItemFromCurrentCollectionCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}"
+                                                        Command="{Binding DataContext.DeleteSelectedItemFromCurrentCollectionCommand,RelativeSource={RelativeSource AncestorType={x:Type local:EffectControlView}}}"
                                                         hc:IconElement.Geometry="{DynamicResource delete}"
                                                         Visibility="{Binding ShowDeleteButton,Converter={StaticResource Boolean2VisibilityConverter}}"
                                                         Margin="15,15,0,5"
@@ -800,12 +719,12 @@
                                                         Content="{x:Static properties:Resources.OutputControlView_DeleteItems}" />
                                                 <Button Margin="15,15,15,5"
                                                         CommandParameter="{Binding .}"
-                                                        Command="{Binding DataContext.RefreshCurrentCollectionCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}"
+                                                        Command="{Binding DataContext.RefreshCurrentCollectionCommand,RelativeSource={RelativeSource AncestorType={x:Type local:EffectControlView}}}"
                                                         Style="{DynamicResource _mediumProfileDefaultButton}"
                                                         Content="{x:Static properties:Resources.Button_Refresh_Content}" />
                                                 <Button Margin="0,15,15,5"
                                                         CommandParameter="{Binding OnlineCatergory}"
-                                                        Command="{Binding DataContext.OpenAmbinoStoreWindowCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}"
+                                                        Command="{Binding DataContext.OpenAmbinoStoreWindowCommand,RelativeSource={RelativeSource AncestorType={x:Type local:EffectControlView}}}"
                                                         Content="{x:Static properties:Resources.OutputControlView_DownloadMore_content}">
                                                     <Button.Style>
                                                         <Style TargetType="Button"
@@ -1087,12 +1006,12 @@
                                                             <Grid Background="Transparent">
                                                                 <i:Interaction.Triggers>
                                                                     <i:EventTrigger EventName="MouseEnter">
-                                                                        <i:InvokeCommandAction Command="{Binding DataContext.ListSelectionItemMouseEnterCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}"
+                                                                        <i:InvokeCommandAction Command="{Binding DataContext.ListSelectionItemMouseEnterCommand,RelativeSource={RelativeSource AncestorType={x:Type local:EffectControlView}}}"
                                                                                                CommandParameter="{Binding .}" />
 
                                                                     </i:EventTrigger>
                                                                     <i:EventTrigger EventName="MouseLeave">
-                                                                        <i:InvokeCommandAction Command="{Binding DataContext.ListSelectionItemMouseLeaveCommand,RelativeSource={RelativeSource AncestorType={x:Type local:OutputControlView}}}"
+                                                                        <i:InvokeCommandAction Command="{Binding DataContext.ListSelectionItemMouseLeaveCommand,RelativeSource={RelativeSource AncestorType={x:Type local:EffectControlView}}}"
                                                                                                CommandParameter="{Binding .}" />
 
                                                                     </i:EventTrigger>

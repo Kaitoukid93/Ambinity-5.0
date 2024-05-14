@@ -33,7 +33,12 @@ namespace adrilight_shared.Models.Drawable
         private bool _isDeleteable;
         private int _index;
         private WriteableBitmap _source;
-
+        private bool _isMouseOver;
+        private bool _isVisible = true;
+        [JsonIgnore]
+        public bool IsVisible { get => _isVisible; set { Set(() => IsVisible, ref _isVisible, value); } }
+        [JsonIgnore]
+        public bool IsMouseOver { get => _isMouseOver; set { Set(() => IsMouseOver, ref _isMouseOver, value); } }
         public int Index { get => _index; set { Set(() => Index, ref _index, value); } }
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
@@ -43,7 +48,7 @@ namespace adrilight_shared.Models.Drawable
         public double Top { get => _top; set { Set(() => Top, ref _top, value); } }
         public WriteableBitmap Source { get => _source; set { Set(() => Source, ref _source, value); } }
         public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
-
+        [JsonIgnore]
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
         [JsonIgnore]
         public Type DataType => typeof(ScreenBound);

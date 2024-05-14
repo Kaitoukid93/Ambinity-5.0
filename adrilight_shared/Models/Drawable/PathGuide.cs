@@ -31,6 +31,12 @@ namespace adrilight_shared.Models.Drawable
 
         private bool _isResizeable;
         private bool _isDeleteable;
+        private bool _isMouseOver;
+        private bool _isVisible = true;
+        [JsonIgnore]
+        public bool IsVisible { get => _isVisible; set { Set(() => IsVisible, ref _isVisible, value); } }
+        [JsonIgnore]
+        public bool IsMouseOver { get => _isMouseOver; set { Set(() => IsMouseOver, ref _isMouseOver, value); } }
         public bool IsDeleteable { get => _isDeleteable; set { Set(() => IsDeleteable, ref _isDeleteable, value); } }
         public bool IsResizeable { get => _isResizeable; set { Set(() => IsResizeable, ref _isResizeable, value); } }
         public double CenterX => Width / 2 + Left;
@@ -41,6 +47,7 @@ namespace adrilight_shared.Models.Drawable
         [JsonIgnore]
         public Rect GetRect => new Rect(Left, Top, Width, Height);
         public double Left { get => _left; set { Set(() => Left, ref _left, value); } }
+        [JsonIgnore]
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); OnIsSelectedChanged(value); } }
         [JsonIgnore]
         public Type DataType => typeof(PathGuide);

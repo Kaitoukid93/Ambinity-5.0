@@ -4,6 +4,7 @@ using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
 using adrilight_shared.Models.Device.SlaveDevice;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.Drawable;
+using adrilight_shared.Models.Stores;
 using GalaSoft.MvvmLight;
 using MoreLinq;
 using Newtonsoft.Json;
@@ -138,7 +139,6 @@ namespace adrilight_shared.Models.Device.Group
                 Border = border;
             }
             //select current border
-            Border.IsSelected = true;
             foreach (var zone in ControlZones)
             {
                 if (zone is LEDSetup)
@@ -147,7 +147,8 @@ namespace adrilight_shared.Models.Device.Group
                     ledZone.GroupRect = new Rect(Border.Left, Border.Top, Border.Width, Border.Height);
                 }
             }
-          (MaskedControlZone as IDrawable).Left = Border.Left;
+            Border.GroupID = GroupUID;
+            (MaskedControlZone as IDrawable).Left = Border.Left;
             (MaskedControlZone as IDrawable).Top = Border.Top;
             (MaskedControlZone as IDrawable).Width = Border.Width;
             (MaskedControlZone as IDrawable).Height = Border.Height;

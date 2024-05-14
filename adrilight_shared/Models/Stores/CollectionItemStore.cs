@@ -1,52 +1,35 @@
-﻿using System;
+﻿using adrilight_shared.Models.ItemsCollection;
+using System;
 using System.Collections.Generic;
 
 namespace adrilight_shared.Models.Stores
 {
     public class CollectionItemStore
     {
-        public event Action<IGenericCollectionItem> ItemCreated;
-        public event Action<DataCollection> CollectionCreated;
-        public event Action<IGenericCollectionItem> SelectedItemChanged;
-        public event Action<List<IGenericCollectionItem>, string> SelectedItemsChanged;
-        public event Action<IGenericCollectionItem, DataViewMode> Navigated;
+        //raise when check box on item is checked or unchecked
+        public event Action<IGenericCollectionItem> ItemSelectionChanged;
+        // raise when item pin button is clicked
         public event Action<IGenericCollectionItem> ItemPinStatusChanged;
-        public event Action<List<IGenericCollectionItem>> ItemsRemoved;
-        public void CreateItem(IGenericCollectionItem item)
+        // raise when item name changed
+        public event Action<IGenericCollectionItem> ItemNameChanged;
+        //raise when item get clicked by user
+        public event Action<IGenericCollectionItem> ItemClicked;
+
+        public void ChangeItemSelectedStatus(IGenericCollectionItem item)
         {
-            ItemCreated?.Invoke(item);
-        }
-        public void CreateCollection(DataCollection collection)
-        {
-            CollectionCreated?.Invoke(collection);
-        }
-        public void ChangeSelectedItem(IGenericCollectionItem item)
-        {
-            SelectedItemChanged?.Invoke(item);
-        }
-        public void ChangeSelectedItems(List<IGenericCollectionItem> items, string target)
-        {
-            SelectedItemsChanged?.Invoke(items, target);
-        }
-        public void GotoSelectedItemDetail(IGenericCollectionItem item, DataViewMode lastViewMode)
-        {
-            Navigated?.Invoke(item, lastViewMode);
-        }
-        public void ShowLoadingScreen(IGenericCollectionItem item, DataViewMode lastViewMode)
-        {
-            Navigated?.Invoke(item, lastViewMode);
-        }
-        public void BackToCollectionView(IGenericCollectionItem item)
-        {
-            Navigated?.Invoke(item, DataViewMode.Collection);
+            ItemSelectionChanged?.Invoke(item);
         }
         public void ChangeItemPinStatus(IGenericCollectionItem item)
         {
-            ItemPinStatusChanged?.Invoke(item);
+            ItemSelectionChanged?.Invoke(item);
         }
-        public void RemoveItems(List<IGenericCollectionItem> items)
+        public void ChangeItemName(IGenericCollectionItem item)
         {
-            ItemsRemoved?.Invoke(items);
+            ItemNameChanged?.Invoke(item);
+        }
+        public void ClickItem (IGenericCollectionItem item)
+        {
+            ItemClicked?.Invoke(item);
         }
     }
 }

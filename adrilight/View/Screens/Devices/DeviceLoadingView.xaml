@@ -58,31 +58,9 @@
                                                  IsActive="True"
                                                  Style="{DynamicResource LoadingIndicatorArcsStyle}"></loadin:LoadingIndicator>
                     </Grid>
-                 
+
 
                 </Border>
-                <!--<Grid Grid.Row="1">
-                        <StackPanel VerticalAlignment="Top">
-                            <TextBlock HorizontalAlignment="Center"
-                                       Text="{Binding DeviceSearchingHeaderText}"
-                                       Margin="20,0"
-                                       Style="{DynamicResource TextBlockSubTitle}" />
-                            <TextBlock TextAlignment="Center"
-                                       HorizontalAlignment="Center"
-                                       Text="{Binding DeviceSearchingProgressText}"
-                                       Margin="20,5"
-                                       Style="{DynamicResource TextBlockDefaultSecLight}" />
-                            -->
-                <!-- LoadingIndicatorPulseStyle -->
-                <!--
-                        </StackPanel>
-                        <Button Command="{Binding CloseSearchingScreenCommand}"
-                                CommandParameter="close"
-                                Visibility="{Binding IsDeviceDiscoveryInit,Converter={StaticResource Boolean2VisibilityConverter}}"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Bottom"
-                                Content="Close" />
-                    </Grid>-->
             </Grid>
 
         </Grid>

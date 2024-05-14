@@ -1,4 +1,5 @@
-﻿using adrilight.View.Adorners;
+﻿
+using adrilight.View.DeviceCanvas.Adorners;
 using adrilight.ViewModel;
 using HandyControl.Data;
 using System;

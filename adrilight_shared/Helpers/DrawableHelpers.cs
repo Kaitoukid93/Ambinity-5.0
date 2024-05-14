@@ -15,7 +15,7 @@ namespace adrilight_shared.Helpers
             double yMin = rects.Min(s => s.Top);
             double xMax = rects.Max(s => s.Left + s.Width);
             double yMax = rects.Max(s => s.Top + s.Height);
-            var rect = new Rect(xMin, yMin, xMax - xMin, yMax - yMin);
+            var rect = new Rect(xMin - 1, yMin - 1, xMax - xMin + 2, yMax - yMin + 2);
             return rect;
         }
         public Rect GetBound(IControlZone[] zones)
@@ -41,6 +41,8 @@ namespace adrilight_shared.Helpers
             var listRect = new List<Rect>();
             foreach (var zone in zones)
             {
+                if (zone == null)
+                    continue;
                 double top = (zone as IDrawable).GetRect.Top;
                 double left = (zone as IDrawable).GetRect.Left;
                 double width = (zone as IDrawable).GetRect.Width;
