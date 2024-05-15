@@ -166,7 +166,6 @@
     <Compile Include="Models\Stores\ISelectableViewParts.cs" />
     <Compile Include="Models\Stores\NavigationEvent.cs" />
     <Compile Include="Models\Stores\DeviceControlEvent.cs" />
-    <Compile Include="Models\Stores\CollectionItemStore.cs" />
     <Compile Include="Models\VerticalMenu\IVerticalMenuItem.cs" />
     <Compile Include="Services\DialogService.cs" />
     <Compile Include="Enums\OnlineItemAvatarTypeEnum.cs" />

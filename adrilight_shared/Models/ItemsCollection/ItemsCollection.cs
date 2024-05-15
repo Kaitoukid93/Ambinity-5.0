@@ -14,17 +14,19 @@ namespace adrilight_shared.Models.ItemsCollection
 {
     public class ItemsCollection : ViewModelBase
     {
+        public event Action<IGenericCollectionItem> ItemNameChaned;
+        public event Action<IGenericCollectionItem> ItemPinStatusChanged;
+        public event Action<IGenericCollectionItem> ItemCheckStatusChanged;
         #region Construct
         public ItemsCollection()
         {
             AvailableTools = new ObservableCollection<CollectionItemTool>();
         }
-        public ItemsCollection(string name, IDialogService dialogService, CollectionItemStore store)
+        public ItemsCollection(string name, IDialogService dialogService)
         {
             DialogService = dialogService;
             Name = name;
             Items = new ObservableCollection<IGenericCollectionItem>();
-            _collectionItemStore = store;
         }
         #endregion
 
@@ -35,7 +37,6 @@ namespace adrilight_shared.Models.ItemsCollection
 
         #region Properties
         //private
-        private readonly CollectionItemStore _collectionItemStore;
         //public
         public ObservableCollection<CollectionItemTool> AvailableTools { get; set; }
         public ObservableCollection<IGenericCollectionItem> Items { get; set; }
@@ -96,13 +97,13 @@ namespace adrilight_shared.Models.ItemsCollection
             switch (e.PropertyName)
             {
                 case nameof(IGenericCollectionItem.Name):
-                    _collectionItemStore.ChangeItemName(sender as IGenericCollectionItem);
+                    ItemNameChaned?.Invoke(sender as IGenericCollectionItem);
                     break;
                 case nameof(IGenericCollectionItem.IsPinned):
-                    _collectionItemStore.ChangeItemName(sender as IGenericCollectionItem);
+                    ItemPinStatusChanged?.Invoke(sender as IGenericCollectionItem);
                     break;
                 case nameof(IGenericCollectionItem.IsChecked):
-                    _collectionItemStore.ChangeItemName(sender as IGenericCollectionItem);
+                    ItemCheckStatusChanged?.Invoke(sender as IGenericCollectionItem);
                     break;
             }
         }

@@ -26,7 +26,7 @@ namespace adrilight.ViewModel
     public class DeviceManagerViewModel : ViewModelBase
     {
         #region Construct
-        public DeviceManagerViewModel(CollectionItemStore store,
+        public DeviceManagerViewModel(
             DialogService service,
             DeviceDBManager deviceDBManager,
             IList<ISelectablePage> availablePages,
@@ -36,11 +36,10 @@ namespace adrilight.ViewModel
             SelectablePages = availablePages;
             _deviceAdvanceSettingsViewModel = advanceSettingsViewModel;
             _deviceCollectionViewModel = collectionViewModel;
-            _collectionItemStore = store;
             _deviceHlprs = new DeviceHelpers();
             _deviceDBManager = deviceDBManager;
 
-            _collectionItemStore.ItemClicked += OnDeviceSelected;
+            _deviceCollectionViewModel.DeviceCardClicked += OnDeviceSelected;
             LoadNonClientAreaData("Adrilight  |  Device Manager", "profileManager", false, null);
             LoadData();
             CommandSetup();
@@ -61,7 +60,6 @@ namespace adrilight.ViewModel
         private DeviceHelpers _deviceHlprs;
         private DeviceCollectionViewModel _deviceCollectionViewModel;
         private DeviceAdvanceSettingsViewModel _deviceAdvanceSettingsViewModel;
-        private readonly CollectionItemStore _collectionItemStore;
         private ISelectablePage _selectedPage;
         private DevicesManager _deviceManager;
         private DeviceDBManager _deviceDBManager;
@@ -128,8 +126,6 @@ namespace adrilight.ViewModel
                 return;
             }
             var device = item as DeviceSettings;
-            //create nonClient area viewmodel
-            var nonClientVm = NonClientAreaContent.DataContext as NonClientAreaContentViewModel;
             //show loading screen, in the mean time, load device hardware info
             //show loading screen
             var loadingScreen = SelectablePages.Where(p => p.PageName == "Loading").First();
@@ -140,8 +136,7 @@ namespace adrilight.ViewModel
             var advanceView = SelectablePages.Where(p => p.PageName == "Devices Advance Settings").First();
             (advanceView as DeviceControlView).DataContext = _deviceAdvanceSettingsViewModel;
             SelectedPage = advanceView;
-            nonClientVm.ShowBackButton = true;
-            nonClientVm.BackButtonCommand = new RelayCommand<string>((p) =>
+            ICommand backButtonCommand = new RelayCommand<string>((p) =>
             {
                 return true;
             }, (p) =>
@@ -149,14 +144,11 @@ namespace adrilight.ViewModel
                 BacktoCollectionView();
             }
             );
-            nonClientVm.Header = "Adrilight  |  Device Manager | " + device.DeviceName;
+            LoadNonClientAreaData("Adrilight  |  Device Manager | " + device.DeviceName, "profileManager", true, backButtonCommand);
 
         }
         private void BacktoCollectionView()
         {
-            var nonClientVm = NonClientAreaContent.DataContext as NonClientAreaContentViewModel;
-            nonClientVm.ShowBackButton = false;
-            nonClientVm.Header = "Adrilight  |  Device Manager";
             LoadNonClientAreaData("Adrilight  |  Device Manager", "profileManager", false, null);
             var collectionView = SelectablePages.Where(p => p.PageName == "Devices Collection").First();
             (collectionView as DeviceCollectionView).DataContext = _deviceCollectionViewModel;
@@ -181,11 +173,8 @@ namespace adrilight.ViewModel
             var devices = _deviceManager.LoadDeviceIfExists();
             if (devices == null)
                 return;
-            foreach (var device in devices)
-            {
-                _deviceCollectionViewModel.AvailableDevices.AddItem(device);
-            }
-
+            _deviceCollectionViewModel.Init(devices);
+            BacktoCollectionView();
         }
         #endregion
 

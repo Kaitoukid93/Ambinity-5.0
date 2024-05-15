@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace adrilight.ViewModel.LightingProfile
+namespace adrilight.ViewModel.Profile
 {
     public class LightingProfilePlayerViewModel
     {

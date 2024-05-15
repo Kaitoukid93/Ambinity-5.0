@@ -5,11 +5,17 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 using adrilight_shared.Models.RelayCommand;
+using adrilight_shared.Models.Stores;
+using System.Windows.Documents;
+using System.Collections.Generic;
+using System;
 
 namespace adrilight.ViewModel.DeviceManager
 {
     public class DeviceCollectionViewModel : ViewModelBase
     {
+        //raise when item get clicked by user
+        public event Action<IGenericCollectionItem> DeviceCardClicked;
         #region Construct
         public DeviceCollectionViewModel()
         {
@@ -42,6 +48,14 @@ namespace adrilight.ViewModel.DeviceManager
         #endregion
 
         #region Methods
+        public void Init(List<DeviceSettings> devices)
+        {
+            AvailableDevices.Items.Clear();
+            foreach(var device in devices)
+            {
+                AvailableDevices.AddItem(device);
+            }
+        }
         private void CommandSetup()
         {
             CollectionItemToolCommand = new RelayCommand<string>((p) =>
@@ -56,6 +70,13 @@ namespace adrilight.ViewModel.DeviceManager
                         break;
                 }
                 UpdateTools();
+            });
+            DeviceCardClickCommand = new RelayCommand<IGenericCollectionItem>((p) =>
+            {
+                return true;
+            }, async (p) =>
+            {
+                DeviceCardClicked?.Invoke(p);
             });
         }
         private void UpdateTools()
@@ -83,8 +104,8 @@ namespace adrilight.ViewModel.DeviceManager
         //posibility to add new device tools
         #endregion
         #region Command
-        public ICommand AdditemToSelectionCommand { get; set; }
         public ICommand CollectionItemToolCommand { get; set; }
+        public ICommand DeviceCardClickCommand { get; set; }
         #endregion
 
     }
