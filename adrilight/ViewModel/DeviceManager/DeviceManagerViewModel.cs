@@ -1,15 +1,19 @@
-﻿using adrilight.View;
+﻿using adrilight.Services.DeviceDiscoveryServices;
+using adrilight.View;
 using adrilight.ViewModel.DeviceManager;
+using adrilight_shared.Enums;
 using adrilight_shared.Helpers;
 using adrilight_shared.Models.Device;
 using adrilight_shared.Models.ItemsCollection;
 using adrilight_shared.Models.RelayCommand;
 using adrilight_shared.Models.Stores;
 using adrilight_shared.Services;
+using adrilight_shared.Settings;
 using adrilight_shared.View.NonClientAreaContent;
 using adrilight_shared.ViewModel;
 using GalaSoft.MvvmLight;
 using Microsoft.Win32.TaskScheduler;
+using OpenRGB.NET.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,20 +30,23 @@ namespace adrilight.ViewModel
     public class DeviceManagerViewModel : ViewModelBase
     {
         #region Construct
+        public event Action<IDeviceSettings> NewDeviceAdded;
         public DeviceManagerViewModel(
             DialogService service,
             DeviceDBManager deviceDBManager,
             IList<ISelectablePage> availablePages,
             DeviceCollectionViewModel collectionViewModel,
-            DeviceAdvanceSettingsViewModel advanceSettingsViewModel)
+            DeviceAdvanceSettingsViewModel advanceSettingsViewModel,
+            DeviceDiscovery deviceDiscovery)
         {
             SelectablePages = availablePages;
             _deviceAdvanceSettingsViewModel = advanceSettingsViewModel;
             _deviceCollectionViewModel = collectionViewModel;
             _deviceHlprs = new DeviceHelpers();
             _deviceDBManager = deviceDBManager;
-
+            _deviceDiscovery = deviceDiscovery;
             _deviceCollectionViewModel.DeviceCardClicked += OnDeviceSelected;
+            _deviceDiscovery.SerialDevicesScanComplete += OnSerialDevicesScanComplete;
             LoadNonClientAreaData("Adrilight  |  Device Manager", "profileManager", false, null);
             LoadData();
             CommandSetup();
@@ -51,6 +58,109 @@ namespace adrilight.ViewModel
         private async void OnDeviceSelected(IGenericCollectionItem item)
         {
             await GotoDeviceSettings(item as DeviceSettings);
+        }
+        private async void OnOpenRGBDevicesScanComplete(List<Device> availableDevices)
+        {
+            //check if theres any old device existed
+            //if true, turn on serial stream for each device
+            //check if any new device
+            //if true, show searching screen
+            //run device construct and device downloader as part of the process, loading bar always exist
+        }
+        private async void OnSerialDevicesScanComplete(List<string> availableDevices)
+        {
+            //check if theres any old device existed
+            //if true, turn on serial stream for each device
+            //check if any new device
+            //if true, show searching screen
+            //run device construct and device downloader as part of the process, loading bar always exist
+            //add new device to collection by calling add items method on devicecollectionviewmodel
+            //foreach new devices, invoke new device found action
+
+
+
+
+
+
+
+
+
+
+            //if (newDevices != null && newDevices.Count > 0)
+            //{
+            //    IsDeviceDiscoveryInit = false;
+            //    foreach (var newDevice in newDevices)
+            //    {
+            //        var device = newDevice as IDeviceSettings;
+            //        SetSearchingScreenHeaderText("New device found: " + device.DeviceName, true);
+            //        //download device info
+            //        SetSearchingScreenHeaderText("Downloading device modules: " + device.DeviceName, true);
+            //        var result = await DownloadDeviceInfo(device);
+            //        if (!result)
+            //        {
+            //            SetSearchingScreenHeaderText("Using Default: " + device.DeviceName, true);
+            //        }
+            //        else
+            //        {
+            //            SetSearchingScreenHeaderText("Device modules downloaded: " + device.DeviceName, true);
+            //            var downloadedDevice = ImportDevice(Path.Combine(CacheFolderPath, device.DeviceName + ".zip"));
+            //            if (downloadedDevice != null)
+            //            {
+            //                //transplant
+            //                downloadedDevice.OutputPort = device.OutputPort;
+            //                downloadedDevice.FirmwareVersion = device.FirmwareVersion;
+            //                downloadedDevice.HardwareVersion = device.HardwareVersion;
+            //                downloadedDevice.DeviceSerial = device.DeviceSerial;
+            //                downloadedDevice.DeviceType.ConnectionTypeEnum = device.DeviceType.ConnectionTypeEnum;
+            //                device = downloadedDevice;
+            //            }
+            //        }
+            //        device.IsTransferActive = true;
+
+            //        if (device.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
+            //        {
+            //            GeneralSettings.IsOpenRGBEnabled = true;
+            //        }
+            //        SetSearchingScreenProgressText("Writing device information...");
+
+            //        //await Task.Delay(TimeSpan.FromSeconds(2));
+            //        lock (device)
+            //        {
+            //            WriteDeviceInfo(device);
+            //        }
+
+
+            //        lock (AvailableDeviceLock)
+            //        {
+            //            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            //            {
+            //                AvailableDevices.Insert(0, device);
+            //            });
+            //        }
+            //        lock (DeviceManagerViewModel.AvailableDevices)
+            //        {
+            //            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            //            {
+            //                DeviceManagerViewModel.AvailableDevices.AddItems(device as DeviceSettings);
+            //            });
+
+            //        }
+            //        await Task.Delay(TimeSpan.FromSeconds(2));
+            //    }
+            //    SearchingForDevices = false;
+            //    IsDeviceDiscoveryInit = true;
+            //    await Task.Delay(TimeSpan.FromSeconds(1));
+            //}
+            //else
+            //{
+            //    if (_noDeviceDetectedCounter < 3)
+            //        _noDeviceDetectedCounter++;
+            //    if (_noDeviceDetectedCounter >= 3)
+            //    {
+            //        SearchingForDevices = false;
+            //        IsDeviceDiscoveryInit = true;
+            //    }
+            //}
         }
         #endregion
 
@@ -64,6 +174,7 @@ namespace adrilight.ViewModel
         private DevicesManager _deviceManager;
         private DeviceDBManager _deviceDBManager;
         private bool _isManagerWindowOpen;
+        private DeviceDiscovery _deviceDiscovery;
         //public
         public NonClientArea NonClientAreaContent { get; set; }
         public IList<ISelectablePage> SelectablePages { get; set; }

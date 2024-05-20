@@ -180,7 +180,7 @@ namespace adrilight.ViewModel.Profile
             //show editor view
             var editorView = SelectablePages.Where(p => p.PageName == "Playlist Editor View").First();
             _playlistEditorViewModel.Init(playlist);
-            (editorView as PlaylistEditorView).DataContext = _playlistEditorViewModel;
+            (editorView.Content as PlaylistEditorView).DataContext = _playlistEditorViewModel;
             SelectedPage = editorView;
             ICommand backButtonCommand = new RelayCommand<string>((p) =>
             {

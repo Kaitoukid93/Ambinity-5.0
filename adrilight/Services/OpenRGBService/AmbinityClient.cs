@@ -15,8 +15,7 @@ using System.Threading.Tasks;
 
 namespace adrilight.Services.OpenRGBService
 {
-    internal sealed class
-        AmbinityClient : ViewModelBase, IDisposable, IAmbinityClient
+    public class AmbinityClient : ViewModelBase, IDisposable
     {
         private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
         private string ORGBJsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "OpenRGB\\");
@@ -49,7 +48,7 @@ namespace adrilight.Services.OpenRGBService
             {
                 return _isInitialize;
             }
-            set
+            private set
             {
                 _isInitialize = value; RaisePropertyChanged();
             }
@@ -79,7 +78,7 @@ namespace adrilight.Services.OpenRGBService
             switch (e.PropertyName)
             {
                 case nameof(GeneralSettings.IsOpenRGBEnabled):
-                    await RefreshTransferState();
+                    await Init();
                     break;
             }
         }
@@ -111,7 +110,7 @@ namespace adrilight.Services.OpenRGBService
 
             return true;
         }
-        public async Task RefreshTransferState()
+        public async Task Init()
         {
 
             //this client is being hold by another process

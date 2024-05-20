@@ -233,8 +233,11 @@
     <Compile Include="Services\LightingEngine\RunStateEnum.cs" />
     <Compile Include="Services\SerialStream\SerialStreamRP2040.cs" />
     <Compile Include="Services\Ticker\PlaylistDecoder.cs" />
-    <Compile Include="ViewModel\Automation\AutomationEditingViewModel.cs" />
+    <Compile Include="ViewModel\Automation\AutomationCollectionViewModel.cs" />
+    <Compile Include="ViewModel\Automation\AutomationEditorViewModel.cs" />
     <Compile Include="ViewModel\Automation\AutomationManagerViewModel.cs" />
+    <Compile Include="ViewModel\Automation\AutomationDialogViewModel.cs" />
+    <Compile Include="ViewModel\Automation\HotKeySelectionViewModel.cs" />
     <Compile Include="ViewModel\ColorEditingObject.cs" />
     <Compile Include="ViewModel\Dashboard\DashboardViewModel.cs" />
     <Compile Include="ViewModel\Debug\DebugViewModel.cs" />
@@ -303,7 +306,6 @@
     <Compile Include="Services\LightingEngine\StaticColor.cs" />
     <Compile Include="Services\HWMonitor\HWMonitor.cs" />
     <Compile Include="Services\HWMonitor\IComputer.cs" />
-    <Compile Include="Services\OpenRGBService\IAmbinityClient.cs" />
     <Compile Include="Services\SerialStream\ISerialStream.cs" />
     <Compile Include="Services\NetworkStream\NetworkStream.cs" />
     <Compile Include="Services\OpenRGBService\AmbinityClient.cs" />
@@ -318,12 +320,19 @@
     <Compile Include="Services\CaptureEngine\ScreenCapture\DesktopDuplicationException.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\DesktopFrame.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\MovedRegion.cs" />
-    <Compile Include="ViewModel\KeyboardHookManagerSingleton.cs" />
     <Compile Include="ViewModel\MainViewViewModel.cs" />
     <Compile Include="ViewModel\SystemTrayContextMenu.cs" />
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
-    <Compile Include="View\Screens\Automation\ActionManagerWindow.xaml.cs" />
+    <Compile Include="View\Screens\Automation\AutomationDialogView.xaml.cs">
+      <DependentUpon>AutomationDialogView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Screens\Automation\AutomationCollectionView.xaml.cs">
+      <DependentUpon>AutomationCollectionView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Screens\Automation\AutomationEditorView.xaml.cs">
+      <DependentUpon>AutomationEditorView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Screens\Automation\AutomationNonClientAreaContent.xaml.cs" />
     <Compile Include="View\Screens\Debug\DebugWindow.xaml.cs" />
     <Compile Include="View\Screens\Devices\DeviceAdvanceSettingsView.xaml.cs" />
@@ -377,7 +386,7 @@
     <Compile Include="View\Screens\SurfaceEditor\SurfaceEditorWindow.xaml.cs" />
     <Compile Include="View\Screens\Automation\AutomationValuePickerWindow.xaml.cs" />
     <Compile Include="View\Screens\Automation\TargetDeviceSelectionWindow.xaml.cs" />
-    <Compile Include="View\Screens\Automation\HotKeySelectionWindow.xaml.cs" />
+    <Compile Include="View\Screens\Automation\HotKeySelectionDialog.xaml.cs" />
     <Compile Include="View\Dialogs\CommonInfoDialog.xaml.cs" />
     <Compile Include="View\Dialogs\CommonAskingDialog.xaml.cs" />
     <Compile Include="View\Screens\Settings\UpdateSelectionWindow.xaml.cs" />
@@ -446,9 +455,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Screens\Automation\ActionManagerWindow.xaml">
+    <Page Include="View\Screens\Automation\AutomationDialogView.xaml">
+      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-      <Generator>XamlIntelliSenseFileGenerator</Generator>
+    </Page>
+    <Page Include="View\Screens\Automation\AutomationCollectionView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Screens\Automation\AutomationEditorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\Screens\Automation\AutomationNonClientAreaContent.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -634,7 +651,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Screens\Automation\HotKeySelectionWindow.xaml">
+    <Page Include="View\Screens\Automation\HotKeySelectionDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

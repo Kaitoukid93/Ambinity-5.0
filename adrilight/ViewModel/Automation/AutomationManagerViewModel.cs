@@ -8,46 +8,166 @@ using adrilight_shared.View.NonClientAreaContent;
 using adrilight_shared.ViewModel;
 using GalaSoft.MvvmLight;
 using adrilight_shared.Models.RelayCommand;
-
 using System.Windows;
+using System.Collections.Generic;
+using adrilight.View;
+using adrilight_shared.Models.ItemsCollection;
+using System.Linq;
+using System.Windows.Input;
+using System.Threading.Tasks;
+using adrilight_shared.Settings;
+using adrilight_shared.Models.Device;
 
 namespace adrilight.ViewModel.Dashboard
 {
     public class AutomationManagerViewModel : ViewModelBase
     {
         #region Construct
-        public AutomationManagerViewModel(CollectionItemStore store, DialogService service)
+        public AutomationManagerViewModel(
+            DialogService service,
+            AutomationManager automationManager,
+            IList<ISelectablePage> availablePages,
+            AutomationCollectionViewModel collectionViewModel,
+            GeneralSettings generalSettings,
+            DeviceManagerViewModel deviceManagerViewModel,
+            AutomationEditorViewModel automationEditingViewModel)
         {
+            SelectablePages = availablePages;
+            _automationEditorViewModel = automationEditingViewModel;
+            _automationCollectionViewModel = collectionViewModel;
+            _automationManager = automationManager;
+            _generalSettings = generalSettings;
+            _deviceManager = deviceManagerViewModel;
+            _deviceManager.NewDeviceAdded += OnNewDeviceAdded;
+            _automationEditorViewModel.AutomationHotKeyChanged += _automationEditorViewModel_AutomationHotKeyChanged;
+            _automationCollectionViewModel.AutomationCardClicked += OnAutomationSelected;
 
-            _collectionItemStore = store;
-            _dialogService = service;
-            LoadNonClientAreaData();
+            LoadNonClientAreaData("Adrilight  |  Automation Manager", "automationManager", false, null);
+            LoadData();
             CommandSetup();
+        }
+
+
+
+        #endregion
+
+        #region Events
+        private void OnNewDeviceAdded(IDeviceSettings newDevice)
+        {
+            if (newDevice == null)
+            {
+                return;
+            }
+            _automationManager.CreateDeviceShutdownAction(device);
+            _automationManager.CreateDeviceMonitorSleepAction(device);
+            _automationManager.CreateDeviceMonitorWakeupAction(device);
+        }
+        private void OnAutomationSelected(IGenericCollectionItem item)
+        {
+            GotoAutomationEditor(item as AutomationSettings);
+        }
+        private void _automationEditorViewModel_AutomationHotKeyChanged(IGenericCollectionItem automation)
+        {
+            _automationManager.Unregister();
+            RegisterAllAutomation();
+
+
         }
         #endregion
 
 
-
         #region Properties
         //private
-        private CollectionItemStore _collectionItemStore;
-        private DialogService _dialogService;
+        private AutomationCollectionViewModel _automationCollectionViewModel;
+        private AutomationEditorViewModel _automationEditorViewModel;
+        private ISelectablePage _selectedPage;
+        private AutomationManager _automationManager;
+        private bool _isManagerWindowOpen;
+        private GeneralSettings _generalSettings;
+        private DeviceManagerViewModel _deviceManager;
         //public
-        public DeviceManagerViewModel DeviceManagerViewModel { get; set; }
         public NonClientArea NonClientAreaContent { get; set; }
-        public LightingProfileManagerViewModel LightingProfileManagerViewModel { get; set; }
-        public AutomationEditingViewModel CurrentAutomation { get; set; }
-        public DataCollection AvailableAutomations { get; set; }
+        public IList<ISelectablePage> SelectablePages { get; set; }
+        public ISelectablePage SelectedPage {
+            get => _selectedPage;
+
+            set
+            {
+                Set(ref _selectedPage, value);
+            }
+        }
+        public bool IsManagerWindowOpen {
+            get
+            {
+                return _isManagerWindowOpen;
+            }
+            set
+            {
+                _isManagerWindowOpen = value;
+                RaisePropertyChanged();
+            }
+        }
+
+
+
         #endregion
+
 
         #region Methods
         private void CommandSetup()
         {
 
+            WindowClosing = new RelayCommand<string>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                IsManagerWindowOpen = false;
+
+            });
+            WindowOpen = new RelayCommand<string>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                IsManagerWindowOpen = true;
+            });
         }
-        private void LoadNonClientAreaData()
+        private void GotoAutomationEditor(IGenericCollectionItem item)
         {
-            var vm = new NonClientAreaContentViewModel("Adrilight  |  Automation Manager", "automation");
+            if (item == null)
+            {
+                return;
+            }
+            var automation = item as AutomationSettings;
+            _automationEditorViewModel.Init(automation);
+            //show advance settings view
+            var editorView = SelectablePages.Where(p => p.PageName == "Automation Editor").First();
+            (editorView.Content as AutomationEditorView).DataContext = _automationEditorViewModel;
+            SelectedPage = editorView;
+            ICommand backButtonCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                BacktoCollectionView();
+            }
+            );
+            LoadNonClientAreaData("Adrilight  |  Automation Manager | " + automation.Name, "automationManager", true, backButtonCommand);
+
+        }
+        private void BacktoCollectionView()
+        {
+            LoadNonClientAreaData("Adrilight  |  Automation Manager", "automationManager", false, null);
+            var collectionView = SelectablePages.Where(p => p.PageName == "Automations Collection").First();
+            (collectionView as AutomationCollectionView).DataContext = _automationCollectionViewModel;
+            SelectedPage = collectionView;
+
+        }
+
+        private void LoadNonClientAreaData(string content, string geometry, bool showBackButton, ICommand buttonCommand)
+        {
+            var vm = new NonClientAreaContentViewModel(content, geometry, showBackButton, buttonCommand);
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
                 NonClientAreaContent = new NonClientArea();
@@ -55,46 +175,36 @@ namespace adrilight.ViewModel.Dashboard
             });
 
         }
-        private async void OnCollectionViewNavigated(IGenericCollectionItem item, DataViewMode mode)
+        public void LoadData()
         {
-            //show button if needed
-            if (item == null)
-            {
+
+            var automations = _automationManager.LoadAutomationIfExist();
+            if (automations == null)
                 return;
-            }
-            if (CurrentAutomation == null)
-                CurrentAutomation = new AutomationEditingViewModel(_dialogService, item as AutomationSettings);
-            var nonClientVm = NonClientAreaContent.DataContext as NonClientAreaContentViewModel;
-            if (mode == DataViewMode.Loading)
+            _automationCollectionViewModel.Init(automations);
+            if (_generalSettings.HotkeyEnable)
             {
-                nonClientVm.ShowBackButton = true;
-                nonClientVm.BackButtonCommand = new RelayCommand<string>((p) =>
-                {
-                    return true;
-                }, (p) =>
-                {
-                    _collectionItemStore.BackToCollectionView(item);
-                }
-                );
-                AvailableAutomations.GotoCurrentItemDetailViewCommand.Execute(CurrentAutomation);
-                nonClientVm.Header = "Adrilight  |  Device Manager | " + CurrentDevice.Device.DeviceName;
-            }
-            else if (mode == DataViewMode.Detail)
-            {
-                nonClientVm.ShowBackButton = true;
-            }
-            else
-            {
-                nonClientVm.ShowBackButton = false;
-                nonClientVm.Header = "Adrilight  |  Device Manager";
-                CurrentDevice = null;
+                _automationManager.Start();
+                RegisterAllAutomation();
             }
 
+            BacktoCollectionView();
+        }
+        private void RegisterAllAutomation()
+        {
+            foreach (var item in _automationCollectionViewModel.AvailableAutomations.Items)
+            {
+                _automationManager.Register(item as AutomationSettings);
+            }
         }
         #endregion
 
-
         #region Commands
+        public ICommand WindowClosing { get; private set; }
+        public ICommand WindowOpen { get; private set; }
         #endregion
+
+
+
     }
 }

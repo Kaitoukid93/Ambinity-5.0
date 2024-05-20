@@ -12,8 +12,8 @@
              xmlns:local="clr-namespace:adrilight.View"
              xmlns:device="clr-namespace:adrilight_shared.Models.Device;assembly=adrilight_shared"
              mc:Ignorable="d"
-             xmlns:model="clr-namespace:adrilight_shared.Models;assembly=adrilight_shared"
-             d:DataContext="{d:DesignInstance model:DataCollection, IsDesignTimeCreatable=True}">
+             xmlns:vm="clr-namespace:adrilight.ViewModel.DeviceManager"
+             d:DataContext="{d:DesignInstance vm:DeviceCollectionViewModel, IsDesignTimeCreatable=True}">
 
     <UserControl.Resources>
         <ResourceDictionary>

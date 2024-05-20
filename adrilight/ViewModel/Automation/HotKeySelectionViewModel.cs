@@ -1,33 +1,52 @@
-﻿using adrilight.ViewModel;
+﻿using adrilight_shared.Models.Automation;
 using adrilight_shared.Models.KeyboardHook;
+using adrilight_shared.Models.RelayCommand;
+using GalaSoft.MvvmLight;
+using HidSharp.Reports;
 using System;
-using System.Windows;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace adrilight.View
+namespace adrilight.ViewModel.Automation
 {
-    /// <summary>
-    /// Interaction logic for PaletteEditWindow.xaml
-    /// </summary>
-    public partial class HotKeySelectionWindow
+    public class HotKeySelectionViewModel : ViewModelBase
     {
-        public HotKeySelectionWindow()
-        {
-            InitializeComponent();
-            save.IsEnabled = false;
-        }
+        public HotKeySelectionViewModel() { }
+        #region Methods
         private Key _lastKey;
         private bool _newPress = false;
         private int keyCount = 0;
-        private void OnKeyDownHandler(object sender, KeyEventArgs e)
+        private bool _saveEnabled;
+        private bool _isKeyValid;
+        private ObservableCollection<KeyModel> _currentSelectedShortKeys;
+        private ObservableCollection<string> _currentSelectedModifiers;
+        public bool IsKeyValid { get { return _isKeyValid; } set { _isKeyValid = value; RaisePropertyChanged(); } }
+        public ObservableCollection<KeyModel> CurrentSelectedShortKeys { get { return _currentSelectedShortKeys; } set { _currentSelectedShortKeys = value; RaisePropertyChanged(); } }
+        public ObservableCollection<string> CurrentSelectedModifiers { get { return _currentSelectedModifiers; } set { _currentSelectedModifiers = value; RaisePropertyChanged(); } }
+        public bool SaveEnabled { get { return _saveEnabled; } set { _saveEnabled = value; RaisePropertyChanged(); } }
+
+        private void CommandSetup()
+        {
+            KeyDownCommand = new RelayCommand<KeyEventArgs>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                OnKeyDownHandler(p);
+
+            });
+        }
+        private void OnKeyDownHandler(KeyEventArgs e)
         {
             string currentKey = "None";
             //Add pressed key to listbox
             if (e.Key == _lastKey)
                 return;
             _lastKey = e.Key;
-
-            var view = DataContext as MainViewViewModel;
             //check if key pressed is standardkey or modifiers
             if (e.Key == Key.LeftShift || e.Key == Key.RightShift || e.Key == Key.LeftCtrl || e.Key == Key.RightCtrl || e.Key == Key.LeftAlt || e.Key == Key.RightAlt)
             {
@@ -58,17 +77,17 @@ namespace adrilight.View
                 //if holding this modifiers, increment display
                 if (_newPress)
                 {
-                    view.CurrentSelectedModifiers.Clear();
+                    CurrentSelectedModifiers.Clear();
                 }
-                if (!view.CurrentSelectedModifiers.Contains(currentKey))
-                    view.CurrentSelectedModifiers.Add(currentKey);
-                invalidGrid.Visibility = Visibility.Collapsed;
+                if (!CurrentSelectedModifiers.Contains(currentKey))
+                    CurrentSelectedModifiers.Add(currentKey);
+                IsKeyValid = false;
 
             }
             else
             {
 
-                view.CurrentSelectedShortKeys.Clear();
+                CurrentSelectedShortKeys.Clear();
                 IoCmd_t keyChar = new IoCmd_t();
                 KeyToChar(e.Key, ref keyChar);
                 var key = new KeyModel {
@@ -76,10 +95,10 @@ namespace adrilight.View
                     KeyCode = KeyInterop.VirtualKeyFromKey(e.Key)
 
                 };
-                view.CurrentSelectedShortKeys.Add(key);
-                if (view.CurrentSelectedModifiers.Count == 0)
+                CurrentSelectedShortKeys.Add(key);
+                if (CurrentSelectedModifiers.Count == 0)
                 {
-                    invalidGrid.Visibility = Visibility.Visible;
+                    IsKeyValid = true;
 
                 }
 
@@ -87,14 +106,13 @@ namespace adrilight.View
             }
             _newPress = false;
             keyCount++;
-            welcomeText.Visibility = Visibility.Collapsed;
-            if (view.CurrentSelectedShortKeys.Count == 0 || view.CurrentSelectedModifiers.Count == 0)
+            if (CurrentSelectedShortKeys.Count == 0 || CurrentSelectedModifiers.Count == 0)
             {
-                save.IsEnabled = false;
+                SaveEnabled = false;
             }
             else
             {
-                save.IsEnabled = true;
+                SaveEnabled = true;
             }
 
         }
@@ -237,9 +255,9 @@ namespace adrilight.View
                     return;
             } //switch          
         } // function
-        private void Cancel_button_click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-        }
+        #endregion
+        #region Icommand
+        public ICommand KeyDownCommand { get; set; }
+        #endregion
     }
 }

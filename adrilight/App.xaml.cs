@@ -11,6 +11,7 @@ using adrilight.Util;
 using adrilight.View;
 using adrilight.View.Screens.OOBExperience;
 using adrilight.ViewModel;
+using adrilight.ViewModel.Automation;
 using adrilight_shared.Enums;
 using adrilight_shared.Helpers;
 using adrilight_shared.Models.ControlMode.Mode;
@@ -132,6 +133,8 @@ namespace adrilight
             dialogService.RegisterDialog<AddNewDialog, AddNewDialogViewModel>();
             dialogService.RegisterDialog<NumberInputDialog, NumberInputDialogViewModel>();
             dialogService.RegisterDialog<ProgressDialog, ProgressDialogViewModel>();
+            dialogService.RegisterDialog<AutomationDialogView, AutomationDialogViewModel>();
+            dialogService.RegisterDialog<HotKeySelectionDialog, HotKeySelectionViewModel>();
             //close splash screen and open dashboard
             this.Resources["Locator"] = new ViewModelLocator(kernel);
             _telemetryClient = kernel.Get<TelemetryClient>();

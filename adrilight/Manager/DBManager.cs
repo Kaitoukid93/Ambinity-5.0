@@ -15,39 +15,17 @@ namespace adrilight.Manager
 {
     public class DBmanager
     {
-        public DBmanager(MainViewViewModel mainViewViewModel, CollectionItemStore collectionStore)
+        public DBmanager(MainViewViewModel mainViewViewModel)
         {
 
             MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
-            _collectionStore = collectionStore ?? throw new ArgumentNullException(nameof(collectionStore));
-            _collectionStore.ItemsRemoved += ItemsRemoved;
             FilesQToRemove = new ObservableCollection<string>();
             StartThread();
 
         }
 
-        private void ItemsRemoved(List<IGenericCollectionItem> list)
-        {
-            foreach (var item in list)
-            {
-                if (File.Exists(item.LocalPath))
-                {
-                    try
-                    {
-                        File.Delete(item.LocalPath);
-                    }
-
-                    catch (Exception ex)
-                    {
-
-                    }
-                }
-            }
-        }
-
         private Thread _workerThread;
         private CancellationTokenSource _cancellationTokenSource;
-        private CollectionItemStore _collectionStore;
         public void StartThread()
         {
             //if (App.IsPrivateBuild) return;

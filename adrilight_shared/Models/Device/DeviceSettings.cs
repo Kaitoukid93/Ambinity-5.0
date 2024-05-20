@@ -110,6 +110,7 @@ namespace adrilight_shared.Models.Device
         public string HardwareVersion { get => _hardwareVersion; set { Set(() => HardwareVersion, ref _hardwareVersion, value); } }
         public string ProductionDate { get => _productionDate; set { Set(() => ProductionDate, ref _productionDate, value); } }
         public bool IsVisible { get => _isVisible; set { Set(() => IsVisible, ref _isVisible, value); } }
+        [JsonIgnore]
         public bool IsSelected { get => _isSelected; set { Set(() => IsSelected, ref _isSelected, value); } }
         public string OutputPort { get => _outputPort; set { Set(() => OutputPort, ref _outputPort, value); } }
         [JsonIgnore]

@@ -26,7 +26,7 @@ using Windows.Web.Http.Headers;
 
 namespace adrilight.Util
 {
-    internal class SerialDeviceDetection
+    public class SerialDeviceDetection
     {
 
 
@@ -36,7 +36,7 @@ namespace adrilight.Util
         private static byte[] unexpectedValidHeader = { (byte)'A', (byte)'b', (byte)'n' };
         private static CancellationToken cancellationtoken;
         private static bool isNoRespondingMessageShowed = false;
-        private static DeviceManagerViewModel DeviceManager { get; set; }
+        private static DeviceManagerViewModel DeviceManager { get; set;}
         //private static List<DeviceHUB> ExistedDeviceHUB { get; set; }
 
         public SerialDeviceDetection(DeviceManagerViewModel DeviceManagerViewModel)
@@ -301,97 +301,7 @@ namespace adrilight.Util
             _serialPort.Close();
             _serialPort.Dispose();
             return dev;
-        }
-        /// <summary>
-        /// Construct device from basic information
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="deviceSerial"></param>
-        /// <param name="fwVersion"></param>
-        /// <param name="hwVersion"></param>
-        /// <param name="outputPort"></param>
-        /// <returns></returns>
-        private static DeviceSettings DeviceConstruct(string name, string deviceSerial, string fwVersion, string hwVersion,int hwLightingVersion, string outputPort)
-        {
-            var ledSetupHlprs = new LEDSetupHelpers();
-            var newDevice = new DeviceSettings();
-            newDevice.DeviceName = name;
-            newDevice.HWL_version = hwLightingVersion;
-            switch (newDevice.DeviceName)
-            {
-                case "Ambino Basic":// General Ambino Basic USB Device
-                                    //newDevice = availableDefaultDevice.AmbinoBasic24Inch;
-
-                    newDevice = new SlaveDeviceHelpers().DefaultCreatedAmbinoDevice(
-                        new DeviceType(DeviceTypeEnum.AmbinoBasic),
-                        newDevice.DeviceName,
-                        outputPort,
-                        false,
-                        true,
-                        1);
-                    newDevice.DashboardWidth = 230;
-                    newDevice.DashboardHeight = 270;
-                    break;
-                case "Ambino EDGE":// General Ambino Edge USB Device
-                    newDevice = new SlaveDeviceHelpers().DefaultCreatedAmbinoDevice(
-                     new DeviceType(DeviceTypeEnum.AmbinoEDGE),
-                     newDevice.DeviceName,
-                     outputPort,
-                     false,
-                     true,
-                     1);
-                    newDevice.DashboardWidth = 230;
-                    newDevice.DashboardHeight = 270;
-
-                    break;
-                case "Ambino FanHub":
-                    newDevice = new SlaveDeviceHelpers().DefaultCreatedAmbinoDevice(
-                       new DeviceType(DeviceTypeEnum.AmbinoFanHub),
-                    newDevice.DeviceName,
-                       outputPort,
-                       true,
-                       true,
-                       10);
-                    newDevice.DashboardWidth = 472;
-                    newDevice.DashboardHeight = 270;
-                    break;
-                case "Ambino HubV2":
-                    newDevice = new SlaveDeviceHelpers().DefaultCreatedAmbinoDevice(
-                     new DeviceType(DeviceTypeEnum.AmbinoHUBV2),
-                  newDevice.DeviceName,
-                     outputPort,
-                     false,
-                     true,
-                     7);
-                    newDevice.DashboardWidth = 320;
-                    newDevice.DashboardHeight = 270;
-                    break;
-                case "Ambino HubV3":
-                    newDevice = new SlaveDeviceHelpers().DefaultCreatedAmbinoDevice(
-                      new DeviceType(DeviceTypeEnum.AmbinoHUBV3),
-                   newDevice.DeviceName,
-                      outputPort,
-                      false,
-                      true,
-                      4);
-                    newDevice.DashboardWidth = 320;
-                    newDevice.DashboardHeight = 270;
-                    break;
-                case "Ambino RainPow":
-                    //newDevice = availableDefaultDevice.ambinoRainPow;
-                    //newDevice.DeviceType = DeviceTypeEnum.AmbinoRainPowPro;
-                    //newDevice.DeviceConnectionType = "wired";
-                    //newDevice.OutputPort = device;
-                    //newDevice.IsSizeNeedUserDefine = true;
-                    break;
-            }
-
-            newDevice.DeviceSerial = deviceSerial;
-            newDevice.FirmwareVersion = fwVersion;
-            newDevice.HardwareVersion = hwVersion;
-            newDevice.UpdateChildSize();
-            return newDevice;
-        }
+        }  
         /// <summary>
         /// this return list of new devices and old devices
         /// </summary>

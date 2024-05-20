@@ -9,18 +9,19 @@ using adrilight_shared.Models.Stores;
 using System.Windows.Documents;
 using System.Collections.Generic;
 using System;
+using adrilight_shared.Models.Automation;
 
-namespace adrilight.ViewModel.DeviceManager
+namespace adrilight.ViewModel.Automation
 {
-    public class DeviceCollectionViewModel : ViewModelBase
+    public class AutomationCollectionViewModel : ViewModelBase
     {
         //raise when item get clicked by user
-        public event Action<IGenericCollectionItem> DeviceCardClicked;
+        public event Action<IGenericCollectionItem> AutomationCardClicked;
         #region Construct
-        public DeviceCollectionViewModel()
+        public AutomationCollectionViewModel()
         {
             AvailableTools = new ObservableCollection<CollectionItemTool>();
-            AvailableDevices = new ItemsCollection();
+            AvailableAutomations = new ItemsCollection();
             CommandSetup();
         }
 
@@ -29,9 +30,9 @@ namespace adrilight.ViewModel.DeviceManager
 
 
         #region Properties
-        public ItemsCollection AvailableDevices { get; set; }
+        public ItemsCollection AvailableAutomations { get; set; }
         public ObservableCollection<CollectionItemTool> AvailableTools { get; set; }
-        private string _warningMessage = adrilight_shared.Properties.Resources.DeviceManager_DisConnect_Warning_Message;
+        private string _warningMessage;
         public string WarningMessage {
             get
             {
@@ -47,12 +48,12 @@ namespace adrilight.ViewModel.DeviceManager
         #endregion
 
         #region Methods
-        public void Init(List<DeviceSettings> devices)
+        public void Init(List<AutomationSettings> automations)
         {
-            AvailableDevices.Items.Clear();
-            foreach(var device in devices)
+            AvailableAutomations.Items.Clear();
+            foreach (var automation in automations)
             {
-                AvailableDevices.AddItem(device);
+                AvailableAutomations.AddItem(automation);
             }
         }
         private void CommandSetup()
@@ -65,24 +66,24 @@ namespace adrilight.ViewModel.DeviceManager
                 switch (p)
                 {
                     case "delete":
-                        AvailableDevices.RemoveSelectedItems(true);
+                        AvailableAutomations.RemoveSelectedItems(true);
                         break;
                 }
                 UpdateTools();
             });
-            DeviceCardClickCommand = new RelayCommand<IGenericCollectionItem>((p) =>
+            AutomationCardClickCommand = new RelayCommand<IGenericCollectionItem>((p) =>
             {
                 return true;
             }, async (p) =>
             {
-                DeviceCardClicked?.Invoke(p);
+                AutomationCardClicked?.Invoke(p);
             });
         }
         private void UpdateTools()
         {
             //clear Tool
             AvailableTools?.Clear();
-            var selectedItems = AvailableDevices.Items.Where(d => d.IsSelected).ToList();
+            var selectedItems = AvailableAutomations.Items.Where(d => d.IsSelected).ToList();
             if (selectedItems == null)
                 return;
             if (selectedItems.Count == 0)
@@ -104,7 +105,7 @@ namespace adrilight.ViewModel.DeviceManager
         #endregion
         #region Command
         public ICommand CollectionItemToolCommand { get; set; }
-        public ICommand DeviceCardClickCommand { get; set; }
+        public ICommand AutomationCardClickCommand { get; set; }
         #endregion
 
     }

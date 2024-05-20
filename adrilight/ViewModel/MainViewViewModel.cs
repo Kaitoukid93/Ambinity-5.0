@@ -219,29 +219,7 @@ namespace adrilight.ViewModel
             }
         }
 
-        private ObservableCollection<KeyModel> _currentSelectedShortKeys;
 
-        public ObservableCollection<KeyModel> CurrentSelectedShortKeys {
-            get { return _currentSelectedShortKeys; }
-
-            set
-            {
-                _currentSelectedShortKeys = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private ObservableCollection<string> _currentSelectedModifiers;
-
-        public ObservableCollection<string> CurrentSelectedModifiers {
-            get { return _currentSelectedModifiers; }
-
-            set
-            {
-                _currentSelectedModifiers = value;
-                RaisePropertyChanged();
-            }
-        }
 
 
         private string _selectedActionType;
@@ -531,15 +509,7 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-        private ObservableCollection<string> _selectableIcons;
-        public ObservableCollection<string> SelectableIcons {
-            get { return _selectableIcons; }
-            set
-            {
-                _selectableIcons = value;
-                RaisePropertyChanged();
-            }
-        }
+      
         private ObservableCollection<AutomationSettings> _availableAutomations;
 
         public ObservableCollection<AutomationSettings> AvailableAutomations {
@@ -963,57 +933,7 @@ namespace adrilight.ViewModel
                 }
             };
         }
-        private void CreateDeviceShutdownAction(IDeviceSettings device)
-        {
-            var shutdownAutomation = AvailableAutomations.Where(a => (a.Condition is SystemEventTriggerCondition) && (a.Condition as SystemEventTriggerCondition).Event == SystemEventEnum.Shutdown).FirstOrDefault();
-            if (shutdownAutomation == null)
-                return;
-            if (shutdownAutomation.Actions.Count == 0)
-                return;
-            if (shutdownAutomation.Actions.Any(a => a.TargetDeviceUID == device.DeviceUID))
-                return;
-            var newDeviceShutdownAction = ObjectHelpers.Clone<ActionSettings>(shutdownAutomation.Actions[0]);
-            shutdownAutomation.UpdateActions(AvailableDevices.ToList());
-            newDeviceShutdownAction.TargetDeviceName = device.DeviceName;
-            newDeviceShutdownAction.TargetDeviceUID = device.DeviceUID;
-            shutdownAutomation.Actions.Add(newDeviceShutdownAction);
-            //lock the automation
-            shutdownAutomation.IsLocked = true;
-        }
-        private void CreateDeviceMonitorSleepAction(IDeviceSettings device)
-        {
-            var monitorSleepAutomation = AvailableAutomations.Where(a => (a.Condition is SystemEventTriggerCondition) && (a.Condition as SystemEventTriggerCondition).Event == SystemEventEnum.MonitorSleep).FirstOrDefault();
-            if (monitorSleepAutomation == null)
-                return;
-            if (monitorSleepAutomation.Actions.Count == 0)
-                return;
-            if (monitorSleepAutomation.Actions.Any(a => a.TargetDeviceUID == device.DeviceUID))
-                return;
-            var newDeviceMonitorSleepAction = ObjectHelpers.Clone<ActionSettings>(monitorSleepAutomation.Actions[0]);
-            monitorSleepAutomation.UpdateActions(AvailableDevices.ToList());
-            newDeviceMonitorSleepAction.TargetDeviceName = device.DeviceName;
-            newDeviceMonitorSleepAction.TargetDeviceUID = device.DeviceUID;
-            monitorSleepAutomation.Actions.Add(newDeviceMonitorSleepAction);
-            //lock the automation
-            monitorSleepAutomation.IsLocked = true;
-        }
-        private void CreateDeviceMonitorWakeupAction(IDeviceSettings device)
-        {
-            var monitorWakeupAutomation = AvailableAutomations.Where(a => (a.Condition is SystemEventTriggerCondition) && (a.Condition as SystemEventTriggerCondition).Event == SystemEventEnum.MonitorWakeup).FirstOrDefault();
-            if (monitorWakeupAutomation == null)
-                return;
-            if (monitorWakeupAutomation.Actions.Count == 0)
-                return;
-            if (monitorWakeupAutomation.Actions.Any(a => a.TargetDeviceUID == device.DeviceUID))
-                return;
-            var newDeviceMonitorWakeupAction = ObjectHelpers.Clone<ActionSettings>(monitorWakeupAutomation.Actions[0]);
-            monitorWakeupAutomation.UpdateActions(AvailableDevices.ToList());
-            newDeviceMonitorWakeupAction.TargetDeviceName = device.DeviceName;
-            newDeviceMonitorWakeupAction.TargetDeviceUID = device.DeviceUID;
-            monitorWakeupAutomation.Actions.Add(newDeviceMonitorWakeupAction);
-            //lock the automation
-            monitorWakeupAutomation.IsLocked = true;
-        }
+       
 
         private async Task RegisterDevice(IDeviceSettings device)
         {
@@ -3496,420 +3416,8 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-        private ActionManagerWindow actionManagerWindow { get; set; }
-        private void OpenActionsManagerWindow(AutomationSettings selectedautomation)
-        {
-            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
-            {
 
-                CurrentSelectedAutomation = selectedautomation;
-                AvailableActionsforCurrentDevice = new ObservableCollection<ActionType>();
-                //init action
-                AvailableActionsforCurrentDevice.Add(new ActionType {
-                    Name = adrilight_shared.Properties.Resources.ActionType_Activate_name,
-                    Description = "Kích hoạt một Profile có sẵn",
-                    Geometry = "apply",
-                    Type = "Activate",
-                    LinkText = adrilight_shared.Properties.Resources.ActionType_Activate_linktext,
-                    IsValueDisplayed = false,
-                    IsTargetDeviceDisplayed = true
-                });
-                AvailableActionsforCurrentDevice.Add(new ActionType {
-                    Name = adrilight_shared.Properties.Resources.ActionType_Increase_name,
-                    Description = "Tăng giá trị của một thuộc tính",
-                    Geometry = "apply",
-                    Type = "Increase",
-                    LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
-                    IsValueDisplayed = false,
-                    IsTargetDeviceDisplayed = true
-                });
-                AvailableActionsforCurrentDevice.Add(new ActionType {
-                    Name = adrilight_shared.Properties.Resources.ActionType_Decrease_name,
-                    Description = "Giảm giá trị của một thuộc tính",
-                    Geometry = "apply",
-                    Type = "Decrease",
-                    LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
-                    IsValueDisplayed = false,
-                    IsTargetDeviceDisplayed = true
-                });
-                AvailableActionsforCurrentDevice.Add(new ActionType {
-                    Name = adrilight_shared.Properties.Resources.ActionType_TurnOn_name,
-                    Description = "Bật một tính năng",
-                    Geometry = "apply",
-                    Type = "On",
-                    LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
-                    IsValueDisplayed = false,
-                    IsTargetDeviceDisplayed = true
-                });
-                AvailableActionsforCurrentDevice.Add(new ActionType {
-                    Name = adrilight_shared.Properties.Resources.ActionType_TurnOff_name,
-                    Description = "Tắt một tính năng",
-                    Geometry = "apply",
-                    Type = "Off",
-                    LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
-                    IsValueDisplayed = false,
-                    IsTargetDeviceDisplayed = true
-                });
-                AvailableActionsforCurrentDevice.Add(new ActionType {
-                    Name = adrilight_shared.Properties.Resources.ActionType_Turnonthenoff_name,
-                    Description = "Chuyển đổi trạng thái Bật Tắt",
-                    Geometry = "apply",
-                    Type = "On/Off",
-                    LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
-                    IsValueDisplayed = false,
-                    IsTargetDeviceDisplayed = true
-                });
-                AvailableActionsforCurrentDevice.Add(new ActionType {
-                    Name = adrilight_shared.Properties.Resources.ActionType_Switchto_name,
-                    Description = "Chuyển đổi đồng thời kích hoạt một tính năng",
-                    Geometry = "apply",
-                    Type = "Change",
-                    LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
-                    ToResultText = "thành",
-                    IsValueDisplayed = true,
-                    IsTargetDeviceDisplayed = true
-                });
-                //init trigger condition
-                AvailableExecuteCondition = new ObservableCollection<ITriggerCondition>();
-                var hotkeyCondition = new HotkeyTriggerCondition(adrilight_shared.Properties.Resources.TriggerCondition_Hotkey_name,
-                    adrilight_shared.Properties.Resources.TriggerCondition_Hotkey_info,
-                    null,
-                    null);
-                var systemShutdownCondition = new SystemEventTriggerCondition(adrilight_shared.Properties.Resources.TriggerCondition_TurnOff_name,
-                    adrilight_shared.Properties.Resources.TriggerCondition_TurnOff_info,
-                    SystemEventEnum.Shutdown);
-                var systemMonitorSleepCondition = new SystemEventTriggerCondition(adrilight_shared.Properties.Resources.TriggerCondition_ScreenOff_name,
-                    adrilight_shared.Properties.Resources.TriggerCondition_ScreenOff_info,
-                    SystemEventEnum.MonitorSleep);
-                var systemMonitorWakeupCondition = new SystemEventTriggerCondition(adrilight_shared.Properties.Resources.TriggerCondition_ScreenOn_name,
-                    adrilight_shared.Properties.Resources.TriggerCondition_ScreenOn_info,
-                    SystemEventEnum.MonitorWakeup);
-                //var systemSleepCondition = new SystemEventTriggerCondition("Khi sleep", "Kích hoạt chuỗi hành động khi máy tính Sleep", SystemEventEnum.Sleep);
-                //var appExitCondition = new SystemEventTriggerCondition("Khi thoát App", "Kích hoạt chuỗi hành động khi thoát App", SystemEventEnum.AppExit);
-                //var timeStampCondition = new SystemEventTriggerCondition("Mốc thời gian", "Thực hiện chuỗi hành động khi đồng hồ điểm giờ nhất định", SystemEventEnum.TimeStamp);
-                AvailableExecuteCondition.Add(hotkeyCondition);
-                AvailableExecuteCondition.Add(systemShutdownCondition);
-                AvailableExecuteCondition.Add(systemMonitorSleepCondition);
-                AvailableExecuteCondition.Add(systemMonitorWakeupCondition);
-                actionManagerWindow = new ActionManagerWindow();
-                actionManagerWindow.Owner = automationManagerWindow;
-                actionManagerWindow.ShowDialog();
-
-
-            });
-
-        }
-
-        private void OpenHotKeySelectionWindow()
-        {
-            if (AssemblyHelper.CreateInternalInstance($"View.{"HotKeySelectionWindow"}") is System.Windows.Window window)
-            {
-                CurrentSelectedShortKeys = new ObservableCollection<KeyModel>();
-                CurrentSelectedModifiers = new ObservableCollection<string>();
-                window.Owner = System.Windows.Application.Current.MainWindow;
-                window.ShowDialog();
-            }
-        }
-
-        private void OpenTargetDeviceSelectionWindow(ActionSettings selectedAction)
-        {
-            CurrentSelectedAction = selectedAction;
-            RaisePropertyChanged(nameof(CurrentSelectedAction));
-            ParamType = "device";
-            AutomationParamList = new ObservableCollection<object>();
-            foreach (var device in AvailableDevices)
-            {
-                if (CurrentSelectedAction.ActionParameter.Type == "speed") // only filter hubfan
-                {
-                    if (device.DeviceType.Type == DeviceTypeEnum.AmbinoFanHub)
-                        AutomationParamList.Add(device);
-                }
-                else
-                {
-                    AutomationParamList.Add(device);
-                }
-            }
-
-            if (AssemblyHelper.CreateInternalInstance($"View.{"TargetDeviceSelectionWindow"}") is System.Windows.Window window)
-            {
-                window.Owner = System.Windows.Application.Current.MainWindow;
-                window.ShowDialog();
-            }
-        }
-
-        private void OpenTargetActionSelectionWindow(ActionSettings selectedAction)
-        {
-            CurrentSelectedAction = selectedAction;
-            RaisePropertyChanged(nameof(CurrentSelectedAction));
-            ParamType = "action";
-            AutomationParamList = new ObservableCollection<object>();
-            foreach (var actionType in AvailableActionsforCurrentDevice)
-            {
-                AutomationParamList.Add(actionType);
-            }
-
-            if (AssemblyHelper.CreateInternalInstance($"View.{"TargetDeviceSelectionWindow"}") is System.Windows.Window window)
-            {
-                window.Owner = System.Windows.Application.Current.MainWindow;
-                window.ShowDialog();
-            }
-        }
-
-        private ObservableCollection<object> _automationValuePickerList;
-
-        public ObservableCollection<object> AutomationValuePickerList {
-            get { return _automationValuePickerList; }
-
-            set
-            {
-                _automationValuePickerList = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        private void OpenAutomationValuePickerWindow(ActionSettings selectedAction)
-        {
-            if (AssemblyHelper.CreateInternalInstance($"View.{"AutomationValuePickerWindow"}") is System.Windows.Window window)
-            {
-                CurrentSelectedAction = selectedAction;
-                var targetDevice = AvailableDevices.Where(x => x.DeviceUID == CurrentSelectedAction.TargetDeviceUID).FirstOrDefault();
-                if (targetDevice == null)
-                    return;
-                CurrentSelectedAction = selectedAction;
-                RaisePropertyChanged(nameof(CurrentSelectedAction));
-                AutomationValuePickerList = new ObservableCollection<object>();
-                switch (selectedAction.ActionParameter.Type)
-                {
-                    case "color":
-                        (targetDevice.AvailableLightingDevices[0].ControlableZones[0] as LEDSetup).GetStaticColorDataSource().ForEach(c => AutomationValuePickerList.Add(c));
-                        break;
-
-                    case "mode":
-                        targetDevice.AvailableLightingDevices[0].ControlableZones[0].AvailableControlMode.ForEach(m => AutomationValuePickerList.Add((m as LightingMode).BasedOn));
-                        break;
-                }
-                window.Owner = System.Windows.Application.Current.MainWindow;
-                window.ShowDialog();
-            }
-        }
-
-        private ActionParameter GetAutoMationParam(string paramType, string value)
-        {
-            var returnParam = new ActionParameter();
-            switch (paramType)
-            {
-                case "brightness":
-                    returnParam.Name = adrilight_shared.Properties.Resources.GetAutoMationParam_Brightness;
-                    returnParam.Geometry = "brightness";
-                    returnParam.Type = "brightness";
-                    returnParam.Value = value;
-                    break;
-
-                case "state":
-                    returnParam.Name = adrilight_shared.Properties.Resources.GetAutoMationParam_AllLEDs;
-                    returnParam.Geometry = "brightness";
-                    returnParam.Type = "state";
-                    returnParam.Value = value;
-                    break;
-
-                case "color":
-                    returnParam.Name = adrilight_shared.Properties.Resources.GetAutoMationParam_Color;
-                    returnParam.Geometry = "brightness";
-                    returnParam.Type = "color";
-                    returnParam.Value = Color.FromRgb(255, 255, 0);
-                    break;
-
-                case "mode":
-                    returnParam.Name = adrilight_shared.Properties.Resources.GetAutoMationParam_Mode;
-                    returnParam.Geometry = "brightness";
-                    returnParam.Type = "mode";
-                    returnParam.Value = value;
-                    break;
-
-                case "speed":
-                    returnParam.Name = adrilight_shared.Properties.Resources.GetAutoMationParam_FanSpeed;
-                    returnParam.Geometry = "brightness";
-                    returnParam.Type = "speed";
-                    returnParam.Value = value;
-                    break;
-            }
-            return returnParam;
-        }
-
-        private void OpenTargetParamSelectionWindow(ActionSettings selectedAction)
-        {
-            CurrentSelectedAction = selectedAction;
-            RaisePropertyChanged(nameof(CurrentSelectedAction));
-            ParamType = "param";
-            var targetDevice = AvailableDevices.Where(x => x.DeviceUID == CurrentSelectedAction.TargetDeviceUID).FirstOrDefault();
-
-            switch (CurrentSelectedAction.ActionType.Type)
-            {
-                case "Activate":
-                    AutomationParamList = new ObservableCollection<object>();
-                    foreach (var profile in LightingProfileManagerViewModel.AvailableLightingProfiles.Items)
-                    {
-                        if (profile != null)
-                            AutomationParamList.Add(new ActionParameter { Geometry = "brightness", Name = profile.Name, Type = "profile", Value = (profile as LightingProfile).ProfileUID });
-                    }
-                    break;
-
-                case "Increase":
-                    if (targetDevice == null)
-                        return;
-                    AutomationParamList = new ObservableCollection<object>();
-                    AutomationParamList.Add(GetAutoMationParam("brightness", "up"));
-                    AutomationParamList.Add(GetAutoMationParam("speed", "up"));
-                    break;
-
-                case "Decrease":
-                    if (targetDevice == null)
-                        return;
-                    AutomationParamList = new ObservableCollection<object>();
-                    AutomationParamList.Add(GetAutoMationParam("brightness", "down"));
-                    AutomationParamList.Add(GetAutoMationParam("speed", "down"));
-                    break;
-
-                case "Off":
-                    if (targetDevice == null)
-                        return;
-                    AutomationParamList = new ObservableCollection<object>();
-                    AutomationParamList.Add(GetAutoMationParam("state", "off"));
-                    break;
-
-                case "On":
-                    if (targetDevice == null)
-                        return;
-                    AutomationParamList = new ObservableCollection<object>();
-                    AutomationParamList.Add(GetAutoMationParam("state", "on"));
-                    break;
-                case "On/Off":
-                    if (targetDevice == null)
-                        return;
-                    AutomationParamList = new ObservableCollection<object>();
-                    AutomationParamList.Add(GetAutoMationParam("state", "on"));
-                    break;
-                case "Change":
-                    if (targetDevice == null)
-                        return;
-                    AutomationParamList = new ObservableCollection<object>();
-                    AutomationParamList.Add(GetAutoMationParam("color", "#ffff53c9"));
-                    if (targetDevice != null)
-                        AutomationParamList.Add(GetAutoMationParam("mode", targetDevice.AvailableLightingDevices[0].ControlableZones[0].CurrentActiveControlMode.Name));
-                    break;
-            }
-
-            if (AssemblyHelper.CreateInternalInstance($"View.{"TargetDeviceSelectionWindow"}") is System.Windows.Window window)
-            {
-                window.Owner = System.Windows.Application.Current.MainWindow;
-                window.ShowDialog();
-            }
-        }
-
-        private void OpenSpotMapWindow()
-        {
-            if (AssemblyHelper.CreateInternalInstance($"View.{"SpotMapViewWindow"}") is System.Windows.Window window)
-            {
-                window.Owner = System.Windows.Application.Current.MainWindow;
-                window.Show();
-            }
-        }
-
-        private void SetCurrentActionTypeForSelectedAction(ActionType actionType)
-        {
-            CurrentSelectedAction.ActionType = actionType;
-            //reset the param too
-            CurrentSelectedAction.ActionParameter = new ActionParameter { Name = adrilight_shared.Properties.Resources.ActionParameter_Properties_name, Type = "unknown", Value = "none" };
-            RaisePropertyChanged(nameof(CurrentSelectedAction.ActionType));
-        }
-
-        private void getTextForActionType(string type, out string linkTxt, out string resultTxt)
-        {
-            linkTxt = string.Empty;
-            resultTxt = string.Empty;
-            switch (type)
-            {
-                case "Activate":
-                    linkTxt = adrilight_shared.Properties.Resources.ActionType_Activate_linktext;
-                    resultTxt = "";
-                    break;
-
-                case "Increase":
-                    linkTxt = adrilight_shared.Properties.Resources.ActionType_Increase_linktext;
-                    resultTxt = "";//could add more param
-                    break;
-
-                case "Decrease":
-                    linkTxt = adrilight_shared.Properties.Resources.ActionType_Increase_linktext;
-                    resultTxt = "";
-                    break;
-
-                case "On":
-                    linkTxt = adrilight_shared.Properties.Resources.ActionType_Increase_linktext;
-                    resultTxt = "";
-                    break;
-
-                case "Off":
-                    linkTxt = adrilight_shared.Properties.Resources.ActionType_Increase_linktext;
-                    resultTxt = "";
-                    break;
-                case "On/Off":
-                    linkTxt = adrilight_shared.Properties.Resources.ActionType_Increase_linktext;
-                    resultTxt = "";
-                    break;
-                case "Change":
-                    linkTxt = adrilight_shared.Properties.Resources.ActionType_Increase_linktext;
-                    resultTxt = adrilight_shared.Properties.Resources.ActionType_Change_resulttext;
-                    break;
-            }
-        }
-
-        private void AddSelectedActionTypeToList(ActionType actionType)
-        {
-            ActionSettings newBlankAction = new ActionSettings {
-                ActionType = actionType,
-                ActionParameter = new ActionParameter { Name = adrilight_shared.Properties.Resources.ActionParameter_Properties_name, Type = "unknown", Value = "none" },
-            };
-            string lnkText = string.Empty;
-            string resultText = string.Empty;
-            getTextForActionType(actionType.Type, out lnkText, out resultText);
-            newBlankAction.ActionType.LinkText = lnkText;
-            newBlankAction.ActionType.ToResultText = resultText;
-            if (CurrentSelectedAutomation.Actions == null)
-            {
-                CurrentSelectedAutomation.Actions = new ObservableCollection<ActionSettings>();
-            }
-            CurrentSelectedAutomation.Actions.Add(newBlankAction);
-            RaisePropertyChanged(nameof(CurrentSelectedAutomation.Actions));
-        }
-
-        private void DeleteSelectedActionFromList(ActionSettings action)
-        {
-            CurrentSelectedAutomation.Actions.Remove(action);
-            RaisePropertyChanged(nameof(CurrentSelectedAutomation.Actions));
-        }
-
-        private void SetCurrentActionTargetDeviceForSelectedAction(IDeviceSettings targetDevice)
-        {
-            CurrentSelectedAction.TargetDeviceUID = targetDevice.DeviceUID;
-            CurrentSelectedAction.TargetDeviceName = targetDevice.DeviceName;
-            //after this step, the parameter has to be reset because the profile UID will return invalid profile for new device
-            if (CurrentSelectedAction.ActionType.Type == "Activate")
-                CurrentSelectedAction.ActionParameter = new ActionParameter { Name = adrilight_shared.Properties.Resources.ActionParameter_Properties_name, Type = "unknown", Value = "none" };
-            RaisePropertyChanged(nameof(CurrentSelectedAction.ActionType));
-        }
-
-        private void SetCurrentActionParamForSelectedAction(ActionParameter param)
-        {
-            CurrentSelectedAction.ActionParameter = param;
-            RaisePropertyChanged(nameof(CurrentSelectedAction.ActionType));
-        }
-
-        private void SetCurrentSelectedActionTypeColorValue(Color color)
-        {
-            CurrentSelectedAction.ActionParameter.Value = color;
-            RaisePropertyChanged(nameof(CurrentSelectedAction.ActionParameter.Value));
-        }
+        
 
 
         #region Online Item Exporter
@@ -5358,44 +4866,9 @@ namespace adrilight.ViewModel
             }
         }
 
-        private NonInvasiveKeyboardHookLibrary.ModifierKeys ConvertStringtoModifier(string key)
-        {
-            NonInvasiveKeyboardHookLibrary.ModifierKeys returnKey = NonInvasiveKeyboardHookLibrary.ModifierKeys.WindowsKey;
-            switch (key)
-            {
-                case "Shift":
-                    returnKey = NonInvasiveKeyboardHookLibrary.ModifierKeys.Shift;
-                    break;
+       
 
-                case "Ctrl":
-                    returnKey = NonInvasiveKeyboardHookLibrary.ModifierKeys.Control;
-                    break;
-
-                case "Alt":
-                    returnKey = NonInvasiveKeyboardHookLibrary.ModifierKeys.Alt;
-                    break;
-            }
-            return returnKey;
-        }
-
-        private void SaveCurrentSelectedAutomationShortkey()
-        {
-            var modifiers = CurrentSelectedModifiers;
-            var key = CurrentSelectedShortKeys.ToArray();
-            var modifiersKey = new ObservableCollection<NonInvasiveKeyboardHookLibrary.ModifierKeys>();
-            foreach (var modifier in modifiers)
-            {
-                modifiersKey.Add(ConvertStringtoModifier(modifier));
-            }
-            var condition = new HotkeyTriggerCondition("HotKey", "Hotkey", modifiersKey, key[0]);
-            CurrentSelectedAutomation.Condition = condition;
-            WriteAutomationCollectionJson();
-            if (GeneralSettings.HotkeyEnable)
-            {
-                Unregister();
-                Register();
-            }
-        }
+        
 
         public ObservableCollection<IDeviceSettings> SelectedDevicesForCurrentProfile { get; set; }
 
@@ -8323,8 +7796,6 @@ namespace adrilight.ViewModel
             LoadAvailableBaudRate();
             LoadAvailableProfiles();
             LoadAvailableAppCulture();
-            //LoadAvailableLightingProfiles();
-            LoadAvailableAutomations();
         }
         private void LoadAvailableAppCulture()
         {
@@ -8375,24 +7846,7 @@ namespace adrilight.ViewModel
                  "Switch Off"
             };
         }
-        private void LoadAvailableAutomations()
-        {
-            AvailableAutomations = new ObservableCollection<AutomationSettings>();
-            ShutdownAutomations = new ObservableCollection<AutomationSettings>();
-            foreach (var automation in LoadAutomationIfExist())
-            {
-                AvailableAutomations.Add(automation);
-                if (automation.Condition != null && automation.Condition is SystemEventTriggerCondition)
-                {
-                    var condition = automation.Condition as SystemEventTriggerCondition;
-                    if (condition.Event == SystemEventEnum.Shutdown)
-                    {
-                        ShutdownAutomations.Add(automation);
-                    }
-                }
-            }
-            WriteAutomationCollectionJson();
-        }
+       
         private void CreateResourceCollectionFolder()
         {
             if (!Directory.Exists(ResourceFolderPath))
@@ -8512,26 +7966,7 @@ namespace adrilight.ViewModel
             return existedProfile;
         }
 
-        public List<AutomationSettings> LoadAutomationIfExist()
-        {
-            var loadedAutomations = new List<AutomationSettings>();
-            if (!File.Exists(JsonAutomationFileNameAndPath))
-            {
-                ResourceHlprs.CopyResource("adrilight_shared.Resources.Automations.DefaultAutomations.json", JsonAutomationFileNameAndPath);
-            }
-            if (File.Exists(JsonAutomationFileNameAndPath))
-            {
-                var json = File.ReadAllText(JsonAutomationFileNameAndPath);
-
-                var existedAutomation = JsonConvert.DeserializeObject<List<AutomationSettings>>(json);
-                foreach (var automation in existedAutomation)
-                {
-                    loadedAutomations.Add(automation);
-                }
-            }
-
-            return loadedAutomations;
-        }
+      
 
         private void DeleteSelectedDevice()
         {

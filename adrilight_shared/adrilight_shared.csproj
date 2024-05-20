@@ -151,6 +151,8 @@
     <Compile Include="Converter\ToUpperValueConverter.cs" />
     <Compile Include="Helpers\EventToCommand.cs" />
     <Compile Include="Helpers\perSizeBindingHelper.cs" />
+    <Compile Include="Models\Automation\AutomationManager.cs" />
+    <Compile Include="Models\Device\DeviceConstructor.cs" />
     <Compile Include="Models\Device\DeviceDBManager.cs" />
     <Compile Include="Models\ItemsCollection\ItemsCollection.cs" />
     <Compile Include="Models\Device\DeviceFirmwareUpdater.cs" />
@@ -161,6 +163,7 @@
     <Compile Include="Models\Drawable\ICanvasItem.cs" />
     <Compile Include="Models\ItemsCollection\CollectionItemTool.cs" />
     <Compile Include="Models\ItemsCollection\ItemsCollectionSource.cs" />
+    <Compile Include="Models\KeyboardHook\KeyboardHookManagerSingleton.cs" />
     <Compile Include="Models\Language\LangModel.cs" />
     <Compile Include="Models\Lighting\ProfilesManager.cs" />
     <Compile Include="Models\Stores\ISelectableViewParts.cs" />

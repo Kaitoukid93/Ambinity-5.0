@@ -8,9 +8,13 @@ using adrilight.Ticker;
 using adrilight.Util;
 using adrilight.View;
 using adrilight.ViewModel;
+using adrilight.ViewModel.Automation;
+using adrilight.ViewModel.Dashboard;
 using adrilight.ViewModel.DeviceManager;
-using adrilight.ViewModel.LightingProfile;
+using adrilight.ViewModel.Profile;
+using adrilight_shared.Models.Automation;
 using adrilight_shared.Models.Device;
+using adrilight_shared.Models.KeyboardHook;
 using adrilight_shared.Models.Stores;
 using adrilight_shared.Services;
 using adrilight_shared.Settings;
@@ -18,7 +22,6 @@ using adrilight_shared.ViewModel;
 using Microsoft.Win32;
 using Ninject.Modules;
 using Serilog;
-using System.Windows.Documents;
 using static adrilight.View.AllDeviceView;
 using static adrilight.View.DeviceControlView;
 using static adrilight.View.PlayListCollectionView;
@@ -57,14 +60,20 @@ namespace adrilight.Ninject
             Bind<LightingProfilePlayerViewModel>().ToSelf().InSingletonScope();
 
             Bind<MainView>().ToSelf().InSingletonScope();
-            Bind<IAmbinityClient>().To<AmbinityClient>().InSingletonScope();
+            Bind<AmbinityClient>().ToSelf().InSingletonScope();
             Bind<SerialDeviceDetection>().ToSelf().InSingletonScope();
             Bind<HWMonitor>().ToSelf().InSingletonScope();
             Bind<IContext>().To<WpfContext>().InSingletonScope();
             Bind<DeviceDiscovery>().ToSelf().InSingletonScope();
             Bind<DBmanager>().ToSelf().InSingletonScope();
+
+            Bind<AutomationManagerViewModel>().ToSelf().InSingletonScope();
+            Bind<AutomationDialogViewModel>().ToSelf().InSingletonScope();
+            Bind<AutomationEditorViewModel>().ToSelf().InSingletonScope();
+            Bind<AutomationCollectionView>().ToSelf().InSingletonScope();
+            Bind<AutomationManager>().ToSelf().InSingletonScope();
+
             Bind<IDialogService>().To<DialogService>().InSingletonScope();
-            Bind<CollectionItemStore>().ToSelf();
 
             //binding view
             Bind<ISelectableViewPart>().To<DeviceControlViewSelectableViewPart>();
@@ -76,6 +85,7 @@ namespace adrilight.Ninject
             Bind<ISelectablePage>().To<PlayListCollectionViewPage>().WhenInjectedInto(typeof(LightingProfileManagerViewModel));
             Bind<ISelectablePage>().To<ProfileCollectionViewPage>().WhenInjectedInto(typeof(LightingProfileManagerViewModel));
             Bind<ISelectablePage>().To<PlaylistEditorViewPage>().WhenInjectedInto(typeof(LightingProfileManagerViewModel));
+            Bind< KeyboardHookManagerSingleton>().ToSelf().InSingletonScope();
             if (generalSettings.ScreenCapturingMethod == 0)
             {
                 if (osBuild == "22000" || osBuild == "22621")

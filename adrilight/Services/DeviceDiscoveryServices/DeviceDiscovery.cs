@@ -1,62 +1,36 @@
-﻿using adrilight.Resources;
-using adrilight.Services.OpenRGBService;
-using adrilight.Util;
-using adrilight.ViewModel;
-using adrilight_shared.Enums;
-using adrilight_shared.Extensions;
-using adrilight_shared.Helpers;
-using adrilight_shared.Models.Device;
-using adrilight_shared.Models.Device.Zone;
+﻿using adrilight.Services.OpenRGBService;
 using adrilight_shared.Settings;
+using Microsoft.Win32;
+using OpenRGB.NET.Models;
 using Serilog;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.IO.Ports;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.UI.Xaml.Controls;
 
 namespace adrilight.Services.DeviceDiscoveryServices
 {
-    internal class DeviceDiscovery
+    public class DeviceDiscovery
     {
-
-        public DeviceDiscovery(IGeneralSettings settings, IContext context, IAmbinityClient ambinityClient, MainViewViewModel mainViewViewModel, DeviceManagerViewModel deviceManager)
+        public event Action<List<String>> SerialDevicesScanComplete;
+        public event Action<List<Device>> OpenRGBDevicesScanComplete;
+        public DeviceDiscovery(IGeneralSettings settings, AmbinityClient ambinityClient)
         {
-            Settings = settings ?? throw new ArgumentNullException(nameof(settings));
-            Context = context ?? throw new ArgumentNullException(nameof(context));
-            if (Settings.UsingOpenRGB)
+            _generaSettings = settings ?? throw new ArgumentNullException(nameof(settings));
+            _ambinityClient = ambinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
+            if (_generaSettings.UsingOpenRGB)
             {
-                AmbinityClient = ambinityClient as AmbinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
-                AmbinityClient.PropertyChanged += (_, __) =>
-                {
-                    if (__.PropertyName == nameof(AmbinityClient.IsInitialized))
-                    {
-                        AmbinityClientStateChanged();
-                    }
-                };
+
             }
-            DeviceManager = deviceManager ?? throw new ArgumentNullException(nameof(deviceManager));
-            MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
-            MainViewViewModel.AvailableDevices.CollectionChanged += (_, __) => DeviceCollectionChanged();
-            MainViewViewModel.RequestingDeviceRescanEvent += (_, __) => RescanOpenRGBDevices();
             Start();
 
         }
         private bool _openRGBIsInit = false;
-        private void AmbinityClientStateChanged()
-        {
-            _openRGBIsInit = false;
-        }
-        private void RescanOpenRGBDevices()
-        {
-            _openRGBIsInit = false;
-        }
-        private void DeviceCollectionChanged()
-        {
-            SerialDeviceDetector = new SerialDeviceDetection(DeviceManager);
-        }
+        private IGeneralSettings _generaSettings;
+        private AmbinityClient _ambinityClient;
         private Thread _workerThread;
         private CancellationTokenSource _cancellationTokenSource;
         public void Start()
@@ -72,16 +46,6 @@ namespace adrilight.Services.DeviceDiscoveryServices
             _workerThread.Start();
 
         }
-
-        public IGeneralSettings Settings { get; }
-        public IContext Context { get; }
-        private bool _isSerialScanCompelete;
-        public ObservableCollection<IDeviceSettings> AvailableOpenRGBDevices { get; set; }
-        public ObservableCollection<IDeviceSettings> AvailableWLEDDevices { get; set; }
-        public ObservableCollection<IDeviceSettings> AvailableSerialDevices { get; set; }
-        public MainViewViewModel MainViewViewModel { get; set; }
-        private AmbinityClient AmbinityClient { get; }
-        private DeviceManagerViewModel DeviceManager { get; }
         private async void StartDiscovery(CancellationToken token)
         {
 
@@ -89,39 +53,12 @@ namespace adrilight.Services.DeviceDiscoveryServices
             {
                 try
                 {
-                    //get the list of existed device
-                    // if device is existed and device is connected ( device.IstransferActive ) , remove from the list
-                    // if device is existed and device is connected, leave it available to reconnect
-                    var existedOpenRGBDevices = MainViewViewModel.AvailableDevices.Where(d => d.DeviceType.ConnectionTypeEnum == DeviceConnectionTypeEnum.OpenRGB).ToList();
-                    SerialDeviceDetector = new SerialDeviceDetection(DeviceManager);
-                    var shouldBeRunning = !MainViewViewModel.DeviceManagerIsOpen;
-                    if (Settings.DeviceDiscoveryMode == 0 && shouldBeRunning)
-                    {
-                        // openRGB device scan keep running until all existed device get connected
-                        // if openrgb devices is not transfer active, check if this device is in the list of openRGB software and reconnect
-                        var openRGBDevices = (new List<IDeviceSettings>(), new List<IDeviceSettings>());
-                        if (Settings.IsOpenRGBEnabled && !_openRGBIsInit && Settings.UsingOpenRGB)
-                        {
-                            MainViewViewModel.IsRescanningDevices = true;
-                            openRGBDevices = await ScanOpenRGBDevices(existedOpenRGBDevices);
-                            MainViewViewModel.IsRescanningDevices = false;
-                        }
-                        var serialDevices = await ScanSerialDevice();
-                        var newDevices = new List<IDeviceSettings>();
-                        var oldDevicesReconnected = new List<IDeviceSettings>();
-                        openRGBDevices.Item1.ForEach(d => newDevices.Add(d));
-                        serialDevices.Item1.ForEach(d => newDevices.Add(d));
-                        openRGBDevices.Item2.ForEach(d => oldDevicesReconnected.Add(d));
-                        serialDevices.Item2.ForEach(d => oldDevicesReconnected.Add(d));
-                        if (newDevices.Count > 0)
-                        {
-                            MainViewViewModel.ShowSearchingScreen();
-                        }
-                        await Task.Run(() => MainViewViewModel.FoundNewDevice(newDevices));
-                        
-                        MainViewViewModel.OldDeviceReconnected(oldDevicesReconnected);
-                        
-                    }
+                    //get the list of new devices for every second
+                    // new device contains serial and openrgb devices ( Wled devices in the future)
+                    GetValidDevice();
+                    if(!_openRGBIsInit)
+                    await ScanOpenRGBDevices();
+
 
                 }
                 catch (Exception ex)
@@ -134,73 +71,15 @@ namespace adrilight.Services.DeviceDiscoveryServices
             }
         }
 
-        private async Task<(List<IDeviceSettings>, List<IDeviceSettings>)> ScanOpenRGBDevices(List<IDeviceSettings> existedDevice)
+        private async Task ScanOpenRGBDevices()
         {
-            //stop every existed device openrgb stream
-            existedDevice.ForEach(d => d.IsTransferActive = false);
-            //wait for all process to finish
-            Thread.Sleep(500);
-            var newDevicesDetected = new List<IDeviceSettings>();
-            var oldDeviceReconnected = new List<IDeviceSettings>();
-            if (!AmbinityClient.IsInitialized && !AmbinityClient.IsInitializing)
+            if (!_ambinityClient.IsInitialized && !_ambinityClient.IsInitializing)
             {
-                await AmbinityClient.RefreshTransferState();
-            }
-            var detectedDevices = AmbinityClient.ScanNewDevice();
-            if (detectedDevices != null)
-            {
-                foreach (var openRGBDevice in detectedDevices)
-                {
-                    try
-                    {
-                        var deviceName = openRGBDevice.Name.ToValidFileName();
-                        var deviceUID = Guid.NewGuid().ToString();
-                        var matchDev = existedDevice.Where(d => d.OutputPort == deviceName + openRGBDevice.Location && d.IsTransferActive == false).FirstOrDefault();
-                        if (matchDev != null)
-                        {
-                            oldDeviceReconnected.Add(matchDev);
-                            continue;
-                        }
-                        var convertedDevice = new SlaveDeviceHelpers().DefaultCreateOpenRGBDevice(openRGBDevice.Type, deviceName, openRGBDevice.Location, openRGBDevice.Serial, deviceUID);
-                        var zonesData = new ZoneData[openRGBDevice.Zones.Length];
-                        for (var i = 0; i < openRGBDevice.Zones.Length; i++)
-                        {
-                            var currentZone = openRGBDevice.Zones[i];
-                            ZoneData currentZoneData = null;
-                            switch (currentZone.Type)
-                            {
-                                case OpenRGB.NET.Enums.ZoneType.Single:
-                                    currentZoneData = new ZoneData(currentZone.Name, 1, 1, 50, 50);
-                                    break;
-
-                                case OpenRGB.NET.Enums.ZoneType.Linear:
-                                    currentZoneData = new ZoneData(currentZone.Name, (int)currentZone.LedCount, 1, (int)currentZone.LedCount * 50, 50);
-                                    break;
-
-                                case OpenRGB.NET.Enums.ZoneType.Matrix:
-                                    currentZoneData = new ZoneData(currentZone.Name, (int)currentZone.MatrixMap.Width, (int)currentZone.MatrixMap.Height, (int)currentZone.MatrixMap.Width * 50, (int)currentZone.MatrixMap.Height * 50);
-                                    break;
-                            }
-                            zonesData[i] = currentZoneData;
-                        }
-                        convertedDevice.DashboardWidth = 230;
-                        convertedDevice.DashboardHeight = 270;
-                        convertedDevice.AvailableControllers[0].Outputs[0].SlaveDevice = new SlaveDeviceHelpers().DefaultCreatedSlaveDevice("Generic LED Strip", SlaveDeviceTypeEnum.LEDStrip, zonesData);
-                        convertedDevice.UpdateChildSize();
-                        newDevicesDetected.Add(convertedDevice);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error(ex, "Parameter is Incorrect for OpenRGB Device");
-                        //something error with one or more parametters
-                        continue;
-                    }
-
-                }
-
+                await _ambinityClient.Init();
             }
             _openRGBIsInit = true;
-            return await Task.FromResult((newDevicesDetected, oldDeviceReconnected));
+            var detectedDevices = _ambinityClient.ScanNewDevice();
+            OpenRGBDevicesScanComplete?.Invoke(detectedDevices);
         }
         private static object _syncRoot = new object();
         public void Stop()
@@ -212,63 +91,68 @@ namespace adrilight.Services.DeviceDiscoveryServices
             _workerThread?.Join();
             _workerThread = null;
         }
-        SerialDeviceDetection SerialDeviceDetector { get; set; }
-
- 
-        private async Task<(List<IDeviceSettings>, List<IDeviceSettings>)> ScanSerialDevice()
+        static List<string> GetComPortByID(String VID, String PID)
         {
-            var newDevicesDetected = new List<IDeviceSettings>();
-            var oldDeviceReconnected = new List<IDeviceSettings>();
-            var tokenSource = new CancellationTokenSource();
-            var token = tokenSource.Token;
-            _isSerialScanCompelete = false;
-            var jobTask = Task.Run(() =>
+            String pattern = String.Format("^VID_{0}.PID_{1}", VID, PID);
+            Regex _rx = new Regex(pattern, RegexOptions.IgnoreCase);
+            List<string> comports = new List<string>();
+            RegistryKey rk1 = Registry.LocalMachine;
+            RegistryKey rk2 = rk1.OpenSubKey("SYSTEM\\CurrentControlSet\\Enum");
+            foreach (String s3 in rk2.GetSubKeyNames())
             {
-                // Organize critical sections around logical serial port operations somehow.
-                lock (_syncRoot)
+                RegistryKey rk3 = rk2.OpenSubKey(s3);
+                foreach (String s in rk3.GetSubKeyNames())
                 {
-                    var devices = SerialDeviceDetector.DetectedDevices();
-                    return Task.FromResult(devices);
+                    if (_rx.Match(s).Success)
+                    {
+                        RegistryKey rk4 = rk3.OpenSubKey(s);
+                        foreach (String s2 in rk4.GetSubKeyNames())
+                        {
+                            RegistryKey rk5 = rk4.OpenSubKey(s2);
+                            RegistryKey rk6 = rk5.OpenSubKey("Device Parameters");
+                            string portName = (string)rk6.GetValue("PortName");
+                            if (!String.IsNullOrEmpty(portName) && SerialPort.GetPortNames().Contains(portName))
+                            {
+                                comports.Add((string)rk6.GetValue("PortName"));
+                            }
+                        }
+                    }
                 }
-            });
-            if (jobTask != await Task.WhenAny(jobTask, Task.Delay(Timeout.Infinite, token)))
-            {
-                // Timeout;
-                _isSerialScanCompelete = true;
 
             }
-            var devices = await jobTask;
-            if (devices.Item1.Count == 0 && devices.Item2.Count == 0)
+            return comports;
+        }
+        /// <summary>
+        /// this return any availabe port that is not in use by the app
+        /// </summary>
+        /// <returns></returns>
+        public void GetValidDevice()
+        {
+            //these are valid PID VID used by Ambino devices
+            List<string> CH55X = GetComPortByID("1209", "c550");
+            List<string> CH340 = GetComPortByID("1A86", "7522");
+            List<string> ada = GetComPortByID("239A", "CAFE");
+            var devices = new List<string>();
+            if (CH55X.Count > 0 || CH340.Count > 0 || ada.Count > 0)
             {
-                // HandyControl.Controls.MessageBox.Show("Unable to detect any supported device, try adding manually", "No Compatible Device Found", MessageBoxButton.OK, MessageBoxImage.Warning);
-                _isSerialScanCompelete = true;
-
+                foreach (var port in CH55X)
+                {
+                    devices.Add(port);
+                }
+                foreach (var port in CH340)
+                {
+                    devices.Add(port);
+                }
+                foreach (var port in ada)
+                {
+                    devices.Add(port);
+                }
             }
             else
             {
-                foreach (var device in devices.Item1)
-                {
-                    Log.Information("SerialDeviceDetection Found New Device");
-                    Log.Information("Name: " + device.DeviceName);
-                    Log.Information("ID: " + device.DeviceSerial);
-                    Log.Information("Firmware Version: " + device.FirmwareVersion);
-                    Log.Information("---------------");
-                    // MainViewViewModel.SetSearchingScreenProgressText("Found new device: " + device.DeviceName + ". Address: " + device.OutputPort);
-                    Log.Information("Device: " + device.DeviceName + " is a new device at: " + device.OutputPort);
-                    newDevicesDetected.Add(device);
-                }
-                foreach (var device in devices.Item2)
-                {
-                    // MainViewViewModel.SetSearchingScreenProgressText("Device reconnected: " + device.DeviceName + ". Address: " + device.OutputPort);
-                    Log.Information(device.DeviceName + "-" + device.OutputPort + " is connected");
-                    oldDeviceReconnected.Add(device);
-                }
-
-                tokenSource.Cancel();
-                _isSerialScanCompelete = true;
-
+                Log.Warning("No Compatible Device Detected");
             }
-            return await Task.FromResult((newDevicesDetected, oldDeviceReconnected));
+            SerialDevicesScanComplete?.Invoke(devices);
         }
     }
 }
