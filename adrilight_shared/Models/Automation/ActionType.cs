@@ -18,7 +18,7 @@ namespace adrilight_shared.Models.Automation
 
             string lnkText = string.Empty;
             string resultText = string.Empty;
-            getTextForActionType(Type, out lnkText, out resultText);
+            getTextForActionType(out lnkText, out resultText);
             LinkText = lnkText;
             ToResultText = resultText;
         }
@@ -62,5 +62,6 @@ namespace adrilight_shared.Models.Automation
                     break;
             }
         }
+
     }
 }

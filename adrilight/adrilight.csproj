@@ -230,11 +230,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Manager\DBManager.cs" />
+    <Compile Include="Services\AdrilightStoreService\AdrilightSFTPClient.cs" />
     <Compile Include="Services\LightingEngine\RunStateEnum.cs" />
     <Compile Include="Services\SerialStream\SerialStreamRP2040.cs" />
     <Compile Include="Services\Ticker\PlaylistDecoder.cs" />
     <Compile Include="ViewModel\Automation\AutomationCollectionViewModel.cs" />
     <Compile Include="ViewModel\Automation\AutomationEditorViewModel.cs" />
+    <Compile Include="ViewModel\Automation\AutomationExecutor.cs" />
     <Compile Include="ViewModel\Automation\AutomationManagerViewModel.cs" />
     <Compile Include="ViewModel\Automation\AutomationDialogViewModel.cs" />
     <Compile Include="ViewModel\Automation\HotKeySelectionViewModel.cs" />

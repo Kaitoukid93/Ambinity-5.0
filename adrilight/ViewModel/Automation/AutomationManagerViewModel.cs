@@ -30,6 +30,7 @@ namespace adrilight.ViewModel.Dashboard
             AutomationCollectionViewModel collectionViewModel,
             GeneralSettings generalSettings,
             DeviceManagerViewModel deviceManagerViewModel,
+            AutomationExecutor executor,
             AutomationEditorViewModel automationEditingViewModel)
         {
             SelectablePages = availablePages;
@@ -38,9 +39,11 @@ namespace adrilight.ViewModel.Dashboard
             _automationManager = automationManager;
             _generalSettings = generalSettings;
             _deviceManager = deviceManagerViewModel;
+            _automationExecutor = executor;
             _deviceManager.NewDeviceAdded += OnNewDeviceAdded;
-            _automationEditorViewModel.AutomationHotKeyChanged += _automationEditorViewModel_AutomationHotKeyChanged;
+            _automationEditorViewModel.AutomationHotKeyChanged += OnAutomationHotKeyChanged;
             _automationCollectionViewModel.AutomationCardClicked += OnAutomationSelected;
+            _automationManager.HotKeyPressed += OnHotKeyDetected;
 
             LoadNonClientAreaData("Adrilight  |  Automation Manager", "automationManager", false, null);
             LoadData();
@@ -52,21 +55,35 @@ namespace adrilight.ViewModel.Dashboard
         #endregion
 
         #region Events
+        private async void OnHotKeyDetected(AutomationSettings automation)
+        {
+            await _automationExecutor.Execute(automation);
+        }
         private void OnNewDeviceAdded(IDeviceSettings newDevice)
         {
             if (newDevice == null)
             {
                 return;
             }
-            _automationManager.CreateDeviceShutdownAction(device);
-            _automationManager.CreateDeviceMonitorSleepAction(device);
-            _automationManager.CreateDeviceMonitorWakeupAction(device);
+
+            var shutdownAutomation = _automationCollectionViewModel.GetShutdownAutomation();
+            if (shutdownAutomation!=null)
+            {
+                shutdownAutomation.Actions.Add(_automationManager.CreateDeviceShutdownAction(newDevice));
+            }
+            var monitorSleepAutomation = _automationCollectionViewModel.GetMonitorSleepAutomation();
+            if (monitorSleepAutomation != null)
+            {
+                monitorSleepAutomation.Actions.Add(_automationManager.CreateDeviceMonitorSleepAction(newDevice));
+            }
+            var monitorWakeupAutomation = _automationCollectionViewModel.GetMonitorWakeUpAutomation();
+            if (monitorWakeupAutomation != null)
+            {
+                monitorWakeupAutomation.Actions.Add(_automationManager.CreateDeviceMonitorWakeupAction(newDevice));
+            }
         }
-        private void OnAutomationSelected(IGenericCollectionItem item)
-        {
-            GotoAutomationEditor(item as AutomationSettings);
-        }
-        private void _automationEditorViewModel_AutomationHotKeyChanged(IGenericCollectionItem automation)
+        private void OnAutomationSelected(IGenericCollectionItem item) => GotoAutomationEditor(item as AutomationSettings);
+        private void OnAutomationHotKeyChanged(IGenericCollectionItem automation)
         {
             _automationManager.Unregister();
             RegisterAllAutomation();
@@ -85,6 +102,7 @@ namespace adrilight.ViewModel.Dashboard
         private bool _isManagerWindowOpen;
         private GeneralSettings _generalSettings;
         private DeviceManagerViewModel _deviceManager;
+        private AutomationExecutor _automationExecutor;
         //public
         public NonClientArea NonClientAreaContent { get; set; }
         public IList<ISelectablePage> SelectablePages { get; set; }

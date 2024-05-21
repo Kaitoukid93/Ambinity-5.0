@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Input;
 using Task = System.Threading.Tasks.Task;
 
@@ -70,12 +71,28 @@ namespace adrilight.ViewModel
         private async void OnSerialDevicesScanComplete(List<string> availableDevices)
         {
             //check if theres any old device existed
-            //if true, turn on serial stream for each device
-            //check if any new device
-            //if true, show searching screen
-            //run device construct and device downloader as part of the process, loading bar always exist
-            //add new device to collection by calling add items method on devicecollectionviewmodel
-            //foreach new devices, invoke new device found action
+            var vm = new ProgressDialogViewModel("New Device", null, null);
+            foreach (var device in availableDevices)
+            {
+                var matchDev = _deviceCollectionViewModel.CheckDeviceForExistence(device);
+                //there is an device existed with the exact comport
+                if (matchDev != null)
+                {
+                    //do nothing for an activated device
+                    //possible showing a connecting screen???...
+                    if (!matchDev.IsTransferActive)
+                        matchDev.IsTransferActive = true;
+                    continue;
+                }
+                //if there is no device match. this is a new device
+                // call device discovery to get infomation about this new device
+                var dev = _deviceDiscovery.GetSerialDeviceInformation(device, vm);
+                //show searching screen
+                //run device construct and device downloader as part of the process, loading bar always exist
+                //add new device to collection by calling add items method on devicecollectionviewmodel
+                //foreach new devices, invoke new device found action
+
+            }
 
 
 

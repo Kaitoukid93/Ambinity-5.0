@@ -19,6 +19,7 @@ using LEDSetupHelpers = adrilight_shared.Helpers.LEDSetupHelpers;
 
 namespace adrilight_shared.Models.Device
 {
+    //this construct new device out of thin air or download existed from server
     public class DeviceConstructor
     {
         public DeviceConstructor()
@@ -29,6 +30,8 @@ namespace adrilight_shared.Models.Device
         //construct new device from infomation 
         private LEDSetupHelpers _ledSetupHlprs;
         private ControlModeHelpers _controlModeHlprs;
+
+       
         public DeviceSettings ConstructNewDevice(string name, string deviceSerial, string fwVersion, string hwVersion, int hwLightingVersion, string outputPort)
         {
             var newDevice = new DeviceSettings();

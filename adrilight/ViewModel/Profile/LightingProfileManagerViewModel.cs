@@ -1,6 +1,8 @@
 ﻿using adrilight.Ticker;
 using adrilight.View;
 using adrilight.ViewModel.DeviceManager;
+using adrilight_shared.Helpers;
+using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.Device;
 using adrilight_shared.Models.ItemsCollection;
 using adrilight_shared.Models.Lighting;
@@ -13,6 +15,7 @@ using GalaSoft.MvvmLight;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -199,6 +202,24 @@ namespace adrilight.ViewModel.Profile
             var collectionView = SelectablePages.Where(p => p.PageName == "Profiles Collection View").First();
             (collectionView as ProfileCollectionView).DataContext = _profileCollectionViewModel;
             SelectedPage = collectionView;
+
+        }
+        //play profile by UID for specific device, called by automation executor
+        public async Task ActivateProfile(string profileUID,IDeviceSettings targetDevice)
+        {
+            var profile = _profileCollectionViewModel.AvailableLightingProfiles.Items.Where(p=>(p as LightingProfile).ProfileUID == profileUID).FirstOrDefault() as LightingProfile;   
+            if(profile!=null)
+            {
+              await _decoder.Play(profile, targetDevice);
+            }
+        }
+        //play profile for all device
+        public void ActivateProfile(LightingProfile profile)
+        {
+
+        }
+        public void ActivateProfile(LightingProfile profile,IDeviceSettings targetDevice)
+        {
 
         }
         #endregion

@@ -78,6 +78,10 @@ namespace adrilight.ViewModel.DeviceManager
                 DeviceCardClicked?.Invoke(p);
             });
         }
+        public IDeviceSettings CheckDeviceForExistence(string comport)
+        {
+            return AvailableDevices.Items.Where(d => (d as DeviceSettings).OutputPort == comport).FirstOrDefault() as DeviceSettings;
+        }
         private void UpdateTools()
         {
             //clear Tool

@@ -66,12 +66,14 @@ namespace adrilight.Ninject
             Bind<IContext>().To<WpfContext>().InSingletonScope();
             Bind<DeviceDiscovery>().ToSelf().InSingletonScope();
             Bind<DBmanager>().ToSelf().InSingletonScope();
+            Bind<DeviceConstructor>().ToSelf().InSingletonScope();  
 
             Bind<AutomationManagerViewModel>().ToSelf().InSingletonScope();
             Bind<AutomationDialogViewModel>().ToSelf().InSingletonScope();
             Bind<AutomationEditorViewModel>().ToSelf().InSingletonScope();
             Bind<AutomationCollectionView>().ToSelf().InSingletonScope();
             Bind<AutomationManager>().ToSelf().InSingletonScope();
+            Bind<AutomationExecutor>().ToSelf().InSingletonScope();
 
             Bind<IDialogService>().To<DialogService>().InSingletonScope();
 

@@ -73,7 +73,6 @@ namespace adrilight_shared.Models.Automation
                             HotKeyPressed?.Invoke(automation);
                             Log.Information(automation.Name + " excuted");
                         });
-                        //_identifiers.Add(_identifier);
                         break;
 
                     case 1:
@@ -82,16 +81,14 @@ namespace adrilight_shared.Models.Automation
                             HotKeyPressed?.Invoke(automation);
                             Log.Information(automation.Name + " excuted");
                         });
-                        //_identifiers.Add(_identifier);
                         break;
 
                     default:
-                        _keyboardHookManager.Instance.RegisterHotkey(modifierkeys.ToArray(), condition.StandardKey.KeyCode, () =>
+                        _keyboardHookManager.Instance.RegisterHotkey([.. modifierkeys], condition.StandardKey.KeyCode, () =>
                         {
                             HotKeyPressed?.Invoke(automation);
                             Log.Information(automation.Name + " excuted");
                         });
-                        //_identifiers.Add(_identifier);
                         break;
                 }
             }
@@ -109,113 +106,6 @@ namespace adrilight_shared.Models.Automation
         public void Unregister()
         {
             _keyboardHookManager.Instance.UnregisterAll();
-        }
-        public void ExecuteAutomationActions(ObservableCollection<ActionSettings> actions, IDeviceSettings targetDevice)
-        {
-            if (actions == null)
-                return;
-            foreach (var action in actions)
-            {
-
-                targetDevice = AvailableDevices.Where(x => x.DeviceUID == action.TargetDeviceUID).FirstOrDefault();
-                if (targetDevice == null)
-                {
-                    WriteAutomationCollectionJson();
-                    continue;
-                }
-                if (action.ActionType.Type == "Activate") // this type of action require no target 
-                    goto execute;
-
-                if (!targetDevice.IsEnabled)
-                    return;
-                execute:
-                switch (action.ActionType.Type)
-                {
-
-                    case "Activate":
-                        var destinationProfile = LightingProfileManagerViewModel.AvailableLightingProfiles.Items.Where(x => (x as LightingProfile).ProfileUID == (string)action.ActionParameter.Value).FirstOrDefault() as LightingProfile;
-                        if (destinationProfile != null)
-                        {
-                            targetDevice.TurnOnLED();
-                            // LightingPlayer.Play(destinationProfile, targetDevice);
-                            // ActivateCurrentLightingProfileForSpecificDevice(destinationProfile, targetDevice);
-                        }
-
-                        break;
-
-                    case "Increase":
-                        switch (action.ActionParameter.Type)
-                        {
-                            case "brightness":
-                                targetDevice.BrightnessUp(10);
-                                break;
-
-                            case "speed":
-                                targetDevice.SpeedUp(10);
-                                break;
-                        }
-                        break;
-
-                    case "Decrease":
-                        switch (action.ActionParameter.Type)
-                        {
-                            case "brightness":
-                                targetDevice.BrightnessDown(10);
-                                break;
-
-                            case "speed":
-                                targetDevice.SpeedDown(10);
-                                break;
-                        }
-                        break;
-
-                    case "Off":
-                        // just turn off all leds for now
-                        targetDevice.TurnOffLED();
-                        break;
-
-                    case "On":
-                        //targetDevice.IsEnabled = true;
-                        targetDevice.TurnOnLED();
-                        break;
-                    case "On/Off":
-                        targetDevice.ToggleOnOffLED();
-                        break;
-                    case "Change":
-                        //just change solid color and activate static mode
-                        targetDevice.TurnOnLED();
-                        switch (action.ActionParameter.Type)
-                        {
-                            case "color":
-                                targetDevice.SetStaticColor(action.ActionParameter.Value as ColorCard);
-                                break;
-                            case "mode":
-                                LightingModeEnum value = (LightingModeEnum)Enum.Parse(typeof(LightingModeEnum), action.ActionParameter.Value.ToString());
-                                targetDevice.SetModeByEnumValue(value);
-                                break;
-                        }
-
-                        break;
-                }
-            }
-        }
-        private void LoadAvailableAutomations()
-        {
-            AvailableAutomations = new ObservableCollection<AutomationSettings>();
-            ShutdownAutomations = new ObservableCollection<AutomationSettings>();
-            foreach (var automation in LoadAutomationIfExist())
-            {
-                AvailableAutomations.Add(automation);
-                if (automation.Condition != null && automation.Condition is SystemEventTriggerCondition)
-                {
-                    var condition = automation.Condition as SystemEventTriggerCondition;
-                    if (condition.Event == SystemEventEnum.Shutdown)
-                    {
-                        ShutdownAutomations.Add(automation);
-                    }
-                }
-            }
-            WriteAutomationCollectionJson();
         }
         public List<AutomationSettings> LoadAutomationIfExist()
         {
@@ -237,56 +127,29 @@ namespace adrilight_shared.Models.Automation
 
             return loadedAutomations;
         }
-        public void CreateDeviceShutdownAction(IDeviceSettings device)
+        public ActionSettings CreateDeviceShutdownAction(IDeviceSettings device)
         {
-            var shutdownAutomation = AvailableAutomations.Where(a => (a.Condition is SystemEventTriggerCondition) && (a.Condition as SystemEventTriggerCondition).Event == SystemEventEnum.Shutdown).FirstOrDefault();
-            if (shutdownAutomation == null)
-                return;
-            if (shutdownAutomation.Actions.Count == 0)
-                return;
-            if (shutdownAutomation.Actions.Any(a => a.TargetDeviceUID == device.DeviceUID))
-                return;
-            var newDeviceShutdownAction = ObjectHelpers.Clone<ActionSettings>(shutdownAutomation.Actions[0]);
-            shutdownAutomation.UpdateActions(AvailableDevices.ToList());
-            newDeviceShutdownAction.TargetDeviceName = device.DeviceName;
-            newDeviceShutdownAction.TargetDeviceUID = device.DeviceUID;
-            shutdownAutomation.Actions.Add(newDeviceShutdownAction);
-            //lock the automation
-            shutdownAutomation.IsLocked = true;
+            var newShutdownAction = new ActionSettings();
+            newShutdownAction.ActionType = TurnOffActionType();
+            newShutdownAction.TargetDeviceName = device.DeviceName;
+            newShutdownAction.TargetDeviceUID = device.DeviceUID;
+            return newShutdownAction;
         }
-        public void CreateDeviceMonitorSleepAction(IDeviceSettings device)
+        public ActionSettings CreateDeviceMonitorSleepAction(IDeviceSettings device)
         {
-            var monitorSleepAutomation = AvailableAutomations.Where(a => (a.Condition is SystemEventTriggerCondition) && (a.Condition as SystemEventTriggerCondition).Event == SystemEventEnum.MonitorSleep).FirstOrDefault();
-            if (monitorSleepAutomation == null)
-                return;
-            if (monitorSleepAutomation.Actions.Count == 0)
-                return;
-            if (monitorSleepAutomation.Actions.Any(a => a.TargetDeviceUID == device.DeviceUID))
-                return;
-            var newDeviceMonitorSleepAction = ObjectHelpers.Clone<ActionSettings>(monitorSleepAutomation.Actions[0]);
-            monitorSleepAutomation.UpdateActions(AvailableDevices.ToList());
-            newDeviceMonitorSleepAction.TargetDeviceName = device.DeviceName;
-            newDeviceMonitorSleepAction.TargetDeviceUID = device.DeviceUID;
-            monitorSleepAutomation.Actions.Add(newDeviceMonitorSleepAction);
-            //lock the automation
-            monitorSleepAutomation.IsLocked = true;
+            var newMonitorSleepAction = new ActionSettings();
+            newMonitorSleepAction.ActionType = TurnOffActionType();
+            newMonitorSleepAction.TargetDeviceName = device.DeviceName;
+            newMonitorSleepAction.TargetDeviceUID = device.DeviceUID;
+            return newMonitorSleepAction;
         }
-        public void CreateDeviceMonitorWakeupAction(IDeviceSettings device)
+        public ActionSettings CreateDeviceMonitorWakeupAction(IDeviceSettings device)
         {
-            var monitorWakeupAutomation = AvailableAutomations.Where(a => (a.Condition is SystemEventTriggerCondition) && (a.Condition as SystemEventTriggerCondition).Event == SystemEventEnum.MonitorWakeup).FirstOrDefault();
-            if (monitorWakeupAutomation == null)
-                return;
-            if (monitorWakeupAutomation.Actions.Count == 0)
-                return;
-            if (monitorWakeupAutomation.Actions.Any(a => a.TargetDeviceUID == device.DeviceUID))
-                return;
-            var newDeviceMonitorWakeupAction = ObjectHelpers.Clone<ActionSettings>(monitorWakeupAutomation.Actions[0]);
-            monitorWakeupAutomation.UpdateActions(AvailableDevices.ToList());
-            newDeviceMonitorWakeupAction.TargetDeviceName = device.DeviceName;
-            newDeviceMonitorWakeupAction.TargetDeviceUID = device.DeviceUID;
-            monitorWakeupAutomation.Actions.Add(newDeviceMonitorWakeupAction);
-            //lock the automation
-            monitorWakeupAutomation.IsLocked = true;
+            var newMonitorWakeupAction = new ActionSettings();
+            newMonitorWakeupAction.ActionType = TurnOnActionType();
+            newMonitorWakeupAction.TargetDeviceName = device.DeviceName;
+            newMonitorWakeupAction.TargetDeviceUID = device.DeviceUID;
+            return newMonitorWakeupAction;
         }
         public List<ITriggerCondition> GetAvailableCondition()
         {
@@ -310,10 +173,9 @@ namespace adrilight_shared.Models.Automation
             conditions.Add(systemMonitorWakeupCondition);
             return conditions;
         }
-        public List<ActionType> GetAvailableActions()
+        private ActionType ActivateActionType()
         {
-            var actions = new List<ActionType>();
-            actions.Add(new ActionType
+            return new ActionType
             {
                 Name = adrilight_shared.Properties.Resources.ActionType_Activate_name,
                 Description = "Kích hoạt một Profile có sẵn",
@@ -322,8 +184,11 @@ namespace adrilight_shared.Models.Automation
                 LinkText = adrilight_shared.Properties.Resources.ActionType_Activate_linktext,
                 IsValueDisplayed = false,
                 IsTargetDeviceDisplayed = true
-            });
-            actions.Add(new ActionType
+            };
+        }
+        private ActionType IncreaseActionType()
+        {
+            return new ActionType
             {
                 Name = adrilight_shared.Properties.Resources.ActionType_Increase_name,
                 Description = "Tăng giá trị của một thuộc tính",
@@ -332,8 +197,11 @@ namespace adrilight_shared.Models.Automation
                 LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
                 IsValueDisplayed = false,
                 IsTargetDeviceDisplayed = true
-            });
-            actions.Add(new ActionType
+            };
+        }
+        private ActionType DecreaseActionType()
+        {
+            return new ActionType
             {
                 Name = adrilight_shared.Properties.Resources.ActionType_Decrease_name,
                 Description = "Giảm giá trị của một thuộc tính",
@@ -342,18 +210,11 @@ namespace adrilight_shared.Models.Automation
                 LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
                 IsValueDisplayed = false,
                 IsTargetDeviceDisplayed = true
-            });
-            actions.Add(new ActionType
-            {
-                Name = adrilight_shared.Properties.Resources.ActionType_TurnOn_name,
-                Description = "Bật một tính năng",
-                Geometry = "apply",
-                Type = "On",
-                LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
-                IsValueDisplayed = false,
-                IsTargetDeviceDisplayed = true
-            });
-            actions.Add(new ActionType
+            };
+        }
+        private ActionType TurnOffActionType()
+        {
+            return new ActionType
             {
                 Name = adrilight_shared.Properties.Resources.ActionType_TurnOff_name,
                 Description = "Tắt một tính năng",
@@ -362,8 +223,24 @@ namespace adrilight_shared.Models.Automation
                 LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
                 IsValueDisplayed = false,
                 IsTargetDeviceDisplayed = true
-            });
-            actions.Add(new ActionType
+            };
+        }
+        private ActionType TurnOnActionType()
+        {
+            return new ActionType
+            {
+                Name = adrilight_shared.Properties.Resources.ActionType_TurnOn_name,
+                Description = "Bật một tính năng",
+                Geometry = "apply",
+                Type = "On",
+                LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
+                IsValueDisplayed = false,
+                IsTargetDeviceDisplayed = true
+            };
+        }
+        private ActionType ToggleActionType()
+        {
+            return new ActionType
             {
                 Name = adrilight_shared.Properties.Resources.ActionType_Turnonthenoff_name,
                 Description = "Chuyển đổi trạng thái Bật Tắt",
@@ -372,8 +249,11 @@ namespace adrilight_shared.Models.Automation
                 LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
                 IsValueDisplayed = false,
                 IsTargetDeviceDisplayed = true
-            });
-            actions.Add(new ActionType
+            };
+        }
+        private ActionType SwitchToActionType()
+        {
+            return new ActionType
             {
                 Name = adrilight_shared.Properties.Resources.ActionType_Switchto_name,
                 Description = "Chuyển đổi đồng thời kích hoạt một tính năng",
@@ -383,7 +263,19 @@ namespace adrilight_shared.Models.Automation
                 ToResultText = "thành",
                 IsValueDisplayed = true,
                 IsTargetDeviceDisplayed = true
-            });
+            };
+        }
+        public List<ActionType> GetAvailableActions()
+        {
+            var actions = new List<ActionType>
+            {
+                IncreaseActionType(),
+                DecreaseActionType(),
+                TurnOnActionType(),
+                TurnOffActionType(),
+                ToggleActionType(),
+                SwitchToActionType()
+            };
             return actions;
         }
         #endregion

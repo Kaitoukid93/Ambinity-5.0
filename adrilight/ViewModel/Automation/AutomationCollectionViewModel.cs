@@ -91,6 +91,21 @@ namespace adrilight.ViewModel.Automation
             AvailableTools.Add(DeleteTool());
 
         }
+        public AutomationSettings GetShutdownAutomation() => AvailableAutomations.Items.Where(
+                a => ((a as AutomationSettings).Condition is SystemEventTriggerCondition)
+            && ((a as AutomationSettings).Condition as SystemEventTriggerCondition).Event == SystemEventEnum.Shutdown)
+                .FirstOrDefault()
+                as AutomationSettings;
+        public AutomationSettings GetMonitorSleepAutomation() => AvailableAutomations.Items.Where(
+               a => ((a as AutomationSettings).Condition is SystemEventTriggerCondition)
+           && ((a as AutomationSettings).Condition as SystemEventTriggerCondition).Event == SystemEventEnum.MonitorSleep)
+               .FirstOrDefault()
+               as AutomationSettings;
+        public AutomationSettings GetMonitorWakeUpAutomation() => AvailableAutomations.Items.Where(
+               a => ((a as AutomationSettings).Condition is SystemEventTriggerCondition)
+           && ((a as AutomationSettings).Condition as SystemEventTriggerCondition).Event == SystemEventEnum.MonitorWakeup)
+               .FirstOrDefault()
+               as AutomationSettings;
         private CollectionItemTool DeleteTool()
         {
             return new CollectionItemTool() {

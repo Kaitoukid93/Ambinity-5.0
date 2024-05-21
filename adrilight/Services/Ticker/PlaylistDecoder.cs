@@ -9,6 +9,7 @@ using Serilog;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Timers;
 
 namespace adrilight.Ticker
@@ -75,12 +76,12 @@ namespace adrilight.Ticker
             ActivateCurrentLightingProfile(profile, false);
             IsRunning = false;
         }
-        public void Play(LightingProfile profile, IDeviceSettings device)
+        public async Task Play(LightingProfile profile, IDeviceSettings device)
         {
             _currentPlayingProfile?.Stop();
             _selectedPlaylist?.StopPlaylist();
             IsRunning = false;
-            ActivateCurrentLightingProfileForSpecificDevice(profile, device);
+            await ActivateCurrentLightingProfileForSpecificDevice(profile, device);
         }
         private void StopTimer()
         {
@@ -93,7 +94,6 @@ namespace adrilight.Ticker
             _subTimer?.Start();
         }
         private IGeneralSettings GeneralSettings { get; set; }
-        private static LightingProfileManagerViewModel ViewModel { get; set; }
         private static System.Timers.Timer _timer;
         private static System.Timers.Timer _subTimer;
         private static TimeSpan _currentTimeSpan;
@@ -181,13 +181,13 @@ namespace adrilight.Ticker
             _subTimer.Stop();
             IsRunning = false;
         }
-        private void ActivateCurrentLightingProfileForSpecificDevice(LightingProfile profile, IDeviceSettings device)
+        private async Task ActivateCurrentLightingProfileForSpecificDevice(LightingProfile profile, IDeviceSettings device)
         {
             if (!device.IsEnabled)
                 return;
             StopTimer();
             var lightingMode = ObjectHelpers.Clone<LightingMode>(profile.ControlMode as LightingMode);
-            device.ActivateControlMode(lightingMode);
+            await Task.Run(() => device.ActivateControlMode(lightingMode));
             Log.Information("Lighting Profile Activated: " + profile.Name + " for " + device.DeviceName);
         }
         private void ActivateCurrentLightingProfile(LightingProfile profile, bool isQeued)
