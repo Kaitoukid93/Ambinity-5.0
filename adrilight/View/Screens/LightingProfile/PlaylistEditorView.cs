@@ -15,14 +15,7 @@ namespace adrilight.View
 
         }
 
-        private void AddToButton_Click(object sender, RoutedEventArgs e)
-        {
-            PopUpAddTo.IsOpen = true;
-        }
-        private void Close_Popup_Button_Click(object sender, RoutedEventArgs e)
-        {
-            PopUpAddTo.IsOpen = false;
-        }
+        
 
         public class PlaylistEditorViewPage : ISelectablePage
         {

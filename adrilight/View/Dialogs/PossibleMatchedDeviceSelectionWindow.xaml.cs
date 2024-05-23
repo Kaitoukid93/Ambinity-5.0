@@ -12,12 +12,6 @@ namespace adrilight.View
         {
             InitializeComponent();
         }
-        private MainViewViewModel ViewModel {
-            get
-            {
-                return (MainViewViewModel)this.DataContext;
-            }
-        }
         private void Button_OK_Click(object sender, RoutedEventArgs e)
         {
             this.DialogResult = true;

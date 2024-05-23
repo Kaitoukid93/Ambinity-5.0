@@ -22,18 +22,16 @@ namespace adrilight
 
         public StaticColor(
             IGeneralSettings generalSettings,
-            MainViewViewModel mainViewViewModel,
             IControlZone zone,
             RainbowTicker rainbowTicker
             )
         {
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
             CurrentZone = zone as LEDSetup ?? throw new ArgumentNullException(nameof(zone));
-            MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             RainbowTicker = rainbowTicker ?? throw new ArgumentNullException(nameof(rainbowTicker));
             GeneralSettings.PropertyChanged += PropertyChanged;
             CurrentZone.PropertyChanged += PropertyChanged;
-            MainViewViewModel.PropertyChanged += PropertyChanged;
+            
         }
 
         /// <summary>
@@ -42,7 +40,6 @@ namespace adrilight
         private IGeneralSettings GeneralSettings { get; }
         public bool IsRunning { get; private set; }
         private LEDSetup CurrentZone { get; }
-        private MainViewViewModel MainViewViewModel { get; }
         private RainbowTicker RainbowTicker { get; }
         public LightingModeEnum Type { get; } = LightingModeEnum.StaticColor;
         /// <summary>
@@ -201,9 +198,9 @@ namespace adrilight
             var shouldBeRunning =
                 _currentLightingMode.BasedOn == LightingModeEnum.StaticColor &&
                 //this zone has to be enable, this could be done by stop setting the spots, but the this thread still alive, so...
-                CurrentZone.IsEnabled == true &&
+                CurrentZone.IsEnabled == true;
                 //stop this engine when any surface or editor open because this could cause capturing fail
-                MainViewViewModel.IsRichCanvasWindowOpen == false;
+
             ////registering group shoud be done
             //MainViewViewModel.IsRegisteringGroup == false;
 
@@ -294,11 +291,7 @@ namespace adrilight
                 {
                     if (_runState == RunStateEnum.Run)
                     {
-                        if (MainViewViewModel.IsRichCanvasWindowOpen)
-                        {
-                            Thread.Sleep(100);
-                            continue;
-                        }
+                        
                         var startIndex = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
 
                         if (_isBreathing)

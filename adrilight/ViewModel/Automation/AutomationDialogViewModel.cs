@@ -1,33 +1,26 @@
-﻿using adrilight.ViewModel.DeviceManager;
-using adrilight.ViewModel.Profile;
+﻿using adrilight.Manager;
 using adrilight_shared.Models.Automation;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.Device;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.Lighting;
 using GalaSoft.MvvmLight;
-using Polly.Caching;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
 using System.Windows.Media;
 
 namespace adrilight.ViewModel.Automation
 {
     public class AutomationDialogViewModel : ViewModelBase
     {
-        public AutomationDialogViewModel(DeviceCollectionViewModel deviceManager, LightingProfileCollectionViewModel profileManager)
+        public AutomationDialogViewModel(DeviceManager deviceManager, LightingProfileManager profileManager)
         {
             _devicemanager = deviceManager;
             _profilemanager = profileManager;
         }
         // call every dialog open to get available params
-        private DeviceCollectionViewModel _devicemanager;
-        private LightingProfileCollectionViewModel _profilemanager;
+        private DeviceManager _devicemanager;
+        private LightingProfileManager _profilemanager;
         private ActionSettings _action;
         public bool Init(string header, string content, ActionSettings action)
         {
@@ -39,7 +32,7 @@ namespace adrilight.ViewModel.Automation
             //prevent dialog open when no device selected
             if (action.TargetDeviceUID == null)
                 return false;
-            var targetDevice = _devicemanager.AvailableDevices.Items.Where(d => (d as DeviceSettings).DeviceUID == action.TargetDeviceUID).FirstOrDefault() as DeviceSettings;
+            var targetDevice = _devicemanager.AvailableDevices.Where(d => (d as DeviceSettings).DeviceUID == action.TargetDeviceUID).FirstOrDefault() as DeviceSettings;
             if (targetDevice == null)
                 return false;
             if (Header == "Parameters")
@@ -48,7 +41,7 @@ namespace adrilight.ViewModel.Automation
                 {
                     case "Activate":
                         //get available profile
-                        foreach (var profile in _profilemanager.AvailableLightingProfiles.Items)
+                        foreach (var profile in _profilemanager.AvailableProfiles)
                         {
                             if (profile != null)
                                 Values.Add(new ActionParameter {
@@ -92,7 +85,7 @@ namespace adrilight.ViewModel.Automation
             else if (Header == "Devices")
             {
                 //add available devices
-                foreach (var device in _devicemanager.AvailableDevices.Items)
+                foreach (var device in _devicemanager.AvailableDevices)
                     Values.Add(device);
             }
             else if (Header == "Values")

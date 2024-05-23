@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using adrilight_shared.Models.ItemsCollection;
+using System.ComponentModel;
 
 namespace adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues
 {

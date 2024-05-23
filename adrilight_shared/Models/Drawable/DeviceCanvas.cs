@@ -25,6 +25,7 @@ namespace adrilight_shared.Models.Drawable
     public class DeviceCanvas : ViewModelBase
     {
         #region Construct
+
         public DeviceCanvas(DeviceControlEvent controlEvent)
         {
             Items = new ObservableCollection<IDrawable>();
@@ -218,6 +219,8 @@ namespace adrilight_shared.Models.Drawable
         }
         public void UpdateView()
         {
+            if (Items == null || Items.Count() == 0)
+                return;
             foreach (var item in Items)
             {
                 item.IsVisible = true;

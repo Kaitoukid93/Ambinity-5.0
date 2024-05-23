@@ -11,9 +11,9 @@
              xmlns:local="clr-namespace:adrilight.View"
              xmlns:lighting="clr-namespace:adrilight_shared.Models.Lighting;assembly=adrilight_shared"
              mc:Ignorable="d"
-             xmlns:model="clr-namespace:adrilight_shared.Models;assembly=adrilight_shared"
              xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
-             d:DataContext="{d:DesignInstance model:DataCollection, IsDesignTimeCreatable=True}">
+             d:DataContext="{Binding Source={StaticResource Locator}, Path=LightingProfileCollectionViewModel}"
+             DataContext="{Binding Source={StaticResource Locator}, Path=LightingProfileCollectionViewModel}">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -28,7 +28,7 @@
                                 Height="100"
                                 Padding="0"
                                 Margin="5"
-                                Command="{Binding Path=DataContext.PlaySelectedItemCommand, RelativeSource={RelativeSource AncestorType={x:Type local:LightingProfileManagerWindow}}}"
+                                Command="{Binding Path=DataContext.LightingProfileClickCommand, RelativeSource={RelativeSource AncestorType={x:Type local:ProfileCollectionView}}}"
                                 CommandParameter="{Binding .}"
                                 hc:BorderElement.CornerRadius="7"
                                 Style="{DynamicResource _mediumProfileDefaultButton}"
@@ -70,8 +70,6 @@
                                                            FontWeight="SemiBold"
                                                            TextTrimming="CharacterEllipsis" />
                                                 <CheckBox IsChecked="{Binding IsChecked}"
-                                                          Command="{Binding Path=DataContext.ItemCheckUncheckCommand, RelativeSource={RelativeSource AncestorType={x:Type local:ProfileCollectionView}}}"
-                                                          CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"
                                                           Margin="5"
                                                           BorderBrush="{DynamicResource SecondaryTextBrush}"
                                                           BorderThickness="1"
@@ -151,8 +149,6 @@
                                                                   IsChecked="{Binding IsPinned}"
                                                                   hc:IconElement.Width="15"
                                                                   hc:IconElement.Height="15"
-                                                                  Command="{Binding Path=DataContext.ItemPinUnPinCommand, RelativeSource={RelativeSource AncestorType={x:Type local:ProfileCollectionView}}}"
-                                                                  CommandParameter="{Binding .}"
                                                                   Padding="0"
                                                                   BorderThickness="0"
                                                                   Width="25"
@@ -241,7 +237,7 @@
                                         Click="Close_Popup_Button_Click"
                                         HorizontalAlignment="Left"
                                         BorderThickness="0"
-                                        Command="{Binding CreateNewCollectionFromSelectedItemsCommand}"
+                                        Command="{Binding AddSelectedProfileToPlaylistCommand}"
                                         Content="Add new playList" />
                                 <hc:Divider Margin="0"
                                             Orientation="Horizontal"
@@ -274,7 +270,7 @@
                     </hc:TransitioningContentControl>
                 </Popup>
                 <Border  Margin="15,10"
-                         Visibility="{Binding ShowManagerToolBar,Converter={StaticResource Boolean2VisibilityReConverter}}"
+                         Visibility="{Binding ShowToolBar,Converter={StaticResource Boolean2VisibilityReConverter}}"
                          Height="50"
                          CornerRadius="7"
                          Background="Transparent">
@@ -293,43 +289,38 @@
                         </StackPanel>
                     </Grid>
                 </Border>
-                <hc:TransitioningContentControl Visibility="{Binding ShowManagerToolBar,Converter={StaticResource Boolean2VisibilityConverter}}"
+                <hc:TransitioningContentControl Visibility="{Binding ShowToolBar,Converter={StaticResource Boolean2VisibilityConverter}}"
                                                 TransitionMode="Top2BottomWithFade">
                     <Border  Margin="15,10"
                              Height="50"
                              CornerRadius="7"
                              Effect="{DynamicResource EffectShadow1}"
                              Background="{DynamicResource MainContentBackgroundBrush}">
-                        <Grid>
 
-                            <StackPanel HorizontalAlignment="Right"
-                                        Orientation="Horizontal">
-                                <!--<Button BorderThickness="0"
-                                        Height="32"
-                                        Background="{DynamicResource SecondaryRegionBrush}"
-                                        hc:IconElement.Geometry="{DynamicResource lightingProfilePlayNext}"
-                                        Margin="10,5"
-                                        hc:IconElement.Height="20"
-                                        Content="Play next" />-->
-                                <Button BorderThickness="0"
-                                        x:Name="addToButton"
-                                        Click="AddToButton_Click"
-                                        Background="{DynamicResource SecondaryRegionBrush}"
-                                        hc:IconElement.Geometry="{DynamicResource addTo}"
-                                        Margin="10,5"
-                                        Height="32"
-                                        hc:IconElement.Height="18"
-                                        Content="Add to" />
-                                <Button BorderThickness="0"
-                                        Background="{DynamicResource SecondaryRegionBrush}"
-                                        hc:IconElement.Geometry="{DynamicResource remove}"
-                                        Command="{Binding OpenDeleteDialogCommand}"
-                                        CommandParameter=""
-                                        Margin="10,5"
-                                        Height="32"
-                                        hc:IconElement.Height="15"
-                                        Content="Remove" />
-                            </StackPanel>
+                        <Grid>
+                            <ItemsControl ItemsSource="{Binding AvailableTools}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal"
+                                                    HorizontalAlignment="Right" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button BorderThickness="0"
+                                                Background="{DynamicResource SecondaryRegionBrush}"
+                                                hc:IconElement.Geometry="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
+                                                Margin="10,5"
+                                                Height="32"
+                                                Command="{Binding Command}"
+                                                CommandParameter="{Binding CommandParameter}"
+                                                hc:IconElement.Height="15"
+                                                Content="Remove" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+
                         </Grid>
                     </Border>
                 </hc:TransitioningContentControl>
@@ -342,7 +333,7 @@
                               HorizontalAlignment="Stretch"
                               VerticalAlignment="Stretch"
                               ItemTemplate="{DynamicResource _horizontalCardItemTemplate}"
-                              ItemsSource="{Binding Items}">
+                              ItemsSource="{Binding AvailableLightingProfiles}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel Orientation="Horizontal" />

@@ -31,7 +31,6 @@ namespace adrilight.Services.LightingEngine
     {
         public DesktopDuplicatorReader(IGeneralSettings generalSettings,
             ICaptureEngine[] desktopFrame,
-             MainViewViewModel mainViewViewModel,
              IControlZone zone
             )
         {
@@ -41,15 +40,10 @@ namespace adrilight.Services.LightingEngine
                 var frame = desktopFrame.Where(d => d is DesktopFrame || d is DesktopFrameDXGI).First();
                 DesktopFrame = desktopFrame.Where(d => d is DesktopFrame || d is DesktopFrameDXGI).First() ?? throw new ArgumentNullException(nameof(desktopFrame));
             }
-
             CurrentZone = zone as LEDSetup ?? throw new ArgumentNullException(nameof(zone));
-            MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             _retryPolicy = Policy.Handle<Exception>().WaitAndRetryForever(ProvideDelayDuration);
-
             GeneralSettings.PropertyChanged += PropertyChanged;
             CurrentZone.PropertyChanged += PropertyChanged;
-            MainViewViewModel.PropertyChanged += PropertyChanged;
-
         }
 
 
@@ -64,7 +58,6 @@ namespace adrilight.Services.LightingEngine
         public bool IsRunning { get; private set; }
         private LEDSetup CurrentZone { get; }
         private RunStateEnum _runState = RunStateEnum.Stop;
-        private MainViewViewModel MainViewViewModel { get; }
         public LightingModeEnum Type { get; } = LightingModeEnum.ScreenCapturing;
 
 
@@ -85,11 +78,6 @@ namespace adrilight.Services.LightingEngine
                         Refresh();
                     break;
                 //case nameof(CurrentZone.MaskedControlMode):
-                case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
-                    // case nameof(MainViewViewModel.IsRegisteringGroup):
-                    Refresh();
-                    break;
-
             }
         }
         private void EnableChanged(bool value)
@@ -205,7 +193,7 @@ namespace adrilight.Services.LightingEngine
                 //this zone has to be enable, this could be done by stop setting the spots, but the this thread still alive, so...
                 CurrentZone.IsEnabled == true &&
                 //stop this engine when any surface or editor open because this could cause capturing fail
-                MainViewViewModel.IsRichCanvasWindowOpen == false &&
+
                 //stop this engine when this zone is outside or atleast there is 1 pixel outside of the screen region
                 CurrentZone.IsInsideScreen == true;
             ////registering group shoud be done
@@ -346,11 +334,7 @@ namespace adrilight.Services.LightingEngine
                     if (_runState == RunStateEnum.Run)
                     {
 
-                        if (MainViewViewModel.IsRichCanvasWindowOpen)
-                        {
-                            Thread.Sleep(100);
-                            continue;
-                        }
+                        
                         var frameTime = Stopwatch.StartNew();
                         var newImage = _retryPolicy.Execute(() => GetNextFrame(image));
                         //TraceFrameDetails(newImage);

@@ -24,5 +24,10 @@ namespace adrilight.View
             window.DialogResult = false;
             //this.Close();
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

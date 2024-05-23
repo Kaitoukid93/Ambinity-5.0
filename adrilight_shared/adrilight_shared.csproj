@@ -100,6 +100,9 @@
     <Reference Include="OpenRGB.NET, Version=1.7.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenRGB.NET.1.7.0\lib\netstandard2.0\OpenRGB.NET.dll</HintPath>
     </Reference>
+    <Reference Include="Renci.SshNet, Version=2020.0.2.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106, processorArchitecture=MSIL">
+      <HintPath>..\packages\SSH.NET.2020.0.2\lib\net40\Renci.SshNet.dll</HintPath>
+    </Reference>
     <Reference Include="RichCanvas, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\RichCanvas.2.4.2\lib\net472\RichCanvas.dll</HintPath>
     </Reference>
@@ -151,13 +154,12 @@
     <Compile Include="Converter\ToUpperValueConverter.cs" />
     <Compile Include="Helpers\EventToCommand.cs" />
     <Compile Include="Helpers\perSizeBindingHelper.cs" />
-    <Compile Include="Models\Automation\AutomationManager.cs" />
+    <Compile Include="Models\Automation\AutomationDBManager.cs" />
     <Compile Include="Models\Device\DeviceConstructor.cs" />
     <Compile Include="Models\Device\DeviceDBManager.cs" />
     <Compile Include="Models\ItemsCollection\ItemsCollection.cs" />
     <Compile Include="Models\Device\DeviceFirmwareUpdater.cs" />
     <Compile Include="Models\Device\DeviceHardwareSettings.cs" />
-    <Compile Include="Models\Device\DevicesManager.cs" />
     <Compile Include="Models\Drawable\CanvasSelectionRectangle.cs" />
     <Compile Include="Models\Drawable\DeviceCanvas.cs" />
     <Compile Include="Models\Drawable\ICanvasItem.cs" />
@@ -165,11 +167,11 @@
     <Compile Include="Models\ItemsCollection\ItemsCollectionSource.cs" />
     <Compile Include="Models\KeyboardHook\KeyboardHookManagerSingleton.cs" />
     <Compile Include="Models\Language\LangModel.cs" />
-    <Compile Include="Models\Lighting\ProfilesManager.cs" />
+    <Compile Include="Models\Lighting\LightingProflileDBManager.cs" />
     <Compile Include="Models\Stores\ISelectableViewParts.cs" />
-    <Compile Include="Models\Stores\NavigationEvent.cs" />
     <Compile Include="Models\Stores\DeviceControlEvent.cs" />
     <Compile Include="Models\VerticalMenu\IVerticalMenuItem.cs" />
+    <Compile Include="Services\AdrilightStoreService\AdrilightSFTPClient.cs" />
     <Compile Include="Services\DialogService.cs" />
     <Compile Include="Enums\OnlineItemAvatarTypeEnum.cs" />
     <Compile Include="Enums\ChasingPatternTypeEnum.cs" />
@@ -462,6 +464,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FTPServer\FTPServer.csproj">
+      <Project>{5B8BF436-7610-4335-80EB-809A7E7A655F}</Project>
+      <Name>FTPServer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TimeLineTool\TimeLineTool.csproj">
       <Project>{7439a26a-46e1-42a0-9d58-2e38289675f6}</Project>
       <Name>TimeLineTool</Name>

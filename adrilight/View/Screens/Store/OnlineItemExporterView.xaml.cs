@@ -22,16 +22,16 @@ namespace adrilight.View
         }
         private void CheckComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var mainViewModel = this.DataContext as MainViewViewModel;
-            foreach (DeviceType item in e.AddedItems)
-            {
-                mainViewModel.OnlineItemSelectedTargetTypes.Add(item);
-            }
+            //var mainViewModel = this.DataContext as MainViewViewModel;
+            //foreach (DeviceType item in e.AddedItems)
+            //{
+            //    mainViewModel.OnlineItemSelectedTargetTypes.Add(item);
+            //}
 
-            foreach (DeviceType item in e.RemovedItems)
-            {
-                mainViewModel.OnlineItemSelectedTargetTypes.Remove(item);
-            }
+            //foreach (DeviceType item in e.RemovedItems)
+            //{
+            //    mainViewModel.OnlineItemSelectedTargetTypes.Remove(item);
+            //}
 
         }
     }

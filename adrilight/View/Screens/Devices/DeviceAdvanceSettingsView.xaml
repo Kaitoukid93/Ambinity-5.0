@@ -4,20 +4,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
              xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
-             xmlns:store="clr-namespace:adrilight_shared.Models.Store;assembly=adrilight_shared"
              xmlns:enums="clr-namespace:adrilight_shared.Enums;assembly=adrilight_shared"
              xmlns:local="clr-namespace:adrilight.View.Screens.Devices"
              mc:Ignorable="d"
              xmlns:System="clr-namespace:System;assembly=mscorlib"
-             xmlns:device="clr-namespace:adrilight_shared.Models.Device;assembly=adrilight_shared"
-             xmlns:vm="clr-namespace:adrilight.ViewModel"
-
              xmlns:parameters="clr-namespace:adrilight_shared.Models.ControlMode.ModeParameters;assembly=adrilight_shared"
              xmlns:parameterValues="clr-namespace:adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;assembly=adrilight_shared"
-             d:DataContext="{d:DesignInstance vm:DeviceAdvanceSettingsViewModel, IsDesignTimeCreatable=True}">
+             d:DataContext="{Binding Source={StaticResource Locator}, Path=DeviceAdvanceSettingsViewModel}"
+             DataContext="{Binding Source={StaticResource Locator}, Path=DeviceAdvanceSettingsViewModel}">
 
     <UserControl.Resources>
         <ResourceDictionary>

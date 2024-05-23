@@ -1,4 +1,4 @@
-﻿using adrilight.Services.SerialStream;
+﻿using adrilight.Services.DataStream;
 using adrilight.Util;
 using adrilight_shared.Enums;
 using adrilight_shared.Models.Device;
@@ -16,7 +16,7 @@ using System.Windows;
 namespace adrilight.Services.NetworkStream
 {
     internal sealed class
-        NetworkStream : IDisposable, ISerialStream
+        NetworkStream : IDisposable, IDataStream
     {
         private ILogger _log = LogManager.GetCurrentClassLogger();
 
@@ -37,6 +37,10 @@ namespace adrilight.Services.NetworkStream
         private IGeneralSettings GeneralSettings { get; set; }
         public DeviceStateEnum CurrentState { get; set; }// to be implemented
         // private IDeviceSpotSet[] DeviceSpotSets { get; set; }
+        public void Init(IDeviceSettings device)
+        {
+           
+        }
         private async Task<bool> Refresh() //fetches updated values from WLED device
         {
 

@@ -115,7 +115,14 @@ namespace adrilight_shared.Models.Device
         public async Task<bool> GetHardwareSettings()
         {
             Thread.Sleep(500);
-            var result = RefreshFirmwareVersion();
+            Device.IsTransferActive = false; // stop current serial stream attached to this device
+            string deviceName = null;
+            string deviceID = null;
+            string deviceFirmware = null;
+            string deviceHardware = null;
+            int deviceHWL = 0;
+            var result = RefreshDeviceInfo(Device.OutputPort,out deviceName, out deviceID,out deviceFirmware, out deviceHardware,out deviceHWL);
+
             if (!result)
             {
                 return false;
@@ -124,6 +131,11 @@ namespace adrilight_shared.Models.Device
             {
                 return false;
             }
+            Device.DeviceName = deviceName;
+            Device.FirmwareVersion = deviceFirmware;
+            Device.HardwareVersion = deviceHardware;
+            Device.DeviceSerial = deviceID;
+            Device.HWL_version = deviceHWL;
             if (Device.HWL_version < 1)
             {
                 //request firmware update and hide device settings
@@ -337,14 +349,23 @@ namespace adrilight_shared.Models.Device
             //RaisePropertyChanged(nameof(IsTransferActive));
         }
       
-        public bool RefreshFirmwareVersion()
+        public bool RefreshDeviceInfo(string comPort,
+            out string deviceName,
+            out string deviceID,
+            out string deviceFirmware,
+            out string deviceHardware,
+            out int deviceHWL)
         {
             byte[] id = new byte[256];
             byte[] name = new byte[256];
             byte[] fw = new byte[256];
             byte[] hw = new byte[256];
-            Device.IsTransferActive = false; // stop current serial stream attached to this device
-            var _serialPort = new SerialPort(Device.OutputPort, 1000000);
+            deviceName = null;
+            deviceID = null;
+            deviceFirmware = null;
+            deviceHardware = null;
+            deviceHWL = 0;
+            var _serialPort = new SerialPort(comPort, 1000000);
             _serialPort.DtrEnable = true;
             _serialPort.ReadTimeout = 5000;
             _serialPort.WriteTimeout = 1000;
@@ -359,7 +380,9 @@ namespace adrilight_shared.Models.Device
             }
             catch (Exception ex)
             {
-                HandyControl.Controls.MessageBox.Show(adrilight_shared.Properties.Resources.DeviceAdvanceSettingsViewModel_RefreshFirmwareVersion_Disconnect, adrilight_shared.Properties.Resources.DeviceAdvanceSettingsViewModel_RefreshFirmwareVersion_DeviceDisconnect_header, MessageBoxButton.OK, MessageBoxImage.Warning);
+                HandyControl.Controls.MessageBox.Show(adrilight_shared.Properties.Resources.DeviceAdvanceSettingsViewModel_RefreshFirmwareVersion_Disconnect,
+                    adrilight_shared.Properties.Resources.DeviceAdvanceSettingsViewModel_RefreshFirmwareVersion_DeviceDisconnect_header,
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
             //write request info command
@@ -411,7 +434,7 @@ namespace adrilight_shared.Models.Device
                 }
 
 
-                Device.DeviceSerial = BitConverter.ToString(id).Replace('-', ' ');
+               deviceID = BitConverter.ToString(id).Replace('-', ' ');
             }
             if (offset == 3 + idLength) //3 bytes header are valid
             {
@@ -424,10 +447,7 @@ namespace adrilight_shared.Models.Device
                     offset += readCount;
                     count -= readCount;
                 }
-                // DeviceName = Encoding.ASCII.GetString(name, 0, name.Length);
-                // RaisePropertyChanged(nameof(DeviceName));
-
-
+                 deviceName = Encoding.ASCII.GetString(name, 0, name.Length);
             }
             if (offset == 3 + idLength + nameLength) //3 bytes header are valid
             {
@@ -440,7 +460,7 @@ namespace adrilight_shared.Models.Device
                     offset += readCount;
                     count -= readCount;
                 }
-                Device.FirmwareVersion = Encoding.ASCII.GetString(fw, 0, fw.Length);
+                deviceFirmware = Encoding.ASCII.GetString(fw, 0, fw.Length);
             }
             if (offset == 3 + idLength + nameLength + fwLength) //3 bytes header are valid
             {
@@ -455,21 +475,20 @@ namespace adrilight_shared.Models.Device
                         offset += readCount;
                         count -= readCount;
                     }
-                    Device.HardwareVersion = Encoding.ASCII.GetString(hw, 0, hw.Length);
+                    deviceHardware = Encoding.ASCII.GetString(hw, 0, hw.Length);
                 }
                 catch (TimeoutException)
                 {
-                    Log.Information(Device.DeviceName, "Unknown Firmware Version");
-                    Device.HardwareVersion = "unknown";
+                    Log.Information(deviceName, "Unknown Firmware Version");
+                    deviceHardware = "unknown";
                 }
 
             }
             if (offset == 3 + idLength + nameLength + fwLength + hwLength) //3 bytes header are valid
             {
-                Device.HWL_version = 0;
                 try
                 {
-                    Device.HWL_version = _serialPort.ReadByte();
+                    deviceHWL = _serialPort.ReadByte();
                 }
                 catch (TimeoutException)
                 {
@@ -477,6 +496,7 @@ namespace adrilight_shared.Models.Device
                 }
 
             }
+
             _serialPort.Close();
             _serialPort.Dispose();
             return true;

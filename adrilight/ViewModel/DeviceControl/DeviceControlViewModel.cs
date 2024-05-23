@@ -1,6 +1,4 @@
-﻿using adrilight_shared.Enums;
-using adrilight_shared.Helpers;
-using adrilight_shared.Models;
+﻿using adrilight_shared.Helpers;
 using adrilight_shared.Models.Device;
 using adrilight_shared.Models.Device.Controller;
 using adrilight_shared.Models.Device.Group;
@@ -10,22 +8,19 @@ using adrilight_shared.Models.Drawable;
 using adrilight_shared.Models.Stores;
 using adrilight_shared.ViewModel;
 using GalaSoft.MvvmLight;
-using SharpDX.DXGI;
-using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using System.Xml.Linq;
+using adrilight_shared.Models.RelayCommand;
+using System;
 
 namespace adrilight.ViewModel
 {
     public class DeviceControlViewModel : ViewModelBase
     {
         #region Construct
+        public event Action BackToDashboardEvent;
         public DeviceControlViewModel(DeviceCanvasViewModel canvasViewModel,
             EffectControlViewModel effectControlViewModel,
             VerticalMenuControlViewModel verticalMenu,
@@ -38,14 +33,13 @@ namespace adrilight.ViewModel
             _deviceControlEvent = controlEvent;
             EffectControl.DeviceControlEvent = _deviceControlEvent;
             VerticalMenu.DeviceControlEvent = _deviceControlEvent;
-            _deviceControlEvent.SelectedItemChanged += OnSelectedCanvasItemChanged;
-            _deviceControlEvent.SelectedVerticalMenuIndexChanged += OnSelectedMenuIndexChanged;
-            _deviceControlEvent.UnselectAllItemEvent += OnCanvasUnSelectionChanged;
-            _deviceControlEvent.SelectedItemUngrouped += OnCanvasUngrouped;
-            _deviceControlEvent.SelectedItemGrouped += OnCanvasGrouped;
+
         }
         #endregion
+        ~DeviceControlViewModel()
+        {
 
+        }
 
         #region Properties
         private EffectControlViewModel _effectControl;
@@ -76,7 +70,7 @@ namespace adrilight.ViewModel
         {
             //update view
             Device.CurrentActiveControlerIndex = index;
-            Init();
+            LoadData();
         }
         private void OnCanvasUnSelectionChanged()
         {
@@ -88,7 +82,7 @@ namespace adrilight.ViewModel
             foreach (var item in items)
             {
                 //find which group
-                var currentGroup = Device.ControlZoneGroups.Where(g => g.Border != null && Rect.Equals(g.Border.GetRect,item.GetRect) && g.Type == Device.CurrentActiveController.Type).FirstOrDefault();
+                var currentGroup = Device.ControlZoneGroups.Where(g => g.Border != null && Rect.Equals(g.Border.GetRect, item.GetRect) && g.Type == Device.CurrentActiveController.Type).FirstOrDefault();
                 //set each zone selectable
                 foreach (var zone in Device.CurrentLiveViewZones)
                 {
@@ -114,7 +108,7 @@ namespace adrilight.ViewModel
         {
             //load item effect control if available
             object controlItem;
-            if(!item.IsSelected)
+            if (!item.IsSelected)
             {
                 item.IsSelected = true;
             }
@@ -138,7 +132,14 @@ namespace adrilight.ViewModel
         #region Methods 
         private void CommandSetup()
         {
+            BackToDashboardCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                BackToDashboardEvent?.Invoke();
 
+            });
         }
         public void LoadVerticalMenuItem()
         {
@@ -150,7 +151,18 @@ namespace adrilight.ViewModel
             if (VerticalMenu.Items.Count > 0)
                 VerticalMenu.SelectedIndex = 0;
         }
-        public void Init()
+        public void Init(IDeviceSettings device)
+        {
+            CommandSetup();
+            Device = device;
+            _deviceControlEvent.SelectedItemChanged += OnSelectedCanvasItemChanged;
+            _deviceControlEvent.SelectedVerticalMenuIndexChanged += OnSelectedMenuIndexChanged;
+            _deviceControlEvent.UnselectAllItemEvent += OnCanvasUnSelectionChanged;
+            _deviceControlEvent.SelectedItemUngrouped += OnCanvasUngrouped;
+            _deviceControlEvent.SelectedItemGrouped += OnCanvasGrouped;
+            LoadVerticalMenuItem();
+        }
+        private void LoadData()
         {
             if (Device == null)
                 return;
@@ -214,10 +226,22 @@ namespace adrilight.ViewModel
         {
             CanvasViewModel.Canvas.UnselectAllCanvasItem();
         }
+        public void Dispose()
+        {
+            _deviceControlEvent.SelectedItemChanged -= OnSelectedCanvasItemChanged;
+            _deviceControlEvent.SelectedVerticalMenuIndexChanged -= OnSelectedMenuIndexChanged;
+            _deviceControlEvent.UnselectAllItemEvent -= OnCanvasUnSelectionChanged;
+            _deviceControlEvent.SelectedItemUngrouped -= OnCanvasUngrouped;
+            _deviceControlEvent.SelectedItemGrouped -= OnCanvasGrouped;
+            CanvasViewModel?.Dispose();
+            EffectControl?.Dispose();
+            VerticalMenu?.Dispose();
+        }
         #endregion
 
 
         #region Commands
+        public ICommand BackToDashboardCommand { get; set; }
 
         #endregion
     }

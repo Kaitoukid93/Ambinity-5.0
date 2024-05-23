@@ -1,4 +1,5 @@
-﻿using adrilight.View;
+﻿using adrilight.Manager;
+using adrilight.View;
 using adrilight.ViewModel;
 using adrilight_shared.Enums;
 using adrilight_shared.Models.ControlMode.Mode;
@@ -21,17 +22,16 @@ namespace adrilight.Util
     internal class HWMonitor : ViewModelBase
     {
 
-        public HWMonitor(IGeneralSettings generalSettings, MainViewViewModel mainViewViewModel)
+        public HWMonitor(IGeneralSettings generalSettings,DeviceManager manager)
         {
-
-            MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
-            MainViewViewModel.AvailableDevices.CollectionChanged += (_, __) => DeviceCollectionChanged();
             RefreshHWState();
+            _deviceManager = manager;
 
         }
         IComputer thisComputer { get; set; }
         private LibreHardwareMonitor.Hardware.Computer computer { get; set; }
+        private DeviceManager _deviceManager;
         private void DeviceCollectionChanged()
         {
             if (availableFan != null)
@@ -48,7 +48,6 @@ namespace adrilight.Util
         private UpdateVisitor updateVisitor = new UpdateVisitor();
         private IGeneralSettings GeneralSettings { get; }
 
-        private MainViewViewModel MainViewViewModel { get; }
         private Computer displayHWInfo { get; set; }
         private double _lastLecture;
         private List<FanMotor> availableFan { get; set; }
@@ -97,7 +96,7 @@ namespace adrilight.Util
         private List<FanMotor> GetAvailableFans()
         {
             var availableFan = new List<FanMotor>();
-            foreach (var device in MainViewViewModel.AvailableDevices.Where(d => d.AvailablePWMDevices != null))
+            foreach (var device in _deviceManager.AvailableDevices.Where(d => d.AvailablePWMDevices != null))
             {
                 var pwmOutputs = device.AvailablePWMOutputs.ToList();
                 foreach (var pwmOutput in pwmOutputs)
@@ -164,11 +163,11 @@ namespace adrilight.Util
                             {
                                 currentSpeed = (currentControlMode.SpeedParameter as SliderParameter).Value;
                             }
-                            if (MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated)
-                            {
-                                fan.LineValues.Add(new ObservableValue(currentSpeed));
-                                fan.LineValues.RemoveAt(0);
-                            }
+                            //if (MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated)
+                            //{
+                            //    fan.LineValues.Add(new ObservableValue(currentSpeed));
+                            //    fan.LineValues.RemoveAt(0);
+                            //}
                             fan.CurrentPWMValue = currentSpeed;
                         }
                     }
@@ -395,11 +394,11 @@ namespace adrilight.Util
                             {
                                 currentSpeed = (currentControlMode.SpeedParameter as SliderParameter).Value;
                             }
-                            if (MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated)
-                            {
-                                fan.LineValues.Add(new ObservableValue(currentSpeed));
-                                fan.LineValues.RemoveAt(0);
-                            }
+                            //if (MainViewViewModel.IsLiveViewOpen && MainViewViewModel.IsAppActivated)
+                            //{
+                            //    fan.LineValues.Add(new ObservableValue(currentSpeed));
+                            //    fan.LineValues.RemoveAt(0);
+                            //}
                             fan.CurrentPWMValue = currentSpeed;
                         }
                     }

@@ -1,8 +1,7 @@
-﻿using adrilight.Services.SerialStream;
+﻿
 using adrilight.Util;
 using adrilight_shared.Enums;
 using adrilight_shared.Models.Device;
-using adrilight_shared.Models.Device.Output;
 using adrilight_shared.Models.Device.SlaveDevice;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.Device.Zone.Spot;
@@ -16,22 +15,24 @@ using System.Linq;
 using System.Threading;
 using System.Windows.Documents.DocumentStructures;
 
-namespace adrilight
+namespace adrilight.Services.DataStream
 {
 
     internal sealed class
 
-        SerialStream : IDisposable, ISerialStream
+        SerialStream : IDisposable, IDataStream
     {
 
-        public SerialStream(IDeviceSettings deviceSettings, IGeneralSettings generalSettings)
+        public SerialStream()
         {
-            GeneralSettings = generalSettings ?? throw new ArgumentException(nameof(generalSettings));
-            DeviceSettings = deviceSettings ?? throw new ArgumentNullException(nameof(deviceSettings));
 
-            // DeviceSpotSets = deviceSpotSets ?? throw new ArgumentNullException(nameof(deviceSpotSets));
+        }
+        public void Init(IDeviceSettings device)
+        {
+            DeviceSettings = device;
+            Port = device.OutputPort;
             DeviceSettings.PropertyChanged += UserSettings_PropertyChanged;
-            foreach (var output in deviceSettings.AvailableLightingOutputs)
+            foreach (var output in DeviceSettings.AvailableLightingOutputs)
             {
                 output.PropertyChanged += (_, __) =>
                 {
@@ -45,13 +46,12 @@ namespace adrilight
 
 
             }
-            DeviceSettings.DeviceState = DeviceStateEnum.Normal;
+            DeviceSettings.DeviceState = DeviceStateEnum.Normal; 
             _hasPWMCOntroller = DeviceSettings.AvailablePWMOutputs != null && DeviceSettings.AvailablePWMOutputs.Count() > 0;
             RefreshTransferState();
         }
         //Dependency Injection//
         private IDeviceSettings DeviceSettings { get; set; }
-        private IGeneralSettings GeneralSettings { get; set; }
         #region PropertyChanged events
         private void UserSettings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -117,6 +117,7 @@ namespace adrilight
         private int frameCounter;
         private int blackFrameCounter;
         private ISerialPortWrapper serialPort = null;
+        public string Port { get; private set; }
         //private OutputSettings[] _lightingOutputs { get; set; }
         //private PWMMotorSlaveDevice[] _pwmDevices { get; set; }
 
@@ -172,7 +173,7 @@ namespace adrilight
 
         public void Start()
         {
-            if(IsRunning)
+            if (IsRunning)
             {
                 Stop();
             }
@@ -200,7 +201,7 @@ namespace adrilight
 
         public bool IsRunning => _workerThread != null && _workerThread.IsAlive;
 
-    
+
 
         private (byte[] Buffer, int OutputLength) GetOutputStreamWithPWM(int id)
         {
@@ -467,7 +468,7 @@ namespace adrilight
                             serialPort = DeviceSettings.OutputPort != "Không có" ? (ISerialPortWrapper)new WrappedSerialPort(new SerialPort(DeviceSettings.OutputPort, baudRate)) : new FakeSerialPort();
                             serialPort.Open();
                             openedComPort = DeviceSettings.OutputPort;
-
+                            Port = openedComPort;
                         }
                         //send frame data
                         for (int i = 0; i < DeviceSettings.AvailableLightingOutputs.Length; i++)
@@ -514,7 +515,7 @@ namespace adrilight
                 {
                     Log.Error(ex, "Device is removed or malfunction: " + serialPort.SerialPort.PortName);
                     // wait device to recover
-                    for(int i=0;i<5;i++)
+                    for (int i = 0; i < 5; i++)
                     {
                         Log.Warning("Waiting for device to recover!!!");
                         Thread.Sleep(1000);

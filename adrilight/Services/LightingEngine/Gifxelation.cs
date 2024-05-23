@@ -35,21 +35,18 @@ namespace adrilight.Services.LightingEngine
         public static Bitmap LoadedStillBitmap { get; set; }
         public ByteFrame[] LoadedGifImage { get; set; }
         public Gifxelation(IGeneralSettings generalSettings,
-             MainViewViewModel mainViewViewModel,
              IControlZone zone,
              RainbowTicker rainbowTicker
             )
         {
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
             CurrentZone = zone as LEDSetup ?? throw new ArgumentNullException(nameof(zone));
-            MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             RainbowTicker = rainbowTicker ?? throw new ArgumentNullException(nameof(rainbowTicker));
             _retryPolicy = Policy.Handle<Exception>().WaitAndRetryForever(ProvideDelayDuration);
 
 
             GeneralSettings.PropertyChanged += PropertyChanged;
             CurrentZone.PropertyChanged += PropertyChanged;
-            MainViewViewModel.PropertyChanged += PropertyChanged;
         }
 
 
@@ -64,7 +61,6 @@ namespace adrilight.Services.LightingEngine
         public bool IsRunning { get; private set; }
         private LEDSetup CurrentZone { get; }
         private RainbowTicker RainbowTicker { get; }
-        private MainViewViewModel MainViewViewModel { get; }
         public LightingModeEnum Type { get; } = LightingModeEnum.Gifxelation;
 
 
@@ -99,11 +95,6 @@ namespace adrilight.Services.LightingEngine
                     var isRunning = _cancellationTokenSource != null;
                     if (isRunning || (CurrentZone.CurrentActiveControlMode as LightingMode).BasedOn == Type)
                         Refresh();
-                    break;
-                //case nameof(CurrentZone.MaskedControlMode):
-                case nameof(MainViewViewModel.IsRichCanvasWindowOpen):
-                    // case nameof(MainViewViewModel.IsRegisteringGroup):
-                    Refresh();
                     break;
 
             }
@@ -263,9 +254,8 @@ namespace adrilight.Services.LightingEngine
             var shouldBeRunning =
                 _currentLightingMode.BasedOn == LightingModeEnum.Gifxelation &&
                 //this zone has to be enable, this could be done by stop setting the spots, but the this thread still alive, so...
-                CurrentZone.IsEnabled == true &&
+                CurrentZone.IsEnabled == true;
                 //stop this engine when any surface or editor open because this could cause capturing fail
-                MainViewViewModel.IsRichCanvasWindowOpen == false;
             // this is stop sign by one or some of the reason above
             if (isRunning && !shouldBeRunning)
             {
@@ -383,16 +373,12 @@ namespace adrilight.Services.LightingEngine
                 {
                     if (_runState == RunStateEnum.Run)
                     {
-                        if (MainViewViewModel.IsRichCanvasWindowOpen)
-                        {
-                            Thread.Sleep(100);
-                            continue;
-                        }
+                        
                         //this indicator that user is opening this device and we need raise event when color update on each spot
                         if (LoadedGifImage == null)
                             continue;
                         var frameTime = Stopwatch.StartNew();
-                        var isPreviewRunning = MainViewViewModel.IsRegionSelectionOpen;
+                        var isPreviewRunning = false;
                         var newImage = _retryPolicy.Execute(() => GetNextFrame(image, (int)_tick.CurrentTick, isPreviewRunning));
                         TraceFrameDetails(newImage);
                         if (newImage == null)

@@ -14,6 +14,7 @@ namespace adrilight_shared.Models.Stores
         public event Action<ControlZoneGroup> SelectedItemGrouped;
         public event Action<int> SelectedVerticalMenuIndexChanged;
         public event Action UnselectAllItemEvent;
+        
         public void ChangeSelectedItem(IDrawable item)
         {
             SelectedItemChanged?.Invoke(item);

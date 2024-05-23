@@ -14,28 +14,19 @@ using System.Windows.Forms;
 
 namespace adrilight.Ticker
 {
-    internal class RainbowTicker
+    public class RainbowTicker
     {
 
-        public RainbowTicker(IDeviceSettings[] allDeviceSettings, IGeneralSettings generalSettings, MainViewViewModel mainViewViewModel)
+        public RainbowTicker(IDeviceSettings[] allDeviceSettings, IGeneralSettings generalSettings)
         {
-            //DeviceSettings = deviceSettings ?? throw new ArgumentNullException(nameof(deviceSettings));
-            AllDeviceSettings = allDeviceSettings ?? throw new ArgumentNullException(nameof(allDeviceSettings));
+
             GeneralSettings = generalSettings ?? throw new ArgumentException(nameof(generalSettings));
-            //DeviceSpotSet = deviceSpotSet ?? throw new ArgumentNullException(nameof(deviceSpotSet));
-            //AllDeviceSpotSet = allDeviceSpotSet ?? throw new ArgumentNullException(nameof(allDeviceSpotSet));
-            MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
-
-
             GeneralSettings.PropertyChanged += PropertyChanged;
 
             Ticks = new ObservableCollection<Tick>();
             RefreshColorState();
 
         }
-
-        private MainViewViewModel MainViewViewModel { get; }
-        private IDeviceSettings[] AllDeviceSettings { get; }
 
         private IGeneralSettings GeneralSettings { get; }
 

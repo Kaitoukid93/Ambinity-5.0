@@ -1,7 +1,5 @@
 ﻿using adrilight.View;
-using adrilight_shared.Enums;
 using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
-using adrilight_shared.Models.ControlMode.ModeParameters;
 using adrilight_shared.Models.Device;
 using adrilight_shared.Models.Device.Zone.Spot;
 using adrilight_shared.Models.Device.Zone;
@@ -11,15 +9,11 @@ using GalaSoft.MvvmLight;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using static adrilight.ViewModel.MainViewViewModel;
 using adrilight_shared.Models.RelayCommand;
 
 namespace adrilight.ViewModel

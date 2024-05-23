@@ -13,7 +13,8 @@
              xmlns:parameterValues="clr-namespace:adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;assembly=adrilight_shared"
              Background="{DynamicResource RegionBrush}"
              xmlns:vm="clr-namespace:adrilight.ViewModel.Automation"
-             d:DataContext="{d:DesignInstance vm:AutomationEditorViewModel, IsDesignTimeCreatable=True}">
+             d:DataContext="{Binding Source={StaticResource Locator}, Path=AutomationEditorViewModel}"
+             DataContext="{Binding Source={StaticResource Locator}, Path=AutomationEditorViewModel}">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -692,7 +693,7 @@
                                             <ContentControl Content="{Binding Automation.Condition}">
                                                 <ContentControl.Resources>
                                                     <DataTemplate DataType="{x:Type automation:HotkeyTriggerCondition}">
-                                                        <Button Command="{Binding Path=DataContext.OpenHotKeySelectionWindowCommand, RelativeSource={RelativeSource AncestorType={x:Type local:ActionManagerWindow}}}"
+                                                        <Button Command="{Binding Path=DataContext.OpenHotKeySelectionWindowCommand, RelativeSource={RelativeSource AncestorType={x:Type local:AutomationEditorView}}}"
                                                                 BorderThickness="0"
                                                                 Margin="0"
                                                                 HorizontalAlignment="Right"

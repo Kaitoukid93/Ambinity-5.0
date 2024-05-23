@@ -16,7 +16,6 @@ namespace adrilight.View
     {
         private HwndSource _HwndSource;
         private readonly IntPtr _ScreenStateNotify;
-        private MainViewViewModel ViewModel { get; set; }
         private enum MonitorState { on, off };
         private MonitorState monitorState;
         public MainView()
@@ -30,13 +29,7 @@ namespace adrilight.View
             // new Thread(Observe).Start();
 
             noticon.Init();
-
-            ViewModel = DataContext as MainViewViewModel;
-            if (ViewModel.GeneralSettings.HotkeyEnable)
-            {
-                KeyboardHookManagerSingleton.Instance.Start();
-                ViewModel.Register();
-            }
+           
             // register for console display state system event 
             var wih = new WindowInteropHelper(this);
             var hwnd = wih.EnsureHandle();
@@ -69,17 +62,17 @@ namespace adrilight.View
                             Serilog.Log.Information("Monitor Power Off");
                             if (monitorState == MonitorState.on)
                             {
-                                foreach (var automation in ViewModel.AvailableAutomations)
-                                {
-                                    if (automation.Condition is SystemEventTriggerCondition)
-                                    {
-                                        var condition = automation.Condition as SystemEventTriggerCondition;
-                                        if (condition.Event == SystemEventEnum.MonitorSleep)
-                                        {
-                                            ViewModel.ExecuteAutomationActions(automation.Actions);
-                                        }
-                                    }
-                                }
+                                //foreach (var automation in ViewModel.AvailableAutomations)
+                                //{
+                                //    if (automation.Condition is SystemEventTriggerCondition)
+                                //    {
+                                //        var condition = automation.Condition as SystemEventTriggerCondition;
+                                //        if (condition.Event == SystemEventEnum.MonitorSleep)
+                                //        {
+                                //            ViewModel.ExecuteAutomationActions(automation.Actions);
+                                //        }
+                                //    }
+                                //}
                                 monitorState = MonitorState.off;
                             }
 
@@ -88,17 +81,17 @@ namespace adrilight.View
                             Serilog.Log.Information("Monitor Power On");
                             if (monitorState == MonitorState.off)
                             {
-                                foreach (var automation in ViewModel.AvailableAutomations)
-                                {
-                                    if (automation.Condition is SystemEventTriggerCondition)
-                                    {
-                                        var condition = automation.Condition as SystemEventTriggerCondition;
-                                        if (condition.Event == SystemEventEnum.MonitorWakeup)
-                                        {
-                                            ViewModel.ExecuteAutomationActions(automation.Actions);
-                                        }
-                                    }
-                                }
+                                //foreach (var automation in ViewModel.AvailableAutomations)
+                                //{
+                                //    if (automation.Condition is SystemEventTriggerCondition)
+                                //    {
+                                //        var condition = automation.Condition as SystemEventTriggerCondition;
+                                //        if (condition.Event == SystemEventEnum.MonitorWakeup)
+                                //        {
+                                //            ViewModel.ExecuteAutomationActions(automation.Actions);
+                                //        }
+                                //    }
+                                //}
                                 monitorState = MonitorState.on;
                             }
 
@@ -249,16 +242,16 @@ namespace adrilight.View
         protected override void OnContentRendered(EventArgs e)
         {
             base.OnContentRendered(e);
-            ViewModel = DataContext as MainViewViewModel;
-            NonClientAreaContent = new NonClientAreaContent(ViewModel.GeneralSettings.AppCulture.Culture);
+            //ViewModel = DataContext as MainViewViewModel;
+            //NonClientAreaContent = new NonClientAreaContent(ViewModel.GeneralSettings.AppCulture.Culture);
             
         }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            var vm = DataContext as MainViewViewModel;
-            vm.BackToDashboard();
-            if (vm.FTPHlprs != null && vm.FTPHlprs.sFTP.IsConnected)
-                vm.FTPHlprs.sFTP.Disconnect();
+            //var vm = DataContext as MainViewViewModel;
+            //vm.BackToDashboard();
+            //if (vm.FTPHlprs != null && vm.FTPHlprs.sFTP.IsConnected)
+            //    vm.FTPHlprs.sFTP.Disconnect();
             e.Cancel = true;
             // Hide Window instead
             this.Visibility = Visibility.Collapsed;

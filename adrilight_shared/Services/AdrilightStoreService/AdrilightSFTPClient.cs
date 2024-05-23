@@ -1,22 +1,23 @@
-﻿using adrilight.View;
+﻿using adrilight_shared.Enums;
 using adrilight_shared.Models.AppUser;
 using adrilight_shared.Settings;
 using FTPServer;
+using GalaSoft.MvvmLight;
 using Renci.SshNet;
-using Renci.SshNet.Common;
+using Renci.SshNet.Sftp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
+using System.IO;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Media;
 
-namespace adrilight.Services.AdrilightStoreService
+namespace adrilight_shared.Services.AdrilightStoreService
 {
-    public class AdrilightSFTPClient
+    public class AdrilightSFTPClient : ViewModelBase
     {
+        private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
+        private string CacheFolderPath => Path.Combine(JsonPath, "Cache");
         #region Construct
         public AdrilightSFTPClient(IGeneralSettings generalSettings)
         {
@@ -48,11 +49,21 @@ namespace adrilight.Services.AdrilightStoreService
         private IGeneralSettings _generalSettings;
         private FTPServerHelpers _ftpServer;
         private AppUser _appUser;
+        private int _currentDownloadProgress;
+        public int CurrentDownloadProgress {
+            get { return _currentDownloadProgress; }
+            set
+            {
+                _currentDownloadProgress = value;
+                RaisePropertyChanged();
+            }
+        }
+        public bool IsInit { get; set; }
         #endregion
         #region Methods
         public void Init()
         {
-
+            IsInit = false;
             if (_ftpServer != null && _ftpServer.sFTP.IsConnected)
             {
                 _ftpServer.sFTP.Disconnect();
@@ -60,9 +71,15 @@ namespace adrilight.Services.AdrilightStoreService
             string userName = _appUser.LoginName;
             string password = _appUser.LoginPassword;
             _ftpServer.sFTP = new SftpClient(host, 1512, userName, password);
+            IsInit = true;
+
         }
         public bool Connect()
         {
+            if (_ftpServer == null)
+                return false;
+            if (_ftpServer.sFTP.IsConnected)
+                return false;
             try
             {
                 _ftpServer.sFTP.Connect();
@@ -72,8 +89,69 @@ namespace adrilight.Services.AdrilightStoreService
             {
                 //show dialog
                 return false;
-            }
 
+            }
+        }
+        private void DownloadProgresBar(ulong uploaded)
+        {
+            // Update progress bar on foreground thread
+            CurrentDownloadProgress = (int)uploaded;
+        }
+        //return saved path after download
+        public string DownloadFile(SftpFile filePath)
+        {
+            ClearCacheFolder();
+            var savePath = Path.Combine(CacheFolderPath, filePath.Name);
+            _ftpServer.DownloadFile(filePath.FullName, savePath, DownloadProgresBar);
+            return savePath;
+        }
+        public void DownloadFile(SftpFile filePath, string savePath)
+        {
+            ClearCacheFolder();
+            _ftpServer.DownloadFile(filePath.FullName, savePath, DownloadProgresBar);
+        }
+        public async Task<List<SftpFile>> DownloadDeviceInfo(string deviceName, string deviceType, DeviceConnectionTypeEnum connectionType)
+        {
+            var possibleMatchedDevices = new ObservableCollection<SftpFile>();
+            if (!Directory.Exists(CacheFolderPath))
+            {
+                Directory.CreateDirectory(CacheFolderPath);
+            }
+            if (_ftpServer == null)
+                Init();
+            var available = Connect();
+            if (!available)
+                return null;
+
+            SftpFile matchedFile = null;
+            string deviceFolderPath = string.Empty;
+            switch (connectionType)
+            {
+                case DeviceConnectionTypeEnum.OpenRGB:
+                    matchedFile = await _ftpServer.GetFileByNameMatching(deviceName + ".zip", openRGBDevicesFolderPath + "/" + deviceType);
+                    deviceFolderPath = openRGBDevicesFolderPath + "/" + deviceType;
+                    break;
+                case DeviceConnectionTypeEnum.Wired:
+                    matchedFile = await _ftpServer.GetFileByNameMatching(deviceName + ".zip", ambinoDevicesFolderPath + "/" + deviceType);
+                    deviceFolderPath = ambinoDevicesFolderPath + "/" + deviceType;
+                    break;
+            }
+            //return available device
+            var availableFiles = new List<SftpFile>();
+            availableFiles = await _ftpServer.GetAllFilesInFolder(deviceFolderPath);
+            return availableFiles;
+        }
+        public void ClearCacheFolder()
+        {
+            System.IO.DirectoryInfo cache = new DirectoryInfo(CacheFolderPath);
+            foreach (FileInfo file in cache.EnumerateFiles())
+            {
+                file.Delete();
+            }
+            foreach (DirectoryInfo dir in cache.EnumerateDirectories())
+            {
+                dir.Delete(true);
+            }
         }
         #endregion
 
@@ -93,4 +171,5 @@ namespace adrilight.Services.AdrilightStoreService
         ///
 
     }
+
 }

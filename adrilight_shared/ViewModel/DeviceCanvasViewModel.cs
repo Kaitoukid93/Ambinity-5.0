@@ -1,19 +1,12 @@
-﻿using adrilight_shared.Models.Device;
-using adrilight_shared.Models.Device.Zone;
-using adrilight_shared.Models.Drawable;
+﻿using adrilight_shared.Models.Drawable;
 using adrilight_shared.Services;
 using System;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows.Input;
 using System.Windows;
 using GalaSoft.MvvmLight;
-using adrilight_shared.Models.Device.SlaveDevice;
-using adrilight_shared.Helpers;
-using Serilog;
 using adrilight_shared.Models.Stores;
 using adrilight_shared.Models.RelayCommand;
-using System.Windows.Media;
 
 namespace adrilight_shared.ViewModel
 {
@@ -24,6 +17,7 @@ namespace adrilight_shared.ViewModel
     public class DeviceCanvasViewModel : ViewModelBase, IDisposable
     {
         #region Construct
+
         public DeviceCanvasViewModel(DeviceCanvas canvas, DeviceControlEvent controlEvent)
         {
             _deviceControlEvent = controlEvent;

@@ -17,7 +17,7 @@ namespace adrilight.Util
     {
         private const string ADRILIGHT_RELEASES = "https://github.com/Kaitoukid93/Ambinity_Developer_Release";
 
-        public AdrilightUpdater(IGeneralSettings settings, IAmbinityClient ambinityClient, IContext context, HWMonitor hWmonitor)
+        public AdrilightUpdater(IGeneralSettings settings, AmbinityClient ambinityClient, IContext context, HWMonitor hWmonitor)
         {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
             Context = context ?? throw new ArgumentNullException(nameof(context));
@@ -40,7 +40,7 @@ namespace adrilight.Util
         }
 
         public IGeneralSettings Settings { get; }
-        public IAmbinityClient AmbinityClient { get; }
+        public AmbinityClient AmbinityClient { get; }
         public HWMonitor HWMonitor { get; }
         public IContext Context { get; }
 

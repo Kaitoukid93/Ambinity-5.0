@@ -26,5 +26,15 @@ namespace adrilight.View
             var window = this.Parent as Window;
             window.DialogResult = false;
         }
+
+        private void OnKeyUpHandler(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+
+        }
+
+        private void OnKeyDownHandler(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+
+        }
     }
 }

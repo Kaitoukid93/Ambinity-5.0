@@ -51,15 +51,15 @@ namespace adrilight.View
 
         private void SourceIndexChanged(object sender, SelectionChangedEventArgs e)
         {
-            var viewModel = this.DataContext as MainViewViewModel;
-            if (viewModel.ClickedRegionButtonParameter == null)
-                return;
-            if (sourceList.SelectedIndex < 0)
-                return;
-            if (viewModel.AvailableBitmaps == null || viewModel.AvailableBitmaps.Count == 0)
-                return;
-            viewModel.ClickedRegionButtonParameter.CapturingSourceIndex = sourceList.SelectedIndex;
-            viewModel.CalculateAdjustingRectangle(viewModel.AvailableBitmaps[sourceList.SelectedIndex].Bitmap, viewModel.ClickedRegionButtonParameter.CapturingRegion);
+            //var viewModel = this.DataContext as MainViewViewModel;
+            //if (viewModel.ClickedRegionButtonParameter == null)
+            //    return;
+            //if (sourceList.SelectedIndex < 0)
+            //    return;
+            //if (viewModel.AvailableBitmaps == null || viewModel.AvailableBitmaps.Count == 0)
+            //    return;
+            //viewModel.ClickedRegionButtonParameter.CapturingSourceIndex = sourceList.SelectedIndex;
+            //viewModel.CalculateAdjustingRectangle(viewModel.AvailableBitmaps[sourceList.SelectedIndex].Bitmap, viewModel.ClickedRegionButtonParameter.CapturingRegion);
 
 
         }

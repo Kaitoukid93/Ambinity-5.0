@@ -1,7 +1,11 @@
-﻿using adrilight.Services.OpenRGBService;
+﻿
+using adrilight.Services.OpenRGBService;
 using adrilight.View;
+using adrilight.ViewModel;
 using adrilight_shared.Enums;
 using adrilight_shared.Models.Device;
+using adrilight_shared.Services;
+using adrilight_shared.Services.AdrilightStoreService;
 using adrilight_shared.Settings;
 using adrilight_shared.ViewModel;
 using Microsoft.Win32;
@@ -19,27 +23,28 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Xml.Linq;
 
 namespace adrilight.Services.DeviceDiscoveryServices
 {
     public class DeviceDiscovery
     {
+        private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
+        private string CacheFolderPath => Path.Combine(JsonPath, "Cache");
         public event Action<List<String>> SerialDevicesScanComplete;
         public event Action<List<Device>> OpenRGBDevicesScanComplete;
-        private static byte[] requestCommand = { (byte)'d', (byte)'i', (byte)'r' };
-        private static byte[] expectedValidHeader = { 15, 12, 93 };
-        private static byte[] settingCommand = { (byte)'h', (byte)'s', (byte)'d' };
-        private static byte[] unexpectedValidHeader = { (byte)'A', (byte)'b', (byte)'n' };
-        public DeviceDiscovery(IGeneralSettings settings, AmbinityClient ambinityClient, DeviceConstructor deviceConstructor)
+        public DeviceDiscovery(IGeneralSettings settings,
+            AmbinityClient ambinityClient
+)
         {
             _generaSettings = settings ?? throw new ArgumentNullException(nameof(settings));
             _ambinityClient = ambinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
-            _deviceConstructor = deviceConstructor;
+           
+           
             if (_generaSettings.UsingOpenRGB)
             {
 
             }
-            Start();
 
         }
         private bool _openRGBIsInit = false;
@@ -47,7 +52,9 @@ namespace adrilight.Services.DeviceDiscoveryServices
         private AmbinityClient _ambinityClient;
         private Thread _workerThread;
         private CancellationTokenSource _cancellationTokenSource;
-        private DeviceConstructor _deviceConstructor;
+        
+        
+        private AdrilightSFTPClient _sftpClient;
         public void Start()
         {
             //if (App.IsPrivateBuild) return;
@@ -82,208 +89,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
                 await Task.Delay(TimeSpan.FromSeconds(1));
             }
         }
-        public async Task<DeviceSettings> GetSerialDeviceInformation(string comPort, ProgressDialogViewModel vm)
-        {
-            var newDevice = new DeviceSettings();
-            string id = "000000";
-            string name = "unknown";
-            string fw = "unknown";
-            string hw = "unknown";
-            int hwLightingVersion = 0;
-            var _serialPort = new SerialPort(comPort, 1000000);
-            _serialPort.ReadTimeout = 5000;
-            _serialPort.WriteTimeout = 1000;
-            _serialPort.DtrEnable = true;
-            try
-            {
-                _serialPort.Open();
-            }
-            catch (Exception ex)
-            {
-                // Log.Error(ex,"AcessDenied " + _serialPort.PortName);
-                Log.Error(_serialPort.PortName + " is removed");
-                Thread.Sleep(2000);
-                return null;
-            }
-
-        //write request info command
-        retry:
-            try
-            {
-                _serialPort.Write(requestCommand, 0, 3);
-                _serialPort.WriteLine("\r\n");
-            }
-
-            catch (System.IO.IOException ex)// retry until received valid header
-            {
-                Log.Warning("This Device seems to have Ambino PID/VID but not an USB device " + _serialPort.PortName);
-                vm.CurrentProgressLog = "This Device seems to have Ambino PID/VID but not an USB device " + _serialPort.PortName;
-                return null;
-            }
-            int retryCount = 0;
-            int offset = 0;
-            int idLength = 0; // Expected response length of valid deviceID 
-            int nameLength = 0; // Expected response length of valid deviceName 
-            int fwLength = 0;
-            int hwLength = 0;
-
-            while (offset < 3)
-            {
-                try
-                {
-                    byte header = (byte)_serialPort.ReadByte();
-                    if (header == expectedValidHeader[offset])
-                    {
-                        offset++;
-                    }
-                    else if (header == unexpectedValidHeader[offset])
-                    {
-                        offset++;
-                        if (offset == 3)
-                        {
-                            Log.Information("Old Ambino Device at" + _serialPort.PortName + ". Restarting Firmware Request");
-                            vm.CurrentProgressLog = "Old Ambino Device at" + _serialPort.PortName + ". Restarting Firmware Request";
-                            goto retry;
-                        }
-                    }
-                }
-                catch (TimeoutException ex)// retry until received valid header
-                {
-                    _serialPort.Write(requestCommand, 0, 3);
-                    _serialPort.WriteLine("\r\n");
-                    retryCount++;
-                    if (retryCount == 3)
-                    {
-                        Log.Warning("timeout waiting for respond on serialport " + _serialPort.PortName);
-                        vm.CurrentProgressLog = "timeout waiting for respond on serialport " + _serialPort.PortName;
-                        //if (!isNoRespondingMessageShowed)
-                        //{
-                        //    isNoRespondingMessageShowed = true;
-                        //    HandyControl.Controls.MessageBox.Show("Device at " + _serialPort.PortName + " is not responding, try adding it manually", "Device is not responding", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        //}
-                        _serialPort.Close();
-                        _serialPort.Dispose();
-                        return null;
-                    }
-                }
-                catch (System.IO.IOException ex)// retry until received valid header
-                {
-                    return null;
-                }
-
-            }
-            if (offset == 3) //3 bytes header are valid
-            {
-                idLength = (byte)_serialPort.ReadByte();
-                int count = idLength;
-                var d = new byte[count];
-                while (count > 0)
-                {
-                    var readCount = _serialPort.Read(d, 0, count);
-                    offset += readCount;
-                    count -= readCount;
-                }
-                id = BitConverter.ToString(d);
-                vm.CurrentProgressLog = "ID: " + id;
-            }
-
-            if (offset == 3 + idLength) //3 bytes header are valid
-            {
-                nameLength = (byte)_serialPort.ReadByte();
-                int count = nameLength;
-                var n = new byte[count];
-                while (count > 0)
-                {
-                    var readCount = _serialPort.Read(n, 0, count);
-                    offset += readCount;
-                    count -= readCount;
-                }
-                name = Encoding.ASCII.GetString(n, 0, n.Length);
-                vm.CurrentProgressLog = "Name: " + name;
-
-            }
-            if (offset == 3 + idLength + nameLength) //3 bytes header are valid
-            {
-                fwLength = (byte)_serialPort.ReadByte();
-                int count = fwLength;
-                var f = new byte[count];
-                while (count > 0)
-                {
-                    var readCount = _serialPort.Read(f, 0, count);
-                    offset += readCount;
-                    count -= readCount;
-                }
-                fw = Encoding.ASCII.GetString(f, 0, f.Length);
-                vm.CurrentProgressLog = "Firmware: " + fw;
-            }
-            if (offset == 3 + idLength + nameLength + fwLength) //3 bytes header are valid
-            {
-                try
-                {
-                    hwLength = (byte)_serialPort.ReadByte();
-                    int count = hwLength;
-                    var h = new byte[count];
-                    while (count > 0)
-                    {
-                        var readCount = _serialPort.Read(h, 0, count);
-                        offset += readCount;
-                        count -= readCount;
-                    }
-                    hw = Encoding.ASCII.GetString(h, 0, h.Length);
-                    vm.CurrentProgressLog = "Hardware: " + hw;
-                }
-                catch (TimeoutException)
-                {
-                    Log.Information(name.ToString(), "Unknown Hardware Version");
-                    vm.CurrentProgressLog = "Unknown Hardware Version";
-                }
-
-            }
-            if (offset == 3 + idLength + nameLength + fwLength + hwLength) //3 bytes header are valid
-            {
-                try
-                {
-                    hwLightingVersion = _serialPort.ReadByte();
-                }
-                catch (TimeoutException)
-                {
-                    Log.Information(name.ToString(), "Unknown Hardware Lighting Version");
-                    vm.CurrentProgressLog = "Unknown Hardware Lighting Version";
-                }
-
-            }
-            //construct new device
-            vm.CurrentProgressLog = "Constructing new device...";
-            vm.ProgressBarVisibility = Visibility.Visible;
-            vm.Value = 10;
-            //check for online available
-            vm.CurrentProgressLog ="Downloading device modules: " + name;
-            var result = await DownloadDeviceInfo(device);
-            if (!result)
-            {
-                SetSearchingScreenHeaderText("Using Default: " + device.DeviceName, true);
-            }
-            else
-            {
-                SetSearchingScreenHeaderText("Device modules downloaded: " + device.DeviceName, true);
-                var downloadedDevice = ImportDevice(Path.Combine(CacheFolderPath, device.DeviceName + ".zip"));
-                if (downloadedDevice != null)
-                {
-                    //transplant
-                    downloadedDevice.OutputPort = device.OutputPort;
-                    downloadedDevice.FirmwareVersion = device.FirmwareVersion;
-                    downloadedDevice.HardwareVersion = device.HardwareVersion;
-                    downloadedDevice.DeviceSerial = device.DeviceSerial;
-                    downloadedDevice.DeviceType.ConnectionTypeEnum = device.DeviceType.ConnectionTypeEnum;
-                    device = downloadedDevice;
-                }
-            }
-            //if not, construct new device
-            var dev = _deviceConstructor.ConstructNewDevice(name, id, fw, hw, hwLightingVersion, comPort);
-            _serialPort.Close();
-            _serialPort.Dispose();
-            return dev;
-        }
+        
         private async Task ScanOpenRGBDevices()
         {
             if (!_ambinityClient.IsInitialized && !_ambinityClient.IsInitializing)
@@ -366,87 +172,6 @@ namespace adrilight.Services.DeviceDiscoveryServices
                 Log.Warning("No Compatible Device Detected");
             }
             SerialDevicesScanComplete?.Invoke(devices);
-        }
-        private async Task<bool> DownloadDeviceInfo(IDeviceSettings device)
-        {
-            bool result;
-            PossibleMatchedDevices = new ObservableCollection<SftpFile>();
-            if (!Directory.Exists(CacheFolderPath))
-            {
-                Directory.CreateDirectory(CacheFolderPath);
-            }
-            if (FTPHlprs == null)
-            {
-                SFTPInit(GeneralSettings.CurrentAppUser);
-                SFTPConnect();
-            }
-            if (!FTPHlprs.sFTP.IsConnected)
-            {
-                try
-                {
-                    SFTPConnect();
-                }
-                catch (Exception ex)
-                {
-                    result = false;
-                    return await Task.FromResult(result);
-                }
-            }
-            SftpFile matchedFile = null;
-            string deviceFolderPath = string.Empty;
-            switch (device.DeviceType.ConnectionTypeEnum)
-            {
-                case DeviceConnectionTypeEnum.OpenRGB:
-                    matchedFile = await FTPHlprs.GetFileByNameMatching(device.DeviceName + ".zip", openRGBDevicesFolderPath + "/" + device.DeviceType.Type.ToString());
-                    deviceFolderPath = openRGBDevicesFolderPath + "/" + device.DeviceType.Type.ToString();
-                    break;
-                case DeviceConnectionTypeEnum.Wired:
-                    matchedFile = await FTPHlprs.GetFileByNameMatching(device.DeviceName + ".zip", ambinoDevicesFolderPath + "/" + device.DeviceType.Type.ToString());
-                    deviceFolderPath = ambinoDevicesFolderPath + "/" + device.DeviceType.Type.ToString();
-                    break;
-            }
-            if (matchedFile == null)
-            //return available device instead
-            {
-                var availableFiles = await FTPHlprs.GetAllFilesInFolder(deviceFolderPath);
-                if (availableFiles == null)
-                {
-                    result = false;
-                    return await Task.FromResult(result);
-                }
-                foreach (var file in availableFiles)
-                {
-                    await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
-                    {
-                        PossibleMatchedDevices.Add(file);
-                    });
-                }
-                if (PossibleMatchedDevices != null && PossibleMatchedDevices.Count > 0)
-                {
-                    await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
-                    {
-                        possibleMatchedDeviceSelection = new PossibleMatchedDeviceSelectionWindow();
-                        possibleMatchedDeviceSelection.Owner = _searchingForDeviceScreen;
-                        bool? dialogResult = possibleMatchedDeviceSelection.ShowDialog();
-                        if (dialogResult == true)
-                        {
-                            matchedFile = SelectedMatchedDevice;
-                        }
-                    });
-                }
-            }
-            //if user decide to cancel or nothing exist
-            if (matchedFile == null)
-            {
-                result = false;
-                return await Task.FromResult(result);
-            }
-            //if nothing wrong, download to cache
-            ClearCacheFolder();
-            FTPHlprs.DownloadFile(matchedFile.FullName, Path.Combine(CacheFolderPath, matchedFile.Name), DownloadProgresBar);
-            device.DeviceName = Path.GetFileNameWithoutExtension(Path.Combine(CacheFolderPath, matchedFile.Name));
-            result = true;
-            return await Task.FromResult(result);
         }
     }
 }

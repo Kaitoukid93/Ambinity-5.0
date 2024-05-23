@@ -1,17 +1,27 @@
 ﻿<hc:Window x:Class="adrilight.View.MainView"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"  
-        xmlns:hc="https://handyorg.github.io/handycontrol"
-        xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
-        d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
-        DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}" 
-        Background="{StaticResource RegionBrush}"
-        mc:Ignorable="d"
-        WindowStartupLocation="CenterScreen"                
-        AllowDrop="True" AllowsTransparency="False"
-        MinHeight="480"  MinWidth="640" Closing="Window_Closing">
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+           xmlns:hc="https://handyorg.github.io/handycontrol"
+           xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
+           xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+           d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewModel}"
+           DataContext="{Binding Source={StaticResource Locator}, Path=MainViewModel}"
+           Background="{StaticResource RegionBrush}"
+           mc:Ignorable="d"
+           WindowStartupLocation="CenterScreen"
+           AllowDrop="True"
+           AllowsTransparency="False"
+           MinHeight="480"
+           MinWidth="640"
+           Closing="Window_Closing">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction Command="{Binding WindowClosingCommand}"
+                                   CommandParameter="close" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
 
     <Window.Resources>
         <ResourceDictionary>
@@ -23,36 +33,46 @@
                 </ResourceDictionary>
 
             </ResourceDictionary.MergedDictionaries>
-            <Style x:Key="_systemTrayContextMenuStyle" TargetType="MenuItem">
+            <Style x:Key="_systemTrayContextMenuStyle"
+                   TargetType="MenuItem">
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="MenuItem">
-                            <Border CornerRadius="4" Name="_Border"
-                                Padding="0"
-                                Margin="0"
-                                Background="Transparent"   
-                                BorderBrush="{StaticResource DarkMaskBrush}"
-                                BorderThickness="0"
-                                SnapsToDevicePixels="true">
-                                <MenuItem Header="{Binding Header}" Command="{Binding Action}" ItemsSource="{Binding Path=SubMenus}">
+                            <Border CornerRadius="4"
+                                    Name="_Border"
+                                    Padding="0"
+                                    Margin="0"
+                                    Background="Transparent"
+                                    BorderBrush="{StaticResource DarkMaskBrush}"
+                                    BorderThickness="0"
+                                    SnapsToDevicePixels="true">
+                                <MenuItem Header="{Binding Header}"
+                                          Command="{Binding Action}"
+                                          ItemsSource="{Binding Path=SubMenus}">
                                     <MenuItem.Icon>
-                                        <Path Data="{Binding Geometry, Converter={converters:StaticResourceConverter}}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                        <Path Data="{Binding Geometry, Converter={converters:StaticResourceConverter}}"
+                                              Fill="{DynamicResource PrimaryTextBrush}"
+                                              Stretch="Uniform" />
                                     </MenuItem.Icon>
                                 </MenuItem>
                             </Border>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
-                <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+                <Setter Property="Foreground"
+                        Value="{StaticResource PrimaryTextBrush}" />
             </Style>
         </ResourceDictionary>
     </Window.Resources>
 
     <Grid>
         <Grid>
-            <hc:NotifyIcon Click="OpenDashboard" x:Name="noticon" Token="Ambinity"  Text="Ambinity" >
+            <hc:NotifyIcon Click="OpenDashboard"
+                           x:Name="noticon"
+                           Token="Ambinity"
+                           Text="Ambinity">
                 <hc:NotifyIcon.ContextMenu>
-                    <ContextMenu >
+                    <ContextMenu>
                         <!--<ContextMenu.ItemTemplate>
                                 <HierarchicalDataTemplate ItemsSource="{Binding SubMenus}"  DataType="{x:Type vm:SystemTrayContextMenu}">
                                  
@@ -61,16 +81,22 @@
 
 
 
-                        <MenuItem  Click="OpenDashboard" Header="Dashboard">
+                        <MenuItem  Click="OpenDashboard"
+                                   Header="Dashboard">
                             <MenuItem.Icon>
-                                <Path   Data="{StaticResource dashboard}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                <Path   Data="{StaticResource dashboard}"
+                                        Fill="{StaticResource PrimaryTextBrush}"
+                                        Stretch="Uniform" />
                             </MenuItem.Icon>
 
                         </MenuItem>
 
-                        <MenuItem  Command="hc:ControlCommands.ShutdownApp" Header="Exit">
+                        <MenuItem  Command="hc:ControlCommands.ShutdownApp"
+                                   Header="Exit">
                             <MenuItem.Icon>
-                                <Path   Data="{StaticResource exit}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                <Path   Data="{StaticResource exit}"
+                                        Fill="{StaticResource PrimaryTextBrush}"
+                                        Stretch="Uniform" />
                             </MenuItem.Icon>
                         </MenuItem>
                     </ContextMenu>
@@ -80,7 +106,7 @@
             <Grid>
                 <Grid>
                     <hc:TransitioningContentControl TransitionMode="Right2LeftWithFade">
-                        <ContentPresenter Content="{Binding SelectedViewPart.Content}"/>
+                        <ContentPresenter Content="{Binding SelectedViewPart.Content}" />
                     </hc:TransitioningContentControl>
                 </Grid>
             </Grid>

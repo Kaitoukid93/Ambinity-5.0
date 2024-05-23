@@ -1,23 +1,19 @@
-﻿using adrilight.Ticker;
+﻿using adrilight.Manager;
 using adrilight.View;
-using adrilight.ViewModel.DeviceManager;
-using adrilight_shared.Helpers;
-using adrilight_shared.Models.ControlMode.Mode;
-using adrilight_shared.Models.Device;
+using adrilight.View.Screens.LightingProfile;
 using adrilight_shared.Models.ItemsCollection;
 using adrilight_shared.Models.Lighting;
 using adrilight_shared.Models.RelayCommand;
-using adrilight_shared.Models.Stores;
 using adrilight_shared.Services;
 using adrilight_shared.View.NonClientAreaContent;
 using adrilight_shared.ViewModel;
 using GalaSoft.MvvmLight;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using static adrilight.View.PlaylistEditorView;
+using static adrilight.View.Screens.LightingProfile.ManagerCollectionView;
 
 namespace adrilight.ViewModel.Profile
 {
@@ -38,8 +34,9 @@ namespace adrilight.ViewModel.Profile
         /// <param name="playerViewModel"></param>
         #region Construct
 
-        public LightingProfileManagerViewModel(PlaylistDecoder decoder,
+        public LightingProfileManagerViewModel(
             DialogService service,
+            LightingProfileManager profileManager,
             IList<ISelectablePage> availablePages,
             LightingProfilePlaylistEditorViewModel editorViewModel,
             LightingProfileCollectionViewModel profileCollectionViewModel,
@@ -47,10 +44,14 @@ namespace adrilight.ViewModel.Profile
         {
             //load profile and playlist
             SelectablePages = availablePages;
-            _decoder = decoder;
+
             _profileCollectionViewModel = profileCollectionViewModel;
+            _profileCollectionViewModel.LightingProfileClicked += OnProfileClicked;
+            _profileCollectionViewModel.PlaylistClicked += OnPlaylistClicked;
+            _profileCollectionViewModel.PlaylistCardButtonClicked += OnPlaylistPlayButtonClicked;
             _playerViewModel = playerViewModel;
             _dialogService = service;
+            _profileManager = profileManager;
             _playlistEditorViewModel = editorViewModel;
             LoadNonClientAreaData("Adrilight  |  Lighting Profile Manager", "profileManager", false, null);
             LoadData();
@@ -66,6 +67,7 @@ namespace adrilight.ViewModel.Profile
         private void OnProfileClicked(IGenericCollectionItem item)
         {
             //play this profile
+            _profileManager.ActivateProfile(item as LightingProfile);
         }
         private void OnPlaylistClicked(IGenericCollectionItem item)
         {
@@ -75,16 +77,17 @@ namespace adrilight.ViewModel.Profile
         private void OnPlaylistPlayButtonClicked(IGenericCollectionItem item)
         {
             //play this playlist
+            _profileManager.ActivatePlaylist(item as LightingProfilePlaylist);
         }
         #endregion
 
 
         #region Properties
         public NonClientArea NonClientAreaContent { get; set; }
-        private PlaylistDecoder _decoder;
+        private LightingProfileManager _profileManager;
         private LightingProfileCollectionViewModel _profileCollectionViewModel;
         private LightingProfilePlayerViewModel _playerViewModel;
-        private ProfilesManager _lightingProfileManager;
+        private LightingProflileDBManager _lightingProfileManager;
         private bool _isManagerWindowOpen;
         private DialogService _dialogService;
         private ISelectablePage _selectedPage;
@@ -158,19 +161,7 @@ namespace adrilight.ViewModel.Profile
         }
         public void LoadData()
         {
-
-            _lightingProfileManager = new ProfilesManager();
-            var profiles = _lightingProfileManager.LoadLightingProfileIfExist();
-            if (profiles == null)
-                return;
-
-            var playlists = _lightingProfileManager.LoadLightingProfilePlaylistIfExist();
-            if (playlists == null)
-                return;
-            _profileCollectionViewModel.Init(profiles, playlists);
-            _profileCollectionViewModel.LightingProfileClicked += OnProfileClicked;
-            _profileCollectionViewModel.PlaylistClicked += OnPlaylistClicked;
-            _profileCollectionViewModel.PlaylistCardButtonClicked += OnPlaylistPlayButtonClicked;
+            _profileCollectionViewModel.Init();
             BacktoCollectionView();
         }
         private void GotoPlaylistEditor(IGenericCollectionItem item)
@@ -181,9 +172,8 @@ namespace adrilight.ViewModel.Profile
             }
             var playlist = item as LightingProfilePlaylist;
             //show editor view
-            var editorView = SelectablePages.Where(p => p.PageName == "Playlist Editor View").First();
+            var editorView = SelectablePages.Where(p => p is PlaylistEditorViewPage).First();
             _playlistEditorViewModel.Init(playlist);
-            (editorView.Content as PlaylistEditorView).DataContext = _playlistEditorViewModel;
             SelectedPage = editorView;
             ICommand backButtonCommand = new RelayCommand<string>((p) =>
             {
@@ -199,29 +189,12 @@ namespace adrilight.ViewModel.Profile
         private void BacktoCollectionView()
         {
             LoadNonClientAreaData("Adrilight  |  Lighting Profile Manager", "profileManager", false, null);
-            var collectionView = SelectablePages.Where(p => p.PageName == "Profiles Collection View").First();
-            (collectionView as ProfileCollectionView).DataContext = _profileCollectionViewModel;
+            var collectionView = SelectablePages.Where(p => p is ManagerCollectionViewPage).First();
             SelectedPage = collectionView;
 
         }
         //play profile by UID for specific device, called by automation executor
-        public async Task ActivateProfile(string profileUID,IDeviceSettings targetDevice)
-        {
-            var profile = _profileCollectionViewModel.AvailableLightingProfiles.Items.Where(p=>(p as LightingProfile).ProfileUID == profileUID).FirstOrDefault() as LightingProfile;   
-            if(profile!=null)
-            {
-              await _decoder.Play(profile, targetDevice);
-            }
-        }
-        //play profile for all device
-        public void ActivateProfile(LightingProfile profile)
-        {
 
-        }
-        public void ActivateProfile(LightingProfile profile,IDeviceSettings targetDevice)
-        {
-
-        }
         #endregion
 
 

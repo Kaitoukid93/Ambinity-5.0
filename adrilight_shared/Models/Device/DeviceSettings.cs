@@ -90,7 +90,7 @@ namespace adrilight_shared.Models.Device
         public bool IsEditing { get; set; }
         [JsonIgnore]
         public bool IsChecked { get => _isChecked; set { Set(() => IsChecked, ref _isChecked, value); } }
-        public string LocalPath => Path.Combine(DevicesCollectionFolderPath, DeviceName + "-" + DeviceUID);
+        public string LocalPath { get => Path.Combine(DevicesCollectionFolderPath, DeviceName + "-" + DeviceUID); set { } }
         public string InfoPath { get; set; }
         private bool _autoConnect = true;
         public bool AutoConnect { get => _autoConnect; set { Set(() => AutoConnect, ref _autoConnect, value); } }

@@ -9,18 +9,20 @@ using adrilight_shared.Models.Stores;
 using System.Windows.Documents;
 using System.Collections.Generic;
 using System;
+using adrilight.Manager;
 
-namespace adrilight.ViewModel.DeviceManager
+namespace adrilight.ViewModel
 {
     public class DeviceCollectionViewModel : ViewModelBase
     {
         //raise when item get clicked by user
         public event Action<IGenericCollectionItem> DeviceCardClicked;
         #region Construct
-        public DeviceCollectionViewModel()
+        public DeviceCollectionViewModel(DeviceManager deviceManager)
         {
             AvailableTools = new ObservableCollection<CollectionItemTool>();
             AvailableDevices = new ItemsCollection();
+            _devicemanager = deviceManager;
             CommandSetup();
         }
 
@@ -30,6 +32,7 @@ namespace adrilight.ViewModel.DeviceManager
 
         #region Properties
         public ItemsCollection AvailableDevices { get; set; }
+        private DeviceManager _devicemanager;
         public ObservableCollection<CollectionItemTool> AvailableTools { get; set; }
         private string _warningMessage = adrilight_shared.Properties.Resources.DeviceManager_DisConnect_Warning_Message;
         public string WarningMessage {
@@ -47,10 +50,10 @@ namespace adrilight.ViewModel.DeviceManager
         #endregion
 
         #region Methods
-        public void Init(List<DeviceSettings> devices)
+        public void Init()
         {
             AvailableDevices.Items.Clear();
-            foreach(var device in devices)
+            foreach(DeviceSettings device in _devicemanager.AvailableDevices)
             {
                 AvailableDevices.AddItem(device);
             }
@@ -77,10 +80,6 @@ namespace adrilight.ViewModel.DeviceManager
             {
                 DeviceCardClicked?.Invoke(p);
             });
-        }
-        public IDeviceSettings CheckDeviceForExistence(string comport)
-        {
-            return AvailableDevices.Items.Where(d => (d as DeviceSettings).OutputPort == comport).FirstOrDefault() as DeviceSettings;
         }
         private void UpdateTools()
         {

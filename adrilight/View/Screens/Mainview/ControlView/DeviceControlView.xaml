@@ -10,7 +10,8 @@
              xmlns:dvcvs="clr-namespace:adrilight.View.DeviceCanvas"
              xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
              mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance Type=viewmodel:DeviceControlViewModel}"
+             d:DataContext="{Binding Source={StaticResource Locator}, Path=DeviceControlViewModel}"
+             DataContext="{Binding Source={StaticResource Locator}, Path=DeviceControlViewModel}"
              Background="{StaticResource RegionBrush}">
 
     <UserControl.Resources>
@@ -221,6 +222,7 @@
                         Margin="10,0,10,0"
                         VerticalAlignment="Center"
                         BorderThickness="0"
+                        Command="{Binding BackToDashboardCommand}"
                         HorizontalAlignment="Center"
                         hc:IconElement.Width="20"
                         hc:IconElement.Height="20"
@@ -449,7 +451,7 @@
                         <Border Margin="0,10,10,10"
                                 CornerRadius="4"
                                 Background="Transparent">
-                            <dvcvs:DeviceCanvasView DataContext="{Binding CanvasViewModel}">
+                            <dvcvs:DeviceCanvasView>
                             </dvcvs:DeviceCanvasView>
                         </Border>
                     </Grid>

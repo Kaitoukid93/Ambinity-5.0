@@ -10,6 +10,9 @@ using System.Windows.Documents;
 using System.Collections.Generic;
 using System;
 using adrilight_shared.Models.Automation;
+using adrilight_shared.ViewModel;
+using adrilight_shared.Services;
+using adrilight.Manager;
 
 namespace adrilight.ViewModel.Automation
 {
@@ -18,20 +21,26 @@ namespace adrilight.ViewModel.Automation
         //raise when item get clicked by user
         public event Action<IGenericCollectionItem> AutomationCardClicked;
         #region Construct
-        public AutomationCollectionViewModel()
+        public AutomationCollectionViewModel(DialogService dialogSerivce, AutomationManager manager)
         {
             AvailableTools = new ObservableCollection<CollectionItemTool>();
+            _dialogService = dialogSerivce;
+            _automationManager = manager;
             AvailableAutomations = new ItemsCollection();
             CommandSetup();
         }
-
         #endregion
 
+        #region Events
+
+        #endregion
 
 
         #region Properties
         public ItemsCollection AvailableAutomations { get; set; }
         public ObservableCollection<CollectionItemTool> AvailableTools { get; set; }
+        private DialogService _dialogService;
+        private AutomationManager _automationManager;
         private string _warningMessage;
         public string WarningMessage {
             get
@@ -48,10 +57,10 @@ namespace adrilight.ViewModel.Automation
         #endregion
 
         #region Methods
-        public void Init(List<AutomationSettings> automations)
+        public void Init()
         {
             AvailableAutomations.Items.Clear();
-            foreach (var automation in automations)
+            foreach (var automation in _automationManager.AvailableAutomations)
             {
                 AvailableAutomations.AddItem(automation);
             }
@@ -78,6 +87,22 @@ namespace adrilight.ViewModel.Automation
             {
                 AutomationCardClicked?.Invoke(p);
             });
+            OpenCreateNewAutomationCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                var vm = new AddNewDialogViewModel(adrilight_shared.Properties.Resources.AddNew, "New Playlist", null);
+                _dialogService.ShowDialog<AddNewDialogViewModel>(result =>
+                {
+                    if (result == "True")
+                    {
+                        //tell automation manager to add new automation
+                        _automationManager.AddNewAutomation(vm.Content);
+                    }
+
+                }, vm);
+            });
         }
         private void UpdateTools()
         {
@@ -91,21 +116,6 @@ namespace adrilight.ViewModel.Automation
             AvailableTools.Add(DeleteTool());
 
         }
-        public AutomationSettings GetShutdownAutomation() => AvailableAutomations.Items.Where(
-                a => ((a as AutomationSettings).Condition is SystemEventTriggerCondition)
-            && ((a as AutomationSettings).Condition as SystemEventTriggerCondition).Event == SystemEventEnum.Shutdown)
-                .FirstOrDefault()
-                as AutomationSettings;
-        public AutomationSettings GetMonitorSleepAutomation() => AvailableAutomations.Items.Where(
-               a => ((a as AutomationSettings).Condition is SystemEventTriggerCondition)
-           && ((a as AutomationSettings).Condition as SystemEventTriggerCondition).Event == SystemEventEnum.MonitorSleep)
-               .FirstOrDefault()
-               as AutomationSettings;
-        public AutomationSettings GetMonitorWakeUpAutomation() => AvailableAutomations.Items.Where(
-               a => ((a as AutomationSettings).Condition is SystemEventTriggerCondition)
-           && ((a as AutomationSettings).Condition as SystemEventTriggerCondition).Event == SystemEventEnum.MonitorWakeup)
-               .FirstOrDefault()
-               as AutomationSettings;
         private CollectionItemTool DeleteTool()
         {
             return new CollectionItemTool() {
@@ -121,6 +131,7 @@ namespace adrilight.ViewModel.Automation
         #region Command
         public ICommand CollectionItemToolCommand { get; set; }
         public ICommand AutomationCardClickCommand { get; set; }
+        public ICommand OpenCreateNewAutomationCommand { get; set; }
         #endregion
 
     }

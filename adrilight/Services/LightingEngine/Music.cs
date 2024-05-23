@@ -23,7 +23,6 @@ namespace adrilight.Services.LightingEngine
     {
         public Music(
             IGeneralSettings generalSettings,
-            MainViewViewModel mainViewViewModel,
             ICaptureEngine[] audioFrame,
             IControlZone zone,
             RainbowTicker rainbowTicker
@@ -31,7 +30,6 @@ namespace adrilight.Services.LightingEngine
         {
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
             CurrentZone = zone as LEDSetup ?? throw new ArgumentNullException(nameof(zone));
-            MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             RainbowTicker = rainbowTicker ?? throw new ArgumentNullException(nameof(rainbowTicker));
             if (audioFrame != null && audioFrame.Count() > 0)
             {
@@ -39,7 +37,6 @@ namespace adrilight.Services.LightingEngine
             }
             GeneralSettings.PropertyChanged += PropertyChanged;
             CurrentZone.PropertyChanged += PropertyChanged;
-            MainViewViewModel.PropertyChanged += PropertyChanged;
         }
 
         /// <summary>
@@ -48,7 +45,6 @@ namespace adrilight.Services.LightingEngine
         private IGeneralSettings GeneralSettings { get; }
         public bool IsRunning { get; private set; }
         private LEDSetup CurrentZone { get; }
-        private MainViewViewModel MainViewViewModel { get; }
         private RainbowTicker RainbowTicker { get; }
         private ICaptureEngine AudioFrame { get; set; }
 
@@ -313,9 +309,8 @@ namespace adrilight.Services.LightingEngine
             var shouldBeRunning =
                 _currentLightingMode.BasedOn == LightingModeEnum.MusicCapturing &&
                 //this zone has to be enable, this could be done by stop setting the spots, but the this thread still alive, so...
-                CurrentZone.IsEnabled == true &&
+                CurrentZone.IsEnabled == true;
                 //stop this engine when any surface or editor open because this could cause capturing fail
-                MainViewViewModel.IsRichCanvasWindowOpen == false;
             ////registering group shoud be done
             //MainViewViewModel.
             //== false;
@@ -446,11 +441,6 @@ namespace adrilight.Services.LightingEngine
                 {
                     if (_runState == RunStateEnum.Run)
                     {
-                        if (MainViewViewModel.IsRichCanvasWindowOpen)
-                        {
-                            Thread.Sleep(100);
-                            continue;
-                        }
                         var startPID = CurrentZone.Spots.MinBy(s => s.Index).FirstOrDefault().Index;
                         NextTick();
                         var ledCount = CurrentZone.Spots.Count();

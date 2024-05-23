@@ -3,32 +3,25 @@ using adrilight.Ninject;
 using adrilight.Services.CaptureEngine;
 using adrilight.Services.CaptureEngine.ScreenCapture;
 using adrilight.Services.DeviceDiscoveryServices;
-using adrilight.Services.LightingEngine;
 using adrilight.Services.OpenRGBService;
-using adrilight.Services.SerialStream;
 using adrilight.Ticker;
 using adrilight.Util;
 using adrilight.View;
 using adrilight.View.Screens.OOBExperience;
 using adrilight.ViewModel;
 using adrilight.ViewModel.Automation;
-using adrilight_shared.Enums;
 using adrilight_shared.Helpers;
-using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.Device;
-using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.Language;
 using adrilight_shared.Services;
 using adrilight_shared.Settings;
 using adrilight_shared.View.Dialogs;
 using adrilight_shared.ViewModel;
 using HandyControl.Themes;
-using HandyControl.Tools.Extension;
 using Microsoft.ApplicationInsights;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using Ninject;
-using Ninject.Extensions.Conventions;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -37,11 +30,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Media;
 using Un4seen.Bass;
 using SplashScreen = adrilight.View.SplashScreen;
@@ -126,15 +117,16 @@ namespace adrilight
             _splashScreen.Show();
             _splashScreen.Header.Text = adrilight_shared.Properties.Resources.App_OnStartup_AdrilightIsLoading;
             _splashScreen.status.Text = adrilight_shared.Properties.Resources.App_OnStartup_LOADINGKERNEL;
+
+
             kernel = await Task.Run(() => SetupDependencyInjection(false));
+            //start device service
+            var deviceManager = kernel.Get<DeviceManager>();
+            this.Resources["Locator"] = new ViewModelLocator(kernel);
+
             var dialogService = kernel.Get<IDialogService>();
-            dialogService.RegisterDialog<DeleteDialog, DeleteDialogViewModel>();
-            dialogService.RegisterDialog<RenameDialog, RenameDialogViewModel>();
-            dialogService.RegisterDialog<AddNewDialog, AddNewDialogViewModel>();
-            dialogService.RegisterDialog<NumberInputDialog, NumberInputDialogViewModel>();
-            dialogService.RegisterDialog<ProgressDialog, ProgressDialogViewModel>();
-            dialogService.RegisterDialog<AutomationDialogView, AutomationDialogViewModel>();
-            dialogService.RegisterDialog<HotKeySelectionDialog, HotKeySelectionViewModel>();
+            RegisterDialog(dialogService);
+
             //close splash screen and open dashboard
             this.Resources["Locator"] = new ViewModelLocator(kernel);
             _telemetryClient = kernel.Get<TelemetryClient>();
@@ -144,7 +136,18 @@ namespace adrilight
             OpenSettingsWindow(GeneralSettings.StartMinimized);
 
             SetupTrackingForProcessWideEvents(_telemetryClient);
-            kernel.Get<AdrilightUpdater>().StartThread();
+            //kernel.Get<AdrilightUpdater>().StartThread();
+        }
+        private void RegisterDialog(IDialogService dialogService)
+        {
+            dialogService.RegisterDialog<DeleteDialog, DeleteDialogViewModel>();
+            dialogService.RegisterDialog<RenameDialog, RenameDialogViewModel>();
+            dialogService.RegisterDialog<AddNewDialog, AddNewDialogViewModel>();
+            dialogService.RegisterDialog<NumberInputDialog, NumberInputDialogViewModel>();
+            dialogService.RegisterDialog<ProgressDialog, ProgressDialogViewModel>();
+            dialogService.RegisterDialog<AutomationDialogView, AutomationDialogViewModel>();
+            dialogService.RegisterDialog<HotKeySelectionDialog, HotKeySelectionViewModel>();
+            dialogService.RegisterDialog<DeviceSearchingScreen, DeviceSearchingDialogViewModel>();
         }
 
         protected override void OnExit(ExitEventArgs e)
@@ -181,13 +184,6 @@ namespace adrilight
             var kernel = new StandardKernel(new DeviceSettingsInjectModule());
             GeneralSettings = kernel.Get<IGeneralSettings>();
             Thread.CurrentThread.CurrentUICulture = GeneralSettings.AppCulture.Culture;
-            
-            //Load setting từ file Json//
-            var deviceManager = kernel.Get<DeviceManagerViewModel>();
-            var captureEngines = kernel.GetAll<ICaptureEngine>();
-            var rainbowTicker = kernel.Get<RainbowTicker>();
-            var playlistDecoder = kernel.Get<PlaylistDecoder>();
-            var hwMonitor = kernel.Get<HWMonitor>();
 
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
@@ -200,55 +196,7 @@ namespace adrilight
                 Thread.CurrentThread.CurrentUICulture = GeneralSettings.AppCulture.Culture;
                 _splashScreen.status.Text = adrilight_shared.Properties.Resources.App_SetupDependencyInjection_PROCESSESCREATED;
             });
-            MainViewViewModel = kernel.Get<MainViewViewModel>();
-            if (!GeneralSettings.StartMinimized)
-                MainViewViewModel.IsAppActivated = true;
-            MainViewViewModel.AvailableDevices.CollectionChanged += (s, e) =>
-            {
-                switch (e.Action)
-                {
-                    case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
-                        var newDevices = e.NewItems;
-                        // create new IDeviceSettings with new Name
-                        //Get ID:
-                        foreach (IDeviceSettings device in newDevices)
-                        {
-                            var iD = device.DeviceUID.ToString();
-                            kernel.Bind<IDeviceSettings>().ToConstant(device).Named(iD);
-                            //now inject
-                            InjectingDevice(kernel, device);
-                            device.DeviceEnableChanged();
-                            var playlistDecoder = kernel.Get<PlaylistDecoder>();
-                            playlistDecoder.AvailableDevices.Add(device);
-                            //since openRGBStream is single instance, we need to manually add device then refresh
-                        }
-                        break;
 
-                    case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
-                        var removedDevice = e.OldItems;
-                        foreach (IDeviceSettings device in removedDevice) // when an item got removed, simply stop dependencies service from running
-                        {
-                            device.IsTransferActive = false;
-                            UnInjectingDevice(kernel, device);
-                        }
-                        break;
-
-                    case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
-                        ResetDevicesBinding(kernel);
-                        break;
-                }
-            };
-            if (deviceManager.AvailableDevices != null)
-            {
-                foreach (var device in deviceManager.AvailableDevices.Items)
-                {
-                    lock (MainViewViewModel.AvailableDeviceLock)
-                    {
-                        MainViewViewModel.AvailableDevices.Insert(0, device as DeviceSettings);
-                    }
-                }
-            }
-            var deviceDiscovery = kernel.Get<DeviceDiscovery>();
             var dbManager = kernel.Get<DBmanager>();
             return kernel;
         }
@@ -257,153 +205,15 @@ namespace adrilight
         {
             // Application activated
             //tell mainview that this app is being focused
-            if (MainViewViewModel != null)
-                MainViewViewModel.IsAppActivated = true;
+           
         }
 
         private void App_Deactivated(object sender, EventArgs e)
         {
             // Application deactivated
-            if (MainViewViewModel != null)
-                MainViewViewModel.IsAppActivated = false;
+            
         }
 
-        private static void InjectingZone(IKernel kernel, IControlZone zone, IDeviceSettings device)
-        {
-            kernel.Bind<ILightingEngine>().To<DesktopDuplicatorReader>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
-            kernel.Bind<ILightingEngine>().To<StaticColor>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
-            kernel.Bind<ILightingEngine>().To<Rainbow>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID)).WithConstructorArgument("device", device);
-            kernel.Bind<ILightingEngine>().To<Animation>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID)).WithConstructorArgument("device", device);
-            kernel.Bind<ILightingEngine>().To<Music>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
-            kernel.Bind<ILightingEngine>().To<Gifxelation>().InSingletonScope().Named(zone.ZoneUID).WithConstructorArgument("zone", kernel.Get<IControlZone>(zone.ZoneUID));
-            var availableLightingModes = kernel.GetAll<ILightingEngine>(zone.ZoneUID);
-            if (zone.CurrentActiveControlMode == null)
-                zone.CurrentActiveControlMode = zone.AvailableControlMode.FirstOrDefault();
-            foreach (var lightingMode in availableLightingModes)
-            {
-                if (lightingMode.Type == (zone.CurrentActiveControlMode as LightingMode).BasedOn)
-                    lightingMode.Refresh();
-            }
-        }
-
-        private static void ResetDevicesBinding(IKernel kernel)
-        {
-            var lightingEngineServices = kernel.GetAll<ILightingEngine>();
-            foreach (var lightingEngine in lightingEngineServices)
-            {
-                if (lightingEngine.IsRunning)
-                    lightingEngine.Stop();
-            }
-            var serialStreams = kernel.GetAll<ISerialStream>();
-            serialStreams.ForEach(s => s.Stop());
-            kernel.Unbind<ILightingEngine>();
-            kernel.Unbind<IDeviceSettings>();
-            kernel.Unbind<IControlZone>();
-            kernel.Unbind<ISerialStream>();
-        }
-
-        private static void UnInjectingZone(IKernel kernel, IControlZone zone)
-        {
-            var availableLightingModes = kernel.GetAll<ILightingEngine>(zone.ZoneUID);
-            foreach (var lightingMode in availableLightingModes)
-            {
-                if (lightingMode.IsRunning)
-                    lightingMode.Stop();
-            }
-        }
-
-        private static void UnInjectingDevice(IKernel kernel, IDeviceSettings device)
-        {
-            foreach (var output in device.AvailableLightingOutputs)
-            {
-                foreach (var zone in output.SlaveDevice.ControlableZones)
-                {
-                    UnInjectingZone(kernel, zone as IControlZone);
-                }
-            }
-        }
-
-        private static void InjectingDevice(IKernel kernel, IDeviceSettings device)
-        {
-            foreach (var output in device.AvailableLightingOutputs)
-            {
-                //catch collection changed to inject
-                output.SlaveDevice.ControlableZones.CollectionChanged += (s, e) =>
-                {
-                    switch (e.Action)
-                    {
-                        case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
-                            var newZone = e.NewItems;
-                            foreach (var zone in newZone)
-                            {
-                                //new zone added, inject
-                                var ledZone = zone as LEDSetup; ;
-                                kernel.Bind<IControlZone>().ToConstant(ledZone).Named((ledZone).ZoneUID);
-                                InjectingZone(kernel, zone as IControlZone, device);
-                            }
-                            break;
-                    }
-                };
-                //slave device got replaced, injecting all new zone that available in this slave device
-                output.PropertyChanged += (_, __) =>
-                {
-                    switch (__.PropertyName)
-                    {
-                        case nameof(output.SlaveDevice):
-                            foreach (var zone in output.SlaveDevice.ControlableZones)
-                            {
-                                var ledZone = zone as LEDSetup;
-                                kernel.Bind<IControlZone>().ToConstant(zone as IControlZone).Named((zone as IControlZone).ZoneUID);
-                                InjectingZone(kernel, zone as IControlZone, device);
-                            }
-                            output.SlaveDevice.ControlableZones.CollectionChanged += (s, e) =>
-                            {
-                                switch (e.Action)
-                                {
-                                    case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
-                                        var newZone = e.NewItems;
-                                        foreach (var zone in newZone)
-                                        {
-                                            //new zone added, inject
-                                            var ledZone = zone as LEDSetup; ;
-                                            kernel.Bind<IControlZone>().ToConstant(ledZone).Named((ledZone).ZoneUID);
-                                            InjectingZone(kernel, zone as IControlZone, device);
-                                        }
-                                        break;
-                                }
-                            };
-                            break;
-                    }
-                };
-                //this is existed zone
-                foreach (var zone in output.SlaveDevice.ControlableZones)
-                {
-                    var ledZone = zone as LEDSetup;
-                    kernel.Bind<IControlZone>().ToConstant(ledZone).Named((ledZone).ZoneUID);
-                    InjectingZone(kernel, zone as IControlZone, device);
-                }
-            }
-            var connectionType = device.DeviceType.ConnectionTypeEnum;
-            switch (connectionType)
-            {
-                case DeviceConnectionTypeEnum.Wired:
-                    if(device.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV3)
-                        kernel.Bind<ISerialStream>().To<SerialStreamRP2040>().InSingletonScope().Named(device.DeviceUID.ToString()).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(device.DeviceUID.ToString()));
-                    else
-                        kernel.Bind<ISerialStream>().To<SerialStream>().InSingletonScope().Named(device.DeviceUID.ToString()).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(device.DeviceUID.ToString()));
-                    break;
-
-                case DeviceConnectionTypeEnum.Wireless:
-
-                    break;
-
-                case DeviceConnectionTypeEnum.OpenRGB:
-                    kernel.Bind<ISerialStream>().To<OpenRGBStream>().InSingletonScope().Named(device.DeviceUID.ToString()).WithConstructorArgument("deviceSettings", kernel.Get<IDeviceSettings>(device.DeviceUID.ToString()));
-                    break;
-            }
-            var serialStream = kernel.Get<ISerialStream>(device.DeviceUID.ToString());
-            //serialStream.RefreshTransferState();
-        }
 
         private void SetupLoggingForProcessWideEvents()
         {
@@ -420,10 +230,10 @@ namespace adrilight
                     lock (device)
                         DeviceHlprs.WriteSingleDeviceInfoJson(device);
                 }
-                MainViewViewModel.ExecuteShudownAutomationActions();
+                //execute shutdown automation
 
                 var hwMonitor = kernel.GetAll<HWMonitor>().FirstOrDefault();
-                var ambinityClient = kernel.GetAll<IAmbinityClient>().FirstOrDefault();
+                var ambinityClient = kernel.GetAll<AmbinityClient>().FirstOrDefault();
                 var deviceDiscovery = kernel.GetAll<DeviceDiscovery>().FirstOrDefault();
                 //dbmanager delete file
                 Thread.Sleep(2000);
@@ -475,14 +285,14 @@ namespace adrilight
                     {
                         device.IsTransferActive = false;
                     }
-                    var ambinityClient = kernel.GetAll<IAmbinityClient>().FirstOrDefault();
+                    var ambinityClient = kernel.GetAll<AmbinityClient>().FirstOrDefault();
                     ambinityClient.Dispose();
                     Log.Information("System suspended!");
                 }
             };
             SystemEvents.SessionEnding += (s, e) =>
             {
-                MainViewViewModel.ExecuteShudownAutomationActions();
+                //execute shutdown automation
                 Log.Information("Stop the serial stream due to power down or log off condition!");
             };
         }
@@ -514,7 +324,6 @@ namespace adrilight
         }
 
         private static IKernel kernel;
-        public static MainViewViewModel MainViewViewModel { get; set; }
 
         private void OpenSettingsWindow(bool isMinimized)
         {

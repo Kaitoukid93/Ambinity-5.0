@@ -30,7 +30,6 @@ namespace adrilight.Services.LightingEngine
 
         public Animation(
             IGeneralSettings generalSettings,
-            MainViewViewModel mainViewViewModel,
             IControlZone zone,
             IDeviceSettings device,
             RainbowTicker rainbowTicker
@@ -39,11 +38,9 @@ namespace adrilight.Services.LightingEngine
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
             CurrentZone = zone as LEDSetup ?? throw new ArgumentNullException(nameof(zone));
             CurrentDevice = device as DeviceSettings ?? throw new ArgumentNullException(nameof(device));
-            MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             RainbowTicker = rainbowTicker ?? throw new ArgumentNullException(nameof(rainbowTicker));
             GeneralSettings.PropertyChanged += PropertyChanged;
             CurrentZone.PropertyChanged += PropertyChanged;
-            MainViewViewModel.PropertyChanged += PropertyChanged;
 
         }
 
@@ -53,7 +50,6 @@ namespace adrilight.Services.LightingEngine
         private IGeneralSettings GeneralSettings { get; }
         public bool IsRunning { get; private set; }
         private LEDSetup CurrentZone { get; }
-        private MainViewViewModel MainViewViewModel { get; }
         private RainbowTicker RainbowTicker { get; }
         private DeviceSettings CurrentDevice { get; }
         public LightingModeEnum Type { get; } = LightingModeEnum.Animation;
@@ -438,9 +434,8 @@ namespace adrilight.Services.LightingEngine
             var shouldBeRunning =
                 _currentLightingMode.BasedOn == LightingModeEnum.Animation &&
                 //this zone has to be enable, this could be done by stop setting the spots, but the this thread still alive, so...
-                CurrentZone.IsEnabled == true &&
+                CurrentZone.IsEnabled == true;
                 //stop this engine when any surface or editor open because this could cause capturing fail
-                MainViewViewModel.IsRichCanvasWindowOpen == false;
             // this is stop sign by one or some of the reason above
             if (isRunning && !shouldBeRunning)
             {
@@ -587,11 +582,7 @@ namespace adrilight.Services.LightingEngine
                 {
                     if (_runState == RunStateEnum.Run)
                     {
-                        if (MainViewViewModel.IsRichCanvasWindowOpen)
-                        {
-                            Thread.Sleep(100);
-                            continue;
-                        }
+                      
                         if (_resizedFrames == null)
                             continue;
 
@@ -628,7 +619,7 @@ namespace adrilight.Services.LightingEngine
                                         colorG = _colorBank[position].G;
                                         colorB = _colorBank[position].B;
                                     }
-                                    if (spot.HasVID && !MainViewViewModel.IsInIDEditStage)
+                                    if (spot.HasVID)
                                     {
                                         int index = spot.VID;
                                         if (spot.VID >= _resizedFrames[(int)_ticks[0].CurrentTick].BrightnessData.Length)

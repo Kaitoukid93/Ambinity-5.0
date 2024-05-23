@@ -11,6 +11,7 @@ using adrilight_shared.Models.Stores;
 using System.Windows.Documents;
 using System.Collections.Generic;
 using System;
+using adrilight.Manager;
 
 namespace adrilight.ViewModel.Profile
 {
@@ -28,19 +29,22 @@ namespace adrilight.ViewModel.Profile
         public event Action<IGenericCollectionItem> PlaylistClicked;
         public event Action<IGenericCollectionItem> PlaylistCardButtonClicked;
         #region Construct
-        public LightingProfileCollectionViewModel(DialogService dialogService)
+        public LightingProfileCollectionViewModel(DialogService dialogService,LightingProfileManager manager)
         {
             AvailableTools = new ObservableCollection<CollectionItemTool>();
+            _manager = manager;
             _dialogService = dialogService;
             CommandSetup();
         }
         #endregion
         #region Properties
         private DialogService _dialogService;
+        private LightingProfileManager _manager;
         private string _warningMessage = adrilight_shared.Properties.Resources.DeviceManager_DisConnect_Warning_Message;
         public ItemsCollection AvailableLightingProfiles { get; set; }
         public ItemsCollection AvailableLightingProfilesPlaylists { get; set; }
         public ObservableCollection<CollectionItemTool> AvailableTools { get; set; }
+        public bool ShowToolBar => AvailableTools.Count > 0;
 
         public string WarningMessage {
             get
@@ -55,15 +59,15 @@ namespace adrilight.ViewModel.Profile
         }
         #endregion
         #region Methods
-        public void Init(List<LightingProfile> profiles, List<LightingProfilePlaylist> playlists)
+        public void Init()
         {
             AvailableLightingProfiles = new ItemsCollection("Lighting Profiles", _dialogService);
             AvailableLightingProfilesPlaylists = new ItemsCollection("Playlists", _dialogService);
-            foreach (var profile in profiles)
+            foreach (var profile in _manager.AvailableProfiles)
             {
                 AvailableLightingProfiles.AddItem(profile);
             }
-            foreach (var playlist in playlists)
+            foreach (var playlist in _manager.AvailablePlaylists)
             {
                 AvailableLightingProfilesPlaylists.AddItem(playlist);
             }
@@ -164,6 +168,7 @@ namespace adrilight.ViewModel.Profile
             AvailableTools.Add(DeleteTool());
 
             AvailableTools.Add(AddtoTool());
+            RaisePropertyChanged(nameof(ShowToolBar));
         }
         private CollectionItemTool DeleteTool()
         {

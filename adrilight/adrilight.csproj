@@ -229,11 +229,18 @@
     <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Manager\AutomationManager.cs" />
     <Compile Include="Manager\DBManager.cs" />
-    <Compile Include="Services\AdrilightStoreService\AdrilightSFTPClient.cs" />
+    <Compile Include="Manager\DeviceConnectionManager.cs" />
+    <Compile Include="Manager\DeviceLightingServiceManager.cs" />
+    <Compile Include="Manager\DeviceManager.cs" />
+    <Compile Include="Manager\LightingProfileManager.cs" />
     <Compile Include="Services\LightingEngine\RunStateEnum.cs" />
-    <Compile Include="Services\SerialStream\SerialStreamRP2040.cs" />
+    <Compile Include="Services\DataStream\SerialStreamRP2040.cs" />
     <Compile Include="Services\Ticker\PlaylistDecoder.cs" />
+    <Compile Include="ViewModel\AdrilightStore\AdrilightStoreHomePageViewModel.cs" />
+    <Compile Include="ViewModel\AdrilightStore\AdrilightStoreItemDetailViewModel.cs" />
+    <Compile Include="ViewModel\AdrilightStore\AdrilightStoreItemsCollectionViewModel.cs" />
     <Compile Include="ViewModel\Automation\AutomationCollectionViewModel.cs" />
     <Compile Include="ViewModel\Automation\AutomationEditorViewModel.cs" />
     <Compile Include="ViewModel\Automation\AutomationExecutor.cs" />
@@ -243,16 +250,18 @@
     <Compile Include="ViewModel\ColorEditingObject.cs" />
     <Compile Include="ViewModel\Dashboard\DashboardViewModel.cs" />
     <Compile Include="ViewModel\Debug\DebugViewModel.cs" />
-    <Compile Include="ViewModel\DeviceManager\DeviceAdvanceSettingsViewModel.cs" />
+    <Compile Include="ViewModel\Device\DeviceAdvanceSettingsViewModel.cs" />
     <Compile Include="ViewModel\DeviceControl\EffectControlViewModel.cs" />
-    <Compile Include="ViewModel\DeviceManager\DeviceCollectionViewModel.cs" />
+    <Compile Include="ViewModel\Device\DeviceCollectionViewModel.cs" />
+    <Compile Include="ViewModel\Device\DeviceSearchingDialogViewModel.cs" />
+    <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\Profile\LightingProfileCollectionViewModel.cs" />
     <Compile Include="ViewModel\Profile\LightingProfilePlayerViewModel.cs" />
     <Compile Include="ViewModel\Profile\LightingProfilePlaylistEditorViewModel.cs" />
     <Compile Include="ViewModel\VerticalMenuControlViewModel.cs" />
     <Compile Include="ViewModel\DeviceIDEditViewModel.cs" />
     <Compile Include="ViewModel\DeviceControl\DeviceControlViewModel.cs" />
-    <Compile Include="ViewModel\DeviceManager\DeviceManagerViewModel.cs" />
+    <Compile Include="ViewModel\Device\DeviceManagerViewModel.cs" />
     <Compile Include="ViewModel\ISelectablePage.cs" />
     <Compile Include="ViewModel\Profile\LightingProfileManagerViewModel.cs" />
     <Compile Include="App.xaml.cs" />
@@ -308,21 +317,19 @@
     <Compile Include="Services\LightingEngine\StaticColor.cs" />
     <Compile Include="Services\HWMonitor\HWMonitor.cs" />
     <Compile Include="Services\HWMonitor\IComputer.cs" />
-    <Compile Include="Services\SerialStream\ISerialStream.cs" />
+    <Compile Include="Services\DataStream\IDataStream.cs" />
     <Compile Include="Services\NetworkStream\NetworkStream.cs" />
     <Compile Include="Services\OpenRGBService\AmbinityClient.cs" />
     <Compile Include="Services\Ticker\RainbowTicker.cs" />
-    <Compile Include="Services\DeviceDiscoveryServices\SerialDeviceDetection.cs" />
-    <Compile Include="Services\OpenRGBService\OpenRGBStream.cs" />
-    <Compile Include="Services\SerialStream\SerialStream.cs" />
+    <Compile Include="Services\DataStream\OpenRGBStream.cs" />
+    <Compile Include="Services\DataStream\SerialStream.cs" />
     <Compile Include="Manager\StartupManager.cs" />
     <Compile Include="Services\HWMonitor\UpdateVisitor.cs" />
     <Compile Include="ViewModel\VIDToolBarDataModel.cs" />
-    <Compile Include="Services\SerialStream\WinApi.cs" />
+    <Compile Include="Services\DataStream\WinApi.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\DesktopDuplicationException.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\DesktopFrame.cs" />
     <Compile Include="Services\CaptureEngine\ScreenCapture\MovedRegion.cs" />
-    <Compile Include="ViewModel\MainViewViewModel.cs" />
     <Compile Include="ViewModel\SystemTrayContextMenu.cs" />
     <Compile Include="ViewModel\ValidationRules\NotEmptyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
@@ -347,8 +354,10 @@
     <Compile Include="View\Screens\Devices\DeviceLoadingView.xaml.cs" />
     <Compile Include="View\Screens\Devices\DeviceManagerWindow.xaml.cs" />
     <Compile Include="View\Screens\Devices\DeviceCollectionView.xaml.cs" />
+    <Compile Include="View\Screens\LightingProfile\ManagerCollectionView.xaml.cs">
+      <DependentUpon>ManagerCollectionView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Screens\LightingProfile\LightingProfileManagerWindow.xaml.cs" />
-    <Compile Include="View\Screens\LightingProfile\LightingProfileDashboardView.xaml.cs" />
     <Compile Include="View\Screens\LightingProfile\PlaylistEditorView.cs" />
     <Compile Include="View\Screens\LightingProfile\ProfileCollectionView.xaml.cs" />
     <Compile Include="View\Screens\LightingProfile\PlayListCollectionView.xaml.cs" />
@@ -356,6 +365,12 @@
     <Compile Include="View\Screens\Mainview\ControlView\GifRegionSelectionWindow.xaml.cs" />
     <Compile Include="View\Screens\Mainview\ControlView\Controls\ScreenRegionSelectionWindow.xaml.cs" />
     <Compile Include="View\Dialogs\AudioDeviceSelectionWindow.xaml.cs" />
+    <Compile Include="View\Screens\Mainview\Dashboard\DashboardView.xaml.cs">
+      <DependentUpon>DashboardView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Screens\Mainview\Dashboard\ProfileCollectionListView.xaml.cs">
+      <DependentUpon>ProfileCollectionListView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Screens\Mainview\LiveView\DeviceIDEditView.xaml.cs" />
     <Compile Include="View\Screens\Mainview\DisplayModeSelectionView.xaml.cs" />
     <Compile Include="View\Screens\OOBExperience\SelectLanguageWindow.xaml.cs">
@@ -395,8 +410,6 @@
     <Compile Include="View\Screens\Store\PasswordDialog.xaml.cs" />
     <Compile Include="View\Dialogs\AddNewAutomationWindow.xaml.cs" />
     <Compile Include="View\Dialogs\AddNewPaletteWindow.xaml.cs" />
-    <Compile Include="View\Dialogs\AddNewProfileWindow.xaml.cs" />
-    <Compile Include="View\Screens\Mainview\Dashboard\AllDeviceView.xaml.cs" />
     <Compile Include="View\Screens\Settings\AppSettingsWindow.xaml.cs" />
     <Compile Include="View\Screens\Automation\AutomationManagerWindow.xaml.cs" />
     <Compile Include="View\Dialogs\ColorPickerWindow.xaml.cs" />
@@ -501,11 +514,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\Screens\LightingProfile\LightingProfileManagerWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="View\Screens\LightingProfile\ManagerCollectionView.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\Screens\LightingProfile\LightingProfileDashboardView.xaml">
+    <Page Include="View\Screens\LightingProfile\LightingProfileManagerWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -536,6 +549,14 @@
     <Page Include="View\Dialogs\AudioDeviceSelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Screens\Mainview\Dashboard\DashboardView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Screens\Mainview\Dashboard\ProfileCollectionListView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\Screens\Mainview\LiveView\DeviceIDEditView.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -682,14 +703,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\Dialogs\AddNewPaletteWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\Dialogs\AddNewProfileWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\Screens\Mainview\Dashboard\AllDeviceView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

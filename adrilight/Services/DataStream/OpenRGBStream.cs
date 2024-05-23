@@ -1,4 +1,4 @@
-﻿using adrilight.Services.SerialStream;
+﻿using adrilight.Services.OpenRGBService;
 using adrilight.Util;
 using adrilight_shared.Enums;
 using adrilight_shared.Extensions;
@@ -14,22 +14,26 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 
-namespace adrilight.Services.OpenRGBService
+namespace adrilight.Services.DataStream
 {
 
-    internal sealed class OpenRGBStream : IDisposable, ISerialStream
+    internal sealed class OpenRGBStream : IDisposable, IDataStream
     {
 
-        public OpenRGBStream(IDeviceSettings deviceSettings, IGeneralSettings generalSettings, IAmbinityClient ambinityClient)
+        public OpenRGBStream(AmbinityClient ambinityClient)
         {
-            GeneralSettings = generalSettings ?? throw new ArgumentException(nameof(generalSettings));
-            DeviceSettings = deviceSettings ?? throw new ArgumentNullException(nameof(deviceSettings));
-            AmbinityClient = ambinityClient as AmbinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
-
-            // DeviceSpotSets = deviceSpotSets ?? throw new ArgumentNullException(nameof(deviceSpotSets));
-            DeviceSettings.PropertyChanged += UserSettings_PropertyChanged;
+            _ambinityClient = ambinityClient;   
             DeviceSettings.DeviceState = DeviceStateEnum.Normal;
-            switch (deviceSettings.DeviceType.Type)
+            
+        }
+        //Dependency Injection//
+        private IDeviceSettings DeviceSettings { get; set; }
+        private AmbinityClient _ambinityClient { get; }
+        private int _frameRate = 60;
+        public void Init(IDeviceSettings device)
+        {
+            DeviceSettings = device;
+            switch (DeviceSettings.DeviceType.Type)
             {
                 case DeviceTypeEnum.Ram:
                 case DeviceTypeEnum.Dram:
@@ -39,13 +43,10 @@ namespace adrilight.Services.OpenRGBService
                     _frameRate = 50;
                     break;
             }
-            //RefreshTransferState();
+            
+            DeviceSettings.PropertyChanged += UserSettings_PropertyChanged;
+            RefreshTransferState();
         }
-        //Dependency Injection//
-        private IDeviceSettings DeviceSettings { get; set; }
-        private IGeneralSettings GeneralSettings { get; set; }
-        private AmbinityClient AmbinityClient { get; }
-        private int _frameRate = 60;
         private async void UserSettings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
@@ -110,11 +111,11 @@ namespace adrilight.Services.OpenRGBService
                     //find which position this device is in the OpenRGB App
                     try
                     {
-                        lock (AmbinityClient.Lock)
+                        lock (_ambinityClient.Lock)
                         {
-                            for (var i = 0; i < AmbinityClient.Client.GetControllerCount(); i++)
+                            for (var i = 0; i < _ambinityClient.Client.GetControllerCount(); i++)
                             {
-                                var device = AmbinityClient.Client.GetControllerData(i);
+                                var device = _ambinityClient.Client.GetControllerData(i);
                                 var deviceName = device.Name.ToValidFileName();
                                 if (DeviceSettings.OutputPort == deviceName + device.Location)
                                 {
@@ -260,12 +261,12 @@ namespace adrilight.Services.OpenRGBService
             }
             return reOrderedColor;
         }
-        public bool IsValid() => AmbinityClient.Client != null && AmbinityClient.Client.Connected;
+        public bool IsValid() => _ambinityClient.Client != null && _ambinityClient.Client.Connected;
         private void DoWork(object tokenObject)
         {
             var cancellationToken = (CancellationToken)tokenObject;
 
-            if (AmbinityClient.Client == null)
+            if (_ambinityClient.Client == null)
             {
                 Log.Warning("Cannot start the socket sending because the Ambinity Client is null.");
                 return;
@@ -276,7 +277,7 @@ namespace adrilight.Services.OpenRGBService
             {
                 try
                 {
-                    var ledCount = AmbinityClient.Client.GetControllerData(index).Leds.Count();
+                    var ledCount = _ambinityClient.Client.GetControllerData(index).Leds.Count();
                     while (!cancellationToken.IsCancellationRequested)
                     {
                         var deviceColors = new List<OpenRGB.NET.Models.Color>();
@@ -298,10 +299,10 @@ namespace adrilight.Services.OpenRGBService
                         }
 
 
-                        lock (AmbinityClient.Lock)
+                        lock (_ambinityClient.Lock)
                         {
-                            if (AmbinityClient.IsInitialized)
-                                AmbinityClient.Client.UpdateLeds(index, deviceColors.Take(ledCount).ToArray());
+                            if (_ambinityClient.IsInitialized)
+                                _ambinityClient.Client.UpdateLeds(index, deviceColors.Take(ledCount).ToArray());
                         }
                         Thread.Sleep(1000 / _frameRate);
                     }

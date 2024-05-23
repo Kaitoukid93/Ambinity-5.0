@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using System.ComponentModel;
 using adrilight.Ticker;
 using adrilight_shared.Enums;
+using adrilight.Manager;
 
 namespace adrilight.ViewModel
 {
@@ -29,10 +30,10 @@ namespace adrilight.ViewModel
     public class EffectControlViewModel : ViewModelBase
     {
         #region Construct
-        public EffectControlViewModel(PlaylistDecoder lightingPlayer, LightingProfileManagerViewModel lightingProfileManager)
+        public EffectControlViewModel(PlaylistDecoder lightingPlayer, LightingProfileManager lightingProfileManager)
         {
             LightingPlayer = lightingPlayer;
-            lightingPlayer.PropertyChanged += LightingPlayerPropertyChanged;
+            LightingPlayer.PropertyChanged += LightingPlayerPropertyChanged;
             LightingProfileManager = lightingProfileManager;
             CommandSetup();
         }
@@ -108,7 +109,7 @@ namespace adrilight.ViewModel
             }
         }
         public PlaylistDecoder LightingPlayer { get; set; }
-        public LightingProfileManagerViewModel LightingProfileManager { get; set; }
+        public LightingProfileManager LightingProfileManager { get; set; }
         #endregion
 
 
@@ -204,6 +205,10 @@ namespace adrilight.ViewModel
                     RaisePropertyChanged(nameof(ShowPlayerWarning));
                     break;
             }
+        }
+        public void Dispose()
+        {
+            LightingPlayer.PropertyChanged -= LightingPlayerPropertyChanged;
         }
         #endregion
 

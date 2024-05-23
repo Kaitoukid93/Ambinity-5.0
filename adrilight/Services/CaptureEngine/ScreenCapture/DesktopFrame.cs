@@ -26,7 +26,7 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
         /// <param name="userSettings"></param>
         /// <param name="mainViewViewModel"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public DesktopFrame(IGeneralSettings userSettings, MainViewViewModel mainViewViewModel)
+        public DesktopFrame(IGeneralSettings userSettings)
         {
             UserSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
             UserSettings.PropertyChanged += (s, e) =>
@@ -38,16 +38,16 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
                         break;
                 }
             };
-            MainViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
-            MainViewModel.AvailableBitmaps.CollectionChanged += async (s, e) =>
-            {
-                switch (e.Action)
-                {
-                    case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
-                        await Task.Run(() => ScreenSetupChanged());
-                        break;
-                }
-            };
+           
+            //MainViewModel.AvailableBitmaps.CollectionChanged += async (s, e) =>
+            //{
+            //    switch (e.Action)
+            //    {
+            //        case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
+            //            await Task.Run(() => ScreenSetupChanged());
+            //            break;
+            //    }
+            //};
             _retryPolicy = Policy.Handle<Exception>()
                 .WaitAndRetryForever(ProvideDelayDuration);
             RefreshCapturingState();
@@ -168,7 +168,6 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
         }
 
         private IGeneralSettings UserSettings { get; set; }
-        private MainViewViewModel MainViewModel { get; set; }
         private IDirect3DDevice _device;
         private BasicCapture[] _captures;
         private readonly Policy _retryPolicy;
@@ -205,10 +204,10 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
                         {
                             Frames[screenIndex] = _captures[screenIndex].CurrentFrame;
                         }
-                        if (MainViewModel.IsRegionSelectionOpen)
-                        {
-                            MainViewModel.DesktopsPreviewUpdate(Frames[screenIndex], screenIndex);
-                        }
+                        //if (MainViewModel.IsRegionSelectionOpen)
+                        //{
+                        //    MainViewModel.DesktopsPreviewUpdate(Frames[screenIndex], screenIndex);
+                        //}
                         var minFrameTimeInMs = 1000 / 30;
                         var elapsedMs = (int)frameTime.ElapsedMilliseconds;
                         if (elapsedMs < minFrameTimeInMs)

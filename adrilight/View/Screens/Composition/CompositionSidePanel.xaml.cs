@@ -40,12 +40,7 @@ namespace adrilight.View
             };
            // ViewModel.AvailableMotions.Add(bouncing);
         }
-        private MainViewViewModel ViewModel {
-            get
-            {
-                return (MainViewViewModel)this.DataContext;
-            }
-        }
+      
 
     }
 }

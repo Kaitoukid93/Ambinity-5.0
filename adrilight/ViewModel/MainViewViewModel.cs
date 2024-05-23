@@ -695,7 +695,7 @@ namespace adrilight.ViewModel
         public DeviceManagerViewModel DeviceManagerViewModel { get; set; }
         public DeviceControlViewModel DeviceControlViewModel { get; set; }
         
-        public ISerialStream[] SerialStreams { get; }
+        public IDataStream[] SerialStreams { get; }
 
         public object this[string propertyName] {
             get
@@ -4570,18 +4570,7 @@ namespace adrilight.ViewModel
                 window.ShowDialog();
             }
         }
-        private void ClearCacheFolder()
-        {
-            System.IO.DirectoryInfo cache = new DirectoryInfo(CacheFolderPath);
-            foreach (FileInfo file in cache.EnumerateFiles())
-            {
-                file.Delete();
-            }
-            foreach (DirectoryInfo dir in cache.EnumerateDirectories())
-            {
-                dir.Delete(true);
-            }
-        }
+       
         private IDeviceSettings ImportDevice(string path)
         {
             if (!File.Exists(path))

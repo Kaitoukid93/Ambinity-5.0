@@ -17,7 +17,7 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
 {
     internal class DesktopFrameDXGI : ViewModelBase, ICaptureEngine
     {
-        public DesktopFrameDXGI(IGeneralSettings userSettings, MainViewViewModel mainViewViewModel)
+        public DesktopFrameDXGI(IGeneralSettings userSettings)
         {
             UserSettings = userSettings ?? throw new ArgumentNullException(nameof(userSettings));
             UserSettings.PropertyChanged += (s, e) =>
@@ -29,16 +29,15 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
                         break;
                 }
             };
-            MainViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
-            MainViewModel.AvailableBitmaps.CollectionChanged += async (s, e) =>
-            {
-                switch (e.Action)
-                {
-                    case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
-                        await Task.Run(() => ScreenSetupChanged());
-                        break;
-                }
-            };
+            //MainViewModel.AvailableBitmaps.CollectionChanged += async (s, e) =>
+            //{
+            //    switch (e.Action)
+            //    {
+            //        case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
+            //            await Task.Run(() => ScreenSetupChanged());
+            //            break;
+            //    }
+            //};
             RefreshCapturingState();
         }
 
@@ -155,10 +154,6 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
             return false;
         }
         private IGeneralSettings UserSettings { get; set; }
-        private MainViewViewModel MainViewModel { get; set; }
-
-
-
         private TimeSpan ProvideDelayDuration(int index)
         {
             if (index < 10)
@@ -205,10 +200,10 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
                         {
                             Frames[screenIndex] = frame;
                         }
-                        if (MainViewModel.IsRegionSelectionOpen)
-                        {
-                            MainViewModel.DesktopsPreviewUpdate(Frames[screenIndex], screenIndex);
-                        }
+                        //if (MainViewModel.IsRegionSelectionOpen)
+                        //{
+                        //    MainViewModel.DesktopsPreviewUpdate(Frames[screenIndex], screenIndex);
+                        //}
                         var minFrameTimeInMs = 1000 / 30;
                         var elapsedMs = (int)frameTime.ElapsedMilliseconds;
                         if (elapsedMs < minFrameTimeInMs)

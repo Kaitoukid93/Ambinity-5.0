@@ -1,112 +1,26 @@
-﻿using adrilight_shared.Enums;
-using adrilight_shared.Helpers;
-using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
+﻿using adrilight_shared.Helpers;
 using adrilight_shared.Models.Device;
-using adrilight_shared.Models.KeyboardHook;
-using adrilight_shared.Models.Lighting;
-using adrilight_shared.Settings;
 using Newtonsoft.Json;
-using NonInvasiveKeyboardHookLibrary;
-using Serilog;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 
 namespace adrilight_shared.Models.Automation
 {
-
-
-    public class AutomationManager
+    public class AutomationDBManager
     {
-        public event Action<AutomationSettings> HotKeyPressed;
         private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
         private string JsonAutomationFileNameAndPath => Path.Combine(JsonPath, "adrilight-automations.json");
-        #region Construct
-        public AutomationManager(KeyboardHookManagerSingleton keyboardHookManager)
+        public AutomationDBManager()
         {
-            _keyboardHookManager = keyboardHookManager;
             _resourceHlprs = new ResourceHelpers();
         }
-        #endregion
-        #region Properties
-        private KeyboardHookManagerSingleton _keyboardHookManager;
+
         private ResourceHelpers _resourceHlprs;
-        #endregion
-        #region Methods
-        //this will raise an event when registered hotkey combo was pressed
-        public void Start()
-        {
-            _keyboardHookManager.Instance.Start();
-        }
-        public void Register(AutomationSettings automation)
-        {
-            //_identifiers = new List<Guid?>();
-            if (!automation.IsEnabled)
-                return;
-            if (automation.Condition is not HotkeyTriggerCondition)
-                return;
-            var condition = automation.Condition as HotkeyTriggerCondition;
-            if (condition == null)
-                return;
-            var modifierkeys = new List<NonInvasiveKeyboardHookLibrary.ModifierKeys>();
-            if (condition.Modifiers != null)
-            {
-                foreach (var modifier in condition.Modifiers)
-                {
-                    modifierkeys.Add(modifier);
-                }
-            }
 
-            try
-            {
-                switch (modifierkeys.Count)
-                {
-                    case 0:
-                        _keyboardHookManager.Instance.RegisterHotkey(condition.StandardKey.KeyCode, () =>
-                        {
-                            HotKeyPressed?.Invoke(automation);
-                            Log.Information(automation.Name + " excuted");
-                        });
-                        break;
-
-                    case 1:
-                        _keyboardHookManager.Instance.RegisterHotkey(modifierkeys.First(), condition.StandardKey.KeyCode, () =>
-                        {
-                            HotKeyPressed?.Invoke(automation);
-                            Log.Information(automation.Name + " excuted");
-                        });
-                        break;
-
-                    default:
-                        _keyboardHookManager.Instance.RegisterHotkey([.. modifierkeys], condition.StandardKey.KeyCode, () =>
-                        {
-                            HotKeyPressed?.Invoke(automation);
-                            Log.Information(automation.Name + " excuted");
-                        });
-                        break;
-                }
-            }
-            catch (NonInvasiveKeyboardHookLibrary.HotkeyAlreadyRegisteredException ex)
-            {
-                HandyControl.Controls.MessageBox.Show(automation.Name + " Hotkey is being used by another automation!!!", "HotKey Already Registered", MessageBoxButton.OK, MessageBoxImage.Error);
-                automation.Condition = null;
-            }
-            catch (Exception ex)
-            {
-                //empty catch
-            }
-
-        }
-        public void Unregister()
-        {
-            _keyboardHookManager.Instance.UnregisterAll();
-        }
         public List<AutomationSettings> LoadAutomationIfExist()
         {
             var loadedAutomations = new List<AutomationSettings>();
@@ -278,8 +192,5 @@ namespace adrilight_shared.Models.Automation
             };
             return actions;
         }
-        #endregion
-
-
     }
 }

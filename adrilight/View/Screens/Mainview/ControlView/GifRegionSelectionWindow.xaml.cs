@@ -53,20 +53,20 @@ namespace adrilight.View
 
         private async void SourceIndexChanged(object sender, SelectionChangedEventArgs e)
         {
-            var viewModel = this.DataContext as MainViewViewModel;
-            if (viewModel.ClickedRegionButtonParameter == null)
-                return;
-            if (sourceList.SelectedIndex < 0)
-                return;
-            viewModel.ClickedRegionButtonParameter.CapturingSourceIndex = sourceList.SelectedIndex;
-            var selectedBitmap = new Bitmap((sourceList.SelectedItem as GifCard).Path);
-            viewModel.CalculateAdjustingRectangle(selectedBitmap, viewModel.ClickedRegionButtonParameter.CapturingRegion);
-            selectedBitmap.Dispose();
+            //var viewModel = this.DataContext as MainViewViewModel;
+            //if (viewModel.ClickedRegionButtonParameter == null)
+            //    return;
+            //if (sourceList.SelectedIndex < 0)
+            //    return;
+            //viewModel.ClickedRegionButtonParameter.CapturingSourceIndex = sourceList.SelectedIndex;
+            //var selectedBitmap = new Bitmap((sourceList.SelectedItem as GifCard).Path);
+            //viewModel.CalculateAdjustingRectangle(selectedBitmap, viewModel.ClickedRegionButtonParameter.CapturingRegion);
+            //selectedBitmap.Dispose();
 
-            _currentSelectedGif = (sourceList.SelectedItem as GifCard).Gif;
-            if (_currentSelectedGif != null)
-                _currentSelectedGif.DisposeGif();
-            await _currentSelectedGif.PlayGif(30);
+            //_currentSelectedGif = (sourceList.SelectedItem as GifCard).Gif;
+            //if (_currentSelectedGif != null)
+            //    _currentSelectedGif.DisposeGif();
+            //await _currentSelectedGif.PlayGif(30);
 
 
 

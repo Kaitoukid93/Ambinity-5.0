@@ -5,16 +5,11 @@
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-           xmlns:lighting="clr-namespace:adrilight_shared.Models.Lighting;assembly=adrilight_shared"
            xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
-           xmlns:vm="clr-namespace:adrilight.ViewModel"
-           xmlns:local="clr-namespace:adrilight.View"
-           xmlns:behavior="clr-namespace:adrilight_shared.Behavior;assembly=adrilight_shared"
-           xmlns:model="clr-namespace:adrilight_shared.Models;assembly=adrilight_shared"
-           xmlns:command="clr-namespace:adrilight.Helpers"
            Background="{DynamicResource RegionBrush}"
            mc:Ignorable="d"
-           d:DataContext="{d:DesignInstance vm:DeviceManagerViewModel, IsDesignTimeCreatable=True}"
+           d:DataContext="{Binding Source={StaticResource Locator}, Path=DeviceManagerViewModel}"
+           DataContext="{Binding Source={StaticResource Locator}, Path=DeviceManagerViewModel}"
            x:Name="window"
            Width="645"
            Height="800"
@@ -40,48 +35,6 @@
                     <SolidColorBrush x:Key="primaryBackgroundBrush"
                                      Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
                                      Opacity="0.15" />
-                    <DataTemplate 
-                                  x:Key="_collectionView">
-                        <hc:TransitioningContentControl TransitionMode="Left2Right">
-                            <local:DeviceCollectionView DataContext="{Binding Path=DataContext.AvailableDevices, RelativeSource={RelativeSource AncestorType={x:Type local:DeviceManagerWindow}}}">
-                                
-                            </local:DeviceCollectionView>
-                        </hc:TransitioningContentControl>
-                    </DataTemplate>
-                    <DataTemplate x:Key="_editorView">
-                        <hc:TransitioningContentControl TransitionMode="Right2Left">
-                            <local:DeviceAdvanceSettingsView DataContext="{Binding Path=DataContext.CurrentDevice, RelativeSource={RelativeSource AncestorType={x:Type local:DeviceManagerWindow}}}">
-                                
-                            </local:DeviceAdvanceSettingsView>
-                        </hc:TransitioningContentControl>
-                    </DataTemplate>
-                    <DataTemplate x:Key="_loadingView">
-                        <hc:TransitioningContentControl TransitionMode="Right2Left">
-                            <local:DeviceLoadingView DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type local:DeviceManagerWindow}}}">
-
-                            </local:DeviceLoadingView>
-                        </hc:TransitioningContentControl>
-                    </DataTemplate>
-                    <Style x:Key="_devicemanagerView"
-                           TargetType="{x:Type ContentControl}">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding AvailableDevices.CurrentView}"
-                                         Value="{x:Static model:DataViewMode.Collection}">
-                                <Setter Property="ContentTemplate"
-                                        Value="{StaticResource _collectionView}" />
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding AvailableDevices.CurrentView}"
-                                         Value="{x:Static model:DataViewMode.Detail}">
-                                <Setter Property="ContentTemplate"
-                                        Value="{StaticResource _editorView}" />
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding AvailableDevices.CurrentView}"
-                                         Value="{x:Static model:DataViewMode.Loading}">
-                                <Setter Property="ContentTemplate"
-                                        Value="{StaticResource _loadingView}" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
                 </ResourceDictionary>
 
             </ResourceDictionary.MergedDictionaries>
@@ -95,9 +48,8 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
               
-                <ContentControl Grid.Row="1" Content="{Binding .,UpdateSourceTrigger=PropertyChanged}"
-                                Style="{StaticResource _devicemanagerView}">
-                </ContentControl>
+                <ContentPresenter Grid.Row="1" Content="{Binding SelectedPage.Content}">
+                </ContentPresenter>
             </Grid>
         </Grid>
     </Grid>

@@ -17,6 +17,7 @@ using System.Windows.Input;
 using System.Threading.Tasks;
 using adrilight_shared.Settings;
 using adrilight_shared.Models.Device;
+using adrilight.Manager;
 
 namespace adrilight.ViewModel.Dashboard
 {
@@ -24,71 +25,33 @@ namespace adrilight.ViewModel.Dashboard
     {
         #region Construct
         public AutomationManagerViewModel(
-            DialogService service,
-            AutomationManager automationManager,
             IList<ISelectablePage> availablePages,
+            AutomationEditorViewModel editorViewModel,
             AutomationCollectionViewModel collectionViewModel,
-            GeneralSettings generalSettings,
-            DeviceManagerViewModel deviceManagerViewModel,
-            AutomationExecutor executor,
-            AutomationEditorViewModel automationEditingViewModel)
+            AutomationManager automationManager)
         {
             SelectablePages = availablePages;
-            _automationEditorViewModel = automationEditingViewModel;
-            _automationCollectionViewModel = collectionViewModel;
             _automationManager = automationManager;
-            _generalSettings = generalSettings;
-            _deviceManager = deviceManagerViewModel;
-            _automationExecutor = executor;
-            _deviceManager.NewDeviceAdded += OnNewDeviceAdded;
-            _automationEditorViewModel.AutomationHotKeyChanged += OnAutomationHotKeyChanged;
+            _automationEditorViewModel = editorViewModel;
+            _automationCollectionViewModel = collectionViewModel;
+            _automationManager.NewAutomationAdded += OnNewAutomationAdded;
             _automationCollectionViewModel.AutomationCardClicked += OnAutomationSelected;
-            _automationManager.HotKeyPressed += OnHotKeyDetected;
-
             LoadNonClientAreaData("Adrilight  |  Automation Manager", "automationManager", false, null);
             LoadData();
             CommandSetup();
         }
-
-
-
         #endregion
 
         #region Events
-        private async void OnHotKeyDetected(AutomationSettings automation)
-        {
-            await _automationExecutor.Execute(automation);
-        }
-        private void OnNewDeviceAdded(IDeviceSettings newDevice)
-        {
-            if (newDevice == null)
-            {
-                return;
-            }
-
-            var shutdownAutomation = _automationCollectionViewModel.GetShutdownAutomation();
-            if (shutdownAutomation!=null)
-            {
-                shutdownAutomation.Actions.Add(_automationManager.CreateDeviceShutdownAction(newDevice));
-            }
-            var monitorSleepAutomation = _automationCollectionViewModel.GetMonitorSleepAutomation();
-            if (monitorSleepAutomation != null)
-            {
-                monitorSleepAutomation.Actions.Add(_automationManager.CreateDeviceMonitorSleepAction(newDevice));
-            }
-            var monitorWakeupAutomation = _automationCollectionViewModel.GetMonitorWakeUpAutomation();
-            if (monitorWakeupAutomation != null)
-            {
-                monitorWakeupAutomation.Actions.Add(_automationManager.CreateDeviceMonitorWakeupAction(newDevice));
-            }
-        }
         private void OnAutomationSelected(IGenericCollectionItem item) => GotoAutomationEditor(item as AutomationSettings);
         private void OnAutomationHotKeyChanged(IGenericCollectionItem automation)
         {
-            _automationManager.Unregister();
-            RegisterAllAutomation();
-
-
+            _automationManager.Refresh();
+            
+        }
+        private void OnNewAutomationAdded(AutomationSettings automation)
+        {
+            _automationCollectionViewModel.Init();
         }
         #endregion
 
@@ -96,13 +59,11 @@ namespace adrilight.ViewModel.Dashboard
         #region Properties
         //private
         private AutomationCollectionViewModel _automationCollectionViewModel;
-        private AutomationEditorViewModel _automationEditorViewModel;
         private ISelectablePage _selectedPage;
         private AutomationManager _automationManager;
+        private AutomationEditorViewModel _automationEditorViewModel;
         private bool _isManagerWindowOpen;
-        private GeneralSettings _generalSettings;
-        private DeviceManagerViewModel _deviceManager;
-        private AutomationExecutor _automationExecutor;
+        
         //public
         public NonClientArea NonClientAreaContent { get; set; }
         public IList<ISelectablePage> SelectablePages { get; set; }
@@ -177,6 +138,7 @@ namespace adrilight.ViewModel.Dashboard
         private void BacktoCollectionView()
         {
             LoadNonClientAreaData("Adrilight  |  Automation Manager", "automationManager", false, null);
+            _automationCollectionViewModel.Init();
             var collectionView = SelectablePages.Where(p => p.PageName == "Automations Collection").First();
             (collectionView as AutomationCollectionView).DataContext = _automationCollectionViewModel;
             SelectedPage = collectionView;
@@ -195,26 +157,9 @@ namespace adrilight.ViewModel.Dashboard
         }
         public void LoadData()
         {
-
-            var automations = _automationManager.LoadAutomationIfExist();
-            if (automations == null)
-                return;
-            _automationCollectionViewModel.Init(automations);
-            if (_generalSettings.HotkeyEnable)
-            {
-                _automationManager.Start();
-                RegisterAllAutomation();
-            }
-
             BacktoCollectionView();
         }
-        private void RegisterAllAutomation()
-        {
-            foreach (var item in _automationCollectionViewModel.AvailableAutomations.Items)
-            {
-                _automationManager.Register(item as AutomationSettings);
-            }
-        }
+
         #endregion
 
         #region Commands

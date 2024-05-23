@@ -15,10 +15,9 @@ namespace adrilight.Manager
 {
     public class DBmanager
     {
-        public DBmanager(MainViewViewModel mainViewViewModel)
+        public DBmanager()
         {
 
-            MainViewViewModel = mainViewViewModel ?? throw new ArgumentNullException(nameof(mainViewViewModel));
             FilesQToRemove = new ObservableCollection<string>();
             StartThread();
 
@@ -40,7 +39,6 @@ namespace adrilight.Manager
         }
 
         public ObservableCollection<string> FilesQToRemove { get; set; }
-        public MainViewViewModel MainViewViewModel { get; set; }
         private AmbinityClient AmbinityClient { get; }
         private async void StartDiscovery(CancellationToken token)
         {
@@ -50,7 +48,6 @@ namespace adrilight.Manager
                 try
                 {
                     await SaveFile();
-                    if (MainViewViewModel.IsAppActivated)
                         Log.Information("Periodically App Data Saved!");
 
                 }
@@ -65,17 +62,17 @@ namespace adrilight.Manager
         }
         public Task SaveFile()
         {
-            if (MainViewViewModel.DeviceHlprs == null)
-                return Task.FromResult(false);
-            lock (MainViewViewModel.AvailableDevices)
-            {
-                foreach (var device in MainViewViewModel.DeviceManagerViewModel.AvailableDevices.Items)
-                {
-                    lock (device)
-                        MainViewViewModel.DeviceHlprs.WriteSingleDeviceInfoJson(device as DeviceSettings);
-                }
-            }
-            MainViewViewModel.LightingProfileManagerViewModel.SaveData();
+            //if (MainViewViewModel.DeviceHlprs == null)
+            //    return Task.FromResult(false);
+            //lock (MainViewViewModel.AvailableDevices)
+            //{
+            //    foreach (var device in MainViewViewModel.DeviceManagerViewModel.AvailableDevices.Items)
+            //    {
+            //        lock (device)
+            //            MainViewViewModel.DeviceHlprs.WriteSingleDeviceInfoJson(device as DeviceSettings);
+            //    }
+            //}
+            //MainViewViewModel.LightingProfileManagerViewModel.SaveData();
             return Task.FromResult(true);
         }
         private static object _syncRoot = new object();

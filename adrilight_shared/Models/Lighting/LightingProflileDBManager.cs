@@ -13,14 +13,19 @@ using System.Threading.Tasks;
 
 namespace adrilight_shared.Models.Lighting
 {
-    public class ProfilesManager
+    public class LightingProflileDBManager
     {
         private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
         private string LightingProfilesCollectionFolderPath => Path.Combine(JsonPath, "LightingProfiles");
         private string LightingProfilePlaylistsCollectionFolderPath => Path.Combine(JsonPath, "Playlists");
-        public ProfilesManager() {
-            CreateLightingProfilePlaylistsCollection();
+        public LightingProflileDBManager()
+        {
+
+        }
+        public void CreateDefault()
+        {
             CreateLightingProfilesCollection();
+            CreateLightingProfilePlaylistsCollection();
         }
         private void CreateLightingProfilesCollection()
         {

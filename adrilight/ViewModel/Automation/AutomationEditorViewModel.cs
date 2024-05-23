@@ -20,17 +20,18 @@ using System.Windows.Media;
 using GalaSoft.MvvmLight;
 using adrilight_shared.Settings;
 using adrilight_shared.Models.ItemsCollection;
+using adrilight.Manager;
 
 namespace adrilight.ViewModel.Automation
 {
     public class AutomationEditorViewModel : ViewModelBase
     {
-        public event Action<IGenericCollectionItem> AutomationHotKeyChanged;
+        public event Action<bool> OnEditorViewClosing;
         #region Construct
-        public AutomationEditorViewModel(DialogService service, AutomationManager automationManager, AutomationDialogViewModel dialogViewModel)
+        public AutomationEditorViewModel(DialogService service, AutomationDBManager automationDBManager, AutomationDialogViewModel dialogViewModel)
         {
             _dialogService = service;
-            _automationManager = automationManager;
+            _dbManager = automationDBManager;
             _dialogViewModel = dialogViewModel;
         }
         #endregion
@@ -41,7 +42,7 @@ namespace adrilight.ViewModel.Automation
         //private
         private DialogService _dialogService;
         public AutomationSettings Automation { get; set; }
-        private AutomationManager _automationManager;
+        private AutomationDBManager _dbManager;
         private ActionSettings _selectedAction;
         private AutomationDialogViewModel _dialogViewModel;
         public ObservableCollection<ActionType> AvailableActions { get; set; }
@@ -65,12 +66,12 @@ namespace adrilight.ViewModel.Automation
             Automation = automation;
 
             AvailableActions = new ObservableCollection<ActionType>();
-            foreach (var action in _automationManager.GetAvailableActions())
+            foreach (var action in _dbManager.GetAvailableActions())
             {
                 AvailableActions.Add(action);
             }
             AvailableTriggerConditions = new ObservableCollection<ITriggerCondition>();
-            foreach (var condition in _automationManager.GetAvailableCondition())
+            foreach (var condition in _dbManager.GetAvailableCondition())
             {
                 AvailableTriggerConditions.Add(condition);
             }
@@ -150,6 +151,15 @@ namespace adrilight.ViewModel.Automation
 
                 }, vm);
             });
+            SaveButtonCommand = new RelayCommand<string>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                //back to collection view
+                OnEditorViewClosing?.Invoke(true);
+               
+            });
         }
         private void AddSelectedActionTypeToList(ActionType actionType)
         {
@@ -189,7 +199,6 @@ namespace adrilight.ViewModel.Automation
             }
             var condition = new HotkeyTriggerCondition("HotKey", "Hotkey", modifiersKey, keys[0]);
             Automation.Condition = condition;
-            AutomationHotKeyChanged?.Invoke(Automation);
         }
         private NonInvasiveKeyboardHookLibrary.ModifierKeys ConvertStringtoModifier(string key)
         {
@@ -212,15 +221,13 @@ namespace adrilight.ViewModel.Automation
         }
         #endregion
 
-
-
-
         #region Icommand
         public ICommand AddNewBlankActionCommand { get; set; }
         public ICommand OpenTargetParamSelectionWindowCommand { get; set; }
         public ICommand OpenTargetDeviceSelectionWindowCommand { get; set; }
         public ICommand OpenAutomationValuePickerWindowCommand { get; set; }
         public ICommand OpenHotkeySelectorCommand { get; set; }
+        public ICommand SaveButtonCommand { get; set; }
         #endregion
 
     }

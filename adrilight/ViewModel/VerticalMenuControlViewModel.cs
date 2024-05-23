@@ -47,6 +47,10 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+        }
         #endregion
     }
 }

@@ -18,20 +18,19 @@ namespace adrilight
 {
     internal class AudioFrame : ViewModelBase, IDisposable, ICaptureEngine
     {
-        public AudioFrame(IGeneralSettings generalSettings, MainViewViewModel mainViewModel)
+        public AudioFrame(IGeneralSettings generalSettings)
         {
 
             GeneralSettings = generalSettings ?? throw new ArgumentException(nameof(generalSettings));
-            MainViewModel = mainViewModel ?? throw new ArgumentException(nameof(mainViewModel));
-            MainViewModel.AvailableAudioDevices.CollectionChanged += async (s, e) =>
-            {
-                switch (e.Action)
-                {
-                    case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
-                        await Task.Run(() => AudioDeviceChanged());
-                        break;
-                }
-            };
+            //MainViewModel.AvailableAudioDevices.CollectionChanged += async (s, e) =>
+            //{
+            //    switch (e.Action)
+            //    {
+            //        case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
+            //            await Task.Run(() => AudioDeviceChanged());
+            //            break;
+            //    }
+            //};
             //Init();
             RefreshCapturingState();
 
@@ -44,7 +43,6 @@ namespace adrilight
 
         #region dependency injection
         private IGeneralSettings GeneralSettings { get; }
-        private MainViewViewModel MainViewModel { get; }
         #endregion
 
         #region public field
@@ -157,7 +155,7 @@ namespace adrilight
                 {
                     if (_state == RunningState.Capturing)
                     {
-                        var isPreviewWindowOpen = MainViewModel.IsInIDEditStage || MainViewModel.IsAudioSelectionOpen;
+                        var isPreviewWindowOpen = false;
                         //var result = GetCurrentFFTFrame(32, Frames[index].Frame);
                         lock (Lock)
                         {
@@ -169,10 +167,10 @@ namespace adrilight
                         }
                         if (isPreviewWindowOpen)
                         {
-                            lock (MainViewModel.AudioUpdateLock)
-                            {
-                                MainViewModel.AudioVisualizerUpdate(Frames[index], index);
-                            }
+                            //lock (MainViewModel.AudioUpdateLock)
+                            //{
+                            //    MainViewModel.AudioVisualizerUpdate(Frames[index], index);
+                            //}
 
                         }
                         Thread.Sleep(25); // take 100 sample per second

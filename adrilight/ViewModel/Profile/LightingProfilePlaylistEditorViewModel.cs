@@ -1,4 +1,5 @@
-﻿using adrilight.Ticker;
+﻿using adrilight.Manager;
+using adrilight.Ticker;
 using adrilight_shared.Enums;
 using adrilight_shared.Helpers;
 using adrilight_shared.Models;
@@ -24,9 +25,10 @@ namespace adrilight.ViewModel.Profile
     public class LightingProfilePlaylistEditorViewModel : ViewModelBase
     {
         #region Construct
-        public LightingProfilePlaylistEditorViewModel(DialogService service)
+        public LightingProfilePlaylistEditorViewModel(DialogService service,LightingProfileManager manager)
         {
             _dialogService = service;
+            _profileManager = manager;
         }
         #endregion
 
@@ -38,14 +40,16 @@ namespace adrilight.ViewModel.Profile
 
         #region Properties
         private DialogService _dialogService;
-        private LightingProfilePlaylist _playlist;
+        private LightingProfileManager _profileManager;
+        private bool _isPlaying;
+        public LightingProfilePlaylist Playlist { get; set; }
         #endregion
 
 
         #region Methods
         public void Init(LightingProfilePlaylist playlist)
         {
-            _playlist = playlist;
+            Playlist = playlist;
         }
         private void CommandSetup()
         {
@@ -58,7 +62,7 @@ namespace adrilight.ViewModel.Profile
                 _dialogService?.ShowDialog<NumberInputDialogViewModel>(result =>
                 {
                     if (result == "True")
-                        _playlist.SetProfileDuration(vm.Value);
+                        Playlist.SetProfileDuration(vm.Value);
                 }, vm);
 
             });
@@ -67,12 +71,20 @@ namespace adrilight.ViewModel.Profile
                 return p != null;
             }, (p) =>
             {
-                var vm = new RenameDialogViewModel(adrilight_shared.Properties.Resources.RenameDialog_Rename_titleelement, _playlist.Name, "rename");
+                var vm = new RenameDialogViewModel(adrilight_shared.Properties.Resources.RenameDialog_Rename_titleelement, Playlist.Name, "rename");
                 _dialogService?.ShowDialog<RenameDialogViewModel>(result =>
                 {
                     if (result == "True")
-                        _playlist.Name = vm.Content;
+                        Playlist.Name = vm.Content;
                 }, vm);
+
+            });
+            Play = new RelayCommand<string>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                _profileManager.ActivatePlaylist(Playlist);
 
             });
         }

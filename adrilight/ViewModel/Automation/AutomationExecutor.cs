@@ -1,29 +1,23 @@
-﻿using adrilight.ViewModel.DeviceManager;
-using adrilight.ViewModel.Profile;
+﻿using adrilight.Manager;
 using adrilight_shared.Enums;
 using adrilight_shared.Models.Automation;
 using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
 using adrilight_shared.Models.Device;
-using adrilight_shared.Models.Lighting;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace adrilight.ViewModel.Automation
 {
     public class AutomationExecutor
     {
-        public AutomationExecutor(DeviceCollectionViewModel devicecollection, LightingProfileManagerViewModel lightingProfileManager)
+        public AutomationExecutor(DeviceCollectionViewModel devicecollection, LightingProfileManager lightingProfileManager)
         {
             _deviceCollection = devicecollection;
             _lightingProfileManager = lightingProfileManager;
         }
         private DeviceCollectionViewModel _deviceCollection;
-        private LightingProfileManagerViewModel _lightingProfileManager;
-        public async Task Execute(AutomationSettings automation)
+        private LightingProfileManager _lightingProfileManager;
+        public void Execute(AutomationSettings automation)
         {
             if (automation.Actions == null)
                 return;
@@ -44,7 +38,7 @@ namespace adrilight.ViewModel.Automation
                         var profileUID = (string)action.ActionParameter.Value;
                         if (profileUID != null)
                         {
-                           await _lightingProfileManager.ActivateProfile(profileUID, targetDevice);
+                           _lightingProfileManager.ActivateProfile(profileUID, targetDevice);
                         }
                         break;
 

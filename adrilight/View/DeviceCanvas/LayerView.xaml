@@ -13,7 +13,8 @@
              xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
              x:Name="window"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-             d:DataContext="{d:DesignInstance vm:DeviceCanvasViewModel, IsDesignTimeCreatable=True}"
+             d:DataContext="{Binding Source={StaticResource Locator}, Path=DeviceCanvasViewModel}"
+             DataContext="{Binding Source={StaticResource Locator}, Path=DeviceCanvasViewModel}"
              d:DesignHeight="450"
              d:DesignWidth="800">
     <UserControl.Resources>

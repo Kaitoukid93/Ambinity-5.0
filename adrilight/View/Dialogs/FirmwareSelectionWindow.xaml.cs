@@ -12,12 +12,6 @@ namespace adrilight.View
         {
             InitializeComponent();
         }
-        private MainViewViewModel ViewModel {
-            get
-            {
-                return (MainViewViewModel)this.DataContext;
-            }
-        }
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             //ViewModel.FrimwareUpgradeIsInProgress = false;

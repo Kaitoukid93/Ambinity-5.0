@@ -32,7 +32,7 @@ namespace adrilight_shared.Models.Device
         private ControlModeHelpers _controlModeHlprs;
 
        
-        public DeviceSettings ConstructNewDevice(string name, string deviceSerial, string fwVersion, string hwVersion, int hwLightingVersion, string outputPort)
+        public DeviceSettings ConstructNewSerialDevice(string name, string deviceSerial, string fwVersion, string hwVersion, int hwLightingVersion, string outputPort)
         {
             var newDevice = new DeviceSettings();
             newDevice.DeviceName = name;
@@ -107,7 +107,7 @@ namespace adrilight_shared.Models.Device
         }
 
        
-        public DeviceSettings DefaultCreateOpenRGBDevice(OpenRGB.NET.Enums.DeviceType type, string deviceName, string outputPort, string serial, string uid)
+        public DeviceSettings ConstructNewOpenRGBDevice(OpenRGB.NET.Enums.DeviceType type, string deviceName, string outputPort, string serial, string uid)
         {
             var newDevice = new DeviceSettings();
             newDevice.DeviceType = GetTypeFromOpenRGB(type);

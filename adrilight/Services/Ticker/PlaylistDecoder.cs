@@ -17,19 +17,13 @@ namespace adrilight.Ticker
     public class PlaylistDecoder : ViewModelBase
     {
         public event Action<LightingProfile> CurrentPlayingProfileChanged;
-        public PlaylistDecoder(IGeneralSettings generaSettings, IDeviceSettings[] devices)
+        public PlaylistDecoder(IGeneralSettings generaSettings)
         {
             GeneralSettings = generaSettings ?? throw new ArgumentNullException(nameof(generaSettings));
-            AvailableDevices = new ObservableCollection<IDeviceSettings>();
-            foreach (var device in devices)
-            {
-                AvailableDevices.Add(device);
-            }
         }
 
         #region private field
         private LightingProfilePlaylist _selectedPlaylist;
-        private CancellationTokenSource _cancellationTokenSource;
         public ObservableCollection<IDeviceSettings> AvailableDevices { get; }
         private static bool _isWindowOpen;
         #endregion
@@ -52,7 +46,7 @@ namespace adrilight.Ticker
         #endregion
         public void Play(LightingProfilePlaylist playlist)
         {
-            var valid = playlist != null && playlist.LightingProfiles != null && playlist.LightingProfiles.Items != null && playlist.LightingProfiles.Items.Count > 0;
+            var valid = playlist != null && playlist.LightingProfiles != null && playlist.LightingProfiles != null && playlist.LightingProfiles.Count > 0;
             if (!valid)
                 return;
             _selectedPlaylist?.StopPlaylist();
@@ -76,12 +70,12 @@ namespace adrilight.Ticker
             ActivateCurrentLightingProfile(profile, false);
             IsRunning = false;
         }
-        public async Task Play(LightingProfile profile, IDeviceSettings device)
+        public void Play(LightingProfile profile, IDeviceSettings device)
         {
             _currentPlayingProfile?.Stop();
             _selectedPlaylist?.StopPlaylist();
             IsRunning = false;
-            await ActivateCurrentLightingProfileForSpecificDevice(profile, device);
+            ActivateCurrentLightingProfileForSpecificDevice(profile, device);
         }
         private void StopTimer()
         {
@@ -98,17 +92,6 @@ namespace adrilight.Ticker
         private static System.Timers.Timer _subTimer;
         private static TimeSpan _currentTimeSpan;
         private static LightingProfile _currentPlayingProfile;
-        //public LightingProfile CurrentPlayingProfile {
-        //    get
-        //    {
-        //        return _currentPlayingProfile;
-        //    }
-        //    set
-        //    {
-        //        _currentPlayingProfile = value;
-        //        RaisePropertyChanged();
-        //    }
-        //}
         private void SetTimer(TimeSpan profileDuration)
         {
             _timer?.Stop();
@@ -150,12 +133,12 @@ namespace adrilight.Ticker
             if (_selectedPlaylist.Shuffle)
             {
                 Random r = new Random();
-                _selectedPlaylist.CurrentPlayingProfileIndex = r.Next(0, _selectedPlaylist.LightingProfiles.Items.Count - 1);
+                _selectedPlaylist.CurrentPlayingProfileIndex = r.Next(0, _selectedPlaylist.LightingProfiles.Count - 1);
             }
             else
             {
 
-                if (_selectedPlaylist.CurrentPlayingProfileIndex < _selectedPlaylist.LightingProfiles.Items.Count - 1)
+                if (_selectedPlaylist.CurrentPlayingProfileIndex < _selectedPlaylist.LightingProfiles.Count - 1)
                     _selectedPlaylist.CurrentPlayingProfileIndex++;
                 else
                 {
@@ -181,13 +164,13 @@ namespace adrilight.Ticker
             _subTimer.Stop();
             IsRunning = false;
         }
-        private async Task ActivateCurrentLightingProfileForSpecificDevice(LightingProfile profile, IDeviceSettings device)
+        private void ActivateCurrentLightingProfileForSpecificDevice(LightingProfile profile, IDeviceSettings device)
         {
             if (!device.IsEnabled)
                 return;
             StopTimer();
             var lightingMode = ObjectHelpers.Clone<LightingMode>(profile.ControlMode as LightingMode);
-            await Task.Run(() => device.ActivateControlMode(lightingMode));
+            Task.Run(() => device.ActivateControlMode(lightingMode));
             Log.Information("Lighting Profile Activated: " + profile.Name + " for " + device.DeviceName);
         }
         private void ActivateCurrentLightingProfile(LightingProfile profile, bool isQeued)

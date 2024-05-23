@@ -26,10 +26,6 @@ namespace adrilight.View
             InitializeComponent();
             
         }
-
-     
-      
-        
      
     }
 }

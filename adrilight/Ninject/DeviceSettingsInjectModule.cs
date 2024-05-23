@@ -10,23 +10,25 @@ using adrilight.View;
 using adrilight.ViewModel;
 using adrilight.ViewModel.Automation;
 using adrilight.ViewModel.Dashboard;
-using adrilight.ViewModel.DeviceManager;
 using adrilight.ViewModel.Profile;
 using adrilight_shared.Models.Automation;
 using adrilight_shared.Models.Device;
 using adrilight_shared.Models.KeyboardHook;
+using adrilight_shared.Models.Lighting;
 using adrilight_shared.Models.Stores;
 using adrilight_shared.Services;
+using adrilight_shared.Services.AdrilightStoreService;
 using adrilight_shared.Settings;
 using adrilight_shared.ViewModel;
 using Microsoft.Win32;
 using Ninject.Modules;
+using Renci.SshNet;
 using Serilog;
-using static adrilight.View.AllDeviceView;
+using System.CodeDom.Compiler;
+using static adrilight.View.DashboardView;
 using static adrilight.View.DeviceControlView;
-using static adrilight.View.PlayListCollectionView;
 using static adrilight.View.PlaylistEditorView;
-using static adrilight.View.ProfileCollectionView;
+using static adrilight.View.Screens.LightingProfile.ManagerCollectionView;
 
 namespace adrilight.Ninject
 {
@@ -38,9 +40,11 @@ namespace adrilight.Ninject
             var generalSettings = settingsManager.LoadIfExists() ?? settingsManager.MigrateOrDefault();
             string HKLMWinNTCurrent = @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion";
             string osBuild = Registry.GetValue(HKLMWinNTCurrent, "CurrentBuildNumber", "").ToString();
-            Bind<IGeneralSettings>().ToConstant(generalSettings);
-            Bind<MainViewViewModel>().ToSelf().InSingletonScope();
-            
+
+            Bind<DashboardViewModel>().ToSelf().InSingletonScope();
+            Bind<MainViewModel>().ToSelf().InSingletonScope();
+            //provider
+            Bind<IGeneralSettings>().ToConstant(generalSettings);   
             //device control 
             Bind<DeviceCanvasViewModel>().ToSelf().InSingletonScope();
             Bind<DeviceControlViewModel>().ToSelf().InSingletonScope();
@@ -48,20 +52,24 @@ namespace adrilight.Ninject
             Bind<VerticalMenuControlViewModel>().ToSelf().InSingletonScope();
             Bind<DeviceControlEvent>().ToSelf().InSingletonScope();
             ////
+            Bind<DeviceManager>().ToSelf().InSingletonScope();
+            Bind<DeviceDBManager>().ToSelf().InSingletonScope();
+            Bind<DeviceConnectionManager>().ToSelf().InSingletonScope();
             Bind<DeviceManagerViewModel>().ToSelf().InSingletonScope();
             Bind<DeviceCollectionViewModel>().ToSelf().InSingletonScope();
             Bind<DeviceAdvanceSettingsViewModel>().ToSelf().InSingletonScope();
-            Bind<DeviceDBManager>().ToSelf().InSingletonScope();
             Bind<DeviceHardwareSettings>().ToSelf().InSingletonScope();
+            Bind<DeviceLightingServiceManager>().ToSelf().InSingletonScope();
+
+            Bind<AdrilightSFTPClient>().ToSelf().InSingletonScope();
 
             Bind<LightingProfileManagerViewModel>().ToSelf().InSingletonScope();
             Bind<LightingProfilePlaylistEditorViewModel>().ToSelf().InSingletonScope();
             Bind<LightingProfileCollectionViewModel>().ToSelf().InSingletonScope();
             Bind<LightingProfilePlayerViewModel>().ToSelf().InSingletonScope();
+            Bind<LightingProflileDBManager>().ToSelf().InSingletonScope();
 
-            Bind<MainView>().ToSelf().InSingletonScope();
             Bind<AmbinityClient>().ToSelf().InSingletonScope();
-            Bind<SerialDeviceDetection>().ToSelf().InSingletonScope();
             Bind<HWMonitor>().ToSelf().InSingletonScope();
             Bind<IContext>().To<WpfContext>().InSingletonScope();
             Bind<DeviceDiscovery>().ToSelf().InSingletonScope();
@@ -74,18 +82,18 @@ namespace adrilight.Ninject
             Bind<AutomationCollectionView>().ToSelf().InSingletonScope();
             Bind<AutomationManager>().ToSelf().InSingletonScope();
             Bind<AutomationExecutor>().ToSelf().InSingletonScope();
+            Bind<AutomationDBManager>().ToSelf().InSingletonScope();
 
             Bind<IDialogService>().To<DialogService>().InSingletonScope();
 
             //binding view
+            Bind<ISelectableViewPart>().To<DashboardViewSelectableViewPart>();
             Bind<ISelectableViewPart>().To<DeviceControlViewSelectableViewPart>();
-            Bind<ISelectableViewPart>().To<AllDeviceViewSelectableViewPart>();
             Bind<ISelectablePage>().To<DeviceCollectionViewPage>().WhenInjectedInto(typeof(DeviceManagerViewModel));
             Bind<ISelectablePage>().To<DeviceAdvanceSettingsViewPage>().WhenInjectedInto(typeof(DeviceManagerViewModel));
             Bind<ISelectablePage>().To<DeviceLoadingViewPage>().WhenInjectedInto(typeof(DeviceManagerViewModel));
 
-            Bind<ISelectablePage>().To<PlayListCollectionViewPage>().WhenInjectedInto(typeof(LightingProfileManagerViewModel));
-            Bind<ISelectablePage>().To<ProfileCollectionViewPage>().WhenInjectedInto(typeof(LightingProfileManagerViewModel));
+            Bind<ISelectablePage>().To<ManagerCollectionViewPage>().WhenInjectedInto(typeof(LightingProfileManagerViewModel));
             Bind<ISelectablePage>().To<PlaylistEditorViewPage>().WhenInjectedInto(typeof(LightingProfileManagerViewModel));
             Bind< KeyboardHookManagerSingleton>().ToSelf().InSingletonScope();
             if (generalSettings.ScreenCapturingMethod == 0)

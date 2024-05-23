@@ -1,32 +1,30 @@
-﻿using adrilight.Services.SerialStream;
+﻿
+using adrilight.Services.DataStream;
 using adrilight.Util;
 using adrilight_shared.Enums;
 using adrilight_shared.Models.Device;
-using adrilight_shared.Models.Device.Output;
 using adrilight_shared.Models.Device.SlaveDevice;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.Device.Zone.Spot;
 using adrilight_shared.Models.SerialPortData;
-using adrilight_shared.Settings;
 using Serilog;
 using System;
 using System.Buffers;
 using System.IO.Ports;
 using System.Linq;
 using System.Threading;
-using System.Windows.Documents.DocumentStructures;
 
 namespace adrilight
 {
 
     internal sealed class
 
-        SerialStreamRP2040 : IDisposable, ISerialStream
+        SerialStreamRP2040 : IDisposable, IDataStream
     {
 
-        public SerialStreamRP2040(IDeviceSettings deviceSettings, IGeneralSettings generalSettings)
+        public SerialStreamRP2040(IDeviceSettings deviceSettings)
         {
-            GeneralSettings = generalSettings ?? throw new ArgumentException(nameof(generalSettings));
+           
             DeviceSettings = deviceSettings ?? throw new ArgumentNullException(nameof(deviceSettings));
 
             // DeviceSpotSets = deviceSpotSets ?? throw new ArgumentNullException(nameof(deviceSpotSets));
@@ -49,9 +47,12 @@ namespace adrilight
             _hasPWMCOntroller = DeviceSettings.AvailablePWMOutputs != null && DeviceSettings.AvailablePWMOutputs.Count() > 0;
             RefreshTransferState();
         }
+        public void Init(IDeviceSettings device)
+        {
+
+        }
         //Dependency Injection//
         private IDeviceSettings DeviceSettings { get; set; }
-        private IGeneralSettings GeneralSettings { get; set; }
         #region PropertyChanged events
         private void UserSettings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
