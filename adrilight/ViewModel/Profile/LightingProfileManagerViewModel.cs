@@ -1,4 +1,5 @@
 ﻿using adrilight.Manager;
+using adrilight.Ticker;
 using adrilight.View;
 using adrilight.View.Screens.LightingProfile;
 using adrilight_shared.Models.ItemsCollection;
@@ -17,7 +18,7 @@ using static adrilight.View.Screens.LightingProfile.ManagerCollectionView;
 
 namespace adrilight.ViewModel.Profile
 {
-    public class LightingProfileManagerViewModel : ViewModelBase
+    public class LightingProfileManagerViewModel : ItemsManagerViewModelBase
     {
         /// <summary>
         /// 
@@ -44,17 +45,10 @@ namespace adrilight.ViewModel.Profile
         {
             //load profile and playlist
             SelectablePages = availablePages;
-
             _profileCollectionViewModel = profileCollectionViewModel;
-            _profileCollectionViewModel.LightingProfileClicked += OnProfileClicked;
-            _profileCollectionViewModel.PlaylistClicked += OnPlaylistClicked;
-            _profileCollectionViewModel.PlaylistCardButtonClicked += OnPlaylistPlayButtonClicked;
             _playerViewModel = playerViewModel;
-            _dialogService = service;
             _profileManager = profileManager;
             _playlistEditorViewModel = editorViewModel;
-            LoadNonClientAreaData("Adrilight  |  Lighting Profile Manager", "profileManager", false, null);
-            LoadData();
             CommandSetup();
         }
 
@@ -83,13 +77,22 @@ namespace adrilight.ViewModel.Profile
 
 
         #region Properties
-        public NonClientArea NonClientAreaContent { get; set; }
+        private NonClientArea _nonClientAreaContent;
+        public NonClientArea NonClientAreaContent {
+            get
+            {
+                return _nonClientAreaContent;
+            }
+            set
+            {
+                _nonClientAreaContent = value;
+                RaisePropertyChanged();
+            }
+        }
         private LightingProfileManager _profileManager;
         private LightingProfileCollectionViewModel _profileCollectionViewModel;
         private LightingProfilePlayerViewModel _playerViewModel;
-        private LightingProflileDBManager _lightingProfileManager;
         private bool _isManagerWindowOpen;
-        private DialogService _dialogService;
         private ISelectablePage _selectedPage;
         private LightingProfilePlaylistEditorViewModel _playlistEditorViewModel;
         public IList<ISelectablePage> SelectablePages { get; set; }
@@ -118,20 +121,6 @@ namespace adrilight.ViewModel.Profile
         #region Methods
         private void CommandSetup()
         {
-            ////ChangePlaylistProfileDurationCommand = new RelayCommand<LightingProfilePlaylist>((p) =>
-            ////{
-            ////    return p != null;
-            ////}, (p) =>
-            ////{
-            ////    var vm = new NumberInputDialogViewModel("Set time", 60, "Thời gian cho mỗi profile tính bằng giây", "stop_clock");
-            ////    _dialogService?.ShowDialog<NumberInputDialogViewModel>(result =>
-            ////    {
-            ////        if (result == "True")
-            ////            p.SetProfileDuration(vm.Value);
-            ////    }, vm);
-
-            ////});
-
             WindowClosing = new RelayCommand<string>((p) =>
             {
                 return p != null;
@@ -159,11 +148,27 @@ namespace adrilight.ViewModel.Profile
             });
 
         }
-        public void LoadData()
+        public override void LoadData()
         {
             _profileCollectionViewModel.Init();
+            _profileCollectionViewModel.LightingProfileClicked += OnProfileClicked;
+            _profileCollectionViewModel.PlaylistClicked += OnPlaylistClicked;
+            _profileCollectionViewModel.PlaylistCardButtonClicked += OnPlaylistPlayButtonClicked;
+            _profileManager.WindowsStatusChanged(true);
             BacktoCollectionView();
         }
+        public override void Dispose()
+        {
+
+            _profileCollectionViewModel.LightingProfileClicked -= OnProfileClicked;
+            _profileCollectionViewModel.PlaylistClicked -= OnPlaylistClicked;
+            _profileCollectionViewModel.PlaylistCardButtonClicked -= OnPlaylistPlayButtonClicked;
+            _profileManager.WindowsStatusChanged(false);
+            _playerViewModel.Dispose();
+            _profileCollectionViewModel.Dispose();
+            base.Dispose();
+        }
+
         private void GotoPlaylistEditor(IGenericCollectionItem item)
         {
             if (item == null)
@@ -183,7 +188,7 @@ namespace adrilight.ViewModel.Profile
                 BacktoCollectionView();
             }
             );
-            LoadNonClientAreaData("Adrilight  |  Device Manager | " + playlist.Name, "profileManager", true, backButtonCommand);
+            LoadNonClientAreaData("Adrilight  |  Profile Manager | " + playlist.Name, "profileManager", true, backButtonCommand);
 
         }
         private void BacktoCollectionView()
@@ -193,11 +198,8 @@ namespace adrilight.ViewModel.Profile
             SelectedPage = collectionView;
 
         }
-        //play profile by UID for specific device, called by automation executor
 
         #endregion
-
-
         #region Commands
         public ICommand ChangePlaylistProfileDurationCommand { get; set; }
         public ICommand PlaySelectedItemCommand { get; set; }

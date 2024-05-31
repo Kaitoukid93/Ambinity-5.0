@@ -70,6 +70,35 @@ namespace adrilight_shared.Models.Device
 
             }, vm);
         }
+        public async Task<List<DeviceSettings>> LoadDeviceFromFolder(string folderPath)
+        {
+            var devices = new List<DeviceSettings>();
+            if (!Directory.Exists(folderPath)) return null; // no device has been added
+            int maxDevCount = Directory.GetDirectories(folderPath).Count();
+            foreach (var folder in Directory.GetDirectories(folderPath))
+            {
+                try
+                {
+                    var json = File.ReadAllText(Path.Combine(folder, "config.json"));
+                    var device = JsonConvert.DeserializeObject<DeviceSettings>(json);
+                    device.AvailableControllers = new List<IDeviceController>();
+                    //read slave device info
+                    //check if this device contains lighting controller
+                    var lightingoutputDir = Path.Combine(Path.Combine(folder, "LightingOutputs"));
+                    var pwmoutputDir = Path.Combine(Path.Combine(folder, "PWMOutputs"));
+                    DeserializeChild<ARGBLEDSlaveDevice>(lightingoutputDir, device, OutputTypeEnum.ARGBLEDOutput);
+                    DeserializeChild<PWMMotorSlaveDevice>(pwmoutputDir, device, OutputTypeEnum.PWMOutput);
+                    devices.Add(device);
+                    await Task.Delay(500);
+                }
+                catch (Exception ex)
+                {
+                    continue;
+                }
+
+            }
+            return devices;
+        }
         private async Task RestoreDevice(ProgressDialogViewModel vm, string path)
         {
             vm.ProgressBarVisibility = Visibility.Visible;
@@ -240,35 +269,7 @@ namespace adrilight_shared.Models.Device
             //export
         }
         //this will load devices from default device folder
-        public List<DeviceSettings> LoadDeviceFromFolder(string folderPath)
-        {
-            var devices = new List<DeviceSettings>();
-            if (!Directory.Exists(folderPath)) return null; // no device has been added
-
-            foreach (var folder in Directory.GetDirectories(folderPath))
-            {
-                try
-                {
-                    var json = File.ReadAllText(Path.Combine(folder, "config.json"));
-                    var device = JsonConvert.DeserializeObject<DeviceSettings>(json);
-                    device.AvailableControllers = new List<IDeviceController>();
-                    //read slave device info
-                    //check if this device contains lighting controller
-                    var lightingoutputDir = Path.Combine(Path.Combine(folder, "LightingOutputs"));
-                    var pwmoutputDir = Path.Combine(Path.Combine(folder, "PWMOutputs"));
-                    DeserializeChild<ARGBLEDSlaveDevice>(lightingoutputDir, device, OutputTypeEnum.ARGBLEDOutput);
-                    DeserializeChild<PWMMotorSlaveDevice>(pwmoutputDir, device, OutputTypeEnum.PWMOutput);
-                    devices.Add(device);
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex, folder);
-                    continue;
-                }
-            }
-            return devices;
-        }
-        private void DeserializeChild<T>(string outputDir, IDeviceSettings device, OutputTypeEnum outputType)
+        public void DeserializeChild<T>(string outputDir, IDeviceSettings device, OutputTypeEnum outputType)
         {
             if (Directory.Exists(outputDir))
             {

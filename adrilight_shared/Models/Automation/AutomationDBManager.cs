@@ -106,7 +106,7 @@ namespace adrilight_shared.Models.Automation
             {
                 Name = adrilight_shared.Properties.Resources.ActionType_Increase_name,
                 Description = "Tăng giá trị của một thuộc tính",
-                Geometry = "apply",
+                Geometry = "Increase",
                 Type = "Increase",
                 LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
                 IsValueDisplayed = false,
@@ -119,7 +119,7 @@ namespace adrilight_shared.Models.Automation
             {
                 Name = adrilight_shared.Properties.Resources.ActionType_Decrease_name,
                 Description = "Giảm giá trị của một thuộc tính",
-                Geometry = "apply",
+                Geometry = "Decrease",
                 Type = "Decrease",
                 LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
                 IsValueDisplayed = false,
@@ -132,7 +132,7 @@ namespace adrilight_shared.Models.Automation
             {
                 Name = adrilight_shared.Properties.Resources.ActionType_TurnOff_name,
                 Description = "Tắt một tính năng",
-                Geometry = "apply",
+                Geometry = "Switch Off",
                 Type = "Off",
                 LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
                 IsValueDisplayed = false,
@@ -145,7 +145,7 @@ namespace adrilight_shared.Models.Automation
             {
                 Name = adrilight_shared.Properties.Resources.ActionType_TurnOn_name,
                 Description = "Bật một tính năng",
-                Geometry = "apply",
+                Geometry = "Switch On",
                 Type = "On",
                 LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
                 IsValueDisplayed = false,
@@ -158,7 +158,7 @@ namespace adrilight_shared.Models.Automation
             {
                 Name = adrilight_shared.Properties.Resources.ActionType_Turnonthenoff_name,
                 Description = "Chuyển đổi trạng thái Bật Tắt",
-                Geometry = "apply",
+                Geometry = "Toggle On-Off",
                 Type = "On/Off",
                 LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
                 IsValueDisplayed = false,
@@ -171,7 +171,7 @@ namespace adrilight_shared.Models.Automation
             {
                 Name = adrilight_shared.Properties.Resources.ActionType_Switchto_name,
                 Description = "Chuyển đổi đồng thời kích hoạt một tính năng",
-                Geometry = "apply",
+                Geometry = "Switch Mode",
                 Type = "Change",
                 LinkText = adrilight_shared.Properties.Resources.ActionType_Increase_linktext,
                 ToResultText = "thành",
@@ -188,7 +188,8 @@ namespace adrilight_shared.Models.Automation
                 TurnOnActionType(),
                 TurnOffActionType(),
                 ToggleActionType(),
-                SwitchToActionType()
+                SwitchToActionType(),
+                ActivateActionType(),
             };
             return actions;
         }

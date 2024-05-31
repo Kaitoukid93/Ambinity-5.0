@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace adrilight_shared.Services
 {
@@ -30,6 +31,7 @@ namespace adrilight_shared.Services
             };
             dialog.Closed += closeEventHandler;
             dialog.Content = Activator.CreateInstance(type);
+            (dialog.Content as UserControl).Focus();
             (dialog as FrameworkElement).DataContext = viewmodel;
             dialog.Owner = Application.Current.MainWindow;
             dialog.WindowStartupLocation = WindowStartupLocation.CenterOwner;

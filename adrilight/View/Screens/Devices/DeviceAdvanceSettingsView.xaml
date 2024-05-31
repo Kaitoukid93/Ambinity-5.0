@@ -704,11 +704,6 @@
                                                             Style="{DynamicResource _mediumProfileDefaultButton}"
                                                             Content="Apply">
                                                     </Button>
-                                                    <ProgressBar Visibility="{Binding IsApplyingDeviceHardwareSettings,Converter={StaticResource boolToVisibilityConvert}}"
-                                                                 hc:BorderElement.CornerRadius="0"
-                                                                 IsIndeterminate="True"
-                                                                 Margin="0,5,0,0"
-                                                                 Height="4" />
                                                 </StackPanel>
 
                                             </Grid>
@@ -1128,7 +1123,7 @@
                                                         <TextBlock HorizontalAlignment="Left"
                                                                    Margin="5,0,5,0"
                                                                    Grid.Column="1"
-                                                                   Text="{Binding CurrentSelectedFirmware}"
+                                                                   Text="{Binding SelectedCustomFirmwarePath}"
                                                                    TextTrimming="CharacterEllipsis"
                                                                    MaxWidth="200"
                                                                    Style="{DynamicResource TextBlockDefaultSecLight}" />
@@ -1140,7 +1135,7 @@
                                                         Content="{x:Static properties:Resources.DeviceAdvanceSettingsView_CustomFirmwareSelection_buttonconent}" />
                                             </StackPanel>
                                             <Grid Grid.Column="1">
-                                                <ToggleButton Command="{Binding UpdateCustomFirmwareCommand}"
+                                                <ToggleButton Command="{Binding DownloadCustomFirmwareCommand}"
                                                               Style="{StaticResource ToggleButtonLoadingPrimary}"
                                                               IsChecked="{Binding IsDownloadingFirmware,Mode=TwoWay}"
                                                               Content="{x:Static properties:Resources.DeviceAdvanceSettingsView_DownloadFirmware_buttoncontent}"

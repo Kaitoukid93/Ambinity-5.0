@@ -12,6 +12,7 @@
            mc:Ignorable="d"
            WindowStartupLocation="CenterScreen"
            AllowDrop="True"
+           x:Name="window"
            AllowsTransparency="False"
            MinHeight="480"
            MinWidth="640"
@@ -71,6 +72,12 @@
                            x:Name="noticon"
                            Token="Ambinity"
                            Text="Ambinity">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Click">
+                        <i:InvokeCommandAction Command="{Binding OpenMainWindowCommand}"
+                            CommandParameter="open" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
                 <hc:NotifyIcon.ContextMenu>
                     <ContextMenu>
                         <!--<ContextMenu.ItemTemplate>
@@ -81,7 +88,9 @@
 
 
 
-                        <MenuItem  Click="OpenDashboard"
+                        <MenuItem  Command="{Binding OpenMainWindowCommand}"
+                                   CommandParameter="open"
+                                   Click="OpenDashboard"
                                    Header="Dashboard">
                             <MenuItem.Icon>
                                 <Path   Data="{StaticResource dashboard}"

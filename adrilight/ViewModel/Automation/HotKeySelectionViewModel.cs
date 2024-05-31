@@ -15,19 +15,26 @@ namespace adrilight.ViewModel.Automation
 {
     public class HotKeySelectionViewModel : ViewModelBase
     {
-        public HotKeySelectionViewModel() { }
+        public HotKeySelectionViewModel()
+        {
+            CommandSetup();
+            CurrentSelectedModifiers = new ObservableCollection<string>();
+            CurrentSelectedShortKeys = new ObservableCollection<KeyModel>();
+        }
         #region Methods
         private Key _lastKey;
         private bool _newPress = false;
         private int keyCount = 0;
+        private bool _showHint = true;
         private bool _saveEnabled;
-        private bool _isKeyValid;
+        private bool _isKeyValid = false;
         private ObservableCollection<KeyModel> _currentSelectedShortKeys;
         private ObservableCollection<string> _currentSelectedModifiers;
         public bool IsKeyValid { get { return _isKeyValid; } set { _isKeyValid = value; RaisePropertyChanged(); } }
         public ObservableCollection<KeyModel> CurrentSelectedShortKeys { get { return _currentSelectedShortKeys; } set { _currentSelectedShortKeys = value; RaisePropertyChanged(); } }
         public ObservableCollection<string> CurrentSelectedModifiers { get { return _currentSelectedModifiers; } set { _currentSelectedModifiers = value; RaisePropertyChanged(); } }
         public bool SaveEnabled { get { return _saveEnabled; } set { _saveEnabled = value; RaisePropertyChanged(); } }
+        public bool ShowHint { get { return _showHint; } set { _showHint = value; RaisePropertyChanged(); } }
 
         private void CommandSetup()
         {
@@ -36,6 +43,7 @@ namespace adrilight.ViewModel.Automation
                 return p != null;
             }, (p) =>
             {
+                ShowHint = false;
                 OnKeyDownHandler(p);
 
             });
@@ -98,8 +106,12 @@ namespace adrilight.ViewModel.Automation
                 CurrentSelectedShortKeys.Add(key);
                 if (CurrentSelectedModifiers.Count == 0)
                 {
-                    IsKeyValid = true;
+                    IsKeyValid = false;
 
+                }
+                else
+                {
+                    IsKeyValid = true;
                 }
 
 

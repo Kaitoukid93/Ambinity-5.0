@@ -1,6 +1,7 @@
 ﻿using adrilight.Resources;
 using adrilight.Services.OpenRGBService;
 using adrilight.View;
+using adrilight.ViewModel.Splash;
 using adrilight_shared.Settings;
 using Serilog;
 using Squirrel;
@@ -17,12 +18,13 @@ namespace adrilight.Util
     {
         private const string ADRILIGHT_RELEASES = "https://github.com/Kaitoukid93/Ambinity_Developer_Release";
 
-        public AdrilightUpdater(IGeneralSettings settings, AmbinityClient ambinityClient, IContext context, HWMonitor hWmonitor)
+        public AdrilightUpdater(IGeneralSettings settings, AmbinityClient ambinityClient, IContext context, HWMonitor hWmonitor,SplashScreenViewModel splashScreenViewModel)
         {
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
             Context = context ?? throw new ArgumentNullException(nameof(context));
             HWMonitor = hWmonitor ?? throw new ArgumentNullException(nameof(hWmonitor));
             AmbinityClient = ambinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
+            _splashScreenViewModel = splashScreenViewModel ?? throw new ArgumentNullException( nameof(splashScreenViewModel));
 
         }
         private static View.SplashScreen _splashScreen;
@@ -38,12 +40,11 @@ namespace adrilight.Util
             t.Start();
 
         }
-
-        public IGeneralSettings Settings { get; }
-        public AmbinityClient AmbinityClient { get; }
-        public HWMonitor HWMonitor { get; }
-        public IContext Context { get; }
-
+        private SplashScreenViewModel _splashScreenViewModel;
+        private IGeneralSettings Settings;
+        private AmbinityClient AmbinityClient;
+        private HWMonitor HWMonitor;
+        private IContext Context;
         private async Task StartSquirrel()
         {
             while (Settings.UpdaterAskAgain)
@@ -81,8 +82,8 @@ namespace adrilight.Util
                             await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
                             {
                                 _splashScreen = new View.SplashScreen();
-                                _splashScreen.Header.Text = "Downloading Update";
-                                _splashScreen.status.Text = "UPDATING...";
+                                _splashScreenViewModel.Title = "Downloading Update";
+                                _splashScreenViewModel.Description = "UPDATING...";
                                 _splashScreen.Show();
 
                             });
@@ -103,7 +104,7 @@ namespace adrilight.Util
                                 //remember to dispose openrgbstream too!!!
                                 await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
                                 {
-                                    _splashScreen.status.Text = "RESTARTING...";
+                                    _splashScreenViewModel.Description = "RESTARTING...";
                                 });
                                 UpdateManager.RestartApp();
                             }

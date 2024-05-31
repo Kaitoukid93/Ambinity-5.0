@@ -4,10 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
-             xmlns:store="clr-namespace:adrilight_shared.Models.Store;assembly=adrilight_shared"
-             xmlns:enums="clr-namespace:adrilight_shared.Enums;assembly=adrilight_shared"
              xmlns:local="clr-namespace:adrilight.View"
              xmlns:lighting="clr-namespace:adrilight_shared.Models.Lighting;assembly=adrilight_shared"
              mc:Ignorable="d"
@@ -86,7 +83,7 @@
                                                             hc:IconElement.Height="15"
                                                             BorderThickness="0"
                                                             ToolTip="Play this profile"
-                                                            Command="{Binding Path=DataContext.SelectItem, RelativeSource={RelativeSource AncestorType={x:Type local:PlayListCollectionView}}}"
+                                                            Command="{Binding Path=DataContext.PlayProfile, RelativeSource={RelativeSource AncestorType={x:Type local:PlaylistEditorView}}}"
                                                             CommandParameter="{Binding .}"
                                                             hc:IconElement.Geometry="{DynamicResource playOutline}" />
                                                 </Grid>
@@ -170,24 +167,10 @@
                                                 <StackPanel HorizontalAlignment="Right"
                                                             Margin="0,0,5,0"
                                                             Orientation="Horizontal">
-                                                    <!--<Button VerticalAlignment="Center"
-                                         Background="Transparent"
-                                         Padding="5"
-                                         HorizontalAlignment="Right"
-                                         hc:IconElement.Width="15"
-                                         BorderThickness="0"
-                                         hc:IconElement.Geometry="{DynamicResource moveDown}" />
-                                 <Button VerticalAlignment="Center"
-                                         Background="Transparent"
-                                         Padding="5"
-                                         HorizontalAlignment="Right"
-                                         hc:IconElement.Width="15"
-                                         BorderThickness="0"
-                                         hc:IconElement.Geometry="{DynamicResource moveUp}" />-->
                                                     <Button VerticalAlignment="Center"
                                                             Background="Transparent"
                                                             Padding="5"
-                                                            Command="{Binding Path=DataContext.LightingProfiles.RemoveItemCommand, RelativeSource={RelativeSource AncestorType=Grid,AncestorLevel=4}}"
+                                                            Command="{Binding Path=DataContext.DeleteProfile, RelativeSource={RelativeSource AncestorType=Grid,AncestorLevel=4}}"
                                                             CommandParameter="{Binding .}"
                                                             HorizontalAlignment="Right"
                                                             hc:IconElement.Width="15"
@@ -279,7 +262,7 @@
                                             Orientation="Horizontal">
                                     <Button BorderThickness="0"
                                             Height="32"
-                                            Tag="{Binding Path=DataContext,ElementName=editorView}"
+                                            CommandParameter="play"
                                             Foreground="{DynamicResource RegionBrush}"
                                             Margin="0,5,10,5"
                                             hc:IconElement.Height="15"
@@ -292,7 +275,7 @@
                                                 <Setter Property="hc:IconElement.Geometry"
                                                         Value="{DynamicResource playComposition}" />
                                                 <Setter Property="Command"
-                                                        Value="{Binding Tag.Play, RelativeSource={RelativeSource AncestorType={x:Type local:LightingProfileManagerWindow}}}" />
+                                                        Value="{Binding Play}" />
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Playlist.IsPlaying}"
                                                                  Value="True">
@@ -301,7 +284,7 @@
                                                         <Setter Property="hc:IconElement.Geometry"
                                                                 Value="{DynamicResource stopComposition}" />
                                                         <Setter Property="Command"
-                                                                Value="{Binding Tag.Stop, RelativeSource={RelativeSource AncestorType={x:Type local:LightingProfileManagerWindow}}}" />
+                                                                Value="{Binding Stop}" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -310,8 +293,8 @@
                                     <Button BorderThickness="0"
                                             Background="{DynamicResource SecondaryRegionBrush}"
                                             hc:IconElement.Geometry="{DynamicResource rename}"
-                                            Command="{Binding Path=DataContext.OpenRenamePlaylistDialog, RelativeSource={RelativeSource AncestorType={x:Type local:PlaylistEditorView}}}"
-                                            CommandParameter="{Binding .}"
+                                            Command="{Binding OpenRenamePlaylistDialog}"
+                                            CommandParameter="rename"
                                             Margin="10,5"
                                             Height="32"
                                             ToolTip="{x:Static properties:Resources.PlayListCollectionView_RenameThisPlaylist_ToolTip}"
@@ -358,8 +341,8 @@
                                             Margin="10,15,10,5"
                                             ToolTip="{x:Static properties:Resources.PlayListCollectionView_SetTime_ToolTip}"
                                             Padding="5,0"
-                                            Command="{Binding Path=DataContext.OpenPlaylistDurationDialog, RelativeSource={RelativeSource AncestorType={x:Type local:PlaylistEditorView}}}"
-                                            CommandParameter="{Binding .}"
+                                            Command="{Binding OpenPlaylistDurationDialog}"
+                                            CommandParameter="time"
                                             hc:IconElement.Geometry="{DynamicResource stop_clock}" />
                                 </StackPanel>
                             </StackPanel>

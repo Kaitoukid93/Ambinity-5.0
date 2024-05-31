@@ -254,10 +254,12 @@
     <Compile Include="ViewModel\DeviceControl\EffectControlViewModel.cs" />
     <Compile Include="ViewModel\Device\DeviceCollectionViewModel.cs" />
     <Compile Include="ViewModel\Device\DeviceSearchingDialogViewModel.cs" />
+    <Compile Include="ViewModel\ItemsManagerViewModelBase.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\Profile\LightingProfileCollectionViewModel.cs" />
     <Compile Include="ViewModel\Profile\LightingProfilePlayerViewModel.cs" />
     <Compile Include="ViewModel\Profile\LightingProfilePlaylistEditorViewModel.cs" />
+    <Compile Include="ViewModel\Splash\SplashScreenViewModel.cs" />
     <Compile Include="ViewModel\VerticalMenuControlViewModel.cs" />
     <Compile Include="ViewModel\DeviceIDEditViewModel.cs" />
     <Compile Include="ViewModel\DeviceControl\DeviceControlViewModel.cs" />
@@ -354,6 +356,9 @@
     <Compile Include="View\Screens\Devices\DeviceLoadingView.xaml.cs" />
     <Compile Include="View\Screens\Devices\DeviceManagerWindow.xaml.cs" />
     <Compile Include="View\Screens\Devices\DeviceCollectionView.xaml.cs" />
+    <Compile Include="View\Screens\LightingProfile\LightingProfilePlayerView.xaml.cs">
+      <DependentUpon>LightingProfilePlayerView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Screens\LightingProfile\ManagerCollectionView.xaml.cs">
       <DependentUpon>ManagerCollectionView.xaml</DependentUpon>
     </Compile>
@@ -513,6 +518,10 @@
     <Page Include="View\Screens\Devices\DeviceCollectionView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Screens\LightingProfile\LightingProfilePlayerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\Screens\LightingProfile\ManagerCollectionView.xaml">
       <SubType>Designer</SubType>
@@ -768,7 +777,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Ninject\DeviceSettingsInjectModule.cs" />
+    <Compile Include="Ninject\ModuleInjection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

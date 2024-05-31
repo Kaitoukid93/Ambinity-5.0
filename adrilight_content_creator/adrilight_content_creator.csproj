@@ -247,10 +247,12 @@
     <Compile Include="Model\ItemStatusEnum.cs" />
     <Compile Include="Model\ItemTypeEnum.cs" />
     <Compile Include="ViewModel\BaseViewModel.cs" />
+    <Compile Include="ViewModel\DeviceExporterViewModel.cs" />
     <Compile Include="ViewModel\ISelectableViewParts.cs" />
     <Compile Include="ViewModel\ExcelItemCreatorHomeViewModel.cs" />
     <Compile Include="ViewModel\DeviceUtilViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
+    <Compile Include="ViewModel\OutputMappingViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="View\Adorners\AttachedAdorner.cs" />
     <Compile Include="View\Adorners\HoverAdorner.cs" />
@@ -298,6 +300,9 @@
     </Compile>
     <Compile Include="View\NewDeviceParametersWindow.xaml.cs">
       <DependentUpon>NewDeviceParametersWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\OutputMapingCanvansView.xaml.cs">
+      <DependentUpon>OutputMapingCanvansView.xaml</DependentUpon>
     </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -366,6 +371,10 @@
     <Page Include="View\NewDeviceParametersWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\OutputMapingCanvansView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>

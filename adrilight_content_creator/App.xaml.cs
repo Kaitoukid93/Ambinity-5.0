@@ -1,4 +1,7 @@
 ﻿using adrilight_content_creator.ViewModel;
+using adrilight_shared.Models.Device;
+using adrilight_shared.Models.Drawable;
+using adrilight_shared.ViewModel;
 using HandyControl.Themes;
 using Newtonsoft.Json;
 using Ninject;
@@ -61,6 +64,11 @@ namespace adrilight_content_creator
             .SelectAllClasses()
             .InheritedFrom<ISelectableViewPart>()
             .BindAllInterfaces());
+            kernel.Bind<DeviceHardwareSettings>().ToSelf().InSingletonScope();
+            kernel.Bind<DeviceExporterViewModel>().ToSelf().InSingletonScope();
+            kernel.Bind<DeviceUtilViewModel>().ToSelf().InSingletonScope();
+            kernel.Bind<DeviceCanvas>().ToSelf().InSingletonScope();
+            kernel.Bind<OutputMappingViewModel>().ToSelf().InSingletonScope();
             return kernel;
         }
 

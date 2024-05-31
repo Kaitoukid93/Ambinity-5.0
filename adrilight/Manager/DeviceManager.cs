@@ -1,12 +1,17 @@
 ﻿using adrilight.Services.DataStream;
 using adrilight.Services.DeviceDiscoveryServices;
 using adrilight.ViewModel;
+using adrilight.ViewModel.Splash;
 using adrilight_shared.Enums;
 using adrilight_shared.Models.Device;
+using adrilight_shared.Models.Device.Controller;
+using adrilight_shared.Models.Device.SlaveDevice;
 using adrilight_shared.Services;
 using adrilight_shared.Services.AdrilightStoreService;
 using GalaSoft.MvvmLight.Helpers;
+using Newtonsoft.Json;
 using OpenRGB.NET.Models;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -44,7 +49,6 @@ namespace adrilight.Manager
             _discoveryService.SerialDevicesScanComplete += OnSerialDevicesScanComplete;
             _deviceHardwareSettings = deviceHardwareSettings ?? throw new ArgumentNullException(nameof(deviceHardwareSettings));
             _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
-            LoadData();
         }
         #endregion
         #region Events
@@ -62,7 +66,7 @@ namespace adrilight.Manager
             var vm = new DeviceSearchingDialogViewModel("New Device", null, null);
             foreach (var device in availableDevices)
             {
-                var matchDev= CheckDeviceForExistence(device);
+                var matchDev = CheckDeviceForExistence(device);
                 //there is an device existed with the exact comport
                 if (matchDev != null)
                 {
@@ -101,11 +105,11 @@ namespace adrilight.Manager
         #endregion
         #region Methods
         #endregion
-        public void LoadData()
+        public async Task LoadData(SplashScreenViewModel loadingViewModel)
         {
             //load device if exist
             _availableDevices = new List<IDeviceSettings>();
-            var devices = _dbManager.LoadDeviceFromFolder(DevicesCollectionFolderPath);
+            var devices = await Task.Run(() => LoadDeviceFromFolder(DevicesCollectionFolderPath, loadingViewModel));
             if (devices != null)
             {
                 foreach (var device in devices)
@@ -113,15 +117,21 @@ namespace adrilight.Manager
                     _availableDevices.Add(device);
                 }
             }
+            await Task.Delay(500);
+            loadingViewModel.Description = "Starting Device Discovery service";
+            loadingViewModel.Progress = 90;
             _discoveryService.Start();
+            await Task.Delay(500);
+            loadingViewModel.Progress = 100;
+            await Task.Delay(500);
         }
         //this will create neccesary service for device to run
         private void RegisterDevice(IDeviceSettings device)
-        {         
+        {
             if (_dataStreams == null)
                 _dataStreams = new List<IDataStream>();
-            var existedStream = _dataStreams.Where(d=>(d as SerialStream).Port==device.OutputPort).ToList();
-            if(existedStream.Count() > 0)
+            var existedStream = _dataStreams.Where(d => (d as SerialStream).Port == device.OutputPort).ToList();
+            if (existedStream.Count() > 0)
             {
                 return;
             }
@@ -138,11 +148,54 @@ namespace adrilight.Manager
             return _availableDevices.Where(d => (d as DeviceSettings).OutputPort == comport).First();
         }
         //add new device manually and add to available devices by type
+
+        public void StopDiscoveryService()
+        {
+            _discoveryService?.Stop();
+        }
+        public void StartDiscoveryService()
+        {
+            _discoveryService?.Start();
+        }
         private void CreateNewDevice(DeviceType type)
         {
 
         }
         //create new device by hand-shake to serial port
+        private async Task<List<DeviceSettings>> LoadDeviceFromFolder(string folderPath, SplashScreenViewModel loadingViewModel)
+        {
+            var devices = new List<DeviceSettings>();
+            if (!Directory.Exists(folderPath)) return null; // no device has been added
+            loadingViewModel.Progress = 25;
+            int maxDevCount = Directory.GetDirectories(folderPath).Count();
+            foreach (var folder in Directory.GetDirectories(folderPath))
+            {
+                try
+                {
+                    loadingViewModel.Description = "Loading " + new DirectoryInfo(folder).Name;
+                    var json = File.ReadAllText(Path.Combine(folder, "config.json"));
+                    var device = JsonConvert.DeserializeObject<DeviceSettings>(json);
+                    device.AvailableControllers = new List<IDeviceController>();
+                    //read slave device info
+                    //check if this device contains lighting controller
+                    var lightingoutputDir = Path.Combine(Path.Combine(folder, "LightingOutputs"));
+                    var pwmoutputDir = Path.Combine(Path.Combine(folder, "PWMOutputs"));
+                    _dbManager.DeserializeChild<ARGBLEDSlaveDevice>(lightingoutputDir, device, OutputTypeEnum.ARGBLEDOutput);
+                    _dbManager.DeserializeChild<PWMMotorSlaveDevice>(pwmoutputDir, device, OutputTypeEnum.PWMOutput);
+                    devices.Add(device);
+                    loadingViewModel.Progress += (50/maxDevCount);
+                    await Task.Delay(500);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex, folder);
+                    loadingViewModel.Description = ex.Message;
+                    continue;
+                }
+                
+            }
+            return devices;
+        }
         private async Task<IDeviceSettings> TryCreatenewDevice(string comPort, DeviceSearchingDialogViewModel vm)
         {
 

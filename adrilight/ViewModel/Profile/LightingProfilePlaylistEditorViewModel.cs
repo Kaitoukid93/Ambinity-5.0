@@ -41,8 +41,18 @@ namespace adrilight.ViewModel.Profile
         #region Properties
         private DialogService _dialogService;
         private LightingProfileManager _profileManager;
-        private bool _isPlaying;
-        public LightingProfilePlaylist Playlist { get; set; }
+        private LightingProfilePlaylist _playlist;
+        public LightingProfilePlaylist Playlist {
+            get
+            {
+                return _playlist;
+            }
+            set
+            {
+                _playlist = value;
+                RaisePropertyChanged();
+            }
+        }
         #endregion
 
 
@@ -50,6 +60,7 @@ namespace adrilight.ViewModel.Profile
         public void Init(LightingProfilePlaylist playlist)
         {
             Playlist = playlist;
+            CommandSetup();
         }
         private void CommandSetup()
         {
@@ -87,12 +98,37 @@ namespace adrilight.ViewModel.Profile
                 _profileManager.ActivatePlaylist(Playlist);
 
             });
+            Stop = new RelayCommand<string>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                _profileManager.DeActivatePlaylist(Playlist);
+
+            });
+            PlayProfile = new RelayCommand<LightingProfile>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                _profileManager.ActivateProfile(p);
+
+            });
+            DeleteProfile = new RelayCommand<LightingProfile>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                Playlist.LightingProfiles.Remove(p);
+
+            });
         }
         #endregion
 
 
         #region Commands
         public ICommand Play { get; set; }
+        public ICommand PlayProfile { get; set; }
         public ICommand Stop { get; set; }
         public ICommand DeleteProfile { get; set; }
         public ICommand OpenPlaylistDurationDialog { get; set; }

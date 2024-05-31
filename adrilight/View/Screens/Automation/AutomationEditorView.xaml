@@ -36,6 +36,18 @@
                                       RenderingBias="Quality"
                                       ShadowDepth="1"
                                       Color="{Binding Color, Source={StaticResource DarkMaskBrush}}" />
+                    <Style x:Key="_paramButtonStyle" TargetType="Button"
+                           BasedOn="{StaticResource ButtonDefault}">
+                        <Setter Property="Background"
+                                Value="Transparent" />
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver"
+                                     Value="True">
+                                <Setter Property="Background"
+                                        Value="{DynamicResource primaryBackgroundBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
                     <Style x:Key="ListViewContainerStyle"
                            TargetType="{x:Type ListViewItem}">
                         <Setter Property="SnapsToDevicePixels"
@@ -57,6 +69,8 @@
                         <Setter Property="Focusable"
                                 Value="False" />
                         <Setter Property="VerticalContentAlignment"
+                                Value="Stretch" />
+                        <Setter Property="HorizontalContentAlignment"
                                 Value="Stretch" />
                         <Setter Property="HorizontalAlignment"
                                 Value="Stretch" />
@@ -232,7 +246,7 @@
                                   ItemsSource="{Binding Automation.Actions}">
                             <ListView.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <WrapPanel Orientation="Horizontal" />
+                                    <WrapPanel Orientation="Vertical" />
                                 </ItemsPanelTemplate>
                             </ListView.ItemsPanel>
 
@@ -251,7 +265,6 @@
                                 <DataTemplate>
                                     <Border Effect="{DynamicResource EffectShadow1}"
                                             Height="auto"
-                                            Width="450"
                                             CornerRadius="5"
                                             Background="{DynamicResource MainContentBackgroundBrush}">
                                         <Grid>
@@ -265,10 +278,10 @@
                                                 <Path HorizontalAlignment="Left"
                                                       VerticalAlignment="Center"
                                                       Fill="{DynamicResource PrimaryBrush}"
-                                                      Width="25"
-                                                      Height="25"
-                                                      Margin="12,12"
-                                                      Data="{DynamicResource auto}"
+                                                      Width="20"
+                                                      Height="20"
+                                                      Margin="15,5"
+                                                      Data="{Binding ActionType.Geometry,Converter={converters:StaticResourceConverter}}"
                                                       Stretch="Uniform">
 
                                                 </Path>
@@ -279,23 +292,16 @@
                                                     <WrapPanel VerticalAlignment="Center"
                                                                Margin="5"
                                                                Orientation="Horizontal">
-                                                        <Button hc:BorderElement.CornerRadius="2"
-                                                                HorizontalAlignment="Center"
-                                                                Height="auto"
-                                                                Width="auto"
-                                                                VerticalAlignment="Top"
-                                                                Margin="5"
-                                                                FontSize="15"
-                                                                FontWeight="SemiBold"
-                                                                Content="{Binding ActionType.Name}"
-                                                                Padding="5,3"
-                                                                Foreground="{DynamicResource PrimaryBrush}"
-                                                                BorderThickness="0">
-                                                            <Button.Background>
-                                                                <SolidColorBrush Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
-                                                                                 Opacity="0.1" />
-                                                            </Button.Background>
-                                                        </Button>
+                                                        <Border BorderBrush="{DynamicResource PrimaryBrush}"
+                                                                BorderThickness="2"
+                                                                Height="27"
+                                                                CornerRadius="2">
+                                                            <TextBlock Text="{Binding ActionType.Name}"
+                                                                       FontWeight="SemiBold"
+                                                                       Margin="5,2"
+                                                                       Foreground="{DynamicResource PrimaryBrush}"
+                                                                       Style="{DynamicResource TextBlockSubTitle}" />
+                                                        </Border>
                                                         <Button CommandParameter="{Binding .}"
                                                                 Command="{Binding Path=DataContext.OpenTargetParamSelectionWindowCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
                                                                 HorizontalAlignment="Center"
@@ -303,6 +309,7 @@
                                                                 Width="auto"
                                                                 VerticalAlignment="Top"
                                                                 hc:BorderElement.CornerRadius="2"
+                                                                Style="{DynamicResource _paramButtonStyle}"
                                                                 Margin="5"
                                                                 FontSize="15"
                                                                 FontWeight="SemiBold"
@@ -310,10 +317,7 @@
                                                                 Padding="5,3"
                                                                 Foreground="{DynamicResource PrimaryBrush}"
                                                                 BorderThickness="0">
-                                                            <Button.Background>
-                                                                <SolidColorBrush Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
-                                                                                 Opacity="0.1" />
-                                                            </Button.Background>
+                                                            
                                                         </Button>
                                                         <TextBlock Visibility="{Binding ActionType.IsTargetDeviceDisplayed,Converter={StaticResource boolToVisibilityConvert}}"
                                                                    Margin="7"
@@ -334,16 +338,13 @@
                                                                 Height="auto"
                                                                 Width="auto"
                                                                 VerticalAlignment="Top"
+                                                                Style="{DynamicResource _paramButtonStyle}"
                                                                 hc:BorderElement.CornerRadius="2"
                                                                 Margin="5"
                                                                 Content="{Binding TargetDeviceName,TargetNullValue='Chọn thiết bị'}"
                                                                 Padding="5,3"
                                                                 Foreground="{DynamicResource PrimaryBrush}"
                                                                 BorderThickness="0">
-                                                            <Button.Background>
-                                                                <SolidColorBrush Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
-                                                                                 Opacity="0.1" />
-                                                            </Button.Background>
                                                         </Button>
                                                         <TextBlock Visibility="{Binding ActionType.IsValueDisplayed,Converter={StaticResource boolToVisibilityConvert}}"
                                                                    Margin="7"
@@ -535,7 +536,7 @@
                                             <!--add button-->
 
                                             <Grid Grid.Column="2">
-                                                <Button Command="{Binding Path=DataContext.AddSelectedActionTypeToListCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                <Button Command="{Binding Path=DataContext.AddNewBlankActionCommand, RelativeSource={RelativeSource AncestorType=local:AutomationEditorView}}"
                                                         CommandParameter="{Binding .}"
                                                         BorderThickness="0"
                                                         HorizontalAlignment="Right"
@@ -693,7 +694,8 @@
                                             <ContentControl Content="{Binding Automation.Condition}">
                                                 <ContentControl.Resources>
                                                     <DataTemplate DataType="{x:Type automation:HotkeyTriggerCondition}">
-                                                        <Button Command="{Binding Path=DataContext.OpenHotKeySelectionWindowCommand, RelativeSource={RelativeSource AncestorType={x:Type local:AutomationEditorView}}}"
+                                                        <Button Command="{Binding Path=DataContext.OpenHotkeySelectorCommand, RelativeSource={RelativeSource AncestorType={x:Type local:AutomationEditorView}}}"
+                                                                CommandParameter=" "
                                                                 BorderThickness="0"
                                                                 Margin="0"
                                                                 HorizontalAlignment="Right"

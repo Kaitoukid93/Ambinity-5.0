@@ -11,6 +11,11 @@ namespace adrilight_shared.Models.Automation
 {
     public class AutomationSettings : ViewModelBase, IGenericCollectionItem
     {
+        public AutomationSettings()
+        {
+            Actions = new ObservableCollection<ActionSettings>();
+
+        }
         private string _name;
         private string _geometry = "Shortcut";
         private ObservableCollection<ActionSettings> _actions;

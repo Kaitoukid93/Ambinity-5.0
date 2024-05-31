@@ -4,19 +4,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
-             xmlns:view="clr-namespace:adrilight_content_creator.View"
              x:Name="window"
              xmlns:dd="clr-namespace:GongSolutions.Wpf.DragDrop;assembly=GongSolutions.Wpf.DragDrop"
-             xmlns:ViewModels="clr-namespace:adrilight_content_creator.ViewModel"
-             xmlns:store="clr-namespace:adrilight_shared.Models.Store;assembly=adrilight_shared"
-             xmlns:dataVisualizer="clr-namespace:adrilight_shared.Models.DataVisualizer;assembly=adrilight_shared"
-             xmlns:devices="clr-namespace:adrilight_shared.Models.Device;assembly=adrilight_shared"
-             xmlns:zone="clr-namespace:adrilight_shared.Models.Device.Zone;assembly=adrilight_shared"
              Background="{DynamicResource RegionBrush}"
              mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance ViewModels:DeviceUtilViewModel, IsDesignTimeCreatable=True}">
+             d:DataContext="{Binding Source={StaticResource Locator}, Path=DeviceUtilViewModel}"
+             DataContext="{Binding Source={StaticResource Locator}, Path=DeviceUtilViewModel}">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -114,13 +108,6 @@
                             Style="{DynamicResource _mediumProfileDefaultButton}" />
                 </Grid>
 
-
-                <Button Margin="0,10"
-                        Width="auto"
-                        HorizontalAlignment="Left"
-                        Content="Make HUB"
-                        Command="{Binding MakeSelectedComPortasHUBCommand}"
-                        Style="{DynamicResource _mediumProfileDefaultButton}" />
                 <TextBlock TextWrapping="Wrap"
                            MaxWidth="220"
                            Text="Tick chọn các cổng COM sau đó kéo thả sắp xếp theo thứ tự từ trên xuống tương ứng với các cổng LED 1-2-3... trên HUB"
@@ -598,6 +585,15 @@
                                                         <TextBlock Style="{DynamicResource TextBlockDefault}"
                                                                    Text="{Binding CurrentDevice.HardwareVersion,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                                                     </StackPanel>
+                                                    <StackPanel Orientation="Horizontal"
+                                                                HorizontalAlignment="Left">
+                                                        <TextBlock HorizontalAlignment="Left"
+                                                                   Style="{DynamicResource TextBlockDefaultSecLight}"
+                                                                   Margin="5"
+                                                                   Text="Current Hardware Lighting Version:" />
+                                                        <TextBlock Style="{DynamicResource TextBlockDefault}"
+                                                                   Text="{Binding CurrentDevice.HWL_version,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                                                    </StackPanel>
                                                 </StackPanel>
 
                                             </Border>
@@ -650,29 +646,116 @@
                                             </Grid.ColumnDefinitions>
 
                                             <Border BorderThickness="1">
-                                                <ItemsControl ItemsSource="{Binding CurrentDeviceEEPROMData}">
-                                                    <ItemsControl.ItemsPanel>
-                                                        <ItemsPanelTemplate>
-                                                            <UniformGrid Columns="2"
-                                                                         Rows="8" />
-                                                        </ItemsPanelTemplate>
-                                                    </ItemsControl.ItemsPanel>
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <StackPanel Orientation="Horizontal"
-                                                                        HorizontalAlignment="Left">
-                                                                <TextBlock HorizontalAlignment="Left"
-                                                                           Style="{DynamicResource TextBlockDefaultSecLight}"
-                                                                           Margin="5"
-                                                                           Text="{Binding Address}" />
-                                                                <TextBox Margin="5"
-                                                                         Text="{Binding Value,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
-                                                            </StackPanel>
-                                                        </DataTemplate>
+                                                <WrapPanel Orientation="Vertical">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Style="{DynamicResource TextBlockDefault}" Margin="5"
+                                                                   Text="HWL_Enable">
 
-                                                    </ItemsControl.ItemTemplate>
+                                                        </TextBlock>
+                                                        <CheckBox Margin="5"
+                                                                  IsChecked="{Binding CurrentDevice.HWL_enable}" />
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Style="{DynamicResource TextBlockDefault}" Margin="5"
+                                                                   Text="StatusLED_Enable">
 
-                                                </ItemsControl>
+                                                        </TextBlock>
+                                                        <CheckBox Margin="5"
+                                                                  IsChecked="{Binding CurrentDevice.StatusLEDEnable}" />
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Style="{DynamicResource TextBlockDefault}" Margin="5"
+                                                                   Text="HWL_ReturnAfter">
+
+                                                        </TextBlock>
+                                                        <hc:NumericUpDown VerticalAlignment="Center"
+                                                                 Margin="5"
+                                                                          Minimum="3" Maximum="10"
+                                                                 Value="{Binding CurrentDevice.HWL_returnafter}" />
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Style="{DynamicResource TextBlockDefault}" Margin="5"
+                                                                   Text="HWL_EffectMode">
+
+                                                        </TextBlock>
+                                                        <hc:NumericUpDown Margin="5"
+                                                                          Minimum="0" Maximum="2"
+                                                                 Value="{Binding CurrentDevice.HWL_effectMode}" />
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Style="{DynamicResource TextBlockDefault}"
+                                                                   Margin="5"
+                                                                   Text="HWL_EffectSpeed">
+
+                                                        </TextBlock>
+                                                        <hc:NumericUpDown Margin="5"
+                                                                          Minimum="1"
+                                                                          Maximum="20"
+                                                                          Value="{Binding CurrentDevice.HWL_effectSpeed}" />
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Style="{DynamicResource TextBlockDefault}"
+                                                                   Margin="5"
+                                                                   Text="HWL_EffectBrightness">
+
+                                                        </TextBlock>
+                                                        <hc:NumericUpDown Margin="5"
+                                                                          Minimum="20"
+                                                                          Maximum="255"
+                                                                          Value="{Binding CurrentDevice.HWL_brightness}" />
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Style="{DynamicResource TextBlockDefault}"
+                                                                   Margin="5"
+                                                                   Text="HWL_SingleColor">
+
+                                                        </TextBlock>
+                                                        <TextBox Margin="5" Text="{Binding CurrentDevice.HWL_singleColor}" />
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Style="{DynamicResource TextBlockDefault}"
+                                                                   Margin="5"
+                                                                   Text="HWL_Palette">
+
+                                                        </TextBlock>
+                                                        <Grid>
+                                                            <hc:ScrollViewer hc:ScrollViewerAttach.Orientation="Horizontal"
+                                                                             CanContentScroll="True"
+                                                                             IsInertiaEnabled="True">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <TextBox Margin="2"
+                                                                             Text="{Binding CurrentDevice.HWL_palette[0]}" />
+                                                                    <TextBox Margin="2"
+                                                                             Text="{Binding CurrentDevice.HWL_palette[1]}" />
+                                                                    <TextBox Margin="2"
+                                                                             Text="{Binding CurrentDevice.HWL_palette[2]}" />
+                                                                    <TextBox Margin="2"
+                                                                             Text="{Binding CurrentDevice.HWL_palette[3]}" />
+                                                                    <TextBox Margin="2"
+                                                                             Text="{Binding CurrentDevice.HWL_palette[4]}" />
+                                                                    <TextBox Margin="2"
+                                                                             Text="{Binding CurrentDevice.HWL_palette[5]}" />
+                                                                    <TextBox Margin="2"
+                                                                             Text="{Binding CurrentDevice.HWL_palette[6]}" />
+                                                                    <TextBox Margin="2"
+                                                                             Text="{Binding CurrentDevice.HWL_palette[7]}" />
+                                                                </StackPanel>
+                                                            </hc:ScrollViewer>
+
+                                                        </Grid>
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Style="{DynamicResource TextBlockDefault}"
+                                                                   Margin="5"
+                                                                   Text="HWL_Intensity">
+
+                                                        </TextBlock>
+                                                        <hc:NumericUpDown Margin="5"
+                                                                          Minimum="16"
+                                                                          Maximum="64"
+                                                                          Value="{Binding CurrentDevice.HWL_effectIntensity}" />
+                                                    </StackPanel>
+                                                </WrapPanel>
 
 
                                             </Border>
@@ -774,21 +857,6 @@
                                                Grid.Row="1"
                                                Text="Test các màu cơ bản " />
                                 </Grid>
-                                <hc:Divider  LineStroke="{StaticResource SecondaryRegionBrush}"
-                                             Margin="5,10,5,10">
-
-                                </hc:Divider>
-
-
-                                <Button Command="{Binding ApplyDeviceActualDimensionCommand}"
-                                        Background="{DynamicResource PrimaryBrush}"
-                                        Margin="5"
-                                        HorizontalAlignment="Right"
-                                        Content="Add to HUB"
-                                        Style="{DynamicResource _mediumProfileDefaultButton}">
-
-                                </Button>
-
                             </StackPanel>
                         </Border>
 

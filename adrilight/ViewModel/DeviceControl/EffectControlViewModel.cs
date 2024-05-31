@@ -33,9 +33,14 @@ namespace adrilight.ViewModel
         public EffectControlViewModel(PlaylistDecoder lightingPlayer, LightingProfileManager lightingProfileManager)
         {
             LightingPlayer = lightingPlayer;
-            LightingPlayer.PropertyChanged += LightingPlayerPropertyChanged;
+            LightingPlayer.IsRunningPropertyChanged += LightingPlayer_IsRunningPropertyChanged;
             LightingProfileManager = lightingProfileManager;
             CommandSetup();
+        }
+
+        private void LightingPlayer_IsRunningPropertyChanged(bool obj)
+        {
+            RaisePropertyChanged(nameof(ShowPlayerWarning));
         }
 
         #endregion
@@ -197,18 +202,10 @@ namespace adrilight.ViewModel
             IsLoadingControlMode = false;
 
         }
-        private void LightingPlayerPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case nameof(LightingPlayer.IsRunning):
-                    RaisePropertyChanged(nameof(ShowPlayerWarning));
-                    break;
-            }
-        }
+      
         public void Dispose()
         {
-            LightingPlayer.PropertyChanged -= LightingPlayerPropertyChanged;
+           LightingPlayer.IsRunningPropertyChanged -= LightingPlayer_IsRunningPropertyChanged;
         }
         #endregion
 

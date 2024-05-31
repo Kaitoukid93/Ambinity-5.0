@@ -1,0 +1,96 @@
+﻿<UserControl x:Class="adrilight.View.LightingProfilePlayerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:behavior="clr-namespace:adrilight_shared.Behavior;assembly=adrilight_shared"
+             mc:Ignorable="d"
+             d:DataContext="{Binding Source={StaticResource Locator}, Path=LightingProfilePlayerViewModel}"
+             DataContext="{Binding Source={StaticResource Locator}, Path=LightingProfilePlayerViewModel}"
+             Background="{StaticResource RegionBrush}">
+    <Grid>
+        <StackPanel>
+            <Grid>
+                <Border Margin="10"
+                        CornerRadius="10"
+                        Background="{DynamicResource MainContentBackgroundBrush}"
+                        Height="100">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="10"
+                                          Color="Black"
+                                          Opacity="0.8"
+                                          ShadowDepth="2"
+                                          Direction="0" />
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid Grid.Column="0">
+                            <hc:Gravatar HorizontalAlignment="Left"
+                                         VerticalAlignment="Bottom"
+                                         Width="80"
+                                         Height="80"
+                                         Margin="10"
+                                         Id="{Binding CurrentPlayingProfile.Name}">
+
+                            </hc:Gravatar>
+                        </Grid>
+                        <Grid Grid.Column="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0">
+                                <ProgressBar IsIndeterminate="False"
+                                             behavior:ProgressBarSmoother.SmoothValue="{Binding  CurrentPlayingProfile.CurrentPlayingProgress}"
+                                             Style="{DynamicResource ProgressBarFlat}"
+                                             Margin="0,20,10,10"
+                                             Height="2" />
+                            </Grid>
+                            <Grid Grid.Row="1">
+                                <StackPanel>
+                                    <TextBlock HorizontalAlignment="Left"
+                                               VerticalAlignment="Top"
+                                               FontWeight="SemiBold"
+                                               Style="{DynamicResource TextBlockTitle}"
+                                               Text="{Binding CurrentPlayingProfile.Name}" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Margin="0,5"
+                                                HorizontalAlignment="Left"
+                                                Background="{DynamicResource SecondaryRegionBrush}"
+                                                CornerRadius="2">
+                                            <TextBlock Text="{Binding CurrentPlayingProfile.ControlMode.BasedOn}"
+                                                       HorizontalAlignment="Left"
+                                                       Margin="5,2"
+                                                       Style="{DynamicResource TextBlockDefaultSecLight}"
+                                                       FontWeight="SemiBold" />
+                                        </Border>
+                                        <hc:Divider Margin="10,5"
+                                                    Orientation="Vertical"
+                                                    Visibility="{Binding IsPlaylistRunning,Converter={StaticResource Boolean2VisibilityConverter}}"
+                                                    LineStrokeThickness="1" />
+                                        <Border Margin="0,5"
+                                                Visibility="{Binding IsPlaylistRunning,Converter={StaticResource Boolean2VisibilityConverter}}"
+                                                HorizontalAlignment="Left"
+                                                Background="{DynamicResource SecondaryRegionBrush}"
+                                                CornerRadius="2">
+                                            <TextBlock Text="{Binding CurrentPlayingPlaylist.Name}"
+                                                       HorizontalAlignment="Left"
+                                                       Margin="5,2"
+                                                       Style="{DynamicResource TextBlockDefaultSecLight}"
+                                                       FontWeight="SemiBold" />
+                                        </Border>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+            </Grid>
+        </StackPanel>
+    </Grid>
+</UserControl>

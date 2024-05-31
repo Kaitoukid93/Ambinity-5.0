@@ -1,14 +1,16 @@
-﻿using System;
+﻿using HandyControl.Controls;
+using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using Window = HandyControl.Controls.Window;
 
 namespace adrilight.View
 {
     /// <summary>
     /// Interaction logic for PaletteEditWindow.xaml
     /// </summary>
-    public partial class LightingProfileManagerWindow
+    public partial class LightingProfileManagerWindow : Window
     {
         public LightingProfileManagerWindow()
         {

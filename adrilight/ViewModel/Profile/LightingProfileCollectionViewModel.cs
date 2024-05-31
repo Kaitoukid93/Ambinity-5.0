@@ -29,7 +29,7 @@ namespace adrilight.ViewModel.Profile
         public event Action<IGenericCollectionItem> PlaylistClicked;
         public event Action<IGenericCollectionItem> PlaylistCardButtonClicked;
         #region Construct
-        public LightingProfileCollectionViewModel(DialogService dialogService,LightingProfileManager manager)
+        public LightingProfileCollectionViewModel(DialogService dialogService, LightingProfileManager manager)
         {
             AvailableTools = new ObservableCollection<CollectionItemTool>();
             _manager = manager;
@@ -37,13 +37,46 @@ namespace adrilight.ViewModel.Profile
             CommandSetup();
         }
         #endregion
+
+        #region Events
+        private void OnItemCheckStatusChanged(IGenericCollectionItem item)
+        {
+            UpdateTools();
+        }
+        #endregion
         #region Properties
         private DialogService _dialogService;
         private LightingProfileManager _manager;
+        private int _tabIndex;
         private string _warningMessage = adrilight_shared.Properties.Resources.DeviceManager_DisConnect_Warning_Message;
+        private bool _addToPopUpIsOpen;
         public ItemsCollection AvailableLightingProfiles { get; set; }
         public ItemsCollection AvailableLightingProfilesPlaylists { get; set; }
         public ObservableCollection<CollectionItemTool> AvailableTools { get; set; }
+        public int TabIndex {
+            get
+            {
+                return _tabIndex;
+            }
+            set
+            {
+                _tabIndex = value;
+                AvailableLightingProfiles?.ResetSelectionStage();
+                AvailableLightingProfilesPlaylists?.ResetSelectionStage();
+                RaisePropertyChanged();
+            }
+        }
+        public bool AddToPopUpISOpen {
+            get
+            {
+                return _addToPopUpIsOpen;
+            }
+            set
+            {
+                _addToPopUpIsOpen = value;
+                RaisePropertyChanged();
+            }
+        }
         public bool ShowToolBar => AvailableTools.Count > 0;
 
         public string WarningMessage {
@@ -71,6 +104,9 @@ namespace adrilight.ViewModel.Profile
             {
                 AvailableLightingProfilesPlaylists.AddItem(playlist);
             }
+            AvailableLightingProfiles.ItemCheckStatusChanged += OnItemCheckStatusChanged;
+            AvailableLightingProfilesPlaylists.ItemCheckStatusChanged += OnItemCheckStatusChanged;
+            TabIndex = 0;
 
         }
         private void CommandSetup()
@@ -83,12 +119,12 @@ namespace adrilight.ViewModel.Profile
                 switch (p)
                 {
                     case "delete":
-                        AvailableLightingProfiles.RemoveSelectedItems(true);
+                      
                         break;
                     case "addto":
                         //open popup view
                         //addto popup init
-
+                        AddToPopUpISOpen = true;
                         break;
                 }
                 UpdateTools();
@@ -115,7 +151,7 @@ namespace adrilight.ViewModel.Profile
             {
                 AddSelectedProfileToPlaylist(p);
             });
-            LightingProfileClickCommand = new RelayCommand<LightingProfilePlaylist>((p) =>
+            LightingProfileClickCommand = new RelayCommand<LightingProfile>((p) =>
             {
                 return true;
             }, (p) =>
@@ -137,7 +173,7 @@ namespace adrilight.ViewModel.Profile
                 PlaylistCardButtonClicked?.Invoke(p);
             });
         }
-        private void CreateNewPlaylist(string name)
+        private LightingProfilePlaylist CreateNewPlaylist(string name)
         {
             var newPlaylist = new LightingProfilePlaylist(name);
             foreach (var item in AvailableLightingProfiles.Items)
@@ -146,6 +182,7 @@ namespace adrilight.ViewModel.Profile
                     newPlaylist.LightingProfiles.Add(item as adrilight_shared.Models.Lighting.LightingProfile);
             }
             AvailableLightingProfilesPlaylists.AddItem(newPlaylist);
+            return newPlaylist;
         }
         private void AddSelectedProfileToPlaylist(LightingProfilePlaylist targetPlaylist)
         {
@@ -160,14 +197,27 @@ namespace adrilight.ViewModel.Profile
         {
             //clear Tool
             AvailableTools?.Clear();
-            var selectedItems = AvailableLightingProfiles.Items.Where(d => d.IsSelected).ToList();
-            if (selectedItems == null)
-                return;
-            if (selectedItems.Count == 0)
-                return;
-            AvailableTools.Add(DeleteTool());
+            switch(TabIndex)
+            {
+                case 0:
+                    var selectedprofiles= AvailableLightingProfiles.Items.Where(d => d.IsChecked).ToList();
+                    if (selectedprofiles != null && selectedprofiles.Count > 0)
+                    {
+                        AvailableTools.Add(DeleteTool());
+                        AvailableTools.Add(AddtoTool());
+                    }
+                    break;
+                case 1:
+                    var selectedPlaylist = AvailableLightingProfilesPlaylists.Items.Where(d => d.IsChecked).ToList();
+                    if (selectedPlaylist != null && selectedPlaylist.Count > 0)
+                    {
+                        AvailableTools.Add(DeleteTool());
 
-            AvailableTools.Add(AddtoTool());
+                    }
+                    break;
+            }
+           
+                
             RaisePropertyChanged(nameof(ShowToolBar));
         }
         private CollectionItemTool DeleteTool()
@@ -176,7 +226,8 @@ namespace adrilight.ViewModel.Profile
                 Name = "Delete",
                 ToolTip = "Delete Selected Items",
                 Geometry = "remove",
-                CommandParameter = "delete"
+                CommandParameter = "delete",
+                Command = CollectionItemToolCommand
 
             };
         }
@@ -185,10 +236,19 @@ namespace adrilight.ViewModel.Profile
             return new CollectionItemTool() {
                 Name = "Add to...",
                 ToolTip = "Add SelectedItem to Playlist",
-                Geometry = "add",
-                CommandParameter = "addto"
+                Geometry = "addTo",
+                CommandParameter = "addto",
+                Command = CollectionItemToolCommand
+                
 
             };
+        }
+        public void Dispose()
+        {
+            AvailableLightingProfiles.ItemCheckStatusChanged -= OnItemCheckStatusChanged;
+            AvailableLightingProfilesPlaylists.ItemCheckStatusChanged -= OnItemCheckStatusChanged;
+            AvailableLightingProfiles = null;
+            AvailableLightingProfilesPlaylists = null;
         }
         #endregion
         #region Command

@@ -86,6 +86,12 @@ namespace adrilight.Manager
             //update collectionview
             NewAutomationAdded?.Invoke(newAutomation);
         }
+        public void ExecuteAutomation(AutomationSettings automation)
+        {
+            if (automation == null)
+                return;
+            _automationExecutor.Execute(automation);
+        }
         private void RegisterAllAutomation()
         {
             foreach (var automation in _availableAutomations)
@@ -119,7 +125,7 @@ namespace adrilight.Manager
                     case 0:
                         _keyboardHookManager.Instance.RegisterHotkey(condition.StandardKey.KeyCode, () =>
                         {
-                            _automationExecutor.Execute(automation);
+                            ExecuteAutomation(automation);
                             Log.Information(automation.Name + " excuted");
                         });
                         break;
@@ -127,7 +133,7 @@ namespace adrilight.Manager
                     case 1:
                         _keyboardHookManager.Instance.RegisterHotkey(modifierkeys.First(), condition.StandardKey.KeyCode, () =>
                         {
-                            _automationExecutor.Execute(automation);
+                            ExecuteAutomation(automation);
                             Log.Information(automation.Name + " excuted");
                         });
                         break;
@@ -135,7 +141,7 @@ namespace adrilight.Manager
                     default:
                         _keyboardHookManager.Instance.RegisterHotkey([.. modifierkeys], condition.StandardKey.KeyCode, () =>
                         {
-                            _automationExecutor.Execute(automation);
+                            ExecuteAutomation(automation);
                             Log.Information(automation.Name + " excuted");
                         });
                         break;
@@ -151,6 +157,17 @@ namespace adrilight.Manager
                 //empty catch
             }
 
+        }
+        public void RemoveSelectedAutomation()
+        {
+            var selectedItems = AvailableAutomations.Where(i=>i.IsChecked).ToList();
+            foreach (var item in selectedItems)
+            {
+                AvailableAutomations?.Remove(item);
+                //call db manager to remove local fil
+            }
+
+            
         }
         public void Refresh()
         {

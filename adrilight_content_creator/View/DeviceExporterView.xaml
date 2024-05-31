@@ -9,12 +9,13 @@
            mc:Ignorable="d"
            xmlns:view ="clr-namespace:adrilight_content_creator.View"
            x:Name="window"
+           xmlns:local="clr-namespace:adrilight_content_creator.View"
            xmlns:dataVisualizer ="clr-namespace:adrilight_shared.Models.DataVisualizer;assembly=adrilight_shared"
            xmlns:devices ="clr-namespace:adrilight_shared.Models.Device;assembly=adrilight_shared"
            xmlns:zone ="clr-namespace:adrilight_shared.Models.Device.Zone;assembly=adrilight_shared"
            Background="{DynamicResource RegionBrush}"
-           d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewModel}"
-           DataContext="{Binding Source={StaticResource Locator}, Path=MainViewModel}">
+           d:DataContext="{Binding Source={StaticResource Locator}, Path=DeviceExporterViewModel}"
+             DataContext="{Binding Source={StaticResource Locator}, Path=DeviceExporterViewModel}">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -399,7 +400,10 @@
                                     <TextBlock FontWeight="SemiBold" Text="OUTPUTS"/>
                                 </DataTemplate>
                             </GroupBox.HeaderTemplate>
-                            <ScrollViewer>
+                            <local:OutputMapingCanvansView>
+                                
+                            </local:OutputMapingCanvansView>
+                            <!--<ScrollViewer>
 
 
                                 <ItemsControl ItemsSource="{Binding SelectedDevice.AvailableLightingOutputs}">
@@ -484,7 +488,7 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
-                            </ScrollViewer>
+                            </ScrollViewer>-->
 
 
                         </GroupBox>

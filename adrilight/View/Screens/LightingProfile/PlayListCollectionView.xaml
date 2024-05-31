@@ -277,7 +277,7 @@
                                  IsInertiaEnabled="True">
                     <ItemsControl Margin="10,10,10,10"
                                   ItemTemplate="{DynamicResource _lightingProfilePlayListTemplate}"
-                                  ItemsSource="{Binding AvailableLightingProfilesPlaylists}">
+                                  ItemsSource="{Binding AvailableLightingProfilesPlaylists.Items}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel Orientation="Horizontal" />

@@ -11,16 +11,21 @@ using adrilight_shared.Models.RelayCommand;
 using static adrilight.View.DashboardView;
 using static adrilight.View.DeviceControlView;
 using System;
+using adrilight.Manager;
+using HandyControl.Controls;
 
 namespace adrilight.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
         #region Construct
-        public MainViewModel(IList<ISelectableViewPart> pages, DashboardViewModel dashboardViewModel, DeviceControlViewModel controlViewModel)
+        public MainViewModel(IList<ISelectableViewPart> pages,
+            DashboardViewModel dashboardViewModel,
+            DeviceControlViewModel controlViewModel)
         {
             _dashboardViewModel = dashboardViewModel;
             _dashboardViewModel.DeviceClicked += OnDeviceClicked;
+            _dashboardViewModel.ManagerButtonClicked += OnManageButtonClicked;
             _deviceControlViewModel = controlViewModel;
             _deviceControlViewModel.BackToDashboardEvent += BackToDashboard;
             SelectableViewParts = pages;
@@ -39,13 +44,36 @@ namespace adrilight.ViewModel
             //go to device
             GoToDevieControl(device);
         }
+        private void ManagerWindow_Closed(object sender, EventArgs e)
+        {
+            var wndw = (Window)sender;
+            var dtcntx = wndw.DataContext as ItemsManagerViewModelBase;
+            dtcntx?.Dispose();
+        }
+
+        private void OnManageButtonClicked(string value)
+        {
+            switch (value)
+            {
+                case "deviceManager":
+                    OpenManagerWindow(new DeviceManagerWindow());
+                    break;
+                case "profileManager":
+                    OpenManagerWindow(new LightingProfileManagerWindow());
+                    break;
+                case "automationManager":
+                    OpenManagerWindow(new AutomationManagerWindow());
+                    break;
+            }
+        }
         #endregion
 
         #region Properties
         private DashboardViewModel _dashboardViewModel;
         private DeviceControlViewModel _deviceControlViewModel;
         private ISelectableViewPart _selectedViewPart;
-        public IList<ISelectableViewPart> SelectableViewParts{ get; set; }
+
+        public IList<ISelectableViewPart> SelectableViewParts { get; set; }
         public ISelectableViewPart SelectedViewPart {
             get => _selectedViewPart;
 
@@ -64,10 +92,17 @@ namespace adrilight.ViewModel
                 return true;
             }, (p) =>
             {
-               
+                SelectedViewPart = null;
 
             });
-          
+            OpenMainWindowCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                Init();
+
+            });
         }
         private void Init()
         {
@@ -92,11 +127,21 @@ namespace adrilight.ViewModel
             _deviceControlViewModel?.Dispose();
             _dashboardViewModel?.Dispose();
         }
-
+        private void OpenManagerWindow(Window window)
+        {
+            //stop discovery service
+            window.Owner = App.Current.MainWindow;
+            window.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
+            window.Closed += ManagerWindow_Closed;
+            var dtcntx = window.DataContext as ItemsManagerViewModelBase;
+            dtcntx?.LoadData();
+            window.Show();
+        }
         #endregion
 
         #region Icommand
         public ICommand WindowClosingCommand { get; set; }
+        public ICommand OpenMainWindowCommand { get; set; }
         #endregion
 
     }

@@ -3,17 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
              xmlns:loadin="clr-namespace:LoadingIndicators.WPF;assembly=LoadingIndicators.WPF"
-             xmlns:store="clr-namespace:adrilight_shared.Models.Store;assembly=adrilight_shared"
-             xmlns:enums="clr-namespace:adrilight_shared.Enums;assembly=adrilight_shared"
-             xmlns:local="clr-namespace:adrilight.View"
-             xmlns:device="clr-namespace:adrilight_shared.Models.Device;assembly=adrilight_shared"
-             mc:Ignorable="d"
-             xmlns:model="clr-namespace:adrilight_shared.Models;assembly=adrilight_shared"
-             d:DataContext="{d:DesignInstance model:DataCollection, IsDesignTimeCreatable=True}">
+             mc:Ignorable="d">
 
     <UserControl.Resources>
         <ResourceDictionary>

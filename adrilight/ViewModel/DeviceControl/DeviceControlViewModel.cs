@@ -175,7 +175,8 @@ namespace adrilight.ViewModel
             {
                 if (!item.IsInControlGroup)
                     (item as IDrawable).IsSelectable = true;
-                CanvasViewModel.Canvas.Items.Add(item as IDrawable);
+                
+                CanvasViewModel.AddItem(item as IDrawable);
             }
             //add all zone in group
             if (Device.ControlZoneGroups != null)

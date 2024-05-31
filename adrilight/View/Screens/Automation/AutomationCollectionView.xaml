@@ -6,10 +6,11 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
+             xmlns:local="clr-namespace:adrilight.View"
              mc:Ignorable="d"
              Background="{DynamicResource RegionBrush}"
-             d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
-             DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
+             d:DataContext="{Binding Source={StaticResource Locator}, Path=AutomationCollectionViewModel}"
+             DataContext="{Binding Source={StaticResource Locator}, Path=AutomationCollectionViewModel}"
              xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared">
 
     <UserControl.Resources>
@@ -125,36 +126,74 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
-            <Grid Margin="0,0,0,10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock HorizontalAlignment="Center"
-                           Text="{x:Static properties:Resources.AutomationManagerWindow_AutomationManager_header}"
-                           Style="{StaticResource TextBlockLarge}">
-                </TextBlock>
-                <Button hc:IconElement.Height="12"
-                        hc:IconElement.Width="12"
-                        Padding="5"
-                        hc:IconElement.Geometry="{DynamicResource AddGeometry}"
-                        Command="{ Binding OpenAddNewAutomationCommand}"
-                        Grid.Column="1"
-                        Margin="5"
-                        HorizontalAlignment="Right"
-                        VerticalAlignment="Center"
-                        Content="{x:Static properties:Resources.Add_Button_Content}"
-                        Style="{StaticResource ButtonDashedPrimary}" />
+            <Grid Margin="0,0,0,20">
+
+              
+
+                <Border  Margin="10,0"
+                         Height="50"
+                         Visibility="{Binding ShowToolBar,Converter={StaticResource Boolean2VisibilityReConverter}}"
+                         CornerRadius="7"
+                         Background="Transparent">
+                    <Grid>
+
+
+                        <Button BorderThickness="0"
+                                Height="32"
+                                HorizontalAlignment="Left"
+                                Foreground="{DynamicResource RegionBrush}"
+                                Command="{Binding OpenCreateNewAutomationCommand}"
+                                CommandParameter=""
+                                Style="{DynamicResource ButtonPrimary}"
+                                hc:IconElement.Geometry="{DynamicResource addTo}"
+                                Margin="0,0"
+                                hc:IconElement.Height="20"
+                                Content="{x:Static properties:Resources.Add_Button_Content}" />
+                    </Grid>
+                </Border>
+                <hc:TransitioningContentControl 
+                                                Visibility="{Binding ShowToolBar,Converter={StaticResource Boolean2VisibilityConverter}}"
+                                                TransitionMode="Top2BottomWithFade">
+                    <Border  Margin="10,0"
+                             Height="50"
+                             CornerRadius="7"
+                             Effect="{DynamicResource EffectShadow1}"
+                             Background="{DynamicResource MainContentBackgroundBrush}">
+                        <Grid>
+
+                                <ItemsControl ItemsSource="{Binding AvailableTools}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal"
+                                                        HorizontalAlignment="Right" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button BorderThickness="0"
+                                                    Background="{DynamicResource SecondaryRegionBrush}"
+                                                    hc:IconElement.Geometry="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
+                                                    Margin="10,5"
+                                                    Height="32"
+                                                    Command="{Binding Command}"
+                                                    CommandParameter="{Binding CommandParameter}"
+                                                    hc:IconElement.Height="15"
+                                                    Content="{Binding Name}" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                        </Grid>
+                    </Border>
+                </hc:TransitioningContentControl>
             </Grid>
 
             <Grid Grid.Row="1"
                   Margin="5">
                 <ListView ItemContainerStyle="{DynamicResource ListViewContainerStyle}"
                           x:Name="itm"
-                          SelectedItem="{Binding CurrentSelectedAutomation}"
                           Background="Transparent"
                           BorderThickness="0"
-                          ItemsSource="{Binding AvailableAutomations}">
+                          ItemsSource="{Binding AvailableAutomations.Items}">
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel Orientation="Horizontal" />
@@ -179,7 +218,7 @@
                                     Background="Transparent">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="MouseLeftButtonDown">
-                                        <i:InvokeCommandAction Command="{Binding Path=DataContext.OpenActionsManagerWindowCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                        <i:InvokeCommandAction Command="{Binding Path=DataContext.AutomationCardClickCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                                CommandParameter="{Binding .}" />
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
@@ -207,8 +246,8 @@
                                             </Path>
                                         </Grid>
                                         <!--button-->
-                                        <Grid VerticalAlignment="Top"
-                                              HorizontalAlignment="Right"
+                                        <Grid VerticalAlignment="Bottom"
+                                              HorizontalAlignment="Left"
                                               Grid.Column="1">
                                             <StackPanel Orientation="Horizontal">
                                                 <ToggleButton Background="Transparent"
@@ -274,7 +313,7 @@
                                                         Height="25"
                                                         Background="Transparent"
                                                         ToolTip="{x:Static properties:Resources.Activate_tooltip}"
-                                                        Command="{Binding Path=DataContext.ExecuteAutomationFromManagerCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                        Command="{Binding Path=DataContext.AutomationPlayButtonClickCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                         CommandParameter="{Binding .}"
                                                         hc:IconElement.Width="15"
                                                         hc:IconElement.Height="15"
@@ -284,22 +323,53 @@
                                                         Padding="0"
                                                         Margin="5,10,0,10">
                                                 </Button>
-                                                <Button Width="25"
-                                                        Height="25"
-                                                        Background="Transparent"
-                                                        ToolTip="{x:Static properties:Resources.Delete_Tooltip}"
-                                                        Command="{Binding Path=DataContext.DeleteSelectedAutomationCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                        CommandParameter="{Binding .}"
-                                                        hc:IconElement.Width="15"
-                                                        hc:IconElement.Height="15"
-                                                        Style="{DynamicResource ButtonDashed}"
-                                                        BorderBrush="Transparent"
-                                                        hc:IconElement.Geometry="{DynamicResource delete}"
-                                                        Padding="0"
-                                                        Margin="5,10,10,10">
-                                                </Button>
                                             </StackPanel>
                                         </Grid>
+                                        <CheckBox IsChecked="{Binding IsChecked}"
+                                                  Margin="5"
+                                                  BorderBrush="{DynamicResource SecondaryTextBrush}"
+                                                  BorderThickness="1"
+                                                  Grid.Column="1"
+                                                  HorizontalAlignment="Right"
+                                                  VerticalAlignment="Top">
+                                            <CheckBox.Style>
+                                                <Style TargetType="CheckBox"
+                                                       BasedOn="{StaticResource CheckBoxBaseStyle}">
+                                                    <Setter Property="Visibility"
+                                                            Value="Collapsed" />
+                                                    <Setter Property="Background"
+                                                            Value="Transparent" />
+                                                    <Style.Triggers>
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding IsLocked}"
+                                                                           Value="False" />
+                                                                <Condition Binding="{Binding IsChecked}"
+                                                                           Value="True" />
+                                                            </MultiDataTrigger.Conditions>
+
+                                                            <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}" />-->
+                                                            <Setter Property="Visibility"
+                                                                    Value="Visible" />
+                                                            <Setter Property="Background"
+                                                                    Value="{DynamicResource PrimaryBrush}" />
+                                                        </MultiDataTrigger>
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding IsLocked}"
+                                                                           Value="False" />
+                                                                <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=Border}, Path=IsMouseOver}"
+                                                                           Value="True" />
+                                                            </MultiDataTrigger.Conditions>
+
+                                                            <!--<Setter Property="BorderBrush" TargetName="_Border" Value="{StaticResource PrimaryBrush}" />-->
+                                                            <Setter Property="Visibility"
+                                                                    Value="Visible" />
+                                                        </MultiDataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </CheckBox.Style>
+                                        </CheckBox>
                                     </Grid>
                                     <!--name and info-->
                                     <Grid HorizontalAlignment="Left"

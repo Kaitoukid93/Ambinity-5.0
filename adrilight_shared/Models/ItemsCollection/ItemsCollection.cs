@@ -21,12 +21,14 @@ namespace adrilight_shared.Models.ItemsCollection
         public ItemsCollection()
         {
             AvailableTools = new ObservableCollection<CollectionItemTool>();
+            Items = new ObservableCollection<IGenericCollectionItem>();
         }
         public ItemsCollection(string name, IDialogService dialogService)
         {
             DialogService = dialogService;
             Name = name;
             Items = new ObservableCollection<IGenericCollectionItem>();
+            AvailableTools = new ObservableCollection<CollectionItemTool>();
         }
         #endregion
 
@@ -66,31 +68,6 @@ namespace adrilight_shared.Models.ItemsCollection
         {
             item.PropertyChanged += ItemPropertyChanged;
             Items.Add(item);
-        }
-        public void RemoveSelectedItems(bool alsoRemoveLocalFiles)
-        {
-            var selectedItems = Items.Where(i => i.IsSelected).ToList();
-            foreach (var item in selectedItems)
-            {
-                Items.Remove(item);
-                //remove file local path
-                if (alsoRemoveLocalFiles)
-                {
-                    if (Directory.Exists(item.LocalPath))
-                    {
-                        try
-                        {
-                            Directory.Delete(item.LocalPath);
-                        }
-                        catch (Exception ex)
-                        {
-                            //
-                        }
-                    }
-
-                }
-            }
-
         }
         private void ItemPropertyChanged(object sender, PropertyChangedEventArgs e)
         {

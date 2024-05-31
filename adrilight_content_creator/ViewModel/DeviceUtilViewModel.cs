@@ -26,35 +26,15 @@ using Task = System.Threading.Tasks.Task;
 using ExcelDataReader.Log;
 using static Microsoft.WindowsAPICodePack.Shell.PropertySystem.SystemProperties.System;
 using System.Threading;
+using adrilight_shared.ViewModel;
 
 namespace adrilight_content_creator.ViewModel
 {
-    internal class DeviceUtilViewModel : BaseViewModel
+    public class DeviceUtilViewModel : BaseViewModel
     {
 
-        private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
-
-        private string JsonFileNameAndPath => Path.Combine(JsonPath, "adrilight-settings.json");
-        private string DevicesCollectionFolderPath => Path.Combine(JsonPath, "Devices");
-
-
-        private string PalettesCollectionFolderPath => Path.Combine(JsonPath, "ColorPalettes");
-        private string AnimationsCollectionFolderPath => Path.Combine(JsonPath, "Animations");
-        private string ChasingPatternsCollectionFolderPath => Path.Combine(JsonPath, "ChasingPatterns");
-        private string AutomationsCollectionFolderPath => Path.Combine(JsonPath, "Automations");
-        private string SupportedDeviceCollectionFolderPath => Path.Combine(JsonPath, "SupportedDevices");
-        private string ColorsCollectionFolderPath => Path.Combine(JsonPath, "Colors");
-        private string GifsCollectionFolderPath => Path.Combine(JsonPath, "Gifs");
-        private string VIDCollectionFolderPath => Path.Combine(JsonPath, "VID");
-        private string MIDCollectionFolderPath => Path.Combine(JsonPath, "MID");
-        private string ResourceFolderPath => Path.Combine(JsonPath, "Resource");
-        private string CacheFolderPath => Path.Combine(JsonPath, "Cache");
-        private string ProfileCollectionFolderPath => Path.Combine(JsonPath, "Profiles");
-        private static byte[] requestCommand = { (byte)'d', (byte)'i', (byte)'r', (byte)'\n' };
-        private static byte[] sendCommand = { (byte)'h', (byte)'s', (byte)'d' };
-        private static byte[] expectedValidHeader = { 15, 12, 93 };
         private readonly byte[] _messagePreamble = { (byte)'a', (byte)'b', (byte)'n' };
-        public DeviceUtilViewModel()
+        public DeviceUtilViewModel(DeviceHardwareSettings deviceHardware)
         {
             SetupCommand();
             AvailableTestColor = new ObservableCollection<System.Windows.Media.Color>()
@@ -69,8 +49,9 @@ namespace adrilight_content_creator.ViewModel
                 Color.FromRgb(255, 0, 255),
             };
             MaxLED = 80;
+            _deviceHardwareSettings = deviceHardware;
         }
-
+        private DeviceHardwareSettings _deviceHardwareSettings;
 
         #region Public Properties
         private ObservableCollection<System.Windows.Media.Color> _availableTestColor;
@@ -120,16 +101,6 @@ namespace adrilight_content_creator.ViewModel
             set
             {
                 _selectedTestColor = value;
-                RaisePropertyChanged();
-            }
-        }
-        private ObservableCollection<DeviceEEPROMDataModel> _currentDeviceEEPROMData;
-        public ObservableCollection<DeviceEEPROMDataModel> CurrentDeviceEEPROMData
-        {
-            get { return _currentDeviceEEPROMData; }
-            set
-            {
-                _currentDeviceEEPROMData = value;
                 RaisePropertyChanged();
             }
         }
@@ -211,7 +182,6 @@ namespace adrilight_content_creator.ViewModel
         public ICommand RefreshAvailableComPortsCommand { get; set; }
         public ICommand GetSelectedDeviceEEPROMDataCommand { get; set; }
         public ICommand SetSelectedDeviceEEPROMDataCommand { get; set; }
-        public ICommand MakeSelectedComPortasHUBCommand { get; set; }
         private void SetupCommand()
         {
             RefreshAvailableComPortsCommand = new RelayCommand<string>((p) =>
@@ -225,17 +195,6 @@ namespace adrilight_content_creator.ViewModel
 
             }
           );
-            MakeSelectedComPortasHUBCommand = new RelayCommand<string>((p) =>
-            {
-                return true;
-            }, async (p) =>
-            {
-                IsMakingHUB = true;
-                await Task.Run(()=> MakeSelectedComPortasHUB());
-                IsMakingHUB = false;
-
-            }
-       );
             GetSelectedDeviceDataCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -252,11 +211,7 @@ namespace adrilight_content_creator.ViewModel
             }, async (p) =>
             {
                 IsLoadingEEPROM = true;
-                var result = await Task.Run(() => GetHardwareSettings());
-                if (!result)
-                {
-
-                }
+                await Task.Run(() => _deviceHardwareSettings.GetHardwareSettings(true,CurrentDevice));
                 IsLoadingEEPROM = false;
 
 
@@ -269,18 +224,17 @@ namespace adrilight_content_creator.ViewModel
             }, async (p) =>
             {
                 IsLoadingEEPROM = true;
-                var result = await Task.Run(() => SendHardwareSettings());
-                if (!result)
-                {
-
-                }
+                var vm = new ProgressDialogViewModel("Applying settings", "123", "usbIcon");
+                vm.ProgressBarVisibility = Visibility.Visible;
+                vm.CurrentProgressHeader = "Sending to device";
+                vm.ProgressBarVisibility = Visibility.Visible;
+                await Task.Run(() => _deviceHardwareSettings.SendHardwareSettings(vm,CurrentDevice));
                 IsLoadingEEPROM = false;
 
 
             }
 
 );
-
             TestSelectedOutputCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -305,19 +259,6 @@ namespace adrilight_content_creator.ViewModel
             public bool IsChecked { get; set; }
 
         }
-        public class DeviceEEPROMDataModel
-        {
-            public DeviceEEPROMDataModel(int address, int value)
-            {
-                Address = address;
-                Value = value;
-            }
-            public int Address { get; set; }
-            public int Value { get; set; }
-
-        }
-
-
         #region Private Methods
         private async Task GetSelectedDeviceData(ComPortObject selectedComPort)
         {
@@ -336,77 +277,6 @@ namespace adrilight_content_creator.ViewModel
             CurrentDevice.HardwareVersion = "waiting...";
             await GetDeviceFactoryData(CurrentDevice);
 
-        }
-        private async Task<bool> MakeSelectedComPortasHUB()
-        {
-            /// [15,12,93,PortID,Number of outputs,0,0,0,0,0,last 6 bytes ID set] ///////
-            /// 
-            MakingHUBLog = "init...";
-            var selectedComPort = AvailableComPorts?.Where(c => c.IsChecked).ToList();
-            if (selectedComPort == null || selectedComPort.Count < 2)
-                return false;
-            var master = selectedComPort.First();
-            var (id, name, fw, hw) = await GetFactoryData(master);
-            MakingHUBLog = "master serial is :" + BitConverter.ToString(id).Replace('-', ' ');
-            int portAddress = 0;
-            try
-            {
-                foreach (var port in selectedComPort)
-                {
-                    var outputStream = new byte[17];
-                    Buffer.BlockCopy(sendCommand, 0, outputStream, 0, sendCommand.Length);
-                    int counter = sendCommand.Length;
-                    outputStream[counter++] = (byte)(portAddress);
-                    if (portAddress == 3)
-                    {
-                        outputStream[counter++] = 2;
-                    }
-                    else
-                    {
-                        outputStream[counter++] = 1;
-                    }
-                    outputStream[counter++] = 0;
-                    outputStream[counter++] = 0;
-                    outputStream[counter++] = 0;
-                    outputStream[counter++] = 0;
-                    outputStream[counter++] = 0;
-                    for (int i = 0; i < 6; i++)
-                    {
-                        outputStream[counter++] = id[i];
-                    }
-                    outputStream[counter++] = (byte)'\n';
-                    var _serialPort = new SerialPort(port.Port, 1000000);
-                    _serialPort.DtrEnable = true;
-                    _serialPort.ReadTimeout = 5000;
-                    _serialPort.WriteTimeout = 1000;
-                    try
-                    {
-                        _serialPort.Open();
-                        Thread.Sleep(500);
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        return await Task.FromResult(false);
-                    }
-                    _serialPort.Write(outputStream, 0, outputStream.Length);
-                    //Thread.Sleep(1000);
-                    portAddress++;
-                    MakingHUBLog = "Sending port " + portAddress + "data...";
-                    _serialPort.DiscardOutBuffer();
-                    _serialPort.Close();
-                    _serialPort.Dispose();
-                    
-                }
-            }
-            catch(Exception ex)
-            {
-                return false;
-            }
-            MakingHUBLog = "done!";
-            return true;
-            // get ID of first comport on the list
-            //assign port order 
-            //we need simple method and reliable
         }
         private void RefreshAvailableComPorts()
         {
@@ -475,141 +345,27 @@ namespace adrilight_content_creator.ViewModel
             return comports;
 
         }
-        private Task<(byte[], byte[], byte[], byte[])> GetFactoryData(ComPortObject comPort)
-        {
-            byte[] id = new byte[256];
-            byte[] name = new byte[256];
-            byte[] fw = new byte[256];
-            byte[] hw = new byte[256];
-            var _serialPort = new SerialPort(comPort.Port, 1000000);
-            _serialPort.DtrEnable = true;
-            _serialPort.ReadTimeout = 5000;
-            _serialPort.WriteTimeout = 1000;
-            try
-            {
-                _serialPort.Open();
-                Thread.Sleep(500);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return null;
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-            //write request info command
-
-            int retryCount = 0;
-            int offset = 0;
-            int idLength = 0; // Expected response length of valid deviceID 
-            int nameLength = 0; // Expected response length of valid deviceName 
-            int fwLength = 0;
-            int hwLength = 0;
-            // IDeviceSettings newDevice = new DeviceSettings();
-            while (offset < 3)
-            {
-
-
-                try
-                {
-                    _serialPort.Write(requestCommand, 0, 4);
-                    byte header = (byte)_serialPort.ReadByte();
-                    if (header == expectedValidHeader[offset])
-                    {
-                        offset++;
-                    }
-                }
-                catch (TimeoutException)// retry until received valid header
-                {
-                    //_serialPort.Write(requestCommand, 0, 3);
-                    retryCount++;
-                    if (retryCount == 3)
-                    {
-                        Console.WriteLine("timeout waiting for respond on serialport " + _serialPort.PortName);
-                        HandyControl.Controls.MessageBox.Show("Thiết bị ở " + _serialPort.PortName + "Không có thông tin về Firmware, vui lòng liên hệ Ambino trước khi cập nhật firmware thủ công", "Device is not responding", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        break;
-                    }
-                    Debug.WriteLine("no respond, retrying...");
-                }
-
-
-            }
-            if (offset == 3) //3 bytes header are valid
-            {
-                idLength = (byte)_serialPort.ReadByte();
-                int count = idLength;
-                id = new byte[count];
-                while (count > 0)
-                {
-                    var readCount = _serialPort.Read(id, 0, count);
-                    offset += readCount;
-                    count -= readCount;
-                }
-
-
-            }
-            if (offset == 3 + idLength) //3 bytes header are valid
-            {
-                nameLength = (byte)_serialPort.ReadByte();
-                int count = nameLength;
-                name = new byte[count];
-                while (count > 0)
-                {
-                    var readCount = _serialPort.Read(name, 0, count);
-                    offset += readCount;
-                    count -= readCount;
-                }
-                // RaisePropertyChanged(nameof(DeviceName));
-
-
-            }
-            if (offset == 3 + idLength + nameLength) //3 bytes header are valid
-            {
-                fwLength = (byte)_serialPort.ReadByte();
-                int count = fwLength;
-                fw = new byte[count];
-                while (count > 0)
-                {
-                    var readCount = _serialPort.Read(fw, 0, count);
-                    offset += readCount;
-                    count -= readCount;
-                }
-            }
-            if (offset == 3 + idLength + nameLength + fwLength) //3 bytes header are valid
-            {
-                try
-                {
-                    hwLength = (byte)_serialPort.ReadByte();
-                    int count = hwLength;
-                    hw = new byte[count];
-                    while (count > 0)
-                    {
-                        var readCount = _serialPort.Read(hw, 0, count);
-                        offset += readCount;
-                        count -= readCount;
-                    }
-                }
-                catch (TimeoutException)
-                {
-                    // Log.Information(newDevice.DeviceName, "Unknown Firmware Version");
-                    // newDevice.HardwareVersion = "unknown";
-                }
-
-            }
-            _serialPort.DiscardInBuffer();
-            _serialPort.Close();
-            _serialPort.Dispose();
-            return Task.FromResult((id, name, fw, hw));
-        }
         public async Task GetDeviceFactoryData(IDeviceSettings device)
         {
+            string deviceName = null;
+            string deviceID = null;
+            string deviceFirmware = null;
+            string deviceHardware = null;
+            int deviceHWL = 0;
+            var result = await Task.Run(() => _deviceHardwareSettings.RefreshDeviceInfo(device.OutputPort,
+                out deviceName,
+                out deviceID,
+                out deviceFirmware,
+                out deviceHardware,
+                out deviceHWL));
+            if (!result)
+                return;
 
-            var (id, name, fw, hw) = await GetFactoryData(SelectedComPort);
-            device.DeviceName = Encoding.ASCII.GetString(name, 0, name.Length);
-            device.HardwareVersion = Encoding.ASCII.GetString(hw, 0, hw.Length);
-            device.FirmwareVersion = Encoding.ASCII.GetString(fw, 0, fw.Length);
-            device.DeviceSerial = BitConverter.ToString(id).Replace('-', ' ');
+            device.DeviceName = deviceName;
+            device.HardwareVersion = deviceHardware;
+            device.FirmwareVersion = deviceFirmware;
+            device.DeviceSerial = deviceID;
+            device.HWL_version = deviceHWL;
             switch (device.DeviceName)
             {
                 case "Ambino Basic":
@@ -639,46 +395,7 @@ namespace adrilight_content_creator.ViewModel
             }
 
         }
-        private bool IsFirmwareValid(IDeviceSettings device)
-        {
-            if (device.DeviceName == "Ambino Basic" ||
-                device.DeviceName == "Ambino EDGE" ||
-                device.DeviceName == "Ambino FanHub" ||
-                device.DeviceName == "Ambino HubV3" || device.DeviceName == "Ambino HyperPort")
-            {
-                string fwversion = device.FirmwareVersion;
-                if (fwversion == "unknown" || fwversion == string.Empty || fwversion == null)
-                    fwversion = "1.0.0";
-                var deviceFWVersion = new Version(fwversion);
-                var requiredVersion = new Version();
-                if (device.DeviceName == "Ambino Basic")
-                {
-                    requiredVersion = new Version("1.0.8");
-                }
-                else if (device.DeviceName == "Ambino EDGE")
-                {
-                    requiredVersion = new Version("1.0.5");
-                }
-                else if (device.DeviceName == "Ambino FanHub")
-                {
-                    requiredVersion = new Version("1.0.8");
-                }
-                else if (device.DeviceName == "Ambino HyperPort")
-                {
-                    requiredVersion = new Version("1.0.0");
-                }
-                if (deviceFWVersion >= requiredVersion)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            else
-            { return false; }
-        }
+
         private void TestSelectedOutput()
         {
 
@@ -701,13 +418,6 @@ namespace adrilight_content_creator.ViewModel
             _serialPort.Close();
             _serialPort.Dispose();
             SelectedTestColor = AvailableTestColor[AvailableTestColor.IndexOf(SelectedTestColor) + 1 == AvailableTestColor.Count ? 0 : AvailableTestColor.IndexOf(SelectedTestColor) + 1];
-        }
-        private byte[] GetEEPRomDataOutputStream()
-        {
-            var outputStream = new byte[16];
-            Buffer.BlockCopy(sendCommand, 0, outputStream, 0, sendCommand.Length);
-            outputStream[3] = 255;
-            return outputStream;
         }
         private byte[] GetColorOutputStream()
         {
@@ -740,221 +450,6 @@ namespace adrilight_content_creator.ViewModel
                 outputStream[counter++] = SelectedTestColor.B; // red
             }
             return outputStream;
-        }
-        private byte[] GetSettingOutputStream()
-        {
-            var outputStream = new byte[16];
-            Buffer.BlockCopy(sendCommand, 0, outputStream, 0, sendCommand.Length);
-            int counter = sendCommand.Length;
-            for (int i = 0; i < CurrentDeviceEEPROMData.Count; i++)
-            {
-                outputStream[counter++] = (byte)CurrentDeviceEEPROMData[i].Value;
-            }
-            return outputStream;
-        }
-        public async Task<bool> SendHardwareSettings()
-        {
-
-            if (CurrentDevice == null)
-            {
-                return false;
-            }
-            if (CurrentDevice.FirmwareVersion == null || CurrentDevice.FirmwareVersion == string.Empty)
-                return false;
-            if (!IsFirmwareValid(CurrentDevice))
-            {
-                return false;
-            }
-            CurrentDevice.IsTransferActive = false; // stop current serial stream attached to this device
-            if (!SerialPort.GetPortNames().Contains(CurrentDevice.OutputPort))
-                return false;
-            var _serialPort = new SerialPort(CurrentDevice.OutputPort, 1000000);
-            _serialPort.DtrEnable = true;
-            _serialPort.ReadTimeout = 5000;
-            _serialPort.WriteTimeout = 1000;
-            try
-            {
-                _serialPort.Open();
-                Thread.Sleep(500);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return await Task.FromResult(false);
-            }
-
-            var outputStream = GetSettingOutputStream();
-            _serialPort.Write(outputStream, 0, outputStream.Length);
-            _serialPort.WriteLine("\r\n");
-            int retryCount = 0;
-            int offset = 0;
-            while (offset < 3)
-            {
-
-                try
-                {
-                    byte header = (byte)_serialPort.ReadByte();
-                    if (header == expectedValidHeader[offset])
-                    {
-                        offset++;
-                    }
-                }
-                catch (TimeoutException)// retry until received valid header
-                {
-                    _serialPort.Write(outputStream, 0, outputStream.Length);
-                    retryCount++;
-                    if (retryCount == 3)
-                    {
-                        Console.WriteLine("timeout waiting for respond on serialport " + _serialPort.PortName);
-                        _serialPort.Close();
-                        _serialPort.Dispose();
-                        return await Task.FromResult(false);
-                    }
-                    Debug.WriteLine("no respond, retrying...");
-                }
-
-
-            }
-            if (offset == 3) //3 bytes header are valid continue to read next 13 byte of data
-            {
-
-                CurrentDeviceEEPROMData = new ObservableCollection<DeviceEEPROMDataModel>();
-                try
-                {
-                    //led on off
-                    int address = 0;
-                    while (_serialPort.BytesToRead > 0)
-                    {
-                        await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
-                        {
-
-                            CurrentDeviceEEPROMData.Add(new DeviceEEPROMDataModel(address++, _serialPort.ReadByte()));
-                        });
-                    }
-                }
-                catch (TimeoutException ex)
-                {
-                    //discard buffer
-                    _serialPort.DiscardInBuffer();
-                    _serialPort.Close();
-                    _serialPort.Dispose();
-                    return await Task.FromResult(true);
-                }
-
-                //discard buffer
-
-            }
-
-            _serialPort.DiscardInBuffer();
-            _serialPort.Close();
-            _serialPort.Dispose();
-            return await Task.FromResult(true);
-            //if (isValid)
-            //    newDevices.Add(newDevice);
-            //reboot serialStream
-            //IsTransferActive = true;
-            //RaisePropertyChanged(nameof(IsTransferActive));
-        }
-        public async Task<bool> GetHardwareSettings()
-        {
-
-            ///////////////////// Hardware settings data table, will be wirte to device EEPRom /////////
-            /// [h,s,d,Led on/off,Signal LED On/off,Connection Type,Max Brightness,Show Welcome LED,Serial Timeout,0,0,0,0,0,0,0] ///////
-            /// 
-            if (CurrentDevice == null)
-            {
-                return false;
-            }
-            if (CurrentDevice.FirmwareVersion == null || CurrentDevice.FirmwareVersion == string.Empty)
-                return false;
-            if (!IsFirmwareValid(CurrentDevice))
-            {
-                return false;
-            }
-            CurrentDevice.IsTransferActive = false; // stop current serial stream attached to this device
-            if (!SerialPort.GetPortNames().Contains(CurrentDevice.OutputPort))
-                return false;
-            var _serialPort = new SerialPort(CurrentDevice.OutputPort, 1000000);
-            _serialPort.DtrEnable = true;
-            _serialPort.ReadTimeout = 5000;
-            _serialPort.WriteTimeout = 1000;
-            try
-            {
-                _serialPort.Open();
-                Thread.Sleep(500);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return await Task.FromResult(false);
-            }
-            _serialPort.DiscardInBuffer();
-            var outputStream = GetEEPRomDataOutputStream();
-            _serialPort.Write(outputStream, 0, outputStream.Length);
-            _serialPort.WriteLine("\r\n");
-            int retryCount = 0;
-            int offset = 0;
-            IDeviceSettings newDevice = new DeviceSettings();
-            while (offset < 3)
-            {
-
-
-                try
-                {
-                    byte header = (byte)_serialPort.ReadByte();
-                    if (header == expectedValidHeader[offset])
-                    {
-                        offset++;
-                    }
-                }
-                catch (TimeoutException)// retry until received valid header
-                {
-                    _serialPort.Write(outputStream, 0, outputStream.Length);
-                    retryCount++;
-                    if (retryCount == 3)
-                    {
-                        // Log.Warning("timeout waiting for respond on serialport " + _serialPort.PortName);
-                        _serialPort.Close();
-                        _serialPort.Dispose();
-                        return await Task.FromResult(false);
-                    }
-                    Debug.WriteLine("no respond, retrying...");
-                }
-
-
-            }
-            if (offset == 3) //3 bytes header are valid continue to read next 13 byte of data
-            {
-
-                /// [15,12,93,Led on/off,Signal LED On/off,Connection Type,Max Brightness,Show Welcome LED,Serial Timeout,No Signal Fan Speed,0,0,0,0,0,0] ///////
-                CurrentDeviceEEPROMData = new ObservableCollection<DeviceEEPROMDataModel>();
-                try
-                {
-                    //led on off
-                    int address = 0;
-                    while (_serialPort.BytesToRead > 0)
-                    {
-                        await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
-                        {
-
-                            CurrentDeviceEEPROMData.Add(new DeviceEEPROMDataModel(address++, _serialPort.ReadByte()));
-                        });
-                    }
-                }
-                catch (TimeoutException ex)
-                {
-                    //discard buffer
-                    _serialPort.DiscardInBuffer();
-                    _serialPort.Close();
-                    _serialPort.Dispose();
-                    return await Task.FromResult(true);
-                }
-
-
-            }
-            //discard buffer
-            _serialPort.DiscardInBuffer();
-            _serialPort.Close();
-            _serialPort.Dispose();
-            return await Task.FromResult(true);
         }
         #endregion
     }

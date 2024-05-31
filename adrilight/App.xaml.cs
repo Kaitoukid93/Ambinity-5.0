@@ -10,6 +10,7 @@ using adrilight.View;
 using adrilight.View.Screens.OOBExperience;
 using adrilight.ViewModel;
 using adrilight.ViewModel.Automation;
+using adrilight.ViewModel.Splash;
 using adrilight_shared.Helpers;
 using adrilight_shared.Models.Device;
 using adrilight_shared.Models.Language;
@@ -51,6 +52,25 @@ namespace adrilight
         private static Mutex _adrilightMutex;
         private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
         private KnownTypesBinder _knownTypeBinders { get; set; }
+
+        #region Construct
+        #endregion
+
+
+        #region Properties
+        private DeviceHelpers DeviceHlprs { get; set; }
+        private TelemetryClient _telemetryClient;
+        private static View.SplashScreen _splashScreen;
+        private static SplashScreenViewModel _splashScreenViewModel;
+        private static View.DeviceSearchingScreen _searchingForDeviceScreen;
+        private static DeviceManager _deviceManager;
+        private static IKernel kernel;
+        public static string VersionNumber { get; } = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
+        private static IGeneralSettings GeneralSettings { get; set; }
+
+
+        #endregion
+        #region Methods
         protected override async void OnStartup(StartupEventArgs startupEvent)
         {
             //load setting if exist
@@ -89,7 +109,7 @@ namespace adrilight
             {
                 //another instance is already running!
                 HandyControl.Controls.MessageBox.Show(adrilight_shared.Properties.Resources.App_Already_Launch
-                    , adrilight_shared.Properties.Resources.App_Already_Launch_Header,MessageBoxButton.OK,MessageBoxImage.Warning);
+                    , adrilight_shared.Properties.Resources.App_Already_Launch_Header, MessageBoxButton.OK, MessageBoxImage.Warning);
                 Shutdown();
                 return;
             }
@@ -106,37 +126,46 @@ namespace adrilight
 
             Log.Information($"adrilight {VersionNumber}: Main() started.");
 
-            //show splash screen here to display wtfever you are loading
+            kernel = await Task.Run(() => SetupDependencyInjection(false));
+            this.Resources["Locator"] = new ViewModelLocator(kernel);
 
-            //set style and color of the default theme
 
-            //_splashScreen.WindowState = WindowState.Normal;
-            // inject all, this task may takes long time
+            _splashScreenViewModel = kernel.Get<SplashScreenViewModel>();
+            _splashScreenViewModel.Icon = "appicon";
+            _splashScreenViewModel.Title = adrilight_shared.Properties.Resources.App_OnStartup_AdrilightIsLoading;
+            _splashScreenViewModel.Description = adrilight_shared.Properties.Resources.App_OnStartup_LOADINGKERNEL;
             _splashScreen = new SplashScreen();
             this.MainWindow = _splashScreen;
             _splashScreen.Show();
-            _splashScreen.Header.Text = adrilight_shared.Properties.Resources.App_OnStartup_AdrilightIsLoading;
-            _splashScreen.status.Text = adrilight_shared.Properties.Resources.App_OnStartup_LOADINGKERNEL;
-
-
-            kernel = await Task.Run(() => SetupDependencyInjection(false));
             //start device service
-            var deviceManager = kernel.Get<DeviceManager>();
-            this.Resources["Locator"] = new ViewModelLocator(kernel);
-
+            _deviceManager = kernel.Get<DeviceManager>();
+            await _deviceManager.LoadData(_splashScreenViewModel);
             var dialogService = kernel.Get<IDialogService>();
             RegisterDialog(dialogService);
-
-            //close splash screen and open dashboard
-            this.Resources["Locator"] = new ViewModelLocator(kernel);
             _telemetryClient = kernel.Get<TelemetryClient>();
-
 
             // show main window
             OpenSettingsWindow(GeneralSettings.StartMinimized);
 
             SetupTrackingForProcessWideEvents(_telemetryClient);
             //kernel.Get<AdrilightUpdater>().StartThread();
+        }
+        private void OpenSettingsWindow(bool isMinimized)
+        {
+            var _mainForm = new MainView();
+            this.MainWindow = _mainForm;
+            //bring to front?
+            if (!isMinimized)
+            {
+                _mainForm.Visibility = Visibility.Visible;
+                _mainForm.Show();
+                Log.Information("Open Dashboard");
+            }
+            else
+            {
+                Log.Information("Windows Start Minimized");
+            }
+            _splashScreen.Close();
         }
         private void RegisterDialog(IDialogService dialogService)
         {
@@ -149,7 +178,42 @@ namespace adrilight
             dialogService.RegisterDialog<HotKeySelectionDialog, HotKeySelectionViewModel>();
             dialogService.RegisterDialog<DeviceSearchingScreen, DeviceSearchingDialogViewModel>();
         }
+        internal static IKernel SetupDependencyInjection(bool isInDesignMode)
+        {
+            var kernel = new StandardKernel(new ModuleInjection());
+            GeneralSettings = kernel.Get<IGeneralSettings>();
+            Thread.CurrentThread.CurrentUICulture = GeneralSettings.AppCulture.Culture;
+            //setup Database manager (plan obsolete)
+            var dbManager = kernel.Get<DBmanager>();
+            return kernel;
+        }
 
+        private void App_Activated(object sender, EventArgs e)
+        {
+            // Application activated
+            //tell mainview that this app is being focused
+
+        }
+
+        private void App_Deactivated(object sender, EventArgs e)
+        {
+            // Application deactivated
+
+        }
+
+
+
+        private void SetupDebugLogging()
+        {
+            var logPath = Path.Combine(JsonPath, "Logs");
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .WriteTo.RollingFile(Path.Combine(logPath, "adrilight-{Date}.txt"), retainedFileCountLimit: 10, shared: true, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+                .CreateLogger();
+
+            Log.Information($"DEBUG logging set up!");
+
+        }
         protected override void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);
@@ -161,7 +225,7 @@ namespace adrilight
         {
             var langSelectDialog = new SelectLanguageWindow();
             var result = langSelectDialog.ShowDialog();
-            if(result == true)
+            if (result == true)
             {
                 return await Task.FromResult(langSelectDialog.SelectedLanguage);
             }
@@ -170,51 +234,57 @@ namespace adrilight
                 return null;
             }
         }
-        protected void CloseMutexHandler(object sender, EventArgs startupEvent)
+        #endregion
+        #region Exception handler
+        private void ApplicationWideException(object sender, Exception ex, string eventSource)
         {
-            _mutex?.Close();
-        }
-        private DeviceHelpers DeviceHlprs { get; set; }
-        private TelemetryClient _telemetryClient;
-        private static View.SplashScreen _splashScreen;
-        private static View.DeviceSearchingScreen _searchingForDeviceScreen;
+            Log.Fatal(ex, $"ApplicationWideException from sender={sender}, adrilight version={VersionNumber}, eventSource={eventSource}");
 
-        internal static IKernel SetupDependencyInjection(bool isInDesignMode)
-        {
-            var kernel = new StandardKernel(new DeviceSettingsInjectModule());
-            GeneralSettings = kernel.Get<IGeneralSettings>();
-            Thread.CurrentThread.CurrentUICulture = GeneralSettings.AppCulture.Culture;
-
-            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            var sb = new StringBuilder();
+            sb.AppendLine($"Sender: {sender}");
+            sb.AppendLine($"Source: {eventSource}");
+            if (sender != null)
             {
-                Thread.CurrentThread.CurrentUICulture = GeneralSettings.AppCulture.Culture;
-                _splashScreen.status.Text = "DONE LOADING KERNEL";
-            });
-
-            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                sb.AppendLine($"Sender Type: {sender.GetType().FullName}");
+            }
+            sb.AppendLine("-------");
+            do
             {
-                Thread.CurrentThread.CurrentUICulture = GeneralSettings.AppCulture.Culture;
-                _splashScreen.status.Text = adrilight_shared.Properties.Resources.App_SetupDependencyInjection_PROCESSESCREATED;
-            });
+                sb.AppendLine($"exception type: {ex.GetType().FullName}");
+                sb.AppendLine($"exception message: {ex.Message}");
+                sb.AppendLine($"exception stacktrace: {ex.StackTrace}");
+                sb.AppendLine("-------");
+                ex = ex.InnerException;
+            } while (ex != null);
 
-            var dbManager = kernel.Get<DBmanager>();
-            return kernel;
+            HandyControl.Controls.MessageBox.Show(sb.ToString(), "unhandled exception :-(");
+            try
+            {
+                Shutdown(-1);
+            }
+            catch
+            {
+                Environment.Exit(-1);
+            }
         }
-
-        private void App_Activated(object sender, EventArgs e)
+        #endregion
+        #region System Status
+        private void SetupTrackingForProcessWideEvents(TelemetryClient tc)
         {
-            // Application activated
-            //tell mainview that this app is being focused
-           
+            if (tc == null)
+            {
+                throw new ArgumentNullException(nameof(tc));
+            }
+
+            AppDomain.CurrentDomain.UnhandledException += (sender, args) => tc.TrackException(args.ExceptionObject as Exception);
+
+            DispatcherUnhandledException += (sender, args) => tc.TrackException(args.Exception);
+
+            Exit += (s, e) => { tc.TrackEvent("AppExit"); tc.Flush(); };
+
+            SystemEvents.PowerModeChanged += (s, e) => tc.TrackEvent("PowerModeChanged", new Dictionary<string, string> { { "Mode", e.Mode.ToString() } });
+            tc.TrackEvent("AppStart");
         }
-
-        private void App_Deactivated(object sender, EventArgs e)
-        {
-            // Application deactivated
-            
-        }
-
-
         private void SetupLoggingForProcessWideEvents()
         {
             if (DeviceHlprs == null)
@@ -296,87 +366,7 @@ namespace adrilight
                 Log.Information("Stop the serial stream due to power down or log off condition!");
             };
         }
-        private void SetupTrackingForProcessWideEvents(TelemetryClient tc)
-        {
-            if (tc == null)
-            {
-                throw new ArgumentNullException(nameof(tc));
-            }
+        #endregion
 
-            AppDomain.CurrentDomain.UnhandledException += (sender, args) => tc.TrackException(args.ExceptionObject as Exception);
-
-            DispatcherUnhandledException += (sender, args) => tc.TrackException(args.Exception);
-
-            Exit += (s, e) => { tc.TrackEvent("AppExit"); tc.Flush(); };
-
-            SystemEvents.PowerModeChanged += (s, e) => tc.TrackEvent("PowerModeChanged", new Dictionary<string, string> { { "Mode", e.Mode.ToString() } });
-            tc.TrackEvent("AppStart");
-        }
-        private void SetupDebugLogging()
-        {
-            var logPath = Path.Combine(JsonPath, "Logs");
-            Log.Logger = new LoggerConfiguration()
-                .WriteTo.Console()
-                .WriteTo.RollingFile(Path.Combine(logPath, "adrilight-{Date}.txt"), retainedFileCountLimit: 10, shared: true, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
-                .CreateLogger();
-
-            Log.Information($"DEBUG logging set up!");
-        }
-
-        private static IKernel kernel;
-
-        private void OpenSettingsWindow(bool isMinimized)
-        {
-            var _mainForm = new MainView();
-            this.MainWindow = _mainForm;
-            //bring to front?
-            if (!isMinimized)
-            {
-                _mainForm.Visibility = Visibility.Visible;
-                _mainForm.Show();
-                Log.Information("Open Dashboard");
-            }
-            else
-            {
-                Log.Information("Windows Start Minimized");
-            }
-            _splashScreen.Close();
-        }
-
-        public static string VersionNumber { get; } = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
-
-        private static IGeneralSettings GeneralSettings { get; set; }
-
-        private void ApplicationWideException(object sender, Exception ex, string eventSource)
-        {
-            Log.Fatal(ex, $"ApplicationWideException from sender={sender}, adrilight version={VersionNumber}, eventSource={eventSource}");
-
-            var sb = new StringBuilder();
-            sb.AppendLine($"Sender: {sender}");
-            sb.AppendLine($"Source: {eventSource}");
-            if (sender != null)
-            {
-                sb.AppendLine($"Sender Type: {sender.GetType().FullName}");
-            }
-            sb.AppendLine("-------");
-            do
-            {
-                sb.AppendLine($"exception type: {ex.GetType().FullName}");
-                sb.AppendLine($"exception message: {ex.Message}");
-                sb.AppendLine($"exception stacktrace: {ex.StackTrace}");
-                sb.AppendLine("-------");
-                ex = ex.InnerException;
-            } while (ex != null);
-
-            HandyControl.Controls.MessageBox.Show(sb.ToString(), "unhandled exception :-(");
-            try
-            {
-                Shutdown(-1);
-            }
-            catch
-            {
-                Environment.Exit(-1);
-            }
-        }
     }
 }

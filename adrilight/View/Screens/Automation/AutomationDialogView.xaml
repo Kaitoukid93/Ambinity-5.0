@@ -8,11 +8,12 @@
              xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
              xmlns:automation="clr-namespace:adrilight_shared.Models.Automation;assembly=adrilight_shared"
              xmlns:device ="clr-namespace:adrilight_shared.Models.Device;assembly=adrilight_shared"
+             xmlns:model ="clr-namespace:adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;assembly=adrilight_shared"
              xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
+             xmlns:controlMode="clr-namespace:adrilight_shared.Models.ControlMode.Mode;assembly=adrilight_shared"
+             xmlns:lighting ="clr-namespace:adrilight_shared.Models.Lighting;assembly=adrilight_shared"
              d:DataContext="{d:DesignInstance Type=viewmodel:AutomationDialogViewModel}"
-             mc:Ignorable="d"
-             d:DesignHeight="450"
-             d:DesignWidth="800">
+             mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -30,51 +31,63 @@
                                       RenderingBias="Quality"
                                       ShadowDepth="1"
                                       Color="{Binding Color, Source={StaticResource DarkMaskBrush}}" />
-                    <Style x:Key="ListViewContainerStyle"
-                           TargetType="{x:Type ListViewItem}">
-
-                        <Setter Property="SnapsToDevicePixels"
-                                Value="True" />
-                        <Setter Property="Padding"
-                                Value="0" />
-                        <Setter Property="Background"
-                                Value="Transparent" />
-                        <Setter Property="BorderBrush"
-                                Value="Transparent" />
-                        <Setter Property="BorderThickness"
-                                Value="4" />
-                        <Setter Property="FocusVisualStyle"
-                                Value="{StaticResource FocusVisual}" />
-                        <Setter Property="Width"
-                                Value="auto" />
-                        <Setter Property="Height"
-                                Value="auto" />
-                        <Setter Property="Focusable"
-                                Value="False" />
-                        <Setter Property="VerticalContentAlignment"
-                                Value="Stretch" />
-                        <Setter Property="HorizontalAlignment"
-                                Value="Stretch" />
-                        <Setter Property="Tag"
-                                Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListView}}" />
-
+                    <Style x:Key="_listBoxColorSelectionStyle"
+                           TargetType="ListBoxItem">
+                        <Setter Property="HorizontalContentAlignment"
+                                Value="Left" />
                         <Setter Property="Template">
                             <Setter.Value>
-                                <ControlTemplate TargetType="{x:Type ListViewItem}">
-                                    <Border x:Name="Bd"
-                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border CornerRadius="5"
+                                            Name="_Border"
+                                            Padding="0"
                                             Margin="0"
-                                            CornerRadius="7"
-                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                            Background="{TemplateBinding Background}"
-                                            Padding="{TemplateBinding Padding}"
+                                            HorizontalAlignment="Stretch"
+                                            Opacity="1"
+                                            BorderThickness="2"
                                             SnapsToDevicePixels="true">
-                                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
-                                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <RadioButton Name="radio"
+                                                         GroupName="items" />
+                                            <ContentPresenter Grid.Column="1" />
+                                        </Grid>
 
                                     </Border>
                                     <ControlTemplate.Triggers>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive"
+                                                           Value="True" />
+                                                <Condition Property="IsSelected"
+                                                           Value="True" />
+                                            </MultiTrigger.Conditions>
+                                            <Setter Property="IsChecked"
+                                                    TargetName="radio"
+                                                    Value="True">
+
+                                            </Setter>
+                                       
+                                        </MultiTrigger>
+
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive"
+                                                           Value="False" />
+                                                <Condition Property="IsSelected"
+                                                           Value="True" />
+                                            </MultiTrigger.Conditions>
+
+                                            <Setter Property="IsChecked"
+                                                    TargetName="radio"
+                                                    Value="True">
+
+                                            </Setter>
+                                          
+                                        </MultiTrigger>
                                         <MultiTrigger>
                                             <MultiTrigger.Conditions>
                                                 <Condition Property="IsMouseOver"
@@ -82,39 +95,12 @@
                                                 <Condition Property="IsSelected"
                                                            Value="False" />
                                             </MultiTrigger.Conditions>
+                                            <Setter Property="Background"
+                                                    TargetName="radio"
+                                                    Value="{DynamicResource SecondaryRegionBrush}">
+
+                                            </Setter>
                                         </MultiTrigger>
-
-
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="Selector.IsSelectionActive"
-                                                           Value="False" />
-                                                <Condition Property="IsSelected"
-                                                           Value="True" />
-                                            </MultiTrigger.Conditions>
-
-                                            <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
-
-                                        </MultiTrigger>
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="Selector.IsSelectionActive"
-                                                           Value="True" />
-                                                <Condition Property="IsSelected"
-                                                           Value="True" />
-                                            </MultiTrigger.Conditions>
-
-                                            <!--<Setter Property="BorderThickness" TargetName="Bd" Value="6"/>-->
-                                            <Setter Property="Effect"
-                                                    TargetName="Bd"
-                                                    Value="{StaticResource Item.SelectedActive.Border.Shadow}" />
-                                        </MultiTrigger>
-                                        <Trigger Property="IsEnabled"
-                                                 Value="False">
-                                            <Setter Property="TextElement.Foreground"
-                                                    TargetName="Bd"
-                                                    Value="{StaticResource {x:Static SystemColors.GrayTextBrushKey}}" />
-                                        </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Setter.Value>
@@ -134,121 +120,122 @@
             <TextBlock Margin="5,5,5,20"
                        Style="{DynamicResource TextBlockLarge}"
                        Text="{Binding Header}" />
-            <Border Width="120"
-                    Height="120"
-                    CornerRadius="7"
-                    Effect="{DynamicResource EffectShadow1}"
-                    Background="{DynamicResource MainContentBackgroundBrush}">
-            </Border>
-            <hc:TextBox Margin="20"
-                        hc:InfoElement.Title="{x:Static properties:Resources.AddNewDialog_Name}"
-                        hc:InfoElement.ShowClearButton="True"
-                        Text="{Binding Content}"
-                        Height="55" />
-            <ListView MaxHeight="500"
-                      Margin="0,10,0,10"
-                      HorizontalAlignment="Center"
+            <ListBox HorizontalContentAlignment="Stretch"
+                      HorizontalAlignment="Stretch"
                       Background="Transparent"
                       BorderThickness="0"
+                      SelectedItem="{Binding Value}"
+                      ItemContainerStyle="{DynamicResource _listBoxColorSelectionStyle}"
                       ItemsSource="{Binding Values,Mode=TwoWay}">
-                <ListView.ItemsPanel>
+                <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Vertical" />
+                        <StackPanel />
                     </ItemsPanelTemplate>
-                </ListView.ItemsPanel>
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="{x:Type ListViewItem}"
-                           BasedOn="{StaticResource ListViewContainerStyle}">
-                        <Setter Property="IsSelected"
-                                Value="{Binding IsSelected, Mode=TwoWay}" />
-                    </Style>
-                </ListView.ItemContainerStyle>
-                <ListView.Template>
+                </ListBox.ItemsPanel>
+
+                <ListBox.Template>
                     <ControlTemplate TargetType="{x:Type ItemsControl}">
-                        <Border Margin="0"
-                                SnapsToDevicePixels="False">
-                            <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled">
-                                <ItemsPresenter />
+                        <Border Margin="10">
+                            <hc:ScrollViewer Height="200" HorizontalScrollBarVisibility="Disabled" IsInertiaEnabled="True">
+                                <ItemsPresenter HorizontalAlignment="Stretch" />
                             </hc:ScrollViewer>
                         </Border>
                     </ControlTemplate>
-                </ListView.Template>
-                <ListView.Resources>
+                </ListBox.Template>
+                <ListBox.Resources>
                     <DataTemplate DataType="{x:Type automation:ActionParameter}">
-                        <Button CommandParameter="{Binding .}"
-                                Command="{Binding Path=DataContext.SetCurrentActionParamForSelectedActionCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                Content="{Binding Name}"
-                                Click="Button_Click"
-                                FontSize="15"
-                                FontWeight="SemiBold"
-                                HorizontalAlignment="Center"
-                                Height="auto"
-                                Width="auto"
-                                VerticalAlignment="Center"
-                                hc:BorderElement.CornerRadius="2"
-                                Margin="0"
-                                Padding="5,3"
-                                Foreground="{DynamicResource PrimaryBrush}"
-                                BorderThickness="0">
-                            <Button.Background>
-                                <SolidColorBrush Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
-                                                 Opacity="0.1" />
-                            </Button.Background>
-                        </Button>
+                        <Border Margin="10,0">
+                            <StackPanel>
+                                <TextBlock Style="{DynamicResource TextBlockSubTitle}"
+                                           FontWeight="SemiBold"
+                                           HorizontalAlignment="Left"
+                                           Margin="0,15,0,0"
+                                           Text="{Binding Name}" />
+                                <TextBlock Text="{Binding Description}"
+                                           HorizontalAlignment="Left"
+                                           Margin="0,0,0,0"
+                                           TextWrapping="Wrap"
+                                           Style="{DynamicResource TextBlockDefaultSecLight}" />
+                            </StackPanel>
+                            
+                            
+                        </Border>
                     </DataTemplate>
-                    <DataTemplate DataType="{x:Type automation:ActionType}">
-                        <Button CommandParameter="{Binding .}"
-                                Command="{Binding Path=DataContext.SetCurrentActionTypeForSelectedActionCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                Content="{Binding Name}"
-                                Click="Button_Click"
-                                FontSize="15"
-                                FontWeight="SemiBold"
-                                HorizontalAlignment="Center"
-                                Height="auto"
-                                Width="auto"
-                                VerticalAlignment="Center"
-                                hc:BorderElement.CornerRadius="2"
-                                Margin="0"
-                                Padding="5,3"
-                                Foreground="{DynamicResource PrimaryBrush}"
-                                BorderThickness="0">
-                            <Button.Background>
-                                <SolidColorBrush Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
-                                                 Opacity="0.1" />
-                            </Button.Background>
-                        </Button>
+                    <DataTemplate DataType="{x:Type model:ColorCard}">
+                        <Border CornerRadius="2"
+                                Width="40"
+                                Height="40">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,1"
+                                                     EndPoint="1,0">
+                                    <GradientStop Color="{Binding StartColor}"
+                                                  Offset="0.0" />
+                                    <GradientStop Color="{Binding StopColor}"
+                                                  Offset="1.0" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border.ToolTip>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat=" {0} - {1}">
+                                            <Binding Path="StartColor" />
+                                            <Binding Path="StopColor" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </Border.ToolTip>
+                        </Border>
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type device:DeviceSettings}">
-                        <Button CommandParameter="{Binding .}"
-                                Command="{Binding Path=DataContext.SetCurrentActionTargetDeviceForSelectedActionCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                Content="{Binding DeviceName}"
-                                Click="Button_Click"
-                                FontSize="15"
-                                FontWeight="SemiBold"
-                                HorizontalAlignment="Center"
-                                Height="auto"
-                                Width="auto"
-                                VerticalAlignment="Center"
-                                hc:BorderElement.CornerRadius="2"
-                                Margin="0"
-                                Padding="5,3"
-                                Foreground="{DynamicResource PrimaryBrush}"
-                                BorderThickness="0">
-                            <Button.Background>
-                                <SolidColorBrush Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
-                                                 Opacity="0.1" />
-                            </Button.Background>
-                        </Button>
+                        <Border Margin="10,0">
+                            <StackPanel>
+                                <TextBlock Style="{DynamicResource TextBlockSubTitle}"
+                                           FontWeight="SemiBold"
+                                           HorizontalAlignment="Left"
+                                           Margin="0,15,0,0"
+                                           Text="{Binding DeviceName}" />
+                                <TextBlock Text="{Binding OutputPort}"
+                                           HorizontalAlignment="Left"
+                                           Margin="0,0,0,0"
+                                           TextWrapping="Wrap"
+                                           Style="{DynamicResource TextBlockDefaultSecLight}" />
+                            </StackPanel>
+
+
+                        </Border>
+
+
                     </DataTemplate>
-                </ListView.Resources>
-                <ListView.ItemTemplate>
+                    <DataTemplate DataType="{x:Type controlMode:LightingMode}">
+                        <Border Margin="10,0">
+                            <StackPanel>
+                                <TextBlock Style="{DynamicResource TextBlockSubTitle}"
+                                           FontWeight="SemiBold"
+                                           HorizontalAlignment="Left"
+                                           Margin="0,15,0,0"
+                                           Text="{Binding Name}" />
+                                <TextBlock Text="{Binding Description}"
+                                           HorizontalAlignment="Left"
+                                           Margin="0,0,0,0"
+                                           TextWrapping="Wrap"
+                                           Style="{DynamicResource TextBlockDefaultSecLight}" />
+                            </StackPanel>
+
+
+                        </Border>
+
+
+                    </DataTemplate>
+
+                </ListBox.Resources>
+                <ListBox.ItemTemplate>
                     <DataTemplate>
                         <ContentControl Content="{Binding .}" />
                     </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </StackPanel>
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="1">
             <StackPanel HorizontalAlignment="Right"
                         Orientation="Horizontal">
                 <Button Click="Button_Cancel_Click"

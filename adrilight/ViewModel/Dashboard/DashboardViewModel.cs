@@ -14,6 +14,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Windows.Input;
 
 namespace adrilight.ViewModel.Dashboard
@@ -23,6 +24,7 @@ namespace adrilight.ViewModel.Dashboard
     {
         #region Construct
         public event Action<IDeviceSettings> DeviceClicked;
+        public event Action<string> ManagerButtonClicked;
         public DashboardViewModel(DeviceManager deviceManager, LightingProfileManager profileManager, AutomationManager automationManager)
         {
 
@@ -94,13 +96,21 @@ namespace adrilight.ViewModel.Dashboard
                 }
                 else if (p is LightingProfile)
                 {
-
+                    _profileManager.ActivateProfile(p as LightingProfile);
                 }
                 else if (p is AutomationSettings)
                 {
-
+                    _profileManager.ActivatePlaylist(p as LightingProfilePlaylist);
                 }
 
+
+            });
+            MangerButtonClickCommand = new RelayCommand<string>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                ManagerButtonClicked?.Invoke(p);
 
             });
         }
@@ -113,6 +123,7 @@ namespace adrilight.ViewModel.Dashboard
 
         #region Commands
         public ICommand ItemClickCommand { get; set; }
+        public ICommand MangerButtonClickCommand { get; set; }
         #endregion
     }
 }

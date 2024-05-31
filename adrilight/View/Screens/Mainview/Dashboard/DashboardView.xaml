@@ -506,12 +506,12 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <Grid>
+        <!--<Grid>
             <Border Background="{DynamicResource DarkOpacityBrush}"
                     Visibility="{Binding SearchingForDevices,Mode=TwoWay,Converter={StaticResource Boolean2VisibilityConverter}}">
             </Border>
 
-        </Grid>
+        </Grid>-->
         <Grid>
             <hc:ScrollViewer IsInertiaEnabled="True">
                 <StackPanel>
@@ -563,7 +563,8 @@
                                                    HorizontalAlignment="Left" />
                                     </Grid>
                                     <Button ToolTip="{x:Static properties:Resources.AllDeviceView_DeviceManager_Tooltip}"
-                                            Command="{Binding OpenDeviceManagerWindowCommand}"
+                                            Command="{Binding MangerButtonClickCommand}"
+                                            CommandParameter="deviceManager"
                                             hc:IconElement.Geometry="{DynamicResource slaveDevice}"
                                             Margin="5,5,5,5"
                                             BorderBrush="Transparent"
@@ -636,7 +637,8 @@
                                            Style="{DynamicResource TextBlockSubTitle}"
                                            HorizontalAlignment="Left" />
                                 <Button ToolTip="{x:Static properties:Resources.AllDeviceView_LightingProfile_Tooltip}"
-                                        Command="{Binding OpenLightingProfileManagerWindowCommand}"
+                                        Command="{Binding MangerButtonClickCommand}"
+                                        CommandParameter="profileManager"
                                         hc:IconElement.Geometry="{DynamicResource profileManager}"
                                         Margin="5"
                                         BorderBrush="Transparent"
@@ -700,7 +702,8 @@
                                                Style="{DynamicResource TextBlockSubTitle}"
                                                HorizontalAlignment="Left" />
                                     <Button ToolTip="{x:Static properties:Resources.AllDeviceView_Automation_Tooltip}"
-                                            Command="{Binding OpenAutomationManagerWindowCommand}"
+                                            Command="{Binding MangerButtonClickCommand}"
+                                            CommandParameter="automationManager"
                                             hc:IconElement.Geometry="{DynamicResource auto}"
                                             Margin="5"
                                             BorderBrush="Transparent"

@@ -30,13 +30,15 @@ namespace adrilight.ViewModel.Automation
             _action = action;
             // add brightness and(or) speed
             //prevent dialog open when no device selected
-            if (action.TargetDeviceUID == null)
-                return false;
-            var targetDevice = _devicemanager.AvailableDevices.Where(d => (d as DeviceSettings).DeviceUID == action.TargetDeviceUID).FirstOrDefault() as DeviceSettings;
-            if (targetDevice == null)
-                return false;
+           
+            
             if (Header == "Parameters")
             {
+                if (action.TargetDeviceUID == null)
+                    return false;
+                var targetDevice = _devicemanager.AvailableDevices.Where(d => (d as DeviceSettings).DeviceUID == action.TargetDeviceUID).FirstOrDefault() as DeviceSettings;
+                if (targetDevice == null)
+                    return false;
                 switch (action.ActionType.Type)
                 {
                     case "Activate":
@@ -46,6 +48,7 @@ namespace adrilight.ViewModel.Automation
                             if (profile != null)
                                 Values.Add(new ActionParameter {
                                     Geometry = "brightness",
+                                    Description = profile.Description,
                                     Name = profile.Name,
                                     Type = "profile",
                                     Value = (profile as LightingProfile).ProfileUID
@@ -91,6 +94,11 @@ namespace adrilight.ViewModel.Automation
             else if (Header == "Values")
             {
                 //add available values
+                if (action.TargetDeviceUID == null)
+                    return false;
+                var targetDevice = _devicemanager.AvailableDevices.Where(d => (d as DeviceSettings).DeviceUID == action.TargetDeviceUID).FirstOrDefault() as DeviceSettings;
+                if (targetDevice == null)
+                    return false;
                 switch (action.ActionParameter.Type)
                 {
                     case "color":
@@ -98,8 +106,10 @@ namespace adrilight.ViewModel.Automation
                         break;
 
                     case "mode":
-                        targetDevice.AvailableLightingDevices[0].ControlableZones[0].AvailableControlMode.ForEach(m => Values.Add((m as LightingMode).BasedOn));
+                        targetDevice.AvailableLightingDevices[0].ControlableZones[0].AvailableControlMode.ForEach(m => Values.Add((m as LightingMode)));
                         break;
+                    case "unknown":
+                        return false;
                 }
             }
             return true;
@@ -114,6 +124,7 @@ namespace adrilight.ViewModel.Automation
                     returnParam.Geometry = "brightness";
                     returnParam.Type = "brightness";
                     returnParam.Value = value;
+                    returnParam.Description = "Change Device LEDs brightness";
                     break;
 
                 case "state":
@@ -121,6 +132,7 @@ namespace adrilight.ViewModel.Automation
                     returnParam.Geometry = "brightness";
                     returnParam.Type = "state";
                     returnParam.Value = value;
+                    returnParam.Description = "Change All LEDs state (on or off)";
                     break;
 
                 case "color":
@@ -128,6 +140,7 @@ namespace adrilight.ViewModel.Automation
                     returnParam.Geometry = "brightness";
                     returnParam.Type = "color";
                     returnParam.Value = Color.FromRgb(255, 255, 0);
+                    returnParam.Description = "Change Device LEDs color to selected color or gradient";
                     break;
 
                 case "mode":
@@ -135,6 +148,7 @@ namespace adrilight.ViewModel.Automation
                     returnParam.Geometry = "brightness";
                     returnParam.Type = "mode";
                     returnParam.Value = value;
+                    returnParam.Description = "Change Device Active Control Mode";
                     break;
 
                 case "speed":
@@ -142,6 +156,7 @@ namespace adrilight.ViewModel.Automation
                     returnParam.Geometry = "brightness";
                     returnParam.Type = "speed";
                     returnParam.Value = value;
+                    returnParam.Description = "Change Device Fan Speed (only Ambino FanHUB is supported)";
                     break;
             }
             return returnParam;
@@ -149,7 +164,18 @@ namespace adrilight.ViewModel.Automation
         public string Geometry { get; set; }
         public string Content { get; set; }
         public string Header { get; set; }
-        public ObservableCollection<object> Values { get; set; }
+        private ObservableCollection<object> _values;
+        public ObservableCollection<object> Values {
+            get
+            {
+                return _values;
+            }
+            set
+            {
+                _values = value;
+                RaisePropertyChanged();
+            }
+        }
         public object Value { get; set; }
     }
 }

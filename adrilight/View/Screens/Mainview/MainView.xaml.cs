@@ -266,6 +266,8 @@ namespace adrilight.View
         private void OpenDashboard(object sender, RoutedEventArgs e)
         {
             this.Visibility = Visibility.Visible;
+            this.BringIntoView();
+
         }
     }
 }

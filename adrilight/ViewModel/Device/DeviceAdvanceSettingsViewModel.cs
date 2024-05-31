@@ -31,7 +31,6 @@ namespace adrilight.ViewModel
             _deviceFirmwareUpdater = firmwareUpdater ?? throw new ArgumentNullException(nameof(firmwareUpdater));
             LocalFileHlprs = new LocalFileHelpers();
             CommandSetup();
-            HardwareLightingControlInit();
 
         }
         #endregion
@@ -47,7 +46,18 @@ namespace adrilight.ViewModel
         }
         #endregion
         #region Properties
-        public IDeviceSettings Device { get; set; }
+        private IDeviceSettings _device;
+        public IDeviceSettings Device {
+            get
+            {
+                return _device;
+            }
+            set
+            {
+                _device = value;
+                RaisePropertyChanged();
+            }
+        }
         private LocalFileHelpers LocalFileHlprs;
         private DeviceDBManager _deviceDBManager;
         private DeviceHardwareSettings _deviceHardwareSettings;
@@ -83,7 +93,18 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-        public ListSelectionParameter HardwareLightingColorSelection { get; set; }      
+        private ListSelectionParameter _hardwareLightingColorSelection;
+        public ListSelectionParameter HardwareLightingColorSelection {
+            get
+            {
+                return _hardwareLightingColorSelection;
+            }
+            set
+            {
+                _hardwareLightingColorSelection = value;
+                RaisePropertyChanged();
+            }
+        }
         public string SelectedCustomFirmwarePath {
             get
             {
@@ -95,7 +116,7 @@ namespace adrilight.ViewModel
                 _selectedCustomFirmwarePath = value;
                 RaisePropertyChanged();
             }
-        }        
+        }
         public string SelectedDevicebackupFile {
             get
             {
@@ -107,7 +128,7 @@ namespace adrilight.ViewModel
                 _selectedDeviceBackupFile = value;
                 RaisePropertyChanged();
             }
-        }       
+        }
         public string UpdateButtonContent {
             get
             {
@@ -119,7 +140,7 @@ namespace adrilight.ViewModel
                 _updateButtonContent = value;
                 RaisePropertyChanged();
             }
-        }       
+        }
         public string UpdateInstructionContent {
             get
             {
@@ -131,7 +152,7 @@ namespace adrilight.ViewModel
                 _updateInstructionContent = value;
                 RaisePropertyChanged();
             }
-        }     
+        }
         public string NewFirmwareVersionContent {
             get
             {
@@ -142,7 +163,7 @@ namespace adrilight.ViewModel
                 _newFirmwareVersionContent = value;
                 RaisePropertyChanged();
             }
-        }     
+        }
         public bool UpdateAvailable {
             get
             {
@@ -175,16 +196,16 @@ namespace adrilight.ViewModel
                 return;
             Device = device;
             Device.PropertyChanged += Device_PropertyChanged;
-            _deviceDBManager.Init(device);
-            _deviceFirmwareUpdater.Init(device);
-            await _deviceHardwareSettings.Init(device);
+            _deviceDBManager.Init(Device);
+            _deviceFirmwareUpdater.Init(Device);
+            await _deviceHardwareSettings.Init(Device);
             //ambino hubV2 is not supported in-app downloading
             if (Device.DeviceType.Type == DeviceTypeEnum.AmbinoHUBV2)
             {
                 UpdateButtonContent = adrilight_shared.Properties.Resources.EnterDFU_ButtonContent;
                 UpdateInstructionContent = adrilight_shared.Properties.Resources.HUBV_Checkforupdate_content;
             }
-
+            HardwareLightingControlInit();
         }
         private void CommandSetup()
         {
@@ -254,7 +275,7 @@ namespace adrilight.ViewModel
                 return true;
             }, async (p) =>
             {
-                var result = await Task.Run(() => _deviceHardwareSettings.SendHardwareSettings());
+                await _deviceHardwareSettings.ShowHWSettingsDialog(Device);
             });
             UpdateDeviceFirmwareCommand = new RelayCommand<string>((p) =>
             {
@@ -273,7 +294,7 @@ namespace adrilight.ViewModel
 
             });
 
-        }    
+        }
         private void ColorSelectionInit(List<string> source)
         {
             HardwareLightingColorSelection = new ListSelectionParameter(ModeParameterEnum.Color);
@@ -282,7 +303,31 @@ namespace adrilight.ViewModel
             HardwareLightingColorSelection.Description = adrilight_shared.Properties.Resources.DeviceAdvanceSettingsViewModel_ColorSelectionInit_SelectColors;
             HardwareLightingColorSelection.LoadAvailableValues();
             UpdateColorSelectionSelectedValue();
-
+            HardwareLightingColorSelection.PropertyChanged += (_, __) =>
+            {
+                switch (__.PropertyName)
+                {
+                    case nameof(HardwareLightingColorSelection.SelectedValue):
+                        //update offline palette here
+                        if (HardwareLightingColorSelection.SelectedValue is ColorPalette)
+                        {
+                            //resize color palette o 8 colors
+                            var palette = HardwareLightingColorSelection.SelectedValue as ColorPalette;
+                            palette.Resize(8);
+                            Device.HWL_palette = palette.Colors;
+                        }
+                        else if (HardwareLightingColorSelection.SelectedValue is ColorCard)
+                        {
+                            var selectedColor = HardwareLightingColorSelection.SelectedValue as ColorCard;
+                            if (selectedColor != null)
+                            {
+                                var usableColor = selectedColor.StartColor;
+                                Device.HWL_singleColor = usableColor;
+                            }
+                        }
+                        break;
+                }
+            };
         }
         private void HardwareLightingControlInit()
         {
@@ -307,7 +352,7 @@ namespace adrilight.ViewModel
         }
         public async Task RefreshDeviceHardwareInfo()
         {
-            var rslt = await Task.Run(() => _deviceHardwareSettings.GetHardwareSettings());
+            var rslt = await Task.Run(() => _deviceHardwareSettings.GetHardwareSettings(false,Device));
             if (!rslt)
             {
                 HardwareSettingsEnable = Visibility.Collapsed;
@@ -322,15 +367,20 @@ namespace adrilight.ViewModel
         {
             if (Device.HWL_effectMode == 0 || Device.HWL_effectMode == 2)
             {
-               // HardwareLightingColorSelection.SelectedValue = new ColorCard() { StartColor = Device.HWL_singleColor, StopColor = Device.HWL_singleColor };
+                HardwareLightingColorSelection.SelectedValue = new ColorCard() { StartColor = Device.HWL_singleColor, StopColor = Device.HWL_singleColor };
             }
             else if (Device.HWL_effectMode == 1)
             {
-
+                HardwareLightingColorSelection.SelectedValue = new ColorPalette() { Colors = Device.HWL_palette };
             }
-               // HardwareLightingColorSelection.SelectedValue = new ColorPalette() { Colors = Device.HWL_palette };
         }
-
+        public void Dispose()
+        {
+            if (Device != null)
+                Device.PropertyChanged -= Device_PropertyChanged;
+            Device = null;
+            GC.SuppressFinalize(this);
+        }
         #endregion
 
         #region Commands

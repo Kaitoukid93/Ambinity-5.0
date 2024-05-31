@@ -8,9 +8,11 @@ namespace adrilight_shared.Models.Automation
         private string _geometry;
 
         private string _type;
+        private string _description;
         private object _value;//represent UID of profile or state of brightness
         //private string _targetDeviceType;
         public string Name { get => _name; set { Set(() => Name, ref _name, value); } }
+        public string Description { get => _description; set { Set(() => Description, ref _description, value); } }
         public string Geometry { get => _geometry; set { Set(() => Geometry, ref _geometry, value); } }
 
         public string Type { get => _type; set { Set(() => Type, ref _type, value); } }

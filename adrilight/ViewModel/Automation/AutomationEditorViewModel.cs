@@ -21,6 +21,10 @@ using GalaSoft.MvvmLight;
 using adrilight_shared.Settings;
 using adrilight_shared.Models.ItemsCollection;
 using adrilight.Manager;
+using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
+using adrilight_shared.Models.ControlMode.Mode;
+using Microsoft.Win32.TaskScheduler;
+using System.Web.Management;
 
 namespace adrilight.ViewModel.Automation
 {
@@ -33,6 +37,12 @@ namespace adrilight.ViewModel.Automation
             _dialogService = service;
             _dbManager = automationDBManager;
             _dialogViewModel = dialogViewModel;
+            AvailableActions = new ObservableCollection<ActionType>();
+            AvailableTriggerConditions = new ObservableCollection<ITriggerCondition>();
+            CommandSetup();
+            LoadSelectableIcons();
+
+
         }
         #endregion
 
@@ -41,7 +51,18 @@ namespace adrilight.ViewModel.Automation
 
         //private
         private DialogService _dialogService;
-        public AutomationSettings Automation { get; set; }
+        private AutomationSettings _automation;
+        public AutomationSettings Automation {
+            get
+            {
+                return _automation;
+            }
+            set
+            {
+                _automation = value;
+                RaisePropertyChanged();
+            }
+        }
         private AutomationDBManager _dbManager;
         private ActionSettings _selectedAction;
         private AutomationDialogViewModel _dialogViewModel;
@@ -59,18 +80,17 @@ namespace adrilight.ViewModel.Automation
         #region Methods
         public void Init(AutomationSettings automation)
         {
-            if (Automation == null)
+            if (automation == null)
             {
                 return;
             }
             Automation = automation;
-
-            AvailableActions = new ObservableCollection<ActionType>();
+            AvailableActions.Clear();
             foreach (var action in _dbManager.GetAvailableActions())
             {
                 AvailableActions.Add(action);
             }
-            AvailableTriggerConditions = new ObservableCollection<ITriggerCondition>();
+            AvailableTriggerConditions.Clear();
             foreach (var condition in _dbManager.GetAvailableCondition())
             {
                 AvailableTriggerConditions.Add(condition);
@@ -91,8 +111,10 @@ namespace adrilight.ViewModel.Automation
                 return p != null;
             }, (p) =>
             {
-
-                _dialogViewModel.Init("Parameters", "Select parameter", p);
+                _selectedAction = p;
+                var result =_dialogViewModel.Init("Parameters", "Select parameter", p);
+                if (!result)
+                    return;
                 _dialogService.ShowDialog<AutomationDialogViewModel>(result =>
                 {
                     if (result == "True")
@@ -108,7 +130,10 @@ namespace adrilight.ViewModel.Automation
                 return p != null;
             }, (p) =>
             {
-                _dialogViewModel.Init("Devices", "Select target device", p);
+                _selectedAction = p;
+              var result = _dialogViewModel.Init("Devices", "Select target device", p);
+                if (!result)
+                    return;
                 _dialogService.ShowDialog<AutomationDialogViewModel>(result =>
                 {
                     if (result == "True")
@@ -124,18 +149,30 @@ namespace adrilight.ViewModel.Automation
                 return p != null;
             }, (p) =>
             {
-                _dialogViewModel.Init("Values", "Select value", p);
+                _selectedAction = p;
+               var result = _dialogViewModel.Init("Values", "Select value", p);
+                if (!result)
+                    return;
                 _dialogService.ShowDialog<AutomationDialogViewModel>(result =>
                 {
                     if (result == "True")
                     {
-                        SetCurrentSelectedActionTypeColorValue((Color)_dialogViewModel.Value);
+                        switch(_selectedAction.ActionParameter.Type)
+                        {
+                            case "color":
+                                SetCurrentSelectedActionTypeColorValue(_dialogViewModel.Value as ColorCard);
+                                break;
+                            case "mode":
+                                SetCurrentSelectedActionTypeModeValue(_dialogViewModel.Value as LightingMode);
+                                break;
+                        }
+                        
                     }
 
                 }, _dialogViewModel);
 
             });
-            OpenHotkeySelectorCommand = new RelayCommand<ActionSettings>((p) =>
+            OpenHotkeySelectorCommand = new RelayCommand<string>((p) =>
             {
                 return p != null;
             }, (p) =>
@@ -146,7 +183,7 @@ namespace adrilight.ViewModel.Automation
                 {
                     if (result == "True")
                     {
-                        SaveCurrentSelectedAutomationShortkey(vm.CurrentSelectedModifiers,vm.CurrentSelectedShortKeys.ToArray());
+                        SaveCurrentSelectedAutomationShortkey(vm.CurrentSelectedModifiers, vm.CurrentSelectedShortKeys.ToArray());
                     }
 
                 }, vm);
@@ -158,8 +195,18 @@ namespace adrilight.ViewModel.Automation
             {
                 //back to collection view
                 OnEditorViewClosing?.Invoke(true);
-               
+
             });
+            DeleteSelectedActionFromListCommand = new RelayCommand<ActionSettings>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                //back to collection view
+                DeleteSelectedActionFromList(p);
+
+            });
+
         }
         private void AddSelectedActionTypeToList(ActionType actionType)
         {
@@ -176,6 +223,8 @@ namespace adrilight.ViewModel.Automation
 
         private void SetCurrentActionTargetDeviceForSelectedAction(IDeviceSettings targetDevice)
         {
+            if (targetDevice == null)
+                return;
             _selectedAction.TargetDeviceUID = targetDevice.DeviceUID;
             _selectedAction.TargetDeviceName = targetDevice.DeviceName;
             //after this step, the parameter has to be reset because the profile UID will return invalid profile for new device
@@ -183,11 +232,21 @@ namespace adrilight.ViewModel.Automation
 
         private void SetCurrentActionParamForSelectedAction(ActionParameter param)
         {
+            if (param != null)
+                return;
             _selectedAction.ActionParameter = param;
         }
-
-        private void SetCurrentSelectedActionTypeColorValue(Color color)
+        private void SetCurrentSelectedActionTypeModeValue(LightingMode mode)
         {
+            if (mode == null)
+                return;
+            _selectedAction.ActionParameter.Value = mode.BasedOn;
+        }
+
+        private void SetCurrentSelectedActionTypeColorValue(ColorCard color)
+        {
+            if (color == null)
+                return;
             _selectedAction.ActionParameter.Value = color;
         }
         private void SaveCurrentSelectedAutomationShortkey(ObservableCollection<string> modifiers, KeyModel[] keys)
@@ -219,6 +278,26 @@ namespace adrilight.ViewModel.Automation
             }
             return returnKey;
         }
+        private void LoadSelectableIcons() => SelectableIcons = new ObservableCollection<string>() {
+                 "Shortcut",
+                 "Youtube",
+                 "Gaming",
+                 "Reading",
+                 "Still Image",
+                 "Boost",
+                 "Study",
+                 "Fire",
+                 "Spotlight",
+                 "Eye Open",
+                 "Eye Close",
+                 "Meeting",
+                 "Coding",
+                 "Lightbulb",
+                 "Switch On",
+                 "Switch Off",
+                 "Increase",
+                 "Decrease",
+            };
         #endregion
 
         #region Icommand
@@ -226,6 +305,7 @@ namespace adrilight.ViewModel.Automation
         public ICommand OpenTargetParamSelectionWindowCommand { get; set; }
         public ICommand OpenTargetDeviceSelectionWindowCommand { get; set; }
         public ICommand OpenAutomationValuePickerWindowCommand { get; set; }
+        public ICommand DeleteSelectedActionFromListCommand { get; set; }
         public ICommand OpenHotkeySelectorCommand { get; set; }
         public ICommand SaveButtonCommand { get; set; }
         #endregion

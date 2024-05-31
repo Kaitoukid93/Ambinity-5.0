@@ -14,6 +14,7 @@
 using adrilight.ViewModel.Automation;
 using adrilight.ViewModel.Dashboard;
 using adrilight.ViewModel.Profile;
+using adrilight.ViewModel.Splash;
 using adrilight_shared.ViewModel;
 using GalaSoft.MvvmLight;
 using Ninject;
@@ -40,11 +41,20 @@ namespace adrilight.ViewModel
         /// <summary>
         /// Initializes a new instance of the ViewModelLocator class.
         /// </summary>
+        /// 
+        
         public ViewModelLocator(IKernel kernel)
         {
             this.kernel = kernel ?? throw new System.ArgumentNullException(nameof(kernel));
         }
-
+        #region Splash
+        public SplashScreenViewModel SplashScreenViewModel {
+            get
+            {
+                return kernel.Get<SplashScreenViewModel>();
+            }
+        }
+        #endregion
         #region MainView
         public MainViewModel MainViewModel {
             get
@@ -146,6 +156,12 @@ namespace adrilight.ViewModel
         #endregion
 
         #region Automation
+        public AutomationCollectionViewModel AutomationCollectionViewModel {
+            get
+            {
+                return kernel.Get<AutomationCollectionViewModel>();
+            }
+        }
         public AutomationManagerViewModel AutomationManagerViewModel {
             get
             {

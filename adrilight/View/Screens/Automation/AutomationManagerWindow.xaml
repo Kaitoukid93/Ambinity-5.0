@@ -9,9 +9,10 @@
            
            mc:Ignorable="d"
            Background="{DynamicResource RegionBrush}"
-           d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
-           DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
+           d:DataContext="{Binding Source={StaticResource Locator}, Path=AutomationManagerViewModel}"
+           DataContext="{Binding Source={StaticResource Locator}, Path=AutomationManagerViewModel}"
            SizeToContent="Height"
+           NonClientAreaContent="{Binding NonClientAreaContent,Mode=TwoWay}"
            xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
            x:Name="window"
            Width="800"
@@ -123,9 +124,16 @@
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
-        <ContentControl>
-            //bind current page
-        </ContentControl>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <ContentPresenter Grid.Row="1"
+                              Content="{Binding SelectedPage.Content}">
+            </ContentPresenter>
+        </Grid>
     </Grid>
-    
+
 </hc:Window>

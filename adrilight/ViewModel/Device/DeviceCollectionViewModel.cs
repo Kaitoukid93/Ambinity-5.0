@@ -20,21 +20,30 @@ namespace adrilight.ViewModel
         #region Construct
         public DeviceCollectionViewModel(DeviceManager deviceManager)
         {
-            AvailableTools = new ObservableCollection<CollectionItemTool>();
-            AvailableDevices = new ItemsCollection();
+
             _devicemanager = deviceManager;
             CommandSetup();
         }
 
         #endregion
+        ~DeviceCollectionViewModel() { 
+        
+        
+        }
 
-
+        #region Events
+        private void OnItemCheckStatusChanged(IGenericCollectionItem item)
+        {
+            UpdateTools();
+        }
+        #endregion
 
         #region Properties
         public ItemsCollection AvailableDevices { get; set; }
         private DeviceManager _devicemanager;
         public ObservableCollection<CollectionItemTool> AvailableTools { get; set; }
         private string _warningMessage = adrilight_shared.Properties.Resources.DeviceManager_DisConnect_Warning_Message;
+        public bool ShowToolBar => AvailableTools.Count > 0;
         public string WarningMessage {
             get
             {
@@ -52,11 +61,13 @@ namespace adrilight.ViewModel
         #region Methods
         public void Init()
         {
-            AvailableDevices.Items.Clear();
-            foreach(DeviceSettings device in _devicemanager.AvailableDevices)
+            AvailableTools = new ObservableCollection<CollectionItemTool>();
+            AvailableDevices = new ItemsCollection();
+            foreach (DeviceSettings device in _devicemanager.AvailableDevices)
             {
                 AvailableDevices.AddItem(device);
             }
+            AvailableDevices.ItemCheckStatusChanged += OnItemCheckStatusChanged;
         }
         private void CommandSetup()
         {
@@ -68,7 +79,7 @@ namespace adrilight.ViewModel
                 switch (p)
                 {
                     case "delete":
-                        AvailableDevices.RemoveSelectedItems(true);
+                       
                         break;
                 }
                 UpdateTools();
@@ -85,12 +96,10 @@ namespace adrilight.ViewModel
         {
             //clear Tool
             AvailableTools?.Clear();
-            var selectedItems = AvailableDevices.Items.Where(d => d.IsSelected).ToList();
-            if (selectedItems == null)
-                return;
-            if (selectedItems.Count == 0)
-                return;
+            var selectedItems = AvailableDevices.Items.Where(d => d.IsChecked).ToList();
+            if(selectedItems!=null&& selectedItems.Count>0)
             AvailableTools.Add(DeleteTool());
+            RaisePropertyChanged(nameof(ShowToolBar));
 
         }
         private CollectionItemTool DeleteTool()
@@ -102,6 +111,11 @@ namespace adrilight.ViewModel
                 CommandParameter = "delete"
 
             };
+        }
+        public void Dispose()
+        {
+            AvailableDevices = null;
+            AvailableTools = null;
         }
         //posibility to add new device tools
         #endregion

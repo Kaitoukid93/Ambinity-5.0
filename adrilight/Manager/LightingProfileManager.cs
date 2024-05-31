@@ -68,6 +68,14 @@ namespace adrilight.Manager
         {
             _decoder.Play(playlist);
         }
+        public void DeActivatePlaylist(LightingProfilePlaylist playlist)
+        {
+            _decoder.Stop();
+        }
+        public void WindowsStatusChanged(bool status)
+        {
+            _decoder.WindowsStatusChanged(status);
+        }
         #endregion
 
     }

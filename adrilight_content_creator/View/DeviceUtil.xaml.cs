@@ -13,7 +13,6 @@ namespace adrilight_content_creator.View
         public DeviceUtil()
         {
             InitializeComponent();
-            this.DataContext = new DeviceUtilViewModel();
         }
         public class DeviceUtilSelectableViewPart : ISelectableViewPart
         {

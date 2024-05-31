@@ -32,13 +32,17 @@ namespace adrilight.ViewModel.Automation
         #endregion
 
         #region Events
-
+        private void OnItemCheckStatusChanged(IGenericCollectionItem item)
+        {
+            UpdateTools();
+        }
         #endregion
 
 
         #region Properties
         public ItemsCollection AvailableAutomations { get; set; }
         public ObservableCollection<CollectionItemTool> AvailableTools { get; set; }
+        public bool ShowToolBar => AvailableTools.Count > 0;
         private DialogService _dialogService;
         private AutomationManager _automationManager;
         private string _warningMessage;
@@ -64,7 +68,9 @@ namespace adrilight.ViewModel.Automation
             {
                 AvailableAutomations.AddItem(automation);
             }
+            AvailableAutomations.ItemCheckStatusChanged += OnItemCheckStatusChanged;
         }
+
         private void CommandSetup()
         {
             CollectionItemToolCommand = new RelayCommand<string>((p) =>
@@ -75,7 +81,18 @@ namespace adrilight.ViewModel.Automation
                 switch (p)
                 {
                     case "delete":
-                        AvailableAutomations.RemoveSelectedItems(true);
+                        var vm = new DeleteDialogViewModel(adrilight_shared.Properties.Resources.DeleteDialog_Name, adrilight_shared.Properties.Resources.DeleteDialog_Confirm_Header);
+                        _dialogService.ShowDialog<DeleteDialogViewModel>(result =>
+                        {
+                            if (result == "True")
+                            {
+                                //tell automation manager to add new automation
+                                _automationManager.RemoveSelectedAutomation();
+                                Init();
+                            }
+
+                        }, vm);
+                        
                         break;
                 }
                 UpdateTools();
@@ -83,7 +100,7 @@ namespace adrilight.ViewModel.Automation
             AutomationCardClickCommand = new RelayCommand<IGenericCollectionItem>((p) =>
             {
                 return true;
-            }, async (p) =>
+            }, (p) =>
             {
                 AutomationCardClicked?.Invoke(p);
             });
@@ -92,7 +109,7 @@ namespace adrilight.ViewModel.Automation
                 return true;
             }, (p) =>
             {
-                var vm = new AddNewDialogViewModel(adrilight_shared.Properties.Resources.AddNew, "New Playlist", null);
+                var vm = new AddNewDialogViewModel(adrilight_shared.Properties.Resources.AddNew, "New Automation", null);
                 _dialogService.ShowDialog<AddNewDialogViewModel>(result =>
                 {
                     if (result == "True")
@@ -103,18 +120,22 @@ namespace adrilight.ViewModel.Automation
 
                 }, vm);
             });
+            AutomationPlayButtonClickCommand = new RelayCommand<AutomationSettings>((p) =>
+            {
+                return true;
+            }, (p) =>
+            {
+                _automationManager.ExecuteAutomation(p);
+            });
         }
         private void UpdateTools()
         {
             //clear Tool
             AvailableTools?.Clear();
-            var selectedItems = AvailableAutomations.Items.Where(d => d.IsSelected).ToList();
-            if (selectedItems == null)
-                return;
-            if (selectedItems.Count == 0)
-                return;
-            AvailableTools.Add(DeleteTool());
-
+            var selectedItems = AvailableAutomations.Items.Where(d => d.IsChecked).ToList();
+            if (selectedItems != null && selectedItems.Count > 0)
+                AvailableTools.Add(DeleteTool());
+            RaisePropertyChanged(nameof(ShowToolBar));
         }
         private CollectionItemTool DeleteTool()
         {
@@ -122,7 +143,9 @@ namespace adrilight.ViewModel.Automation
                 Name = "Delete",
                 ToolTip = "Delete Selected Items",
                 Geometry = "remove",
-                CommandParameter = "delete"
+                CommandParameter = "delete",
+                Command = CollectionItemToolCommand
+                
 
             };
         }
@@ -131,6 +154,7 @@ namespace adrilight.ViewModel.Automation
         #region Command
         public ICommand CollectionItemToolCommand { get; set; }
         public ICommand AutomationCardClickCommand { get; set; }
+        public ICommand AutomationPlayButtonClickCommand { get; set; }
         public ICommand OpenCreateNewAutomationCommand { get; set; }
         #endregion
 

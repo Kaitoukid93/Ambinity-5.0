@@ -30,7 +30,7 @@
                                 Margin="5"
                                 hc:BorderElement.CornerRadius="7"
                                 Style="{DynamicResource _mediumProfileDefaultButton}"
-                                Command="{Binding Path=DataContext.ShowLoadingScreenCommand, RelativeSource={RelativeSource AncestorType={x:Type local:DeviceCollectionView}}}"
+                                Command="{Binding Path=DataContext.DeviceCardClickCommand, RelativeSource={RelativeSource AncestorType={x:Type local:DeviceCollectionView}}}"
                                 CommandParameter="{Binding .}"
                                 BorderThickness="0"
                                 Background="{DynamicResource MainContentBackgroundBrush}"
@@ -71,8 +71,6 @@
                                                            FontWeight="SemiBold"
                                                            TextTrimming="CharacterEllipsis" />
                                                 <CheckBox IsChecked="{Binding IsChecked}"
-                                                          Command="{Binding Path=DataContext.ItemCheckUncheckCommand, RelativeSource={RelativeSource AncestorType={x:Type local:DeviceCollectionView}}}"
-                                                          CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}}"
                                                           Margin="5"
                                                           BorderBrush="{DynamicResource SecondaryTextBrush}"
                                                           BorderThickness="1"
@@ -259,7 +257,7 @@
 
         </Grid>
         <Border  Margin="15,10"
-                 Visibility="{Binding ShowManagerToolBar,Converter={StaticResource Boolean2VisibilityReConverter}}"
+                 Visibility="{Binding ShowToolBar,Converter={StaticResource Boolean2VisibilityReConverter}}"
                  Height="50"
                  Grid.Row="1"
                  CornerRadius="7"
@@ -279,7 +277,8 @@
                 </StackPanel>
             </Grid>
         </Border>
-        <hc:TransitioningContentControl Grid.Row="1" Visibility="{Binding ShowManagerToolBar,Converter={StaticResource Boolean2VisibilityConverter}}"
+        <hc:TransitioningContentControl Grid.Row="1"
+                                        Visibility="{Binding ShowToolBar,Converter={StaticResource Boolean2VisibilityConverter}}"
                                         TransitionMode="Top2BottomWithFade">
             <Border  Margin="15,10"
                      Height="50"
@@ -317,7 +316,7 @@
                           HorizontalAlignment="Stretch"
                           VerticalAlignment="Stretch"
                           ItemTemplate="{DynamicResource _deviceCardTemplate}"
-                          ItemsSource="{Binding Items}">
+                          ItemsSource="{Binding AvailableDevices.Items}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel Orientation="Horizontal" />

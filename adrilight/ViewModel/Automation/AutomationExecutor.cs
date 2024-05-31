@@ -10,12 +10,12 @@ namespace adrilight.ViewModel.Automation
 {
     public class AutomationExecutor
     {
-        public AutomationExecutor(DeviceCollectionViewModel devicecollection, LightingProfileManager lightingProfileManager)
+        public AutomationExecutor(DeviceManager manager, LightingProfileManager lightingProfileManager)
         {
-            _deviceCollection = devicecollection;
+            _deviceManager = manager;
             _lightingProfileManager = lightingProfileManager;
         }
-        private DeviceCollectionViewModel _deviceCollection;
+        private DeviceManager _deviceManager;
         private LightingProfileManager _lightingProfileManager;
         public void Execute(AutomationSettings automation)
         {
@@ -24,7 +24,7 @@ namespace adrilight.ViewModel.Automation
             foreach (var action in automation.Actions)
             {
 
-                var targetDevice = _deviceCollection.AvailableDevices.Items.Where(x => (x as DeviceSettings).DeviceUID == action.TargetDeviceUID).FirstOrDefault() as DeviceSettings;
+                var targetDevice = _deviceManager.AvailableDevices.Where(x => (x as DeviceSettings).DeviceUID == action.TargetDeviceUID).FirstOrDefault() as DeviceSettings;
                 if (targetDevice == null)
                 {
                     continue;

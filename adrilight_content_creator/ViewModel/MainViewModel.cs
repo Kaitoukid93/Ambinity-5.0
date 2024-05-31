@@ -906,7 +906,7 @@ namespace adrilight_content_creator.ViewModel
                 AvailableAddedDevices = new ObservableCollection<IDeviceSettings>();
             if (outputCount <= 0 || outputCount > 20)
                 return;
-            var newDevice = new SlaveDeviceHelpers().DefaultCreatedGenericDevice(
+            var newDevice = new DeviceConstructor().DefaultCreatedGenericDevice(
                                 new DeviceType(DeviceTypeEnum.Unknown),
                                 "Change name",
                                 "Không có",

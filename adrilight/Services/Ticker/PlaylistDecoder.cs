@@ -1,4 +1,5 @@
-﻿using adrilight.ViewModel;
+﻿using adrilight.Manager;
+using adrilight.ViewModel;
 using adrilight_shared.Helpers;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.Device;
@@ -7,6 +8,7 @@ using adrilight_shared.Settings;
 using GalaSoft.MvvmLight;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,17 +16,20 @@ using System.Timers;
 
 namespace adrilight.Ticker
 {
-    public class PlaylistDecoder : ViewModelBase
+    public class PlaylistDecoder
     {
         public event Action<LightingProfile> CurrentPlayingProfileChanged;
-        public PlaylistDecoder(IGeneralSettings generaSettings)
+        public event Action<bool> IsRunningPropertyChanged;
+        public event Action<LightingProfilePlaylist> PlaylistChanged;
+        public PlaylistDecoder(IGeneralSettings generaSettings,DeviceManager deviceManager)
         {
             GeneralSettings = generaSettings ?? throw new ArgumentNullException(nameof(generaSettings));
+            _deviceManager = deviceManager;
         }
 
         #region private field
         private LightingProfilePlaylist _selectedPlaylist;
-        public ObservableCollection<IDeviceSettings> AvailableDevices { get; }
+        private DeviceManager _deviceManager;
         private static bool _isWindowOpen;
         #endregion
 
@@ -38,12 +43,17 @@ namespace adrilight.Ticker
             set
             {
                 _isRunning = value;
-                RaisePropertyChanged();
+                IsRunningPropertyChanged?.Invoke(_isRunning);
             }
         }
         public bool NeededRefreshing { get; private set; } = false;
         public object Lock { get; } = new object();
         #endregion
+
+        public void Init()
+        {
+
+        }
         public void Play(LightingProfilePlaylist playlist)
         {
             var valid = playlist != null && playlist.LightingProfiles != null && playlist.LightingProfiles != null && playlist.LightingProfiles.Count > 0;
@@ -51,6 +61,7 @@ namespace adrilight.Ticker
                 return;
             _selectedPlaylist?.StopPlaylist();
             _selectedPlaylist = playlist;
+            PlaylistChanged?.Invoke(playlist);
             _selectedPlaylist.IsPlaying = true;
             _selectedPlaylist.ResetProfilesPlayingState();
             _selectedPlaylist.CurrentPlayingProfileIndex = 0;
@@ -197,7 +208,7 @@ namespace adrilight.Ticker
             {
                 StopTimer();
             }
-            foreach (var device in AvailableDevices)
+            foreach (var device in _deviceManager.AvailableDevices)
             {
                 if (!device.IsEnabled)
                     continue;

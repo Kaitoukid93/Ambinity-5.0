@@ -11,6 +11,8 @@ namespace adrilight_shared.Models.Automation
         private string _targetDeviceUID;
         private string _targetDeviceType;
         private string _targetDeviceName;
+        private string _geometry;
+
 
         private ActionType _actionType;
         private ActionParameter _actionParameter;
@@ -19,6 +21,7 @@ namespace adrilight_shared.Models.Automation
         public string TargetDeviceName { get => _targetDeviceName; set { Set(() => TargetDeviceName, ref _targetDeviceName, value); } }
         public ActionType ActionType { get => _actionType; set { Set(() => ActionType, ref _actionType, value); } }
         public ActionParameter ActionParameter { get => _actionParameter; set { Set(() => ActionParameter, ref _actionParameter, value); } }
+        public string Geometry { get => _geometry; set { Set(() => Geometry, ref _geometry, value); } }
 
 
 

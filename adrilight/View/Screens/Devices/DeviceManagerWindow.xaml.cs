@@ -1,14 +1,16 @@
-﻿using System;
+﻿using HandyControl.Controls;
+using System;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using Window = HandyControl.Controls.Window;
 
 namespace adrilight.View
 {
     /// <summary>
     /// Interaction logic for PaletteEditWindow.xaml
     /// </summary>
-    public partial class DeviceManagerWindow
+    public partial class DeviceManagerWindow :Window
     {
         public DeviceManagerWindow()
         {
@@ -25,8 +27,6 @@ namespace adrilight.View
         protected override void OnContentRendered(EventArgs e)
         {
             base.OnContentRendered(e);
-
-
 
         }
     }

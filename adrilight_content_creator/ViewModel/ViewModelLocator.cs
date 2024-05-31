@@ -1,4 +1,5 @@
-﻿using GalaSoft.MvvmLight;
+﻿using adrilight_shared.ViewModel;
+using GalaSoft.MvvmLight;
 using Ninject;
 using System;
 
@@ -35,7 +36,24 @@ namespace adrilight_content_creator.ViewModel
                 return kernel.Get<MainViewModel>();
             }
         }
-
+        public DeviceUtilViewModel DeviceUtilViewModel
+        {
+            get { return kernel.Get<DeviceUtilViewModel>(); }
+        }
+        public DeviceExporterViewModel DeviceExporterViewModel
+        {
+            get
+            {
+                return kernel.Get<DeviceExporterViewModel>();
+            }
+        }
+        public OutputMappingViewModel OutputMappingViewModel
+        {
+            get
+            {
+                return kernel.Get<OutputMappingViewModel>();
+            }
+        }
         public static void Cleanup()
         {
             // TODO Clear the ViewModels

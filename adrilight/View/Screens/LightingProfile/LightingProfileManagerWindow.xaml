@@ -6,7 +6,7 @@
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
            xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
-           xmlns:behavior="clr-namespace:adrilight_shared.Behavior;assembly=adrilight_shared"
+           xmlns:local ="clr-namespace:adrilight.View"
            Background="{DynamicResource RegionBrush}"
            mc:Ignorable="d"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=LightingProfileManagerViewModel}"
@@ -46,89 +46,9 @@
         <ContentPresenter Content="{Binding SelectedPage.Content}" />
         
         <Grid VerticalAlignment="Bottom">
-            <StackPanel>
-                <Grid>
-                    <Border Margin="10"
-                            CornerRadius="10"
-                            
-                            Background="{DynamicResource MainContentBackgroundBrush}"
-                            Height="100">
-                        <Border.Effect>
-                            <DropShadowEffect BlurRadius="10"
-                                              Color="Black"
-                                              Opacity="0.8"
-                                              ShadowDepth="2"
-                                              Direction="0"/>
-                        </Border.Effect>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <Grid Grid.Column="0">
-                                <hc:Gravatar HorizontalAlignment="Left"
-                                             VerticalAlignment="Bottom"
-                                             Width="80"
-                                             Height="80"
-                                             Margin="10"
-                                             Id="{Binding CurrentPlayingProfile.Name}">
-
-                                </hc:Gravatar>
-                            </Grid>
-                            <Grid Grid.Column="1">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="auto" />
-                                    <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
-                                <Grid Grid.Row="0">
-                                    <ProgressBar IsIndeterminate="False"
-                                                 behavior:ProgressBarSmoother.SmoothValue="{Binding  CurrentPlayingProfile.CurrentPlayingProgress}"
-                                                 Style="{DynamicResource ProgressBarFlat}"
-                                                 Margin="0,20,10,10"
-                                                 Height="2" />
-                                </Grid>
-                                <Grid Grid.Row="1">
-                                    <StackPanel>
-                                        <TextBlock HorizontalAlignment="Left"
-                                                   VerticalAlignment="Top"
-                                                   FontWeight="SemiBold"
-                                                   Style="{DynamicResource TextBlockTitle}"
-                                                   Text="{Binding CurrentPlayingProfile.Name}" />
-                                        <StackPanel Orientation="Horizontal">
-                                            <Border Margin="0,5"
-                                                    HorizontalAlignment="Left"
-                                                    Background="{DynamicResource SecondaryRegionBrush}"
-                                                    CornerRadius="2">
-                                                <TextBlock Text="{Binding CurrentPlayingProfile.ControlMode.BasedOn}"
-                                                           HorizontalAlignment="Left"
-                                                           Margin="5,2"
-                                                           Style="{DynamicResource TextBlockDefaultSecLight}"
-                                                           FontWeight="SemiBold" />
-                                            </Border>
-                                            <hc:Divider Margin="10,5"
-                                                        Orientation="Vertical"
-                                                        Visibility="{Binding Player.IsRunning,Converter={StaticResource Boolean2VisibilityConverter}}"
-                                                        LineStrokeThickness="1" />
-                                            <Border Margin="0,5"
-                                                    Visibility="{Binding Player.IsRunning,Converter={StaticResource Boolean2VisibilityConverter}}"
-                                                    HorizontalAlignment="Left"
-                                                    Background="{DynamicResource SecondaryRegionBrush}"
-                                                    CornerRadius="2">
-                                                <TextBlock Text="{Binding CurrentRunningPlaylist.Name}"
-                                                           HorizontalAlignment="Left"
-                                                           Margin="5,2"
-                                                           Style="{DynamicResource TextBlockDefaultSecLight}"
-                                                           FontWeight="SemiBold" />
-                                            </Border>
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Grid>
-                            </Grid>
-                        </Grid>
-                    </Border>
-
-                </Grid>
-            </StackPanel>
+            <local:LightingProfilePlayerView>
+                
+            </local:LightingProfilePlayerView>
         </Grid>
 
     </Grid>

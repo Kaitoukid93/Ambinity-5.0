@@ -212,7 +212,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid>
-                <Popup Effect="{DynamicResource EffectShadow5}"
+                <Popup IsOpen="{Binding AddToPopUpISOpen}" Effect="{DynamicResource EffectShadow5}"
                        Placement="Right"
                        PlacementTarget="{Binding ElementName=addToButton}"
                        AllowsTransparency="True"
@@ -237,7 +237,7 @@
                                         Click="Close_Popup_Button_Click"
                                         HorizontalAlignment="Left"
                                         BorderThickness="0"
-                                        Command="{Binding AddSelectedProfileToPlaylistCommand}"
+                                        Command="{Binding OpenCreateNewPlaylistCommand}"
                                         Content="Add new playList" />
                                 <hc:Divider Margin="0"
                                             Orientation="Horizontal"
@@ -246,17 +246,16 @@
                                 <ItemsControl Margin="0,0,0,0"
                                               Background="Transparent"
                                               BorderThickness="0"
-                                              ItemsSource="{Binding Path = DataContext.AvailableLightingProfilePlaylists.Items,RelativeSource={RelativeSource AncestorType={x:Type local:LightingProfileManagerWindow}}}">
+                                              ItemsSource="{Binding Path = DataContext.AvailableLightingProfilesPlaylists.Items,RelativeSource={RelativeSource AncestorType={x:Type local:ProfileCollectionView}}}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Button HorizontalAlignment="Left"
                                                     Background="Transparent"
                                                     Height="40"
-                                                    Click="Close_Popup_Button_Click"
                                                     hc:IconElement.Height="20"
+                                                    Command="{Binding Path = DataContext.AddSelectedProfileToPlaylistCommand,RelativeSource={RelativeSource AncestorType={x:Type local:ProfileCollectionView}}}"
+                                                    CommandParameter="{Binding .}"
                                                     hc:IconElement.Geometry="{DynamicResource profilePlaylist}"
-                                                    Command="{Binding Path = DataContext.SelectItems,RelativeSource={RelativeSource AncestorType={x:Type local:ProfileCollectionView}}}"
-                                                    CommandParameter="{Binding Name}"
                                                     BorderThickness="0">
                                                 <TextBlock Text="{Binding Name}"
                                                            MaxWidth="100"
@@ -315,7 +314,7 @@
                                                 Command="{Binding Command}"
                                                 CommandParameter="{Binding CommandParameter}"
                                                 hc:IconElement.Height="15"
-                                                Content="Remove" />
+                                                Content="{Binding Name}" />
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
@@ -333,7 +332,7 @@
                               HorizontalAlignment="Stretch"
                               VerticalAlignment="Stretch"
                               ItemTemplate="{DynamicResource _horizontalCardItemTemplate}"
-                              ItemsSource="{Binding AvailableLightingProfiles}">
+                              ItemsSource="{Binding AvailableLightingProfiles.Items}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel Orientation="Horizontal" />

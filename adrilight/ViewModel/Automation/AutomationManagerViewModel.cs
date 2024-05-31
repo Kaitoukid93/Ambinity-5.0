@@ -18,10 +18,12 @@ using System.Threading.Tasks;
 using adrilight_shared.Settings;
 using adrilight_shared.Models.Device;
 using adrilight.Manager;
+using static adrilight.View.AutomationCollectionView;
+using static adrilight.View.AutomationEditorView;
 
 namespace adrilight.ViewModel.Dashboard
 {
-    public class AutomationManagerViewModel : ViewModelBase
+    public class AutomationManagerViewModel : ItemsManagerViewModelBase
     {
         #region Construct
         public AutomationManagerViewModel(
@@ -36,8 +38,6 @@ namespace adrilight.ViewModel.Dashboard
             _automationCollectionViewModel = collectionViewModel;
             _automationManager.NewAutomationAdded += OnNewAutomationAdded;
             _automationCollectionViewModel.AutomationCardClicked += OnAutomationSelected;
-            LoadNonClientAreaData("Adrilight  |  Automation Manager", "automationManager", false, null);
-            LoadData();
             CommandSetup();
         }
         #endregion
@@ -63,9 +63,21 @@ namespace adrilight.ViewModel.Dashboard
         private AutomationManager _automationManager;
         private AutomationEditorViewModel _automationEditorViewModel;
         private bool _isManagerWindowOpen;
-        
+
         //public
-        public NonClientArea NonClientAreaContent { get; set; }
+        private NonClientArea _nonClientAreaContent;
+        //public
+        public NonClientArea NonClientAreaContent {
+            get
+            {
+                return _nonClientAreaContent;
+            }
+            set
+            {
+                _nonClientAreaContent = value;
+                RaisePropertyChanged();
+            }
+        }
         public IList<ISelectablePage> SelectablePages { get; set; }
         public ISelectablePage SelectedPage {
             get => _selectedPage;
@@ -121,8 +133,7 @@ namespace adrilight.ViewModel.Dashboard
             var automation = item as AutomationSettings;
             _automationEditorViewModel.Init(automation);
             //show advance settings view
-            var editorView = SelectablePages.Where(p => p.PageName == "Automation Editor").First();
-            (editorView.Content as AutomationEditorView).DataContext = _automationEditorViewModel;
+            var editorView = SelectablePages.Where(p => p is AutomationEditorViewPage).First();
             SelectedPage = editorView;
             ICommand backButtonCommand = new RelayCommand<string>((p) =>
             {
@@ -132,15 +143,14 @@ namespace adrilight.ViewModel.Dashboard
                 BacktoCollectionView();
             }
             );
-            LoadNonClientAreaData("Adrilight  |  Automation Manager | " + automation.Name, "automationManager", true, backButtonCommand);
+            LoadNonClientAreaData("Adrilight  |  Automation Manager | " + automation.Name, "auto", true, backButtonCommand);
 
         }
         private void BacktoCollectionView()
         {
-            LoadNonClientAreaData("Adrilight  |  Automation Manager", "automationManager", false, null);
+            LoadNonClientAreaData("Adrilight  |  Automation Manager", "auto", false, null);
             _automationCollectionViewModel.Init();
-            var collectionView = SelectablePages.Where(p => p.PageName == "Automations Collection").First();
-            (collectionView as AutomationCollectionView).DataContext = _automationCollectionViewModel;
+            var collectionView = SelectablePages.Where(p => p is AutomationCollectionViewPage).First();
             SelectedPage = collectionView;
 
         }
@@ -155,7 +165,7 @@ namespace adrilight.ViewModel.Dashboard
             });
 
         }
-        public void LoadData()
+        public override void LoadData()
         {
             BacktoCollectionView();
         }

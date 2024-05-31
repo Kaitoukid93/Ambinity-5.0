@@ -7,6 +7,7 @@ using System.Windows;
 using GalaSoft.MvvmLight;
 using adrilight_shared.Models.Stores;
 using adrilight_shared.Models.RelayCommand;
+using adrilight_shared.Models.Device;
 
 namespace adrilight_shared.ViewModel
 {
@@ -146,6 +147,14 @@ namespace adrilight_shared.ViewModel
         public void Dispose()
         {
             GC.SuppressFinalize(this);
+        }
+        public void AddItem(IDrawable item)
+        {
+            Canvas.Items.Add(item);
+        }
+        public void ClearAll()
+        {
+            Canvas.Items.Clear();
         }
         #endregion
 
