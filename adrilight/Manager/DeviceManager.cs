@@ -32,7 +32,7 @@ namespace adrilight.Manager
         private string DevicesCollectionFolderPath => Path.Combine(JsonPath, "Devices");
         #region Construct
         public DeviceManager(DeviceDBManager dbManager,
-            AdrilightSFTPClient sFtpClient,
+            AdrilightDeviceManagerSFTPClient sFtpClient,
             DeviceDiscovery deviceDiscovery,
             DeviceLightingServiceManager lightingServicemanager,
             DeviceConnectionManager connectionManager,
@@ -93,7 +93,7 @@ namespace adrilight.Manager
         private DialogService _dialogService;
         private DeviceHardwareSettings _deviceHardwareSettings;
         private DeviceConstructor _deviceConstructor;
-        private AdrilightSFTPClient _sftpClient;
+        private AdrilightDeviceManagerSFTPClient _sftpClient;
         private DeviceConnectionManager _deviceConnectionManager;
         private List<IDataStream> _dataStreams;
         public List<IDeviceSettings> AvailableDevices {

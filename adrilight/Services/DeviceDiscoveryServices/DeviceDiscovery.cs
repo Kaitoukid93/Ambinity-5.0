@@ -54,7 +54,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
         private CancellationTokenSource _cancellationTokenSource;
         
         
-        private AdrilightSFTPClient _sftpClient;
+        private AdrilightDeviceManagerSFTPClient _sftpClient;
         public void Start()
         {
             //if (App.IsPrivateBuild) return;

@@ -1,5 +1,5 @@
-﻿using adrilight_shared.Models.AppUser;
-using adrilight_shared.Models.Language;
+﻿using adrilight_shared.Models.Language;
+using adrilight_shared.Models.User;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
 using System.Globalization;

@@ -13,11 +13,5 @@ namespace adrilight.View
 
         }
 
-
-        protected override void OnContentRendered(EventArgs e)
-        {
-            base.OnContentRendered(e);
-            NonClientAreaContent = new StoreNonClientAreaContent();
-        }
     }
 }

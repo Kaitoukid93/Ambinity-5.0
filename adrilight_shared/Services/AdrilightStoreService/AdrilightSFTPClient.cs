@@ -1,5 +1,5 @@
 ﻿using adrilight_shared.Enums;
-using adrilight_shared.Models.AppUser;
+using adrilight_shared.Models.User;
 using adrilight_shared.Settings;
 using FTPServer;
 using GalaSoft.MvvmLight;
@@ -14,12 +14,12 @@ using System.Windows.Media;
 
 namespace adrilight_shared.Services.AdrilightStoreService
 {
-    public class AdrilightSFTPClient : ViewModelBase
+    public class AdrilightDeviceManagerSFTPClient : ViewModelBase
     {
         private string JsonPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "adrilight\\");
         private string CacheFolderPath => Path.Combine(JsonPath, "Cache");
         #region Construct
-        public AdrilightSFTPClient(IGeneralSettings generalSettings)
+        public AdrilightDeviceManagerSFTPClient(IGeneralSettings generalSettings)
         {
             _ftpServer = new FTPServerHelpers();
             _generalSettings = generalSettings;

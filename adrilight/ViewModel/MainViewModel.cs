@@ -13,6 +13,10 @@ using static adrilight.View.DeviceControlView;
 using System;
 using adrilight.Manager;
 using HandyControl.Controls;
+using adrilight_shared.View.NonClientAreaContent;
+using adrilight_shared.ViewModel;
+using adrilight_shared.Settings;
+using System.Threading.Tasks;
 
 namespace adrilight.ViewModel
 {
@@ -20,15 +24,18 @@ namespace adrilight.ViewModel
     {
         #region Construct
         public MainViewModel(IList<ISelectableViewPart> pages,
+            GeneralSettings generalSettings,
             DashboardViewModel dashboardViewModel,
             DeviceControlViewModel controlViewModel)
         {
+            _generalSettings = generalSettings;
             _dashboardViewModel = dashboardViewModel;
             _dashboardViewModel.DeviceClicked += OnDeviceClicked;
             _dashboardViewModel.ManagerButtonClicked += OnManageButtonClicked;
             _deviceControlViewModel = controlViewModel;
             _deviceControlViewModel.BackToDashboardEvent += BackToDashboard;
             SelectableViewParts = pages;
+            LoadNonClientAreaData();
             CommandSetup();
             Init();
         }
@@ -56,13 +63,13 @@ namespace adrilight.ViewModel
             switch (value)
             {
                 case "deviceManager":
-                    OpenManagerWindow(new DeviceManagerWindow());
+                     OpenManagerWindow(new DeviceManagerWindow());
                     break;
                 case "profileManager":
-                    OpenManagerWindow(new LightingProfileManagerWindow());
+                     OpenManagerWindow(new LightingProfileManagerWindow());
                     break;
                 case "automationManager":
-                    OpenManagerWindow(new AutomationManagerWindow());
+                     OpenManagerWindow(new AutomationManagerWindow());
                     break;
             }
         }
@@ -72,7 +79,20 @@ namespace adrilight.ViewModel
         private DashboardViewModel _dashboardViewModel;
         private DeviceControlViewModel _deviceControlViewModel;
         private ISelectableViewPart _selectedViewPart;
-
+        private GeneralSettings _generalSettings;
+        private NonClientAreaContent _nonClientAreaContent;
+        //public
+        public NonClientAreaContent NonClientAreaContent {
+            get
+            {
+                return _nonClientAreaContent;
+            }
+            set
+            {
+                _nonClientAreaContent = value;
+                RaisePropertyChanged();
+            }
+        }
         public IList<ISelectableViewPart> SelectableViewParts { get; set; }
         public ISelectableViewPart SelectedViewPart {
             get => _selectedViewPart;
@@ -101,6 +121,14 @@ namespace adrilight.ViewModel
             }, (p) =>
             {
                 Init();
+
+            });
+            OpenAdrilightStoreWindowCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            }, async (p) =>
+            {
+                 OpenManagerWindow(new AmbinoOnlineStoreView());
 
             });
         }
@@ -133,15 +161,25 @@ namespace adrilight.ViewModel
             window.Owner = App.Current.MainWindow;
             window.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
             window.Closed += ManagerWindow_Closed;
+            window.Show();
             var dtcntx = window.DataContext as ItemsManagerViewModelBase;
             dtcntx?.LoadData();
-            window.Show();
+            
+        }
+        private void LoadNonClientAreaData()
+        {
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                NonClientAreaContent = new NonClientAreaContent(_generalSettings.AppCulture.Culture);
+            });
+
         }
         #endregion
 
         #region Icommand
         public ICommand WindowClosingCommand { get; set; }
         public ICommand OpenMainWindowCommand { get; set; }
+        public ICommand OpenAdrilightStoreWindowCommand { get; set; }
         #endregion
 
     }

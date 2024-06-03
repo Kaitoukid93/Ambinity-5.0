@@ -7,7 +7,9 @@ using adrilight.Services.OpenRGBService;
 using adrilight.Ticker;
 using adrilight.Util;
 using adrilight.View;
+using adrilight.View.Screens.Store;
 using adrilight.ViewModel;
+using adrilight.ViewModel.AdrilightStore;
 using adrilight.ViewModel.Automation;
 using adrilight.ViewModel.Dashboard;
 using adrilight.ViewModel.Profile;
@@ -16,6 +18,7 @@ using adrilight_shared.Models.Automation;
 using adrilight_shared.Models.Device;
 using adrilight_shared.Models.KeyboardHook;
 using adrilight_shared.Models.Lighting;
+using adrilight_shared.Models.Store;
 using adrilight_shared.Models.Stores;
 using adrilight_shared.Services;
 using adrilight_shared.Services.AdrilightStoreService;
@@ -30,8 +33,11 @@ using static adrilight.View.AutomationCollectionView;
 using static adrilight.View.AutomationEditorView;
 using static adrilight.View.DashboardView;
 using static adrilight.View.DeviceControlView;
+using static adrilight.View.OnlineItemDetailView;
 using static adrilight.View.PlaylistEditorView;
 using static adrilight.View.Screens.LightingProfile.ManagerCollectionView;
+using static adrilight.View.Screens.Store.StoreItemsCollectionView;
+using static adrilight.View.StoreHomePageView;
 
 namespace adrilight.Ninject
 {
@@ -57,7 +63,7 @@ namespace adrilight.Ninject
             Bind<EffectControlViewModel>().ToSelf().InSingletonScope();
             Bind<VerticalMenuControlViewModel>().ToSelf().InSingletonScope();
             Bind<DeviceControlEvent>().ToSelf().InSingletonScope();
-            ////
+            ////device manager
             Bind<DeviceManager>().ToSelf().InSingletonScope();
             Bind<DeviceDBManager>().ToSelf().InSingletonScope();
             Bind<DeviceConnectionManager>().ToSelf().InSingletonScope();
@@ -67,14 +73,17 @@ namespace adrilight.Ninject
             Bind<DeviceHardwareSettings>().ToSelf().InSingletonScope();
             Bind<DeviceLightingServiceManager>().ToSelf().InSingletonScope();
 
-            Bind<AdrilightSFTPClient>().ToSelf().InSingletonScope();
-
+            //ftp client
+            Bind<AdrilightDeviceManagerSFTPClient>().ToSelf().InSingletonScope();
+            Bind<AdrilightStoreSFTPClient>().ToSelf().InSingletonScope();
+            //profile manager
             Bind<LightingProfileManagerViewModel>().ToSelf().InSingletonScope();
             Bind<LightingProfilePlaylistEditorViewModel>().ToSelf().InSingletonScope();
             Bind<LightingProfileCollectionViewModel>().ToSelf().InSingletonScope();
             Bind<LightingProfilePlayerViewModel>().ToSelf().InSingletonScope();
             Bind<LightingProflileDBManager>().ToSelf().InSingletonScope();
 
+            //service
             Bind<AmbinityClient>().ToSelf().InSingletonScope();
             Bind<HWMonitor>().ToSelf().InSingletonScope();
             Bind<IContext>().To<WpfContext>().InSingletonScope();
@@ -82,6 +91,7 @@ namespace adrilight.Ninject
             Bind<DBmanager>().ToSelf().InSingletonScope();
             Bind<DeviceConstructor>().ToSelf().InSingletonScope();  
 
+            //automation
             Bind<AutomationManagerViewModel>().ToSelf().InSingletonScope();
             Bind<AutomationDialogViewModel>().ToSelf().InSingletonScope();
             Bind<AutomationEditorViewModel>().ToSelf().InSingletonScope();
@@ -90,6 +100,13 @@ namespace adrilight.Ninject
             Bind<AutomationManager>().ToSelf().InSingletonScope();
             Bind<AutomationExecutor>().ToSelf().InSingletonScope();
             Bind<AutomationDBManager>().ToSelf().InSingletonScope();
+
+            //store
+            Bind<AdrilightStoreHomePageViewModel>().ToSelf().InSingletonScope();
+            Bind<AdrilightStoreItemDetailViewModel>().ToSelf().InSingletonScope();
+            Bind<AdrilightStoreItemsCollectionViewModel>().ToSelf().InSingletonScope();
+            Bind<SearchBarViewModel>().ToSelf().InSingletonScope();
+            Bind<StoreCategoriesViewModel>().ToSelf().InSingletonScope();
 
             Bind<IDialogService>().To<DialogService>().InSingletonScope();
 
@@ -106,6 +123,11 @@ namespace adrilight.Ninject
 
             Bind<ISelectablePage>().To<AutomationCollectionViewPage>().WhenInjectedInto(typeof(AutomationManagerViewModel));
             Bind<ISelectablePage>().To<AutomationEditorViewPage>().WhenInjectedInto(typeof(AutomationManagerViewModel));
+
+            Bind<ISelectablePage>().To<StoreHomePageViewPage>().WhenInjectedInto(typeof(AdrilightStoreViewModel));
+            Bind<ISelectablePage>().To<StoreItemsCollectionViewPage>().WhenInjectedInto(typeof(AdrilightStoreViewModel));
+            Bind<ISelectablePage>().To<OnlineItemDetailViewPage>().WhenInjectedInto(typeof(AdrilightStoreViewModel));
+
             Bind< KeyboardHookManagerSingleton>().ToSelf().InSingletonScope();
             if (generalSettings.ScreenCapturingMethod == 0)
             {

@@ -1,18 +1,19 @@
-﻿<UserControl x:Class="adrilight.View.OnlineItemsCollectionView"
+﻿<UserControl x:Class="adrilight.View.Screens.Store.StoreItemsCollectionView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:adrilight.View.Screens.Store"
              xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
              xmlns:store="clr-namespace:adrilight_shared.Models.Store;assembly=adrilight_shared"
              xmlns:enums="clr-namespace:adrilight_shared.Enums;assembly=adrilight_shared"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
              mc:Ignorable="d"
-             Background="{StaticResource RegionBrush}"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
              d:DataContext="{Binding Source={StaticResource Locator}, Path=AdrilightStoreItemsCollectionViewModel}"
              DataContext="{Binding Source={StaticResource Locator}, Path=AdrilightStoreItemsCollectionViewModel}">
-
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -41,7 +42,7 @@
                         <Setter Property="Padding"
                                 Value="0" />
                         <!--<Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
-                <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>-->
+             <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>-->
                         <Setter Property="Background"
                                 Value="{DynamicResource MainContentBackgroundBrush}" />
                         <Setter Property="BorderBrush"
@@ -62,35 +63,35 @@
                                 Value="Stretch" />
 
                         <!--<Setter Property="ContextMenu">
-                    <Setter.Value>
-                        <ContextMenu >
-                            <MenuItem  Header="Share">
-                            </MenuItem>
-                            <MenuItem  Header="Delete" Command="{Binding PlacementTarget.Tag.LaunchDeleteSelectedDeviceWindowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" >
-                                <MenuItem.Icon>
-                                    <Path   Data="{StaticResource delete}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                </MenuItem.Icon>
-                            </MenuItem>
-                        </ContextMenu>
+                 <Setter.Value>
+                     <ContextMenu >
+                         <MenuItem  Header="Share">
+                         </MenuItem>
+                         <MenuItem  Header="Delete" Command="{Binding PlacementTarget.Tag.LaunchDeleteSelectedDeviceWindowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" >
+                             <MenuItem.Icon>
+                                 <Path   Data="{StaticResource delete}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
+                             </MenuItem.Icon>
+                         </MenuItem>
+                     </ContextMenu>
 
-                    </Setter.Value>
-                </Setter>-->
+                 </Setter.Value>
+             </Setter>-->
 
                         <!--<Setter Property="Tag" Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListView}}" />
-                        <Setter Property="ContextMenu">
-                            <Setter.Value>
-                                <ContextMenu>
-                                    <MenuItem Command="{Binding PlacementTarget.Tag.DeleteSelectedAutomationCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding .}"  Header="Delete">
-                                        <MenuItem.Icon>
-                                            <Path   Data="{DynamicResource delete}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                        </MenuItem.Icon>
+                     <Setter Property="ContextMenu">
+                         <Setter.Value>
+                             <ContextMenu>
+                                 <MenuItem Command="{Binding PlacementTarget.Tag.DeleteSelectedAutomationCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding .}"  Header="Delete">
+                                     <MenuItem.Icon>
+                                         <Path   Data="{DynamicResource delete}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
+                                     </MenuItem.Icon>
 
 
-                                    </MenuItem>
-                                </ContextMenu>
+                                 </MenuItem>
+                             </ContextMenu>
 
-                            </Setter.Value>
-                        </Setter>-->
+                         </Setter.Value>
+                     </Setter>-->
 
 
                         <Setter Property="Template">
@@ -204,7 +205,11 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </Grid.Style>
-                                            <hc:Gravatar Width="100" Height="100" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                            <hc:Gravatar Width="100"
+                                                         Height="100"
+                                                         Margin="0"
+                                                         HorizontalAlignment="Stretch"
+                                                         VerticalAlignment="Stretch"
                                                          Id="{Binding Name}">
                                             </hc:Gravatar>
                                         </Grid>

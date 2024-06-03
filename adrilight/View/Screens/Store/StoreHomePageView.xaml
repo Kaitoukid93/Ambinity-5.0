@@ -11,8 +11,8 @@
              xmlns:store="clr-namespace:adrilight_shared.Models.Store;assembly=adrilight_shared"
              mc:Ignorable="d"
              Background="{DynamicResource RegionBrush}"
-             d:DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
-             DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}">
+             d:DataContext="{Binding Source={StaticResource Locator}, Path=AdrilightStoreHomePageViewModel}"
+             DataContext="{Binding Source={StaticResource Locator}, Path=AdrilightStoreHomePageViewModel}">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -44,6 +44,8 @@
                                 Value="Stretch" />
                         <Setter Property="HorizontalAlignment"
                                 Value="Stretch" />
+                        <Setter Property="HorizontalContentAlignment"
+                                Value="Stretch" />
                         <Setter Property="Tag"
                                 Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListBox}}" />
                         <Setter Property="Template">
@@ -53,6 +55,7 @@
                                             BorderBrush="{TemplateBinding BorderBrush}"
                                             Margin="2"
                                             CornerRadius="9"
+                                            HorizontalAlignment="Stretch"
                                             BorderThickness="{TemplateBinding BorderThickness}"
                                             Background="{TemplateBinding Background}"
                                             Padding="{TemplateBinding Padding}"
@@ -121,8 +124,7 @@
                                  ToolTip="{Binding Description}"
                                  hc:BorderElement.CornerRadius="7"
                                  Height="240"
-                                 Width="160"
-                                
+                                 HorizontalAlignment="Stretch"
                                  Footer="{Binding Name}">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseLeftButtonDown">
@@ -133,7 +135,7 @@
                             <Border Margin="10"
                                     CornerRadius="7,7,7,7"
                                     Style="{StaticResource BorderClip}">
-                                <Grid  Margin="5">
+                                <Grid>
                                     <Grid.OpacityMask>
                                         <VisualBrush Visual="{Binding ElementName=Border1}" />
                                     </Grid.OpacityMask>
@@ -142,6 +144,7 @@
                                             Background="{DynamicResource MainContentBackgroundBrush}" />
                                     <Image Source="{Binding Thumb}"
                                            RenderOptions.BitmapScalingMode="HighQuality"
+                                           MaxWidth="100"
                                            Stretch="Uniform" />
                                 </Grid>
                             </Border>
@@ -153,19 +156,26 @@
                                         <!--Name and description-->
                                         <Grid>
                                             <Grid.RowDefinitions>
-                                                <RowDefinition Height="auto" />
                                                 <RowDefinition Height="*" />
+                                                <RowDefinition Height="auto" />
                                             </Grid.RowDefinitions>
                                             <Grid Grid.Row="0">
-                                                <TextBlock TextTrimming="CharacterEllipsis"
-                                                           Margin="15,0"
-                                                           VerticalAlignment="Top"
-                                                           HorizontalAlignment="Left"
-                                                           Text="{Binding DataContext.Name,RelativeSource={RelativeSource AncestorType=hc:Card}}"
-                                                           FontWeight="SemiBold"
-                                                           FontSize="15"
-                                                           Style="{DynamicResource TextBlockSubTitle}" />
+                                               
+                                               
                                             </Grid>
+                                            <hc:Row Margin="0,0,0,0">
+                                                <hc:Col Span="24">
+                                                    <TextBlock TextTrimming="CharacterEllipsis"
+                                                               Margin="15,0"
+                                                               VerticalAlignment="Top"
+                                                               HorizontalAlignment="Left"
+                                                               Text="{Binding DataContext.Name,RelativeSource={RelativeSource AncestorType=hc:Card}}"
+                                                               FontWeight="SemiBold"
+                                                               TextWrapping="Wrap"
+                                                               FontSize="15"
+                                                               Style="{DynamicResource TextBlockSubTitle}" />
+                                                </hc:Col>
+                                            </hc:Row>
                                             <!--download button-->
                                             <Grid  Grid.Row="1">
                                                 <Grid Visibility="{Binding DataContext.IsLocalExisted,RelativeSource={RelativeSource AncestorType=hc:Card},Converter={StaticResource Boolean2VisibilityReConverter},Mode=TwoWay}">
@@ -284,8 +294,7 @@
                                  ToolTip="{Binding Description}"
                                  hc:BorderElement.CornerRadius="7"
                                  Height="120"
-                                 Width="160"
-                               
+                                 MinWidth="150"
                                  Footer="{Binding Name}">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseLeftButtonDown">
@@ -304,6 +313,7 @@
                                             CornerRadius="2"
                                             Background="{DynamicResource MainContentBackgroundBrush}" />
                                     <Image Source="{Binding Thumb}"
+                                           MaxWidth="100"
                                            RenderOptions.BitmapScalingMode="HighQuality"
                                            Stretch="Uniform" />
                                 </Grid>
@@ -611,13 +621,14 @@
     <Grid>
         
         <ItemsControl VerticalAlignment="Top"
-                      HorizontalAlignment="Left"
-                      ItemsSource="{Binding AvailableHomePageCarousel}"
+                      HorizontalAlignment="Stretch"
+                      HorizontalContentAlignment="Stretch"
+                      ItemsSource="{Binding AvailableCarousels}"
                       ScrollViewer.CanContentScroll="False">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Grid Margin="10,15" VerticalAlignment="Center"
-                          HorizontalAlignment="Left">
+                    <Grid Margin="20,15" VerticalAlignment="Center"
+                          HorizontalAlignment="Stretch">
                         <StackPanel>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -660,15 +671,20 @@
                                 <ListBox ScrollViewer.CanContentScroll="False"
                                          hc:ScrollViewerAttach.IsDisabled="True"
                                          ItemContainerStyle="{DynamicResource ListViewContainerStyle}"
-                                         HorizontalAlignment="Left"
-                                         Background="Transparent"
+                                         HorizontalAlignment="Stretch"
+                                         HorizontalContentAlignment="Stretch"
                                          BorderThickness="0"
                                          ItemsSource="{Binding CarouselItem}">
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <UniformGrid Rows="1"
+                                                         Columns="{Binding ItemsSource.Count}" />
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
                                             <ContentControl Content="{Binding}">
                                                 <ContentControl.Style>
-
                                                     <Style TargetType="ContentControl">
                                                         <Setter Property="ContentTemplate"
                                                                 Value="{DynamicResource _verticalCardItemTemplate}" />
@@ -701,38 +717,17 @@
                                             </StackPanel>
                                         </ItemsPanelTemplate>
                                         <ItemsPanelTemplate x:Key="_listBoxUniformGridTemplate">
-                                            <UniformGrid Rows="2">
+                                            <UniformGrid HorizontalAlignment="Stretch" Rows="1" Columns="3">
 
                                             </UniformGrid>
                                         </ItemsPanelTemplate>
                                     </ListBox.Resources>
-                                    <ListBox.Style>
-                                        <Style TargetType="ListBox">
-                                            <Setter Property="ItemsPanel"
-                                                    Value="{DynamicResource _listBoxStackPanelTemplate}" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Path=DataContext.TemplateSelector, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
-                                                             Value="0">
-                                                    <Setter Property="ItemsPanel"
-                                                            Value="{DynamicResource _listBoxStackPanelTemplate}" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Path=DataContext.TemplateSelector, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
-                                                             Value="1">
-                                                    <Setter Property="ItemsPanel"
-                                                            Value="{DynamicResource _listBoxStackPanelTemplate}" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Path=DataContext.TemplateSelector, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}"
-                                                             Value="2">
-                                                    <Setter Property="ItemsPanel"
-                                                            Value="{DynamicResource _listBoxUniformGridTemplate}" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </ListBox.Style>
+                                  
                                     <ListBox.Template>
                                         <ControlTemplate TargetType="{x:Type ListBox}">
                                             <hc:ScrollViewer 
                                                              hc:ScrollViewerAttach.IsDisabled="True"
+                                                             HorizontalContentAlignment="Stretch"
                                                              HorizontalScrollBarVisibility="Hidden"
                                                              VerticalScrollBarVisibility="Hidden"
                                                              IsInertiaEnabled="True">

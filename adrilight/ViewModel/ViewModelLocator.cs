@@ -11,6 +11,8 @@
   See http://www.galasoft.ch/mvvm
 */
 
+using adrilight.View;
+using adrilight.ViewModel.AdrilightStore;
 using adrilight.ViewModel.Automation;
 using adrilight.ViewModel.Dashboard;
 using adrilight.ViewModel.Profile;
@@ -42,11 +44,43 @@ namespace adrilight.ViewModel
         /// Initializes a new instance of the ViewModelLocator class.
         /// </summary>
         /// 
-        
+     
         public ViewModelLocator(IKernel kernel)
         {
             this.kernel = kernel ?? throw new System.ArgumentNullException(nameof(kernel));
         }
+        #region Stores
+        public AdrilightStoreViewModel AdrilightStoreViewModel {
+            get
+            {
+                return kernel.Get<AdrilightStoreViewModel>();
+            }
+        }
+        public AdrilightStoreItemsCollectionViewModel AdrilightStoreItemsCollectionViewModel {
+            get
+            {
+                return kernel.Get<AdrilightStoreItemsCollectionViewModel>();
+            }
+        }
+        public SearchBarViewModel SearchBarViewModel {
+            get
+            {
+                return kernel.Get<SearchBarViewModel>();
+            }
+        }
+        public StoreCategoriesViewModel StoreCategoriesViewModel {
+            get
+            {
+                return kernel.Get<StoreCategoriesViewModel>();
+            }
+        }
+        public AdrilightStoreHomePageViewModel AdrilightStoreHomePageViewModel {
+            get
+            {
+                return kernel.Get<AdrilightStoreHomePageViewModel>();
+            }
+        }
+        #endregion
         #region Splash
         public SplashScreenViewModel SplashScreenViewModel {
             get

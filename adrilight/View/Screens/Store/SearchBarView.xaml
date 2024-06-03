@@ -1,0 +1,27 @@
+﻿<UserControl x:Class="adrilight.View.Screens.Store.SearchBarView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:adrilight.View.Screens.Store"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             mc:Ignorable="d"
+             d:DataContext="{Binding Source={StaticResource Locator}, Path=SearchBarViewModel}"
+             DataContext="{Binding Source={StaticResource Locator}, Path=SearchBarViewModel}">
+    <Grid>
+        <hc:SearchBar Effect="{DynamicResource EffectShadow1}"
+                      Style="{DynamicResource SearchBarPlus}"
+                      hc:InfoElement.Placeholder="Gõ từ khóa để tìm kiếm một item, ví dụ : Ambino Basic"
+                      Background="{DynamicResource MainContentBackgroundBrush}"
+                      Command="{Binding SearchContentCommitedCommand}"
+                      BorderThickness="0"
+                      CommandParameter="{Binding Text,RelativeSource={RelativeSource Self}}"
+                      FontSize="14"
+                      Margin="50,10,50,5"
+                      MaxWidth="600"
+                      MinWidth="100"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch">
+        </hc:SearchBar>
+    </Grid>
+</UserControl>

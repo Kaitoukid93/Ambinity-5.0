@@ -8,5 +8,9 @@ namespace adrilight.ViewModel.AdrilightStore
 {
     public class AdrilightStoreItemDetailViewModel
     {
+        public AdrilightStoreItemDetailViewModel()
+        {
+                
+        }
     }
 }

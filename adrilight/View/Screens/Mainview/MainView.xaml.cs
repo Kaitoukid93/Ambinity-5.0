@@ -239,13 +239,7 @@ namespace adrilight.View
         //    UnregisterHotKey(_windowHandle, HOTKEY_ID);
         //    base.OnClosed(e);
         //}
-        protected override void OnContentRendered(EventArgs e)
-        {
-            base.OnContentRendered(e);
-            //ViewModel = DataContext as MainViewViewModel;
-            //NonClientAreaContent = new NonClientAreaContent(ViewModel.GeneralSettings.AppCulture.Culture);
-            
-        }
+
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             //var vm = DataContext as MainViewViewModel;

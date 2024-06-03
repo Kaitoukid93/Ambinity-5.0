@@ -3,7 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       Height="42"
       xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
-      DataContext="{Binding Source={StaticResource Locator}, Path=MainViewViewModel}"
+      DataContext="{Binding Source={StaticResource Locator}, Path=MainViewModel}"
       xmlns:local ="clr-namespace:adrilight.View"
       xmlns:hc="https://handyorg.github.io/handycontrol">
     <Grid.Resources>
@@ -76,9 +76,9 @@
             </Button>
            
             <Button Padding="0"
-                    Command="{Binding OpenAmbinoStoreWindowCommand }"
+                    Command="{Binding OpenAdrilightStoreWindowCommand }"
                     hc:IconElement.Geometry="{DynamicResource onlineStore}"
-                    CommandParameter="Home"
+                    CommandParameter="store"
                     BorderBrush="Transparent"
                     Margin="10,5"
                     hc:IconElement.Width="18"

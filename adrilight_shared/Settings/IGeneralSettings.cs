@@ -1,7 +1,6 @@
-﻿using adrilight_shared.Models.AppUser;
-using adrilight_shared.Models.Language;
+﻿using adrilight_shared.Models.Language;
+using adrilight_shared.Models.User;
 using System.ComponentModel;
-using System.Globalization;
 using Color = System.Windows.Media.Color;
 
 namespace adrilight_shared.Settings

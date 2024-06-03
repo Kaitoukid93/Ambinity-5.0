@@ -15,6 +15,7 @@
            x:Name="window"
            AllowsTransparency="False"
            MinHeight="480"
+           NonClientAreaContent="{Binding NonClientAreaContent}"
            MinWidth="640"
            Closing="Window_Closing">
     <i:Interaction.Triggers>

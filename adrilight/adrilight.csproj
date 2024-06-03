@@ -241,6 +241,9 @@
     <Compile Include="ViewModel\AdrilightStore\AdrilightStoreHomePageViewModel.cs" />
     <Compile Include="ViewModel\AdrilightStore\AdrilightStoreItemDetailViewModel.cs" />
     <Compile Include="ViewModel\AdrilightStore\AdrilightStoreItemsCollectionViewModel.cs" />
+    <Compile Include="ViewModel\AdrilightStore\AdrilightStoreViewModel.cs" />
+    <Compile Include="ViewModel\AdrilightStore\SearchBarViewModel.cs" />
+    <Compile Include="ViewModel\AdrilightStore\StoreCategoriesViewModel.cs" />
     <Compile Include="ViewModel\Automation\AutomationCollectionViewModel.cs" />
     <Compile Include="ViewModel\Automation\AutomationEditorViewModel.cs" />
     <Compile Include="ViewModel\Automation\AutomationExecutor.cs" />
@@ -381,12 +384,23 @@
     <Compile Include="View\Screens\OOBExperience\SelectLanguageWindow.xaml.cs">
       <DependentUpon>SelectLanguageWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\Screens\Store\SearchBarView.xaml.cs">
+      <DependentUpon>SearchBarView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Screens\Store\StoreCatergoriesView.xaml.cs">
+      <DependentUpon>StoreCatergoriesView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Screens\Store\StoreHomePageView.xaml.cs" />
+    <Compile Include="View\Screens\Store\StoreItemsCollectionView.xaml.cs">
+      <DependentUpon>StoreItemsCollectionView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Screens\Store\StoreNonClientArea.xaml.cs">
+      <DependentUpon>StoreNonClientArea.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Screens\SurfaceEditor\PIDQuickEditNonClientAreaContent.xaml.cs" />
     <Compile Include="View\Screens\Debug\DebugNonClientAreaContent.xaml.cs" />
     <Compile Include="View\Screens\DeviceDiscovery\DeviceSearchingScreen.xaml.cs" />
     <Compile Include="View\Screens\SurfaceEditor\SurfaceEditorNonClientAreaContent.xaml.cs" />
-    <Compile Include="View\Screens\Store\StoreNonClientAreaContent.xaml.cs" />
     <Compile Include="View\Screens\SurfaceEditor\PIDQuickEditWindow.xaml.cs" />
     <Compile Include="View\Screens\OOBExperience\DeviceOutputMapingView.xaml.cs" />
     <Compile Include="View\Screens\Mainview\ControlView\IDEditToolBarView.xaml.cs" />
@@ -579,9 +593,25 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="View\Screens\Store\SearchBarView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Screens\Store\StoreCatergoriesView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\Screens\Store\StoreHomePageView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Screens\Store\StoreItemsCollectionView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\Screens\Store\StoreNonClientArea.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\Screens\SurfaceEditor\PIDQuickEditNonClientAreaContent.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -596,10 +626,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\Screens\SurfaceEditor\SurfaceEditorNonClientAreaContent.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\Screens\Store\StoreNonClientAreaContent.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

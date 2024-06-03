@@ -170,6 +170,7 @@
     <Compile Include="Models\Lighting\LightingProflileDBManager.cs" />
     <Compile Include="Models\Stores\ISelectableViewParts.cs" />
     <Compile Include="Models\Stores\DeviceControlEvent.cs" />
+    <Compile Include="Models\Store\AdrilightStoreSFTPClient.cs" />
     <Compile Include="Models\VerticalMenu\IVerticalMenuItem.cs" />
     <Compile Include="Services\AdrilightStoreService\AdrilightSFTPClient.cs" />
     <Compile Include="Services\DialogService.cs" />
@@ -199,7 +200,7 @@
     <Compile Include="Helpers\SlaveDeviceHelpers.cs" />
     <Compile Include="Models\AppProfile\AppProfile.cs" />
     <Compile Include="Models\AppProfile\DeviceProfile.cs" />
-    <Compile Include="Models\AppUser\AppUser.cs" />
+    <Compile Include="Models\User\AppUser.cs" />
     <Compile Include="Models\Audio\AudioDevice.cs" />
     <Compile Include="Models\Audio\ColumnDataModel.cs" />
     <Compile Include="Models\Audio\VisualizerDataModel.cs" />

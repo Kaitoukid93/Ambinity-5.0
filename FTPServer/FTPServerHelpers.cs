@@ -118,7 +118,7 @@ namespace FTPServer
 
                 using (var remoteFileStream = sFTP.OpenRead(thumbPath))
                 {
-                    thumb = StreamToImageSource(remoteFileStream, 200);
+                    thumb = StreamToImageSource(remoteFileStream, 100);
                 }
 
                 return await Task.FromResult(thumb);

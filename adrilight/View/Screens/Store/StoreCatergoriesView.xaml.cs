@@ -13,14 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace adrilight.View
+namespace adrilight.View.Screens.Store
 {
     /// <summary>
-    /// Interaction logic for NonClientAreaContent.xaml
+    /// Interaction logic for StoreCatergoriesView.xaml
     /// </summary>
-    public partial class StoreNonClientAreaContent : Grid
+    public partial class StoreCatergoriesView : UserControl
     {
-        public StoreNonClientAreaContent()
+        public StoreCatergoriesView()
         {
             InitializeComponent();
         }
