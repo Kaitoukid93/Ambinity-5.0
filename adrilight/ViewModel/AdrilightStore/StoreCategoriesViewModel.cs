@@ -13,7 +13,7 @@ namespace adrilight.ViewModel.AdrilightStore
 {
     public class StoreCategoriesViewModel : ViewModelBase
     {
-        public Action<StoreCategory> SelectedCatergoryChanged;
+        public event Action<StoreCategory> SelectedCatergoryChanged;
         public StoreCategoriesViewModel(AdrilightStoreSFTPClient client)
         {
             CommandSetup();

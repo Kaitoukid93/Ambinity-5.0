@@ -38,18 +38,34 @@ namespace adrilight.ViewModel.AdrilightStore
             _itemsCollection.ItemClicked += OnItemClicked;
         }
         #region Events
-        private void OnSelectedCategoryChanged(StoreCategory catergory)
+        private async void OnSelectedCategoryChanged(StoreCategory catergory)
         {
+            _itemsCollection.CurrentFilter = new StoreFilterModel();
+            if (catergory.Name == "Home")
+            {
+                GotoToHomePageView();
+                return;
+            }
+            ProgressBarVisibility = true;
             GotoCollectionView();
+            _itemsCollection.CurrentFilter.CatergoryFilter = catergory;
+            await Task.Run(() => _itemsCollection.UpdateCollectionView(0, _progress));
+            await Task.Delay(500);
+            ProgressBarVisibility = false;
         }
         private void OnItemClicked(OnlineItemModel item)
         {
             GotoItemDetailView(item);
         }
-        private void OnSearchContentCommited(string content)
+        private async void OnSearchContentCommited(string content)
         {
             //change nonclient area text
+            ProgressBarVisibility = true;
             GotoCollectionView();
+            _itemsCollection.CurrentFilter.NameFilter = content;
+            await Task.Run(() => _itemsCollection.UpdateCollectionView(0, _progress));
+            await Task.Delay(500);
+            ProgressBarVisibility = false;
         }
         #endregion
         private SearchBarViewModel _searchBar;
@@ -58,6 +74,31 @@ namespace adrilight.ViewModel.AdrilightStore
         private AdrilightStoreHomePageViewModel _homePage;
         private StoreNonClientArea _nonClientAreaContent;
         private ISelectablePage _selectedPage;
+        private IProgress<int> _progress;
+        private bool _progressBarVisibility;
+        public bool ProgressBarVisibility {
+            get
+            {
+                return _progressBarVisibility;
+            }
+            set
+            {
+                _progressBarVisibility = value;
+                RaisePropertyChanged();
+            }
+        }
+        private int _currentProgressBarValue;
+        public int CurrentProgressBarValue {
+            get
+            {
+                return _currentProgressBarValue;
+            }
+            set
+            {
+                _currentProgressBarValue = value;
+                RaisePropertyChanged();
+            }
+        }
         public IList<ISelectablePage> SelectablePages { get; set; }
         //public
         public ISelectablePage SelectedPage {
@@ -86,21 +127,29 @@ namespace adrilight.ViewModel.AdrilightStore
         }
         public override async void LoadData()
         {
+            ProgressBarVisibility = true;
             GotoToHomePageView();
             await _storeCategories.Init();
             //_itemsCollection.Init();
-            await _homePage.Init();
+            _progress = new Progress<int>(percent =>
+            {
+                CurrentProgressBarValue = percent;
+            });
+            await _homePage.Init(_progress);
+            await Task.Delay(500);
+            ProgressBarVisibility = false;
+
         }
         private void GotoToHomePageView()
         {
-            LoadNonClientAreaData("Adrilight  |  Store | Home", "onlineStore", false, null);
+            LoadNonClientAreaData("Adrilight  |  Store  |  Home", "onlineStore", false, null);
             var homePageView = SelectablePages.Where(p => p is StoreHomePageViewPage).First();
             //init homepage view?
             SelectedPage = homePageView;
         }
         private void GotoCollectionView()
         {
-            LoadNonClientAreaData("Adrilight  |  Store | Items", "onlineStore", true, new RelayCommand<string>((p) =>
+            LoadNonClientAreaData("Adrilight  |  Store  |  Items", "onlineStore", true, new RelayCommand<string>((p) =>
             {
                 return true;
             }, (p) =>
@@ -113,7 +162,7 @@ namespace adrilight.ViewModel.AdrilightStore
         }
         private void GotoItemDetailView(OnlineItemModel item)
         {
-            LoadNonClientAreaData("Adrilight  |  Store | " + item.Name, "onlineStore", true, new RelayCommand<string>((p) =>
+            LoadNonClientAreaData("Adrilight  |  Store  |  " + item.Name, "onlineStore", true, new RelayCommand<string>((p) =>
             {
                 return true;
             }, (p) =>

@@ -15,6 +15,7 @@
                       Background="{DynamicResource MainContentBackgroundBrush}"
                       Command="{Binding SearchContentCommitedCommand}"
                       BorderThickness="0"
+                      hc:InfoElement.ShowClearButton="True"
                       CommandParameter="{Binding Text,RelativeSource={RelativeSource Self}}"
                       FontSize="14"
                       Margin="50,10,50,5"

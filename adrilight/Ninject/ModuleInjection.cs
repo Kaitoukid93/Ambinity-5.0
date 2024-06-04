@@ -107,6 +107,7 @@ namespace adrilight.Ninject
             Bind<AdrilightStoreItemsCollectionViewModel>().ToSelf().InSingletonScope();
             Bind<SearchBarViewModel>().ToSelf().InSingletonScope();
             Bind<StoreCategoriesViewModel>().ToSelf().InSingletonScope();
+            Bind<AdrilightStoreViewModel>().ToSelf().InSingletonScope();
 
             Bind<IDialogService>().To<DialogService>().InSingletonScope();
 

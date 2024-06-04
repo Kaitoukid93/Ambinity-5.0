@@ -7,6 +7,7 @@
            xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
            mc:Ignorable="d"
            xmlns:local="clr-namespace:adrilight.View.Screens.Store"
+           xmlns:behavior="clr-namespace:adrilight_shared.Behavior;assembly=adrilight_shared"
            Background="{StaticResource RegionBrush}"
            d:DataContext="{Binding Source={StaticResource Locator}, Path=AdrilightStoreViewModel}"
            DataContext="{Binding Source={StaticResource Locator}, Path=AdrilightStoreViewModel}"
@@ -37,6 +38,15 @@
             <RowDefinition Height="*" />
 
         </Grid.RowDefinitions>
+        <Grid Height="22">
+            <ProgressBar Margin="0,10"
+                         Visibility="{Binding ProgressBarVisibility,Converter={StaticResource Boolean2VisibilityConverter}}"
+                         Background="Transparent"
+                         Height="2"
+                         IsIndeterminate="False"
+                         behavior:ProgressBarSmoother.SmoothValue="{Binding CurrentProgressBarValue}"
+                         Style="{DynamicResource ProgressBarFlat}" />
+        </Grid>
         <!--Content-->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>

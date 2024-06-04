@@ -410,7 +410,6 @@
     <Compile Include="View\Screens\Mainview\ControlView\EffectControlView.xaml.cs" />
     <Compile Include="View\Screens\Mainview\ControlView\DeviceControlView.xaml.cs" />
     <Compile Include="View\Screens\Store\OnlineItemExporterView.xaml.cs" />
-    <Compile Include="View\Screens\Store\OnlineItemsCollectionView.xaml.cs" />
     <Compile Include="View\Screens\Store\OnlineItemDetailView.xaml.cs" />
     <Compile Include="View\Screens\Store\AmbinoOnlineStoreView.xaml.cs" />
     <Compile Include="View\Screens\Composition\MotionCollectionView.xaml.cs" />
@@ -662,10 +661,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="View\Screens\Store\OnlineItemExporterView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="View\Screens\Store\OnlineItemsCollectionView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

@@ -193,6 +193,22 @@ namespace adrilight_shared.Models.Store
         /// </summary>
         /// <param name="listAddress"></param>
         /// <returns></returns>
+        /// 
+
+        private void CheckItemForExistance(OnlineItemModel item)
+        {
+            var itemLocalInfo = GetInfoPath(item);
+            if (File.Exists(itemLocalInfo))
+            {
+                item.IsLocalExisted = true;
+                var json = File.ReadAllText(itemLocalInfo);
+                var localInfo = JsonConvert.DeserializeObject<OnlineItemModel>(json);
+                var v1 = new Version(localInfo.Version);
+                var v2 = new Version(item.Version);
+                if (v2 > v1)
+                    item.IsUpgradeAvailable = true;
+            }
+        }
         public async Task<List<OnlineItemModel>> GetStoreItems(List<string> listAddress)
         {
 
@@ -212,17 +228,7 @@ namespace adrilight_shared.Models.Store
                 var infoPath = url + "/info.json";
                 var info = _ftpServer.GetFiles<OnlineItemModel>(infoPath).Result;
                 info.Path = url;
-                var itemLocalInfo = GetInfoPath(info);
-                if (File.Exists(itemLocalInfo))
-                {
-                    info.IsLocalExisted = true;
-                    var json = File.ReadAllText(itemLocalInfo);
-                    var localInfo = JsonConvert.DeserializeObject<OnlineItemModel>(json);
-                    var v1 = new Version(localInfo.Version);
-                    var v2 = new Version(info.Version);
-                    if (v2 > v1)
-                        info.IsUpgradeAvailable = true;
-                }
+                CheckItemForExistance(info);
                 items.Add(info);
             }
             return await Task.FromResult(items);
@@ -244,6 +250,32 @@ namespace adrilight_shared.Models.Store
         /// </summary>
         /// <param name="filter"></param>
         /// <returns></returns>
+        /// 
+        private async Task<List<string>> FilterItemsByNameAndContent(List<string> items, string nameFilter)
+        {
+            var lowerFilter = string.Empty;
+            //filter name
+            if (nameFilter != null)
+                lowerFilter = nameFilter.ToLower();
+            //filter by supported device
+            var filteredItemAddress = new List<string>();
+            foreach (var address in items)
+            {
+                //get name
+                var itemName = await Task.Run(() => _ftpServer.GetFileOrFoldername(address).Name);
+                if (itemName.Contains("filters"))
+                    continue;
+                //get description content
+               // var descriptionPath = address + "/description.md";
+               // var description = await _ftpServer.GetStringContent(descriptionPath);
+                if (itemName.ToLower().Contains(lowerFilter) || lowerFilter == string.Empty)
+                {
+                    filteredItemAddress.Add(address);
+                }
+            }
+            return filteredItemAddress;
+        }
+
         public async Task<List<OnlineItemModel>> GetStoreItems(StoreFilterModel filter, int offset, int numItem)
         {
             var currentPageListItemAddress = new List<string>();
@@ -271,44 +303,34 @@ namespace adrilight_shared.Models.Store
             //filter item by name if exist
             if (listItemAddress != null && listItemAddress.Count > 0)
             {
-                var lowerFilter = string.Empty;
-                //filter name
-                if (currentnameFilter != null)
-                    lowerFilter = currentnameFilter.ToLower();
-                //filter by supported device
-
                 var filteredItemAddress = new List<string>();
-                foreach (var address in listItemAddress)
+                if (currentnameFilter!=null)
                 {
-                    //get name
-                    var itemName = _ftpServer.GetFileOrFoldername(address).Name;
-                    if (itemName.Contains("filters"))
-                        continue;
-                    //get description content
-                    var descriptionPath = address + "/description.md";
-                    var description = await _ftpServer.GetStringContent(descriptionPath);
-                    if (itemName.ToLower().Contains(lowerFilter) || lowerFilter == string.Empty || description.ToLower().Contains(lowerFilter))
-                    {
-                        filteredItemAddress.Add(address);
-                    }
+                    filteredItemAddress = await FilterItemsByNameAndContent(listItemAddress, currentnameFilter);
                 }
-                //get info
-                var finalItemList = new List<string>();
-                foreach (var address in filteredItemAddress)
+                else
+                {
+                    filteredItemAddress = listItemAddress;
+                }
+                var finalItemList = new List<OnlineItemModel>();
+                foreach (var address in filteredItemAddress.Skip(offset).Take(numItem).ToList())
                 {
                     var infoPath = address + "/info.json";
                     var info = _ftpServer.GetFiles<OnlineItemModel>(infoPath).Result;
                     info.Path = address;
                     if (info.TargetDevices != null && currentDeviceTypeFilter != null && info.TargetDevices.Any(t => t.Type.ToString() == currentDeviceTypeFilter))
                     {
-                        finalItemList.Add(address);
+                        finalItemList.Add(info);
                     }
                     else if (currentDeviceTypeFilter == null)
                     {
-                        finalItemList.Add(address);
+                        finalItemList.Add(info);
                     }
                 }
-                var itemList = await GetStoreItems(finalItemList.Skip(offset).Take(numItem).ToList());
+                foreach (var item in finalItemList)
+                {
+                    CheckItemForExistance(item);
+                }
                 //foreach (var item in itemList)
                 //{
                 //    if (item.AvatarType == OnlineItemAvatarTypeEnum.Image)
@@ -317,7 +339,7 @@ namespace adrilight_shared.Models.Store
                 //        item.Thumb = _ftpServer.GetThumb(thumbPath).Result;
                 //    }
                 //}
-                return itemList;
+                return finalItemList;
             }
             else
             {

@@ -1,4 +1,5 @@
-﻿using adrilight_shared.Models.RelayCommand;
+﻿using adrilight_shared.Enums;
+using adrilight_shared.Models.RelayCommand;
 using adrilight_shared.Models.Store;
 using GalaSoft.MvvmLight;
 using HandyControl.Data;
@@ -9,7 +10,7 @@ using System.Windows.Input;
 
 namespace adrilight.ViewModel.AdrilightStore
 {
-    public class AdrilightStoreItemsCollectionViewModel:ViewModelBase
+    public class AdrilightStoreItemsCollectionViewModel : ViewModelBase
     {
         public event Action<OnlineItemModel> ItemClicked;
         #region Construct
@@ -17,9 +18,7 @@ namespace adrilight.ViewModel.AdrilightStore
         {
             _client = client;
             _catergoriesViewModel = catergories;
-            _catergoriesViewModel.SelectedCatergoryChanged += OnSelectedCatergoryChanged;
             _searchBarViewModel = searchBar;
-            _searchBarViewModel.SearchContentCommited += OnSearchContentCommited;
             CurrentFilter = new StoreFilterModel();
             Items = new ObservableCollection<OnlineItemModel>();
         }
@@ -27,14 +26,12 @@ namespace adrilight.ViewModel.AdrilightStore
         #region Events
         private async void OnSelectedCatergoryChanged(StoreCategory selectedCatergory)
         {
-            CurrentFilter.CatergoryFilter = selectedCatergory;
-            await UpdateCollectionView(0);
+
             //init new filter and update
         }
         private async void OnSearchContentCommited(string content)
         {
-            CurrentFilter.NameFilter = content;
-            await (UpdateCollectionView(0));
+
         }
         #endregion
         #region Properties
@@ -94,17 +91,33 @@ namespace adrilight.ViewModel.AdrilightStore
 
             });
         }
-        public async Task UpdateCollectionView(int pageIndex)
+        public async Task UpdateCollectionView(int pageIndex, IProgress<int> progress = null)
         {
             //show loading until done
-            Items?.Clear();
+
+
             NullValueText = "Mục này hiện chưa có hiệu ứng nào hoặc server chưa được kết nối";
-            var offSet = (pageIndex - 1) * ItemsPerPage;
+            var offSet = pageIndex * ItemsPerPage;
+            progress.Report(20);
             var items = await _client.GetStoreItems(CurrentFilter, offSet, ItemsPerPage);
+            await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                Items?.Clear();
+                foreach (var item in items)
+                {
+                    Items.Add(item);
+                }
+            });
+            progress.Report(60);
             foreach (var item in items)
             {
-                Items.Add(item);
+                if (item.AvatarType == OnlineItemAvatarTypeEnum.Image)
+                {
+                    var thumbPath = item.Path + "/thumb.png";
+                    item.Thumb = _client.GetThumb(thumbPath).Result;
+                }
             }
+            progress.Report(100);
             //get thumb for items
 
         }

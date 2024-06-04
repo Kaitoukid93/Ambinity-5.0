@@ -1,4 +1,6 @@
-﻿using adrilight_shared.Models.Store;
+﻿using adrilight_shared.Enums;
+using adrilight_shared.Models.Store;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,13 +16,18 @@ namespace adrilight.ViewModel.AdrilightStore
         }
         private AdrilightStoreSFTPClient _client;
         public ObservableCollection<HomePageCarouselItem> AvailableCarousels { get; set; }
-        public async Task Init()
+        public async Task Init(IProgress<int> progress = null)
         {
+            int value = 0;
             if (!_client.IsInit)
             {
                 await Task.Run(() => _client.Init());
             }
+            value = 20;
+            progress.Report(value);
             var carousels = await _client.GetCarousel();
+            value = 40;
+            progress.Report(value);
             await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
                 AvailableCarousels?.Clear();
@@ -30,11 +37,13 @@ namespace adrilight.ViewModel.AdrilightStore
 
             foreach (var item in AvailableCarousels)
             {
-                await Task.Run(() => LoadCarouselItems(item));
+                value += (60 / AvailableCarousels.Count);
+                await Task.Run(() => LoadCarouselItems(item, progress));
+                progress.Report(value);
             }
 
         }
-        public async Task LoadCarouselItems(HomePageCarouselItem carousel)
+        public async Task LoadCarouselItems(HomePageCarouselItem carousel, IProgress<int> progress = null)
         {
 
             carousel.CarouselItem = new ObservableCollection<OnlineItemModel>();
@@ -45,8 +54,11 @@ namespace adrilight.ViewModel.AdrilightStore
             });
             foreach (var item in listItem)
             {
-                var thumbPath = item.Path + "/thumb.png";
-                item.Thumb = _client.GetThumb(thumbPath).Result;
+                if (item.AvatarType == OnlineItemAvatarTypeEnum.Image)
+                {
+                    var thumbPath = item.Path + "/thumb.png";
+                    item.Thumb = _client.GetThumb(thumbPath).Result;
+                }
             }
 
         }

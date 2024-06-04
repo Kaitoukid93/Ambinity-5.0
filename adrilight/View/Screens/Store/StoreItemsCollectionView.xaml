@@ -45,10 +45,6 @@
              <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>-->
                         <Setter Property="Background"
                                 Value="{DynamicResource MainContentBackgroundBrush}" />
-                        <Setter Property="BorderBrush"
-                                Value="Transparent" />
-                        <Setter Property="BorderThickness"
-                                Value="4" />
                         <Setter Property="FocusVisualStyle"
                                 Value="{StaticResource FocusVisual}" />
                         <Setter Property="Width"
@@ -61,51 +57,66 @@
                                 Value="Stretch" />
                         <Setter Property="HorizontalAlignment"
                                 Value="Stretch" />
-
-                        <!--<Setter Property="ContextMenu">
-                 <Setter.Value>
-                     <ContextMenu >
-                         <MenuItem  Header="Share">
-                         </MenuItem>
-                         <MenuItem  Header="Delete" Command="{Binding PlacementTarget.Tag.LaunchDeleteSelectedDeviceWindowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" >
-                             <MenuItem.Icon>
-                                 <Path   Data="{StaticResource delete}" Fill="{StaticResource PrimaryTextBrush}" Stretch="Uniform"/>
-                             </MenuItem.Icon>
-                         </MenuItem>
-                     </ContextMenu>
-
-                 </Setter.Value>
-             </Setter>-->
-
-                        <!--<Setter Property="Tag" Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType=ListView}}" />
-                     <Setter Property="ContextMenu">
-                         <Setter.Value>
-                             <ContextMenu>
-                                 <MenuItem Command="{Binding PlacementTarget.Tag.DeleteSelectedAutomationCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding .}"  Header="Delete">
-                                     <MenuItem.Icon>
-                                         <Path   Data="{DynamicResource delete}" Fill="{DynamicResource PrimaryTextBrush}" Stretch="Uniform"/>
-                                     </MenuItem.Icon>
-
-
-                                 </MenuItem>
-                             </ContextMenu>
-
-                         </Setter.Value>
-                     </Setter>-->
-
-
+                        <Setter Property="HorizontalContentAlignment"
+                                Value="Stretch" />
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="{x:Type ListViewItem}">
                                     <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
                                         <Border x:Name="Bd"
-                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                Margin="5,5"
+                                                Margin="10"
+                                                RenderTransformOrigin="0.5,0.5"
                                                 CornerRadius="7"
-                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                BorderBrush="{DynamicResource SecondaryRegionBrush}"
                                                 Background="{TemplateBinding Background}"
                                                 Padding="{TemplateBinding Padding}"
                                                 SnapsToDevicePixels="true">
+                                            <Border.RenderTransform>
+                                                <ScaleTransform ScaleX="1.0"
+                                                                ScaleY="1.0" />
+                                            </Border.RenderTransform>
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Style.Triggers>
+                                                        <EventTrigger RoutedEvent="MouseEnter">
+                                                            <EventTrigger.Actions>
+                                                                <BeginStoryboard>
+                                                                    <Storyboard>
+                                                                        <DoubleAnimation Duration="0:0:0.1"
+                                                                                         Storyboard.TargetProperty="RenderTransform.ScaleX"
+                                                                                         To="1.01">
+                                                                            <DoubleAnimation.EasingFunction>
+                                                                                <BackEase EasingMode="EaseOut"
+                                                                                          Amplitude="0.1" />
+                                                                            </DoubleAnimation.EasingFunction>
+                                                                        </DoubleAnimation>
+                                                                        <DoubleAnimation Duration="0:0:0.1"
+                                                                                         Storyboard.TargetProperty="RenderTransform.ScaleY"
+                                                                                         To="1.01">
+                                                                            <DoubleAnimation.EasingFunction>
+                                                                                <BackEase EasingMode="EaseOut"
+                                                                                          Amplitude="0.1" />
+                                                                            </DoubleAnimation.EasingFunction>
+                                                                        </DoubleAnimation>
+                                                                    </Storyboard>
+                                                                </BeginStoryboard>
+                                                            </EventTrigger.Actions>
+                                                        </EventTrigger>
+                                                        <EventTrigger RoutedEvent="MouseLeave">
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <DoubleAnimation Duration="0:0:0.2"
+                                                                                     Storyboard.TargetProperty="RenderTransform.ScaleX"
+                                                                                     To="1.0" />
+                                                                    <DoubleAnimation Duration="0:0:0.2"
+                                                                                     Storyboard.TargetProperty="RenderTransform.ScaleY"
+                                                                                     To="1.0" />
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </EventTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
                                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                                               SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
                                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
@@ -123,38 +134,28 @@
                                             <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
                                             <!--<Setter Property="BorderThickness" TargetName="Bd" Value="4"/>-->
                                             <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
-                                            <Setter Property="Effect"
+                                            <Setter Property="BorderThickness"
                                                     TargetName="Bd"
-                                                    Value="{StaticResource Item.SelectedActive.Border.Shadow}" />
+                                                    Value="2" />
                                         </MultiTrigger>
-
 
                                         <MultiTrigger>
                                             <MultiTrigger.Conditions>
-                                                <Condition Property="Selector.IsSelectionActive"
+                                                <Condition Property="IsMouseOver"
                                                            Value="False" />
                                                 <Condition Property="IsSelected"
-                                                           Value="True" />
+                                                           Value="False" />
                                             </MultiTrigger.Conditions>
 
+                                            <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
+                                            <!--<Setter Property="BorderThickness" TargetName="Bd" Value="4"/>-->
                                             <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
-                                            <Setter Property="Effect"
+                                            <Setter Property="BorderThickness"
                                                     TargetName="Bd"
-                                                    Value="{StaticResource Item.SelectedActive.Border.Shadow}" />
+                                                    Value="0" />
                                         </MultiTrigger>
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="Selector.IsSelectionActive"
-                                                           Value="True" />
-                                                <Condition Property="IsSelected"
-                                                           Value="True" />
-                                            </MultiTrigger.Conditions>
 
-                                            <!--<Setter Property="BorderThickness" TargetName="Bd" Value="6"/>-->
-                                            <Setter Property="Effect"
-                                                    TargetName="Bd"
-                                                    Value="{StaticResource Item.SelectedActive.Border.Shadow}" />
-                                        </MultiTrigger>
+
                                         <Trigger Property="IsEnabled"
                                                  Value="False">
                                             <Setter Property="TextElement.Foreground"
@@ -173,9 +174,6 @@
                                  BorderBrush="Transparent"
                                  ToolTip="{Binding Description}"
                                  hc:BorderElement.CornerRadius="7"
-                                 Height="220"
-                                 Width="200"
-                                 Effect="{StaticResource EffectShadow2}"
                                  Footer="{Binding Name}">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseLeftButtonDown">
@@ -205,8 +203,7 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </Grid.Style>
-                                            <hc:Gravatar Width="100"
-                                                         Height="100"
+                                            <hc:Gravatar
                                                          Margin="0"
                                                          HorizontalAlignment="Stretch"
                                                          VerticalAlignment="Stretch"
@@ -230,6 +227,8 @@
                                                 </Style>
                                             </Grid.Style>
                                             <Image Source="{Binding Thumb}"
+                                                   MaxWidth="100"
+                                                   MaxHeight="100"
                                                    RenderOptions.BitmapScalingMode="HighQuality"
                                                    Stretch="Uniform" />
                                         </Grid>
@@ -395,22 +394,6 @@
                 <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
             <Grid Grid.Row="0">
-                <StackPanel Margin="10,10,0,10"
-                            HorizontalAlignment="Left"
-                            Orientation="Horizontal">
-                    <Button Command="{Binding BackToCollectionViewCommand}"
-                            Visibility="{Binding IsInCarouselList,Converter={StaticResource Boolean2VisibilityConverter}}"
-                            Background="Transparent"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Margin="0,10,10,0"
-                            hc:IconElement.Geometry="{DynamicResource back}"
-                            hc:IconElement.Width="15"
-                            Style="{DynamicResource _defaultIconButton}" />
-                    <TextBlock Text="{Binding CurrentStoreFilter.Name}"
-                               Style="{DynamicResource TextBlockTitle}" />
-                </StackPanel>
-
             </Grid>
             <Grid Grid.Row="1">
                 <ListBox ItemContainerStyle="{DynamicResource _listBoxGeneralModeSelectionStyle}"
@@ -483,7 +466,7 @@
                           ItemsSource="{Binding Items}">
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal" />
+                            <UniformGrid Rows="3" Columns="4" />
                         </ItemsPanelTemplate>
                     </ListView.ItemsPanel>
                     <ListView.ItemContainerStyle>
@@ -502,10 +485,6 @@
                         </ControlTemplate>
                     </ListView.Template>
                 </ListView>
-                <hc:LoadingLine HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                Width="200"
-                                Visibility="{Binding CarouselImageLoading,Converter={StaticResource Boolean2VisibilityConverter}}" />
                 <TextBlock FontSize="14"
                            Text="{Binding NoItemText}">
                     <TextBlock.Style>

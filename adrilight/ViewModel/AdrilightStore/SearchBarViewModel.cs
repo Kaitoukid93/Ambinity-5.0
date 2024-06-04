@@ -19,6 +19,8 @@ namespace adrilight.ViewModel.AdrilightStore
                 return p != null;
             }, (p) =>
             {
+                if (p == string.Empty)
+                    return;
                 SearchContentCommited?.Invoke(p);
 
             });

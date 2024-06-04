@@ -29,9 +29,7 @@
                         <Setter Property="Background"
                                 Value="{DynamicResource MainContentBackgroundBrush}" />
                         <Setter Property="BorderBrush"
-                                Value="Transparent" />
-                        <Setter Property="BorderThickness"
-                                Value="4" />
+                                Value="{DynamicResource SecondaryRegionBrush}" />
                         <Setter Property="FocusVisualStyle"
                                 Value="{StaticResource FocusVisual}" />
                         <Setter Property="Width"
@@ -52,15 +50,59 @@
                             <Setter.Value>
                                 <ControlTemplate TargetType="{x:Type ListBoxItem}">
                                     <Border x:Name="Bd"
-                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                            Margin="2"
-                                            CornerRadius="9"
-                                            HorizontalAlignment="Stretch"
-                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            Margin="5,5"
+                                            CornerRadius="7"
+                                            BorderThickness="2"
                                             Background="{TemplateBinding Background}"
                                             Padding="{TemplateBinding Padding}"
-                                           
+                                            RenderTransformOrigin="0.5,0.5"
                                             SnapsToDevicePixels="true">
+                                        <Border.RenderTransform>
+                                            <ScaleTransform ScaleX="1.0"
+                                                            ScaleY="1.0" />
+                                        </Border.RenderTransform>
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Style.Triggers>
+                                                    <EventTrigger RoutedEvent="MouseEnter">
+                                                        <EventTrigger.Actions>
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <DoubleAnimation Duration="0:0:0.1"
+                                                                                     Storyboard.TargetProperty="RenderTransform.ScaleX"
+                                                                                     To="1.01">
+                                                                        <DoubleAnimation.EasingFunction>
+                                                                            <BackEase EasingMode="EaseOut"
+                                                                                      Amplitude="0.1" />
+                                                                        </DoubleAnimation.EasingFunction>
+                                                                    </DoubleAnimation>
+                                                                    <DoubleAnimation Duration="0:0:0.1"
+                                                                                     Storyboard.TargetProperty="RenderTransform.ScaleY"
+                                                                                     To="1.01">
+                                                                        <DoubleAnimation.EasingFunction>
+                                                                            <BackEase EasingMode="EaseOut"
+                                                                                      Amplitude="0.1" />
+                                                                        </DoubleAnimation.EasingFunction>
+                                                                    </DoubleAnimation>
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </EventTrigger.Actions>
+                                                    </EventTrigger>
+                                                    <EventTrigger RoutedEvent="MouseLeave">
+                                                        <BeginStoryboard>
+                                                            <Storyboard>
+                                                                <DoubleAnimation Duration="0:0:0.1"
+                                                                                 Storyboard.TargetProperty="RenderTransform.ScaleX"
+                                                                                 To="1.0" />
+                                                                <DoubleAnimation Duration="0:0:0.1"
+                                                                                 Storyboard.TargetProperty="RenderTransform.ScaleY"
+                                                                                 To="1.0" />
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </EventTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
                                         <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                                           SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
                                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
@@ -74,9 +116,9 @@
                                                 <Condition Property="IsSelected"
                                                            Value="False" />
                                             </MultiTrigger.Conditions>
-                                            <Setter Property="Background"
+                                            <Setter Property="BorderBrush"
                                                     TargetName="Bd"
-                                                    Value="{DynamicResource HoverBrush}" />
+                                                    Value="{DynamicResource SecondaryRegionBrush}" />
                                         </MultiTrigger>
 
 
@@ -91,7 +133,7 @@
                                             <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
                                             <Setter Property="BorderBrush"
                                                     TargetName="Bd"
-                                                    Value="{DynamicResource PrimaryBrush}" />
+                                                    Value="Transparent" />
                                         </MultiTrigger>
                                         <MultiTrigger>
                                             <MultiTrigger.Conditions>
@@ -104,7 +146,7 @@
                                             <!--<Setter Property="BorderThickness" TargetName="Bd" Value="6"/>-->
                                             <Setter Property="BorderBrush"
                                                     TargetName="Bd"
-                                                    Value="{DynamicResource PrimaryBrush}" />
+                                                    Value="{DynamicResource SecondaryRegionBrush}" />
                                         </MultiTrigger>
                                         <Trigger Property="IsEnabled"
                                                  Value="False">
@@ -619,7 +661,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        
+
         <ItemsControl VerticalAlignment="Top"
                       HorizontalAlignment="Stretch"
                       HorizontalContentAlignment="Stretch"
@@ -627,7 +669,8 @@
                       ScrollViewer.CanContentScroll="False">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Grid Margin="20,15" VerticalAlignment="Center"
+                    <Grid Margin="20,15"
+                          VerticalAlignment="Center"
                           HorizontalAlignment="Stretch">
                         <StackPanel>
                             <Grid>
@@ -635,33 +678,30 @@
                                     <ColumnDefinition Width="auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Margin="5"
-                                           HorizontalAlignment="Left"
-                                           Text="{Binding Name}"
-                                           Foreground="#E5E5E5"
-                                           FontWeight="SemiBold"
-                                           FontSize="20"
-                                           Style="{DynamicResource TextBlockTitle}" />
-                                <Button HorizontalAlignment="Right" Margin="5"
+                                <Button HorizontalAlignment="Left"
+                                        Margin="5"
                                         Command="{Binding Path=DataContext.SeAllCarouselItemCommand, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
                                         CommandParameter="{Binding .}"
                                         Grid.Column="1"
-                                        Padding="0"
-                                        Background="Transparent"
-                                        BorderThickness="0">
+                                        Height="40"
+                                        Padding="5,0"
+                                        hc:BorderElement.CornerRadius="7"
+                                        BorderBrush="Transparent">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock FontSize="15"
-                                                   Margin="5"
-                                                   HorizontalAlignment="Center"
-                                                   TextWrapping="Wrap"
-                                                   Style="{DynamicResource TextBlockDefaultPrimary}"
-                                                   Text="See all" />
+                                        <TextBlock Margin="5,0,5,5"
+                                                   TextAlignment="Center"
+                                                   HorizontalAlignment="Left"
+                                                   Text="{Binding Name}"
+                                                   Foreground="#E5E5E5"
+                                                   FontWeight="SemiBold"
+                                                   FontSize="20"
+                                                   Style="{DynamicResource TextBlockTitle}" />
                                         <Path Stretch="Uniform"
-                                              Margin="0,5"
+                                              Margin="0,0,0,0"
                                               Data="{DynamicResource showMoreRight}"
                                               Width="12"
                                               Height="12"
-                                              Fill="{DynamicResource PrimaryBrush}" />
+                                              Fill="{DynamicResource PrimaryTextBrush}" />
                                     </StackPanel>
 
                                 </Button>
@@ -717,16 +757,17 @@
                                             </StackPanel>
                                         </ItemsPanelTemplate>
                                         <ItemsPanelTemplate x:Key="_listBoxUniformGridTemplate">
-                                            <UniformGrid HorizontalAlignment="Stretch" Rows="1" Columns="3">
+                                            <UniformGrid HorizontalAlignment="Stretch"
+                                                         Rows="1"
+                                                         Columns="3">
 
                                             </UniformGrid>
                                         </ItemsPanelTemplate>
                                     </ListBox.Resources>
-                                  
+
                                     <ListBox.Template>
                                         <ControlTemplate TargetType="{x:Type ListBox}">
-                                            <hc:ScrollViewer 
-                                                             hc:ScrollViewerAttach.IsDisabled="True"
+                                            <hc:ScrollViewer hc:ScrollViewerAttach.IsDisabled="True"
                                                              HorizontalContentAlignment="Stretch"
                                                              HorizontalScrollBarVisibility="Hidden"
                                                              VerticalScrollBarVisibility="Hidden"
@@ -758,9 +799,5 @@
                 </ControlTemplate>
             </ItemsControl.Template>
         </ItemsControl>
-        <hc:LoadingLine HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Width="200"
-                        Visibility="{Binding CarouselImageLoading,Converter={StaticResource Boolean2VisibilityConverter}}" />
     </Grid>
 </UserControl>

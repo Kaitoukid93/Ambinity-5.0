@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:adrilight.View.Screens.Store"
              xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{Binding Source={StaticResource Locator}, Path=StoreCategoriesViewModel}"
@@ -114,13 +115,20 @@
                  ItemContainerStyle="{DynamicResource _listBoxControlModeStyle}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
+                    <Grid Background="Transparent">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                                <i:InvokeCommandAction Command="{Binding Path=DataContext.CatergoryClickedCommand, RelativeSource={RelativeSource AncestorType={x:Type local:StoreCatergoriesView}}}"
+                                                       CommandParameter="{Binding .}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
                             <RowDefinition Height="auto" />
                         </Grid.RowDefinitions>
                         <Grid>
                             <Path x:Name="icon"
+                                  IsHitTestVisible="False"
                                   Fill="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}, Path=Foreground}"
                                   Stretch="Uniform"
                                   HorizontalAlignment="Center"
@@ -133,6 +141,7 @@
                         </Grid>
                         <Grid Grid.Row="1">
                             <TextBlock x:Name="text"
+                                       IsHitTestVisible="False"
                                        FontStretch="Condensed"
                                        FontSize="10"
                                        Margin="5"
