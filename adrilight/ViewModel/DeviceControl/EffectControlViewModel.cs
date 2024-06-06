@@ -21,6 +21,7 @@ using adrilight.Ticker;
 using adrilight_shared.Enums;
 using adrilight.Manager;
 using adrilight_shared.Models.ControlMode.ModeParameters;
+using adrilight.ViewModel.DeviceControl;
 
 namespace adrilight.ViewModel
 {
@@ -36,7 +37,7 @@ namespace adrilight.ViewModel
             LightingPlayer = lightingPlayer;
             LightingPlayer.IsRunningPropertyChanged += LightingPlayer_IsRunningPropertyChanged;
             LightingProfileManager = lightingProfileManager;
-            AvailableParameters = new ObservableCollection<IModeParameter>();
+            AvailableParameters = new ObservableCollection<ControlParameterViewModel>();
             AvailableControlMode = new ObservableCollection<IControlMode>();
             CommandSetup();
         }
@@ -106,7 +107,9 @@ namespace adrilight.ViewModel
                {
                    await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
                    {
-                       AvailableParameters.Add(param);
+                       var vm = new ControlParameterViewModel();
+                       vm.Init(param);
+                       AvailableParameters.Add(vm);
                    });
                    await Task.Delay(100);
                }
@@ -115,8 +118,8 @@ namespace adrilight.ViewModel
             _deviceControlEvent.ChangeLoadingParamStatus(false);
 
         }
-        private ObservableCollection<IModeParameter> _availableParameters;
-        public ObservableCollection<IModeParameter> AvailableParameters {
+        private ObservableCollection<ControlParameterViewModel> _availableParameters;
+        public ObservableCollection<ControlParameterViewModel> AvailableParameters {
             get
             {
                 return _availableParameters;

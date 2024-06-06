@@ -27,7 +27,6 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
         private ModeParameterEnum _paramType;
         private int _minValue;
         private int _maxValue;
-        private bool _showMore;
         private ObservableCollection<SubParameter> _subParams;
         private bool _isEnabled = true;
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); } }
@@ -43,7 +42,6 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
         /// </summary>
         public int MinValue { get => _minValue; set { Set(() => MinValue, ref _minValue, value); } }
         public int MaxValue { get => _maxValue; set { Set(() => MaxValue, ref _maxValue, value); } }
-        public bool ShowMore { get => _showMore; set { Set(() => ShowMore, ref _showMore, value); } }
         public string Geometry { get; set; }
         public void Localize(string name, string description)
         {

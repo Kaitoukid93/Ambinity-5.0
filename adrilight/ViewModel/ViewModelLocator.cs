@@ -80,6 +80,12 @@ namespace adrilight.ViewModel
                 return kernel.Get<AdrilightStoreHomePageViewModel>();
             }
         }
+        public AdrilightStoreItemDetailViewModel AdrilightStoreItemDetailViewModel {
+            get
+            {
+                return kernel.Get<AdrilightStoreItemDetailViewModel>();
+            }
+        }
         #endregion
         #region Splash
         public SplashScreenViewModel SplashScreenViewModel {

@@ -323,12 +323,12 @@ namespace adrilight
             //safety check
             if (_colorControl.SelectedValue == null)
             {
-                _colorControl.SelectedValue = _colorControl.AvailableValues.First();
+                //_colorControl.SelectedValue = _colorControl.AvailableValues.First();
             }
             OnSelectedPaletteChanged(_colorControl.SelectedValue);
             if (_vidDataControl.SelectedValue == null)
             {
-                _vidDataControl.SelectedValue = _vidDataControl.AvailableValues.Last();
+                //_vidDataControl.SelectedValue = _vidDataControl.AvailableValues.Last();
             }
             EnableChanged(_enableControl.Value == 1 ? true : false);
             OnSelectedVIDDataChanged(_vidDataControl.SelectedValue);

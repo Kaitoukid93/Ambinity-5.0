@@ -11,7 +11,6 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
         private string _description;
         private ModeParameterTemplateEnum _template;
         private ModeParameterEnum _paramType;
-        private bool _showMore;
         private string _commandParameter;
         private ObservableCollection<SubParameter> _subParams;
         private bool _isEnabled = true;
@@ -22,7 +21,6 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
         public ModeParameterTemplateEnum Template { get => _template; set { Set(() => Template, ref _template, value); } }
         public ModeParameterEnum ParamType { get => _paramType; set { Set(() => ParamType, ref _paramType, value); } }
         public ObservableCollection<SubParameter> SubParams { get => _subParams; set { Set(() => SubParams, ref _subParams, value); } }
-        public bool ShowMore { get => _showMore; set { Set(() => ShowMore, ref _showMore, value); } }
         public virtual PreviewableContent PreviewContent { get; set; }
         public string Geometry { get; set; }
     }

@@ -332,7 +332,7 @@ namespace adrilight.Services.LightingEngine
                         OnCapturingRegionChanged(_regionControl.CapturingRegion);
                         break;
                     case nameof(_regionControl.CapturingSourceIndex):
-                        _gifControl.SelectedValue = _gifControl.AvailableValues[_regionControl.CapturingSourceIndex];
+                        //_gifControl.SelectedValue = _gifControl.AvailableValues[_regionControl.CapturingSourceIndex];
                         break;
                 }
             };
@@ -346,10 +346,10 @@ namespace adrilight.Services.LightingEngine
                         break;
                 }
             };
-            _gifControl.LoadAvailableValues();
+           // _gifControl.LoadAvailableValues();
             if (_gifControl.SelectedValue == null)
             {
-                _gifControl.SelectedValue = _gifControl.AvailableValues.First();
+                //_gifControl.SelectedValue = _gifControl.AvailableValues.First();
             }
             EnableChanged(_enableControl.Value == 1 ? true : false);
             await Task.Run(() => OnSelectedGifChanged(_gifControl.SelectedValue));

@@ -170,7 +170,7 @@
                                  Footer="{Binding Name}">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseLeftButtonDown">
-                                    <i:InvokeCommandAction Command="{Binding Path=DataContext.SelectOnlineItemCommand, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
+                                    <i:InvokeCommandAction Command="{Binding Path=DataContext.ItemCardClickCommand, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
                                                            CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
@@ -231,7 +231,7 @@
                                                             Foreground="{DynamicResource PrimaryBrush}"
                                                             BorderThickness="0"
                                                             Content="Get"
-                                                            Command="{Binding Path=DataContext.DownloadCurrentItemCommand, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
+                                                            Command="{Binding Path=DataContext.ItemDownloadButtonClickCommand, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
                                                             CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
                                                         <Button.Background>
                                                             <SolidColorBrush Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
@@ -247,8 +247,7 @@
                                                                       Margin="10"
                                                                       Height="25"
                                                                       Width="25"
-                                                                      Value="{Binding Path=DataContext.CurrentDownloadProgress, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
-                                                                      Maximum="{Binding Path=DataContext.CurrentItemSize, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
+                                                                      IsIndeterminate="True"
                                                                       FontSize="10" />
                                                 <Grid Visibility="{Binding DataContext.IsLocalExisted,RelativeSource={RelativeSource AncestorType=hc:Card},Converter={StaticResource Boolean2VisibilityConverter},Mode=TwoWay}">
                                                     <Button Margin="10"
@@ -295,7 +294,7 @@
                                                             BorderThickness="0"
                                                             Content="Update"
                                                             Foreground="{DynamicResource InfoBrush}"
-                                                            Command="{Binding Path=DataContext.DownloadCurrentItemCommand, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
+                                                            Command="{Binding Path=DataContext.ItemDownloadButtonClickCommand, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
                                                             CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
                                                         <Button.Background>
                                                             <SolidColorBrush Color="{DynamicResource InfoColor}"
@@ -340,7 +339,7 @@
                                  Footer="{Binding Name}">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseLeftButtonDown">
-                                    <i:InvokeCommandAction Command="{Binding Path=DataContext.SelectOnlineItemCommand, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
+                                    <i:InvokeCommandAction Command="{Binding Path=DataContext.ItemCardClickCommand, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
                                                            CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
@@ -402,7 +401,7 @@
                                                             Foreground="{DynamicResource PrimaryBrush}"
                                                             BorderThickness="0"
                                                             Content="Get"
-                                                            Command="{Binding Path=DataContext.DownloadCurrentItemCommand, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
+                                                            Command="{Binding Path=DataContext.ItemDownloadButtonClickCommand, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
                                                             CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
                                                         <Button.Background>
                                                             <SolidColorBrush Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
@@ -418,8 +417,7 @@
                                                                       Margin="10,0,10,10"
                                                                       Height="25"
                                                                       Width="25"
-                                                                      Value="{Binding Path=DataContext.CurrentDownloadProgress, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
-                                                                      Maximum="{Binding Path=DataContext.CurrentItemSize, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
+                                                                      IsIndeterminate="True"
                                                                       FontSize="10" />
                                                 <Grid Visibility="{Binding DataContext.IsLocalExisted,RelativeSource={RelativeSource AncestorType=hc:Card},Converter={StaticResource Boolean2VisibilityConverter},Mode=TwoWay}">
                                                     <Button Margin="10,0,10,10"
@@ -466,7 +464,7 @@
                                                             BorderThickness="0"
                                                             Content="Update"
                                                             Foreground="{DynamicResource InfoBrush}"
-                                                            Command="{Binding Path=DataContext.DownloadCurrentItemCommand, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
+                                                            Command="{Binding Path=DataContext.ItemDownloadButtonClickCommand, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
                                                             CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
                                                         <Button.Background>
                                                             <SolidColorBrush Color="{DynamicResource InfoColor}"
@@ -555,7 +553,7 @@
                                                         Foreground="{DynamicResource PrimaryBrush}"
                                                         BorderThickness="0"
                                                         Content="Get"
-                                                        Command="{Binding Path=DataContext.DownloadCurrentItemCommand, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
+                                                        Command="{Binding Path=DataContext.ItemDownloadButtonClickCommand, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
                                                         CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
                                                     <Button.Background>
                                                         <SolidColorBrush Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
@@ -571,8 +569,7 @@
                                                                   Margin="10"
                                                                   Height="25"
                                                                   Width="25"
-                                                                  Value="{Binding Path=DataContext.CurrentDownloadProgress, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
-                                                                  Maximum="{Binding Path=DataContext.CurrentItemSize, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
+                                                                  IsIndeterminate="True"
                                                                   FontSize="10" />
                                             <Grid Visibility="{Binding IsLocalExisted, Converter={StaticResource Boolean2VisibilityConverter},Mode=TwoWay}">
                                                 <Button Margin="10"
@@ -619,7 +616,7 @@
                                                         BorderThickness="0"
                                                         Content="Update"
                                                         Foreground="{DynamicResource InfoBrush}"
-                                                        Command="{Binding Path=DataContext.DownloadCurrentItemCommand, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
+                                                        Command="{Binding Path=DataContext.ItemDownloadButtonClickCommand, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
                                                         CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
                                                     <Button.Background>
                                                         <SolidColorBrush Color="{DynamicResource InfoColor}"

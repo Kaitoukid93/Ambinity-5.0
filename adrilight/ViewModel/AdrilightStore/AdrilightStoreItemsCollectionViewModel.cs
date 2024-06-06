@@ -17,6 +17,7 @@ namespace adrilight.ViewModel.AdrilightStore
         public event Action<int> PaginationUpdated;
         public event Action StartUpdatingCollection;
         public event Action UpdateCollectionComplete;
+        public event Action<OnlineItemModel> ItemDownloadClicked;
         #region Construct
         public AdrilightStoreItemsCollectionViewModel(AdrilightStoreSFTPClient client)
         {
@@ -113,6 +114,14 @@ namespace adrilight.ViewModel.AdrilightStore
                 ItemClicked?.Invoke(p);
 
             });
+            ItemDownloadButtonClickCommand = new RelayCommand<OnlineItemModel>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                ItemDownloadClicked?.Invoke(p);
+
+            });
         }
         public async Task UpdateCollectionView(IProgress<int> progress = null)
         {
@@ -191,6 +200,7 @@ namespace adrilight.ViewModel.AdrilightStore
         #endregion
         #region Icommand
         public ICommand ItemCardClickCommand { get; set; }
+        public ICommand ItemDownloadButtonClickCommand { get; set; }
         #endregion
 
     }

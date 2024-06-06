@@ -337,7 +337,7 @@ namespace adrilight.Services.LightingEngine
             {
                 _vidDataControl.SubParams[0].IsEnabled = false;
                 _vidDataControl.SubParams[1].IsEnabled = true;
-                _vidDataControl.WarningMessageVisible = false;
+               // _vidDataControl.WarningMessageVisible = false;
                 if (CurrentZone.IsInControlGroup)
                 {
                     //acquire this ground this zone belongs to
@@ -353,8 +353,8 @@ namespace adrilight.Services.LightingEngine
                             {
                                 //display warning message
                                 _frameWidth = CurrentZone.Spots.Count;
-                                _vidDataControl.WarningMessage = "Hình dạng sản phẩm có thể không phù hợp cho chiều chạy này ";
-                                _vidDataControl.WarningMessageVisible = true;
+                               // _vidDataControl.WarningMessage = "Hình dạng sản phẩm có thể không phù hợp cho chiều chạy này ";
+                               // _vidDataControl.WarningMessageVisible = true;
 
                             }
 
@@ -374,8 +374,8 @@ namespace adrilight.Services.LightingEngine
                     {
                         //display warning message
                         _frameWidth = CurrentZone.Spots.Count;
-                        _vidDataControl.WarningMessage = "Hình dạng sản phẩm có thể không phù hợp cho chiều chạy này ";
-                        _vidDataControl.WarningMessageVisible = true;
+                       // _vidDataControl.WarningMessage = "Hình dạng sản phẩm có thể không phù hợp cho chiều chạy này ";
+                        //_vidDataControl.WarningMessageVisible = true;
 
                     }
                 }
@@ -541,23 +541,23 @@ namespace adrilight.Services.LightingEngine
             _speedControl.PropertyChanged += (_, __) => OnSpeedChanged(_speedControl.Value);
             _smoothControl.PropertyChanged += (_, __) => OnSmoothChanged(_smoothControl.Value);
             _brightnessControl.PropertyChanged += (_, __) => OnBrightnessValueChanged(_brightnessControl.Value);
-            _colorControl.LoadAvailableValues();
-            _chasingPatternControl.LoadAvailableValues();
-            _vidDataControl.LoadAvailableValues();
             #endregion
             //safety check
             if (_colorControl.SelectedValue == null)
             {
-                _colorControl.SelectedValue = _colorControl.AvailableValues.First();
+                //init default value
+                //_colorControl.SelectedValue = _colorControl.AvailableValues.First();
             }
             OnSelectedPaletteChanged(_colorControl.SelectedValue);
             if (_chasingPatternControl.SelectedValue == null)
             {
-                _chasingPatternControl.SelectedValue = _chasingPatternControl.AvailableValues.First();
+                //init default value
+                // _chasingPatternControl.SelectedValue = _chasingPatternControl.AvailableValues.First();
             }
             if (_vidDataControl.SelectedValue == null)
             {
-                _vidDataControl.SelectedValue = _vidDataControl.AvailableValues.First();
+                //init default value
+               // _vidDataControl.SelectedValue = _vidDataControl.AvailableValues.First();
             }
             EnableChanged(_enableControl.Value == 1 ? true : false);
             OnSelectedChasingPatternChanged(_chasingPatternControl.SelectedValue);

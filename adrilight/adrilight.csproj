@@ -253,6 +253,7 @@
     <Compile Include="ViewModel\ColorEditingObject.cs" />
     <Compile Include="ViewModel\Dashboard\DashboardViewModel.cs" />
     <Compile Include="ViewModel\Debug\DebugViewModel.cs" />
+    <Compile Include="ViewModel\DeviceControl\ControlParameterViewModel.cs" />
     <Compile Include="ViewModel\Device\DeviceAdvanceSettingsViewModel.cs" />
     <Compile Include="ViewModel\DeviceControl\EffectControlViewModel.cs" />
     <Compile Include="ViewModel\Device\DeviceCollectionViewModel.cs" />
@@ -373,6 +374,9 @@
     <Compile Include="View\Screens\Mainview\ControlView\GifRegionSelectionWindow.xaml.cs" />
     <Compile Include="View\Screens\Mainview\ControlView\Controls\ScreenRegionSelectionWindow.xaml.cs" />
     <Compile Include="View\Dialogs\AudioDeviceSelectionWindow.xaml.cs" />
+    <Compile Include="View\Screens\Mainview\ControlView\Parameters\SubParameter.xaml.cs">
+      <DependentUpon>SubParameter.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Screens\Mainview\Dashboard\DashboardView.xaml.cs">
       <DependentUpon>DashboardView.xaml</DependentUpon>
     </Compile>
@@ -574,6 +578,10 @@
     <Page Include="View\Dialogs\AudioDeviceSelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Screens\Mainview\ControlView\Parameters\SubParameter.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\Screens\Mainview\Dashboard\DashboardView.xaml">
       <SubType>Designer</SubType>

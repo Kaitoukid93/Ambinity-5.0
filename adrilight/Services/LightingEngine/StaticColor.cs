@@ -260,12 +260,12 @@ namespace adrilight
             _breathingControl.SubParams[0].PropertyChanged += (_, __) => OnBreathingSpeedValueChanged(_breathingControl.SubParams[0].Value);
             _breathingControl.SubParams[2].PropertyChanged += (_, __) => OnSystemSyncValueChanged(_breathingControl.SubParams[2].Value == 1 ? true : false);
             _breathingControl.SubParams[1].PropertyChanged += (_, __) => OnSystemSyncBreathingSpeedValueChange(_breathingControl.SubParams[1].Value);
-            _colorControl.LoadAvailableValues();
+           // _colorControl.LoadAvailableValues();
             #endregion
             //safety check
             if (_colorControl.SelectedValue == null)
             {
-                _colorControl.SelectedValue = _colorControl.AvailableValues.First();
+                //_colorControl.SelectedValue = _colorControl.AvailableValues.First();
             }
             EnableChanged(_enableControl.Value == 1 ? true : false);
             OnIsBreathingValueChanged(_breathingControl.Value == 1 ? true : false);

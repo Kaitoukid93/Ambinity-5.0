@@ -15,24 +15,6 @@ namespace adrilight.View
             InitializeComponent();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            //this.Close();
-        }
-
-        private void GroupBox_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            var grBx = (Border)sender;
-            var dataCntx = grBx.DataContext;
-            var dataSource = (ListSelectionParameter)dataCntx;
-            if (dataSource != null)
-            {
-                if (dataSource.ShowMore)
-                    dataSource.ShowMore = false;
-                else
-                    dataSource.ShowMore = true;
-            }
-        }
 
 
         private void ButtonMode_OnClick(object sender, RoutedEventArgs e)
@@ -45,8 +27,6 @@ namespace adrilight.View
         {
             PopupMode.IsOpen = false;
         }
-
-     
 
         private void ButtonExport_Click(object sender, RoutedEventArgs e)
         {

@@ -23,7 +23,6 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
         private int _value;
         private ModeParameterTemplateEnum _template;
         private ModeParameterEnum _paramType;
-        private bool _showMore;
         private ObservableCollection<SubParameter> _subParams;
         private bool _isEnabled = true;
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); } }
@@ -33,7 +32,6 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
         public ModeParameterTemplateEnum Template { get => _template; set { Set(() => Template, ref _template, value); } }
         public ModeParameterEnum ParamType { get => _paramType; set { Set(() => ParamType, ref _paramType, value); } }
         public ObservableCollection<SubParameter> SubParams { get => _subParams; set { Set(() => SubParams, ref _subParams, value); } }
-        public bool ShowMore { get => _showMore; set { Set(() => ShowMore, ref _showMore, value); } }
         public void Localize(string name, string description)
         {
             Name = name;

@@ -226,7 +226,7 @@ namespace adrilight_shared.Models.Device.Zone
         {
             foreach(var param in CurrentActiveControlMode.Parameters)
             {
-                param.ShowMore = false;
+             //   param.ShowMore = false;
             }
         }
 

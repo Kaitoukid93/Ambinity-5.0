@@ -1,4 +1,5 @@
 ﻿using adrilight_shared.Enums;
+using adrilight_shared.Helpers;
 using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
 using adrilight_shared.Models.Device.SlaveDevice;
 using adrilight_shared.Models.Lighting;
@@ -6,14 +7,17 @@ using adrilight_shared.Models.User;
 using adrilight_shared.Settings;
 using FTPServer;
 using GalaSoft.MvvmLight;
+using HandyControl.Controls;
 using Newtonsoft.Json;
 using Renci.SshNet;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -266,8 +270,8 @@ namespace adrilight_shared.Models.Store
                 if (itemName.Contains("filters"))
                     continue;
                 //get description content
-               //var descriptionPath = address + "/description.md";
-               // var description = await _ftpServer.GetStringContent(descriptionPath);
+                //var descriptionPath = address + "/description.md";
+                // var description = await _ftpServer.GetStringContent(descriptionPath);
                 if (itemName.ToLower().Contains(lowerFilter) || lowerFilter == string.Empty)
                 {
                     filteredItemAddress.Add(address);
@@ -276,7 +280,7 @@ namespace adrilight_shared.Models.Store
             return filteredItemAddress;
         }
 
-        public async Task<(List<OnlineItemModel>,int)> GetStoreItems(StoreFilterModel filter, int offset, int numItem)
+        public async Task<(List<OnlineItemModel>, int)> GetStoreItems(StoreFilterModel filter, int offset, int numItem)
         {
             var currentPageListItemAddress = new List<string>();
             var currentDeviceTypeFilter = filter.DeviceTypeFilter;
@@ -304,7 +308,7 @@ namespace adrilight_shared.Models.Store
             if (listItemAddress != null && listItemAddress.Count > 0)
             {
                 var filteredItemAddress = new List<string>();
-                if (currentnameFilter!=null)
+                if (currentnameFilter != null)
                 {
                     filteredItemAddress = await FilterItemsByNameAndContent(listItemAddress, currentnameFilter);
                 }
@@ -320,7 +324,7 @@ namespace adrilight_shared.Models.Store
                     try
                     {
                         info = _ftpServer.GetFiles<OnlineItemModel>(infoPath).Result;
-                        if(info != null)
+                        if (info != null)
                         {
                             info.Path = address;
                             if (info.TargetDevices != null && currentDeviceTypeFilter != null && info.TargetDevices.Any(t => t.Type.ToString() == currentDeviceTypeFilter))
@@ -332,13 +336,13 @@ namespace adrilight_shared.Models.Store
                                 finalItemList.Add(info);
                             }
                         }
-                        
+
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         continue;
                     }
-                   
+
                 }
                 foreach (var item in finalItemList)
                 {
@@ -356,7 +360,7 @@ namespace adrilight_shared.Models.Store
             }
             else
             {
-                return (null,0);
+                return (null, 0);
             }
         }
         public async Task<List<HomePageCarouselItem>> GetCarousel()
@@ -385,6 +389,129 @@ namespace adrilight_shared.Models.Store
         public async Task<BitmapImage> GetThumb(string thumbPath)
         {
             return await _ftpServer.GetThumb(thumbPath);
+        }
+        public async Task<List<BitmapImage>> GetItemScreenShots(OnlineItemModel item)
+        {
+            var screenShots = new List<BitmapImage>();
+            var screenshotsPath = item.Path + "/screenshots";
+            foreach (var file in _ftpServer.GetAllFilesAddressInFolder(screenshotsPath).Result)
+            {
+                var img = await _ftpServer.GetScreenShot(file);
+                screenShots.Add(img);
+            }
+            return screenShots;
+        }
+        public async Task<string> GetItemDescription(OnlineItemModel item)
+        {
+            var descriptionPath = item.Path + "/description.md";
+            var description = await _ftpServer.GetStringContent(descriptionPath);
+            return description;
+        }
+        
+        public async Task SaveItemToLocalCollection<T>(string collectionPath,
+            DeserializeMethodEnum mode,
+            OnlineItemModel item,
+            string extension,
+            IProgress<int> progress = null)
+        {
+            item.IsDownloading = true;
+            Log.Information("Downloading Item" + " " + item.Name);
+            if (!Directory.Exists(collectionPath))
+                Directory.CreateDirectory(collectionPath);
+            //get list of files
+            var listofFiles = await _ftpServer.GetAllFilesInFolder(item.Path + "/content");
+            if (listofFiles == null)
+            {
+                HandyControl.Controls.MessageBox.Show("Không tìm thấy file, vui lòng chọn nội dung khác!!", "File not found", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            switch (mode)
+            {
+                case DeserializeMethodEnum.MultiJson:
+                    //save to local folder , we only need json config file
+                    var data = await _ftpServer.GetFiles<T>(item.Path + "/content" + "/" + "config.json");
+                    WriteSimpleJson(data, Path.Combine(Path.Combine(collectionPath, "collection"), item.Name + extension));
+                    break;
+
+                case DeserializeMethodEnum.FolderStructure:
+                    var localFolderPath = Path.Combine(collectionPath, item.Name);
+                    Directory.CreateDirectory(localFolderPath);
+                    foreach (var file in listofFiles)
+                    {
+                        //save to local folder
+                        var remotePath = item.Path + "/content" + "/" + file.Name;
+                        _ftpServer.DownloadFile(remotePath, localFolderPath + "/" + file.Name, progress);
+                    }
+                    break;
+                case DeserializeMethodEnum.Files:
+                    var localFilePath = Path.Combine(collectionPath, "collection");
+                    if (!Directory.Exists(localFilePath))
+                        Directory.CreateDirectory(localFilePath);
+                    foreach (var file in listofFiles.Where(f => f.Name != "thumbnail.png"))
+                    {
+                        //save to local folder
+                        var remotePath = item.Path + "/content" + "/" + file.Name;
+                        _ftpServer.DownloadFile(remotePath, localFilePath + "/" + file.Name, progress);
+                    }
+                    break;
+            }
+            //download online details for upgrade purpose
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            item.IsDownloading = false;
+            Log.Information("Item Downloaded" + " " + item.Name);
+            item.IsLocalExisted = true;
+            Log.Information("Generating Online Infomation" + " " + item.Name);
+            var itemInfo = new OnlineItemModel();
+            itemInfo.Name = item.Name;
+            itemInfo.Owner = item.Owner;
+            itemInfo.Version = item.Version;
+            itemInfo.Type = item.Type;
+            var infoFolderPath = Path.Combine(collectionPath, "info");
+            if (!Directory.Exists(infoFolderPath))
+                Directory.CreateDirectory(infoFolderPath);
+            JsonHelpers.WriteSimpleJson(itemInfo, Path.Combine(infoFolderPath, item.Name + ".info"));
+            Log.Information("Online Infomation Created" + " " + item.Name);
+            item.IsUpgradeAvailable = false;
+
+
+        }
+
+        public async Task DownloadCurrentOnlineItem(OnlineItemModel o, IProgress<int> progress = null)
+        {
+            //create needed info
+            string localFolder = string.Empty; // the resource folder this item will be saved to
+            switch (o.Type)
+            {
+                case "ColorPalette":
+                    await SaveItemToLocalCollection<ColorPalette>(PalettesCollectionFolderPath, DeserializeMethodEnum.MultiJson, o, ".col", progress);
+                    break;
+
+                case "ARGBLEDSlaveDevice":
+                    await SaveItemToLocalCollection<ARGBLEDSlaveDevice>(SupportedDeviceCollectionFolderPath, DeserializeMethodEnum.FolderStructure, o, string.Empty, progress);
+                    //if (SlaveDeviceSelection != null)
+                    //    RefreshLocalSlaveDeviceCollection();
+                    break;
+                case "Gif":
+                    await SaveItemToLocalCollection<Gif>(GifsCollectionFolderPath, DeserializeMethodEnum.Files, o, "", progress);
+                    break;
+                case "ChasingPattern":
+                    await SaveItemToLocalCollection<ChasingPattern>(ChasingPatternsCollectionFolderPath, DeserializeMethodEnum.Files, o, "AML", progress);
+                    break;
+                case "LightingProfile":
+                    await SaveItemToLocalCollection<LightingProfile>(LightingProfilesCollectionFolderPath, DeserializeMethodEnum.MultiJson, o, ".ALP", progress);
+                    break;
+            }
+        }
+        private void WriteSimpleJson(object obj, string path)
+        {
+            try
+            {
+                var json = JsonConvert.SerializeObject(obj);
+                File.WriteAllText(path, json);
+            }
+            catch (Exception ex)
+            {
+                //log
+            }
         }
         #endregion
 

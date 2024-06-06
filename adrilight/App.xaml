@@ -2,18 +2,13 @@
              x:Class="adrilight.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:adrilight"
              ShutdownMode="OnExplicitShutdown"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              d1p1:Ignorable="d"
+             xmlns:parameters="clr-namespace:adrilight_shared.Models.ControlMode.ModeParameters;assembly=adrilight_shared"
              xmlns:d1p1="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:interactivity="clr-namespace:HandyControl.Interactivity;assembly=HandyControl"
-             xmlns:ex="clr-namespace:HandyControl.Tools.Extension;assembly=HandyControl"
-             xmlns:src="clr-namespace:adrilight.View"
              Activated="App_Activated"
-             Deactivated="App_Deactivated"
-             xmlns:properties="clr-namespace:adrilight.Properties"
-             xmlns:langs="clr-namespace:HandyControl.Properties.Langs;assembly=HandyControl">
+             Deactivated="App_Deactivated">
     <Application.Resources>
         <ResourceDictionary>
             <vm:ViewModelLocator x:Key="Locator"
@@ -365,8 +360,6 @@
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Setter.Value>
-
-
                 </Setter>
             </Style>
             <Style x:Key="_listBoxModeSelectionStyle"
@@ -707,15 +700,6 @@
                 </Setter>
             </Style>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingWave.xaml"></ResourceDictionary>
-                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingThreeDots.xaml"></ResourceDictionary>
-                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingFlipPlane.xaml"></ResourceDictionary>
-                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingPulse.xaml"></ResourceDictionary>
-                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingDoubleBounce.xaml"></ResourceDictionary>
-                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Colors.xaml"></ResourceDictionary>
-                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles.xaml"></ResourceDictionary>
-                <ResourceDictionary Source="GeometryCollection.xaml">
-                </ResourceDictionary>
                 <hc:ThemeResources>
                     <hc:ThemeResources.ThemeDictionaries>
                         <ResourceDictionary x:Key="Light"
@@ -756,6 +740,168 @@
                     </hc:ThemeResources.ThemeDictionaries>
                 </hc:ThemeResources>
                 <hc:Theme />
+                <ResourceDictionary>
+                    <DataTemplate x:Key="_buttonSubParamTemplate"
+                                  DataType="{x:Type parameters:SubParameter}">
+                        <Grid Visibility="{Binding IsEnabled,Converter={StaticResource Boolean2VisibilityConverter},Mode=TwoWay}">
+                            <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
+                                <StackPanel>
+                                    <hc:Divider  LineStroke="{StaticResource RegionBrush}"
+                                                 Margin="0,10,0,10">
+                                    </hc:Divider>
+                                    <Grid>
+                                        <GroupBox VerticalAlignment="Stretch"
+                                                  Style="{StaticResource GroupBoxOriginal}"
+                                                  HorizontalAlignment="Stretch"
+                                                  hc:TitleElement.TitlePlacement="Left">
+                                            <GroupBox.HeaderTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock  Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox}}" />
+                                                </DataTemplate>
+                                            </GroupBox.HeaderTemplate>
+                                            <Button Style="{DynamicResource _lowProfileDefaultButton}"
+                                                    CommandParameter="{Binding CommandParameter}"
+                                                    HorizontalAlignment="Right"
+                                                    Content="{Binding CommandParameter}">
+                                            </Button>
+                                        </GroupBox>
+                                    </Grid>
+                                </StackPanel>
+                            </hc:TransitioningContentControl>
+                        </Grid>
+                    </DataTemplate>
+                    <DataTemplate x:Key="_sliderSubParamTemplate"
+                                  DataType="{x:Type parameters:SubParameter}">
+
+                        <Grid ToolTip="{Binding Description}"
+                              Visibility="{Binding IsEnabled,Converter={StaticResource Boolean2VisibilityConverter},Mode=TwoWay}">
+                            <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
+                                <StackPanel>
+                                    <hc:Divider   LineStroke="{StaticResource RegionBrush}"
+                                                  Margin="0,10,0,10">
+                                    </hc:Divider>
+                                    <Grid>
+                                        <GroupBox  HorizontalContentAlignment="Left"
+                                                   Style="{StaticResource GroupBoxOriginal}"
+                                                   hc:TitleElement.TitlePlacement="Left">
+                                            <GroupBox.HeaderTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock  Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox}}" />
+                                                </DataTemplate>
+                                            </GroupBox.HeaderTemplate>
+
+                                            <hc:PreviewSlider HorizontalAlignment="Right"
+                                                              Width="200"
+                                                              Minimum="{Binding MinValue}"
+                                                              Maximum="{Binding MaxValue}"
+                                                              Value="{Binding Value}">
+                                                <hc:PreviewSlider.PreviewContent>
+                                                    <Label Style="{StaticResource LabelPrimary}"
+                                                           Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}"
+                                                           ContentStringFormat="#0" />
+                                                </hc:PreviewSlider.PreviewContent>
+                                            </hc:PreviewSlider>
+                                        </GroupBox>
+                                    </Grid>
+                                </StackPanel>
+                            </hc:TransitioningContentControl>
+                        </Grid>
+                    </DataTemplate>
+                    <DataTemplate x:Key="_toggleSubParamTemplate"
+                                  DataType="{x:Type parameters:SubParameter}">
+                        <Grid ToolTip="{Binding Description}">
+                            <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
+
+                                <StackPanel>
+                                    <hc:Divider LineStroke="{StaticResource RegionBrush}"
+                                                Margin="0,10,0,10">
+                                    </hc:Divider>
+                                    <Grid>
+                                        <GroupBox VerticalAlignment="Stretch"
+                                                  Style="{StaticResource GroupBoxOriginal}"
+                                                  HorizontalAlignment="Stretch"
+                                                  hc:TitleElement.TitlePlacement="Left">
+                                            <GroupBox.HeaderTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock  FontWeight="SemiBold"
+                                                                Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox}}" />
+                                                </DataTemplate>
+                                            </GroupBox.HeaderTemplate>
+                                            <ToggleButton HorizontalAlignment="Right"
+                                                          IsChecked="{Binding Value}"
+                                                          Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
+                                            </ToggleButton>
+                                        </GroupBox>
+                                    </Grid>
+                                </StackPanel>
+                            </hc:TransitioningContentControl>
+                        </Grid>
+                    </DataTemplate>
+                    <DataTemplate x:Key="_listSelectionSubParamTemplate"
+                                  DataType="{x:Type parameters:SubParameter}">
+                        <Grid Visibility="{Binding IsEnabled,Converter={StaticResource Boolean2VisibilityConverter},Mode=TwoWay}">
+                            <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
+                                <StackPanel>
+                                    <hc:Divider LineStroke="{StaticResource RegionBrush}"
+                                                Margin="0,10,0,10">
+                                    </hc:Divider>
+                                    <Grid>
+                                        <GroupBox VerticalAlignment="Stretch"
+                                                  Style="{StaticResource GroupBoxOriginal}"
+                                                  HorizontalAlignment="Stretch"
+                                                  hc:TitleElement.TitlePlacement="Left">
+                                            <GroupBox.HeaderTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox}}" />
+                                                </DataTemplate>
+                                            </GroupBox.HeaderTemplate>
+                                            <Border Effect="{DynamicResource EffectShadow1}"
+                                                    HorizontalAlignment="Right"
+                                                    Background="{DynamicResource SecondaryRegionBrush}"
+                                                    CornerRadius="4">
+                                                <ListBox  ItemsSource="{Binding AvailableValue}"
+                                                          ItemContainerStyle="{DynamicResource _listBoxModeSelectionStyle}"
+                                                          SelectedIndex="{Binding Value}"
+                                                          Background="Transparent"
+                                                          BorderThickness="0"
+                                                          Style="{StaticResource WrapPanelHorizontalListBox}">
+                                                    <ListBox.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <WrapPanel>
+                                                            </WrapPanel>
+                                                        </ItemsPanelTemplate>
+                                                    </ListBox.ItemsPanel>
+                                                    <ListBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Grid>
+                                                                <TextBlock HorizontalAlignment="Center"
+                                                                           VerticalAlignment="Center"
+                                                                           Margin="5,2"
+                                                                           Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                                                                           Text="{Binding .}"
+                                                                           Style="{DynamicResource TextBlockDefault}" />
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ListBox.ItemTemplate>
+                                                </ListBox>
+                                            </Border>
+                                        </GroupBox>
+                                    </Grid>
+                                </StackPanel>
+                            </hc:TransitioningContentControl>
+                        </Grid>
+                    </DataTemplate>
+                </ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingWave.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingThreeDots.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingFlipPlane.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingPulse.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingDoubleBounce.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Colors.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="GeometryCollection.xaml">
+                </ResourceDictionary>
+               
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

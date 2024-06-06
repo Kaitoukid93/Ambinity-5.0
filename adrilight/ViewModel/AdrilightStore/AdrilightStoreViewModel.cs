@@ -1,15 +1,11 @@
-﻿using adrilight.View;
-using adrilight.View.Screens.Store;
+﻿using adrilight.View.Screens.Store;
 using adrilight_shared.Models.RelayCommand;
 using adrilight_shared.Models.Store;
-using adrilight_shared.View.NonClientAreaContent;
 using adrilight_shared.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Web.UI.WebControls;
 using System.Windows;
 using System.Windows.Input;
 using static adrilight.View.OnlineItemDetailView;
@@ -25,6 +21,7 @@ namespace adrilight.ViewModel.AdrilightStore
         #endregion
         public AdrilightStoreViewModel(IList<ISelectablePage> availablePages,
             SearchBarViewModel searchBar,
+            AdrilightStoreItemDetailViewModel detailView,
             AdrilightStoreHomePageViewModel homePage,
             AdrilightStoreItemsCollectionViewModel itemsCollection,
             AdrilightStoreSFTPClient client,
@@ -36,6 +33,7 @@ namespace adrilight.ViewModel.AdrilightStore
             _homePage = homePage;
             SelectablePages = availablePages;
             _client = client;
+            _itemDetailView = detailView;
         }
 
 
@@ -109,9 +107,20 @@ namespace adrilight.ViewModel.AdrilightStore
             _itemsCollection.PaginationIndex = 1;
 
         }
-        private void OnItemClicked(OnlineItemModel item)
+        private async void DownloadItem(OnlineItemModel item)
+        {
+            ProgressBarVisibility = true;
+            await Task.Run(() => _client.DownloadCurrentOnlineItem(item, _progress));
+            await Task.Delay(500);
+            ProgressBarVisibility = false;
+        }
+        private async void OnItemClicked(OnlineItemModel item)
         {
             GotoItemDetailView(item);
+            ProgressBarVisibility = true;
+            await Task.Run(()=> _itemDetailView.Init(item,_progress));
+            await Task.Delay(500);
+            ProgressBarVisibility = false;
         }
         private async void OnSearchContentCommited(string content)
         {
@@ -128,6 +137,7 @@ namespace adrilight.ViewModel.AdrilightStore
         private SearchBarViewModel _searchBar;
         private StoreCategoriesViewModel _storeCategories;
         private AdrilightStoreItemsCollectionViewModel _itemsCollection;
+        private AdrilightStoreItemDetailViewModel _itemDetailView;
         private AdrilightStoreHomePageViewModel _homePage;
         private StoreNonClientArea _nonClientAreaContent;
         private ISelectablePage _selectedPage;
@@ -215,8 +225,11 @@ namespace adrilight.ViewModel.AdrilightStore
             _itemsCollection.PaginationUpdated += OnPaginationUpdated;
             _itemsCollection.StartUpdatingCollection += _itemsCollection_StartUpdatingCollection;
             _itemsCollection.UpdateCollectionComplete += _itemsCollection_UpdateCollectionComplete;
+            _itemsCollection.ItemDownloadClicked += DownloadItem;
+            _itemDetailView.ItemDownloadButtonClicked += DownloadItem;
             _homePage.SeeAllButtonClicked += _homePage_SeeAllButtonClicked;
             _homePage.ItemClicked += OnItemClicked;
+            _homePage.ItemDownloadButtonClicked += DownloadItem;
             ProgressBarVisibility = true;
             GotoToHomePageView();
             if (!_client.IsInit)
@@ -235,6 +248,7 @@ namespace adrilight.ViewModel.AdrilightStore
             ProgressBarVisibility = false;
 
         }
+        
         private void GotoToHomePageView()
         {
             LoadNonClientAreaData("Adrilight  |  Store  |  Home", "onlineStore", false, null);

@@ -49,11 +49,16 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <Border Background="{DynamicResource MainContentBackgroundBrush}"
-                CornerRadius="4"
+        <Border CornerRadius="4"
                 Width="200"
                 Height="300"
+                BorderThickness="2"
+                BorderBrush="{DynamicResource SecondaryRegionBrush}"
                 Margin="10">
+            <Border.Background>
+                <SolidColorBrush Color="{DynamicResource MainContentBackgroundColor}"
+                                 Opacity="0.5" />
+            </Border.Background>
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto" />
@@ -86,7 +91,11 @@
                                         MouseLeave="Border_MouseLeave"
                                         Height="32"
                                         Margin="5,0,5,1"
-                                        Background="{DynamicResource SecondaryRegionBrush}">
+                                        >
+                                    <Border.Background>
+                                        <SolidColorBrush Color="{DynamicResource SecondaryRegionColor}"
+                                                         Opacity="0.5" />
+                                    </Border.Background>
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
                                             <i:InvokeCommandAction Command="{Binding Path=DataContext.LayerViewMouseButtonDownCommand,RelativeSource={RelativeSource AncestorType={x:Type local:LayerView}}}"
@@ -138,7 +147,66 @@
                                         MouseLeave="Border_MouseLeave"
                                         Height="32"
                                         Margin="5,0,5,1"
-                                        Background="{DynamicResource SecondaryRegionBrush}">
+                                        >
+                                    <Border.Background>
+                                        <SolidColorBrush Color="{DynamicResource SecondaryRegionColor}"
+                                                         Opacity="0.5" />
+                                    </Border.Background>
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                                            <i:InvokeCommandAction Command="{Binding Path=DataContext.LayerViewMouseButtonDownCommand,RelativeSource={RelativeSource AncestorType={x:Type local:LayerView}}}"
+                                                                   CommandParameter="{Binding .}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <Grid>
+                                        <hc:TransitioningContentControl TransitionStoryboard="{DynamicResource SelectedTransition}"
+                                                                        Visibility="{Binding IsMouseOver, Converter={StaticResource boolToVisibilityConvert}}">
+                                            <Grid IsHitTestVisible="False">
+                                                <Border Background="White">
+                                                </Border>
+                                            </Grid>
+                                        </hc:TransitioningContentControl>
+                                        <Grid IsHitTestVisible="False">
+                                            <Border Opacity="0.3"
+                                                    IsVisibleChanged="Border_IsVisibleChanged"
+                                                    Visibility="{Binding IsSelected,Converter={StaticResource Boolean2VisibilityConverter}}"
+                                                    Background="White">
+                                            </Border>
+                                        </Grid>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="auto" />
+                                                <ColumnDefinition Width="*" />
+
+                                            </Grid.ColumnDefinitions>
+                                            <Border>
+                                                <Path Margin="10,0,0,0"
+                                                      Width="15"
+                                                      Height="15"
+                                                      Fill="{DynamicResource PrimaryTextBrush}"
+                                                      Data="{DynamicResource ZoneIcon}"
+                                                      Stretch="Uniform">
+                                                </Path>
+                                            </Border>
+                                            <TextBlock Margin="20,0,0,0"
+                                                       HorizontalAlignment="Left"
+                                                       Style="{DynamicResource TextBlockDefault}"
+                                                       FontWeight="SemiBold"
+                                                       Grid.Column="1"
+                                                       Text="{Binding Name,TargetNullValue=Zone}" />
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                            <DataTemplate DataType="{x:Type zone:FanMotor}">
+                                <Border MouseEnter="Border_MouseEnter"
+                                        MouseLeave="Border_MouseLeave"
+                                        Height="32"
+                                        Margin="5,0,5,1">
+                                    <Border.Background>
+                                        <SolidColorBrush Color="{DynamicResource SecondaryRegionColor}"
+                                                         Opacity="0.5" />
+                                    </Border.Background>
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
                                             <i:InvokeCommandAction Command="{Binding Path=DataContext.LayerViewMouseButtonDownCommand,RelativeSource={RelativeSource AncestorType={x:Type local:LayerView}}}"

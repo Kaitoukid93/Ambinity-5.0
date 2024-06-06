@@ -177,7 +177,7 @@
                                  Footer="{Binding Name}">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="MouseLeftButtonDown">
-                                    <i:InvokeCommandAction Command="{Binding Path=DataContext.SelectOnlineItemCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                    <i:InvokeCommandAction Command="{Binding Path=DataContext.ItemCardClickCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
                                                            CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
@@ -279,8 +279,8 @@
                                                             Foreground="{DynamicResource PrimaryBrush}"
                                                             BorderThickness="0"
                                                             Content="Get"
-                                                            Command="{Binding Path=DataContext.DownloadCurrentItemCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                            CommandParameter="{Binding DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
+                                                            Command="{Binding Path=DataContext.ItemDownloadButtonClickCommand,RelativeSource={RelativeSource AncestorType={x:Type local:StoreItemsCollectionView}}}"
+                                                            CommandParameter="{Binding Path=DataContext,RelativeSource={RelativeSource AncestorType=hc:Card}}">
                                                         <Button.Background>
                                                             <SolidColorBrush Color="{Binding Color, Source={StaticResource PrimaryBrush}}"
                                                                              Opacity="0.2" />
@@ -295,8 +295,7 @@
                                                                       Margin="10"
                                                                       Height="25"
                                                                       Width="25"
-                                                                      Value="{Binding Path=DataContext.CurrentDownloadProgress, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                                      Maximum="{Binding Path=DataContext.CurrentItemSize, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                                      IsIndeterminate="True"
                                                                       FontSize="10" />
                                                 <Grid Visibility="{Binding DataContext.IsLocalExisted,RelativeSource={RelativeSource AncestorType=hc:Card},Converter={StaticResource Boolean2VisibilityConverter},Mode=TwoWay}">
                                                     <Button Margin="10"

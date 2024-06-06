@@ -26,10 +26,10 @@ namespace adrilight.View
             var dataSource = (adrilight_shared.Models.ControlMode.ModeParameters.ListSelectionParameter)dataCntx;
             if (dataSource != null)
             {
-                if (dataSource.ShowMore)
-                    dataSource.ShowMore = false;
-                else
-                    dataSource.ShowMore = true;
+                //if (dataSource.ShowMore)
+                //    dataSource.ShowMore = false;
+                //else
+                //    dataSource.ShowMore = true;
             }
         }
 

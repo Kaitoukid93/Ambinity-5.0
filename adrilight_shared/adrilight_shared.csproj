@@ -172,7 +172,7 @@
     <Compile Include="Models\Stores\DeviceControlEvent.cs" />
     <Compile Include="Models\Store\AdrilightStoreSFTPClient.cs" />
     <Compile Include="Models\VerticalMenu\IVerticalMenuItem.cs" />
-    <Compile Include="Services\AdrilightStoreService\AdrilightSFTPClient.cs" />
+    <Compile Include="Services\AdrilightStoreService\AdrilightDeviceManagerSFTPClient.cs" />
     <Compile Include="Services\DialogService.cs" />
     <Compile Include="Enums\OnlineItemAvatarTypeEnum.cs" />
     <Compile Include="Enums\ChasingPatternTypeEnum.cs" />

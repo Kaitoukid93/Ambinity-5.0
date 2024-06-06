@@ -25,7 +25,6 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
         /// </summary>
         bool IsEnabled { get; set; }
         ObservableCollection<SubParameter> SubParams { get; set; }
-        bool ShowMore { get; set; }
 
     }
 }

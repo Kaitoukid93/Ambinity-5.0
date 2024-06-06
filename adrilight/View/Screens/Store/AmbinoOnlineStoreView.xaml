@@ -49,11 +49,12 @@
         </Grid>
         <!--Content-->
         <Grid Grid.Row="1"
-              IsEnabled="{Binding IsBusy,Mode=TwoWay,Converter={StaticResource Boolean2BooleanReConverter}}">
+              IsHitTestVisible="{Binding IsBusy,Mode=TwoWay,Converter={StaticResource Boolean2BooleanReConverter}}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
+           
             <!--side panel category selection-->
             <local:StoreCatergoriesView>
 
@@ -64,6 +65,9 @@
                                   Content="{Binding SelectedPage.Content}">
                 </ContentPresenter>
             </Grid>
+            <Border CornerRadius="7" Visibility="{Binding IsBusy,Converter={StaticResource Boolean2VisibilityConverter}}" Grid.Column="1" Background="{DynamicResource DarkOpacityBrush}">
+
+            </Border>
         </Grid>
 
 

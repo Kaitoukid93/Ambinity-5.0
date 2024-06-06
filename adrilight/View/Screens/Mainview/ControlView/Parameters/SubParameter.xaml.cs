@@ -1,5 +1,4 @@
-﻿using adrilight_shared.Models.ControlMode.ModeParameters;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,17 +13,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace adrilight.View.Template
+namespace adrilight.View
 {
     /// <summary>
-    /// Interaction logic for ListSelectionParamTemplate.xaml
+    /// Interaction logic for SubParameter.xaml
     /// </summary>
-    public partial class ListSelectionParamTemplate : UserControl
+    public partial class SubParameter : UserControl
     {
-        public ListSelectionParamTemplate()
+        public SubParameter()
         {
             InitializeComponent();
         }
-       
     }
 }

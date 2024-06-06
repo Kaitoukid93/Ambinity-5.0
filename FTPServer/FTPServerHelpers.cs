@@ -19,6 +19,8 @@ namespace FTPServer
         {
 
         }
+        private IProgress<int> _progress;
+        private long _itemSize;
         public async Task<List<String>> GetAllFilesAddressInFolder(string folderPath)
         {
             var listFilesAddress = new List<String>();
@@ -161,8 +163,14 @@ namespace FTPServer
         {
             return sFTP.Get(remotePath);
         }
-        public void DownloadFile(string remotePath, string localPath, Action<ulong> donwloadCallback)  // this method get all file from dropbox adrilight App folder to temp folder
+        private void DownloadProgresBar(ulong uploaded)
         {
+            // Update progress bar on foreground thread
+            _progress.Report((int)((100 * uploaded) / (ulong)_itemSize));
+        }
+        public void DownloadFile(string remotePath, string localPath, IProgress<int> progress = null)  // this method get all file from dropbox adrilight App folder to temp folder
+        {
+            _progress = progress;
             if (File.Exists(localPath))
                 return;
 
@@ -170,7 +178,8 @@ namespace FTPServer
             {
                 using (var s = System.IO.File.Create(localPath))
                 {
-                    sFTP.DownloadFile(remotePath, s, donwloadCallback);
+                    _itemSize = GetFileAttributes(remotePath).Size;
+                    sFTP.DownloadFile(remotePath, s, DownloadProgresBar);
                 }
 
             }

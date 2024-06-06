@@ -393,8 +393,8 @@ namespace adrilight.Services.LightingEngine
             _midDataControl.SubParams[2].PropertyChanged += (_, __) => OnVUModePropertyChanged(_midDataControl.SubParams[2].Value);
 
 
-            _colorControl.LoadAvailableValues();
-            _midDataControl.LoadAvailableValues();
+           // _colorControl.LoadAvailableValues();
+            //_midDataControl.LoadAvailableValues();
 
             _audioDeviceSelectionControl = _currentLightingMode.Parameters.Where(p => p is AudioDeviceSelectionButtonParameter).FirstOrDefault() as AudioDeviceSelectionButtonParameter;
             _audioDeviceSelectionControl.Localize(adrilight_shared.Properties.Resources.AudioDeviceSelection_header, adrilight_shared.Properties.Resources.AudioDeviceSelection_info);
@@ -411,12 +411,12 @@ namespace adrilight.Services.LightingEngine
             //safety check
             if (_colorControl.SelectedValue == null)
             {
-                _colorControl.SelectedValue = _colorControl.AvailableValues.First();
+                //_colorControl.SelectedValue = _colorControl.AvailableValues.First();
             }
             OnSelectedPaletteChanged(_colorControl.SelectedValue);
             if (_midDataControl.SelectedValue == null)
             {
-                _midDataControl.SelectedValue = _midDataControl.AvailableValues.First();
+                //_midDataControl.SelectedValue = _midDataControl.AvailableValues.First();
             }
             EnableChanged(_enableControl.Value == 1 ? true : false);
             OnSelectedMIDDataChanged(_midDataControl.SelectedValue);

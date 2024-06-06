@@ -32,10 +32,10 @@ namespace adrilight.View.Template
             var dataSource = (ListSelectionParameter)dataCntx;
             if (dataSource != null)
             {
-                if (dataSource.ShowMore)
-                    dataSource.ShowMore = false;
-                else
-                    dataSource.ShowMore = true;
+                //if (dataSource.ShowMore)
+                //    dataSource.ShowMore = false;
+                //else
+                //    dataSource.ShowMore = true;
             }
         }
     }

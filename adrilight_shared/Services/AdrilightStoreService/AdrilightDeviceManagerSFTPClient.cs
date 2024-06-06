@@ -102,13 +102,13 @@ namespace adrilight_shared.Services.AdrilightStoreService
         {
             ClearCacheFolder();
             var savePath = Path.Combine(CacheFolderPath, filePath.Name);
-            _ftpServer.DownloadFile(filePath.FullName, savePath, DownloadProgresBar);
+            //_ftpServer.DownloadFile(filePath.FullName, savePath, DownloadProgresBar);
             return savePath;
         }
         public void DownloadFile(SftpFile filePath, string savePath)
         {
             ClearCacheFolder();
-            _ftpServer.DownloadFile(filePath.FullName, savePath, DownloadProgresBar);
+           // _ftpServer.DownloadFile(filePath.FullName, savePath, DownloadProgresBar);
         }
         public async Task<List<SftpFile>> DownloadDeviceInfo(string deviceName, string deviceType, DeviceConnectionTypeEnum connectionType)
         {

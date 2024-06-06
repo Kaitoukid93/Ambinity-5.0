@@ -5,15 +5,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
              xmlns:parameters="clr-namespace:adrilight_shared.Models.ControlMode.ModeParameters;assembly=adrilight_shared"
-             xmlns:parameterValues="clr-namespace:adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;assembly=adrilight_shared"
              xmlns:local="clr-namespace:adrilight.View"
              xmlns:template="clr-namespace:adrilight.View.Template"
              xmlns:enums="clr-namespace:adrilight_shared.Enums;assembly=adrilight_shared"
-             xmlns:viewmodel="clr-namespace:adrilight.ViewModel"
              xmlns:properties="clr-namespace:adrilight_shared.Properties;assembly=adrilight_shared"
-             xmlns:System="clr-namespace:System;assembly=mscorlib"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:gif="https://github.com/XamlAnimatedGif/XamlAnimatedGif"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              mc:Ignorable="d"
              x:Name="control"
@@ -566,22 +562,22 @@
                                             <ContentControl.Style>
                                                 <Style TargetType="{x:Type ContentControl}">
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding Path=Template}"
+                                                        <DataTrigger Binding="{Binding Path=TemplateSelector}"
                                                                      Value="{x:Static enums:ModeParameterTemplateEnum.ValueSlider}">
                                                             <Setter Property="ContentTemplate"
                                                                     Value="{DynamicResource _sliderParamTemplate}" />
                                                         </DataTrigger>
-                                                        <DataTrigger Binding="{Binding Path=Template}"
+                                                        <DataTrigger Binding="{Binding Path=TemplateSelector}"
                                                                      Value="{x:Static enums:ModeParameterTemplateEnum.ListSelection}">
                                                             <Setter Property="ContentTemplate"
                                                                     Value="{DynamicResource _listSelectionParamTemplate}" />
                                                         </DataTrigger>
-                                                        <DataTrigger Binding="{Binding Path=Template}"
+                                                        <DataTrigger Binding="{Binding Path=TemplateSelector}"
                                                                      Value="{x:Static enums:ModeParameterTemplateEnum.ToggleOnOff}">
                                                             <Setter Property="ContentTemplate"
                                                                     Value="{DynamicResource _toggleParamTemplate}" />
                                                         </DataTrigger>
-                                                        <DataTrigger Binding="{Binding Path=Template}"
+                                                        <DataTrigger Binding="{Binding Path=TemplateSelector}"
                                                                      Value="{x:Static enums:ModeParameterTemplateEnum.PushButtonAction }">
                                                             <Setter Property="ContentTemplate"
                                                                     Value="{DynamicResource _buttonParamTemplate}" />

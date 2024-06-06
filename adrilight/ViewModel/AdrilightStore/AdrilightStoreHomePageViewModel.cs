@@ -13,6 +13,7 @@ namespace adrilight.ViewModel.AdrilightStore
     {
         public event Action<OnlineItemModel> ItemClicked;
         public event Action<HomePageCarouselItem> SeeAllButtonClicked;
+        public event Action<OnlineItemModel> ItemDownloadButtonClicked;
         public AdrilightStoreHomePageViewModel(AdrilightStoreSFTPClient client)
         {
             _client = client;
@@ -85,8 +86,17 @@ namespace adrilight.ViewModel.AdrilightStore
                 SeeAllButtonClicked?.Invoke(p);
 
             });
+            ItemDownloadButtonClickCommand = new RelayCommand<OnlineItemModel>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                ItemDownloadButtonClicked?.Invoke(p);
+
+            });
         }
         public ICommand ItemCardClickCommand { get; set; }
+        public ICommand ItemDownloadButtonClickCommand { get; set; }
         public ICommand SeAllButtonClickCommand { get; set; }
     }
 }

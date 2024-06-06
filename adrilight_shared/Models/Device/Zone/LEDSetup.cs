@@ -178,7 +178,7 @@ namespace adrilight_shared.Models.Device.Zone
         {
             foreach (var param in CurrentActiveControlMode.Parameters)
             {
-                param.ShowMore = false;
+               // param.ShowMore = false;
             }
         }
         public List<ColorCard> GetStaticColorDataSource()
@@ -186,7 +186,7 @@ namespace adrilight_shared.Models.Device.Zone
             var colors = new List<ColorCard>();
             var staticColorControlMode = AvailableControlMode.Where(m => (m as LightingMode).BasedOn == LightingModeEnum.StaticColor).FirstOrDefault() as LightingMode;
             (staticColorControlMode.ColorParameter as ListSelectionParameter).LoadAvailableValues();
-            (staticColorControlMode.ColorParameter as ListSelectionParameter).AvailableValues.ForEach(c => colors.Add(c as ColorCard));
+           // (staticColorControlMode.ColorParameter as ListSelectionParameter).AvailableValues.ForEach(c => colors.Add(c as ColorCard));
             return colors;
         }
         public void BrightnessUp(int value)
