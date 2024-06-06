@@ -43,6 +43,7 @@ namespace adrilight.ViewModel
 
         #region Properties
         private EffectControlViewModel _effectControl;
+        private bool _enable = true;
         public IDeviceSettings Device { get; set; }
         public DeviceCanvasViewModel CanvasViewModel { get; set; }
         public VerticalMenuControlViewModel VerticalMenu { get; set; }
@@ -54,6 +55,17 @@ namespace adrilight.ViewModel
             set
             {
                 _effectControl = value;
+                RaisePropertyChanged();
+            }
+        }
+        public bool Enable {
+            get
+            {
+                return _enable;
+            }
+            set
+            {
+                _enable = value;
                 RaisePropertyChanged();
             }
         }
@@ -71,6 +83,10 @@ namespace adrilight.ViewModel
             //update view
             Device.CurrentActiveControlerIndex = index;
             LoadData();
+        }
+        private void OnLoadingParamStatusChanged(bool status)
+        {
+            Enable = !status;
         }
         private void OnCanvasUnSelectionChanged()
         {
@@ -160,6 +176,7 @@ namespace adrilight.ViewModel
             _deviceControlEvent.UnselectAllItemEvent += OnCanvasUnSelectionChanged;
             _deviceControlEvent.SelectedItemUngrouped += OnCanvasUngrouped;
             _deviceControlEvent.SelectedItemGrouped += OnCanvasGrouped;
+            _deviceControlEvent.LoadingControlParamStatusChanged += OnLoadingParamStatusChanged;
             LoadVerticalMenuItem();
         }
         private void LoadData()
@@ -175,7 +192,7 @@ namespace adrilight.ViewModel
             {
                 if (!item.IsInControlGroup)
                     (item as IDrawable).IsSelectable = true;
-                
+
                 CanvasViewModel.AddItem(item as IDrawable);
             }
             //add all zone in group

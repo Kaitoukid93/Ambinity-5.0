@@ -73,18 +73,18 @@ namespace adrilight_shared.Models.Store
         #region Methods
         public void Init()
         {
-            IsInit = false;
-            if (_ftpServer != null)
-            {
-                _ftpServer.sFTP?.Disconnect();
-            }
             string userName = _appUser.LoginName;
             string password = _appUser.LoginPassword;
             _ftpServer.sFTP = new SftpClient(host, 1512, userName, password);
             _ftpServer.sFTP.Connect();
             IsInit = true;
         }
-
+        public void Dispose()
+        {
+            _ftpServer.sFTP.Dispose();
+            IsInit = false;
+            GC.SuppressFinalize(this);
+        }
         public bool IsInit { get; set; }
         public List<StoreCategory> GetStoreCategories()
         {
@@ -233,7 +233,7 @@ namespace adrilight_shared.Models.Store
             }
             return await Task.FromResult(items);
         }
-        private async Task<List<StoreFilterModel>> GetCatergoryFilter(string path)
+        public async Task<List<StoreFilterModel>> GetCatergoryFilter(string path)
         {
             var listFilter = new List<StoreFilterModel>();
             if (path == null || path == string.Empty)
@@ -266,7 +266,7 @@ namespace adrilight_shared.Models.Store
                 if (itemName.Contains("filters"))
                     continue;
                 //get description content
-               // var descriptionPath = address + "/description.md";
+               //var descriptionPath = address + "/description.md";
                // var description = await _ftpServer.GetStringContent(descriptionPath);
                 if (itemName.ToLower().Contains(lowerFilter) || lowerFilter == string.Empty)
                 {
@@ -276,7 +276,7 @@ namespace adrilight_shared.Models.Store
             return filteredItemAddress;
         }
 
-        public async Task<List<OnlineItemModel>> GetStoreItems(StoreFilterModel filter, int offset, int numItem)
+        public async Task<(List<OnlineItemModel>,int)> GetStoreItems(StoreFilterModel filter, int offset, int numItem)
         {
             var currentPageListItemAddress = new List<string>();
             var currentDeviceTypeFilter = filter.DeviceTypeFilter;
@@ -316,16 +316,29 @@ namespace adrilight_shared.Models.Store
                 foreach (var address in filteredItemAddress.Skip(offset).Take(numItem).ToList())
                 {
                     var infoPath = address + "/info.json";
-                    var info = _ftpServer.GetFiles<OnlineItemModel>(infoPath).Result;
-                    info.Path = address;
-                    if (info.TargetDevices != null && currentDeviceTypeFilter != null && info.TargetDevices.Any(t => t.Type.ToString() == currentDeviceTypeFilter))
+                    var info = new OnlineItemModel();
+                    try
                     {
-                        finalItemList.Add(info);
+                        info = _ftpServer.GetFiles<OnlineItemModel>(infoPath).Result;
+                        if(info != null)
+                        {
+                            info.Path = address;
+                            if (info.TargetDevices != null && currentDeviceTypeFilter != null && info.TargetDevices.Any(t => t.Type.ToString() == currentDeviceTypeFilter))
+                            {
+                                finalItemList.Add(info);
+                            }
+                            else if (currentDeviceTypeFilter == null)
+                            {
+                                finalItemList.Add(info);
+                            }
+                        }
+                        
                     }
-                    else if (currentDeviceTypeFilter == null)
+                    catch(Exception ex)
                     {
-                        finalItemList.Add(info);
+                        continue;
                     }
+                   
                 }
                 foreach (var item in finalItemList)
                 {
@@ -339,11 +352,11 @@ namespace adrilight_shared.Models.Store
                 //        item.Thumb = _ftpServer.GetThumb(thumbPath).Result;
                 //    }
                 //}
-                return finalItemList;
+                return (finalItemList, filteredItemAddress.Count);
             }
             else
             {
-                return null;
+                return (null,0);
             }
         }
         public async Task<List<HomePageCarouselItem>> GetCarousel()

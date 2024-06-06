@@ -20,6 +20,7 @@ using System.ComponentModel;
 using adrilight.Ticker;
 using adrilight_shared.Enums;
 using adrilight.Manager;
+using adrilight_shared.Models.ControlMode.ModeParameters;
 
 namespace adrilight.ViewModel
 {
@@ -35,6 +36,8 @@ namespace adrilight.ViewModel
             LightingPlayer = lightingPlayer;
             LightingPlayer.IsRunningPropertyChanged += LightingPlayer_IsRunningPropertyChanged;
             LightingProfileManager = lightingProfileManager;
+            AvailableParameters = new ObservableCollection<IModeParameter>();
+            AvailableControlMode = new ObservableCollection<IControlMode>();
             CommandSetup();
         }
 
@@ -53,11 +56,7 @@ namespace adrilight.ViewModel
         private bool _isLoadingControlMode;
         private IControlMode _selectedControlMode;
         private ObservableCollection<IControlMode> _availableControlMode;
-
-        /// <summary>
-        /// helpers
-        /// </summary>
-        private DrawableHelpers _drawableHelpers;
+        private bool _isLoadingParam;
 
 
         //public//
@@ -67,13 +66,11 @@ namespace adrilight.ViewModel
                 return LightingPlayer.IsRunning && SelectedControlMode is LightingMode;
             }
         }
-        public DeviceControlEvent DeviceControlEvent
-        {
+        public DeviceControlEvent DeviceControlEvent {
             get { return _deviceControlEvent; }
             set { _deviceControlEvent = value; }
         }
-        public bool IsLoadingControlMode
-        {
+        public bool IsLoadingControlMode {
             get { return _isLoadingControlMode; }
             set
             {
@@ -81,8 +78,7 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-        public ObservableCollection<IControlMode> AvailableControlMode
-        {
+        public ObservableCollection<IControlMode> AvailableControlMode {
             get { return _availableControlMode; }
             set
             {
@@ -90,27 +86,63 @@ namespace adrilight.ViewModel
                 RaisePropertyChanged();
             }
         }
-        public IControlMode SelectedControlMode
-        {
+        public IControlMode SelectedControlMode {
             get { return _selectedControlMode; }
             set
             {
                 _selectedControlMode = value;
                 RaisePropertyChanged();
+                AvailableParameters?.Clear();
+                ControlParametersInit(_selectedControlMode);
+
             }
         }
-        public Object ControlItem
+        private async Task ControlParametersInit(IControlMode controlMode)
         {
+            _deviceControlEvent.ChangeLoadingParamStatus(true);
+            await Task.Run(async () =>
+           {
+               foreach (var param in controlMode.Parameters)
+               {
+                   await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                   {
+                       AvailableParameters.Add(param);
+                   });
+                   await Task.Delay(100);
+               }
+
+           });
+            _deviceControlEvent.ChangeLoadingParamStatus(false);
+
+        }
+        private ObservableCollection<IModeParameter> _availableParameters;
+        public ObservableCollection<IModeParameter> AvailableParameters {
+            get
+            {
+                return _availableParameters;
+            }
+            set
+            {
+                _availableParameters = value;
+                RaisePropertyChanged();
+
+            }
+        }
+        public Object ControlItem {
             get
             {
                 return _controlItem;
             }
             set
             {
-                _controlItem = value;
-                Init();
-                RaisePropertyChanged();
-                RaisePropertyChanged(nameof(ShowPlayerWarning));
+                if (_controlItem != value)
+                {
+                    _controlItem = value;
+                    Init();
+                    RaisePropertyChanged();
+                    RaisePropertyChanged(nameof(ShowPlayerWarning));
+                }
+
             }
         }
         public PlaylistDecoder LightingPlayer { get; set; }
@@ -137,7 +169,7 @@ namespace adrilight.ViewModel
             StopLightingPlaylistCommand = new RelayCommand<string>((p) =>
             {
                 return true;
-            },  (p) =>
+            }, (p) =>
             {
                 LightingPlayer.Stop();
                 //stop playlist
@@ -150,14 +182,10 @@ namespace adrilight.ViewModel
         {
             //load available control mode
             //load selected control mode parameters
-            if(ControlItem == null)
+            if (ControlItem == null)
             {
                 //show null view
                 return;
-            }
-            if (AvailableControlMode == null)
-            {
-                AvailableControlMode = new ObservableCollection<IControlMode>();
             }
             AvailableControlMode?.Clear();
             if (ControlItem is IControlZone)
@@ -202,10 +230,10 @@ namespace adrilight.ViewModel
             IsLoadingControlMode = false;
 
         }
-      
+
         public void Dispose()
         {
-           LightingPlayer.IsRunningPropertyChanged -= LightingPlayer_IsRunningPropertyChanged;
+            LightingPlayer.IsRunningPropertyChanged -= LightingPlayer_IsRunningPropertyChanged;
         }
         #endregion
 

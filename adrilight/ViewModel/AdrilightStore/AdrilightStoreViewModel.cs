@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.UI.WebControls;
 using System.Windows;
 using System.Windows.Input;
 using static adrilight.View.OnlineItemDetailView;
@@ -26,6 +27,7 @@ namespace adrilight.ViewModel.AdrilightStore
             SearchBarViewModel searchBar,
             AdrilightStoreHomePageViewModel homePage,
             AdrilightStoreItemsCollectionViewModel itemsCollection,
+            AdrilightStoreSFTPClient client,
             StoreCategoriesViewModel categories)
         {
             _searchBar = searchBar;
@@ -33,12 +35,68 @@ namespace adrilight.ViewModel.AdrilightStore
             _storeCategories = categories;
             _homePage = homePage;
             SelectablePages = availablePages;
-            _searchBar.SearchContentCommited += OnSearchContentCommited;
-            _storeCategories.SelectedCatergoryChanged += OnSelectedCategoryChanged;
-            _itemsCollection.ItemClicked += OnItemClicked;
+            _client = client;
         }
+
+
+
+
         #region Events
-        private async void OnSelectedCategoryChanged(StoreCategory catergory)
+        private async void OnFilterChipClicked(StoreFilterModel filter)
+        {
+            ProgressBarVisibility = true;
+            GotoCollectionView("Search " + "[" + filter.Name + "]");
+            _itemsCollection.CurrentFilter = filter;
+            _itemsCollection.PaginationIndex = 1;
+            await Task.Run(() => _itemsCollection.UpdateCollectionView(_progress));
+            await Task.Delay(500);
+            ProgressBarVisibility = false;
+        }
+        private void _itemsCollection_UpdateCollectionComplete()
+        {
+            IsBusy = false;
+            _searchBar.IsEnabled = true;
+        }
+        private void _itemsCollection_StartUpdatingCollection()
+        {
+            IsBusy = true;
+            _searchBar.IsEnabled = false;
+        }
+        private async void _homePage_SeeAllButtonClicked(HomePageCarouselItem carousel)
+        {
+            ProgressBarVisibility = true;
+            GotoCollectionView(carousel.Name);
+            if (!_client.IsInit)
+                _client.Init();
+            try
+            {
+                await Task.Run(() => _itemsCollection.UpdateCollectionView(carousel, _progress));
+            }
+            catch (Exception ex)
+            {
+                _client.Dispose();
+            }
+            await Task.Delay(500);
+            ProgressBarVisibility = false;
+        }
+        private async void OnPaginationUpdated(int pageIndex)
+        {
+            ProgressBarVisibility = true;
+            // _itemsCollection.PaginationIndex = pageIndex;
+            if (!_client.IsInit)
+                _client.Init();
+            try
+            {
+                await Task.Run(() => _itemsCollection.UpdateCollectionView(_progress));
+            }
+            catch (Exception ex)
+            {
+                _client.Dispose();
+            }
+            await Task.Delay(500);
+            ProgressBarVisibility = false;
+        }
+        private void OnSelectedCategoryChanged(StoreCategory catergory)
         {
             _itemsCollection.CurrentFilter = new StoreFilterModel();
             if (catergory.Name == "Home")
@@ -46,12 +104,10 @@ namespace adrilight.ViewModel.AdrilightStore
                 GotoToHomePageView();
                 return;
             }
-            ProgressBarVisibility = true;
-            GotoCollectionView();
+            GotoCollectionView(catergory.Name);
             _itemsCollection.CurrentFilter.CatergoryFilter = catergory;
-            await Task.Run(() => _itemsCollection.UpdateCollectionView(0, _progress));
-            await Task.Delay(500);
-            ProgressBarVisibility = false;
+            _itemsCollection.PaginationIndex = 1;
+
         }
         private void OnItemClicked(OnlineItemModel item)
         {
@@ -61,9 +117,10 @@ namespace adrilight.ViewModel.AdrilightStore
         {
             //change nonclient area text
             ProgressBarVisibility = true;
-            GotoCollectionView();
+            GotoCollectionView("Search " + "[" + content + "]");
             _itemsCollection.CurrentFilter.NameFilter = content;
-            await Task.Run(() => _itemsCollection.UpdateCollectionView(0, _progress));
+            _itemsCollection.PaginationIndex = 1;
+            await Task.Run(() => _itemsCollection.UpdateCollectionView(_progress));
             await Task.Delay(500);
             ProgressBarVisibility = false;
         }
@@ -76,6 +133,19 @@ namespace adrilight.ViewModel.AdrilightStore
         private ISelectablePage _selectedPage;
         private IProgress<int> _progress;
         private bool _progressBarVisibility;
+        private AdrilightStoreSFTPClient _client;
+        private bool _isBusy;
+        public bool IsBusy {
+            get
+            {
+                return _isBusy;
+            }
+            set
+            {
+                _isBusy = value;
+                RaisePropertyChanged();
+            }
+        }
         public bool ProgressBarVisibility {
             get
             {
@@ -84,6 +154,10 @@ namespace adrilight.ViewModel.AdrilightStore
             set
             {
                 _progressBarVisibility = value;
+                if (!value)
+                {
+                    CurrentProgressBarValue = 0;
+                }
                 RaisePropertyChanged();
             }
         }
@@ -123,13 +197,34 @@ namespace adrilight.ViewModel.AdrilightStore
         }
         public override void Dispose()
         {
+            _searchBar.SearchContentCommited -= OnSearchContentCommited;
+            _storeCategories.SelectedCatergoryChanged -= OnSelectedCategoryChanged;
+            _itemsCollection.ItemClicked -= OnItemClicked;
+            _itemsCollection.PaginationUpdated -= OnPaginationUpdated;
+            _homePage.SeeAllButtonClicked -= _homePage_SeeAllButtonClicked;
+            _homePage.ItemClicked -= OnItemClicked;
+            _client.Dispose();
             base.Dispose();
         }
         public override async void LoadData()
         {
+            _searchBar.SearchContentCommited += OnSearchContentCommited;
+            _storeCategories.SelectedCatergoryChanged += OnSelectedCategoryChanged;
+            _storeCategories.FilterChipClicked += OnFilterChipClicked;
+            _itemsCollection.ItemClicked += OnItemClicked;
+            _itemsCollection.PaginationUpdated += OnPaginationUpdated;
+            _itemsCollection.StartUpdatingCollection += _itemsCollection_StartUpdatingCollection;
+            _itemsCollection.UpdateCollectionComplete += _itemsCollection_UpdateCollectionComplete;
+            _homePage.SeeAllButtonClicked += _homePage_SeeAllButtonClicked;
+            _homePage.ItemClicked += OnItemClicked;
             ProgressBarVisibility = true;
             GotoToHomePageView();
-            await _storeCategories.Init();
+            if (!_client.IsInit)
+            {
+                await Task.Run(() => _client.Init());
+            }
+            _storeCategories.Init();
+            _storeCategories.SelectedCategory = _storeCategories.AvailableCatergories.First();
             //_itemsCollection.Init();
             _progress = new Progress<int>(percent =>
             {
@@ -147,9 +242,9 @@ namespace adrilight.ViewModel.AdrilightStore
             //init homepage view?
             SelectedPage = homePageView;
         }
-        private void GotoCollectionView()
+        private void GotoCollectionView(string currentHeader)
         {
-            LoadNonClientAreaData("Adrilight  |  Store  |  Items", "onlineStore", true, new RelayCommand<string>((p) =>
+            LoadNonClientAreaData("Adrilight  |  Store  |  " + currentHeader, "onlineStore", true, new RelayCommand<string>((p) =>
             {
                 return true;
             }, (p) =>
@@ -167,7 +262,7 @@ namespace adrilight.ViewModel.AdrilightStore
                 return true;
             }, (p) =>
             {
-                GotoCollectionView();
+                GotoCollectionView("Items");
             }));
             var detailView = SelectablePages.Where(p => p is OnlineItemDetailViewPage).First();
             //init detailView

@@ -12,7 +12,7 @@ namespace adrilight_shared.Models.DataVisualizer
 {
     public class ZoneVisualizer : System.Windows.Controls.Control 
     {
-        private const double UPDATE_FRAME_RATE = 10.0;
+        private const double UPDATE_FRAME_RATE = 25.0;
         private readonly DispatcherTimer _timer;
         private readonly List<LEDVisualizer> _leds;
         private Color[] _previousState = Array.Empty<Color>();

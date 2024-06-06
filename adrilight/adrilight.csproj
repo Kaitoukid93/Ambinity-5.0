@@ -391,6 +391,9 @@
       <DependentUpon>StoreCatergoriesView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\Screens\Store\StoreHomePageView.xaml.cs" />
+    <Compile Include="View\Screens\Store\FilterCollectionView.xaml.cs">
+      <DependentUpon>FilterCollectionView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Screens\Store\StoreItemsCollectionView.xaml.cs">
       <DependentUpon>StoreItemsCollectionView.xaml</DependentUpon>
     </Compile>
@@ -601,6 +604,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\Screens\Store\StoreHomePageView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Screens\Store\FilterCollectionView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

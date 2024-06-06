@@ -680,7 +680,7 @@
                                 </Grid.ColumnDefinitions>
                                 <Button HorizontalAlignment="Left"
                                         Margin="5"
-                                        Command="{Binding Path=DataContext.SeAllCarouselItemCommand, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
+                                        Command="{Binding Path=DataContext.SeAllButtonClickCommand, RelativeSource={RelativeSource AncestorType={x:Type local:StoreHomePageView}}}"
                                         CommandParameter="{Binding .}"
                                         Grid.Column="1"
                                         Height="40"

@@ -40,6 +40,7 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
         private ObservableCollection<SubParameter> _subParams;
         private bool _isEnabled = true;
         private int _selectedDataSourceIndex;
+        private adrilight_shared.Models.ItemsCollection.ItemsCollection _values;
         public List<string> DataSourceLocaFolderNames { get; set; }
         public int SelectedDataSourceIndex { get => _selectedDataSourceIndex; set { Set(() => SelectedDataSourceIndex, ref _selectedDataSourceIndex, value); LoadAvailableValues(); } }
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); } }
@@ -64,10 +65,29 @@ namespace adrilight_shared.Models.ControlMode.ModeParameters
         public int MaxValue { get => _maxValue; set { Set(() => MaxValue, ref _maxValue, value); } }
         [JsonIgnore]
         public bool ShowDeleteButton { get => _showDeleteButton; set { Set(() => ShowDeleteButton, ref _showDeleteButton, value); } }
-        public bool ShowMore { get => _showMore; set { Set(() => ShowMore, ref _showMore, value); } }
+        [JsonIgnore]
+        public bool ShowMore { get => _showMore; set { Set(() => ShowMore, ref _showMore, value);OnShowMoreChanged(); } }
+        [JsonIgnore]
+        public adrilight_shared.Models.ItemsCollection.ItemsCollection Values { get => _values; set { Set(() => Values, ref _values, value); } }
         [JsonIgnore]
         public string OnlineCatergory { get; set; }
         private DeserializeMethodEnum _deserializeMethod;
+        private void OnShowMoreChanged()
+        {
+            if(ShowMore)
+            {
+                Values = new adrilight_shared.Models.ItemsCollection.ItemsCollection();
+                foreach(var item in AvailableValues)
+                {
+                    Values.AddItem(item);
+                }
+            }
+            else
+            {
+                if(Values != null)
+                Values.Items.Clear();
+            }
+        }
         public void DeletedSelectedItem(IParameterValue item)
         {
             ShowDeleteButton = false;

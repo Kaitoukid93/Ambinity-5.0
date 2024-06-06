@@ -67,12 +67,13 @@ namespace adrilight_shared.ViewModel
                 return true;
             }, (p) =>
             {
-                if (Canvas.ChangeSelectedItem(p))
-                    _deviceControlEvent.ChangeSelectedItem(p);
-                if (Keyboard.IsKeyDown(Key.LeftShift))
-                {
-                    p.IsSelected = false;
-                }
+                //if (Canvas.ChangeSelectedItem(p))
+                //    _deviceControlEvent.ChangeSelectedItem(p);
+                //if (Keyboard.IsKeyDown(Key.LeftShift))
+                //{
+                //    p.IsSelected = false;
+                //}
+                _selectedItem = p;
 
             });
             RichCanvasMouseButtonUpCommand = new RelayCommand<string>((p) =>
@@ -80,6 +81,11 @@ namespace adrilight_shared.ViewModel
                 return true;
             }, (p) =>
             {
+                if (_selectedItem != null && _selectedItem.GetRect.Contains(Canvas.MousePosition))
+                {
+                    if (Canvas.ChangeSelectedItem(_selectedItem))
+                        _deviceControlEvent.ChangeSelectedItem(_selectedItem);
+                }
                 Canvas.ToolInit();
 
             });
@@ -94,21 +100,27 @@ namespace adrilight_shared.ViewModel
                     if (Canvas.UnselectAllCanvasItem())
                         _deviceControlEvent.UnSelectAllItem();
                 }
-
+               
             });
             LayerViewMouseButtonDownCommand = new RelayCommand<IDrawable>((p) =>
             {
                 return true;
             }, (p) =>
             {
+                if (p.IsSelected)
+                    return;
                 if (!Keyboard.IsKeyDown(Key.LeftCtrl)) // user is draging or holding ctrl
                 {
 
                     if (Canvas.UnselectAllCanvasItem())
                         _deviceControlEvent.UnSelectAllItem();
+                    if (Canvas.ChangeSelectedItem(p))
+                        _deviceControlEvent.ChangeSelectedItem(p);
                 }
-                if (Canvas.ChangeSelectedItem(p))
-                    _deviceControlEvent.ChangeSelectedItem(p);
+                else
+                {
+                    p.IsSelected = true;
+                }
                 Canvas.ToolInit();
 
             });

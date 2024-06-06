@@ -707,6 +707,13 @@
                 </Setter>
             </Style>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingWave.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingThreeDots.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingFlipPlane.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingPulse.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingDoubleBounce.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Colors.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles.xaml"></ResourceDictionary>
                 <ResourceDictionary Source="GeometryCollection.xaml">
                 </ResourceDictionary>
                 <hc:ThemeResources>

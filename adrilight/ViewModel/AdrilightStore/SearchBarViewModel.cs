@@ -1,4 +1,5 @@
 ﻿using adrilight_shared.Models.RelayCommand;
+using GalaSoft.MvvmLight;
 using HandyControl.Data;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Windows.Input;
 
 namespace adrilight.ViewModel.AdrilightStore
 {
-    public class SearchBarViewModel
+    public class SearchBarViewModel : ViewModelBase
     {
         public event Action<string> SearchContentCommited;
         public SearchBarViewModel()
@@ -25,8 +26,19 @@ namespace adrilight.ViewModel.AdrilightStore
 
             });
         }
+        private bool _isEnabled = true;
         public string SearchContent { get; set; }
-
+        public bool IsEnabled {
+            get
+            {
+                return _isEnabled;
+            }
+            set
+            {
+                _isEnabled = value;
+                RaisePropertyChanged();
+            }
+        }
         public ICommand SearchContentCommitedCommand { get; set; }
     }
 }

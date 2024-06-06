@@ -780,7 +780,7 @@
                                                     BorderBrush="{StaticResource BorderBrush}"
                                                     CornerRadius="7"
                                                     BorderThickness="0">
-                                                <ListBox ItemsSource="{Binding AvailableValues,IsAsync=True}"
+                                                <ListBox ItemsSource="{Binding Values.Items,IsAsync=True}"
                                                          SelectedItem="{Binding SelectedValue}"
                                                          ItemContainerStyle="{StaticResource _listBoxColorSelectionStyle}"
                                                          Background="Transparent"

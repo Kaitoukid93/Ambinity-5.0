@@ -343,6 +343,7 @@ namespace adrilight_shared.Models.Drawable
         }
         public bool ChangeSelectedItem(IDrawable item)
         {
+            if(item.IsSelected) return false;
             if (item.IsSelectable)
             {
                 item.IsSelected = true;

@@ -14,6 +14,7 @@ namespace adrilight_shared.Models.Stores
         public event Action<ControlZoneGroup> SelectedItemGrouped;
         public event Action<int> SelectedVerticalMenuIndexChanged;
         public event Action UnselectAllItemEvent;
+        public event Action<bool> LoadingControlParamStatusChanged;
         
         public void ChangeSelectedItem(IDrawable item)
         {
@@ -38,6 +39,10 @@ namespace adrilight_shared.Models.Stores
         public void UnSelectAllItem()
         {
             UnselectAllItemEvent?.Invoke();
+        }
+        public void ChangeLoadingParamStatus(bool status)
+        {
+            LoadingControlParamStatusChanged?.Invoke(status);
         }
     }
 }

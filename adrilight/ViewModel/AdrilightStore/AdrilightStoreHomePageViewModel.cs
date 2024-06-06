@@ -1,18 +1,23 @@
 ﻿using adrilight_shared.Enums;
+using adrilight_shared.Models.RelayCommand;
 using adrilight_shared.Models.Store;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace adrilight.ViewModel.AdrilightStore
 {
     public class AdrilightStoreHomePageViewModel
     {
+        public event Action<OnlineItemModel> ItemClicked;
+        public event Action<HomePageCarouselItem> SeeAllButtonClicked;
         public AdrilightStoreHomePageViewModel(AdrilightStoreSFTPClient client)
         {
             _client = client;
             AvailableCarousels = new ObservableCollection<HomePageCarouselItem>();
+            CommandSetup();
         }
         private AdrilightStoreSFTPClient _client;
         public ObservableCollection<HomePageCarouselItem> AvailableCarousels { get; set; }
@@ -62,5 +67,26 @@ namespace adrilight.ViewModel.AdrilightStore
             }
 
         }
+        private void CommandSetup()
+        {
+            ItemCardClickCommand = new RelayCommand<OnlineItemModel>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                ItemClicked?.Invoke(p);
+
+            });
+            SeAllButtonClickCommand = new RelayCommand<HomePageCarouselItem>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                SeeAllButtonClicked?.Invoke(p);
+
+            });
+        }
+        public ICommand ItemCardClickCommand { get; set; }
+        public ICommand SeAllButtonClickCommand { get; set; }
     }
 }

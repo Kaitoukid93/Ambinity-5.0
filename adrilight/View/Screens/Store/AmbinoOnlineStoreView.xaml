@@ -48,7 +48,8 @@
                          Style="{DynamicResource ProgressBarFlat}" />
         </Grid>
         <!--Content-->
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1"
+              IsEnabled="{Binding IsBusy,Mode=TwoWay,Converter={StaticResource Boolean2BooleanReConverter}}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto" />
                 <ColumnDefinition Width="*" />

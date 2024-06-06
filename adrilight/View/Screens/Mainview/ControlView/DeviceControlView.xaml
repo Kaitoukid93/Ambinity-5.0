@@ -448,7 +448,7 @@
                     </Grid>
                     <!--Zones Preview-->
                     <Grid  Grid.Column="2">
-                        <Border Margin="0,10,10,10"
+                        <Border IsHitTestVisible="{Binding Enable}" Margin="0,10,10,10"
                                 CornerRadius="4"
                                 Background="Transparent">
                             <dvcvs:DeviceCanvasView>

@@ -6,23 +6,47 @@
              xmlns:local="clr-namespace:adrilight.View.Screens.Store"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              mc:Ignorable="d"
+             xmlns:loadin="clr-namespace:LoadingIndicators.WPF;assembly=LoadingIndicators.WPF"
              d:DataContext="{Binding Source={StaticResource Locator}, Path=SearchBarViewModel}"
              DataContext="{Binding Source={StaticResource Locator}, Path=SearchBarViewModel}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingWave.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingThreeDots.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingFlipPlane.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingPulse.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingDoubleBounce.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Colors.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles.xaml"></ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
-        <hc:SearchBar Effect="{DynamicResource EffectShadow1}"
-                      Style="{DynamicResource SearchBarPlus}"
-                      hc:InfoElement.Placeholder="Gõ từ khóa để tìm kiếm một item, ví dụ : Ambino Basic"
-                      Background="{DynamicResource MainContentBackgroundBrush}"
-                      Command="{Binding SearchContentCommitedCommand}"
-                      BorderThickness="0"
-                      hc:InfoElement.ShowClearButton="True"
-                      CommandParameter="{Binding Text,RelativeSource={RelativeSource Self}}"
-                      FontSize="14"
-                      Margin="50,10,50,5"
-                      MaxWidth="600"
-                      MinWidth="100"
-                      HorizontalAlignment="Stretch"
-                      VerticalAlignment="Stretch">
-        </hc:SearchBar>
+        <Grid IsEnabled="{Binding IsEnabled}">
+            <hc:SearchBar Effect="{DynamicResource EffectShadow1}"
+                          Style="{DynamicResource SearchBarPlus}"
+                          hc:InfoElement.Placeholder="Gõ từ khóa để tìm kiếm một item, ví dụ : Ambino Basic"
+                          Background="{DynamicResource MainContentBackgroundBrush}"
+                          Command="{Binding SearchContentCommitedCommand}"
+                          BorderThickness="0"
+                          hc:InfoElement.ShowClearButton="True"
+                          CommandParameter="{Binding Text,RelativeSource={RelativeSource Self}}"
+                          FontSize="14"
+                          Margin="50,10,50,5"
+                          MaxWidth="600"
+                          MinWidth="100"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch">
+            </hc:SearchBar>
+        </Grid>
+        <loadin:LoadingIndicator HorizontalAlignment="Left" Margin="10,5,0,0" Width="30"
+                                 Visibility="{Binding IsEnabled,Converter={StaticResource Boolean2VisibilityReConverter}}"
+                                 Height="30"
+                                 Name="Pulse"
+                                 SpeedRatio="2"
+                                 Foreground="{DynamicResource PrimaryTextBrush}"
+                                 IsActive="True"
+                                 Style="{DynamicResource LoadingIndicatorPulseStyle}"></loadin:LoadingIndicator>
     </Grid>
 </UserControl>

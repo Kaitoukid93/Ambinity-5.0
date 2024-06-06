@@ -67,7 +67,7 @@
                                                 Margin="10"
                                                 RenderTransformOrigin="0.5,0.5"
                                                 CornerRadius="7"
-                                                BorderBrush="{DynamicResource SecondaryRegionBrush}"
+                                                BorderThickness="2"
                                                 Background="{TemplateBinding Background}"
                                                 Padding="{TemplateBinding Padding}"
                                                 SnapsToDevicePixels="true">
@@ -134,9 +134,9 @@
                                             <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
                                             <!--<Setter Property="BorderThickness" TargetName="Bd" Value="4"/>-->
                                             <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
-                                            <Setter Property="BorderThickness"
+                                            <Setter Property="BorderBrush"
                                                     TargetName="Bd"
-                                                    Value="2" />
+                                                    Value="{DynamicResource SecondaryRegionBrush}" />
                                         </MultiTrigger>
 
                                         <MultiTrigger>
@@ -150,9 +150,9 @@
                                             <!--<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>-->
                                             <!--<Setter Property="BorderThickness" TargetName="Bd" Value="4"/>-->
                                             <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
-                                            <Setter Property="BorderThickness"
+                                            <Setter Property="BorderBrush"
                                                     TargetName="Bd"
-                                                    Value="0" />
+                                                    Value="Transparent" />
                                         </MultiTrigger>
 
 
@@ -396,73 +396,27 @@
             <Grid Grid.Row="0">
             </Grid>
             <Grid Grid.Row="1">
-                <ListBox ItemContainerStyle="{DynamicResource _listBoxGeneralModeSelectionStyle}"
-                         ScrollViewer.CanContentScroll="False"
-                         Margin="5"
-                         ItemsSource="{Binding CurrentSelectedCategory.DefaultFilters}">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal">
-
-                            </StackPanel>
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Grid>
-                                <hc:Interaction.Triggers>
-                                    <hc:EventTrigger EventName="MouseLeftButtonDown">
-                                        <hc:EventToCommand Command="{Binding Path=DataContext.StoreFilterUpdateCmd, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                           CommandParameter="{Binding .}"
-                                                           PassEventArgsToCommand="True" />
-                                    </hc:EventTrigger>
-                                </hc:Interaction.Triggers>
-                                <Border HorizontalAlignment="Stretch"
-                                        CornerRadius="4"
-                                        Height="27"
-                                        Background="{DynamicResource MainContentBackgroundBrush}">
-                                    <TextBlock Margin="10,5"
-                                               Text="{Binding Name}" />
-                                </Border>
-
-                            </Grid>
-
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                    <ListBox.Template>
-                        <ControlTemplate TargetType="{x:Type ItemsControl}">
-                            <hc:ScrollViewer hc:ScrollViewerAttach.Orientation="Horizontal"
-                                             HorizontalScrollBarVisibility="Auto"
-                                             VerticalScrollBarVisibility="Hidden"
-                                             IsInertiaEnabled="True">
-                                <ItemsPresenter />
-                            </hc:ScrollViewer>
-                        </ControlTemplate>
-                    </ListBox.Template>
-                </ListBox>
+                <local:FilterCollectionView>
+                    
+                </local:FilterCollectionView>
 
             </Grid>
             <!--Store Carousel in the future-->
             <Grid Grid.Row="3">
-                <hc:Pagination IsEnabled="{Binding CarouselImageLoading,Converter={StaticResource Boolean2BooleanReConverter}}"
+                <hc:Pagination 
                                Margin="10,0"
+                               PageIndex="{Binding PaginationIndex,Mode=TwoWay}"
                                IsJumpEnabled="False"
-                               MaxPageCount="{Binding MaxPaginationPageCount}"
-                               PageIndex="{Binding CurrentStoreFilter.PageIndex,Mode=TwoWay}">
-                    <hc:Interaction.Triggers>
-                        <hc:EventTrigger EventName="PageUpdated">
-                            <hc:EventToCommand Command="{Binding StorePageUpdatedCmd}"
-                                               PassEventArgsToCommand="True" />
-                        </hc:EventTrigger>
-                    </hc:Interaction.Triggers>
+                               MaxPageCount="{Binding PaginationCount}">
                 </hc:Pagination>
             </Grid>
             <!--List of content-->
             <Grid Grid.Row="2">
-                <ListView IsHitTestVisible="{Binding CarouselImageLoading,Converter={StaticResource Boolean2BooleanReConverter}}"
+                <ListView 
                           ItemTemplate="{DynamicResource _onlineItemTemplate}"
                           Background="Transparent"
                           BorderThickness="0"
+                          
                           ItemsSource="{Binding Items}">
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -486,26 +440,8 @@
                     </ListView.Template>
                 </ListView>
                 <TextBlock FontSize="14"
-                           Text="{Binding NoItemText}">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock"
-                               BasedOn="{StaticResource TextBlockDefaultSecLight}">
-                            <Setter Property="Visibility"
-                                    Value="Collapsed" />
-                            <Style.Triggers>
-                                <MultiDataTrigger>
-                                    <MultiDataTrigger.Conditions>
-                                        <Condition Binding="{Binding AvailableOnlineItems.Count}"
-                                                   Value="0" />
-                                        <Condition Binding="{Binding CarouselImageLoading}"
-                                                   Value="False" />
-                                    </MultiDataTrigger.Conditions>
-                                    <Setter Property="Visibility"
-                                            Value="Visible" />
-                                </MultiDataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
+                           Style="{DynamicResource TextBlockDefaultSecLight}"
+                           Text="{Binding NullValueText}">
                 </TextBlock>
             </Grid>
         </Grid>
