@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace adrilight.ViewModel
 {
+
     public abstract class ItemsManagerViewModelBase : ViewModelBase, IDisposable
     {
         public virtual void LoadData()

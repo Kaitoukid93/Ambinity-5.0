@@ -1,10 +1,10 @@
 ﻿using adrilight.Services.CaptureEngine;
 using adrilight.Ticker;
-using adrilight.ViewModel;
 using adrilight_shared.Enums;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.ControlMode.ModeParameters;
 using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
+using adrilight_shared.Models.DataSource;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.Device.Zone.Spot;
 using adrilight_shared.Models.FrameData;
@@ -36,15 +36,15 @@ namespace adrilight.Services.LightingEngine
         public ByteFrame[] LoadedGifImage { get; set; }
         public Gifxelation(IGeneralSettings generalSettings,
              IControlZone zone,
-             RainbowTicker rainbowTicker
+             RainbowTicker rainbowTicker,
+             IList<IDataSource> dataSource
             )
         {
+            _gifDataSource = (GIFDataSource)dataSource.Where(d => d is GIFDataSource).First();
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
             CurrentZone = zone as LEDSetup ?? throw new ArgumentNullException(nameof(zone));
             RainbowTicker = rainbowTicker ?? throw new ArgumentNullException(nameof(rainbowTicker));
             _retryPolicy = Policy.Handle<Exception>().WaitAndRetryForever(ProvideDelayDuration);
-
-
             GeneralSettings.PropertyChanged += PropertyChanged;
             CurrentZone.PropertyChanged += PropertyChanged;
         }
@@ -61,6 +61,7 @@ namespace adrilight.Services.LightingEngine
         public bool IsRunning { get; private set; }
         private LEDSetup CurrentZone { get; }
         private RainbowTicker RainbowTicker { get; }
+        private GIFDataSource _gifDataSource;
         public LightingModeEnum Type { get; } = LightingModeEnum.Gifxelation;
 
 
@@ -255,7 +256,7 @@ namespace adrilight.Services.LightingEngine
                 _currentLightingMode.BasedOn == LightingModeEnum.Gifxelation &&
                 //this zone has to be enable, this could be done by stop setting the spots, but the this thread still alive, so...
                 CurrentZone.IsEnabled == true;
-                //stop this engine when any surface or editor open because this could cause capturing fail
+            //stop this engine when any surface or editor open because this could cause capturing fail
             // this is stop sign by one or some of the reason above
             if (isRunning && !shouldBeRunning)
             {
@@ -346,10 +347,11 @@ namespace adrilight.Services.LightingEngine
                         break;
                 }
             };
-           // _gifControl.LoadAvailableValues();
+            // _gifControl.LoadAvailableValues();
             if (_gifControl.SelectedValue == null)
             {
-                //_gifControl.SelectedValue = _gifControl.AvailableValues.First();
+                _gifControl.SelectedValue = (Gif)_gifDataSource.Items.First();
+
             }
             EnableChanged(_enableControl.Value == 1 ? true : false);
             await Task.Run(() => OnSelectedGifChanged(_gifControl.SelectedValue));
@@ -373,7 +375,7 @@ namespace adrilight.Services.LightingEngine
                 {
                     if (_runState == RunStateEnum.Run)
                     {
-                        
+
                         //this indicator that user is opening this device and we need raise event when color update on each spot
                         if (LoadedGifImage == null)
                             continue;

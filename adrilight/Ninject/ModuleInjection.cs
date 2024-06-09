@@ -15,6 +15,8 @@ using adrilight.ViewModel.Dashboard;
 using adrilight.ViewModel.Profile;
 using adrilight.ViewModel.Splash;
 using adrilight_shared.Models.Automation;
+using adrilight_shared.Models.ControlMode.ModeParameters;
+using adrilight_shared.Models.DataSource;
 using adrilight_shared.Models.Device;
 using adrilight_shared.Models.KeyboardHook;
 using adrilight_shared.Models.Lighting;
@@ -29,6 +31,7 @@ using Ninject.Modules;
 using Renci.SshNet;
 using Serilog;
 using System.CodeDom.Compiler;
+using System.Web.UI;
 using static adrilight.View.AutomationCollectionView;
 using static adrilight.View.AutomationEditorView;
 using static adrilight.View.DashboardView;
@@ -38,6 +41,7 @@ using static adrilight.View.PlaylistEditorView;
 using static adrilight.View.Screens.LightingProfile.ManagerCollectionView;
 using static adrilight.View.Screens.Store.StoreItemsCollectionView;
 using static adrilight.View.StoreHomePageView;
+using IDataSource = adrilight_shared.Models.ControlMode.ModeParameters.IDataSource;
 
 namespace adrilight.Ninject
 {
@@ -108,6 +112,14 @@ namespace adrilight.Ninject
             Bind<SearchBarViewModel>().ToSelf().InSingletonScope();
             Bind<StoreCategoriesViewModel>().ToSelf().InSingletonScope();
             Bind<AdrilightStoreViewModel>().ToSelf().InSingletonScope();
+
+            //data source
+            Bind<IDataSource>().To<ColorPaletteDataSource>().InSingletonScope();
+            Bind<IDataSource>().To<StaticColorDataSource>().InSingletonScope();
+            Bind<IDataSource>().To<ChasingPatternDataSource>().InSingletonScope();
+            Bind<IDataSource>().To<MIDDataSource>().InSingletonScope();
+            Bind<IDataSource>().To<VIDDataSource>().InSingletonScope();
+            Bind<IDataSource>().To<GIFDataSource>().InSingletonScope();
 
             Bind<IDialogService>().To<DialogService>().InSingletonScope();
 

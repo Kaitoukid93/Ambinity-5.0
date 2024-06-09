@@ -91,7 +91,7 @@ namespace adrilight.ViewModel
         private void OnCanvasUnSelectionChanged()
         {
             //show nullable view
-            EffectControl.ControlItem = null;
+            EffectControl.Dispose();
         }
         private void OnCanvasUngrouped(List<IDrawable> items)
         {

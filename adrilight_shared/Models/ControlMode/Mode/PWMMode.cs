@@ -61,5 +61,7 @@ namespace adrilight_shared.Models.ControlMode.Mode
         public int MaxSpeed => (Parameters.Where(p => p.ParamType == ModeParameterEnum.Speed).FirstOrDefault() as SliderParameter).MaxValue;
         [JsonIgnore]
         public int MinSpeed => (Parameters.Where(p => p.ParamType == ModeParameterEnum.Speed).FirstOrDefault() as SliderParameter).MinValue;
+        [JsonIgnore]
+        public object Lock { get; } = new object();
     }
 }

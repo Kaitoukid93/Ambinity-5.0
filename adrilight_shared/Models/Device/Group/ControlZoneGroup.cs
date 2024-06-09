@@ -296,6 +296,7 @@ namespace adrilight_shared.Models.Device.Group
                 if (zone.GroupID == GroupUID)
                 {
                     (zone as IDrawable).IsSelectable = false;
+                    zone.IsInControlGroup = true;   
                     zone.CurrentActiveControlMode = MaskedControlZone.CurrentActiveControlMode;
                     ControlZones.Add(zone);
                 }

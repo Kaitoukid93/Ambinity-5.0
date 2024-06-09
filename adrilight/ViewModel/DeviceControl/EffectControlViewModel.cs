@@ -22,6 +22,8 @@ using adrilight_shared.Enums;
 using adrilight.Manager;
 using adrilight_shared.Models.ControlMode.ModeParameters;
 using adrilight.ViewModel.DeviceControl;
+using System.Collections.Generic;
+using System.Windows.Documents;
 
 namespace adrilight.ViewModel
 {
@@ -31,15 +33,26 @@ namespace adrilight.ViewModel
     /// </summary>
     public class EffectControlViewModel : ViewModelBase
     {
+        static Dictionary<Type, Type> _maping = new Dictionary<Type, Type>();
         #region Construct
-        public EffectControlViewModel(PlaylistDecoder lightingPlayer, LightingProfileManager lightingProfileManager)
+        public EffectControlViewModel(PlaylistDecoder lightingPlayer,
+            LightingProfileManager lightingProfileManager,
+            DialogService dialogService,
+            IList<IDataSource> dataSources)
         {
             LightingPlayer = lightingPlayer;
             LightingPlayer.IsRunningPropertyChanged += LightingPlayer_IsRunningPropertyChanged;
             LightingProfileManager = lightingProfileManager;
-            AvailableParameters = new ObservableCollection<ControlParameterViewModel>();
+            AvailableParameters = new ObservableCollection<ControlParameterViewModelBase>();
             AvailableControlMode = new ObservableCollection<IControlMode>();
+            _dialogService = dialogService;
+            _dataSources = dataSources;
             CommandSetup();
+            Registerparameter<ListSelectionParameter, ListSelectionParameterViewModel>();
+            Registerparameter<ToggleParameter, ToggleParameterViewModel>();
+            Registerparameter<AudioDeviceSelectionButtonParameter, ButtonParameterViewModel>();
+            Registerparameter<CapturingRegionSelectionButtonParameter, ButtonParameterViewModel>();
+            Registerparameter<SliderParameter, SliderParameterViewModel>();
         }
 
         private void LightingPlayer_IsRunningPropertyChanged(bool obj)
@@ -58,6 +71,7 @@ namespace adrilight.ViewModel
         private IControlMode _selectedControlMode;
         private ObservableCollection<IControlMode> _availableControlMode;
         private bool _isLoadingParam;
+        private IList<IDataSource> _dataSources;    
 
 
         //public//
@@ -93,10 +107,11 @@ namespace adrilight.ViewModel
             {
                 _selectedControlMode = value;
                 RaisePropertyChanged();
-                AvailableParameters?.Clear();
-                ControlParametersInit(_selectedControlMode);
-
             }
+        }
+        private void Registerparameter<IModeParameter, ControlParameterViewModelBase>()
+        {
+            _maping.Add(typeof(IModeParameter), typeof(ControlParameterViewModelBase));
         }
         private async Task ControlParametersInit(IControlMode controlMode)
         {
@@ -107,7 +122,10 @@ namespace adrilight.ViewModel
                {
                    await System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
                    {
-                       var vm = new ControlParameterViewModel();
+                       var type = _maping[param.GetType()];
+                       var vm = Activator.CreateInstance(type) as ControlParameterViewModelBase;
+                       vm.DialogService = _dialogService;
+                       vm.DataSources = _dataSources;
                        vm.Init(param);
                        AvailableParameters.Add(vm);
                    });
@@ -118,8 +136,8 @@ namespace adrilight.ViewModel
             _deviceControlEvent.ChangeLoadingParamStatus(false);
 
         }
-        private ObservableCollection<ControlParameterViewModel> _availableParameters;
-        public ObservableCollection<ControlParameterViewModel> AvailableParameters {
+        private ObservableCollection<ControlParameterViewModelBase> _availableParameters;
+        public ObservableCollection<ControlParameterViewModelBase> AvailableParameters {
             get
             {
                 return _availableParameters;
@@ -168,6 +186,8 @@ namespace adrilight.ViewModel
             {
                 SelectedControlMode = p;
                 await ChageControlMode(p);
+                AvailableParameters?.Clear();
+                await ControlParametersInit(_selectedControlMode);
             });
             StopLightingPlaylistCommand = new RelayCommand<string>((p) =>
             {
@@ -181,7 +201,7 @@ namespace adrilight.ViewModel
             });
         }
 
-        public void Init()
+        public async void Init()
         {
             //load available control mode
             //load selected control mode parameters
@@ -207,6 +227,7 @@ namespace adrilight.ViewModel
                 };
                 SelectedControlMode = (ControlItem as ControlZoneGroup).MaskedControlZone.CurrentActiveControlMode;
             }
+             ChangeSelectedControlModeCommand.Execute(SelectedControlMode);
         }
         private async Task ChageControlMode(IControlMode controlMode)
         {
@@ -236,7 +257,12 @@ namespace adrilight.ViewModel
 
         public void Dispose()
         {
+            ControlItem=null;
             LightingPlayer.IsRunningPropertyChanged -= LightingPlayer_IsRunningPropertyChanged;
+            foreach (var item in AvailableParameters)
+            {
+                item.Dispose();
+            }
         }
         #endregion
 

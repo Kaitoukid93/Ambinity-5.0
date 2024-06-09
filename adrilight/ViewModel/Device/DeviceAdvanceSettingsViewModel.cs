@@ -301,7 +301,7 @@ namespace adrilight.ViewModel
             HardwareLightingColorSelection.DataSourceLocaFolderNames = source;
             HardwareLightingColorSelection.Name = adrilight_shared.Properties.Resources.LightingEngine_ColorControl_header;
             HardwareLightingColorSelection.Description = adrilight_shared.Properties.Resources.DeviceAdvanceSettingsViewModel_ColorSelectionInit_SelectColors;
-            HardwareLightingColorSelection.LoadAvailableValues();
+            //HardwareLightingColorSelection.LoadAvailableValues();
             UpdateColorSelectionSelectedValue();
             HardwareLightingColorSelection.PropertyChanged += (_, __) =>
             {
@@ -378,7 +378,6 @@ namespace adrilight.ViewModel
         {
             if (Device != null)
                 Device.PropertyChanged -= Device_PropertyChanged;
-            Device = null;
             GC.SuppressFinalize(this);
         }
         #endregion

@@ -69,6 +69,15 @@ namespace adrilight_shared.Models.ItemsCollection
             item.PropertyChanged += ItemPropertyChanged;
             Items.Add(item);
         }
+        public void RemoveSelectedItems()
+        {
+            var selectedItems = Items.Where(i => i.IsChecked).ToList();
+            //try remove local path
+            foreach (var item in selectedItems)
+            {
+                Items.Remove(item);
+            }
+        }
         private void ItemPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)

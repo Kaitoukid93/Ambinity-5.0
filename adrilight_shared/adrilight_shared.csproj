@@ -88,6 +88,9 @@
     <Reference Include="Microsoft.WindowsAPICodePack.Shell, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\WindowsAPICodePack-Shell.1.1.1\lib\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Xaml.Behaviors.Wpf.1.1.31\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
+    </Reference>
     <Reference Include="MoreLinq, Version=3.0.0.0, Culture=neutral, PublicKeyToken=384d532d7e88985d, processorArchitecture=MSIL">
       <HintPath>..\packages\morelinq.3.0.0\lib\net451\MoreLinq.dll</HintPath>
     </Reference>
@@ -155,6 +158,13 @@
     <Compile Include="Helpers\EventToCommand.cs" />
     <Compile Include="Helpers\perSizeBindingHelper.cs" />
     <Compile Include="Models\Automation\AutomationDBManager.cs" />
+    <Compile Include="Models\DataSource\ChasingPatternDataSource.cs" />
+    <Compile Include="Models\DataSource\ColorPaletteDataSource.cs" />
+    <Compile Include="Models\DataSource\DataSourceBase.cs" />
+    <Compile Include="Models\DataSource\GIFDataSource.cs" />
+    <Compile Include="Models\DataSource\MIDDataSource.cs" />
+    <Compile Include="Models\DataSource\StaticColorDataSource.cs" />
+    <Compile Include="Models\DataSource\VIDDataSource.cs" />
     <Compile Include="Models\Device\DeviceConstructor.cs" />
     <Compile Include="Models\Device\DeviceDBManager.cs" />
     <Compile Include="Models\ItemsCollection\ItemsCollection.cs" />
@@ -230,7 +240,7 @@
     <Compile Include="Models\ControlMode\ModeParameters\CapturingRegion.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\CapturingRegionPreview.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\CapturingRegionSelectionButtonParameter.cs" />
-    <Compile Include="Models\ControlMode\ModeParameters\DataSource.cs" />
+    <Compile Include="Models\ControlMode\ModeParameters\IDataSource.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\IModeParameter.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\ParameterValues\IParameterValue.cs" />
     <Compile Include="Models\ControlMode\ModeParameters\ListSelectionParameter.cs" />
@@ -327,6 +337,10 @@
     <Compile Include="ViewModel\NumberInputDialogViewModel.cs" />
     <Compile Include="ViewModel\ProgressDialogViewModel.cs" />
     <Compile Include="ViewModel\RenameDialogViewModel.cs" />
+    <Compile Include="ViewModel\SimpleColorPickerViewModel.cs" />
+    <Compile Include="View\CustomControls\SimpleColorPicker.xaml.cs">
+      <DependentUpon>SimpleColorPicker.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Dialogs\AddNewDialog.xaml.cs">
       <DependentUpon>AddNewDialog.xaml</DependentUpon>
     </Compile>
@@ -549,6 +563,10 @@
     <Folder Include="Resources\Images\" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="View\CustomControls\SimpleColorPicker.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\Dialogs\AddNewDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

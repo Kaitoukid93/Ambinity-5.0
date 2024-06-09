@@ -138,5 +138,7 @@ namespace adrilight_shared.Models.ControlMode.Mode
         public int MaxBrightness => (Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter).MaxValue;
         [JsonIgnore]
         public int MinBrightness => (Parameters.Where(p => p.ParamType == ModeParameterEnum.Brightness).FirstOrDefault() as SliderParameter).MinValue;
+        [JsonIgnore]
+        public object Lock { get; } = new object();
     }
 }

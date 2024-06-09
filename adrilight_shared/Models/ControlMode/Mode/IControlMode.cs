@@ -36,6 +36,7 @@ namespace adrilight_shared.Models.ControlMode.Mode
         /// </summary>
         List<IModeParameter> Parameters { get; set; }
         string Geometry { get; set; }
+        object Lock { get; } 
 
     }
 }

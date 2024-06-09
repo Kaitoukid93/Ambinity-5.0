@@ -253,7 +253,12 @@
     <Compile Include="ViewModel\ColorEditingObject.cs" />
     <Compile Include="ViewModel\Dashboard\DashboardViewModel.cs" />
     <Compile Include="ViewModel\Debug\DebugViewModel.cs" />
-    <Compile Include="ViewModel\DeviceControl\ControlParameterViewModel.cs" />
+    <Compile Include="ViewModel\DeviceControl\ButtonParameterViewModel.cs" />
+    <Compile Include="ViewModel\DeviceControl\ColorPaletteCreatorViewModel.cs" />
+    <Compile Include="ViewModel\DeviceControl\ControlParameterViewModelBase.cs" />
+    <Compile Include="ViewModel\DeviceControl\ListSelectionParameterViewModel.cs" />
+    <Compile Include="ViewModel\DeviceControl\SliderParameterViewModel.cs" />
+    <Compile Include="ViewModel\DeviceControl\ToggleParameterViewModel.cs" />
     <Compile Include="ViewModel\Device\DeviceAdvanceSettingsViewModel.cs" />
     <Compile Include="ViewModel\DeviceControl\EffectControlViewModel.cs" />
     <Compile Include="ViewModel\Device\DeviceCollectionViewModel.cs" />
@@ -374,6 +379,9 @@
     <Compile Include="View\Screens\Mainview\ControlView\GifRegionSelectionWindow.xaml.cs" />
     <Compile Include="View\Screens\Mainview\ControlView\Controls\ScreenRegionSelectionWindow.xaml.cs" />
     <Compile Include="View\Dialogs\AudioDeviceSelectionWindow.xaml.cs" />
+    <Compile Include="View\Screens\Mainview\ControlView\PaletteCreatorWindow.xaml.cs">
+      <DependentUpon>PaletteCreatorWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\Screens\Mainview\ControlView\Parameters\SubParameter.xaml.cs">
       <DependentUpon>SubParameter.xaml</DependentUpon>
     </Compile>
@@ -453,6 +461,9 @@
     </ApplicationDefinition>
     <Compile Include="View\Template\ButtonParamTemplate.xaml.cs">
       <DependentUpon>ButtonParamTemplate.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Template\ListSelectionAvailableValuesView.xaml.cs">
+      <DependentUpon>ListSelectionAvailableValuesView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\Template\SliderParamTemplate.xaml.cs">
       <DependentUpon>SliderParamTemplate.xaml</DependentUpon>
@@ -578,6 +589,10 @@
     <Page Include="View\Dialogs\AudioDeviceSelectionWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Screens\Mainview\ControlView\PaletteCreatorWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\Screens\Mainview\ControlView\Parameters\SubParameter.xaml">
       <SubType>Designer</SubType>
@@ -798,6 +813,10 @@
     <Page Include="View\Template\ButtonParamTemplate.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Template\ListSelectionAvailableValuesView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\Template\SliderParamTemplate.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -35,8 +35,7 @@ namespace adrilight.ViewModel
             _deviceAdvanceSettingsViewModel = advanceSettingsViewModel;
             _deviceCollectionViewModel = collectionViewModel;
             _deviceManager = deviceManager;
-            _deviceDBManager = dBManager;   
-            _deviceHlprs = new DeviceHelpers(); 
+            _deviceDBManager = dBManager;
             LoadData();
             CommandSetup();
         }
@@ -56,7 +55,6 @@ namespace adrilight.ViewModel
         #endregion
         #region Properties
         //private
-        private DeviceHelpers _deviceHlprs;
         private DeviceCollectionViewModel _deviceCollectionViewModel;
         private DeviceAdvanceSettingsViewModel _deviceAdvanceSettingsViewModel;
         private ISelectablePage _selectedPage;

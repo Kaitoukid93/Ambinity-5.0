@@ -5,12 +5,14 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:enum="clr-namespace:adrilight_shared.Enums;assembly=adrilight_shared"
              mc:Ignorable="d"
+             xmlns:devicecontrol="clr-namespace:adrilight.ViewModel.DeviceControl"
              d:DesignHeight="450"
+             d:DataContext="{d:DesignInstance Type=devicecontrol:ListSelectionParameterViewModel}"
              d:DesignWidth="800">
     <Grid>
         <ItemsControl x:Name="subParamList"
                       Margin="40,0,0,0"
-                      ItemsSource="{Binding SubParams}">
+                      ItemsSource="{Binding Parameter.SubParams}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <StackPanel />
@@ -36,6 +38,11 @@
                                                  Value="{x:Static enum:ModeParameterTemplateEnum.ToggleOnOff}">
                                         <Setter Property="ContentTemplate"
                                                 Value="{DynamicResource _toggleSubParamTemplate}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Path=Template}"
+                                                 Value="{x:Static enum:ModeParameterTemplateEnum.ListSelection}">
+                                        <Setter Property="ContentTemplate"
+                                                Value="{DynamicResource _listSelectionSubParamTemplate}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>

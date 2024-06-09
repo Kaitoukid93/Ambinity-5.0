@@ -5,6 +5,7 @@ using adrilight_shared.Enums;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.ControlMode.ModeParameters;
 using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
+using adrilight_shared.Models.DataSource;
 using adrilight_shared.Models.Device;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Settings;
@@ -25,9 +26,12 @@ namespace adrilight
             IGeneralSettings generalSettings,
             IControlZone zone,
             IDeviceSettings device,
-            RainbowTicker rainbowTicker
+            RainbowTicker rainbowTicker,
+            IList<IDataSource> dataSource
             )
         {
+            _paletteDataSource = (ColorPaletteDataSource)dataSource.Where(d=>d.Name == "ColorPalettes").FirstOrDefault();
+            _vidDataSource = (VIDDataSource)dataSource.Where(d => d.Name == "VID").FirstOrDefault();
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
             CurrentZone = zone as LEDSetup ?? throw new ArgumentNullException(nameof(zone));
             CurrentDevice = device as DeviceSettings ?? throw new ArgumentNullException(nameof(device));
@@ -40,6 +44,8 @@ namespace adrilight
         /// dependency property
         /// </summary>
         private IGeneralSettings GeneralSettings { get; }
+        private ColorPaletteDataSource _paletteDataSource;
+        private VIDDataSource _vidDataSource;
         public bool IsRunning { get; private set; }
         private LEDSetup CurrentZone { get; }
         private RainbowTicker RainbowTicker { get; }
@@ -315,19 +321,17 @@ namespace adrilight
             _systemSyncControl.PropertyChanged += (_, __) => OnSystemSyncValueChanged(_systemSyncControl.Value == 1 ? true : false);
             _systemSyncControl.SubParams[0].Localize(adrilight_shared.Properties.Resources.LightingEngine_SystemSync_Speed_header, "xx");
             _systemSyncControl.SubParams[0].PropertyChanged += (_, __) => OnSystemSyncSpeedValueChanged(_systemSyncControl.SubParams[0].Value);
-
-            ///activate these value///
-           // _colorControl.LoadAvailableValues();
-           // _vidDataControl.LoadAvailableValues();
             #endregion
             //safety check
             if (_colorControl.SelectedValue == null)
             {
+                _colorControl.SelectedValue = (ColorPalette)_paletteDataSource.Items.First();
                 //_colorControl.SelectedValue = _colorControl.AvailableValues.First();
             }
             OnSelectedPaletteChanged(_colorControl.SelectedValue);
             if (_vidDataControl.SelectedValue == null)
             {
+                _vidDataControl.SelectedValue = (VIDDataModel)_vidDataSource.Items.First();
                 //_vidDataControl.SelectedValue = _vidDataControl.AvailableValues.Last();
             }
             EnableChanged(_enableControl.Value == 1 ? true : false);

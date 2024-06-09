@@ -5,12 +5,224 @@
              ShutdownMode="OnExplicitShutdown"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              d1p1:Ignorable="d"
+             xmlns:template="clr-namespace:adrilight.View.Template"
+             xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
              xmlns:parameters="clr-namespace:adrilight_shared.Models.ControlMode.ModeParameters;assembly=adrilight_shared"
              xmlns:d1p1="http://schemas.openxmlformats.org/markup-compatibility/2006"
              Activated="App_Activated"
              Deactivated="App_Deactivated">
     <Application.Resources>
         <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <hc:ThemeResources>
+                    <hc:ThemeResources.ThemeDictionaries>
+                        <ResourceDictionary x:Key="Light"
+                                            hc:ThemeDictionary.Key="Light">
+
+                            <!-- Put the resources you want to use in the Light theme Here -->
+
+                            <SolidColorBrush x:Key="DarkOpacityBrush"
+                                             Color="#FFFCFCFC" />
+                            <SolidColorBrush x:Key="PrimaryTextBrush"
+                                             Color="#FF212329" />
+                            <SolidColorBrush x:Key="SecondaryRegionBrush"
+                                             Color="#FFE0E0E0" />
+                            <SolidColorBrush x:Key="DarkMaskBrush"
+                                             Color="#FFDDDDDD" />
+                            <SolidColorBrush x:Key="RegionBrush"
+                                             Color="#FFF4F4F4" />
+                        </ResourceDictionary>
+
+                        <ResourceDictionary x:Key="Dark"
+                                            hc:ThemeDictionary.Key="Dark">
+
+                            <!-- Put the resources you want to use in the Dark theme Here -->
+
+                            <SolidColorBrush x:Key="HoverBrush"
+                                             Color="#FF323232" />
+                            <SolidColorBrush x:Key="ButtonHoverBrush"
+                                             Color="#FF434343" />
+                            <SolidColorBrush x:Key="MainContentBackgroundBrush"
+                                             Color="#FF2b2b2b" />
+                            <SolidColorBrush x:Key="DarkMaskBrush"
+                                             Color="#FF222222" />
+                            <SolidColorBrush x:Key="RegionBrush"
+                                             Color="#FF202020" />
+                            <SolidColorBrush x:Key="SecondaryRegionBrush"
+                                             Color="#FF363636" />
+                        </ResourceDictionary>
+                    </hc:ThemeResources.ThemeDictionaries>
+                </hc:ThemeResources>
+                <hc:Theme />
+                <ResourceDictionary>
+                    <DataTemplate x:Key="_buttonSubParamTemplate"
+                                  DataType="{x:Type parameters:SubParameter}">
+                        <Grid Visibility="{Binding IsEnabled,Converter={StaticResource Boolean2VisibilityConverter},Mode=TwoWay}">
+                            <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
+                                <StackPanel>
+                                    <hc:Divider  LineStroke="{StaticResource RegionBrush}"
+                                                 Margin="0,10,0,10">
+                                    </hc:Divider>
+                                    <Grid>
+                                        <GroupBox VerticalAlignment="Stretch"
+                                                  Style="{StaticResource GroupBoxOriginal}"
+                                                  HorizontalAlignment="Stretch"
+                                                  hc:TitleElement.TitlePlacement="Left">
+                                            <GroupBox.HeaderTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock  Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox}}" />
+                                                </DataTemplate>
+                                            </GroupBox.HeaderTemplate>
+                                            <Button Style="{DynamicResource _lowProfileDefaultButton}"
+                                                    CommandParameter="{Binding CommandParameter}"
+                                                    HorizontalAlignment="Right"
+                                                    Command="{Binding DataContext.SubParameterButtonClickCommand,RelativeSource={RelativeSource AncestorType={x:Type template:ListSelectionParamTemplate}}}"
+                                                    Content="{Binding CommandParameter}">
+                                            </Button>
+                                        </GroupBox>
+                                    </Grid>
+                                </StackPanel>
+                            </hc:TransitioningContentControl>
+                        </Grid>
+                    </DataTemplate>
+                    <DataTemplate x:Key="_sliderSubParamTemplate"
+                                  DataType="{x:Type parameters:SubParameter}">
+
+                        <Grid ToolTip="{Binding Description}"
+                              Visibility="{Binding IsEnabled,Converter={StaticResource Boolean2VisibilityConverter},Mode=TwoWay}">
+                            <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
+                                <StackPanel>
+                                    <hc:Divider   LineStroke="{StaticResource RegionBrush}"
+                                                  Margin="0,10,0,10">
+                                    </hc:Divider>
+                                    <Grid>
+                                        <GroupBox  HorizontalContentAlignment="Left"
+                                                   Style="{StaticResource GroupBoxOriginal}"
+                                                   hc:TitleElement.TitlePlacement="Left">
+                                            <GroupBox.HeaderTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock  Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox}}" />
+                                                </DataTemplate>
+                                            </GroupBox.HeaderTemplate>
+
+                                            <hc:PreviewSlider HorizontalAlignment="Right"
+                                                              Width="200"
+                                                              Minimum="{Binding MinValue}"
+                                                              Maximum="{Binding MaxValue}"
+                                                              Value="{Binding Value}">
+                                                <hc:PreviewSlider.PreviewContent>
+                                                    <Label Style="{StaticResource LabelPrimary}"
+                                                           Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}"
+                                                           ContentStringFormat="#0" />
+                                                </hc:PreviewSlider.PreviewContent>
+                                            </hc:PreviewSlider>
+                                        </GroupBox>
+                                    </Grid>
+                                </StackPanel>
+                            </hc:TransitioningContentControl>
+                        </Grid>
+                    </DataTemplate>
+                    <DataTemplate x:Key="_toggleSubParamTemplate"
+                                  DataType="{x:Type parameters:SubParameter}">
+                        <Grid ToolTip="{Binding Description}">
+                            <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
+
+                                <StackPanel>
+                                    <hc:Divider LineStroke="{StaticResource RegionBrush}"
+                                                Margin="0,10,0,10">
+                                    </hc:Divider>
+                                    <Grid>
+                                        <GroupBox VerticalAlignment="Stretch"
+                                                  Style="{StaticResource GroupBoxOriginal}"
+                                                  HorizontalAlignment="Stretch"
+                                                  hc:TitleElement.TitlePlacement="Left">
+                                            <GroupBox.HeaderTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock  FontWeight="SemiBold"
+                                                                Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox}}" />
+                                                </DataTemplate>
+                                            </GroupBox.HeaderTemplate>
+                                            <ToggleButton HorizontalAlignment="Right"
+                                                          IsChecked="{Binding Value}"
+                                                          Style="{DynamicResource ToggleButtonSwitchSmallerElipse}">
+                                            </ToggleButton>
+                                        </GroupBox>
+                                    </Grid>
+                                </StackPanel>
+                            </hc:TransitioningContentControl>
+                        </Grid>
+                    </DataTemplate>
+                    <DataTemplate x:Key="_listSelectionSubParamTemplate"
+                                  DataType="{x:Type parameters:SubParameter}">
+                        <Grid Visibility="{Binding IsEnabled,Converter={StaticResource Boolean2VisibilityConverter},Mode=TwoWay}">
+                            <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
+                                <StackPanel>
+                                    <hc:Divider LineStroke="{DynamicResource RegionBrush}"
+                                                Margin="0,10,0,10">
+                                    </hc:Divider>
+                                    <Grid>
+                                        <GroupBox VerticalAlignment="Stretch"
+                                                  Style="{StaticResource GroupBoxOriginal}"
+                                                  HorizontalAlignment="Stretch"
+                                                  hc:TitleElement.TitlePlacement="Left">
+                                            <GroupBox.HeaderTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox}}" />
+                                                </DataTemplate>
+                                            </GroupBox.HeaderTemplate>
+                                            <Border Effect="{DynamicResource EffectShadow1}"
+                                                    HorizontalAlignment="Right"
+                                                    Background="{DynamicResource SecondaryRegionBrush}"
+                                                    CornerRadius="4">
+                                                <ListBox  ItemsSource="{Binding AvailableValue}"
+                                                          ItemContainerStyle="{DynamicResource _listBoxModeSelectionStyle}"
+                                                          SelectedIndex="{Binding Value}"
+                                                          Background="Transparent"
+                                                          BorderThickness="0"
+                                                          Style="{StaticResource WrapPanelHorizontalListBox}">
+                                                    <ListBox.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <WrapPanel>
+                                                            </WrapPanel>
+                                                        </ItemsPanelTemplate>
+                                                    </ListBox.ItemsPanel>
+                                                    <ListBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Grid>
+                                                                <TextBlock HorizontalAlignment="Center"
+                                                                           VerticalAlignment="Center"
+                                                                           Margin="5,2"
+                                                                           Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
+                                                                           Text="{Binding .}"
+                                                                           Style="{DynamicResource TextBlockDefault}" />
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ListBox.ItemTemplate>
+                                                </ListBox>
+                                            </Border>
+                                        </GroupBox>
+                                    </Grid>
+                                </StackPanel>
+                            </hc:TransitioningContentControl>
+                        </Grid>
+                    </DataTemplate>
+                </ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingWave.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingThreeDots.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingFlipPlane.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingPulse.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingDoubleBounce.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Colors.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles.xaml"></ResourceDictionary>
+                <ResourceDictionary Source="GeometryCollection.xaml">
+                </ResourceDictionary>
+                <ResourceDictionary>
+                    <converters:ColorToBrushConverter x:Key="ColorToBrushConverter" />
+                    <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
+                    <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
+                    <converters:ToUpperValueConverter x:Key="toUpperValueConverter" />
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
             <vm:ViewModelLocator x:Key="Locator"
                                  d:IsDataSource="True"
                                  xmlns:vm="clr-namespace:adrilight.ViewModel" />
@@ -56,7 +268,80 @@
                 <Setter Property="Background"
                         Value="{DynamicResource SecondaryRegionBrush}" />
             </Style>
+            <Style x:Key="_listBoxColorSelectionStyle"
+                   TargetType="ListBoxItem">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBoxItem">
+                            <Border CornerRadius="2"
+                                    Name="_Border"
+                                    Padding="0"
+                                    Margin="4"
+                                    Background="Transparent"
+                                    Opacity="1"
+                                    BorderThickness="2"
+                                    SnapsToDevicePixels="true">
+                                <ContentPresenter />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="Selector.IsSelectionActive"
+                                                   Value="True" />
+                                        <Condition Property="IsSelected"
+                                                   Value="True" />
+                                    </MultiTrigger.Conditions>
+                                    <Setter Property="BorderBrush"
+                                            TargetName="_Border"
+                                            Value="{DynamicResource PrimaryBrush}" />
+                                    <Setter Property="Opacity"
+                                            TargetName="_Border"
+                                            Value="1.0" />
+                                </MultiTrigger>
 
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="Selector.IsSelectionActive"
+                                                   Value="False" />
+                                        <Condition Property="IsSelected"
+                                                   Value="True" />
+                                    </MultiTrigger.Conditions>
+
+                                    <Setter Property="Opacity"
+                                            TargetName="_Border"
+                                            Value="1.0" />
+                                    <Setter Property="BorderBrush"
+                                            TargetName="_Border"
+                                            Value="{DynamicResource PrimaryBrush}" />
+                                </MultiTrigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsMouseOver"
+                                                   Value="True" />
+                                        <Condition Property="IsSelected"
+                                                   Value="False" />
+                                    </MultiTrigger.Conditions>
+                                    <Setter Property="Opacity"
+                                            TargetName="_Border"
+                                            Value="1.0" />
+                                    <Setter Property="BorderBrush"
+                                            TargetName="_Border"
+                                            Value="{DynamicResource PrimaryBrush}" />
+                                </MultiTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Foreground"
+                        Value="{StaticResource PrimaryTextBrush}" />
+                <Style.Triggers>
+                    <Trigger Property="IsSelected"
+                             Value="True">
+                        <Setter Property="Foreground"
+                                Value="{DynamicResource PrimaryBrush}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
             <Style x:Key="_defaultIconButton"
                    TargetType="Button"
                    BasedOn="{StaticResource ButtonIcon}">
@@ -505,6 +790,142 @@
 
                 </Setter>
             </Style>
+            <Style x:Key="ListBoxParameterValueContainerStyle"
+                   TargetType="{x:Type ListBoxItem}">
+
+                <Setter Property="SnapsToDevicePixels"
+                        Value="True" />
+                <Setter Property="Padding"
+                        Value="0" />
+                <!--<Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+<Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>-->
+                <Setter Property="Background"
+                        Value="{DynamicResource MainContentBackgroundBrush}" />
+                <Setter Property="FocusVisualStyle"
+                        Value="{StaticResource FocusVisual}" />
+                <Setter Property="Width"
+                        Value="auto" />
+                <Setter Property="Height"
+                        Value="auto" />
+                <Setter Property="VerticalContentAlignment"
+                        Value="Stretch" />
+                <Setter Property="HorizontalAlignment"
+                        Value="Stretch" />
+                <Setter Property="HorizontalContentAlignment"
+                        Value="Stretch" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                            <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
+                                <Border x:Name="_Border"
+                                        Margin="5"
+                                        RenderTransformOrigin="0.5,0.5"
+                                        CornerRadius="2"
+                                        BorderThickness="2"
+                                        Background="{TemplateBinding Background}"
+                                        Padding="{TemplateBinding Padding}"
+                                        SnapsToDevicePixels="true">
+                                    <Border.RenderTransform>
+                                        <ScaleTransform ScaleX="1.0"
+                                                        ScaleY="1.0" />
+                                    </Border.RenderTransform>
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Style.Triggers>
+                                                <EventTrigger RoutedEvent="MouseEnter">
+                                                    <EventTrigger.Actions>
+                                                        <BeginStoryboard>
+                                                            <Storyboard>
+                                                                <DoubleAnimation Duration="0:0:0.1"
+                                                                                 Storyboard.TargetProperty="RenderTransform.ScaleX"
+                                                                                 To="1.1">
+                                                                    <DoubleAnimation.EasingFunction>
+                                                                        <BackEase EasingMode="EaseOut"
+                                                                                  Amplitude="0.1" />
+                                                                    </DoubleAnimation.EasingFunction>
+                                                                </DoubleAnimation>
+                                                                <DoubleAnimation Duration="0:0:0.1"
+                                                                                 Storyboard.TargetProperty="RenderTransform.ScaleY"
+                                                                                 To="1.1">
+                                                                    <DoubleAnimation.EasingFunction>
+                                                                        <BackEase EasingMode="EaseOut"
+                                                                                  Amplitude="0.1" />
+                                                                    </DoubleAnimation.EasingFunction>
+                                                                </DoubleAnimation>
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </EventTrigger.Actions>
+                                                </EventTrigger>
+                                                <EventTrigger RoutedEvent="MouseLeave">
+                                                    <BeginStoryboard>
+                                                        <Storyboard>
+                                                            <DoubleAnimation Duration="0:0:0.2"
+                                                                             Storyboard.TargetProperty="RenderTransform.ScaleX"
+                                                                             To="1.0" />
+                                                            <DoubleAnimation Duration="0:0:0.2"
+                                                                             Storyboard.TargetProperty="RenderTransform.ScaleY"
+                                                                             To="1.0" />
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </EventTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                </Border>
+                            </hc:TransitioningContentControl>
+                            <ControlTemplate.Triggers>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="Selector.IsSelectionActive"
+                                                   Value="True" />
+                                        <Condition Property="IsSelected"
+                                                   Value="True" />
+                                    </MultiTrigger.Conditions>
+                                    <Setter Property="BorderBrush"
+                                            TargetName="_Border"
+                                            Value="{DynamicResource PrimaryBrush}" />
+                                    <Setter Property="Opacity"
+                                            TargetName="_Border"
+                                            Value="1.0" />
+                                </MultiTrigger>
+
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="Selector.IsSelectionActive"
+                                                   Value="False" />
+                                        <Condition Property="IsSelected"
+                                                   Value="True" />
+                                    </MultiTrigger.Conditions>
+
+                                    <Setter Property="Opacity"
+                                            TargetName="_Border"
+                                            Value="1.0" />
+                                    <Setter Property="BorderBrush"
+                                            TargetName="_Border"
+                                            Value="{DynamicResource PrimaryBrush}" />
+                                </MultiTrigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsMouseOver"
+                                                   Value="True" />
+                                        <Condition Property="IsSelected"
+                                                   Value="False" />
+                                    </MultiTrigger.Conditions>
+                                    <Setter Property="Opacity"
+                                            TargetName="_Border"
+                                            Value="1.0" />
+                                    <Setter Property="BorderBrush"
+                                            TargetName="_Border"
+                                            Value="{DynamicResource PrimaryBrush}" />
+                                </MultiTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
             <Style x:Key="ToggleButtonSwitchSmallerElipse"
                    BasedOn="{StaticResource BaseStyle}"
                    TargetType="ToggleButton">
@@ -699,210 +1120,7 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-            <ResourceDictionary.MergedDictionaries>
-                <hc:ThemeResources>
-                    <hc:ThemeResources.ThemeDictionaries>
-                        <ResourceDictionary x:Key="Light"
-                                            hc:ThemeDictionary.Key="Light">
-
-                            <!-- Put the resources you want to use in the Light theme Here -->
-
-                            <SolidColorBrush x:Key="DarkOpacityBrush"
-                                             Color="#FFFCFCFC" />
-                            <SolidColorBrush x:Key="PrimaryTextBrush"
-                                             Color="#FF212329" />
-                            <SolidColorBrush x:Key="SecondaryRegionBrush"
-                                             Color="#FFE0E0E0" />
-                            <SolidColorBrush x:Key="DarkMaskBrush"
-                                             Color="#FFDDDDDD" />
-                            <SolidColorBrush x:Key="RegionBrush"
-                                             Color="#FFF4F4F4" />
-                        </ResourceDictionary>
-
-                        <ResourceDictionary x:Key="Dark"
-                                            hc:ThemeDictionary.Key="Dark">
-
-                            <!-- Put the resources you want to use in the Dark theme Here -->
-
-                            <SolidColorBrush x:Key="HoverBrush"
-                                             Color="#FF323232" />
-                            <SolidColorBrush x:Key="ButtonHoverBrush"
-                                             Color="#FF434343" />
-                            <SolidColorBrush x:Key="MainContentBackgroundBrush"
-                                             Color="#FF2b2b2b" />
-                            <SolidColorBrush x:Key="DarkMaskBrush"
-                                             Color="#FF222222" />
-                            <SolidColorBrush x:Key="RegionBrush"
-                                             Color="#FF202020" />
-                            <SolidColorBrush x:Key="SecondaryRegionBrush"
-                                             Color="#FF363636" />
-                        </ResourceDictionary>
-                    </hc:ThemeResources.ThemeDictionaries>
-                </hc:ThemeResources>
-                <hc:Theme />
-                <ResourceDictionary>
-                    <DataTemplate x:Key="_buttonSubParamTemplate"
-                                  DataType="{x:Type parameters:SubParameter}">
-                        <Grid Visibility="{Binding IsEnabled,Converter={StaticResource Boolean2VisibilityConverter},Mode=TwoWay}">
-                            <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
-                                <StackPanel>
-                                    <hc:Divider  LineStroke="{StaticResource RegionBrush}"
-                                                 Margin="0,10,0,10">
-                                    </hc:Divider>
-                                    <Grid>
-                                        <GroupBox VerticalAlignment="Stretch"
-                                                  Style="{StaticResource GroupBoxOriginal}"
-                                                  HorizontalAlignment="Stretch"
-                                                  hc:TitleElement.TitlePlacement="Left">
-                                            <GroupBox.HeaderTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock  Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox}}" />
-                                                </DataTemplate>
-                                            </GroupBox.HeaderTemplate>
-                                            <Button Style="{DynamicResource _lowProfileDefaultButton}"
-                                                    CommandParameter="{Binding CommandParameter}"
-                                                    HorizontalAlignment="Right"
-                                                    Content="{Binding CommandParameter}">
-                                            </Button>
-                                        </GroupBox>
-                                    </Grid>
-                                </StackPanel>
-                            </hc:TransitioningContentControl>
-                        </Grid>
-                    </DataTemplate>
-                    <DataTemplate x:Key="_sliderSubParamTemplate"
-                                  DataType="{x:Type parameters:SubParameter}">
-
-                        <Grid ToolTip="{Binding Description}"
-                              Visibility="{Binding IsEnabled,Converter={StaticResource Boolean2VisibilityConverter},Mode=TwoWay}">
-                            <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
-                                <StackPanel>
-                                    <hc:Divider   LineStroke="{StaticResource RegionBrush}"
-                                                  Margin="0,10,0,10">
-                                    </hc:Divider>
-                                    <Grid>
-                                        <GroupBox  HorizontalContentAlignment="Left"
-                                                   Style="{StaticResource GroupBoxOriginal}"
-                                                   hc:TitleElement.TitlePlacement="Left">
-                                            <GroupBox.HeaderTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock  Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox}}" />
-                                                </DataTemplate>
-                                            </GroupBox.HeaderTemplate>
-
-                                            <hc:PreviewSlider HorizontalAlignment="Right"
-                                                              Width="200"
-                                                              Minimum="{Binding MinValue}"
-                                                              Maximum="{Binding MaxValue}"
-                                                              Value="{Binding Value}">
-                                                <hc:PreviewSlider.PreviewContent>
-                                                    <Label Style="{StaticResource LabelPrimary}"
-                                                           Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}"
-                                                           ContentStringFormat="#0" />
-                                                </hc:PreviewSlider.PreviewContent>
-                                            </hc:PreviewSlider>
-                                        </GroupBox>
-                                    </Grid>
-                                </StackPanel>
-                            </hc:TransitioningContentControl>
-                        </Grid>
-                    </DataTemplate>
-                    <DataTemplate x:Key="_toggleSubParamTemplate"
-                                  DataType="{x:Type parameters:SubParameter}">
-                        <Grid ToolTip="{Binding Description}">
-                            <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
-
-                                <StackPanel>
-                                    <hc:Divider LineStroke="{StaticResource RegionBrush}"
-                                                Margin="0,10,0,10">
-                                    </hc:Divider>
-                                    <Grid>
-                                        <GroupBox VerticalAlignment="Stretch"
-                                                  Style="{StaticResource GroupBoxOriginal}"
-                                                  HorizontalAlignment="Stretch"
-                                                  hc:TitleElement.TitlePlacement="Left">
-                                            <GroupBox.HeaderTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock  FontWeight="SemiBold"
-                                                                Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox}}" />
-                                                </DataTemplate>
-                                            </GroupBox.HeaderTemplate>
-                                            <ToggleButton HorizontalAlignment="Right"
-                                                          IsChecked="{Binding Value}"
-                                                          Style="{StaticResource ToggleButtonSwitchSmallerElipse}">
-                                            </ToggleButton>
-                                        </GroupBox>
-                                    </Grid>
-                                </StackPanel>
-                            </hc:TransitioningContentControl>
-                        </Grid>
-                    </DataTemplate>
-                    <DataTemplate x:Key="_listSelectionSubParamTemplate"
-                                  DataType="{x:Type parameters:SubParameter}">
-                        <Grid Visibility="{Binding IsEnabled,Converter={StaticResource Boolean2VisibilityConverter},Mode=TwoWay}">
-                            <hc:TransitioningContentControl TransitionMode="Left2RightWithFade">
-                                <StackPanel>
-                                    <hc:Divider LineStroke="{StaticResource RegionBrush}"
-                                                Margin="0,10,0,10">
-                                    </hc:Divider>
-                                    <Grid>
-                                        <GroupBox VerticalAlignment="Stretch"
-                                                  Style="{StaticResource GroupBoxOriginal}"
-                                                  HorizontalAlignment="Stretch"
-                                                  hc:TitleElement.TitlePlacement="Left">
-                                            <GroupBox.HeaderTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock Text="{Binding DataContext.Name, RelativeSource={RelativeSource AncestorType=GroupBox}}" />
-                                                </DataTemplate>
-                                            </GroupBox.HeaderTemplate>
-                                            <Border Effect="{DynamicResource EffectShadow1}"
-                                                    HorizontalAlignment="Right"
-                                                    Background="{DynamicResource SecondaryRegionBrush}"
-                                                    CornerRadius="4">
-                                                <ListBox  ItemsSource="{Binding AvailableValue}"
-                                                          ItemContainerStyle="{DynamicResource _listBoxModeSelectionStyle}"
-                                                          SelectedIndex="{Binding Value}"
-                                                          Background="Transparent"
-                                                          BorderThickness="0"
-                                                          Style="{StaticResource WrapPanelHorizontalListBox}">
-                                                    <ListBox.ItemsPanel>
-                                                        <ItemsPanelTemplate>
-                                                            <WrapPanel>
-                                                            </WrapPanel>
-                                                        </ItemsPanelTemplate>
-                                                    </ListBox.ItemsPanel>
-                                                    <ListBox.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <Grid>
-                                                                <TextBlock HorizontalAlignment="Center"
-                                                                           VerticalAlignment="Center"
-                                                                           Margin="5,2"
-                                                                           Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
-                                                                           Text="{Binding .}"
-                                                                           Style="{DynamicResource TextBlockDefault}" />
-                                                            </Grid>
-                                                        </DataTemplate>
-                                                    </ListBox.ItemTemplate>
-                                                </ListBox>
-                                            </Border>
-                                        </GroupBox>
-                                    </Grid>
-                                </StackPanel>
-                            </hc:TransitioningContentControl>
-                        </Grid>
-                    </DataTemplate>
-                </ResourceDictionary>
-                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingWave.xaml"></ResourceDictionary>
-                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingThreeDots.xaml"></ResourceDictionary>
-                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingFlipPlane.xaml"></ResourceDictionary>
-                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingPulse.xaml"></ResourceDictionary>
-                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles/LoadingDoubleBounce.xaml"></ResourceDictionary>
-                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Colors.xaml"></ResourceDictionary>
-                <ResourceDictionary Source="pack://application:,,,/LoadingIndicators.WPF;component/Styles.xaml"></ResourceDictionary>
-                <ResourceDictionary Source="GeometryCollection.xaml">
-                </ResourceDictionary>
-               
-            </ResourceDictionary.MergedDictionaries>
+            
         </ResourceDictionary>
     </Application.Resources>
 

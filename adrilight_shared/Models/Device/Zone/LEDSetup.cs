@@ -63,13 +63,10 @@ namespace adrilight_shared.Models.Device.Zone
         private bool _isEnabled = true;
         private bool _isInsideScreen = true;
         private bool _isInControlGroup;
-        [JsonIgnore]
         public bool IsInControlGroup { get => _isInControlGroup; set { Set(() => IsInControlGroup, ref _isInControlGroup, value); } }
         public bool IsEnabled { get => _isEnabled; set { Set(() => IsEnabled, ref _isEnabled, value); } }
         //private IControlMode _maskedControlMode;
         //public IControlMode MaskedControlMode { get => _maskedControlMode; set { Set(() => MaskedControlMode, ref _maskedControlMode, value); if (IsInControlGroup) RaisePropertyChanged(nameof(CurrentActiveControlMode)); } }
-
-
         //LED Setup properties
         private ObservableCollection<IDeviceSpot> _spots;
         public string Geometry { get; set; }
@@ -185,7 +182,7 @@ namespace adrilight_shared.Models.Device.Zone
         {
             var colors = new List<ColorCard>();
             var staticColorControlMode = AvailableControlMode.Where(m => (m as LightingMode).BasedOn == LightingModeEnum.StaticColor).FirstOrDefault() as LightingMode;
-            (staticColorControlMode.ColorParameter as ListSelectionParameter).LoadAvailableValues();
+           // (staticColorControlMode.ColorParameter as ListSelectionParameter).LoadAvailableValues();
            // (staticColorControlMode.ColorParameter as ListSelectionParameter).AvailableValues.ForEach(c => colors.Add(c as ColorCard));
             return colors;
         }

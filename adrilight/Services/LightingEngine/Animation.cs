@@ -5,6 +5,7 @@ using adrilight_shared.Models.ControlMode;
 using adrilight_shared.Models.ControlMode.Mode;
 using adrilight_shared.Models.ControlMode.ModeParameters;
 using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
+using adrilight_shared.Models.DataSource;
 using adrilight_shared.Models.Device;
 using adrilight_shared.Models.Device.Zone;
 using adrilight_shared.Models.FrameData;
@@ -32,9 +33,13 @@ namespace adrilight.Services.LightingEngine
             IGeneralSettings generalSettings,
             IControlZone zone,
             IDeviceSettings device,
-            RainbowTicker rainbowTicker
+            RainbowTicker rainbowTicker,
+            IList<IDataSource> dataSource
             )
         {
+            _paletteDataSource = (ColorPaletteDataSource)dataSource.Where(d => d.Name == "ColorPalettes").FirstOrDefault();
+            _vidDataSource = (VIDDataSource)dataSource.Where(d => d.Name == "VID").FirstOrDefault();
+            _chasingPatternDataSource = (ChasingPatternDataSource)dataSource.Where(d => d.Name == "ChasingPatterns").FirstOrDefault();
             GeneralSettings = generalSettings ?? throw new ArgumentNullException(nameof(generalSettings));
             CurrentZone = zone as LEDSetup ?? throw new ArgumentNullException(nameof(zone));
             CurrentDevice = device as DeviceSettings ?? throw new ArgumentNullException(nameof(device));
@@ -48,6 +53,9 @@ namespace adrilight.Services.LightingEngine
         /// dependency property
         /// </summary>
         private IGeneralSettings GeneralSettings { get; }
+        private ColorPaletteDataSource _paletteDataSource;
+        private VIDDataSource _vidDataSource;
+        private ChasingPatternDataSource _chasingPatternDataSource;
         public bool IsRunning { get; private set; }
         private LEDSetup CurrentZone { get; }
         private RainbowTicker RainbowTicker { get; }
@@ -545,19 +553,18 @@ namespace adrilight.Services.LightingEngine
             //safety check
             if (_colorControl.SelectedValue == null)
             {
-                //init default value
-                //_colorControl.SelectedValue = _colorControl.AvailableValues.First();
+                _colorControl.SelectedValue = (ColorPalette)_paletteDataSource.Items.First();
             }
             OnSelectedPaletteChanged(_colorControl.SelectedValue);
             if (_chasingPatternControl.SelectedValue == null)
             {
                 //init default value
-                // _chasingPatternControl.SelectedValue = _chasingPatternControl.AvailableValues.First();
+                _chasingPatternControl.SelectedValue = (ChasingPattern)_chasingPatternDataSource.Items.First();
             }
             if (_vidDataControl.SelectedValue == null)
             {
                 //init default value
-               // _vidDataControl.SelectedValue = _vidDataControl.AvailableValues.First();
+                _vidDataControl.SelectedValue = (VIDDataModel)_vidDataSource.Items.First();
             }
             EnableChanged(_enableControl.Value == 1 ? true : false);
             OnSelectedChasingPatternChanged(_chasingPatternControl.SelectedValue);

@@ -28,6 +28,187 @@
                     <converters:BrushToHexConverter x:Key="BrushToHexConverter" />
                     <BooleanToVisibilityConverter x:Key="boolToVisibilityConvert" />
                     <converters:ToUpperValueConverter x:Key="toUpperValueConverter" />
+                    <Style x:Key="CustomColorPicker"
+                           TargetType="{x:Type hc:ColorPicker}">
+                        <Setter Property="Focusable"
+                                Value="False" />
+                        <Setter Property="Width"
+                                Value="230" />
+                        <Setter Property="Background"
+                                Value="{DynamicResource RegionBrush}" />
+                        <Setter Property="FrameworkElement.UseLayoutRounding"
+                                Value="True" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type hc:ColorPicker}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="122" />
+                                            <RowDefinition Height="110" />
+                                            <RowDefinition Height="62" />
+                                            <RowDefinition Height="62" />
+                                        </Grid.RowDefinitions>
+                                        <Border BorderThickness="1"
+                                                BorderBrush="{DynamicResource BorderBrush}"
+                                                Grid.RowSpan="4"
+                                                Background="{TemplateBinding Background}" />
+                                        <hc:SimplePanel Margin="1"
+                                                           Grid.Row="0">
+                                            <Border Background="Red" />
+                                            <Border>
+                                                <Border.Background>
+                                                    <LinearGradientBrush EndPoint="0,0.5"
+                                                                         StartPoint="1,0.5">
+                                                        <GradientStop Color="White"
+                                                                      Offset="1" />
+                                                        <GradientStop Color="#80ffffff"
+                                                                      Offset=".5" />
+                                                        <GradientStop Color="#00ffffff" />
+                                                    </LinearGradientBrush>
+                                                </Border.Background>
+                                            </Border>
+                                            <Border>
+                                                <Border.Background>
+                                                    <LinearGradientBrush EndPoint="0.5,1"
+                                                                         StartPoint="0.5,0">
+                                                        <GradientStop Color="Black"
+                                                                      Offset="1" />
+                                                        <GradientStop Color="#80000000"
+                                                                      Offset=".5" />
+                                                        <GradientStop Color="#00000000" />
+                                                    </LinearGradientBrush>
+                                                </Border.Background>
+                                            </Border>
+                                        </hc:SimplePanel>
+                                        <Border Name="PART_BorderColor"
+                                                Grid.Row="0"
+                                                CornerRadius="2,2,0,0"
+                                                ClipToBounds="True">
+                                            <Canvas Margin="-6">
+                                                <Border Name="PART_BorderPicker"
+                                                        Background="Transparent"
+                                                        Height="12"
+                                                        CornerRadius="6"
+                                                        Width="12"
+                                                        BorderThickness="1"
+                                                        BorderBrush="White"
+                                                        />
+                                            </Canvas>
+                                        </Border>
+                                        <Border Name="PART_BorderDrag"
+                                                Grid.Row="0"
+                                                Background="Transparent" />
+                                        <Grid Margin="16,16,10,0"
+                                              Grid.Row="1">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition />
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition />
+                                                <ColumnDefinition Width="28" />
+                                            </Grid.ColumnDefinitions>
+                                            <ToggleButton Name="PART_ButtonDropper"
+                                                          Width="16"
+                                                          Height="16"
+                                                          Margin="0,0,10,0"
+                                                          Style="{StaticResource ToggleButtonCustom}">
+                                                <Path Stretch="Uniform"
+                                                      Data="{StaticResource DropperGeometry}"
+                                                      Fill="{DynamicResource PrimaryTextBrush}" />
+                                            </ToggleButton>
+                                            <Border Grid.Row="0"
+                                                    Grid.Column="1"
+                                                    Width="32"
+                                                    Height="32"
+                                                    CornerRadius="16"
+                                                    Background="{StaticResource ColorPickerOpacityBrush}"
+                                                    BorderBrush="{DynamicResource BorderBrush}"
+                                                    BorderThickness="1" />
+                                            <Border Grid.Row="0"
+                                                    Grid.Column="1"
+                                                    Width="32"
+                                                    Height="32"
+                                                    CornerRadius="16"
+                                                    Background="{TemplateBinding SelectedBrush}"
+                                                    BorderBrush="{DynamicResource BorderBrush}"
+                                                    BorderThickness="1" />
+                                            <Slider Name="PART_SliderColor"
+                                                    LargeChange="0.01"
+                                                    SmallChange="0.01"
+                                                    Grid.ColumnSpan="2"
+                                                    Value="6"
+                                                    Maximum="6"
+                                                    Background="{StaticResource ColorPickerRainbowBrush}"
+                                                    Margin="2,1,0,0"
+                                                    Grid.Row="0"
+                                                    Grid.Column="2"
+                                                    VerticalAlignment="Top"
+                                                    Style="{StaticResource ColorPickerSlider}"
+                                                    IsMoveToPointEnabled="True" />
+                                            <StackPanel Grid.Row="1"
+                                                        Grid.Column="0"
+                                                        Grid.ColumnSpan="3"
+                                                        Margin="0,14,0,0"
+                                                        VerticalAlignment="Top"
+                                                        Visibility="{Binding ShowList[0] , RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                                <TextBox Padding="0"
+                                                         HorizontalContentAlignment="Center"
+                                                         Width="176"
+                                                         FontSize="10"
+                                                         MaxLength="10"
+                                                         Height="24"
+                                                         Text="{Binding SelectedBrush , RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay, Converter={StaticResource Color2HexStringConverter}, UpdateSourceTrigger=LostFocus}" />
+                                                <TextBlock Foreground="{DynamicResource ThirdlyTextBrush}"
+                                                           Margin="0,2,0,0"
+                                                           TextBlock.FontSize="10"
+                                                           Text="HEX"
+                                                           HorizontalAlignment="Center" />
+                                            </StackPanel>
+                                            <UniformGrid Name="PART_PanelRgb"
+                                                         Rows="1"
+                                                         Grid.Row="1"
+                                                         Grid.Column="0"
+                                                         Grid.ColumnSpan="3"
+                                                         Margin="-2,14,-2,0"
+                                                         VerticalAlignment="Top"
+                                                         Visibility="{Binding ShowList[1] , RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource Boolean2VisibilityConverter}}">
+
+
+
+
+                                            </UniformGrid>
+                                        </Grid>
+                                        <Border Grid.Row="2"
+                                                BorderThickness="0,1,0,0"
+                                                BorderBrush="{DynamicResource BorderBrush}">
+                                            <WrapPanel Name="PART_PanelColor"
+                                                       Margin="6"
+                                                       HorizontalAlignment="Center" />
+                                        </Border>
+                                        <Border Grid.Row="3"
+                                                BorderThickness="0,1,0,0"
+                                                BorderBrush="{DynamicResource BorderBrush}">
+                                            <StackPanel Orientation="Horizontal"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center">
+                                                <Button 
+                                                        Width="80"
+                                                        Margin="0,0,16,0"
+                                                        Content="Cancel" />
+                                                <Button 
+                                                        Width="80"
+                                                        Style="{StaticResource ButtonPrimary}"
+                                                        Content="Cancel" />
+                                            </StackPanel>
+                                        </Border>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
                     <DataTemplate x:Key="gradientTemplate">
                         <Border Margin="10" CornerRadius="7" Width="150" Height="150">
                             <Border.Background>
@@ -274,7 +455,7 @@
                         </Grid>
                     </Border>
                 </Grid>
-                <hc:ColorPicker  Grid.Column="1"  BorderThickness="0" Confirmed="ColorPicker_Confirmed" Canceled="mColorPicker_Canceled" SelectedBrush="{Binding CurrentPickedColor,Converter={StaticResource ColorToBrushConverter},Mode=TwoWay}" x:Name="mColorPicker" Margin="10">
+                <hc:ColorPicker Style="{DynamicResource ColorPickerBaseStyle}"  Grid.Column="1"  BorderThickness="0" Confirmed="ColorPicker_Confirmed" Canceled="mColorPicker_Canceled" SelectedBrush="{Binding CurrentPickedColor,Converter={StaticResource ColorToBrushConverter},Mode=TwoWay}" x:Name="mColorPicker" Margin="10">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Confirmed" >
                             <i:InvokeCommandAction Command="{Binding AddPickedSolidColorCommand }" />

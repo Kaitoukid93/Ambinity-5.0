@@ -164,6 +164,9 @@ namespace adrilight
             {
                 _brightness = _brightnessControl.Value / 100d;
                 _brightnessControl.IsEnabled = true;
+                _breathingControl.SubParams[0].IsEnabled = false;
+                _breathingControl.SubParams[1].IsEnabled = false;
+                _breathingControl.SubParams[2].IsEnabled = false;
             }
             else
             {
