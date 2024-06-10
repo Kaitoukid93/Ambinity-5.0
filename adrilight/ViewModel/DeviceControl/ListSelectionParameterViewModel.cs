@@ -219,6 +219,7 @@ namespace adrilight.ViewModel.DeviceControl
             var window = new PaletteCreatorWindow();
             window.DataContext = vm;
             window.Owner = Application.Current.MainWindow;
+            window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             window.ShowDialog();
         }
         private void ExecuteparameterClick(string parameter)

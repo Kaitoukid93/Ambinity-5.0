@@ -7,20 +7,297 @@
             xmlns:devicecontrol="clr-namespace:adrilight.ViewModel.DeviceControl"
             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
             xmlns:local="clr-namespace:adrilight.View.Screens.Mainview.ControlView"
-            d:DataContext="{d:DesignInstance Type=devicecontrol:ListSelectionParameterViewModel}"
+            xmlns:localShared="clr-namespace:adrilight_shared.View.CustomControls;assembly=adrilight_shared"
+            d:DataContext="{d:DesignInstance Type=devicecontrol:ColorPaletteCreatorViewModel}"
             mc:Ignorable="d"
             ResizeMode="NoResize"
+            SizeToContent="Width"
             Background="{DynamicResource RegionBrush}"
-            Width="500"
             Height="400">
-  
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="LostFocus">
+            <i:InvokeCommandAction CommandParameter=""
+                                   Command="{Binding Path=DataContext.ColorPaletteLostFocusCommand,RelativeSource={RelativeSource AncestorType={x:Type local:PaletteCreatorWindow}}}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <hc:Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary>
+                    <Storyboard x:Key="loadedTransition"
+                                x:Shared="False">
+                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                         From="0.5"
+                                         To="1.0"
+                                         Duration="0:0:0.2">
+                        </DoubleAnimation>
+                    </Storyboard>
+                    <ScaleTransform x:Key="SelectedTransform"
+                                    ScaleX="2"
+                                    ScaleY="2" />
+                    <Style x:Key="ColorListContainerStyle"
+                           TargetType="{x:Type ListViewItem}">
+
+                        <Setter Property="SnapsToDevicePixels"
+                                Value="True" />
+                        <Setter Property="Padding"
+                                Value="0" />
+                        <Setter Property="Background"
+                                Value="{DynamicResource RegionBrush}" />
+                        <Setter Property="FocusVisualStyle"
+                                Value="{StaticResource FocusVisual}" />
+                        <Setter Property="Width"
+                                Value="auto" />
+                        <Setter Property="Height"
+                                Value="auto" />
+                        <Setter Property="VerticalContentAlignment"
+                                Value="Stretch" />
+                        <Setter Property="HorizontalAlignment"
+                                Value="Stretch" />
+                        <Setter Property="HorizontalContentAlignment"
+                                Value="Stretch" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                    <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
+                                        <Border x:Name="_Border"
+                                                RenderTransformOrigin="0.5,0.5"
+                                                Background="{TemplateBinding Background}"
+                                                Padding="{TemplateBinding Padding}"
+                                                SnapsToDevicePixels="true">
+                                            <Border.RenderTransform>
+                                                <ScaleTransform ScaleX="1.0"
+                                                                ScaleY="1.0" />
+                                            </Border.RenderTransform>
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Style.Triggers>
+                                                        <EventTrigger RoutedEvent="MouseEnter">
+                                                            <EventTrigger.Actions>
+                                                                <BeginStoryboard>
+                                                                    <Storyboard>
+                                                                        <DoubleAnimation Duration="0:0:0.1"
+                                                                                         Storyboard.TargetProperty="RenderTransform.ScaleX"
+                                                                                         To="4">
+                                                                            <DoubleAnimation.EasingFunction>
+                                                                                <BackEase EasingMode="EaseOut"
+                                                                                          Amplitude="0.1" />
+                                                                            </DoubleAnimation.EasingFunction>
+                                                                        </DoubleAnimation>
+                                                                        <DoubleAnimation Duration="0:0:0.1"
+                                                                                         Storyboard.TargetProperty="RenderTransform.ScaleY"
+                                                                                         To="1.5">
+                                                                            <DoubleAnimation.EasingFunction>
+                                                                                <BackEase EasingMode="EaseOut"
+                                                                                          Amplitude="0.1" />
+                                                                            </DoubleAnimation.EasingFunction>
+                                                                        </DoubleAnimation>
+                                                                    </Storyboard>
+                                                                </BeginStoryboard>
+                                                            </EventTrigger.Actions>
+                                                        </EventTrigger>
+                                                        <EventTrigger RoutedEvent="MouseLeave">
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <DoubleAnimation Duration="0:0:0.2"
+                                                                                     Storyboard.TargetProperty="RenderTransform.ScaleX"
+                                                                                     To="1.0" />
+                                                                    <DoubleAnimation Duration="0:0:0.2"
+                                                                                     Storyboard.TargetProperty="RenderTransform.ScaleY"
+                                                                                     To="1.0" />
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </EventTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                        </Border>
+                                    </hc:TransitioningContentControl>
+                                    <ControlTemplate.Triggers>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive"
+                                                           Value="True" />
+                                                <Condition Property="IsSelected"
+                                                           Value="True" />
+                                            </MultiTrigger.Conditions>
+
+                                            <Setter Property="RenderTransform"
+                                                    TargetName="_Border"
+                                                    Value="{DynamicResource SelectedTransform}" />
+                                        </MultiTrigger>
+
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive"
+                                                           Value="False" />
+                                                <Condition Property="IsSelected"
+                                                           Value="True" />
+                                            </MultiTrigger.Conditions>
+                                            <Setter Property="RenderTransform"
+                                                    TargetName="_Border"
+                                                    Value="{DynamicResource SelectedTransform}" />
+
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsMouseOver"
+                                                           Value="True" />
+                                                <Condition Property="IsSelected"
+                                                           Value="False" />
+                                            </MultiTrigger.Conditions>
+                                        </MultiTrigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                    <Style x:Key="ListBoxParameterValueContainerStyle"
+                           TargetType="{x:Type ListBoxItem}">
+
+                        <Setter Property="SnapsToDevicePixels"
+                                Value="True" />
+                        <Setter Property="Padding"
+                                Value="0" />
+                        <Setter Property="Background"
+                                Value="{DynamicResource MainContentBackgroundBrush}" />
+                        <Setter Property="FocusVisualStyle"
+                                Value="{StaticResource FocusVisual}" />
+                        <Setter Property="Width"
+                                Value="auto" />
+                        <Setter Property="Height"
+                                Value="auto" />
+                        <Setter Property="VerticalContentAlignment"
+                                Value="Stretch" />
+                        <Setter Property="HorizontalAlignment"
+                                Value="Stretch" />
+                        <Setter Property="HorizontalContentAlignment"
+                                Value="Stretch" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                    <hc:TransitioningContentControl TransitionStoryboard="{DynamicResource loadedTransition}">
+                                        <Border x:Name="_Border"
+                                                Margin="5"
+                                                RenderTransformOrigin="0.5,0.5"
+                                                CornerRadius="6"
+                                                BorderThickness="2"
+                                                Background="{TemplateBinding Background}"
+                                                Padding="{TemplateBinding Padding}"
+                                                SnapsToDevicePixels="true">
+                                            <Border.RenderTransform>
+                                                <ScaleTransform ScaleX="1.0"
+                                                                ScaleY="1.0" />
+                                            </Border.RenderTransform>
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Style.Triggers>
+                                                        <EventTrigger RoutedEvent="MouseEnter">
+                                                            <EventTrigger.Actions>
+                                                                <BeginStoryboard>
+                                                                    <Storyboard>
+                                                                        <DoubleAnimation Duration="0:0:0.1"
+                                                                                         Storyboard.TargetProperty="RenderTransform.ScaleX"
+                                                                                         To="1.1">
+                                                                            <DoubleAnimation.EasingFunction>
+                                                                                <BackEase EasingMode="EaseOut"
+                                                                                          Amplitude="0.1" />
+                                                                            </DoubleAnimation.EasingFunction>
+                                                                        </DoubleAnimation>
+                                                                        <DoubleAnimation Duration="0:0:0.1"
+                                                                                         Storyboard.TargetProperty="RenderTransform.ScaleY"
+                                                                                         To="1.1">
+                                                                            <DoubleAnimation.EasingFunction>
+                                                                                <BackEase EasingMode="EaseOut"
+                                                                                          Amplitude="0.1" />
+                                                                            </DoubleAnimation.EasingFunction>
+                                                                        </DoubleAnimation>
+                                                                    </Storyboard>
+                                                                </BeginStoryboard>
+                                                            </EventTrigger.Actions>
+                                                        </EventTrigger>
+                                                        <EventTrigger RoutedEvent="MouseLeave">
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <DoubleAnimation Duration="0:0:0.2"
+                                                                                     Storyboard.TargetProperty="RenderTransform.ScaleX"
+                                                                                     To="1.0" />
+                                                                    <DoubleAnimation Duration="0:0:0.2"
+                                                                                     Storyboard.TargetProperty="RenderTransform.ScaleY"
+                                                                                     To="1.0" />
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </EventTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                        </Border>
+                                    </hc:TransitioningContentControl>
+                                    <ControlTemplate.Triggers>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive"
+                                                           Value="True" />
+                                                <Condition Property="IsSelected"
+                                                           Value="True" />
+                                            </MultiTrigger.Conditions>
+                                           
+                                        </MultiTrigger>
+
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="Selector.IsSelectionActive"
+                                                           Value="False" />
+                                                <Condition Property="IsSelected"
+                                                           Value="True" />
+                                            </MultiTrigger.Conditions>
+
+                                        </MultiTrigger>
+                                        <MultiTrigger>
+                                            <MultiTrigger.Conditions>
+                                                <Condition Property="IsMouseOver"
+                                                           Value="True" />
+                                                <Condition Property="IsSelected"
+                                                           Value="False" />
+                                            </MultiTrigger.Conditions>
+                                    
+                                        </MultiTrigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </hc:Window.Resources>
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Border Width="75">
-            <ListBox BorderThickness="0" ItemContainerStyle="{DynamicResource ListBoxParameterValueContainerStyle}" ItemsSource="{Binding HintColors}">
+            <ListBox VerticalAlignment="Top"
+                     Margin="0,30,0,0"
+                     Height="280"
+                     Width="60"
+                     BorderThickness="0"
+                     ItemsSource="{Binding RecommendColorList}">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem"
+                           BasedOn="{StaticResource ListBoxParameterValueContainerStyle}">
+                        <Setter Property="Background"
+                                Value="Transparent" />
+
+                    </Style>
+                </ListBox.ItemContainerStyle>
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <UniformGrid Columns="1" />
@@ -28,7 +305,15 @@
                 </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Border>
+                        <Border Width="40"
+                                CornerRadius="4"
+                                Height="40">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseLeftButtonDown">
+                                    <i:InvokeCommandAction CommandParameter="{Binding .}"
+                                                           Command="{Binding Path=DataContext.SelectRecommendColorCommand,RelativeSource={RelativeSource AncestorType={x:Type local:PaletteCreatorWindow}}}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
                             <Border.Background>
                                 <SolidColorBrush Color="{Binding .}"
                                                  Opacity="1" />
@@ -38,5 +323,195 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </Border>
+        <Grid Margin="20,10,30,20"
+              Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Border Width="{Binding PaletteWidth}"
+                    Height="74"
+                    VerticalAlignment="Top"
+                    CornerRadius="7"
+                    ClipToBounds="True">
+                <Grid>
+
+                    <ListView Padding="0"
+                              BorderThickness="0"
+                              Background="Transparent"
+                              ItemsSource="{Binding Colors}">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem"
+                                   BasedOn="{StaticResource _listBoxColorSelectionStyle}">
+                                <Setter Property="IsSelected"
+                                        Value="{Binding IsSelected}" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="LostFocus">
+                                <i:InvokeCommandAction CommandParameter=""
+                                                       Command="{Binding Path=DataContext.ColorPaletteLostFocusCommand,RelativeSource={RelativeSource AncestorType={x:Type local:PaletteCreatorWindow}}}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                </StackPanel>
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+
+                                <Border  Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}"
+                                         MinWidth="2"
+                                         x:Name="host"
+                                         Margin="0,0,0,0"
+                                         Height="70"
+                                         BorderBrush="{DynamicResource RegionBrush}"
+                                         BorderThickness="0"
+                                         Width="50"
+                                         HorizontalAlignment="Stretch">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
+                                            <i:InvokeCommandAction PassEventArgsToCommand="True"
+                                                                   Command="{Binding Path=DataContext.ColorPaletteMouseUpCommand,RelativeSource={RelativeSource AncestorType={x:Type local:PaletteCreatorWindow}}}" />
+                                        </i:EventTrigger>
+                                        <i:EventTrigger EventName="MouseLeftButtonDown">
+                                            <i:InvokeCommandAction CommandParameter="{Binding .}"
+                                                                   Command="{Binding Path=DataContext.ColorPaletteMouseDownCommand,RelativeSource={RelativeSource AncestorType={x:Type local:PaletteCreatorWindow}}}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <!--<Popup VerticalOffset="-50"
+                                               x:Name="picker"
+                                               HorizontalOffset="-200"
+                                               StaysOpen="True"
+                                               PlacementTarget="{Binding ElementName=host}"
+                                               IsOpen="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem},
+                                        Path=IsSelected, Mode=OneWay}">
+                                            -->
+                                    <!--<i:Interaction.Triggers>
+                   <i:EventTrigger EventName="LostKeyboardFocus">
+                       <i:InvokeCommandAction CommandParameter=""
+                                              Command="{Binding Path=DataContext.ColorPaletteLostFocusCommand,RelativeSource={RelativeSource AncestorType={x:Type local:PaletteCreatorWindow}}}" />
+                   </i:EventTrigger>
+               </i:Interaction.Triggers>-->
+                                    <!--
+                                            <Border>
+                                                <localShared:SimpleColorPicker IsHitTestVisible="True">
+
+                                                </localShared:SimpleColorPicker>
+                                            </Border>
+
+                                        </Popup>-->
+
+                                </Border>
+
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+
+            </Border>
+            <Border Grid.Row="1"
+                    Background="{DynamicResource MainContentBackgroundBrush}"
+                    CornerRadius="4"
+                    Margin="0,20,0,5"
+                    Height="60">
+                <Grid>
+                    <TextBlock Text="HEX"
+                               FontWeight="SemiBold"
+                               HorizontalAlignment="Left"
+                               Margin="15,0"
+                               Style="{DynamicResource TextBlockSubTitle}" />
+                    <StackPanel HorizontalAlignment="Right"
+                                Orientation="Horizontal">
+                        <TextBox Background="Transparent"
+                                 x:Name="hex"
+                                 BorderBrush="Transparent"
+                                 BorderThickness="0"
+                                 Style="{DynamicResource TextBoxExtend}"
+                                 FontSize="15"
+                                 FontWeight="SemiBold"
+                                 Text="{Binding SelectedColor,UpdateSourceTrigger=PropertyChanged,Mode=OneWay,Converter={StaticResource Color2HexStringConverter}}" />
+                        <Button BorderThickness="0"
+                                Width="32"
+                                Height="32"
+                                Margin="15,10"
+                                Padding="7,7"
+                                Command="{Binding UpdateColorFromStringCommand}"
+                                CommandParameter="{Binding ElementName=hex,Path=Text}"
+                                Style="{DynamicResource _buttonIconTransparrent}"
+                                hc:IconElement.Geometry="{DynamicResource apply}" />
+                        <Button BorderThickness="0"
+                                Width="32"
+                                Height="32"
+                                Margin="15,10"
+                                Padding="7,7"
+                                Style="{DynamicResource _buttonIconTransparrent}"
+                                hc:IconElement.Geometry="{DynamicResource Switch Mode}" />
+                    </StackPanel>
+                </Grid>
+
+            </Border>
+            <Border Grid.Row="2"
+                    Background="{DynamicResource MainContentBackgroundBrush}"
+                    CornerRadius="4"
+                    Margin="0,10,0,5"
+                    Height="60">
+                <Grid>
+                    <TextBlock Text="RGB"
+                               FontWeight="SemiBold"
+                               HorizontalAlignment="Left"
+                               Margin="15,0"
+                               Style="{DynamicResource TextBlockSubTitle}" />
+                    <StackPanel HorizontalAlignment="Right"
+                                Orientation="Horizontal">
+                        <TextBox Background="Transparent"
+                                 BorderBrush="Transparent"
+                                 BorderThickness="0"
+                                 Style="{DynamicResource TextBoxExtend}"
+                                 FontSize="15"
+                                 IsReadOnly="True"
+                                 FontWeight="SemiBold"
+                                 Text="{Binding SelectedColor.Color.R,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Background="Transparent"
+                                 BorderBrush="Transparent"
+                                 BorderThickness="0"
+                                 Style="{DynamicResource TextBoxExtend}"
+                                 FontSize="15"
+                                 IsReadOnly="True"
+                                 FontWeight="SemiBold"
+                                 Text="{Binding SelectedColor.Color.G,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox Background="Transparent"
+                                 BorderBrush="Transparent"
+                                 BorderThickness="0"
+                                 Style="{DynamicResource TextBoxExtend}"
+                                 FontSize="15"
+                                 IsReadOnly="True"
+                                 FontWeight="SemiBold"
+                                 Text="{Binding SelectedColor.Color.B,Mode=OneWay,UpdateSourceTrigger=PropertyChanged}" />
+                        <Button BorderThickness="0"
+                                Width="32"
+                                Height="32"
+                                Margin="15,10"
+                                Padding="7,7"
+                                Command="{Binding UpdateColorFromStringCommand}"
+                                CommandParameter=""
+                                Style="{DynamicResource _buttonIconTransparrent}"
+                                hc:IconElement.Geometry="{DynamicResource apply}" />
+                        <Button BorderThickness="0"
+                                Width="32"
+                                Height="32"
+                                Margin="15,10"
+                                Padding="7,7"
+                                Style="{DynamicResource _buttonIconTransparrent}"
+                                hc:IconElement.Geometry="{DynamicResource Switch Mode}" />
+                    </StackPanel>
+                </Grid>
+
+            </Border>
+        </Grid>
     </Grid>
 </hc:Window>

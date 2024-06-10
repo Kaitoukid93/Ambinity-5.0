@@ -9,8 +9,9 @@ using adrilight_shared.Models.RelayCommand;
 
 namespace adrilight_shared.ViewModel
 {
-    public class SimpleColorPickerViewModel:ViewModelBase
+    public class SimpleColorPickerViewModel : ViewModelBase
     {
+        public event Action<Color> ColorChanged;
         private readonly List<ColorRange> _colorRangeList = new List<ColorRange>
     {
         new ColorRange
@@ -61,6 +62,8 @@ namespace adrilight_shared.ViewModel
                 RaisePropertyChanged();
             }
         }
+        public Brush SelectedBrush { get; set; }
+
         private void CommandSetup()
         {
             ColorPickerSliderValueChangedCommand = new RelayCommand<RoutedPropertyChangedEventArgs<double>>((p) =>
@@ -71,6 +74,15 @@ namespace adrilight_shared.ViewModel
                 UpdatebackColor(p);
 
             });
+            ColorPickerColorChangedCommand = new RelayCommand<HandyControl.Data.FunctionEventArgs<Color>>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                ColorChanged?.Invoke(p.Info);
+
+            });
+          
 
         }
         private void UpdatebackColor(RoutedPropertyChangedEventArgs<double> e)
@@ -81,5 +93,7 @@ namespace adrilight_shared.ViewModel
             BackColor = new SolidColorBrush(color);
         }
         public ICommand ColorPickerSliderValueChangedCommand { get; set; }
+        public ICommand ColorPickerColorChangedCommand { get; set; }
+
     }
 }

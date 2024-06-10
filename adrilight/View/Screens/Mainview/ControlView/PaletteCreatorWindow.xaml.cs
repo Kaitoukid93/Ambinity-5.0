@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Linq;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace adrilight.View.Screens.Mainview.ControlView
 {
@@ -23,6 +13,23 @@ namespace adrilight.View.Screens.Mainview.ControlView
         public PaletteCreatorWindow()
         {
             InitializeComponent();
+        }
+
+        private void host_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var border = sender as Border;
+            (border.Child as Popup).IsOpen = true;
+            (border.Child as Popup).Focus();
+        }
+
+        private void host_LostMouseCapture(object sender, MouseEventArgs e)
+        {
+            
+        }
+
+        private void Button_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            
         }
     }
 }

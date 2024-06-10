@@ -273,10 +273,10 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="ListBoxItem">
-                            <Border CornerRadius="2"
+                            <Border CornerRadius="0"
                                     Name="_Border"
                                     Padding="0"
-                                    Margin="4"
+                                    Margin="0"
                                     Background="Transparent"
                                     Opacity="1"
                                     BorderThickness="2"
@@ -294,11 +294,20 @@
                                     <Setter Property="BorderBrush"
                                             TargetName="_Border"
                                             Value="{DynamicResource PrimaryBrush}" />
-                                    <Setter Property="Opacity"
-                                            TargetName="_Border"
-                                            Value="1.0" />
+                                    
                                 </MultiTrigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="Selector.IsSelectionActive"
+                                                   Value="False" />
+                                        <Condition Property="IsSelected"
+                                                   Value="False" />
+                                    </MultiTrigger.Conditions>
+                                    <Setter Property="BorderBrush"
+                                            TargetName="_Border"
+                                            Value="Transparent" />
 
+                                </MultiTrigger>
                                 <MultiTrigger>
                                     <MultiTrigger.Conditions>
                                         <Condition Property="Selector.IsSelectionActive"
@@ -306,10 +315,6 @@
                                         <Condition Property="IsSelected"
                                                    Value="True" />
                                     </MultiTrigger.Conditions>
-
-                                    <Setter Property="Opacity"
-                                            TargetName="_Border"
-                                            Value="1.0" />
                                     <Setter Property="BorderBrush"
                                             TargetName="_Border"
                                             Value="{DynamicResource PrimaryBrush}" />
@@ -321,9 +326,6 @@
                                         <Condition Property="IsSelected"
                                                    Value="False" />
                                     </MultiTrigger.Conditions>
-                                    <Setter Property="Opacity"
-                                            TargetName="_Border"
-                                            Value="1.0" />
                                     <Setter Property="BorderBrush"
                                             TargetName="_Border"
                                             Value="{DynamicResource PrimaryBrush}" />
@@ -344,7 +346,7 @@
             </Style>
             <Style x:Key="_defaultIconButton"
                    TargetType="Button"
-                   BasedOn="{StaticResource ButtonIcon}">
+                   BasedOn="{StaticResource ButtonBaseStyle}">
                 <Setter Property="Effect"
                         Value="{DynamicResource EffectShadow1}" />
                 <Setter Property="Padding"
@@ -356,11 +358,31 @@
                 <Setter Property="hc:BackgroundSwitchElement.MouseDownBackground"
                         Value="{DynamicResource HoverBrush}" />
                 <Setter Property="hc:BackgroundSwitchElement.MouseHoverBackground"
-                        Value="{DynamicResource ButtonHoverBrush}" />
+                        Value="Red" />
                 <Setter Property="BorderThickness"
                         Value="0" />
                 <Setter Property="Background"
                         Value="{DynamicResource RegionBrush}" />
+            </Style>
+            <Style x:Key="_buttonIconTransparrent"
+                   BasedOn="{StaticResource ButtonBaseStyle}"
+                   TargetType="{x:Type Button}">
+                <Style.Triggers>
+                    <Trigger Property="UIElement.IsMouseOver"
+                             Value="True">
+                        <Setter Property="Background"
+                                Value="{DynamicResource SecondaryRegionBrush}" />
+                    </Trigger>
+                    <Trigger Property="IsPressed"
+                             Value="True">
+                        <Setter Property="Background"
+                                Value="{DynamicResource BorderBrush}" />
+                    </Trigger>
+                </Style.Triggers>
+                <Setter Property="Foreground"
+                        Value="{DynamicResource PrimaryTextBrush}" />
+                <Setter Property="Background"
+                        Value="{DynamicResource MainContentBackgroundBrush}" />
             </Style>
             <Style x:Key="_defaultIconButtonSmall"
                    TargetType="Button"

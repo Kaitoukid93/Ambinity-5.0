@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HandyControl.Controls;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,11 +19,19 @@ namespace adrilight_shared.View.CustomControls
     /// <summary>
     /// Interaction logic for SimpleColorPicker.xaml
     /// </summary>
-    public partial class SimpleColorPicker : UserControl
+    public partial class SimpleColorPicker : UserControl, ISingleOpen
     {
         public SimpleColorPicker()
         {
             InitializeComponent();
         }
+
+        public bool CanDispose => true;
+
+        public void Dispose()
+        {
+            
+        }
+
     }
 }
