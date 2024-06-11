@@ -33,6 +33,12 @@ namespace adrilight.ViewModel.DeviceControl
         {
             UpdateTools();
         }
+        private void OnAddNewValue(IGenericCollectionItem item)
+        {
+            item.Name = "Add";
+            AddItem(item);
+
+        }
         #endregion
         private ObservableCollection<CollectionItemTool> _availableTools;
         public ObservableCollection<CollectionItemTool> AvailableTools {
@@ -171,6 +177,7 @@ namespace adrilight.ViewModel.DeviceControl
                 {
                     case "Add Color":
                         //OpenColorPickerWindow(2);
+                        OpenColorEditorWindow();
                         break;
 
                     case "Add VID":
@@ -216,7 +223,18 @@ namespace adrilight.ViewModel.DeviceControl
         private void OpenPaletteEditorWindow()
         {
             var vm = new ColorPaletteCreatorViewModel();
+            vm.AddNewPalette += OnAddNewValue;
             var window = new PaletteCreatorWindow();
+            window.DataContext = vm;
+            window.Owner = Application.Current.MainWindow;
+            window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            window.ShowDialog();
+        }
+        private void OpenColorEditorWindow()
+        {
+            var vm = new ColorEditorViewModel();
+            vm.AddNewPalette += OnAddNewValue;
+            var window = new ColorGradientCreatorWindow();
             window.DataContext = vm;
             window.Owner = Application.Current.MainWindow;
             window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
@@ -234,6 +252,16 @@ namespace adrilight.ViewModel.DeviceControl
             {
                 LoadAvailableValues();
             }
+        }
+        private void AddItem(IGenericCollectionItem item)
+        {
+            AvailableValues.AddItem(item);
+            var listparam = Parameter as ListSelectionParameter;
+            var selectedSourceName = listparam.DataSourceLocaFolderNames[SelectedDataSourceIndex];
+            var source = (DataSourceBase)DataSources.Where(s => s.Name == selectedSourceName).FirstOrDefault();
+            if (source == null)
+                return;
+            source.AddItem(item);
         }
         private void RemoveSelectedItems()
         {

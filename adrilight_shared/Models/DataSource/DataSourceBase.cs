@@ -63,7 +63,8 @@ namespace adrilight_shared.Models.DataSource
         }
         public virtual void AddItem(IGenericCollectionItem item)
         {
-
+            Items.Add(item);
+            SaveData();
         }
         public virtual void SaveData()
         {

@@ -268,6 +268,140 @@
                 <Setter Property="Background"
                         Value="{DynamicResource SecondaryRegionBrush}" />
             </Style>
+            
+            <Style x:Key="_listBoxControlModeSmallStyle"
+                   TargetType="ListBoxItem">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBoxItem">
+                            <Border CornerRadius="4"
+                                    Name="_Border"
+                                    Padding="0"
+                                    Margin="2"
+                                    Width="30"
+                                    Height="30"
+                                    BorderBrush="{StaticResource DarkMaskBrush}"
+                                    BorderThickness="0"
+                                    SnapsToDevicePixels="true">
+                                <Border.Background>
+                                    <SolidColorBrush x:Name="BorderBackgroundBrush"
+                                                     Color="{DynamicResource SecondaryRegionColor}"
+                                                     Opacity="0.0" />
+                                </Border.Background>
+                                <Border.Triggers>
+                                    <EventTrigger RoutedEvent="MouseEnter">
+                                        <EventTrigger.Actions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Duration="0:0:0.2"
+                                                                     Storyboard.TargetName="BorderBackgroundBrush"
+                                                                     Storyboard.TargetProperty="Opacity"
+                                                                     From="0.4"
+                                                                     To="1">
+                                                    </DoubleAnimation>
+                                                    <DoubleAnimation Duration="0:0:0.2"
+                                                                     Storyboard.TargetProperty="Opacity"
+                                                                     From="{TemplateBinding Opacity}"
+                                                                     To="1">
+                                                    </DoubleAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger.Actions>
+                                    </EventTrigger>
+                                    <EventTrigger RoutedEvent="MouseLeave">
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Duration="0:0:0.1"
+                                                                 Storyboard.TargetName="BorderBackgroundBrush"
+                                                                 Storyboard.TargetProperty="Opacity"
+                                                                 To="0">
+
+                                                </DoubleAnimation>
+                                                <DoubleAnimation Duration="0:0:0.2"
+                                                                 Storyboard.TargetProperty="Opacity"
+                                                                 From="1"
+                                                                 To="{TemplateBinding Opacity}">
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </Border.Triggers>
+                                <ContentPresenter />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="Selector.IsSelectionActive"
+                                                   Value="True" />
+                                        <Condition Property="IsSelected"
+                                                   Value="True" />
+                                    </MultiTrigger.Conditions>
+                                    <Setter Property="Background"
+                                            TargetName="_Border"
+                                            Value="{DynamicResource primaryBackgroundBrush}" />
+                                    <Setter Property="Opacity"
+                                            TargetName="_Border"
+                                            Value="1" />
+
+                                    <!--<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource PrimaryBrush}"/>-->
+                                </MultiTrigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="Selector.IsSelectionActive"
+                                                   Value="False" />
+                                        <Condition Property="IsSelected"
+                                                   Value="True" />
+                                    </MultiTrigger.Conditions>
+
+
+                                    <!--<Setter Property="Effect" TargetName="_Border" Value="{StaticResource Item.SelectedActive.Border.Shadow}"/>-->
+
+                                    <Setter Property="Background"
+                                            TargetName="_Border"
+                                            Value="{DynamicResource primaryBackgroundBrush}" />
+                                    <Setter Property="Opacity"
+                                            TargetName="_Border"
+                                            Value="1" />
+                                </MultiTrigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="Selector.IsSelectionActive"
+                                                   Value="False" />
+                                        <Condition Property="IsSelected"
+                                                   Value="False" />
+                                    </MultiTrigger.Conditions>
+                                    <Setter Property="Opacity"
+                                            TargetName="_Border"
+                                            Value="0.6" />
+                                </MultiTrigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="Selector.IsSelectionActive"
+                                                   Value="True" />
+                                        <Condition Property="IsSelected"
+                                                   Value="False" />
+                                    </MultiTrigger.Conditions>
+                                    <Setter Property="Opacity"
+                                            TargetName="_Border"
+                                            Value="0.6" />
+                                </MultiTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <!--<Setter Property="ToolTip" Value="{Binding DocName}"/>-->
+
+                <Setter Property="Foreground"
+                        Value="{StaticResource PrimaryTextBrush}" />
+                <Style.Triggers>
+                    <Trigger Property="IsSelected"
+                             Value="True">
+                        <Setter Property="Foreground"
+                                Value="{DynamicResource PrimaryBrush}" />
+                    </Trigger>
+                </Style.Triggers>
+
+            </Style>
             <Style x:Key="_listBoxColorSelectionStyle"
                    TargetType="ListBoxItem">
                 <Setter Property="Template">

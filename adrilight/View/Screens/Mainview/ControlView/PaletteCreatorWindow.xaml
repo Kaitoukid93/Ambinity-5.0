@@ -8,14 +8,18 @@
             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
             xmlns:local="clr-namespace:adrilight.View.Screens.Mainview.ControlView"
             xmlns:localShared="clr-namespace:adrilight_shared.View.CustomControls;assembly=adrilight_shared"
+            xmlns:wpfcolorpicker="clr-namespace:Dsafa.WpfColorPicker;assembly=Dsafa.WpfColorPicker"
             d:DataContext="{d:DesignInstance Type=devicecontrol:ColorPaletteCreatorViewModel}"
             mc:Ignorable="d"
             ResizeMode="NoResize"
-            SizeToContent="Width"
-            Background="{DynamicResource RegionBrush}"
-            Height="400">
+            SizeToContent="WidthAndHeight"
+            Background="{DynamicResource RegionBrush}">
     <i:Interaction.Triggers>
-        <i:EventTrigger EventName="LostFocus">
+        <i:EventTrigger EventName="MouseLeftButtonDown">
+            <i:InvokeCommandAction CommandParameter=""
+                                   Command="{Binding Path=DataContext.ColorPaletteLostFocusCommand,RelativeSource={RelativeSource AncestorType={x:Type local:PaletteCreatorWindow}}}" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Closing">
             <i:InvokeCommandAction CommandParameter=""
                                    Command="{Binding Path=DataContext.ColorPaletteLostFocusCommand,RelativeSource={RelativeSource AncestorType={x:Type local:PaletteCreatorWindow}}}" />
         </i:EventTrigger>
@@ -247,7 +251,7 @@
                                                 <Condition Property="IsSelected"
                                                            Value="True" />
                                             </MultiTrigger.Conditions>
-                                           
+
                                         </MultiTrigger>
 
                                         <MultiTrigger>
@@ -266,7 +270,7 @@
                                                 <Condition Property="IsSelected"
                                                            Value="False" />
                                             </MultiTrigger.Conditions>
-                                    
+
                                         </MultiTrigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -284,44 +288,62 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Border Width="75">
-            <ListBox VerticalAlignment="Top"
-                     Margin="0,30,0,0"
-                     Height="280"
-                     Width="60"
-                     BorderThickness="0"
-                     ItemsSource="{Binding RecommendColorList}">
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem"
-                           BasedOn="{StaticResource ListBoxParameterValueContainerStyle}">
-                        <Setter Property="Background"
-                                Value="Transparent" />
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid Margin="0,10,0,0">
+                    <localShared:EyeDropper Grid.Row="14"
+                                            Grid.Column="2"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Center"
+                                            Margin="0,0,0,0"
+                                            Background="Transparent"
+                                            SelectedColor="{Binding EyeDropperColor, Mode=OneWayToSource}" />
+                </Grid>
 
-                    </Style>
-                </ListBox.ItemContainerStyle>
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <UniformGrid Columns="1" />
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Border Width="40"
-                                CornerRadius="4"
-                                Height="40">
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="MouseLeftButtonDown">
-                                    <i:InvokeCommandAction CommandParameter="{Binding .}"
-                                                           Command="{Binding Path=DataContext.SelectRecommendColorCommand,RelativeSource={RelativeSource AncestorType={x:Type local:PaletteCreatorWindow}}}" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                            <Border.Background>
-                                <SolidColorBrush Color="{Binding .}"
-                                                 Opacity="1" />
-                            </Border.Background>
-                        </Border>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+                <ListBox VerticalAlignment="Top"
+                         Margin="0,15,0,0"
+                         Height="280"
+                         Grid.Row="1"
+                         Width="60"
+                         BorderThickness="0"
+                         ItemsSource="{Binding RecommendColorList}">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem"
+                               BasedOn="{StaticResource ListBoxParameterValueContainerStyle}">
+                            <Setter Property="Background"
+                                    Value="Transparent" />
+
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="1" />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Width="40"
+                                    CornerRadius="4"
+                                    Height="40">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="MouseLeftButtonDown">
+                                        <i:InvokeCommandAction CommandParameter="{Binding .}"
+                                                               Command="{Binding Path=DataContext.SelectRecommendColorCommand,RelativeSource={RelativeSource AncestorType={x:Type local:PaletteCreatorWindow}}}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                                <Border.Background>
+                                    <SolidColorBrush Color="{Binding .}"
+                                                     Opacity="1" />
+                                </Border.Background>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+
         </Border>
         <Grid Margin="20,10,30,20"
               Grid.Column="1">
@@ -329,9 +351,11 @@
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Border Width="{Binding PaletteWidth}"
+                    MaxWidth="1600"
                     Height="74"
                     VerticalAlignment="Top"
                     CornerRadius="7"
@@ -371,7 +395,7 @@
                                          Height="70"
                                          BorderBrush="{DynamicResource RegionBrush}"
                                          BorderThickness="0"
-                                         Width="50"
+                                         Width="{Binding Path=DataContext.TileWidth,RelativeSource={RelativeSource AncestorType={x:Type local:PaletteCreatorWindow}}}"
                                          HorizontalAlignment="Stretch">
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
@@ -424,7 +448,7 @@
                                FontWeight="SemiBold"
                                HorizontalAlignment="Left"
                                Margin="15,0"
-                               Style="{DynamicResource TextBlockSubTitle}" />
+                               Style="{DynamicResource TextBlockDefault}" />
                     <StackPanel HorizontalAlignment="Right"
                                 Orientation="Horizontal">
                         <TextBox Background="Transparent"
@@ -432,22 +456,21 @@
                                  BorderBrush="Transparent"
                                  BorderThickness="0"
                                  Style="{DynamicResource TextBoxExtend}"
-                                 FontSize="15"
+                                 FontSize="12"
                                  FontWeight="SemiBold"
                                  Text="{Binding SelectedColor,UpdateSourceTrigger=PropertyChanged,Mode=OneWay,Converter={StaticResource Color2HexStringConverter}}" />
                         <Button BorderThickness="0"
-                                Width="32"
+                                Content="Apply"
                                 Height="32"
                                 Margin="15,10"
                                 Padding="7,7"
                                 Command="{Binding UpdateColorFromStringCommand}"
                                 CommandParameter="{Binding ElementName=hex,Path=Text}"
-                                Style="{DynamicResource _buttonIconTransparrent}"
-                                hc:IconElement.Geometry="{DynamicResource apply}" />
+                                Style="{DynamicResource _buttonIconTransparrent}" />
                         <Button BorderThickness="0"
                                 Width="32"
                                 Height="32"
-                                Margin="15,10"
+                                Margin="0,10,15,10"
                                 Padding="7,7"
                                 Style="{DynamicResource _buttonIconTransparrent}"
                                 hc:IconElement.Geometry="{DynamicResource Switch Mode}" />
@@ -465,46 +488,48 @@
                                FontWeight="SemiBold"
                                HorizontalAlignment="Left"
                                Margin="15,0"
-                               Style="{DynamicResource TextBlockSubTitle}" />
+                               Style="{DynamicResource TextBlockDefault}" />
                     <StackPanel HorizontalAlignment="Right"
                                 Orientation="Horizontal">
                         <TextBox Background="Transparent"
                                  BorderBrush="Transparent"
                                  BorderThickness="0"
                                  Style="{DynamicResource TextBoxExtend}"
-                                 FontSize="15"
+                                 FontSize="12"
                                  IsReadOnly="True"
+                                 Foreground="{DynamicResource SecondaryTextBrush}"
                                  FontWeight="SemiBold"
                                  Text="{Binding SelectedColor.Color.R,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                         <TextBox Background="Transparent"
                                  BorderBrush="Transparent"
                                  BorderThickness="0"
                                  Style="{DynamicResource TextBoxExtend}"
-                                 FontSize="15"
+                                 FontSize="12"
                                  IsReadOnly="True"
                                  FontWeight="SemiBold"
+                                 Foreground="{DynamicResource SecondaryTextBrush}"
                                  Text="{Binding SelectedColor.Color.G,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
                         <TextBox Background="Transparent"
                                  BorderBrush="Transparent"
                                  BorderThickness="0"
                                  Style="{DynamicResource TextBoxExtend}"
-                                 FontSize="15"
+                                 FontSize="12"
                                  IsReadOnly="True"
+                                 Foreground="{DynamicResource SecondaryTextBrush}"
                                  FontWeight="SemiBold"
                                  Text="{Binding SelectedColor.Color.B,Mode=OneWay,UpdateSourceTrigger=PropertyChanged}" />
                         <Button BorderThickness="0"
-                                Width="32"
+                                Content="Apply"
                                 Height="32"
                                 Margin="15,10"
                                 Padding="7,7"
                                 Command="{Binding UpdateColorFromStringCommand}"
                                 CommandParameter=""
-                                Style="{DynamicResource _buttonIconTransparrent}"
-                                hc:IconElement.Geometry="{DynamicResource apply}" />
+                                Style="{DynamicResource _buttonIconTransparrent}" />
                         <Button BorderThickness="0"
                                 Width="32"
                                 Height="32"
-                                Margin="15,10"
+                                Margin="0,10,15,10"
                                 Padding="7,7"
                                 Style="{DynamicResource _buttonIconTransparrent}"
                                 hc:IconElement.Geometry="{DynamicResource Switch Mode}" />
@@ -512,6 +537,63 @@
                 </Grid>
 
             </Border>
+            <Border Grid.Row="3"
+                    Background="{DynamicResource MainContentBackgroundBrush}"
+                    CornerRadius="4"
+                    Margin="0,10,0,5"
+                    Height="60">
+                <Grid>
+                    <TextBlock Text="COLOR COUNT"
+                               FontWeight="SemiBold"
+                               HorizontalAlignment="Left"
+                               Margin="15,0"
+                               Style="{DynamicResource TextBlockDefault}" />
+                    <StackPanel HorizontalAlignment="Right"
+                                Orientation="Horizontal">
+                        <hc:NumericUpDown Minimum="4"
+                                          Maximum="128"
+                                          x:Name="numcol"
+                                          FontSize="12"
+                                          Background="Transparent"
+                                          BorderThickness="0">
+
+                        </hc:NumericUpDown>
+                        <Button BorderThickness="0"
+                                Height="32"
+                                Margin="0,10,62,10"
+                                Padding="7,7"
+                                Content="Apply"
+                                Command="{Binding UpdateColorNumberCommand}"
+                                CommandParameter="{Binding ElementName=numcol,Path=Value}"
+                                Style="{DynamicResource _buttonIconTransparrent}" />
+
+                    </StackPanel>
+                </Grid>
+
+            </Border>
+            <Grid Margin="0,20,0,10"
+                  Grid.Row="4">
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Right">
+                    <Button HorizontalAlignment="Right"
+                            BorderThickness="0"
+                            Width="auto"
+                            Padding="10,0"
+                            hc:BorderElement.CornerRadius="4"
+                            Height="32"
+                            hc:BackgroundSwitchElement.MouseHoverBackground="{DynamicResource SecondaryRegionBrush}"
+                            hc:BackgroundSwitchElement.MouseDownBackground="{DynamicResource MainContentBackgroundBrush}"
+                            Content="Cancel"
+                            Margin="10"
+                            Style="{DynamicResource ButtonCustom}" />
+                    <Button HorizontalAlignment="Right"
+                            CommandParameter=" "
+                            Content="Save to new Palette"
+                            Command="{Binding SaveNewPaletteCommand}"
+                            Style="{DynamicResource _mediumProfileDefaultButton}" />
+                </StackPanel>
+
+            </Grid>
         </Grid>
     </Grid>
 </hc:Window>

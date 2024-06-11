@@ -12,6 +12,7 @@ namespace adrilight_shared.ViewModel
     public class SimpleColorPickerViewModel : ViewModelBase
     {
         public event Action<Color> ColorChanged;
+        public event Action<Color> BackColorChanged;
         private readonly List<ColorRange> _colorRangeList = new List<ColorRange>
     {
         new ColorRange
@@ -82,7 +83,15 @@ namespace adrilight_shared.ViewModel
                 ColorChanged?.Invoke(p.Info);
 
             });
-          
+            ColorPickerSliderMouseButtonUpCommand = new RelayCommand<string>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                BackColorChanged?.Invoke(((SolidColorBrush)BackColor).Color);
+
+            });
+
 
         }
         private void UpdatebackColor(RoutedPropertyChangedEventArgs<double> e)
@@ -91,9 +100,11 @@ namespace adrilight_shared.ViewModel
             double range = e.NewValue - (double)num;
             Color color = _colorRangeList[num].GetColor(range);
             BackColor = new SolidColorBrush(color);
+           
         }
         public ICommand ColorPickerSliderValueChangedCommand { get; set; }
         public ICommand ColorPickerColorChangedCommand { get; set; }
+        public ICommand ColorPickerSliderMouseButtonUpCommand { get; set; }
 
     }
 }

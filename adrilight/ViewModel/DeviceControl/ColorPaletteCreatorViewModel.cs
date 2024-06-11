@@ -24,7 +24,7 @@ namespace adrilight.ViewModel.DeviceControl
 {
     public class ColorPaletteCreatorViewModel : ViewModelBase
     {
-
+        public event Action<ColorPalette> AddNewPalette;
         public ColorPaletteCreatorViewModel()
         {
             Init();
@@ -32,6 +32,29 @@ namespace adrilight.ViewModel.DeviceControl
 
         }
         private SimpleColorPickerViewModel _colorPicker;
+        public SimpleColorPickerViewModel ColorPicker {
+            get
+            {
+                return _colorPicker;
+            }
+            set
+            {
+                _colorPicker = value;
+                RaisePropertyChanged();
+            }
+        }
+        private Color _eyeDroperColor;
+        public Color EyeDropperColor {
+            get
+            {
+                return _eyeDroperColor;
+            }
+            set
+            {
+                _eyeDroperColor = value;
+                _colorPicker_ColorChanged(_eyeDroperColor);
+            }
+        }
         private PopupWindow _pickerWindow;
         private int _numColor = 16;
         public int NumColor {
@@ -69,15 +92,15 @@ namespace adrilight.ViewModel.DeviceControl
                 RaisePropertyChanged();
             }
         }
-        private bool _colorPickerIsOpen;
-        public bool ColorPickerIsOpen {
+        private int _tileWidth = 50;
+        public int TileWidth {
             get
             {
-                return _colorPickerIsOpen;
+                return _tileWidth;
             }
             set
             {
-                _colorPickerIsOpen = value;
+                _tileWidth = value;
                 RaisePropertyChanged();
             }
         }
@@ -94,19 +117,7 @@ namespace adrilight.ViewModel.DeviceControl
                 RaisePropertyChanged();
             }
         }
-        private ObservableCollection<ColorEditingObject> _selectedColors = new ObservableCollection<ColorEditingObject>();
-        public ObservableCollection<ColorEditingObject> SelectedColors {
-            get
-            {
-                return _selectedColors;
-
-            }
-            set
-            {
-                _selectedColors = value;
-                RaisePropertyChanged();
-            }
-        }
+  
         private SolidColorBrush _selectedColor;
         public SolidColorBrush SelectedColor {
             get { return _selectedColor; }
@@ -124,7 +135,7 @@ namespace adrilight.ViewModel.DeviceControl
                 return true;
             }, (p) =>
             {
-                
+
                 var color = ((p.Source as Border).DataContext as ColorEditingObject).Color;
                 _colorPicker_ColorChanged(color);
                 OpenColorPickerWindow(p.Source as Border, color);
@@ -156,43 +167,64 @@ namespace adrilight.ViewModel.DeviceControl
                 return p != null;
             }, (p) =>
             {
+                if(p==null|| p== string.Empty) return;
                 var color = (Color)System.Windows.Media.ColorConverter.ConvertFromString(p);
                 _colorPicker_ColorChanged(color);
-
-
-
             });
+            UpdateColorNumberCommand = new RelayCommand<double>((p) =>
+            {
+                return p >= 4;
+            }, (p) =>
+            {
+                NumColor = (int)p;
+                Init();
+            });
+            SaveNewPaletteCommand = new RelayCommand<string>((p) =>
+            {
+                return p != null;
+            }, (p) =>
+            {
+                AddNewPalette?.Invoke(CreateNewPaletteFromCurrentSelectedColor());
+            });
+        }
+        private ColorPalette CreateNewPaletteFromCurrentSelectedColor()
+        {
+            var pal = new ColorPalette(Colors.Count);
+            var listCol = new List<Color>();
+            foreach (var color in Colors)
+            {
+                listCol.Add(color.Color);
+            }
+            pal.Colors = listCol.ToArray();
+            return pal;
         }
         public void Init()
         {
             //add dummy palette
-            NumColor = 16;
-            foreach (var color in CreateRainbow())
+            Colors?.Clear();
+            foreach (var color in GetHueRainbow(NumColor))
             {
                 //double each color
-                Colors.Add(new ColorEditingObject(Color.FromRgb(color.R, color.G, color.B)));
-                Colors.Add(new ColorEditingObject(Color.FromRgb(color.R, color.G, color.B)));
+                Colors.Add(new ColorEditingObject(color));
             }
             NumColor = Colors.Count;
             Colors.First().IsSelected = true;
-            foreach (var color in CreateRecommendColorList(Colors.First().Color))
-            {
-                RecommendColorList.Add(color);
-            }
+            UpdateRecommendColorList(Colors.First().Color);
             SelectedColor = new SolidColorBrush(Colors.First().Color);
             CalculatePaletteWidth();
 
         }
-        private void OpenColorPickerWindow(Border border,Color col)
+        private void OpenColorPickerWindow(Border border, Color col)
         {
-            _colorPicker = new SimpleColorPickerViewModel();
-            _colorPicker.SelectedBrush = new SolidColorBrush(col);
-            _colorPicker.ColorChanged += _colorPicker_ColorChanged;
+            ColorPicker = new SimpleColorPickerViewModel();
+            ColorPicker.SelectedBrush = new SolidColorBrush(col);
+            ColorPicker.BackColor = new SolidColorBrush(col);
+            ColorPicker.ColorChanged += _colorPicker_ColorChanged;
             var picker = SingleOpenHelper.CreateControl<SimpleColorPicker>();
             _pickerWindow = new PopupWindow {
                 PopupElement = picker
             };
-            _pickerWindow.DataContext = _colorPicker;
+            _pickerWindow.DataContext = ColorPicker;
             _pickerWindow.Show(border, false);
 
         }
@@ -231,24 +263,48 @@ namespace adrilight.ViewModel.DeviceControl
             }
             return list;
         }
-        private List<System.Drawing.Color> CreateRainbow()
+        public static Color FromHsv(double hue, double saturation, double value)
         {
-            var colorList = new List<System.Drawing.Color>
-             {
-                System.Drawing.Color.LightSkyBlue,
-                System.Drawing.Color.Red,
-                System.Drawing.Color.Yellow,
-                System.Drawing.Color.Purple,
-                System.Drawing.Color.Orange,
-                System.Drawing.Color.Blue,
-                System.Drawing.Color.Green
-             };
+            if (saturation is < 0 or > 1)
+                throw new ArgumentOutOfRangeException(nameof(saturation));
+            if (value is < 0 or > 1)
+                throw new ArgumentOutOfRangeException(nameof(value));
 
-            var orderedColorList = colorList
-                .OrderBy(color => color.GetHue())
-                .ThenBy(o => o.R * 3 + o.G * 2 + o.B * 1).ToList();
-            return orderedColorList;
+            while (hue < 0) { hue += 360; }
+            while (hue >= 360) { hue -= 360; }
+
+            var hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;
+            var f = hue / 60 - Math.Floor(hue / 60);
+
+            value *= 255;
+            var v = Convert.ToByte(value);
+            var p = Convert.ToByte(value * (1 - saturation));
+            var q = Convert.ToByte(value * (1 - f * saturation));
+            var t = Convert.ToByte(value * (1 - (1 - f) * saturation));
+
+            switch (hi)
+            {
+                case 0:
+                    return Color.FromRgb(v, t, p);
+                case 1:
+                    return Color.FromRgb(q, v, p);
+                case 2:
+                    return Color.FromRgb(p, v, t);
+                case 3:
+                    return Color.FromRgb(p, q, v);
+                case 4:
+                    return Color.FromRgb(t, p, v);
+                default:
+                    return Color.FromRgb(v, p, q);
+            }
         }
+        public static IEnumerable<Color> GetHueRainbow(int amount, double hueStart = 0, double huePercent = 1.0,
+      double saturation = 1.0, double value = 1.0)
+        {
+            return Enumerable.Range(0, amount)
+                .Select(i => FromHsv(hueStart + 360.0d * huePercent / amount * i, saturation, value));
+        }
+
         /// <summary>
         /// Creates color with corrected brightness.
         /// </summary>
@@ -282,12 +338,26 @@ namespace adrilight.ViewModel.DeviceControl
         }
         private void CalculatePaletteWidth()
         {
-            PaletteWidth = NumColor * 54;
+            if (NumColor > 0)
+            {
+                TileWidth = 50;
+            }
+            if (NumColor > 16)
+            {
+                TileWidth = 25;
+            }
+            if (NumColor > 32)
+            {
+                TileWidth = 20;
+            }
+            PaletteWidth = NumColor * (TileWidth + 4);
         }
         public ICommand ColorPaletteMouseUpCommand { get; set; }
         public ICommand ColorPaletteMouseDownCommand { get; set; }
         public ICommand ColorPaletteLostFocusCommand { get; set; }
         public ICommand SelectRecommendColorCommand { get; set; }
         public ICommand UpdateColorFromStringCommand { get; set; }
+        public ICommand UpdateColorNumberCommand { get; set; }
+        public ICommand SaveNewPaletteCommand { get; set; }
     }
 }

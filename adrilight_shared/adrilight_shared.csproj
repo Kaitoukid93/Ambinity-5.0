@@ -142,6 +142,9 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WpfScreenHelper, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\WpfScreenHelper.2.1.0\lib\net40\WpfScreenHelper.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Behavior\ProgressBarSmoother.cs" />
@@ -338,6 +341,16 @@
     <Compile Include="ViewModel\ProgressDialogViewModel.cs" />
     <Compile Include="ViewModel\RenameDialogViewModel.cs" />
     <Compile Include="ViewModel\SimpleColorPickerViewModel.cs" />
+    <Compile Include="View\CustomControls\EyeDroper.xaml.cs">
+      <DependentUpon>EyeDroper.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\CustomControls\EyeDropperWindow.xaml.cs">
+      <DependentUpon>EyeDropperWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\CustomControls\EyeDropperWindowAdorner.cs" />
+    <Compile Include="View\CustomControls\SimpleColorDropper.xaml.cs">
+      <DependentUpon>SimpleColorDropper.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\CustomControls\SimpleColorPicker.xaml.cs">
       <DependentUpon>SimpleColorPicker.xaml</DependentUpon>
     </Compile>
@@ -563,6 +576,18 @@
     <Folder Include="Resources\Images\" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="View\CustomControls\EyeDroper.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\CustomControls\EyeDropperWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\CustomControls\SimpleColorDropper.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="View\CustomControls\SimpleColorPicker.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

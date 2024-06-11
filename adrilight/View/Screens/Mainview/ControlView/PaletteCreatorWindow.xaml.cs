@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
@@ -15,21 +16,17 @@ namespace adrilight.View.Screens.Mainview.ControlView
             InitializeComponent();
         }
 
-        private void host_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
-            var border = sender as Border;
-            (border.Child as Popup).IsOpen = true;
-            (border.Child as Popup).Focus();
-        }
+            base.OnRenderSizeChanged(sizeInfo);
 
-        private void host_LostMouseCapture(object sender, MouseEventArgs e)
-        {
-            
-        }
+            //Calculate half of the offset to move the form
 
-        private void Button_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            
+            if (sizeInfo.HeightChanged)
+                this.Top += (sizeInfo.PreviousSize.Height - sizeInfo.NewSize.Height) / 2;
+
+            if (sizeInfo.WidthChanged)
+                this.Left += (sizeInfo.PreviousSize.Width - sizeInfo.NewSize.Width) / 2;
         }
     }
 }
