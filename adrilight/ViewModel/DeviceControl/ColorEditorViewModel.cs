@@ -25,7 +25,7 @@ namespace adrilight.ViewModel.DeviceControl
 {
     public class ColorEditorViewModel : ViewModelBase
     {
-        public event Action<ColorPalette> AddNewPalette;
+        public event Action<ColorCard> AddNewColor;
         public ColorEditorViewModel()
         {
             Init();
@@ -171,7 +171,17 @@ namespace adrilight.ViewModel.DeviceControl
                 return p != null;
             }, (p) =>
             {
-
+                if(SelectedColor is LinearGradientBrush)
+                {
+                    var newColor = new ColorCard((SelectedColor as LinearGradientBrush).GradientStops[0].Color, (SelectedColor as LinearGradientBrush).GradientStops[1].Color);
+                    AddNewColor.Invoke(newColor);
+                }
+                else if( SelectedColor is SolidColorBrush)
+                {
+                    var newColor = new ColorCard((SelectedColor as SolidColorBrush).Color, (SelectedColor as SolidColorBrush).Color);
+                    AddNewColor.Invoke(newColor);
+                }
+                
             });
             SelectRecommendColorCommand = new RelayCommand<Color>((p) =>
             {

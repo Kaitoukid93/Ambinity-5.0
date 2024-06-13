@@ -444,13 +444,24 @@ namespace adrilight_shared.Models.Store
                     break;
                 case DeserializeMethodEnum.Files:
                     var localFilePath = Path.Combine(collectionPath, "collection");
+                    var thumbFolder = Path.Combine(localFilePath, "thumb");
                     if (!Directory.Exists(localFilePath))
+                    {
                         Directory.CreateDirectory(localFilePath);
+                        
+                    }
+
+                    if (!Directory.Exists(thumbFolder))
+                    {
+                        Directory.CreateDirectory(thumbFolder);
+                    }
                     foreach (var file in listofFiles.Where(f => f.Name != "thumbnail.png"))
                     {
                         //save to local folder
                         var remotePath = item.Path + "/content" + "/" + file.Name;
+                        var thumbPath = item.Path + "/thumb.png";
                         _ftpServer.DownloadFile(remotePath, localFilePath + "/" + file.Name, progress);
+                        _ftpServer.DownloadFile(thumbPath, thumbFolder + "/" + item.Name + ".png", progress);
                     }
                     break;
             }

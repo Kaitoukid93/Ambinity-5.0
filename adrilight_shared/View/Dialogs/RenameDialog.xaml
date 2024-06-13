@@ -22,19 +22,7 @@
             <TextBlock Margin="5,5,5,20"
                        Style="{DynamicResource TextBlockLarge}"
                        Text="{Binding Header}" />
-            <Border Width="120"
-                    Height="120"
-                    CornerRadius="7"
-                    Effect="{DynamicResource EffectShadow1}"
-                    Background="{DynamicResource MainContentBackgroundBrush}">
-                <Path HorizontalAlignment="Center"
-                      Stretch="Uniform"
-                      Width="100"
-                      Height="100"
-                      Margin="10"
-                      Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
-                      Fill="{DynamicResource PrimaryTextBrush}" />
-            </Border>
+            
             <hc:TextBox Margin="20"
                         hc:InfoElement.Title="{x:Static properties:Resources.RenameDialog_Rename_titleelement}"
                         hc:InfoElement.ShowClearButton="True"

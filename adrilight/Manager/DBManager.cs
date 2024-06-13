@@ -84,12 +84,10 @@ namespace adrilight.Manager
         private AmbinityClient AmbinityClient { get; }
         private void DBInit()
         {
-                CreateColorCollectionFolder();
-                CreatePaletteCollectionFolder();
+                
                 CreateResourceCollectionFolder();
                 CreateChasingPatternCollectionFolder();
                 CreateGifCollectionFolder();
-                CreateVIDCollectionFolder();
                 CreateMIDCollectionFolder();
                 CreateProfileCollectionFolder();
                 CreateSupportedDevicesCollectionFolder();
@@ -111,21 +109,7 @@ namespace adrilight.Manager
             CreateRequiredFwVersionJson();
         }
 
-        private void CreateColorCollectionFolder()
-        {
-            if (!Directory.Exists(ColorsCollectionFolderPath))
-            {
-                Directory.CreateDirectory(ColorsCollectionFolderPath);
-                //get data from resource file and copy to local folder
-                var colorCollectionResourcePath = "adrilight_shared.Resources.Colors.ColorCollection.json";
-                ResourceHlprs.CopyResource(colorCollectionResourcePath, Path.Combine(ColorsCollectionFolderPath, "collection.json"));
-                //Create deserialize config
-                var config = new ResourceLoaderConfig(nameof(ColorCard), DeserializeMethodEnum.SingleJson);
-                var configJson = JsonConvert.SerializeObject(config);
-                File.WriteAllText(Path.Combine(ColorsCollectionFolderPath, "config.json"), configJson);
-            }
-            //deserialize and store colorcollection
-        }
+     
         private void CreateGifCollectionFolder()
         {
             if (!Directory.Exists(GifsCollectionFolderPath))
@@ -145,70 +129,7 @@ namespace adrilight.Manager
             }
             //deserialize and store colorcollection
         }
-        private void CreateVIDCollectionFolder()
-        {
-            if (!Directory.Exists(VIDCollectionFolderPath))
-            {
-                Directory.CreateDirectory(VIDCollectionFolderPath);
-                var collectionFolder = Path.Combine(VIDCollectionFolderPath, "collection");
-                Directory.CreateDirectory(collectionFolder);
-                var vidCollection = new List<VIDDataModel>();
-                var lef2Right = new VIDDataModel() {
-                    Name = "Trái sang phải",
-                    IsDeleteable = false,
-                    Geometry = "left2right",
-                    Description = "Màu chạy từ trái sang phải",
-                    ExecutionType = VIDType.PositonGeneratedID,
-                    Dirrection = VIDDirrection.left2right
-                };
-                var right2Left = new VIDDataModel() {
-                    Name = "Phải sang trái",
-                    IsDeleteable = false,
-                    Geometry = "right2left",
-                    Description = "Màu chạy từ phải sang trái",
-                    ExecutionType = VIDType.PositonGeneratedID,
-                    Dirrection = VIDDirrection.right2left
-                };
-                var up2Down = new VIDDataModel() {
-                    Name = "Trên xuống dưới",
-                    IsDeleteable = false,
-                    Geometry = "topdown",
-                    Description = "Màu chạy từ trên xuống dưới",
-                    ExecutionType = VIDType.PositonGeneratedID,
-                    Dirrection = VIDDirrection.top2bot
-                };
-                var down2Up = new VIDDataModel() {
-                    Name = "Dưới lên trên",
-                    IsDeleteable = false,
-                    Geometry = "bottomup",
-                    Description = "Màu chạy từ dưới lên trên",
-                    ExecutionType = VIDType.PositonGeneratedID,
-                    Dirrection = VIDDirrection.bot2top
-                };
-                var linear = new VIDDataModel() {
-                    Name = "Tuyến tính",
-                    Geometry = "back",
-                    Description = "Màu chạy theo thứ tự LED",
-                    ExecutionType = VIDType.PositonGeneratedID,
-                    Dirrection = VIDDirrection.linear
-                };
-                vidCollection.Add(lef2Right);
-                vidCollection.Add(right2Left);
-                vidCollection.Add(up2Down);
-                vidCollection.Add(down2Up);
-                vidCollection.Add(linear);
-                foreach (var vid in vidCollection)
-                {
-                    var json = JsonConvert.SerializeObject(vid);
-                    File.WriteAllText(Path.Combine(collectionFolder, vid.Name + ".json"), json);
-                }
-                //coppy all internal palettes to local
-                var config = new ResourceLoaderConfig(nameof(VIDDataModel), DeserializeMethodEnum.MultiJson);
-                var configJson = JsonConvert.SerializeObject(config);
-                File.WriteAllText(Path.Combine(VIDCollectionFolderPath, "config.json"), configJson);
-            }
-            //deserialize and store colorcollection
-        }
+
 
         private void CreateMIDCollectionFolder()
         {
@@ -432,25 +353,6 @@ namespace adrilight.Manager
             }
         }
 
-        public void CreatePaletteCollectionFolder()
-        {
-            if (!Directory.Exists(PalettesCollectionFolderPath))
-            {
-                Directory.CreateDirectory(PalettesCollectionFolderPath);
-                var collectionFolder = Path.Combine(PalettesCollectionFolderPath, "collection");
-                Directory.CreateDirectory(collectionFolder);
-                //var allResourceNames = "adrilight.Resources.Colors.ChasingPatterns.json";
-                var allResourceNames = ResourceHlprs.GetResourceFileNames();
-                foreach (var resourceName in allResourceNames.Where(r => r.EndsWith(".col")))
-                {
-                    var name = ResourceHlprs.GetResourceFileName(resourceName);
-                    ResourceHlprs.CopyResource(resourceName, Path.Combine(collectionFolder, name));
-                }
-                var config = new ResourceLoaderConfig(nameof(ColorPalette), DeserializeMethodEnum.MultiJson);
-                var configJson = JsonConvert.SerializeObject(config);
-                File.WriteAllText(Path.Combine(PalettesCollectionFolderPath, "config.json"), configJson);
-            }
-        }
         private async void Run(CancellationToken token)
         {
 

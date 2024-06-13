@@ -174,31 +174,10 @@
                                                     HorizontalAlignment="Right"
                                                     Background="{DynamicResource SecondaryRegionBrush}"
                                                     CornerRadius="4">
-                                                <ListBox  ItemsSource="{Binding AvailableValue}"
-                                                          ItemContainerStyle="{DynamicResource _listBoxModeSelectionStyle}"
-                                                          SelectedIndex="{Binding Value}"
-                                                          Background="Transparent"
-                                                          BorderThickness="0"
-                                                          Style="{StaticResource WrapPanelHorizontalListBox}">
-                                                    <ListBox.ItemsPanel>
-                                                        <ItemsPanelTemplate>
-                                                            <WrapPanel>
-                                                            </WrapPanel>
-                                                        </ItemsPanelTemplate>
-                                                    </ListBox.ItemsPanel>
-                                                    <ListBox.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <Grid>
-                                                                <TextBlock HorizontalAlignment="Center"
-                                                                           VerticalAlignment="Center"
-                                                                           Margin="5,2"
-                                                                           Foreground="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type ListBoxItem}}}"
-                                                                           Text="{Binding .}"
-                                                                           Style="{DynamicResource TextBlockDefault}" />
-                                                            </Grid>
-                                                        </DataTemplate>
-                                                    </ListBox.ItemTemplate>
-                                                </ListBox>
+                                                <hc:ComboBox BorderThickness="0" SelectedIndex="{Binding Value}" ItemsSource="{Binding AvailableValue}" Style="{DynamicResource ComboBoxExtend}" ItemContainerStyle="{DynamicResource _ComboboxItemStyle}">
+                                                    
+                                                </hc:ComboBox>
+                                              
                                             </Border>
                                         </GroupBox>
                                     </Grid>

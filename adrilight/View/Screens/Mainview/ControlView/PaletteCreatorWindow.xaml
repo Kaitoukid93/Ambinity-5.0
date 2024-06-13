@@ -571,7 +571,7 @@
                 </Grid>
 
             </Border>
-            <Grid Margin="0,20,0,10"
+            <Grid Margin="0,20,0,0"
                   Grid.Row="4">
                 <StackPanel Orientation="Horizontal"
                             HorizontalAlignment="Right">
@@ -584,6 +584,7 @@
                             hc:BackgroundSwitchElement.MouseHoverBackground="{DynamicResource SecondaryRegionBrush}"
                             hc:BackgroundSwitchElement.MouseDownBackground="{DynamicResource MainContentBackgroundBrush}"
                             Content="Cancel"
+                            Click="Button_Click"
                             Margin="10"
                             Style="{DynamicResource ButtonCustom}" />
                     <Button HorizontalAlignment="Right"

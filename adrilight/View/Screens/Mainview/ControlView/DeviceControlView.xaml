@@ -439,7 +439,7 @@
                             <Grid>
                                 <hc:TransitioningContentControl Grid.Column="1"
                                                                 TransitionMode="Right2LeftWithFade">
-                                    <local:EffectControlView Width="500" Margin="0,4,0,0"
+                                    <local:EffectControlView Width="500" Margin="0,4,0,20"
                                                              DataContext="{Binding EffectControl}">
                                     </local:EffectControlView>
                                 </hc:TransitioningContentControl>

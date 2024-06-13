@@ -31,6 +31,7 @@ namespace adrilight_shared.Models.DataSource
         public DataSourceBase()
         {
             Items = new ObservableCollection<IGenericCollectionItem>();
+            
         }
         public string Name { get; set; }
         public string FolderPath { get; set; }
@@ -43,7 +44,7 @@ namespace adrilight_shared.Models.DataSource
         }
         public virtual void RemoveSelectedItems()
         {
-            foreach(var item in Items.Where(i=>i.IsChecked).ToList())
+            foreach (var item in Items.Where(i => i.IsChecked).ToList())
             {
                 Items.Remove(item);
                 try
@@ -64,13 +65,21 @@ namespace adrilight_shared.Models.DataSource
         public virtual void AddItem(IGenericCollectionItem item)
         {
             Items.Add(item);
-            SaveData();
+        }
+        public virtual bool InsertItem(IGenericCollectionItem item)
+        {
+            Items.Insert(0,item);
+            return true;
         }
         public virtual void SaveData()
         {
-
+            //var result = SaveAvailableValues();
         }
         public virtual void LoadData()
+        {
+
+        }
+        public virtual void CreateDefault()
         {
 
         }
@@ -83,54 +92,6 @@ namespace adrilight_shared.Models.DataSource
                 return serializer.Deserialize<T>(jsonTextReader);
             }
         }
-        public bool SaveAvailableValues()
-        {
-            try
-            {
-                var configJson = File.ReadAllText(Path.Combine(FolderPath, "config.json"));
-                var config = JsonConvert.DeserializeObject<ResourceLoaderConfig>(configJson);
-                var t = config.DataType;
-                var m = config.MethodEnum;
-                var collectionFolderPath = Path.Combine(FolderPath, "collection");
-                switch (m)
-                {
-                    case DeserializeMethodEnum.SingleJson:
-                        JsonHelpers.WriteSimpleJson(Items, Path.Combine(FolderPath, "collection.json"));
-                        //SelectedValueIndex = 0;
-                        break;
-                    case DeserializeMethodEnum.MultiJson:
-                        foreach (var item in Items)
-                        {
-                            if (item is ColorPalette)
-                            {
-                                JsonHelpers.WriteSimpleJson(item, Path.Combine(collectionFolderPath, item.Name + ".col"));
-                            }
-                            if (item is VIDDataModel)
-                            {
-                                JsonHelpers.WriteSimpleJson(item, Path.Combine(collectionFolderPath, item.Name + ".json"));
-                            }
-                        }
-
-                        break;
-                    case DeserializeMethodEnum.Files:
-                        foreach (var item in Items)
-                        {
-                            if (item is Gif)
-                            {
-                                var gif = item as Gif;
-                                File.Copy(gif.LocalPath, Path.Combine(collectionFolderPath, item.Name));
-                            }
-                            else if (item is ChasingPattern)
-                            {
-                                var pattern = item as ChasingPattern;
-                                File.Copy(pattern.LocalPath, Path.Combine(collectionFolderPath, item.Name));
-                            }
-                        }
-                        break;
-                }
-            }
-            catch { return false; }
-            return true;
-        }
+      
     }
 }

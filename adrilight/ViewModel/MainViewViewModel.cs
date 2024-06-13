@@ -2183,7 +2183,7 @@ namespace adrilight.ViewModel
                     case "screenRegionSelection":
                         ClickedRegionButtonParameter = p as CapturingRegionSelectionButtonParameter;
                         OpenRegionSelectionWindow("screen");
-                        break;
+                        break;import
                     case "gifRegionSelection":
                         ClickedRegionButtonParameter = p as CapturingRegionSelectionButtonParameter;
                         OpenRegionSelectionWindow("gif");

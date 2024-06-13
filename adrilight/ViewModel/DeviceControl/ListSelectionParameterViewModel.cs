@@ -1,6 +1,7 @@
 ﻿using adrilight.View;
 using adrilight.View.Screens.Mainview.ControlView;
 using adrilight_shared.Enums;
+using adrilight_shared.Helpers;
 using adrilight_shared.Models.ControlMode.ModeParameters;
 using adrilight_shared.Models.ControlMode.ModeParameters.ParameterValues;
 using adrilight_shared.Models.DataSource;
@@ -13,6 +14,7 @@ using LibreHardwareMonitor.Hardware;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,7 +28,9 @@ namespace adrilight.ViewModel.DeviceControl
     {
         public ListSelectionParameterViewModel()
         {
+            _localFileHlprs = new LocalFileHelpers();
             CommandSetup();
+           
         }
         #region Events
         private void AvailableValues_ItemCheckStatusChanged(IGenericCollectionItem obj)
@@ -35,8 +39,18 @@ namespace adrilight.ViewModel.DeviceControl
         }
         private void OnAddNewValue(IGenericCollectionItem item)
         {
-            item.Name = "Add";
-            AddItem(item);
+            var vm = new AddNewDialogViewModel(adrilight_shared.Properties.Resources.AddNew, "New Item", "newfile");
+            DialogService.ShowDialog<AddNewDialogViewModel>(result =>
+            {
+                if (result == "True")
+                {
+                    //tell automation manager to add new automation
+                    item.Name = vm.Content;
+                    InsertItem(item);
+                }
+
+            }, vm);
+            
 
         }
         #endregion
@@ -52,6 +66,7 @@ namespace adrilight.ViewModel.DeviceControl
                 RaisePropertyChanged();
             }
         }
+        private LocalFileHelpers _localFileHlprs;
         public bool ShowToolBar => AvailableTools.Count > 0;
         private int _uniformGridRowNumber = 1;
         public int UniformGridRowNumber {
@@ -168,6 +183,13 @@ namespace adrilight.ViewModel.DeviceControl
                     return;
                 (Parameter as ListSelectionParameter).SelectedValue = (IParameterValue)p.AddedItems[0];
             });
+            RefreshButtonCommand = new RelayCommand<string>((p) =>
+            {
+                return true;
+            },  (p) =>
+            {
+                RefreshCollection();
+            });
             SubParameterButtonClickCommand = new RelayCommand<string>((p) =>
             {
                 return true;
@@ -198,9 +220,31 @@ namespace adrilight.ViewModel.DeviceControl
                         break;
                     case "Import Gif":
                         //ImportGifFromFile();
+                        var gif = _localFileHlprs.OpenImportFileDialog("gif", "gif files (*.gif)|*.Gif|Image files (*.jpg)|*.Jpeg");
+                        if (gif != null)
+                        {
+                            var newGif = new Gif() {
+                                LocalPath = gif,
+                                Name = Path.GetFileName(gif),
+                                Owner = "User imported Gif"
+
+                            };
+                            InsertItem(newGif);
+                        }
                         break;
                     case "Import Pattern":
-                        //ImportChasingPatternFromFile();
+                        var motion = _localFileHlprs.OpenImportFileDialog("AML", "AML files (*.AML)|*.Aml|Text files (*.txt)|*.Txt");
+
+                        if (motion != null)
+                        {
+                            var newPattern = new ChasingPattern() {
+                                LocalPath = motion,
+                                Name = Path.GetFileName(motion),
+                                Owner = "User imported Pattern"
+                                
+                            };
+                            InsertItem(newPattern);
+                        }
                         break;
                     case "Export Palette":
                         //var _paletteControl = SelectedControlZone.CurrentActiveControlMode.Parameters.Where(p => p.ParamType == ModeParameterEnum.Palette).FirstOrDefault();
@@ -233,7 +277,7 @@ namespace adrilight.ViewModel.DeviceControl
         private void OpenColorEditorWindow()
         {
             var vm = new ColorEditorViewModel();
-            vm.AddNewPalette += OnAddNewValue;
+            vm.AddNewColor += OnAddNewValue;
             var window = new ColorGradientCreatorWindow();
             window.DataContext = vm;
             window.Owner = Application.Current.MainWindow;
@@ -263,6 +307,17 @@ namespace adrilight.ViewModel.DeviceControl
                 return;
             source.AddItem(item);
         }
+        private void InsertItem(IGenericCollectionItem item)
+        {
+            var listparam = Parameter as ListSelectionParameter;
+            var selectedSourceName = listparam.DataSourceLocaFolderNames[SelectedDataSourceIndex];
+            var source = (DataSourceBase)DataSources.Where(s => s.Name == selectedSourceName).FirstOrDefault();
+            if (source == null)
+                return;
+            if (!source.InsertItem(item))
+                return;
+            AvailableValues.InsertItem(item);
+        }
         private void RemoveSelectedItems()
         {
             AvailableValues.RemoveSelectedItems();
@@ -275,7 +330,7 @@ namespace adrilight.ViewModel.DeviceControl
         }
         private async Task LoadAvailableValues()
         {
-            
+
             AvailableValues = new ItemsCollection();
             await Task.Delay(100);
             ShowMore = true;
@@ -292,6 +347,7 @@ namespace adrilight.ViewModel.DeviceControl
                    var source = (DataSourceBase)DataSources.Where(s => s.Name == selectedSourceName).FirstOrDefault();
                    if (source == null)
                        return;
+                   source.LoadData();
                    int count = 0;
                    UniformGridRowNumber = (int)Math.Ceiling(source.Items.Count / 4d);
                    foreach (var value in source.Items)
@@ -317,6 +373,10 @@ namespace adrilight.ViewModel.DeviceControl
                 AvailableTools.Add(DeleteTool());
             RaisePropertyChanged(nameof(ShowToolBar));
 
+        }
+        private void RefreshCollection()
+        {
+             LoadAvailableValues();
         }
         private CollectionItemTool DeleteTool()
         {
@@ -346,7 +406,7 @@ namespace adrilight.ViewModel.DeviceControl
         public ICommand CollectionItemMouseEnterCommand { get; set; }
 
         public ICommand CollectionItemMouseLeaveCommand { get; set; }
-
+        public ICommand RefreshButtonCommand { get; set; }
         #endregion
     }
 

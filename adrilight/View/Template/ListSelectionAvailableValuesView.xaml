@@ -99,7 +99,7 @@
                         <Grid>
                             <Border Effect="{DynamicResource EffectShadow1}"
                                     Background="{DynamicResource SecondaryRegionBrush}"
-                                    ToolTip="{Binding Description}"
+                                    
                                     CornerRadius="2">
                                 <StackPanel Orientation="Horizontal">
                                     <Path HorizontalAlignment="left"
@@ -162,7 +162,7 @@
                         <Grid>
                             <Border Effect="{DynamicResource EffectShadow1}"
                                     Background="{DynamicResource SecondaryRegionBrush}"
-                                    ToolTip="{Binding Description}"
+                                   
                                     CornerRadius="2">
                                 <TextBlock Margin="5"
                                            Style="{DynamicResource TextBlockDefault}"
@@ -173,7 +173,7 @@
                     <DataTemplate DataType="{x:Type parameterValues:ColorPalette}">
                         <Grid>
                             <Border Effect="{DynamicResource EffectShadow1}"
-                                    ToolTip="{Binding Name}"
+                                   
                                     CornerRadius="2,2,2,2"
                                     Style="{StaticResource BorderClip}">
 
@@ -244,7 +244,7 @@
                             <Border Width="86"
                                     Height="86"
                                     Effect="{DynamicResource EffectShadow1}"
-                                    ToolTip="{Binding Name}"
+                                    
                                     CornerRadius="2,2,2,2"
                                     Style="{StaticResource BorderClip}">
 
@@ -323,11 +323,20 @@
                         <Grid>
                             <Border Effect="{DynamicResource EffectShadow1}"
                                     Background="{DynamicResource SecondaryRegionBrush}"
-                                    ToolTip="{Binding Description}"
+                                    
+                                    SnapsToDevicePixels="True"
                                     CornerRadius="2">
-                                <TextBlock Margin="5"
-                                           Style="{DynamicResource TextBlockDefault}"
-                                           Text="{Binding Name}" />
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <Image Margin="0,10,0,0" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" Width="50" Height="50" Source="{Binding ThumbPath}" />
+                                    <TextBlock Grid.Row="1" Margin="5"
+                                               Style="{DynamicResource TextBlockDefault}"
+                                               Text="{Binding Name}" />
+                                </Grid>
+                                
                             </Border>
                             <CheckBox IsChecked="{Binding IsChecked}"
                                       Margin="2"

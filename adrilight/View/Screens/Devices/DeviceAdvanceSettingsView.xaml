@@ -1135,9 +1135,8 @@
                                                         Content="{x:Static properties:Resources.DeviceAdvanceSettingsView_CustomFirmwareSelection_buttonconent}" />
                                             </StackPanel>
                                             <Grid Grid.Column="1">
-                                                <ToggleButton Command="{Binding DownloadCustomFirmwareCommand}"
-                                                              Style="{StaticResource ToggleButtonLoadingPrimary}"
-                                                              IsChecked="{Binding IsDownloadingFirmware,Mode=TwoWay}"
+                                                <Button Command="{Binding DownloadCustomFirmwareCommand}"
+                                                        Style="{DynamicResource ButtonPrimary}"
                                                               Content="{x:Static properties:Resources.DeviceAdvanceSettingsView_DownloadFirmware_buttoncontent}"
                                                               Margin="5" />
 

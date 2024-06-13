@@ -28,5 +28,10 @@ namespace adrilight.View.Screens.Mainview.ControlView
             if (sizeInfo.WidthChanged)
                 this.Left += (sizeInfo.PreviousSize.Width - sizeInfo.NewSize.Width) / 2;
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
     }
 }

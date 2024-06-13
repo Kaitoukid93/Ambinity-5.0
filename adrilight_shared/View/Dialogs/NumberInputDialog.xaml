@@ -25,11 +25,11 @@
                     Height="120"
                     CornerRadius="7"
                     Effect="{DynamicResource EffectShadow1}"
-                    Background="{DynamicResource MainContentBackgroundBrush}">
+                    Background="Transparent">
                 <Path HorizontalAlignment="Center"
                       Stretch="Uniform"
-                      Width="100"
-                      Height="100"
+                      Width="50"
+                      Height="50"
                       Margin="10"
                       Data="{Binding Geometry,Converter={converters:StaticResourceConverter}}"
                       Fill="{DynamicResource PrimaryTextBrush}" />

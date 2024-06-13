@@ -69,6 +69,11 @@ namespace adrilight_shared.Models.ItemsCollection
             item.PropertyChanged += ItemPropertyChanged;
             Items.Add(item);
         }
+        public void InsertItem(IGenericCollectionItem item)
+        {
+            item.PropertyChanged += ItemPropertyChanged;
+            Items.Insert(0,item);
+        }
         public void RemoveSelectedItems()
         {
             var selectedItems = Items.Where(i => i.IsChecked).ToList();

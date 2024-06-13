@@ -88,7 +88,7 @@
                 </Grid>
             </Grid>
         </Grid>
-        <Grid Margin="0,0,20,10"
+        <Grid Margin="0,0,30,20"
               Grid.Row="1">
             <StackPanel Orientation="Horizontal"
                         HorizontalAlignment="Right">
@@ -101,12 +101,13 @@
                         hc:BackgroundSwitchElement.MouseHoverBackground="{DynamicResource SecondaryRegionBrush}"
                         hc:BackgroundSwitchElement.MouseDownBackground="{DynamicResource MainContentBackgroundBrush}"
                         Content="Cancel"
+                        Click="Button_Click"
                         Margin="10"
                         Style="{DynamicResource ButtonCustom}" />
                 <Button HorizontalAlignment="Right"
                         CommandParameter=" "
                         Content="Save new color"
-                        Command="{Binding SaveNewPaletteCommand}"
+                        Command="{Binding SaveNewColorCommand}"
                         Style="{DynamicResource _mediumProfileDefaultButton}" />
             </StackPanel>
 
