@@ -264,6 +264,7 @@
     <Compile Include="ViewModel\DeviceControl\ColorPaletteCreatorViewModel.cs" />
     <Compile Include="ViewModel\DeviceControl\ControlParameterViewModelBase.cs" />
     <Compile Include="ViewModel\DeviceControl\ListSelectionParameterViewModel.cs" />
+    <Compile Include="ViewModel\DeviceControl\CapturingRegionSelectionViewModel.cs" />
     <Compile Include="ViewModel\DeviceControl\SliderParameterViewModel.cs" />
     <Compile Include="ViewModel\DeviceControl\ToggleParameterViewModel.cs" />
     <Compile Include="ViewModel\Device\DeviceAdvanceSettingsViewModel.cs" />

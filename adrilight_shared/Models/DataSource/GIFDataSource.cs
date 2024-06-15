@@ -25,7 +25,7 @@ namespace adrilight_shared.Models.DataSource
         }
         public override bool InsertItem(IGenericCollectionItem item)
         {
-            var path = Path.Combine(FolderPath, item.Name);
+            var path = Path.Combine(CollectionPath, item.Name);
             if(File.Exists(path))
             {
                 return false;

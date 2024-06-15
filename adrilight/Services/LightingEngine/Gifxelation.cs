@@ -388,15 +388,10 @@ namespace adrilight.Services.LightingEngine
                             //there was a timeout before there was the next frame, simply retry!
                             continue;
                         }
-                        if (image != null && (newImage.Width != image.Width || newImage.Height != image.Height))
+                        if (image == null || newImage.Width != image.Width || newImage.Height != image.Height)
                         {
                             OnCapturingRegionChanged(_regionControl.CapturingRegion);
                         }
-                        else
-                        {
-                            OnCapturingRegionChanged(_regionControl.CapturingRegion);
-                        }
-
                         image = newImage;
                         try
                         {

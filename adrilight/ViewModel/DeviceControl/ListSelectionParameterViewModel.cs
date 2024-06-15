@@ -30,7 +30,11 @@ namespace adrilight.ViewModel.DeviceControl
         {
             _localFileHlprs = new LocalFileHelpers();
             CommandSetup();
-           
+            _progress = new Progress<int>(percent =>
+            {
+                LoadingPercent = percent;
+            });
+
         }
         #region Events
         private void AvailableValues_ItemCheckStatusChanged(IGenericCollectionItem obj)
@@ -50,10 +54,27 @@ namespace adrilight.ViewModel.DeviceControl
                 }
 
             }, vm);
-            
+
 
         }
         #endregion
+        private IProgress<int> _progress;
+        private bool _progressBarVisibility;
+        public bool ProgressBarVisibility {
+            get
+            {
+                return _progressBarVisibility;
+            }
+            set
+            {
+                _progressBarVisibility = value;
+                if (!value)
+                {
+                    _progress.Report(0);
+                }
+                RaisePropertyChanged();
+            }
+        }
         private ObservableCollection<CollectionItemTool> _availableTools;
         public ObservableCollection<CollectionItemTool> AvailableTools {
             get
@@ -66,6 +87,15 @@ namespace adrilight.ViewModel.DeviceControl
                 RaisePropertyChanged();
             }
         }
+        private int _loadingPercent;
+        public int LoadingPercent {
+            get { return _loadingPercent; }
+            set
+            {
+                if (_loadingPercent != value) { _loadingPercent = value; RaisePropertyChanged(); }
+            }
+        }
+
         private LocalFileHelpers _localFileHlprs;
         public bool ShowToolBar => AvailableTools.Count > 0;
         private int _uniformGridRowNumber = 1;
@@ -104,6 +134,7 @@ namespace adrilight.ViewModel.DeviceControl
                 RaisePropertyChanged();
             }
         }
+        private bool _isLoadingValue;
         private int _selectedDataSourceIndex;
         public int SelectedDataSourceIndex {
             get
@@ -186,7 +217,7 @@ namespace adrilight.ViewModel.DeviceControl
             RefreshButtonCommand = new RelayCommand<string>((p) =>
             {
                 return true;
-            },  (p) =>
+            }, (p) =>
             {
                 RefreshCollection();
             });
@@ -241,7 +272,7 @@ namespace adrilight.ViewModel.DeviceControl
                                 LocalPath = motion,
                                 Name = Path.GetFileName(motion),
                                 Owner = "User imported Pattern"
-                                
+
                             };
                             InsertItem(newPattern);
                         }
@@ -330,7 +361,10 @@ namespace adrilight.ViewModel.DeviceControl
         }
         private async Task LoadAvailableValues()
         {
-
+            if (_isLoadingValue)
+                return;
+            ProgressBarVisibility = true;
+            _isLoadingValue = true;
             AvailableValues = new ItemsCollection();
             await Task.Delay(100);
             ShowMore = true;
@@ -338,29 +372,39 @@ namespace adrilight.ViewModel.DeviceControl
             //get current data source
             //load all values
             //create new items collection from that value
-            await Task.Run(() =>
-            {
-                System.Windows.Application.Current.Dispatcher.BeginInvoke(async () =>
-               {
-                   var listparam = Parameter as ListSelectionParameter;
-                   var selectedSourceName = listparam.DataSourceLocaFolderNames[SelectedDataSourceIndex];
-                   var source = (DataSourceBase)DataSources.Where(s => s.Name == selectedSourceName).FirstOrDefault();
-                   if (source == null)
-                       return;
-                   source.LoadData();
-                   int count = 0;
-                   UniformGridRowNumber = (int)Math.Ceiling(source.Items.Count / 4d);
-                   foreach (var value in source.Items)
-                   {
-                       AvailableValues.AddItem(value);
-                       count++;
-                       if (count % 4 == 0)
-                           await Task.Delay(150);
-                   }
-               });
 
-            });
+
+            var listparam = Parameter as ListSelectionParameter;
+            var selectedSourceName = listparam.DataSourceLocaFolderNames[SelectedDataSourceIndex];
+            var source = (DataSourceBase)DataSources.Where(s => s.Name == selectedSourceName).FirstOrDefault();
+            if (source == null)
+                return;
+            await Task.Run(() => source.LoadData());
+            int count = 0;
+            UniformGridRowNumber = (int)Math.Ceiling(source.Items.Count / 4d);
+            var step = 100/(source.Items.Count/4);
+            var percent = step;
+            foreach (var value in source.Items)
+            {
+                AvailableValues.AddItem(value);
+                count++;
+                
+                if (count % 4 == 0)
+                {
+                    await Task.Delay(150);
+                        if(LoadingPercent>100)
+                        LoadingPercent = 100;
+                    _progress.Report(percent += step);
+                }
+                    
+            }
+
+
+
             UpdateTools();
+            await Task.Delay(100);
+            _isLoadingValue = false;
+            ProgressBarVisibility = false;
         }
 
 
@@ -376,7 +420,7 @@ namespace adrilight.ViewModel.DeviceControl
         }
         private void RefreshCollection()
         {
-             LoadAvailableValues();
+            LoadAvailableValues();
         }
         private CollectionItemTool DeleteTool()
         {
