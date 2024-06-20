@@ -39,3 +39,11 @@ Please look at the schematic below
 * Sync All Device include OpenRGB device
 * Auto Detect Ambino Basic Rev2 and Ambino Desk
 * Minor bugs fix
+
+## Installation
+Please go to https://github.com/Kaitoukid93/Ambinity_Stable_Release  to download lastest realease as a "Setup.zip" file,
+Extract and run "Setup.exe", Ambinity will be installed automatically
+
+## Guide to contribute
+This repository is currently maintained in free time by me only, so any help would be great, please be free to fork and commit to Developer branch
+
