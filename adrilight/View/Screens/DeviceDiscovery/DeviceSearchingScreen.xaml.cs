@@ -1,9 +1,9 @@
 ﻿namespace adrilight.View
 {
 
-    public partial class DeviceSearchingScreen
+    public partial class DeviceSearchingDialog
     {
-        public DeviceSearchingScreen()
+        public DeviceSearchingDialog()
         {
             InitializeComponent();
         }

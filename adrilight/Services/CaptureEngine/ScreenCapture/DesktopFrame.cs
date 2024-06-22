@@ -83,28 +83,6 @@ namespace adrilight.Services.CaptureEngine.ScreenCapture
         }
         #endregion
 
-        private void ScreenSetupChanged()
-        {
-            Stop();
-            _workerThreads = new List<Thread>();
-            _cancellationTokenSource = new CancellationTokenSource();
-            Log.Information("starting WCG");
-            IEnumerable<MonitorInfo> monitors = MonitorEnumerationHelper.GetMonitors();
-            Frames = new ByteFrame[monitors.Count()];
-            _captures = new BasicCapture[monitors.Count()];
-            var index = 0;
-            foreach (var monitor in monitors)
-            {
-                var workerThread = new Thread(() => Run(monitor, index++, _cancellationTokenSource.Token)) {
-                    IsBackground = true,
-                    Priority = ThreadPriority.BelowNormal,
-                    Name = "WCG" + monitor.DeviceName
-                };
-                _state = RunningState.Capturing;
-                workerThread.Start();
-                _workerThreads.Add(workerThread);
-            }
-        }
         public void RefreshCapturingState()
         {
 

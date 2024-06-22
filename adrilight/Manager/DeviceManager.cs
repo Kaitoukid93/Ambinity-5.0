@@ -8,7 +8,6 @@ using adrilight_shared.Models.Device.Controller;
 using adrilight_shared.Models.Device.SlaveDevice;
 using adrilight_shared.Services;
 using adrilight_shared.Services.AdrilightStoreService;
-using GalaSoft.MvvmLight.Helpers;
 using Newtonsoft.Json;
 using OpenRGB.NET.Models;
 using Serilog;
@@ -16,7 +15,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -60,16 +58,16 @@ namespace adrilight.Manager
             //if true, show searching screen
             //run device construct and device downloader as part of the process, loading bar always exist
         }
-        private async void OnSerialDevicesScanComplete(List<string> availableDevices)
+        private void OnSerialDevicesScanComplete(List<string> availableDevices)
         {
             //check if theres any old device existed
-            var vm = new DeviceSearchingDialogViewModel("New Device", null, null);
             foreach (var device in availableDevices)
             {
-                var matchDev = CheckDeviceForExistence(device);
+                var matchDevs = CheckDeviceForExistence(device);
                 //there is an device existed with the exact comport
-                if (matchDev != null)
+                if (matchDevs.Count ==1)
                 {
+                    var matchDev = matchDevs.First();
                     //do nothing for an activated device
                     //possible showing a connecting screen???...
                     RegisterDevice(matchDev);
@@ -78,7 +76,13 @@ namespace adrilight.Manager
                 }
                 //if there is no device match. this is a new device
                 // call device discovery to get infomation about this new device
-                //var dev = await TryCreatenewDevice(device, vm);
+                var vm = new DeviceSearchingDialogViewModel("New Device", null, null);
+                _dialogService.ShowDialog<DeviceSearchingDialogViewModel>(result =>
+                {
+                    //try update the view if needed
+
+                }, vm);
+                var dev = Task.Run(() => TryCreatenewDevice(device, vm));
 
 
             }
@@ -143,9 +147,11 @@ namespace adrilight.Manager
             }
             _lightingServiceManager.CreateLightingService(device);
         }
-        public IDeviceSettings CheckDeviceForExistence(string comport)
+        public List<IDeviceSettings> CheckDeviceForExistence(string comport)
         {
-            return _availableDevices.Where(d => (d as DeviceSettings).OutputPort == comport).First();
+            var matches = _availableDevices.Where(d => (d as DeviceSettings).OutputPort == comport).ToList();
+
+            return matches ;
         }
         //add new device manually and add to available devices by type
 
@@ -200,11 +206,6 @@ namespace adrilight.Manager
         {
 
             //get device info
-            _dialogService.ShowDialog<DeviceSearchingDialogViewModel>(result =>
-            {
-                //try update the view if needed
-
-            }, vm);
             vm.CurrentProgressLog = "Requesting new device info...";
             string deviceName = null;
             string deviceID = null;

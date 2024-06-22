@@ -62,7 +62,6 @@ namespace adrilight
         private TelemetryClient _telemetryClient;
         private static View.SplashScreen _splashScreen;
         private static SplashScreenViewModel _splashScreenViewModel;
-        private static View.DeviceSearchingScreen _searchingForDeviceScreen;
         private static DeviceManager _deviceManager;
         private static IKernel kernel;
         public static string VersionNumber { get; } = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
@@ -128,8 +127,8 @@ namespace adrilight
 
             kernel = await Task.Run(() => SetupDependencyInjection(false));
             this.Resources["Locator"] = new ViewModelLocator(kernel);
-
-
+            var dialogService = kernel.Get<IDialogService>();
+            RegisterDialog(dialogService);
             _splashScreenViewModel = kernel.Get<SplashScreenViewModel>();
             _splashScreenViewModel.Icon = "appicon";
             _splashScreenViewModel.Title = adrilight_shared.Properties.Resources.App_OnStartup_AdrilightIsLoading;
@@ -140,8 +139,7 @@ namespace adrilight
             //start device service
             _deviceManager = kernel.Get<DeviceManager>();
             await _deviceManager.LoadData(_splashScreenViewModel);
-            var dialogService = kernel.Get<IDialogService>();
-            RegisterDialog(dialogService);
+         
             _telemetryClient = kernel.Get<TelemetryClient>();
 
             // show main window
@@ -176,7 +174,7 @@ namespace adrilight
             dialogService.RegisterDialog<ProgressDialog, ProgressDialogViewModel>();
             dialogService.RegisterDialog<AutomationDialogView, AutomationDialogViewModel>();
             dialogService.RegisterDialog<HotKeySelectionDialog, HotKeySelectionViewModel>();
-            dialogService.RegisterDialog<DeviceSearchingScreen, DeviceSearchingDialogViewModel>();
+            dialogService.RegisterDialog<DeviceSearchingDialog, DeviceSearchingDialogViewModel>();
         }
         internal static IKernel SetupDependencyInjection(bool isInDesignMode)
         {

@@ -78,6 +78,7 @@
                                      TranslateOffset="{Binding Canvas.CanvasOffset,Mode=TwoWay}"
                                      Scale="{Binding Canvas.CanvasScale,Mode=TwoWay}"
                                      MousePosition="{Binding Canvas.MousePosition, Mode=OneWayToSource}">
+   
             <!--<richCanvas:RichItemsControl.CacheMode>
            <BitmapCache EnableClearType="False" RenderAtScale="1.0" SnapsToDevicePixels="False"/>
        </richCanvas:RichItemsControl.CacheMode>-->

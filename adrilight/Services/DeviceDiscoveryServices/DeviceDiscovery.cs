@@ -171,7 +171,11 @@ namespace adrilight.Services.DeviceDiscoveryServices
             {
                 Log.Warning("No Compatible Device Detected");
             }
-            SerialDevicesScanComplete?.Invoke(devices);
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                SerialDevicesScanComplete?.Invoke(devices);
+            });
+           
         }
     }
 }
