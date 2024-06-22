@@ -62,49 +62,56 @@ namespace adrilight.Manager
             //if true, show searching screen
             //run device construct and device downloader as part of the process, loading bar always exist
         }
-        private void OnSerialDevicesScanComplete(List<string> availableDevices)
+        private void NewDeviceFound(string device)
         {
+            _isBusy = true;
             //check if theres any old device existed
-            if (_isBusy)
+            var matchDevs = CheckDeviceForExistence(device);
+            //there is an device existed with the exact comport
+            if (matchDevs.Count == 1)
             {
+                var matchDev = matchDevs.First();
+                //do nothing for an activated device
+                //possible showing a connecting screen???...
+                RegisterDevice(matchDev);
+                _isBusy = false;
                 return;
             }
+            //if there is no device match. this is a new device
+            // call device discovery to get infomation about this new device
             var vm = new DeviceSearchingDialogViewModel("New Device", null, null);
-            foreach (var device in availableDevices)
+            Task.Run(() => TryCreatenewDevice(device, vm));
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
-                var matchDevs = CheckDeviceForExistence(device);
-                //there is an device existed with the exact comport
-                if (matchDevs.Count == 1)
-                {
-                    var matchDev = matchDevs.First();
-                    //do nothing for an activated device
-                    //possible showing a connecting screen???...
-                    RegisterDevice(matchDev);
-                    matchDev.IsTransferActive = true;
-                    continue;
-                }
-                //if there is no device match. this is a new device
-                // call device discovery to get infomation about this new device
-                _isBusy = true;
-                
-                Task.Run(() => TryCreatenewDevice(device, vm));
-                System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
-                {
-                    _dialogService.ShowDialog<DeviceSearchingDialogViewModel>(result =>
+                _dialogService.ShowDialog<DeviceSearchingDialogViewModel>(result =>
                 {
                     //try update the view if needed
                     _isBusy = false;
 
                 }, vm);
-                });
+            });
 
+
+        }
+        private void OnSerialDevicesScanComplete(List<string> availableDevices)
+        {
+            _newDevicesQ = new List<string>();
+            foreach (var device in availableDevices)
+                _newDevicesQ.Add(device);
+            int count = 0;
+            _discoveryService.Hold();
+            while (!_isBusy && count < _newDevicesQ.Count)
+            {
+                NewDeviceFound(_newDevicesQ.ElementAt(count));
+                count++;
             }
-
+            _discoveryService.Resume();
         }
         #endregion
 
         #region Properties
         private DeviceDBManager _dbManager;
+        private List<string> _newDevicesQ;
         private List<IDeviceSettings> _availableDevices;
         private DeviceLightingServiceManager _lightingServiceManager;
         private DeviceDiscovery _discoveryService;
@@ -221,7 +228,7 @@ namespace adrilight.Manager
         }
         private IDeviceSettings DownloadAndImportDevice(DeviceSearchingDialogViewModel vm, SftpFile file)
         {
-            if(file == null)
+            if (file == null)
                 return null;
             vm.Value = 30;
             vm.CurrentProgressLog = "Downloading modules : " + file.Name;

@@ -52,6 +52,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
         private AmbinityClient _ambinityClient;
         private Thread _workerThread;
         private CancellationTokenSource _cancellationTokenSource;
+        private bool _onHold;
         public bool IsRunning { get; set; }
         public void Start()
         {
@@ -73,7 +74,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
         private async void StartDiscovery(CancellationToken token)
         {
             IsRunning = true;
-            while (!token.IsCancellationRequested)
+            while (!token.IsCancellationRequested && !_onHold)
             {
                 try
                 {
@@ -103,6 +104,14 @@ namespace adrilight.Services.DeviceDiscoveryServices
             OpenRGBDevicesScanComplete?.Invoke(detectedDevices);
         }
         private static object _syncRoot = new object();
+        public void Hold()
+        {
+            _onHold = true;
+        }
+        public void Resume()
+        {
+            _onHold = false;
+        }
         public void Stop()
         {
             if (!IsRunning) return;
