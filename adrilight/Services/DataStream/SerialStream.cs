@@ -115,8 +115,6 @@ namespace adrilight.Services.DataStream
         private Thread _workerThread;
         private bool _hasPWMCOntroller;
         private readonly byte[] _messagePreamble = { (byte)'a', (byte)'b', (byte)'n' };
-        private int frameCounter;
-        private int blackFrameCounter;
         private ISerialPortWrapper serialPort = null;
         public string Port { get; private set; }
         //private OutputSettings[] _lightingOutputs { get; set; }
@@ -176,6 +174,7 @@ namespace adrilight.Services.DataStream
         {
             
             Log.Information("Start called for SerialStream");
+            if(_workerThread == null|| !_workerThread.IsAlive)
             _workerThread = new Thread(DoWork) {
                 Name = "Serial sending",
                 IsBackground = true,
@@ -278,10 +277,6 @@ namespace adrilight.Services.DataStream
                     }
                 }
             }
-            if (allBlack)
-            {
-                blackFrameCounter++;
-            }
             for (int i = counter + aliveSpotCounter * 3; i < bufferLength; i++)
             {
                 outputStream[i] = 0;
@@ -354,10 +349,6 @@ namespace adrilight.Services.DataStream
 
                     }
                 }
-            }
-            if (allBlack)
-            {
-                blackFrameCounter++;
             }
             for (int i = counter + aliveSpotCounter * 3; i < bufferLength; i++)
             {
@@ -436,9 +427,6 @@ namespace adrilight.Services.DataStream
                 Log.Warning("Cannot start the serial sending because the comport is not selected.");
                 return;
             }
-
-            frameCounter = 0;
-            blackFrameCounter = 0;
             while (!cancellationToken.IsCancellationRequested)
             {
                 try

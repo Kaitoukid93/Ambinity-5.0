@@ -139,6 +139,10 @@ namespace adrilight.ViewModel
             //show loading screen
             var loadingScreen = SelectablePages.Where(p => p is DeviceLoadingViewPage).First();
             SelectedPage = loadingScreen;
+            _deviceManager.StopDiscoveryService();
+            _deviceManager.SuspendDevice(device);
+            //wait for serial stream to terminate
+            await Task.Delay(1000);
             //load device info
             await _deviceAdvanceSettingsViewModel.Init(device);
             //show advance settings view
@@ -154,7 +158,7 @@ namespace adrilight.ViewModel
             }
             );
             LoadNonClientAreaData("Adrilight  |  Device Manager | " + device.DeviceName, "profileManager", true, backButtonCommand);
-            _deviceManager.SuspendDevice(device);
+            
 
         }
         private void BacktoCollectionView()
@@ -181,7 +185,6 @@ namespace adrilight.ViewModel
         public override void LoadData()
         {
             //stop discovery service
-            _deviceManager.StopDiscoveryService();
             _deviceManager.NewDeviceAdded += OnNewDeviceAdded;
             _deviceCollectionViewModel.DeviceCardClicked += OnDeviceSelected;
             _deviceCollectionViewModel.Init();

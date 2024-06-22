@@ -157,11 +157,15 @@ namespace adrilight.Manager
                 _dataStreams = new List<IDataStream>();
             var dataStream = _dataStreams.Where(d => d.ID == device.DeviceSerial).FirstOrDefault();
             if (dataStream == null)
+            {
                 dataStream = _deviceConnectionManager.CreateDeviceStreamService(device);
+                _dataStreams.Add(dataStream);
+            }    
             if (device.AutoConnect)
             {
+                if(!dataStream.IsRunning)
                 dataStream.Init(device);
-                _dataStreams.Add(dataStream);
+               
             }
             _lightingServiceManager.CreateLightingService(device);
         }
@@ -175,11 +179,11 @@ namespace adrilight.Manager
 
         public void StopDiscoveryService()
         {
-            _discoveryService?.Stop();
+            _discoveryService?.Hold();
         }
         public void StartDiscoveryService()
         {
-            _discoveryService?.Start();
+            _discoveryService?.Resume();
         }
         public void SuspendDevice(IDeviceSettings device)
         {

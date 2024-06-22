@@ -74,15 +74,19 @@ namespace adrilight.Services.DeviceDiscoveryServices
         private async void StartDiscovery(CancellationToken token)
         {
             IsRunning = true;
-            while (!token.IsCancellationRequested && !_onHold)
+            while (!token.IsCancellationRequested)
             {
                 try
                 {
                     //get the list of new devices for every second
                     // new device contains serial and openrgb devices ( Wled devices in the future)
-                    ScanSerialDevice();
-                    if (!_openRGBIsInit)
-                        await ScanOpenRGBDevices();
+                    if(!_onHold)
+                    {
+                        ScanSerialDevice();
+                        if (!_openRGBIsInit)
+                            await ScanOpenRGBDevices();
+                    }
+                    
                 }
                 catch (Exception ex)
                 {
