@@ -136,6 +136,62 @@ namespace adrilight_shared.Models.Device
             System.Windows.Forms.Application.Restart();
             Process.GetCurrentProcess().Kill();
         }
+        //downloaded device is store in a folder inside zip file so we cant use same metod importDevice, I'm sorry
+        public IDeviceSettings ImportDownloadedDevice(string path)
+        {
+            if (!File.Exists(path))
+                return null;
+            IDeviceSettings device;
+            try
+            {
+                var fileName = Path.GetFileNameWithoutExtension(path);
+                //extract device
+                //Create directory to extract
+                var deviceTempFolderPath = Path.Combine(CacheFolderPath, fileName);
+                //then extract
+                ZipFile.ExtractToDirectory(path, CacheFolderPath);
+                var configPath = Path.Combine(deviceTempFolderPath, "config.json");
+                if (!File.Exists(configPath))
+                {
+                    configPath = Path.Combine(deviceTempFolderPath, fileName, "config.json");
+                }
+                var deviceJson = File.ReadAllText(configPath);
+                device = JsonConvert.DeserializeObject<DeviceSettings>(deviceJson);
+                if (device != null)
+                {
+                    //create device info
+                    //device.UpdateChildSize();
+                    device.UpdateUID();
+                    //copy thumb
+                    if (File.Exists(Path.Combine(deviceTempFolderPath, "thumbnail.png")) && !File.Exists(Path.Combine(ResourceFolderPath, device.DeviceName + "_thumb.png")))
+                    {
+                        File.Copy(Path.Combine(deviceTempFolderPath, "thumbnail.png"), Path.Combine(ResourceFolderPath, device.DeviceName + "_thumb.png"), true);
+                    }
+                    if (File.Exists(Path.Combine(deviceTempFolderPath, "outputmap.png")) && !File.Exists(Path.Combine(ResourceFolderPath, device.DeviceName + "_outputmap.png")))
+                    {
+                        File.Copy(Path.Combine(deviceTempFolderPath, "outputmap.png"), Path.Combine(ResourceFolderPath, device.DeviceName + "_outputmap.png"), true);
+                    }
+                    //copy required SlaveDevice
+                    var dependenciesFiles = Path.Combine(deviceTempFolderPath, "dependencies");
+                    if (Directory.Exists(dependenciesFiles))
+                    {
+                        foreach (var sub in Directory.GetDirectories(dependenciesFiles))
+                        {
+                            LocalFileHelpers.CopyDirectory(sub, SupportedDeviceCollectionFolderPath, true);
+                        }
+                    }
+                    //remove cache
+                    ClearCacheFolder();
+                    return device;
+                }
+            }
+            catch (Exception ex)
+            {
+                HandyControl.Controls.MessageBox.Show("Corrupted or incompatible data File!!!", "File Import", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
+            }
+            return null;
+        }
         public IDeviceSettings ImportDevice(string path)
         {
             if (!File.Exists(path))
@@ -150,7 +206,8 @@ namespace adrilight_shared.Models.Device
                 Directory.CreateDirectory(deviceTempFolderPath);
                 //then extract
                 ZipFile.ExtractToDirectory(path, deviceTempFolderPath);
-                var deviceJson = File.ReadAllText(Path.Combine(deviceTempFolderPath, "config.json"));
+                var configPath = Path.Combine(deviceTempFolderPath, "config.json");
+                var deviceJson = File.ReadAllText(configPath);
                 device = JsonConvert.DeserializeObject<DeviceSettings>(deviceJson);
                 if (device != null)
                 {

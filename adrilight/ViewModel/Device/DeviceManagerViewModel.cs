@@ -134,6 +134,7 @@ namespace adrilight.ViewModel
                 return;
             }
             var device = item as DeviceSettings;
+            
             //show loading screen, in the mean time, load device hardware info
             //show loading screen
             var loadingScreen = SelectablePages.Where(p => p is DeviceLoadingViewPage).First();
@@ -153,6 +154,7 @@ namespace adrilight.ViewModel
             }
             );
             LoadNonClientAreaData("Adrilight  |  Device Manager | " + device.DeviceName, "profileManager", true, backButtonCommand);
+            _deviceManager.SuspendDevice(device);
 
         }
         private void BacktoCollectionView()

@@ -17,6 +17,7 @@ using adrilight_shared.View.NonClientAreaContent;
 using adrilight_shared.ViewModel;
 using adrilight_shared.Settings;
 using System.Threading.Tasks;
+using adrilight.Services.DeviceDiscoveryServices;
 
 namespace adrilight.ViewModel
 {
@@ -26,6 +27,7 @@ namespace adrilight.ViewModel
         public MainViewModel(IList<ISelectableViewPart> pages,
             GeneralSettings generalSettings,
             DashboardViewModel dashboardViewModel,
+            DeviceDiscovery deviceDiscoveryService,
             DeviceControlViewModel controlViewModel)
         {
             _generalSettings = generalSettings;
@@ -34,6 +36,7 @@ namespace adrilight.ViewModel
             _dashboardViewModel.ManagerButtonClicked += OnManageButtonClicked;
             _deviceControlViewModel = controlViewModel;
             _deviceControlViewModel.BackToDashboardEvent += BackToDashboard;
+            _deviceDiscoveryService = deviceDiscoveryService;
             SelectableViewParts = pages;
             LoadNonClientAreaData();
             CommandSetup();
@@ -81,6 +84,7 @@ namespace adrilight.ViewModel
         private ISelectableViewPart _selectedViewPart;
         private GeneralSettings _generalSettings;
         private NonClientAreaContent _nonClientAreaContent;
+        private DeviceDiscovery _deviceDiscoveryService;
         //public
         public NonClientAreaContent NonClientAreaContent {
             get
@@ -138,6 +142,7 @@ namespace adrilight.ViewModel
             //get default viewpart in general settings
             //show dashboard or map control
             SelectedViewPart = SelectableViewParts.Where(v => v is DashboardViewSelectableViewPart).First();
+            _deviceDiscoveryService?.Start();
         }
         private void BackToDashboard()
         {

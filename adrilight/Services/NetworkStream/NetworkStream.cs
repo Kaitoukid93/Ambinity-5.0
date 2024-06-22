@@ -33,6 +33,7 @@ namespace adrilight.Services.NetworkStream
 
         }
         //Dependency Injection//
+        public string ID { get; set; }
         private IDeviceSettings DeviceSettings { get; set; }
         private IGeneralSettings GeneralSettings { get; set; }
         public DeviceStateEnum CurrentState { get; set; }// to be implemented

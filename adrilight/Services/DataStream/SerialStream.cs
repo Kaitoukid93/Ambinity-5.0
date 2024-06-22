@@ -30,6 +30,7 @@ namespace adrilight.Services.DataStream
         public void Init(IDeviceSettings device)
         {
             DeviceSettings = device;
+            ID = device.DeviceSerial;
             Port = device.OutputPort;
             DeviceSettings.PropertyChanged += UserSettings_PropertyChanged;
             foreach (var output in DeviceSettings.AvailableLightingOutputs)
@@ -46,18 +47,19 @@ namespace adrilight.Services.DataStream
 
 
             }
-            DeviceSettings.DeviceState = DeviceStateEnum.Normal; 
+            DeviceSettings.DeviceState = DeviceStateEnum.Normal;
             _hasPWMCOntroller = DeviceSettings.AvailablePWMOutputs != null && DeviceSettings.AvailablePWMOutputs.Count() > 0;
-            RefreshTransferState();
+            Start();
         }
         //Dependency Injection//
         private IDeviceSettings DeviceSettings { get; set; }
+        public string ID { get; set; }
         #region PropertyChanged events
         private void UserSettings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
-                case nameof(DeviceSettings.IsTransferActive):
+
                 case nameof(DeviceSettings.OutputPort):
                     RefreshTransferState();
                     break;
@@ -66,7 +68,6 @@ namespace adrilight.Services.DataStream
                     break;
                 case nameof(DeviceSettings.Baudrate):
                 case nameof(DeviceSettings.CustomBaudrateEnable):
-                    DeviceSettings.IsTransferActive = false;
                     break;
             }
         }
@@ -173,10 +174,7 @@ namespace adrilight.Services.DataStream
 
         public void Start()
         {
-            if (IsRunning)
-            {
-                Stop();
-            }
+            
             Log.Information("Start called for SerialStream");
             _workerThread = new Thread(DoWork) {
                 Name = "Serial sending",
@@ -187,16 +185,16 @@ namespace adrilight.Services.DataStream
             WinApi.TimeBeginPeriod(1);
             // The call has failed
             _workerThread.Start(_cancellationTokenSource.Token);
+            DeviceSettings.IsTransferActive = true;
         }
 
         public void Stop()
         {
+            DeviceSettings.IsTransferActive = false;
             Log.Information("Stop called for Serial Stream");
             if (_workerThread == null) return;
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource = null;
-            _workerThread?.Join();
-            _workerThread = null;
         }
 
         public bool IsRunning => _workerThread != null && _workerThread.IsAlive;
@@ -541,7 +539,7 @@ namespace adrilight.Services.DataStream
                     serialPort?.Dispose();
                     //allow the system some time to recover
                     Thread.Sleep(1000);
-                    DeviceSettings.IsTransferActive = false;
+                    Stop();
                 }
                 finally
                 {
@@ -550,9 +548,8 @@ namespace adrilight.Services.DataStream
                         serialPort.Close();
                         serialPort.Dispose();
                         Log.Information("SerialPort Disposed!");
+
                     }
-
-
                 }
 
             }

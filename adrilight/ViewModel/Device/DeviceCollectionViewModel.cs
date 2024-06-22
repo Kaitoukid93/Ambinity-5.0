@@ -87,7 +87,7 @@ namespace adrilight.ViewModel
             DeviceCardClickCommand = new RelayCommand<IGenericCollectionItem>((p) =>
             {
                 return true;
-            }, async (p) =>
+            },  (p) =>
             {
                 DeviceCardClicked?.Invoke(p);
             });

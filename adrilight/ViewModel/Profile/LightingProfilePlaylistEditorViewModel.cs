@@ -93,9 +93,9 @@ namespace adrilight.ViewModel.Profile
             Play = new RelayCommand<string>((p) =>
             {
                 return p != null;
-            }, (p) =>
+            }, async (p) =>
             {
-                _profileManager.ActivatePlaylist(Playlist);
+                await _profileManager.ActivatePlaylist(Playlist);
 
             });
             Stop = new RelayCommand<string>((p) =>
@@ -109,9 +109,9 @@ namespace adrilight.ViewModel.Profile
             PlayProfile = new RelayCommand<LightingProfile>((p) =>
             {
                 return p != null;
-            }, (p) =>
+            }, async (p) =>
             {
-                _profileManager.ActivateProfile(p);
+                await _profileManager.ActivateProfile(p);
 
             });
             DeleteProfile = new RelayCommand<LightingProfile>((p) =>

@@ -7,8 +7,9 @@
              xmlns:converters="clr-namespace:adrilight_shared.Converter;assembly=adrilight_shared"
              mc:Ignorable="d"
              xmlns:loadin="clr-namespace:LoadingIndicators.WPF;assembly=LoadingIndicators.WPF"
-             Background="{x:Null}"
+             xmlns:behavior="clr-namespace:adrilight_shared.Behavior;assembly=adrilight_shared"
              xmlns:viewmodel="clr-namespace:adrilight.ViewModel"
+             Background="{DynamicResource RegionBrush}"
              d:DataContext="{d:DesignInstance Type=viewmodel:DeviceSearchingDialogViewModel}">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -28,73 +29,172 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Border Width="400"
-            BorderThickness="1"
-            Height="400"
-            Margin="20"
-            BorderBrush="{DynamicResource BorderBrush}"
-            Effect="{DynamicResource EffectShadow4}"
-            CornerRadius="7"
-            Background="{DynamicResource RegionBrush}">
-        <Grid>
-
-            <Grid Margin="10,10,10,10">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-                <Grid Grid.Row="0">
-                    <Path HorizontalAlignment="Center"
-                          VerticalAlignment="Bottom"
-                          Data="{StaticResource usbIcon}"
-                          Margin="20"
-                          Width="55"
-                          Fill="#707070"
-                          Stretch="Uniform" />
-                    <loadin:LoadingIndicator Visibility="{Binding SearchingForDevices,Converter={StaticResource Boolean2VisibilityConverter}}"
-                                             Margin="0,32,25,0"
-                                             Width="100"
-                                             Height="100"
-                                             Name="Pulse"
-                                             SpeedRatio="1"
-                                             Foreground="{DynamicResource PrimaryBrush}"
-                                             IsActive="True"
-                                             Style="{DynamicResource LoadingIndicatorPulseStyle}"></loadin:LoadingIndicator>
-                    <Ellipse Visibility="{Binding SearchingForDevices,Converter={StaticResource Boolean2VisibilityConverter}}"
-                             Margin="0,32,25,0"
-                             Width="15"
-                             Height="15"
-                             Fill="{DynamicResource PrimaryBrush}" />
-                    <Path Visibility="{Binding SearchingForDevices,Converter={StaticResource Boolean2VisibilityReConverter}}"
-                          HorizontalAlignment="Center"
-                          VerticalAlignment="Center"
-                          Data="{StaticResource checkIcon}"
-                          Margin="25,40,25,5"
-                          Fill="{DynamicResource SuccessBrush}"
-                          Width="20"
-                          Stretch="Uniform" />
-                </Grid>
-                <Grid Grid.Row="1">
-                    <StackPanel VerticalAlignment="Top">
-                        <TextBlock HorizontalAlignment="Center"
-                                   Text="{Binding CurrentProgressHeader}"
-                                   Margin="20,0"
-                                   Style="{DynamicResource TextBlockSubTitle}" />
-                        <TextBlock TextAlignment="Center"
-                                   HorizontalAlignment="Center"
-                                   Text="{Binding CurrentProgressLog}"
-                                   Margin="20,5"
-                                   Style="{DynamicResource TextBlockDefaultSecLight}" />
-                        <!-- LoadingIndicatorPulseStyle -->
-                    </StackPanel>
-                    <Button Command="{Binding CloseSearchingScreenCommand}"
-                            CommandParameter="close"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom"
-                            Content="Hide" />
-                </Grid>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <StackPanel Margin="0,0,0,35">
+            <TextBlock Margin="5,5,5,0"
+                       Style="{DynamicResource TextBlockLarge}"
+                       Text="{Binding Header}" />
+            <!--<Border Width="120"
+                    Height="120"
+                    CornerRadius="7"
+                    Effect="{DynamicResource EffectShadow1}"
+                    Background="Transparent">
+                <loadin:LoadingIndicator HorizontalAlignment="Center"
+                                         VerticalAlignment="Center"
+                                         Margin="0,15,0,0"
+                                         Name="Pulse"
+                                         SpeedRatio="1"
+                                         Foreground="{DynamicResource PrimaryBrush}"
+                                         IsActive="True"
+                                         Style="{DynamicResource LoadingIndicatorRingStyle}"></loadin:LoadingIndicator>
+            </Border>-->
+            <Grid>
+                <Path HorizontalAlignment="Center"
+                      VerticalAlignment="Bottom"
+                      Data="{StaticResource usbIcon}"
+                      Margin="20"
+                      Width="55"
+                      Fill="#707070"
+                      Stretch="Uniform" />
+                <loadin:LoadingIndicator Visibility="{Binding ProgressBarVisibility}"
+                                         Margin="0,32,25,20"
+                                         Width="100"
+                                         Height="100"
+                                         Name="Pulse"
+                                         SpeedRatio="1"
+                                         Foreground="{DynamicResource PrimaryBrush}"
+                                         IsActive="True"
+                                         Style="{DynamicResource LoadingIndicatorPulseStyle}"></loadin:LoadingIndicator>
+                <Ellipse Visibility="{Binding ProgressBarVisibility}"
+                         Margin="0,32,25,20"
+                         Width="15"
+                         Height="15"
+                         Fill="{DynamicResource PrimaryBrush}" />
+                <Path Visibility="{Binding SuccessMesageVisibility}"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Data="{StaticResource checkIcon}"
+                      Margin="25,40,25,30"
+                      Fill="{DynamicResource SuccessBrush}"
+                      Width="20"
+                      Stretch="Uniform" />
             </Grid>
+            <Grid Visibility="{Binding ListDeviceEnable,Converter={StaticResource Boolean2VisibilityConverter}}">
+                <hc:TransitioningContentControl TransitionMode="Bottom2TopWithFade">
+
+
+                    <StackPanel>
+                        <TextBlock Margin="20,10"
+                                   HorizontalAlignment="Left"
+                                   Style="{DynamicResource TextBlockDefault}"
+                                   FontWeight="SemiBold"
+                                   Text="SELECT DEVICE">
+
+                        </TextBlock>
+                        <ListBox Background="Transparent"
+                                 Margin="10,0,10,0"
+                                 BorderThickness="0"
+                                 SelectedItem="{Binding SelectedDevice}"
+                                 ItemContainerStyle="{DynamicResource _listBoxColorSelectionStyle}"
+                                 ItemsSource="{Binding MatchedDevices}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource SecondaryRegionBrush}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Path Margin="5"
+                                                  Fill="{DynamicResource PrimaryTextBrush}"
+                                                  Data="{DynamicResource newfile}"
+                                                  Width="30"
+                                                  Stretch="Uniform"
+                                                  Height="30" />
+                                            <StackPanel Margin="5,5"
+                                                        Grid.Column="1">
+                                                <TextBlock Style="{DynamicResource TextBlockDefault}"
+                                                           FontWeight="SemiBold"
+                                                           HorizontalAlignment="Left"
+                                                           Text="{Binding Name}" />
+                                                <TextBlock Style="{DynamicResource TextBlockDefaultSecLight}"
+                                                           HorizontalAlignment="Left"
+                                                           Text="{Binding Attributes.Size,StringFormat='\{0:N0\} bytes'}" />
+                                            </StackPanel>
+
+                                        </Grid>
+
+                                    </Border>
+
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                        <Button Style="{DynamicResource ButtonPrimary}"
+                                Content="Select"
+                                Command="{Binding SelectDeviceCommand}"
+                                CommandParameter="select"
+                                HorizontalAlignment="Right"
+                                Margin="20,10">
+
+                        </Button>
+                    </StackPanel>
+                </hc:TransitioningContentControl>
+            </Grid>
+            <hc:Divider LineStroke="{DynamicResource BorderBrush}"
+                        LineStrokeThickness="1"
+                        Margin="10" />
+            <TextBlock Visibility="{Binding ProgressBarVisibility}"
+                       HorizontalAlignment="Left"
+                       Margin="20,0,0,5"
+                       Style="{DynamicResource TextBlockDefault}"
+                       FontSize="14"
+                       FontWeight="SemiBold"
+                       Text="{Binding CurrentProgressHeader}" />
+            <ProgressBar Visibility="{Binding ProgressBarVisibility}"
+                         Style="{DynamicResource ProgressBarFlat}"
+                         behavior:ProgressBarSmoother.SmoothValue="{Binding Value}"
+                         Margin="20,5,20,10"
+                         Grid.Row="1"
+                         Height="5"
+                         x:Name="Prog"
+                         Orientation="Horizontal" />
+            <TextBlock HorizontalAlignment="Left"
+                       Visibility="{Binding ProgressBarVisibility}"
+                       Margin="20,0,0,5"
+                       Style="{DynamicResource TextBlockDefaultSecLight}"
+                       Text="{Binding CurrentProgressLog}" />
+            <TextBlock Margin="10"
+                       Text="{Binding SuccessMessage}"
+                       TextWrapping="Wrap"
+                       Style="{DynamicResource TextBlockDefaultPrimary}"
+                       Visibility="{Binding SuccessMesageVisibility}" />
+        </StackPanel>
+        <Grid Grid.Row="2">
+            <StackPanel HorizontalAlignment="Right"
+                        Orientation="Horizontal">
+                <!--<Button Visibility="{Binding SuccessMesageVisibility}" Click="Button_Cancel_Click" Style="{DynamicResource _lowProfileDefaultButton}" Margin="10,10,10,20" Content="{Binding PrimaryActionButtonContent}">
+                    
+                </Button>-->
+                <Button Visibility="{Binding SuccessMesageVisibility}"
+                        Click="Button_OK_Click"
+                        Style="{DynamicResource ButtonPrimary}"
+                        Foreground="{DynamicResource RegionBrush}"
+                        Width="72"
+                        Margin="10,10,20,20"
+                        Grid.Column="1"
+                        Content="{Binding SecondaryActionButtonContent}">
+                </Button>
+            </StackPanel>
 
         </Grid>
-    </Border>
+    </Grid>
 </UserControl>

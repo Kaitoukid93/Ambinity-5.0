@@ -54,7 +54,7 @@ namespace adrilight.Ticker
         {
 
         }
-        public void Play(LightingProfilePlaylist playlist)
+        public async Task Play(LightingProfilePlaylist playlist)
         {
             var valid = playlist != null && playlist.LightingProfiles != null && playlist.LightingProfiles != null && playlist.LightingProfiles.Count > 0;
             if (!valid)
@@ -70,15 +70,15 @@ namespace adrilight.Ticker
             //ViewModel.CurrentProfileTime = 0;
             //MainViewModel.ActivateCurrentLightingProfile(_selectedPlaylist.CurrentPlayingLightingProfile);
             _currentPlayingProfile?.Stop();
-            ActivateCurrentLightingProfile(_selectedPlaylist.CurrentPlayingLightingProfile, true);
+            await ActivateCurrentLightingProfile(_selectedPlaylist.CurrentPlayingLightingProfile, true);
             IsRunning = true;
 
         }
-        public void Play(LightingProfile profile)
+        public async Task Play(LightingProfile profile)
         {
             _currentPlayingProfile?.Stop();
             _selectedPlaylist?.StopPlaylist();
-            ActivateCurrentLightingProfile(profile, false);
+            await ActivateCurrentLightingProfile(profile, false);
             IsRunning = false;
         }
         public void Play(LightingProfile profile, IDeviceSettings device)
@@ -184,7 +184,7 @@ namespace adrilight.Ticker
             Task.Run(() => device.ActivateControlMode(lightingMode));
             Log.Information("Lighting Profile Activated: " + profile.Name + " for " + device.DeviceName);
         }
-        private void ActivateCurrentLightingProfile(LightingProfile profile, bool isQeued)
+        private async Task ActivateCurrentLightingProfile(LightingProfile profile, bool isQeued)
         {
             if (profile == null)
                 return;
@@ -214,7 +214,7 @@ namespace adrilight.Ticker
                     continue;
                 device.TurnOnLED();
                 var lightingMode = ObjectHelpers.Clone<LightingMode>(profile.ControlMode as LightingMode);
-                device.ActivateControlMode(lightingMode);
+                await device.ActivateControlMode(lightingMode);
                 Log.Information("Lighting Profile Activated: " + profile.Name + " for " + device.DeviceName);
             }
         }

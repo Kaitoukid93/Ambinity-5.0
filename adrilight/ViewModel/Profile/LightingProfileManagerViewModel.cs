@@ -58,20 +58,20 @@ namespace adrilight.ViewModel.Profile
 
         #region Events
         //when profile or playlist card get clicked
-        private void OnProfileClicked(IGenericCollectionItem item)
+        private async void OnProfileClicked(IGenericCollectionItem item)
         {
             //play this profile
-            _profileManager.ActivateProfile(item as LightingProfile);
+           await _profileManager.ActivateProfile(item as LightingProfile);
         }
         private void OnPlaylistClicked(IGenericCollectionItem item)
         {
             //go to editor
             GotoPlaylistEditor(item);
         }
-        private void OnPlaylistPlayButtonClicked(IGenericCollectionItem item)
+        private async void OnPlaylistPlayButtonClicked(IGenericCollectionItem item)
         {
             //play this playlist
-            _profileManager.ActivatePlaylist(item as LightingProfilePlaylist);
+            await _profileManager.ActivatePlaylist(item as LightingProfilePlaylist);
         }
         #endregion
 

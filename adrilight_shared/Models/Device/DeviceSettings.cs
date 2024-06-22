@@ -503,14 +503,14 @@ namespace adrilight_shared.Models.Device
             }
             return childItems;
         }
-        public void ActivateControlMode(LightingMode lightingMode)
+        public async Task ActivateControlMode(LightingMode lightingMode)
         {
             if (lightingMode == null)
                 return;
             foreach (var device in AvailableLightingDevices)//possible replace with method from IOutputSettings
             {
                 var lightingDevice = device as ARGBLEDSlaveDevice;
-                lightingDevice.ActivateControlMode(lightingMode);
+                await Task.Run(() => lightingDevice.ActivateControlMode(lightingMode));
             }
             if (ControlZoneGroups != null)
             {
@@ -526,7 +526,7 @@ namespace adrilight_shared.Models.Device
                             foreach (var zone in zones)
                             {
                                 var ledZone = zone as LEDSetup;
-                                ledZone.CurrentActiveControlMode = lightingMode;
+                                await Task.Run(() => ledZone.CurrentActiveControlMode = lightingMode);
                             }
                         }
                     }

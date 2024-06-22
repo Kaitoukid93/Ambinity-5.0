@@ -50,7 +50,9 @@ namespace adrilight_shared.Services.AdrilightStoreService
         private FTPServerHelpers _ftpServer;
         private AppUser _appUser;
         private int _currentDownloadProgress;
-        public int CurrentDownloadProgress {
+        private IProgress<int> _progress;
+        public int CurrentDownloadProgress
+        {
             get { return _currentDownloadProgress; }
             set
             {
@@ -63,53 +65,42 @@ namespace adrilight_shared.Services.AdrilightStoreService
         #region Methods
         public void Init()
         {
-            IsInit = false;
-            if (_ftpServer != null && _ftpServer.sFTP.IsConnected)
+            _progress = new Progress<int>(percent =>
             {
-                _ftpServer.sFTP.Disconnect();
-            }
+                CurrentDownloadProgress = percent;
+            });
             string userName = _appUser.LoginName;
             string password = _appUser.LoginPassword;
             _ftpServer.sFTP = new SftpClient(host, 1512, userName, password);
+            _ftpServer.sFTP.Connect();
             IsInit = true;
-
         }
-        public bool Connect()
+        public void Dispose()
         {
-            if (_ftpServer == null)
-                return false;
-            if (_ftpServer.sFTP.IsConnected)
-                return false;
-            try
-            {
-                _ftpServer.sFTP.Connect();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                //show dialog
-                return false;
-
-            }
-        }
-        private void DownloadProgresBar(ulong uploaded)
-        {
-            // Update progress bar on foreground thread
-            CurrentDownloadProgress = (int)uploaded;
+            _ftpServer.sFTP.Dispose();
+            IsInit = false;
+            GC.SuppressFinalize(this);
         }
         //return saved path after download
         public string DownloadFile(SftpFile filePath)
         {
             ClearCacheFolder();
             var savePath = Path.Combine(CacheFolderPath, filePath.Name);
-            //_ftpServer.DownloadFile(filePath.FullName, savePath, DownloadProgresBar);
+            _ftpServer.DownloadFile(filePath.FullName, savePath, _progress);
             return savePath;
         }
         public void DownloadFile(SftpFile filePath, string savePath)
         {
             ClearCacheFolder();
-           // _ftpServer.DownloadFile(filePath.FullName, savePath, DownloadProgresBar);
+            // _ftpServer.DownloadFile(filePath.FullName, savePath, DownloadProgresBar);
         }
+        /// <summary>
+        /// return available files that meet the requirements (name, type, etc)
+        /// </summary>
+        /// <param name="deviceName"></param>
+        /// <param name="deviceType"></param>
+        /// <param name="connectionType"></param>
+        /// <returns></returns>
         public async Task<List<SftpFile>> DownloadDeviceInfo(string deviceName, string deviceType, DeviceConnectionTypeEnum connectionType)
         {
             var possibleMatchedDevices = new ObservableCollection<SftpFile>();
@@ -117,11 +108,6 @@ namespace adrilight_shared.Services.AdrilightStoreService
             {
                 Directory.CreateDirectory(CacheFolderPath);
             }
-            if (_ftpServer == null)
-                Init();
-            var available = Connect();
-            if (!available)
-                return null;
 
             SftpFile matchedFile = null;
             string deviceFolderPath = string.Empty;
@@ -136,9 +122,12 @@ namespace adrilight_shared.Services.AdrilightStoreService
                     deviceFolderPath = ambinoDevicesFolderPath + "/" + deviceType;
                     break;
             }
+            if (matchedFile != null)
+            {
+                new List<SftpFile>().Add(matchedFile);
+            }
             //return available device
-            var availableFiles = new List<SftpFile>();
-            availableFiles = await _ftpServer.GetAllFilesInFolder(deviceFolderPath);
+            var availableFiles = await _ftpServer.GetAllFilesInFolder(deviceFolderPath);
             return availableFiles;
         }
         public void ClearCacheFolder()

@@ -29,6 +29,7 @@ namespace adrilight.ViewModel.Dashboard
         {
 
             _deviceManager = deviceManager;
+            _deviceManager.NewDeviceAdded += OnNewDeviceAdded;
             _profileManager = profileManager;
             _automationManager = automationManager;
             PinnedDevices = new ObservableCollection<IGenericCollectionItem>();
@@ -40,6 +41,10 @@ namespace adrilight.ViewModel.Dashboard
         #endregion
 
         #region Events
+        private void OnNewDeviceAdded(IDeviceSettings device)
+        {
+            PinnedDevices.Add(device as DeviceSettings);
+        }
         #endregion
         #region Properties
         //private
@@ -84,7 +89,7 @@ namespace adrilight.ViewModel.Dashboard
             ItemClickCommand = new RelayCommand<IGenericCollectionItem>((p) =>
             {
                 return p != null;
-            }, (p) =>
+            }, async (p) =>
             {
                 if (p is DeviceSettings)
                 {
@@ -96,11 +101,11 @@ namespace adrilight.ViewModel.Dashboard
                 }
                 else if (p is LightingProfile)
                 {
-                    _profileManager.ActivateProfile(p as LightingProfile);
+                    await _profileManager.ActivateProfile(p as LightingProfile);
                 }
                 else if (p is AutomationSettings)
                 {
-                    _profileManager.ActivatePlaylist(p as LightingProfilePlaylist);
+                    await _profileManager.ActivatePlaylist(p as LightingProfilePlaylist);
                 }
 
 

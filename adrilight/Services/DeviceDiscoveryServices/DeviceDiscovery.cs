@@ -39,8 +39,8 @@ namespace adrilight.Services.DeviceDiscoveryServices
         {
             _generaSettings = settings ?? throw new ArgumentNullException(nameof(settings));
             _ambinityClient = ambinityClient ?? throw new ArgumentNullException(nameof(ambinityClient));
-           
-           
+
+
             if (_generaSettings.UsingOpenRGB)
             {
 
@@ -52,12 +52,14 @@ namespace adrilight.Services.DeviceDiscoveryServices
         private AmbinityClient _ambinityClient;
         private Thread _workerThread;
         private CancellationTokenSource _cancellationTokenSource;
-        
-        
-        private AdrilightDeviceManagerSFTPClient _sftpClient;
+        public bool IsRunning { get; set; }
         public void Start()
         {
             //if (App.IsPrivateBuild) return;
+            if (IsRunning)
+            {
+                return;
+            }
             _cancellationTokenSource = new CancellationTokenSource();
             _openRGBIsInit = false;
             _workerThread = new Thread(() => StartDiscovery(_cancellationTokenSource.Token)) {
@@ -70,7 +72,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
         }
         private async void StartDiscovery(CancellationToken token)
         {
-
+            IsRunning = true;
             while (!token.IsCancellationRequested)
             {
                 try
@@ -89,7 +91,7 @@ namespace adrilight.Services.DeviceDiscoveryServices
                 await Task.Delay(TimeSpan.FromSeconds(1));
             }
         }
-        
+
         private async Task ScanOpenRGBDevices()
         {
             if (!_ambinityClient.IsInitialized && !_ambinityClient.IsInitializing)
@@ -103,6 +105,8 @@ namespace adrilight.Services.DeviceDiscoveryServices
         private static object _syncRoot = new object();
         public void Stop()
         {
+            if (!IsRunning) return;
+            IsRunning = false;
             Log.Information("Stop called for Device Discovery");
             if (_workerThread == null) return;
             _cancellationTokenSource?.Cancel();
@@ -171,11 +175,35 @@ namespace adrilight.Services.DeviceDiscoveryServices
             {
                 Log.Warning("No Compatible Device Detected");
             }
-            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            var invalidDevice = new List<string>();
+            foreach (var device in devices)
             {
-                SerialDevicesScanComplete?.Invoke(devices);
-            });
-           
+                var _serialPort = new SerialPort(device, 1000000);
+                _serialPort.ReadTimeout = 5000;
+                _serialPort.WriteTimeout = 1000;
+                _serialPort.DtrEnable = true;
+                try
+                {
+                    _serialPort.Open();
+                    Thread.Sleep(1000);
+                    _serialPort.Close();
+                    _serialPort.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    // Log.Error(ex,"AcessDenied " + _serialPort.PortName);
+                    Log.Error(_serialPort.PortName + " is removed");
+                    invalidDevice.Add(device);
+                }
+            }
+            foreach (var device in invalidDevice)
+            {
+                devices.Remove(device);
+            }
+
+            SerialDevicesScanComplete?.Invoke(devices);
+
+
         }
     }
 }

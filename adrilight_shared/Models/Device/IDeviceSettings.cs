@@ -71,7 +71,7 @@ namespace adrilight_shared.Models.Device
         void ToggleOnOffLED();
         void SetStaticColor(ColorCard colors);
         void SetModeByEnumValue(LightingModeEnum value);
-        void ActivateControlMode(LightingMode lightingMode);
+        Task ActivateControlMode(LightingMode lightingMode);
         string DeviceFirmwareExtension { get; }
 
         ///hardware lighting///

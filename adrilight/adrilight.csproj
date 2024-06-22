@@ -431,7 +431,7 @@
     </Compile>
     <Compile Include="View\Screens\SurfaceEditor\PIDQuickEditNonClientAreaContent.xaml.cs" />
     <Compile Include="View\Screens\Debug\DebugNonClientAreaContent.xaml.cs" />
-    <Compile Include="View\Screens\DeviceDiscovery\DeviceSearchingScreen.xaml.cs" />
+    <Compile Include="View\Screens\DeviceDiscovery\DeviceSearchingDialog.xaml.cs" />
     <Compile Include="View\Screens\SurfaceEditor\SurfaceEditorNonClientAreaContent.xaml.cs" />
     <Compile Include="View\Screens\SurfaceEditor\PIDQuickEditWindow.xaml.cs" />
     <Compile Include="View\Screens\OOBExperience\DeviceOutputMapingView.xaml.cs" />

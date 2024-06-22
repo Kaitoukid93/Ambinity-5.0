@@ -56,17 +56,17 @@ namespace adrilight.Manager
             }
         }
         //play profile for all device
-        public void ActivateProfile(LightingProfile profile)
+        public async Task ActivateProfile(LightingProfile profile)
         {
-            _decoder.Play(profile);
+            await _decoder.Play(profile);
         }
         public void ActivateProfile(LightingProfile profile, IDeviceSettings targetDevice)
         {
 
         }
-        public void ActivatePlaylist(LightingProfilePlaylist playlist)
+        public async Task ActivatePlaylist(LightingProfilePlaylist playlist)
         {
-            _decoder.Play(playlist);
+            await _decoder.Play(playlist);
         }
         public void DeActivatePlaylist(LightingProfilePlaylist playlist)
         {

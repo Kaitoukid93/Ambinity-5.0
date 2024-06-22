@@ -10,11 +10,15 @@ using adrilight_shared.Services;
 using adrilight_shared.Services.AdrilightStoreService;
 using Newtonsoft.Json;
 using OpenRGB.NET.Models;
+using Renci.SshNet.Messages;
+using Renci.SshNet.Sftp;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -61,11 +65,16 @@ namespace adrilight.Manager
         private void OnSerialDevicesScanComplete(List<string> availableDevices)
         {
             //check if theres any old device existed
+            if (_isBusy)
+            {
+                return;
+            }
+            var vm = new DeviceSearchingDialogViewModel("New Device", null, null);
             foreach (var device in availableDevices)
             {
                 var matchDevs = CheckDeviceForExistence(device);
                 //there is an device existed with the exact comport
-                if (matchDevs.Count ==1)
+                if (matchDevs.Count == 1)
                 {
                     var matchDev = matchDevs.First();
                     //do nothing for an activated device
@@ -76,16 +85,21 @@ namespace adrilight.Manager
                 }
                 //if there is no device match. this is a new device
                 // call device discovery to get infomation about this new device
-                var vm = new DeviceSearchingDialogViewModel("New Device", null, null);
-                _dialogService.ShowDialog<DeviceSearchingDialogViewModel>(result =>
+                _isBusy = true;
+                
+                Task.Run(() => TryCreatenewDevice(device, vm));
+                System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+                {
+                    _dialogService.ShowDialog<DeviceSearchingDialogViewModel>(result =>
                 {
                     //try update the view if needed
+                    _isBusy = false;
 
                 }, vm);
-                var dev = Task.Run(() => TryCreatenewDevice(device, vm));
-
+                });
 
             }
+
         }
         #endregion
 
@@ -100,6 +114,7 @@ namespace adrilight.Manager
         private AdrilightDeviceManagerSFTPClient _sftpClient;
         private DeviceConnectionManager _deviceConnectionManager;
         private List<IDataStream> _dataStreams;
+        private bool _isBusy;
         public List<IDeviceSettings> AvailableDevices {
             get
             {
@@ -124,7 +139,6 @@ namespace adrilight.Manager
             await Task.Delay(500);
             loadingViewModel.Description = "Starting Device Discovery service";
             loadingViewModel.Progress = 90;
-            _discoveryService.Start();
             await Task.Delay(500);
             loadingViewModel.Progress = 100;
             await Task.Delay(500);
@@ -134,12 +148,9 @@ namespace adrilight.Manager
         {
             if (_dataStreams == null)
                 _dataStreams = new List<IDataStream>();
-            var existedStream = _dataStreams.Where(d => (d as SerialStream).Port == device.OutputPort).ToList();
-            if (existedStream.Count() > 0)
-            {
-                return;
-            }
-            var dataStream = _deviceConnectionManager.CreateDeviceStreamService(device);
+            var dataStream = _dataStreams.Where(d => d.ID == device.DeviceSerial).FirstOrDefault();
+            if (dataStream == null)
+                dataStream = _deviceConnectionManager.CreateDeviceStreamService(device);
             if (device.AutoConnect)
             {
                 dataStream.Init(device);
@@ -151,7 +162,7 @@ namespace adrilight.Manager
         {
             var matches = _availableDevices.Where(d => (d as DeviceSettings).OutputPort == comport).ToList();
 
-            return matches ;
+            return matches;
         }
         //add new device manually and add to available devices by type
 
@@ -163,9 +174,15 @@ namespace adrilight.Manager
         {
             _discoveryService?.Start();
         }
-        private void CreateNewDevice(DeviceType type)
+        public void SuspendDevice(IDeviceSettings device)
         {
-
+            var stream = _dataStreams.Where(d => d.ID == device.DeviceSerial).FirstOrDefault();
+            stream.Stop();
+        }
+        public void ResumeDevice(IDeviceSettings device)
+        {
+            var stream = _dataStreams.Where(d => d.ID == device.DeviceSerial).FirstOrDefault();
+            stream.Start();
         }
         //create new device by hand-shake to serial port
         private async Task<List<DeviceSettings>> LoadDeviceFromFolder(string folderPath, SplashScreenViewModel loadingViewModel)
@@ -189,7 +206,7 @@ namespace adrilight.Manager
                     _dbManager.DeserializeChild<ARGBLEDSlaveDevice>(lightingoutputDir, device, OutputTypeEnum.ARGBLEDOutput);
                     _dbManager.DeserializeChild<PWMMotorSlaveDevice>(pwmoutputDir, device, OutputTypeEnum.PWMOutput);
                     devices.Add(device);
-                    loadingViewModel.Progress += (50/maxDevCount);
+                    loadingViewModel.Progress += (50 / maxDevCount);
                     await Task.Delay(500);
                 }
                 catch (Exception ex)
@@ -198,13 +215,28 @@ namespace adrilight.Manager
                     loadingViewModel.Description = ex.Message;
                     continue;
                 }
-                
+
             }
             return devices;
         }
-        private async Task<IDeviceSettings> TryCreatenewDevice(string comPort, DeviceSearchingDialogViewModel vm)
+        private IDeviceSettings DownloadAndImportDevice(DeviceSearchingDialogViewModel vm, SftpFile file)
         {
-
+            if(file == null)
+                return null;
+            vm.Value = 30;
+            vm.CurrentProgressLog = "Downloading modules : " + file.Name;
+            var savePath = _sftpClient.DownloadFile(file);
+            var downloadedDevice = _dbManager.ImportDownloadedDevice(savePath);
+            vm.Value = 50;
+            if (downloadedDevice != null)
+            {
+                return downloadedDevice;
+            }
+            return null;
+        }
+        private async Task TryCreatenewDevice(string comPort, DeviceSearchingDialogViewModel vm)
+        {
+            IDeviceSettings device = new DeviceSettings();
             //get device info
             vm.CurrentProgressLog = "Requesting new device info...";
             string deviceName = null;
@@ -219,7 +251,7 @@ namespace adrilight.Manager
                 out deviceHardware,
                 out deviceHWL));
             if (!result)
-                return null;
+                return;
             //construct new device
             vm.CurrentProgressLog = "Device is " + deviceName;
             await Task.Delay(1000);
@@ -228,38 +260,61 @@ namespace adrilight.Manager
             vm.Value = 10;
             //check for online available
             vm.CurrentProgressLog = "Downloading device modules: " + deviceName;
+            if (!_sftpClient.IsInit)
+            {
+                _sftpClient.Init();
+            }
+            vm.Value = 20;
             var availableDevices = await _sftpClient.DownloadDeviceInfo(deviceName, deviceName.Replace(" ", string.Empty), DeviceConnectionTypeEnum.Wired);
             if (availableDevices.Count == 0)
             {
                 vm.CurrentProgressLog = "Using Default: " + deviceName;
-                return _deviceConstructor.ConstructNewSerialDevice(deviceName, deviceID, deviceFirmware, deviceHardware, deviceHWL, comPort);
+                vm.Value = 80;
+                device = _deviceConstructor.ConstructNewSerialDevice(deviceName, deviceID, deviceFirmware, deviceHardware, deviceHWL, comPort);
             }
             else if (availableDevices.Count == 1)
             {
-                vm.CurrentProgressLog = "Downloading modules : " + deviceName;
-                var onlineDevice = availableDevices.First();
-                var savePath = _sftpClient.DownloadFile(onlineDevice);
-                var downloadedDevice = _dbManager.ImportDevice(savePath);
-                if (downloadedDevice != null)
-                {
-                    downloadedDevice.OutputPort = comPort;
-                    downloadedDevice.FirmwareVersion = deviceFirmware;
-                    downloadedDevice.HardwareVersion = deviceHardware;
-                    downloadedDevice.DeviceSerial = deviceID;
-                    downloadedDevice.DeviceType.ConnectionTypeEnum = DeviceConnectionTypeEnum.Wired;
-                    return downloadedDevice;
-                }
-                return null;
+                device = DownloadAndImportDevice(vm, availableDevices[0]);
+
             }
             else if (availableDevices.Count > 1)
             {
+                vm.CurrentProgressLog = "Please select compatible device";
+                vm.ListDeviceEnable = true;
                 //show selection dialog
-                //get selection by result
-                //download module
-                //
-                return null;
+                vm.MatchedDevices = new ObservableCollection<SftpFile>();
+                foreach (var dev in availableDevices)
+                {
+                    vm.MatchedDevices.Add(dev);
+                }
+                vm.Value = 50;
+                while (!vm.IsDeviceSelected)
+                {
+                    await Task.Delay(100);
+                }
+                device = DownloadAndImportDevice(vm, vm.SelectedDevice);
+                vm.ListDeviceEnable = false;
             }
-            return null;
+
+            device.OutputPort = comPort;
+            device.DeviceSerial = deviceID;
+            device.FirmwareVersion = deviceFirmware;
+            device.HardwareVersion = deviceHardware;
+            device.HWL_version = deviceHWL;
+            RegisterDevice(device);
+            AvailableDevices.Add(device);
+            vm.Value = 80;
+            await Task.Delay(1000);
+            vm.Value = 100;
+            await Task.Delay(1000);
+            vm.ProgressBarVisibility = Visibility.Collapsed;
+            vm.SuccessMessage = "Device is up and running!";
+            vm.SecondaryActionButtonContent = "Done";
+            vm.SuccessMesageVisibility = Visibility.Visible;
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                NewDeviceAdded?.Invoke(device);
+            });
         }
 
     }

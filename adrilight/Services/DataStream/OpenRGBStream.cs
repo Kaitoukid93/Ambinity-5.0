@@ -28,6 +28,7 @@ namespace adrilight.Services.DataStream
         }
         //Dependency Injection//
         private IDeviceSettings DeviceSettings { get; set; }
+        public string ID { get; set; }
         private AmbinityClient _ambinityClient { get; }
         private int _frameRate = 60;
         public void Init(IDeviceSettings device)

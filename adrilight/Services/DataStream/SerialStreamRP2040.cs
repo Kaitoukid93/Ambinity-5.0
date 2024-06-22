@@ -47,6 +47,7 @@ namespace adrilight
             _hasPWMCOntroller = DeviceSettings.AvailablePWMOutputs != null && DeviceSettings.AvailablePWMOutputs.Count() > 0;
             RefreshTransferState();
         }
+        public string ID { get; set; }
         public void Init(IDeviceSettings device)
         {
 
