@@ -258,7 +258,6 @@
     <Compile Include="ViewModel\Automation\HotKeySelectionViewModel.cs" />
     <Compile Include="ViewModel\ColorEditingObject.cs" />
     <Compile Include="ViewModel\Dashboard\DashboardViewModel.cs" />
-    <Compile Include="ViewModel\Debug\DebugViewModel.cs" />
     <Compile Include="ViewModel\DeviceControl\ButtonParameterViewModel.cs" />
     <Compile Include="ViewModel\DeviceControl\ColorEditorViewModel.cs" />
     <Compile Include="ViewModel\DeviceControl\ColorPaletteCreatorViewModel.cs" />
@@ -930,6 +929,8 @@
       <Name>TimeLineTool</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="ViewModel\Debug\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

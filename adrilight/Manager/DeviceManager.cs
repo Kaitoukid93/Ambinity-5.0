@@ -13,6 +13,7 @@ using OpenRGB.NET.Models;
 using Renci.SshNet.Messages;
 using Renci.SshNet.Sftp;
 using Serilog;
+using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -62,32 +63,46 @@ namespace adrilight.Manager
             //if true, show searching screen
             //run device construct and device downloader as part of the process, loading bar always exist
         }
+        private IDataStream GetSerialStream(string port)
+        {
+            if(_dataStreams ==null)
+                return null;
+            return _dataStreams.Where(d=>(d as SerialStream).Port == port).FirstOrDefault();
+        }
+        private IDeviceSettings GetExistedDevice(string port)
+        {
+            return AvailableDevices.Where(d=>d.OutputPort == port).FirstOrDefault();
+        }
         private void NewDeviceFound(string device)
         {
+            _discoveryService.Hold();
             _isBusy = true;
             //check if theres any old device existed
-            var matchDevs = CheckDeviceForExistence(device);
-            //there is an device existed with the exact comport
-            if (matchDevs.Count == 1)
+            var existedDevice = GetExistedDevice(device);
+            if (existedDevice != null)
             {
-                var matchDev = matchDevs.First();
-                //do nothing for an activated device
-                //possible showing a connecting screen???...
-                RegisterDevice(matchDev);
+                //register to bring device into life
+                RegisterDevice(existedDevice);
+                //enable next device in Q to be added
                 _isBusy = false;
+                //resume discovery service 
+                _discoveryService.Resume();
                 return;
             }
+            
+           
             //if there is no device match. this is a new device
-            // call device discovery to get infomation about this new device
+            // try create new device
             var vm = new DeviceSearchingDialogViewModel("New Device", null, null);
             Task.Run(() => TryCreatenewDevice(device, vm));
             System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
             {
                 _dialogService.ShowDialog<DeviceSearchingDialogViewModel>(result =>
                 {
-                    //try update the view if needed
+                    //enable next device in Q to be added
                     _isBusy = false;
-
+                    //resume discovery service
+                    _discoveryService.Resume();
                 }, vm);
             });
 
@@ -99,13 +114,12 @@ namespace adrilight.Manager
             foreach (var device in availableDevices)
                 _newDevicesQ.Add(device);
             int count = 0;
-            _discoveryService.Hold();
             while (!_isBusy && count < _newDevicesQ.Count)
             {
                 NewDeviceFound(_newDevicesQ.ElementAt(count));
                 count++;
             }
-            _discoveryService.Resume();
+           
         }
         #endregion
 
@@ -155,7 +169,7 @@ namespace adrilight.Manager
         {
             if (_dataStreams == null)
                 _dataStreams = new List<IDataStream>();
-            var dataStream = _dataStreams.Where(d => d.ID == device.DeviceSerial).FirstOrDefault();
+            var dataStream = GetSerialStream(device.OutputPort);
             if (dataStream == null)
             {
                 dataStream = _deviceConnectionManager.CreateDeviceStreamService(device);
@@ -169,11 +183,12 @@ namespace adrilight.Manager
             }
             _lightingServiceManager.CreateLightingService(device);
         }
-        public List<IDeviceSettings> CheckDeviceForExistence(string comport)
+        public bool SerialStreamExisted (string comport)
         {
-            var matches = _availableDevices.Where(d => (d as DeviceSettings).OutputPort == comport).ToList();
-
-            return matches;
+            if (_dataStreams == null)
+                return false;
+            var result = _dataStreams.Any(d=>(d as SerialStream).Port == comport);
+            return result;
         }
         //add new device manually and add to available devices by type
 
@@ -187,13 +202,13 @@ namespace adrilight.Manager
         }
         public void SuspendDevice(IDeviceSettings device)
         {
-            var stream = _dataStreams.Where(d => d.ID == device.DeviceSerial).FirstOrDefault();
-            stream.Stop();
+            var stream = GetSerialStream(device.OutputPort);
+            stream?.Stop();
         }
         public void ResumeDevice(IDeviceSettings device)
         {
-            var stream = _dataStreams.Where(d => d.ID == device.DeviceSerial).FirstOrDefault();
-            stream.Start();
+            var stream = GetSerialStream(device.OutputPort);
+            stream?.Start();
         }
         //create new device by hand-shake to serial port
         private async Task<List<DeviceSettings>> LoadDeviceFromFolder(string folderPath, SplashScreenViewModel loadingViewModel)

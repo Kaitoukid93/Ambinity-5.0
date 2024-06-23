@@ -16,6 +16,8 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
+using static System.Net.WebRequestMethods;
 using Point = System.Windows.Point;
 
 namespace adrilight_shared.Models.Device.SlaveDevice
@@ -38,11 +40,40 @@ namespace adrilight_shared.Models.Device.SlaveDevice
             get => _rgbLEDOrder;
             set { Set(() => RGBLEDOrder, ref _rgbLEDOrder, value); }
         }
-
+        private BitmapImage StreamToImageSource(Stream stream, int width)
+        {
+            var memory = new MemoryStream();
+            BitmapImage bitmapimage = new BitmapImage();
+            stream.CopyTo(memory);
+            using (memory)
+            {
+                memory.Position = 0;
+                bitmapimage.BeginInit();
+                bitmapimage.DecodePixelWidth = width;
+                bitmapimage.StreamSource = memory;
+                bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapimage.EndInit();
+            }
+            bitmapimage.Freeze();
+            return bitmapimage;
+        }
+        [JsonIgnore]
+        public BitmapImage ThumbnailImage
+        {
+            get
+            {
+                var thumb = new BitmapImage();
+                using (var stream = new FileStream(Thumbnail,FileMode.Open))
+                {
+                    thumb = StreamToImageSource(stream,2000);
+                }
+                return thumb;
+            }
+        }
         [JsonIgnore]
         public string Thumbnail => Path.Combine(deviceDirectory, "thumbnail.png");
         [JsonIgnore]
-        public string ThumbnailWithColor => File.Exists(Path.Combine(deviceDirectory, "colored_thumbnail.png")) ? Path.Combine(deviceDirectory, "colored_thumbnail.png") : Path.Combine(deviceDirectory, "thumbnail.png");
+        public string ThumbnailWithColor => System.IO.File.Exists(Path.Combine(deviceDirectory, "colored_thumbnail.png")) ? Path.Combine(deviceDirectory, "colored_thumbnail.png") : Path.Combine(deviceDirectory, "thumbnail.png");
         public SlaveDeviceTypeEnum DeviceType { get; set; }
         public DeviceTypeEnum DesiredParrent { get; set; }
         public string Description { get; set; }

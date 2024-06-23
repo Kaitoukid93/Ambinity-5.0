@@ -114,11 +114,11 @@
                         <Grid>
                             <Image RenderTransformOrigin="0.5,0.5"
                                    Stretch="Uniform"
-                                   Source="{Binding Thumbnail}"
+                                   Source="{Binding ThumbnailImage}"
                                    Canvas.Left="{Binding Image.Left}"
                                    Canvas.Top="{Binding Image.Top}"
                                    Height="{Binding Image.Height}"
-                                   RenderOptions.BitmapScalingMode="HighQuality"
+                                   RenderOptions.BitmapScalingMode="LowQuality"
                                    Width="{Binding Image.Width}">
                                 <Image.LayoutTransform>
                                     <RotateTransform Angle="{Binding Image.Angle,Mode=TwoWay}" />

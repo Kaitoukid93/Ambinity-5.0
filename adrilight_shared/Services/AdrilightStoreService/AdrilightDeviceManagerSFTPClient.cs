@@ -142,6 +142,7 @@ namespace adrilight_shared.Services.AdrilightStoreService
                 dir.Delete(true);
             }
         }
+
         #endregion
 
         ///legacy data

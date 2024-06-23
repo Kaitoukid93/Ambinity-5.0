@@ -111,12 +111,7 @@ namespace adrilight.ViewModel
         #endregion
 
         #region Debug
-        public DebugViewModel DebugViewModel {
-            get
-            {
-                return kernel.Get<DebugViewModel>();
-            }
-        }
+    
         #endregion
 
         #region Device control 
