@@ -241,6 +241,16 @@
     <Compile Include="Manager\DeviceLightingServiceManager.cs" />
     <Compile Include="Manager\DeviceManager.cs" />
     <Compile Include="Manager\LightingProfileManager.cs" />
+    <Compile Include="Services\LightingEngine\GlobalLighting\GlobalLightingControlZone.cs" />
+    <Compile Include="Services\LightingEngine\GlobalLighting\GlobalLightingControlZoneCanvasView.xaml.cs">
+      <DependentUpon>GlobalLightingControlZoneCanvasView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Services\LightingEngine\GlobalLighting\GlobalLightingControlZoneViewModel.cs" />
+    <Compile Include="Services\LightingEngine\GlobalLighting\GlobalLightingPreset.cs" />
+    <Compile Include="Services\LightingEngine\GlobalLighting\GlobalLightingView.xaml.cs">
+      <DependentUpon>GlobalLightingView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Services\LightingEngine\GlobalLighting\GlobalLightingViewModel.cs" />
     <Compile Include="Services\LightingEngine\RunStateEnum.cs" />
     <Compile Include="Services\DataStream\SerialStreamRP2040.cs" />
     <Compile Include="Services\Ticker\PlaylistDecoder.cs" />
@@ -493,6 +503,14 @@
     <Page Include="Properties\DesignTimeResources.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Services\LightingEngine\GlobalLighting\GlobalLightingControlZoneCanvasView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Services\LightingEngine\GlobalLighting\GlobalLightingView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\DeviceCanvas\Adorners\AdornerView.xaml">
       <Generator>MSBuild:Compile</Generator>
